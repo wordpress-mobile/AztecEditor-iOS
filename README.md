@@ -21,7 +21,7 @@ To use the picker do the following:
 #import <WPMediaPicker/WPMediaPickerViewController.h>
 ````
 
-### Create and present WPMediaPickerController
+### Create and present WPMediaPickerViewController
 
 ```` objective
 WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
