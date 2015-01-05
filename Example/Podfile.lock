@@ -1,0 +1,14 @@
+PODS:
+  - WPMediaPicker (0.1.0)
+
+DEPENDENCIES:
+  - WPMediaPicker (from `../`)
+
+EXTERNAL SOURCES:
+  WPMediaPicker:
+    :path: ../
+
+SPEC CHECKSUMS:
+  WPMediaPicker: da81dcc34c87bc3d063074a22150236417a54929
+
+COCOAPODS: 0.35.0
