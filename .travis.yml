@@ -9,4 +9,4 @@ before_install: cd Example && pod install && cd -
 install:
 - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
 script:
-- set -o pipefail && xcodebuild test -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
+- set -o pipefail && xcodebuild build -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
