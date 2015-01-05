@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
                        * Capture of new media while selecting
                        DESC
   s.homepage         = "https://github.com/wordpress-mobile/WPMediaPicker"
-  s.screenshots      = "https://github.com/wordpress-mobile/WPMediaPicker/screenshots_1.jpg"
+  s.screenshots      = "https://raw.githubusercontent.com/wordpress-mobile/WPMediaPicker/master/screenshots_1.jpg"
   s.license          = 'MIT'
   s.author           = { "WordPress" => "mobile@automattic.com" }
   s.source           = { :git => "https://github.com/wordpress-mobile/WPMediaPicker.git", :tag => s.version.to_s }
