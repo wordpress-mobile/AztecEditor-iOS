@@ -157,7 +157,7 @@ static NSString * const ArrowDown = @"\u25be";
     
     NSString *title = [NSString stringWithFormat:@"%@ %@",(NSString *)[self.assetsGroup valueForProperty:ALAssetsGroupPropertyName], ArrowDown];
     [self.titleButton setTitle:title forState:UIControlStateNormal];
-
+    [self.titleButton sizeToFit];
     [self.assetsGroup enumerateAssetsWithOptions:self.showMostRecentFirst ? NSEnumerationReverse:0
                                       usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
                                           if (result){
