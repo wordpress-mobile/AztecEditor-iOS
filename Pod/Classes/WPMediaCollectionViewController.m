@@ -84,11 +84,6 @@ static NSString * const ArrowDown = @"\u25be";
 
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
