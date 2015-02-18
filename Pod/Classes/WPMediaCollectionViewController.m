@@ -18,6 +18,7 @@
 @property (nonatomic, strong) ALAsset *liveAsset;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
+@property (nonatomic, strong) UIPopoverController * popOverController;
 
 @end
 
@@ -91,17 +92,21 @@ static NSString * const ArrowDown = @"\u25be";
 
 #pragma mark - Actions
 
--(void)changeGroup:(UIBarButtonItem *)sender
+-(void)changeGroup:(UIButton *)sender
 {
     WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
     groupViewController.delegate = self;
     groupViewController.assetsLibrary = self.assetsLibrary;
     groupViewController.selectedGroup = self.assetsGroup;
-    UINavigationController * groupNavigationController = [[UINavigationController alloc] initWithRootViewController:groupViewController];
     
-    [self presentViewController:groupNavigationController animated:YES completion:^{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        self.popOverController = [[UIPopoverController alloc] initWithContentViewController:groupViewController];
+        [self.popOverController presentPopoverFromRect:[sender bounds] inView:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
         
-    }];
+    } else {
+        UINavigationController * groupNavigationController = [[UINavigationController alloc] initWithRootViewController:groupViewController];
+        [self presentViewController:groupNavigationController animated:YES completion:nil];
+    }
 }
 
 - (void)cancelPicker:(UIBarButtonItem *)sender
@@ -497,14 +502,23 @@ static NSString * const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(ALAssetsGroup *)group
 {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        [self.popOverController dismissPopoverAnimated:YES];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
     self.assetsGroup = group;
     [self loadData];
-    [self dismissViewControllerAnimated:YES completion:nil];
+
 }
 
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        [self.popOverController dismissPopoverAnimated:YES];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 @end
