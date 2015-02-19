@@ -35,6 +35,11 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     
+    if ([self respondsToSelector:@selector(popoverPresentationController)]
+        && self.popoverPresentationController) {
+        self.tableView.backgroundColor = [UIColor clearColor];
+    }
+    
     [self loadData];
 }
 
@@ -51,6 +56,8 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
         NSLog(@"Error: %@", [error localizedDescription]);
     }];
 }
+
+#pragma mark - UITableViewDataSource methods
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -79,6 +86,8 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
+    cell.backgroundColor = [UIColor clearColor];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     return cell;
 }
@@ -99,6 +108,8 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [self notifySelectionOfGroup];
 }
+
+#pragma mark - Callback methods
 
 - (void)cancelPicker:(UIBarButtonItem *)sender
 {

@@ -8,7 +8,7 @@
 @import MobileCoreServices;
 @import AVFoundation;
 
-@interface WPMediaCollectionViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, WPMediaGroupPickerViewControllerDelegate>
+@interface WPMediaCollectionViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, WPMediaGroupPickerViewControllerDelegate, UIPopoverPresentationControllerDelegate>
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
@@ -85,12 +85,13 @@ static NSString * const ArrowDown = @"\u25be";
 
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Actions
++ (BOOL) isiOS8OrAbove
+{
+    NSComparisonResult result = [[[UIDevice currentDevice] systemVersion] compare:@"8.0.0" options: NSNumericSearch];
+
+    return result == NSOrderedSame || result == NSOrderedDescending;
+}
 
 -(void)changeGroup:(UIButton *)sender
 {
@@ -99,7 +100,14 @@ static NSString * const ArrowDown = @"\u25be";
     groupViewController.assetsLibrary = self.assetsLibrary;
     groupViewController.selectedGroup = self.assetsGroup;
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    if ([[self class] isiOS8OrAbove]) {
+        groupViewController.modalPresentationStyle = UIModalPresentationPopover;
+        UIPopoverPresentationController * ppc = groupViewController.popoverPresentationController;
+        ppc.delegate = self;
+        ppc.sourceView = sender;
+        ppc.sourceRect = [sender bounds];
+        [self presentViewController:groupViewController animated:YES completion:nil];
+    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         self.popOverController = [[UIPopoverController alloc] initWithContentViewController:groupViewController];
         [self.popOverController presentPopoverFromRect:[sender bounds] inView:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
         
@@ -107,6 +115,11 @@ static NSString * const ArrowDown = @"\u25be";
         UINavigationController * groupNavigationController = [[UINavigationController alloc] initWithRootViewController:groupViewController];
         [self presentViewController:groupNavigationController animated:YES completion:nil];
     }
+}
+
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+    return  UIModalPresentationNone;
 }
 
 - (void)cancelPicker:(UIBarButtonItem *)sender
@@ -502,7 +515,8 @@ static NSString * const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(ALAssetsGroup *)group
 {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+        && ![[self class] isiOS8OrAbove]) {
         [self.popOverController dismissPopoverAnimated:YES];
     } else {
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -515,7 +529,8 @@ static NSString * const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+        && ![[self class] isiOS8OrAbove]) {
         [self.popOverController dismissPopoverAnimated:YES];
     } else {
         [self dismissViewControllerAnimated:YES completion:nil];
