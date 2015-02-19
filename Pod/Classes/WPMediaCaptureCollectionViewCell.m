@@ -22,7 +22,7 @@
     return self;
 }
 
-- (void) commonInit
+- (void)commonInit
 {
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(deviceOrientationDidChange:) name: UIDeviceOrientationDidChangeNotification object: nil];
@@ -45,7 +45,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) stopCaptureOnCompletion:(void (^)(void))block
+- (void)stopCaptureOnCompletion:(void (^)(void))block
 {
     if (!self.session) {
         return;
@@ -59,7 +59,7 @@
     });
 }
 
-- (void) startCapture
+- (void)startCapture
 {
     if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]!=AVAuthorizationStatusAuthorized && [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]!=AVAuthorizationStatusNotDetermined){
         return;

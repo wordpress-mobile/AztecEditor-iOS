@@ -4,7 +4,7 @@ static NSString * const ResourcesBundleName = @"WPMediaPicker";
 
 @implementation WPMediaPickerResources
 
-+ (NSBundle *) resourceBundle
++ (NSBundle *)resourceBundle
 {
     static NSBundle * _bundle = nil;
     static dispatch_once_t _onceToken;
@@ -15,7 +15,7 @@ static NSString * const ResourcesBundleName = @"WPMediaPicker";
     return _bundle;
 }
 
-+ (UIImage *) imageNamed:(NSString *) imageName withExtension:(NSString *)extension
++ (UIImage *)imageNamed:(NSString *) imageName withExtension:(NSString *)extension
 {
     NSString * path = [[self resourceBundle] pathForResource:imageName ofType:extension];
     UIImage * image = [UIImage imageWithContentsOfFile:path];

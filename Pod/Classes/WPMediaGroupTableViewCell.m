@@ -9,6 +9,7 @@ static CGFloat const WPMediaGroupTableViewCellImagePadding = 1.0;
 {
     return [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
 }
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];

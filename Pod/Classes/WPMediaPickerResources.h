@@ -3,8 +3,8 @@
 
 @interface WPMediaPickerResources : NSObject
 
-+ (NSBundle *) resourceBundle;
++ (NSBundle *)resourceBundle;
 
-+ (UIImage *) imageNamed:(NSString *) imageName withExtension:(NSString *)extension;
++ (UIImage *)imageNamed:(NSString *) imageName withExtension:(NSString *)extension;
 
 @end
