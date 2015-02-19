@@ -3,12 +3,21 @@
 
 @protocol WPMediaGroupPickerViewControllerDelegate;
 
+/**
+    The WPMediaGroupPickerViewController class creates a controller object that allows the user to view and select a ALAssetGroup ina table view.
+ */
 @interface WPMediaGroupPickerViewController : UITableViewController
 
 @property (nonatomic, weak) id<WPMediaGroupPickerViewControllerDelegate> delegate;
 
+/**
+ The group that is being displaying on the picker. If not set the picker will try to select the default Camera Roll group.
+ */
 @property (nonatomic, strong) ALAssetsGroup * selectedGroup;
 
+/**
+ The AssettLibrary that is being used to display the assets and groups. If not set the picker will create a new one.
+ */
 @property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
 
 @end
