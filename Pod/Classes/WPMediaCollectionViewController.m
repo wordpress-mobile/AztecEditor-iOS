@@ -86,7 +86,7 @@ static NSString * const ArrowDown = @"\u25be";
 }
 
 #pragma mark - Actions
-+ (BOOL) isiOS8OrAbove
++ (BOOL)isiOS8OrAbove
 {
     NSComparisonResult result = [[[UIDevice currentDevice] systemVersion] compare:@"8.0.0" options: NSNumericSearch];
 
@@ -251,7 +251,7 @@ static NSString * const ArrowDown = @"\u25be";
         return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
 }
 
-- (NSUInteger) findAsset:(ALAsset *)asset
+- (NSUInteger)findAsset:(ALAsset *)asset
 {
     NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         ALAsset * loopAsset = (ALAsset *)obj;
@@ -279,7 +279,7 @@ static NSString * const ArrowDown = @"\u25be";
     return YES;
 }
 
-- (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ALAsset * asset = self.assets[indexPath.item];
     if (self.liveAsset == asset) {
@@ -302,7 +302,7 @@ static NSString * const ArrowDown = @"\u25be";
     }
 }
 
-- (BOOL) collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ALAsset * asset = self.assets[indexPath.item];
     // you can always deselect the capture
@@ -316,7 +316,7 @@ static NSString * const ArrowDown = @"\u25be";
     return YES;
 }
 
-- (void) collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
+- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ALAsset * asset = self.assets[indexPath.item];
     // check if deselected the capture item
@@ -340,7 +340,7 @@ static NSString * const ArrowDown = @"\u25be";
     }
 }
 
-- (void) animateCellSelection:(UIView *)cell completion:(void(^)())completionBlock
+- (void)animateCellSelection:(UIView *)cell completion:(void(^)())completionBlock
 {
     [UIView animateKeyframesWithDuration:SelectAnimationTime delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
         [UIView addKeyframeWithRelativeStartTime:0 relativeDuration:SelectAnimationTime/2 animations:^{
@@ -356,7 +356,7 @@ static NSString * const ArrowDown = @"\u25be";
     }];
 }
 
-- (void) animateCaptureCellSelection:(UIView *)cell completion:(void(^)())completionBlock
+- (void)animateCaptureCellSelection:(UIView *)cell completion:(void(^)())completionBlock
 {
     [UIView animateKeyframesWithDuration:0.5 delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
         [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:1 animations:^{
@@ -374,13 +374,13 @@ static NSString * const ArrowDown = @"\u25be";
 
 #pragma mark - Media Capture
 
--(BOOL) isMediaDeviceAvailable
+- (BOOL)isMediaDeviceAvailable
 {
     // check if device is capable of capturing photos all together
     return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
 }
 
--(void) showMediaCaptureViewController
+- (void)showMediaCaptureViewController
 {
     UIImagePickerController * imagePickerController = [[UIImagePickerController alloc] init];
     imagePickerController.mediaTypes =
@@ -394,7 +394,7 @@ static NSString * const ArrowDown = @"\u25be";
     }];
 }
 
--(void) captureMedia
+- (void)captureMedia
 {
     NSString *mediaType = AVMediaTypeVideo;
     AVAuthorizationStatus authorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
@@ -430,7 +430,7 @@ static NSString * const ArrowDown = @"\u25be";
     });
 }
 
--(void) processMediaCaptured:(NSDictionary *)info
+- (void)processMediaCaptured:(NSDictionary *)info
 {
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]){
         UIImage * image = (UIImage *)info[UIImagePickerControllerOriginalImage];
@@ -462,7 +462,7 @@ static NSString * const ArrowDown = @"\u25be";
     }
 }
      
-- (void) addAsset:(ALAsset *)asset
+- (void)addAsset:(ALAsset *)asset
 {
     BOOL willBeSelected = YES;
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]){

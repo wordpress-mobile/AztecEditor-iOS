@@ -38,7 +38,7 @@
     [self setPosition:NSNotFound];
 }
 
-- (void) commonInit
+- (void)commonInit
 {
     _imageView = [[UIImageView alloc] init];
     self.backgroundView = _imageView;

@@ -12,12 +12,12 @@ static CGFloat const WPMediaGroupCellHeight = 100.0f;
 
 @implementation WPMediaGroupPickerViewController
 
-- (void) dealloc
+- (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (instancetype) init
+- (instancetype)init
 {
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
@@ -25,7 +25,7 @@ static CGFloat const WPMediaGroupCellHeight = 100.0f;
     return self;
 }
 
-- (void) viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
     
@@ -80,17 +80,17 @@ static CGFloat const WPMediaGroupCellHeight = 100.0f;
 
 #pragma mark - UITableViewDataSource methods
 
-- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return 1;
 }
 
-- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return self.assetGroups.count;
 }
 
-- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     WPMediaGroupTableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
@@ -137,7 +137,7 @@ static CGFloat const WPMediaGroupCellHeight = 100.0f;
     }
 }
 
-- (void) notifySelectionOfGroup
+- (void)notifySelectionOfGroup
 {
     if (!self.tableView.indexPathForSelectedRow) {
         return;
