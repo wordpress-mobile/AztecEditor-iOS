@@ -10,6 +10,11 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
 
 @implementation WPMediaGroupPickerViewController
 
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (instancetype) init
 {
     self = [super initWithStyle:UITableViewStylePlain];
@@ -26,24 +31,36 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     
     // configure table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
+    if ([self respondsToSelector:@selector(popoverPresentationController)]
+        && self.popoverPresentationController) {
+        self.tableView.backgroundColor = [UIColor clearColor];
+    }
+
     //Prepare data structures;
     if (!self.assetsLibrary) {
         self.assetsLibrary =  [[ALAssetsLibrary alloc] init];
     }
     self.assetGroups = [NSMutableArray array];
     
+    //Setup navigation
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     
-    if ([self respondsToSelector:@selector(popoverPresentationController)]
-        && self.popoverPresentationController) {
-        self.tableView.backgroundColor = [UIColor clearColor];
-    }
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
+
     [self loadData];
 }
 
-- (void) loadData
+- (void)handleLibraryNotification:(NSNotification *)note
+{
+    if (note.userInfo[ALAssetLibraryInsertedAssetGroupsKey]
+        || note.userInfo[ALAssetLibraryDeletedAssetGroupsKey]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self loadData];
+        });
+    }
+}
+
+- (void)loadData
 {
     [self.assetGroups removeAllObjects];
     [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
@@ -77,7 +94,8 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     }
     
     ALAssetsGroup * group = (ALAssetsGroup *)self.assetGroups[indexPath.row];
-    cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
+    UIImage * posterImage = [UIImage imageWithCGImage:[group posterImage]];
+    cell.imageView.image = posterImage;
     cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld",(long)[group numberOfAssets]];
     if ( [[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]] ) {
