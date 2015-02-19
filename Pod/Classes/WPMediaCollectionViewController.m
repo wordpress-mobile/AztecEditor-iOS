@@ -30,6 +30,11 @@ static CGFloat SelectAnimationTime = 0.2;
 static CGFloat MinimumCellSize = 105;
 static NSString * const ArrowDown = @"\u25be";
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (instancetype)init {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self = [self initWithCollectionViewLayout:layout];
@@ -81,8 +86,16 @@ static NSString * const ArrowDown = @"\u25be";
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
+    
     [self loadData];
+}
 
+- (void)handleLibraryNotification:(NSNotification *)note
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self loadData];
+    });
 }
 
 #pragma mark - Actions
