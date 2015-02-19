@@ -1,6 +1,8 @@
 #import "WPMediaGroupPickerViewController.h"
+#import "WPMediaGroupTableViewCell.h"
 
 static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
+static CGFloat const WPMediaGroupCellHeight = 100.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
@@ -35,7 +37,9 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
         && self.popoverPresentationController) {
         self.tableView.backgroundColor = [UIColor clearColor];
     }
-
+    [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
+    self.tableView.rowHeight = WPMediaGroupCellHeight;
+    
     //Prepare data structures;
     if (!self.assetsLibrary) {
         self.assetsLibrary =  [[ALAssetsLibrary alloc] init];
@@ -88,10 +92,7 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
 
 - (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:WPMediaGroupCellIdentifier];
-    if (!cell){
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:WPMediaGroupCellIdentifier];
-    }
+    WPMediaGroupTableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
     ALAssetsGroup * group = (ALAssetsGroup *)self.assetGroups[indexPath.row];
     UIImage * posterImage = [UIImage imageWithCGImage:[group posterImage]];
