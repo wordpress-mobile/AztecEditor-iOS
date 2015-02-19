@@ -75,11 +75,22 @@ static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld",(long)[group numberOfAssets]];
     if ( [[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]] ) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
     
     return cell;
+}
+
+- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSIndexPath * selectedPath = [self.tableView indexPathForSelectedRow];
+    if (selectedPath) {
+        UITableViewCell * cell = [self.tableView cellForRowAtIndexPath:selectedPath];
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+    return indexPath;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
