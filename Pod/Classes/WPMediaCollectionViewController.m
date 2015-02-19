@@ -2,12 +2,13 @@
 #import "WPMediaCollectionViewCell.h"
 #import "WPMediaCaptureCollectionViewCell.h"
 #import "WPMediaPickerViewController.h"
+#import "WPMediaGroupPickerViewController.h"
 
 @import AssetsLibrary;
 @import MobileCoreServices;
 @import AVFoundation;
 
-@interface WPMediaCollectionViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface WPMediaCollectionViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, WPMediaGroupPickerViewControllerDelegate, UIPopoverPresentationControllerDelegate>
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
@@ -16,6 +17,9 @@
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) ALAsset *liveAsset;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
+@property (nonatomic, strong) UIButton *titleButton;
+@property (nonatomic, strong) UIPopoverController * popOverController;
+
 @end
 
 @implementation WPMediaCollectionViewController
@@ -24,6 +28,7 @@ static CGFloat SpaceBetweenPhotos = 2.0f;
 static CGFloat NumberOfPhotosForLine = 3;
 static CGFloat SelectAnimationTime = 0.2;
 static CGFloat MinimumCellSize = 105;
+static NSString * const ArrowDown = @"\u25be";
 
 - (instancetype)init {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
@@ -39,7 +44,8 @@ static CGFloat MinimumCellSize = 105;
     return self;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     //Prepare data structures;
@@ -66,7 +72,11 @@ static CGFloat MinimumCellSize = 105;
     self.layout.minimumLineSpacing = SpaceBetweenPhotos;
     self.layout.sectionInset = UIEdgeInsetsMake(SpaceBetweenPhotos, 0, SpaceBetweenPhotos, 0);
     
-    //setup nav button
+    //setup navigation items
+    self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.titleView = self.titleButton;
+    
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
@@ -75,26 +85,51 @@ static CGFloat MinimumCellSize = 105;
 
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Actions
++ (BOOL) isiOS8OrAbove
+{
+    NSComparisonResult result = [[[UIDevice currentDevice] systemVersion] compare:@"8.0.0" options: NSNumericSearch];
 
-- (void) cancelPicker:(UIBarButtonItem *)sender
+    return result == NSOrderedSame || result == NSOrderedDescending;
+}
+
+-(void)changeGroup:(UIButton *)sender
+{
+    WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
+    groupViewController.delegate = self;
+    groupViewController.assetsLibrary = self.assetsLibrary;
+    groupViewController.selectedGroup = self.assetsGroup;
+    
+    if ([[self class] isiOS8OrAbove]) {
+        groupViewController.modalPresentationStyle = UIModalPresentationPopover;
+        UIPopoverPresentationController * ppc = groupViewController.popoverPresentationController;
+        ppc.delegate = self;
+        ppc.sourceView = sender;
+        ppc.sourceRect = [sender bounds];
+        [self presentViewController:groupViewController animated:YES completion:nil];
+    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        self.popOverController = [[UIPopoverController alloc] initWithContentViewController:groupViewController];
+        [self.popOverController presentPopoverFromRect:[sender bounds] inView:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        
+    } else {
+        UINavigationController * groupNavigationController = [[UINavigationController alloc] initWithRootViewController:groupViewController];
+        [self presentViewController:groupNavigationController animated:YES completion:nil];
+    }
+}
+
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+    return  UIModalPresentationNone;
+}
+
+- (void)cancelPicker:(UIBarButtonItem *)sender
 {
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]){
         [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
     }
 }
 
-- (void) finishPicker:(UIBarButtonItem *)sender
+- (void)finishPicker:(UIBarButtonItem *)sender
 {
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]){
         [self.picker.delegate mediaPickerController:self.picker didFinishPickingAssets:[self.selectedAssets copy]];
@@ -102,7 +137,7 @@ static CGFloat MinimumCellSize = 105;
    
 }
 
-- (WPMediaPickerViewController *) picker
+- (WPMediaPickerViewController *)picker
 {
     return (WPMediaPickerViewController *)self.navigationController.parentViewController;
 }
@@ -114,33 +149,43 @@ static CGFloat MinimumCellSize = 105;
 
 #pragma mark - UICollectionViewDataSource
 
-- (void) loadData
+- (void)loadData
 {
     [self.assets removeAllObjects];
-    [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-        self.assetsGroup = group;
-        if(!group){
-            return;
-        }
-        self.navigationItem.title = (NSString *)[group valueForProperty:ALAssetsGroupPropertyName];
-        [self.assetsGroup enumerateAssetsWithOptions:self.showMostRecentFirst ? NSEnumerationReverse:0
-                                          usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
-            if (result){
-                [self.assets addObject:result];
-            } else {
-                if ([self isShowingCaptureCell]){
-                    NSInteger insertPosition = self.showMostRecentFirst ? 0 : self.assets.count;
-                    [self.assets insertObject:self.liveAsset atIndex:insertPosition];
-                }
-                [self.collectionView reloadData];
-                NSInteger sectionToScroll = 0;
-                NSInteger itemToScroll = self.showMostRecentFirst ? 0 :self.assets.count-1;
-                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+    
+    if (!self.assetsGroup) {
+        [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+            if(!group){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self loadData];
+                });
+                return;
             }
-        }];        
-    } failureBlock:^(NSError *error) {
-        NSLog(@"Error: %@", [error localizedDescription]);
-    }];
+            self.assetsGroup = group;
+        } failureBlock:^(NSError *error) {
+            NSLog(@"Error: %@", [error localizedDescription]);
+        }];
+        return;
+    }
+    
+    NSString *title = [NSString stringWithFormat:@"%@ %@",(NSString *)[self.assetsGroup valueForProperty:ALAssetsGroupPropertyName], ArrowDown];
+    [self.titleButton setTitle:title forState:UIControlStateNormal];
+    [self.titleButton sizeToFit];
+    [self.assetsGroup enumerateAssetsWithOptions:self.showMostRecentFirst ? NSEnumerationReverse:0
+                                      usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                                          if (result){
+                                              [self.assets addObject:result];
+                                          } else {
+                                              if ([self isShowingCaptureCell]){
+                                                  NSInteger insertPosition = self.showMostRecentFirst ? 0 : self.assets.count;
+                                                  [self.assets insertObject:self.liveAsset atIndex:insertPosition];
+                                              }
+                                              [self.collectionView reloadData];
+                                              NSInteger sectionToScroll = 0;
+                                              NSInteger itemToScroll = self.showMostRecentFirst ? 0 :self.assets.count-1;
+                                              [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+                                          }
+                                      }];
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -466,4 +511,29 @@ static CGFloat MinimumCellSize = 105;
     }];
 }
 
+#pragma mark - WPMediaGroupViewControllerDelegate
+
+- (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(ALAssetsGroup *)group
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+        && ![[self class] isiOS8OrAbove]) {
+        [self.popOverController dismissPopoverAnimated:YES];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    self.assetsGroup = group;
+    [self loadData];
+
+}
+
+
+- (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+        && ![[self class] isiOS8OrAbove]) {
+        [self.popOverController dismissPopoverAnimated:YES];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
 @end
