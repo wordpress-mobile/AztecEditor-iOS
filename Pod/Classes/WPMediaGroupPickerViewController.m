@@ -2,7 +2,7 @@
 #import "WPMediaGroupTableViewCell.h"
 
 static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
-static CGFloat const WPMediaGroupCellHeight = 100.0f;
+static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
@@ -99,15 +99,17 @@ static CGFloat const WPMediaGroupCellHeight = 100.0f;
     cell.imageView.image = posterImage;
     cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld",(long)[group numberOfAssets]];
+    cell.backgroundColor = [UIColor clearColor];
+    cell.textLabel.backgroundColor = [UIColor clearColor];
+    cell.detailTextLabel.backgroundColor = [UIColor clearColor];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
     if ( [[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]] ) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
         [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
-    cell.backgroundColor = [UIColor clearColor];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
     return cell;
 }
 

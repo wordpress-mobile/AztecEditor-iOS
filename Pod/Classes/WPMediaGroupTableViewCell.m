@@ -1,7 +1,7 @@
 
 #import "WPMediaGroupTableViewCell.h"
 
-static CGFloat const WPMediaGroupTableViewCellImagePadding = 1.0;
+static CGFloat const WPMediaGroupTableViewCellImagePadding = 2.0;
 
 @implementation WPMediaGroupTableViewCell
 
