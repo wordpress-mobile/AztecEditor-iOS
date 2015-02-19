@@ -63,7 +63,6 @@ static NSString * const ArrowDown = @"\u25be";
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
-    self.collectionView.backgroundColor = [UIColor whiteColor];
     
     // Register cell classes
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
