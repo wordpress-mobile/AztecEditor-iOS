@@ -70,7 +70,7 @@ public class MediaSourceDeviceImages implements MediaSource {
                     try {
                         createMediaItems();
                         success = true;
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                     }
                     return null;
                 }
