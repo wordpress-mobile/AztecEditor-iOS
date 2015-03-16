@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v13:21.0.2'
+    compile 'com.android.support:support-v13:22.0.0'
     compile 'com.mcxiaoke.volley:library:1.0.10'
 
     androidTestCompile 'junit:junit:4.10'
@@ -38,12 +38,12 @@ dependencies {
 android {
     publishNonDefault true
 
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.0"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 6
         versionName "1.1.4"
     }
