@@ -1,8 +1,7 @@
 package org.wordpress.mediapicker.source;
 
-import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
@@ -20,7 +19,6 @@ import org.wordpress.mediapicker.MediaUtils;
 import org.wordpress.mediapicker.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,46 +42,53 @@ public class MediaSourceDeviceImages implements MediaSource {
             MediaStore.Images.Media.ORIENTATION
     };
 
-    private final List<MediaItem> mMediaItems;
+    protected final List<MediaItem> mMediaItems;
 
-    private OnMediaChange mListener;
-    private ContentResolver mContentResolver;
-    private boolean mGatheringMedia;
+    protected Context               mContext;
+
+    private OnMediaChange                 mListener;
+    private AsyncTask<Void, String, Void> mGatheringTask;
 
     public MediaSourceDeviceImages() {
         mMediaItems = new ArrayList<>();
-        mGatheringMedia = false;
     }
 
-    public MediaSourceDeviceImages(final ContentResolver contentResolver) {
-        this();
-        mContentResolver = contentResolver;
+    protected List<MediaItem> createMediaItems() {
+        Cursor thumbnailCursor = MediaUtils.getMediaStoreThumbnails(mContext.getContentResolver(),
+                THUMBNAIL_QUERY_COLUMNS);
+        Map<String, String> thumbnailData = MediaUtils.getMediaStoreThumbnailData(thumbnailCursor,
+                MediaStore.Images.Thumbnails.DATA,
+                MediaStore.Images.Thumbnails.IMAGE_ID);
+
+        return MediaUtils.createMediaItems(thumbnailData,
+                MediaStore.Images.Media.query(mContext.getContentResolver(),
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                IMAGE_QUERY_COLUMNS, null, null,
+                MediaStore.MediaColumns.DATE_MODIFIED + " DESC"),
+                MediaUtils.BackgroundFetchThumbnail.TYPE_IMAGE);
     }
 
     @Override
-    public void gather() {
-        if (!mGatheringMedia) {
-            new AsyncTask<Void, String, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    createMediaItems();
-                    return null;
-                }
-
-                @Override
-                public void onPostExecute(Void result) {
-                    if (mListener != null) {
-                        mListener.onMediaLoaded(true);
-                    }
-                }
-            }.execute();
-
-            mGatheringMedia = true;
+    public void gather(Context context) {
+        // cancel the current gather task
+        if (mGatheringTask != null) {
+            mGatheringTask.cancel(true);
         }
+
+        // store reference to latest Context
+        mContext = context;
+
+        // start gathering
+        mGatheringTask = new GatherDeviceImagesTask();
+        mGatheringTask.execute();
     }
 
     @Override
     public void cleanup() {
+        if (mGatheringTask != null) {
+            // cancel gathering media data immediately, do not wait for the task to finish
+            mGatheringTask.cancel(true);
+        }
         mMediaItems.clear();
     }
 
@@ -99,7 +104,7 @@ public class MediaSourceDeviceImages implements MediaSource {
 
     @Override
     public MediaItem getMedia(int position) {
-        return mMediaItems.size() > 0 ? mMediaItems.get(position) : null;
+        return (position < mMediaItems.size()) ? mMediaItems.get(position) : null;
     }
 
     @Override
@@ -108,11 +113,16 @@ public class MediaSourceDeviceImages implements MediaSource {
             convertView = inflater.inflate(R.layout.media_item_image, parent, false);
         }
 
-        if (convertView != null) {
-            final MediaItem mediaItem = mMediaItems.get(position);
-            final Uri imageSource = (mediaItem.getPreviewSource() != null && !mediaItem.getPreviewSource().toString().isEmpty())
-                    ? mediaItem.getPreviewSource() : mediaItem.getSource();
+        final MediaItem mediaItem = mMediaItems.get(position);
+        if (convertView != null && mediaItem != null) {
             final ImageView imageView = (ImageView) convertView.findViewById(R.id.image_view_background);
+            final Uri imageSource;
+            if (mediaItem.getPreviewSource() != null && !mediaItem.getPreviewSource().toString().isEmpty()) {
+                imageSource = mediaItem.getPreviewSource();
+            } else {
+                imageSource = mediaItem.getSource();
+            }
+
             if (imageView != null) {
                 int width = imageView.getWidth();
                 int height = imageView.getHeight();
@@ -123,13 +133,15 @@ public class MediaSourceDeviceImages implements MediaSource {
                         public boolean onPreDraw() {
                             int width = imageView.getWidth();
                             int height = imageView.getHeight();
-                            setImage(imageSource, cache, imageView, mediaItem, width, height);
+                            MediaUtils.fadeMediaItemImageIntoView(imageSource, cache, imageView, mediaItem,
+                                    width, height, MediaUtils.BackgroundFetchThumbnail.TYPE_IMAGE);
                             imageView.getViewTreeObserver().removeOnPreDrawListener(this);
                             return true;
                         }
                     });
                 } else {
-                    setImage(imageSource, cache, imageView, mediaItem, width, height);
+                    MediaUtils.fadeMediaItemImageIntoView(imageSource, cache, imageView, mediaItem,
+                            width, height, MediaUtils.BackgroundFetchThumbnail.TYPE_IMAGE);
                 }
             }
         }
@@ -145,139 +157,78 @@ public class MediaSourceDeviceImages implements MediaSource {
     /**
      * Clears the current media items then adds the provided items.
      */
-    private void setMediaItems(List<MediaItem> mediaItems) {
+    protected void setMediaItems(List<MediaItem> mediaItems) {
         mMediaItems.clear();
         mMediaItems.addAll(mediaItems);
     }
 
-    private void setImage(Uri imageSource, ImageLoader.ImageCache cache, ImageView imageView, MediaItem mediaItem, int width, int height) {
-        if (imageSource != null) {
-            Bitmap imageBitmap = null;
-            if (cache != null) {
-                imageBitmap = cache.getBitmap(imageSource.toString());
-            }
-
-            if (imageBitmap == null) {
-                imageView.setImageResource(R.drawable.media_item_placeholder);
-                MediaUtils.BackgroundFetchThumbnail bgDownload =
-                        new MediaUtils.BackgroundFetchThumbnail(imageView,
-                                cache,
-                                MediaUtils.BackgroundFetchThumbnail.TYPE_IMAGE,
-                                width,
-                                height,
-                                mediaItem.getRotation());
-                imageView.setTag(bgDownload);
-                bgDownload.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, imageSource);
-            } else {
-                MediaUtils.fadeInImage(imageView, imageBitmap);
-            }
-        } else {
-            imageView.setTag(null);
-            imageView.setImageResource(R.drawable.ic_now_wallpaper_white);
+    /**
+     * Invokes
+     * {@link org.wordpress.mediapicker.source.MediaSource.OnMediaChange#onMediaLoaded(boolean)}
+     * if {@link #mListener} is not null.
+     *
+     * @param success
+     * passthrough parameter
+     */
+    protected void notifyMediaLoaded(boolean success) {
+        if (mListener != null) {
+            mListener.onMediaLoaded(success);
         }
     }
 
     /**
-     * Helper method; creates {@link org.wordpress.mediapicker.MediaItem}'s from MediaStore data
+     * Gathers media items on a background thread.
      */
-    private void createMediaItems() {
-        final List<String> imageIds = new ArrayList<>();
-        final Map<String, String> thumbnailData = getImageThumbnailData();
+    protected class GatherDeviceImagesTask extends AsyncTask<Void, String, Void> {
+        @Override
+        protected void onPreExecute() {
+            // delete references to any existing media items before gathering
+            mMediaItems.clear();
+        }
 
-        Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = MediaStore.Images.Media.query(mContentResolver, imageUri, IMAGE_QUERY_COLUMNS, null,
-                null, MediaStore.MediaColumns.DATE_MODIFIED + " DESC");
+        @Override
+        protected Void doInBackground(Void... params) {
+            mMediaItems.addAll(createMediaItems());
+            return null;
+        }
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    MediaItem newContent = getMediaItemFromCursor(cursor, thumbnailData);
+        @Override
+        protected void onPostExecute(Void result) {
+            notifyMediaLoaded(true);
+            nullGatheringReference();
+        }
 
-                    if (newContent != null && !imageIds.contains(newContent.getTag())) {
-                        mMediaItems.add(newContent);
-                        imageIds.add(newContent.getTag());
-                    }
-                } while (cursor.moveToNext());
+        @Override
+        protected void onCancelled(Void result) {
+            nullGatheringReference();
+        }
+
+        /**
+         * Sets MediaSourceDeviceImages.this.mGatheringTask to null if it's referencing this.
+         */
+        protected void nullGatheringReference() {
+            if (mGatheringTask == this) {
+                mGatheringTask = null;
             }
-
-            cursor.close();
         }
     }
 
     /**
-     * Helper method; creates a {@link java.util.Map} of media IDs to thumbnail data
-     * @return
-     * thumbnail data map
+     * {@link android.os.Parcelable} interface
      */
-    private Map<String, String> getImageThumbnailData() {
-        final Map<String, String> data = new HashMap<>();
-        Cursor thumbnailCursor = MediaUtils.getMediaStoreThumbnails(mContentResolver, THUMBNAIL_QUERY_COLUMNS);
-
-        if (thumbnailCursor != null) {
-            if (thumbnailCursor.moveToFirst()) {
-                do {
-                    int thumbnailColumnIndex = thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-                    int imageIdColumnIndex = thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
-
-                    if (thumbnailColumnIndex != -1 && imageIdColumnIndex != -1) {
-                        data.put(thumbnailCursor.getString(imageIdColumnIndex), thumbnailCursor.getString(thumbnailColumnIndex));
-                    }
-                } while (thumbnailCursor.moveToNext());
-            }
-
-            thumbnailCursor.close();
-        }
-
-        return data;
-    }
-
-    /**
-     * Helper method; creates a {@link org.wordpress.mediapicker.MediaItem} from cursor data
-     */
-    private MediaItem getMediaItemFromCursor(Cursor imageCursor, Map<String, String> thumbnailData) {
-        MediaItem newContent = null;
-
-        int imageIdColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
-        int imageDataColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-        int imageOrientationColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION);
-
-        if (imageIdColumnIndex != -1) {
-            newContent = new MediaItem();
-            newContent.setTag(imageCursor.getString(imageIdColumnIndex));
-            newContent.setTitle("");
-
-            if (imageDataColumnIndex != -1) {
-                newContent.setSource(Uri.parse(imageCursor.getString(imageDataColumnIndex)));
-            }
-            if (thumbnailData.containsKey(newContent.getTag())) {
-                newContent.setPreviewSource(Uri.parse(thumbnailData.get(newContent.getTag())));
-            }
-            if (imageOrientationColumnIndex != -1) {
-                newContent.setRotation(imageCursor.getInt(imageOrientationColumnIndex));
-            }
-        }
-
-        return newContent;
-    }
-
-    /*
-        Parcelable interface
-    */
 
     public static final Creator<MediaSourceDeviceImages> CREATOR =
             new Creator<MediaSourceDeviceImages>() {
                 public MediaSourceDeviceImages createFromParcel(Parcel in) {
                     List<MediaItem> parcelData = new ArrayList<>();
                     in.readTypedList(parcelData, MediaItem.CREATOR);
+                    MediaSourceDeviceImages newItem = new MediaSourceDeviceImages();
 
                     if (parcelData.size() > 0) {
-                        MediaSourceDeviceImages newItem = new MediaSourceDeviceImages();
                         newItem.setMediaItems(parcelData);
-
-                        return newItem;
                     }
 
-                    return null;
+                    return newItem;
                 }
 
                 public MediaSourceDeviceImages[] newArray(int size) {
@@ -292,8 +243,6 @@ public class MediaSourceDeviceImages implements MediaSource {
 
     @Override
     public void writeToParcel(Parcel destination, int flags) {
-        if (mMediaItems != null) {
-            destination.writeTypedList(mMediaItems);
-        }
+        destination.writeTypedList(mMediaItems);
     }
 }

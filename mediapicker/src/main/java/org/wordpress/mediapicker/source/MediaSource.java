@@ -1,5 +1,6 @@
 package org.wordpress.mediapicker.source;
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,15 @@ public interface MediaSource extends Parcelable {
      * Interface offered for any class to implement a listener for data set changes.
      */
     public interface OnMediaChange {
+        /**
+         * To be called after all initial {@link org.wordpress.mediapicker.MediaItem}s have been
+         * gathered following a call to {@link #gather(android.content.Context)}.
+         *
+         * @param success
+         * if false an error message will be displayed in lieu of the media views
+         */
         public void onMediaLoaded(boolean success);
+
         /**
          * To be called when new MediaItems have been added to the source.
          *
@@ -54,7 +63,7 @@ public interface MediaSource extends Parcelable {
     }
 
     // Load MediaItem data
-    public void gather();
+    public void gather(Context context);
     // Destroy MediaItem data
     public void cleanup();
     // Can be ignored if no listener is needed

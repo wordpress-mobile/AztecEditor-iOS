@@ -4,6 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@color/grey" />
+        android:drawable="@color/light_blue" />
 
 </selector>

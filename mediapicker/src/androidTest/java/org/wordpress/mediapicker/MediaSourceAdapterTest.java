@@ -45,7 +45,7 @@ public class MediaSourceAdapterTest {
     @Test
     public void testViewTypeCountWithOneSource() {
         final ArrayList<MediaSource> testSources = new ArrayList<>();
-        testSources.add(new MediaSourceDeviceImages(mock(ContentResolver.class)));
+        testSources.add(new MediaSourceDeviceImages());
 
         final MediaSourceAdapter testAdapter = new MediaSourceAdapter(Robolectric.application, testSources, null);
 
@@ -58,8 +58,8 @@ public class MediaSourceAdapterTest {
     @Test
     public void testViewTypeCountWithManySources() {
         final ArrayList<MediaSource> testSources = new ArrayList<>();
-        testSources.add(new MediaSourceDeviceImages(mock(ContentResolver.class)));
-        testSources.add(new MediaSourceDeviceVideos(mock(ContentResolver.class)));
+        testSources.add(new MediaSourceDeviceImages());
+        testSources.add(new MediaSourceDeviceVideos());
 
         final MediaSourceAdapter testAdapter = new MediaSourceAdapter(Robolectric.application, testSources, null);
 

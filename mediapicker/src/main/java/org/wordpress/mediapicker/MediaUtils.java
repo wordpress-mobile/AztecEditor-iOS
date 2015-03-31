@@ -17,7 +17,9 @@ import com.android.volley.toolbox.ImageLoader;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MediaUtils {
     private static final long FADE_TIME_MS = 250;
@@ -40,20 +42,99 @@ public class MediaUtils {
     }
 
     public static Cursor getMediaStoreThumbnails(ContentResolver contentResolver, String[] columns) {
+        if (contentResolver == null) return null;
         Uri thumbnailUri = MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI;
         return MediaStore.Images.Thumbnails.query(contentResolver, thumbnailUri, columns);
     }
 
     public static Cursor getDeviceMediaStoreVideos(ContentResolver contentResolver, String[] columns) {
+        if (contentResolver == null) return null;
         Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         return MediaStore.Video.query(contentResolver, videoUri, columns);
+    }
+
+    public static Map<String, String> getMediaStoreThumbnailData(Cursor thumbnailCursor,
+                                                                 String dataColumnName,
+                                                                 String idColumnName) {
+        final Map<String, String> data = new HashMap<>();
+
+        if (thumbnailCursor != null) {
+            if (thumbnailCursor.moveToFirst()) {
+                do {
+                    int dataColumnIndex = thumbnailCursor.getColumnIndex(dataColumnName);
+                    int imageIdColumnIndex = thumbnailCursor.getColumnIndex(idColumnName);
+
+                    if (dataColumnIndex != -1 && imageIdColumnIndex != -1) {
+                        data.put(thumbnailCursor.getString(imageIdColumnIndex),
+                                 thumbnailCursor.getString(dataColumnIndex));
+                    }
+                } while (thumbnailCursor.moveToNext());
+            }
+
+            thumbnailCursor.close();
+        }
+
+        return data;
+    }
+
+    public static List<MediaItem> createMediaItems(Map<String, String> thumbnailData, Cursor mediaCursor, int type) {
+        final List<MediaItem> mediaItems = new ArrayList<>();
+        final List<String> ids = new ArrayList<>();
+
+        if (mediaCursor != null) {
+            if (mediaCursor.moveToFirst()) {
+                do {
+                    MediaItem newContent = type == BackgroundFetchThumbnail.TYPE_IMAGE ?
+                               getMediaItemFromImageCursor(mediaCursor, thumbnailData) :
+                               getMediaItemFromVideoCursor(mediaCursor, thumbnailData);
+
+                    if (newContent != null && !ids.contains(newContent.getTag())) {
+                        mediaItems.add(newContent);
+                        ids.add(newContent.getTag());
+                    }
+                } while (mediaCursor.moveToNext());
+            }
+
+            mediaCursor.close();
+        }
+
+        return mediaItems;
+    }
+
+    public static void fadeMediaItemImageIntoView(Uri imageSource, ImageLoader.ImageCache cache,
+                                                  ImageView imageView, MediaItem mediaItem,
+                                                  int width, int height, int type) {
+        if (imageSource != null && !imageSource.toString().isEmpty()) {
+            Bitmap imageBitmap = null;
+            if (cache != null) {
+                imageBitmap = cache.getBitmap(imageSource.toString());
+            }
+
+            if (imageBitmap == null) {
+                imageView.setImageResource(R.drawable.media_item_placeholder);
+                BackgroundFetchThumbnail bgDownload =
+                        new MediaUtils.BackgroundFetchThumbnail(imageView,
+                                cache,
+                                type,
+                                width,
+                                height,
+                                mediaItem.getRotation());
+                imageView.setTag(bgDownload);
+                bgDownload.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageSource);
+            } else {
+                fadeInImage(imageView, imageBitmap);
+            }
+        } else {
+            imageView.setTag(null);
+            imageView.setImageResource(R.drawable.ic_now_wallpaper_white);
+        }
     }
 
     public static class BackgroundFetchThumbnail extends AsyncTask<Uri, String, Bitmap> {
         public static final int TYPE_IMAGE = 0;
         public static final int TYPE_VIDEO = 1;
 
-        private static final int MAX_ACTIVE_FETCHES_DEFAULT = 24;
+        private static final int MAX_ACTIVE_FETCHES_DEFAULT = 32;
         private static final List<BackgroundFetchThumbnail> sActiveFetches = new ArrayList<>();
 
         private WeakReference<ImageView> mReference;
@@ -160,5 +241,53 @@ public class MediaUtils {
         public void setMaxFetches(int maxFetches) {
             mMaxFetches = maxFetches;
         }
+    }
+
+    private static MediaItem getMediaItemFromVideoCursor(Cursor videoCursor, Map<String, String> thumbnailData) {
+        MediaItem newContent = null;
+
+        int videoIdColumnIndex = videoCursor.getColumnIndex(MediaStore.Video.Media._ID);
+        int videoDataColumnIndex = videoCursor.getColumnIndex(MediaStore.Video.Media.DATA);
+
+        if (videoIdColumnIndex != -1) {
+            newContent = new MediaItem();
+            newContent.setTag(videoCursor.getString(videoIdColumnIndex));
+            newContent.setTitle("");
+
+            if (videoDataColumnIndex != -1) {
+                newContent.setSource(Uri.parse(videoCursor.getString(videoDataColumnIndex)));
+            }
+            if (thumbnailData.containsKey(newContent.getTag())) {
+                newContent.setPreviewSource(Uri.parse(thumbnailData.get(newContent.getTag())));
+            }
+        }
+
+        return newContent;
+    }
+
+    private static MediaItem getMediaItemFromImageCursor(Cursor imageCursor, Map<String, String> thumbnailData) {
+        MediaItem newContent = null;
+
+        int imageIdColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
+        int imageDataColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+        int imageOrientationColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION);
+
+        if (imageIdColumnIndex != -1) {
+            newContent = new MediaItem();
+            newContent.setTag(imageCursor.getString(imageIdColumnIndex));
+            newContent.setTitle("");
+
+            if (imageDataColumnIndex != -1) {
+                newContent.setSource(Uri.parse(imageCursor.getString(imageDataColumnIndex)));
+            }
+            if (thumbnailData.containsKey(newContent.getTag())) {
+                newContent.setPreviewSource(Uri.parse(thumbnailData.get(newContent.getTag())));
+            }
+            if (imageOrientationColumnIndex != -1) {
+                newContent.setRotation(imageCursor.getInt(imageOrientationColumnIndex));
+            }
+        }
+
+        return newContent;
     }
 }

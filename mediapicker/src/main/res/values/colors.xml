@@ -4,5 +4,6 @@
 
     <!-- Used as the default background color -->
     <color name="grey">#999999</color>
+    <color name="light_blue">#a9f9f9</color>
 
 </resources>

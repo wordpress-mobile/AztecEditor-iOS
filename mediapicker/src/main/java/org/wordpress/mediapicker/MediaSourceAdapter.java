@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ProgressBar;
 
 import com.android.volley.toolbox.ImageLoader;
 
@@ -30,13 +29,13 @@ import java.util.List;
  */
 
 public class MediaSourceAdapter extends BaseAdapter {
-    private final LayoutInflater  mLayoutInflater;
+    private final Context mContext;
     private final ImageLoader.ImageCache mImageCache;
     private final List<MediaSource> mMediaSources;
 
     public MediaSourceAdapter(Context context, List<MediaSource> sources, ImageLoader.ImageCache imageCache) {
         mMediaSources = sources;
-        mLayoutInflater = LayoutInflater.from(context);
+        mContext = context;
         mImageCache = imageCache;
     }
 
@@ -44,7 +43,7 @@ public class MediaSourceAdapter extends BaseAdapter {
         for (MediaSource source : mMediaSources) {
             if (source != null) {
                 source.setListener(listener);
-                source.gather();
+                source.gather(mContext);
             }
         }
     }
@@ -81,11 +80,7 @@ public class MediaSourceAdapter extends BaseAdapter {
         MediaSource itemSource = sourceAtPosition(position);
 
         if (itemSource != null) {
-            if (convertView instanceof ProgressBar) {
-                convertView = null;
-            }
-
-            return itemSource.getView(position - offsetAtPosition(position), convertView, parent, mLayoutInflater, mImageCache);
+            return itemSource.getView(position - offsetAtPosition(position), convertView, parent, LayoutInflater.from(mContext), mImageCache);
         }
 
         return null;

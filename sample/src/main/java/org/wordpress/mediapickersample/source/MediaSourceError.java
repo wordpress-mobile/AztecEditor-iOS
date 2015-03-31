@@ -1,5 +1,6 @@
 package org.wordpress.mediapickersample.source;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,7 @@ public class MediaSourceError implements MediaSource {
     private OnMediaChange mListener;
 
     @Override
-    public void gather() {
+    public void gather(Context context) {
         if (mListener != null) {
             mListener.onMediaLoaded(false);
         }

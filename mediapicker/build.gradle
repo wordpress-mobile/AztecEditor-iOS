@@ -66,9 +66,15 @@ jacoco {
     toolVersion = "0.7.1.201405082137"
 }
 
-def coverageSourceDirs = [
-    'src/main/java'
-]
+def coverageSourceDirs = ['src/main/java']
+def coverageExclusions = ['**/R.class',
+                          '**/R$*.class',
+                          '**/*$ViewInjector*.*',
+                          '**/BuildConfig.*',
+                          '**/Manifest*.*',
+                          '**/CameraPreview*.*',
+                          '**/MediaSourceCaptureImage*.*',
+                          '**/MediaSourceCaptureImage*.*']
 
 task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
     group = "Reporting"
@@ -76,11 +82,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
 
     classDirectories = fileTree(
             dir: 'build/intermediates/classes/debug',
-            excludes: ['**/R.class',
-                       '**/R$*.class',
-                       '**/*$ViewInjector*.*',
-                       '**/BuildConfig.*',
-                       '**/Manifest*.*']
+            excludes: coverageExclusions
     )
 
     additionalSourceDirs = files(coverageSourceDirs)
