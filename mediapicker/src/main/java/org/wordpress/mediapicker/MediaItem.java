@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple data model to describe media information, including:
- * <ul>
- *     <li>Title</li>
- *     <li>Source</li>
- *     <li>Preview Image</li>
- * </ul>
+ * Simple data model to describe media information. Contains the following data:
+ *  - Tag: Used to store an arbitrary String for implementation specific use and is therefore not
+ *  used by {@link org.wordpress.mediapicker.MediaPickerFragment} to determine behavior.
+ *  - Content Title: Title of the media content.
+ *  - Preview Source: URI to media content preview.
+ *  - Content Source: Direct URI to the media content.
+ *  - Rotation: Specifies the orientation that the media was captured in.
  *
  * Implements {@link android.os.Parcelable} to allow passing via {@link android.content.Intent}'s.
  */
@@ -142,6 +143,8 @@ public class MediaItem implements Parcelable {
 
                         while (parcelData.size() > 0) {
                             String data = parcelData.remove(0);
+                            if (data == null) continue;
+
                             String key = data.substring(0, data.indexOf('='));
                             String value = data.substring(data.indexOf('=') + 1, data.length());
 

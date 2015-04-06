@@ -74,11 +74,11 @@ public class SampleActivity extends Activity
      */
     private void initializeTabs() {
         ArrayList<MediaSource> imageSources = new ArrayList<>();
-        imageSources.add(new MediaSourceDeviceImages(getContentResolver()));
+        imageSources.add(new MediaSourceDeviceImages());
         mMediaPickerAdapter.addTab(imageSources, TAB_TITLE_IMAGES);
 
         ArrayList<MediaSource> videoSources = new ArrayList<>();
-        videoSources.add(new MediaSourceDeviceVideos(getContentResolver()));
+        videoSources.add(new MediaSourceDeviceVideos());
         mMediaPickerAdapter.addTab(videoSources, TAB_TITLE_VIDEOS);
 
         ArrayList<MediaSource> emptySources = new ArrayList<>();

@@ -1,6 +1,7 @@
 package org.wordpress.mediapicker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Parcel;
 import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
@@ -123,7 +124,7 @@ public class MediaPickerFragmentTest {
 
     private MediaSource mMediaSourceOnMediaSelectedFalse = new MediaSource() {
         @Override
-        public void gather() {
+        public void gather(Context context) {
         }
 
         @Override

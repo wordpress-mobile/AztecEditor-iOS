@@ -114,7 +114,7 @@ public class MediaPickerFragment extends Fragment
         super.onAttach(activity);
 
         // Per the documentation, the host Activity is the default listener
-        if (activity instanceof OnMediaSelected) {
+        if (mListener == null && activity instanceof OnMediaSelected) {
             mListener = (OnMediaSelected) activity;
         }
     }
@@ -123,12 +123,14 @@ public class MediaPickerFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setDefaultTextValues(true);
+
         // If this is not being restored from a previous state use arguments to set state
         if (savedInstanceState == null) {
-            restoreFromBundle(getArguments());
-        } else {
-            restoreFromBundle(savedInstanceState);
+            savedInstanceState = getArguments();
         }
+
+        restoreFromBundle(savedInstanceState);
     }
 
     @Override
@@ -141,17 +143,23 @@ public class MediaPickerFragment extends Fragment
         View mediaPickerView = inflater.inflate(viewToInflate, container, false);
         if (mediaPickerView != null) {
             mEmptyView = (TextView) mediaPickerView.findViewById(R.id.media_empty_view);
-            if (mEmptyView != null) {
-                if (mMediaSources.size() == 0) {
-                    mEmptyView.setText(getString(R.string.no_media_sources));
-                } else {
-                    mEmptyView.setText(mLoadingText);
-                }
+            if (mMediaSources.size() == 0) {
+                updateEmptyView(getString(R.string.no_media_sources));
+            } else {
+                updateEmptyView(mLoadingText);
             }
 
             mAdapterView = (AbsListView) mediaPickerView.findViewById(R.id.media_adapter_view);
             if (mAdapterView != null) {
                 layoutAdapterView();
+
+                if (mAdapter == null) {
+                    generateAdapter();
+                } else {
+                    mAdapterView.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
+                }
+                toggleEmptyVisibility();
             }
         }
 
@@ -159,30 +167,43 @@ public class MediaPickerFragment extends Fragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public void onDestroy() {
+        super.onDestroy();
 
-        outState.putParcelableArrayList(KEY_SELECTED_CONTENT, mSelectedContent);
-        outState.putParcelableArrayList(KEY_MEDIA_SOURCES, mMediaSources);
-        outState.putInt(KEY_CUSTOM_LAYOUT, mCustomLayout);
-        outState.putInt(KEY_ACTION_MODE_MENU, mActionModeMenu);
-
-        if (mLoadingText != null && !mLoadingText.equals("")) {
-            outState.putString(KEY_LOADING_TEXT, mLoadingText);
-        }
-
-        if (mErrorText != null && !mErrorText.equals("")) {
-            outState.putString(KEY_ERROR_TEXT, mErrorText);
-        }
-
-        if (mEmptyText != null && !mEmptyText.equals("")) {
-            outState.putString(KEY_EMPTY_TEXT, mEmptyText);
-        }
+        cleanupMediaSources();
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mSelectedContent.size() > 0) {
+            outState.putParcelableArrayList(KEY_SELECTED_CONTENT, mSelectedContent);
+        }
+
+        if (mMediaSources.size() > 0) {
+            outState.putParcelableArrayList(KEY_MEDIA_SOURCES, mMediaSources);
+        }
+
+        if (mCustomLayout > -1) {
+            outState.putInt(KEY_CUSTOM_LAYOUT, mCustomLayout);
+        }
+
+        if (mActionModeMenu > -1) {
+            outState.putInt(KEY_ACTION_MODE_MENU, mActionModeMenu);
+        }
+
+        if (mLoadingText != null) {
+            outState.putString(KEY_LOADING_TEXT, mLoadingText);
+        }
+
+        if (mErrorText != null) {
+            outState.putString(KEY_ERROR_TEXT, mErrorText);
+        }
+
+        if (mEmptyText != null) {
+            outState.putString(KEY_EMPTY_TEXT, mEmptyText);
+        }
     }
 
     @Override
@@ -260,16 +281,14 @@ public class MediaPickerFragment extends Fragment
     @Override
     public void onMediaLoaded(boolean success) {
         if (success) {
-            if (mAdapter.getCount() > 0) {
+            if (mAdapter != null && mAdapter.getCount() > 0) {
                 toggleEmptyVisibility();
                 mAdapter.notifyDataSetChanged();
-            } else if (mEmptyView != null) {
-                mEmptyView.setText(mEmptyText);
+            } else {
+                updateEmptyView(mEmptyText);
             }
         } else {
-            if (mEmptyView != null) {
-                mEmptyView.setText(mErrorText);
-            }
+            updateEmptyView(mErrorText);
         }
     }
 
@@ -288,67 +307,6 @@ public class MediaPickerFragment extends Fragment
     @Override
     public void onMediaChanged(MediaSource source, List<MediaItem> changedItems) {
         mAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Restores state from a given {@link android.os.Bundle}. Checks for media sources, selected
-     * content, custom view, custom action mode menu, and custom empty text.
-     *
-     * @param bundle
-     * Bundle containing all the data, can be null
-     */
-    private void restoreFromBundle(Bundle bundle) {
-        if (bundle != null) {
-            if (bundle.containsKey(KEY_MEDIA_SOURCES)) {
-                ArrayList<MediaSource> mediaSources = bundle.getParcelableArrayList(KEY_MEDIA_SOURCES);
-                setMediaSources(mediaSources);
-
-                if (bundle.containsKey(KEY_SELECTED_CONTENT)) {
-                    ArrayList<MediaItem> mediaItems = bundle.getParcelableArrayList(KEY_SELECTED_CONTENT);
-
-                    if (mediaItems != null) {
-                        mSelectedContent.addAll(mediaItems);
-                    }
-                }
-            }
-
-            if (bundle.containsKey(KEY_CUSTOM_LAYOUT)) {
-                setCustomLayout(bundle.getInt(KEY_CUSTOM_LAYOUT, -1));
-            }
-
-            if (bundle.containsKey(KEY_ACTION_MODE_MENU)) {
-                setActionModeMenu(bundle.getInt(KEY_ACTION_MODE_MENU, -1));
-            }
-
-            if (bundle.containsKey(KEY_LOADING_TEXT)) {
-                if ((mLoadingText = bundle.getString(KEY_LOADING_TEXT)) == null) {
-                    mLoadingText = getString(R.string.fetching_media);
-                }
-            }
-
-            if (bundle.containsKey(KEY_EMPTY_TEXT)) {
-                if ((mEmptyText = bundle.getString(KEY_EMPTY_TEXT)) == null) {
-                    mEmptyText = getString(R.string.no_media);
-                }
-            }
-
-            if (bundle.containsKey(KEY_ERROR_TEXT)) {
-                if ((mErrorText = bundle.getString(KEY_ERROR_TEXT)) == null) {
-                    mErrorText = getString(R.string.error_fetching_media);
-                }
-            }
-        } else {
-            setDefaultTextValues();
-        }
-    }
-
-    /**
-     * Sets the default empty text strings if they are not already set to something.
-     */
-    private void setDefaultTextValues() {
-        if (mLoadingText == null || mLoadingText.isEmpty()) setLoadingText(R.string.fetching_media);
-        if (mEmptyText == null || mEmptyText.isEmpty()) setEmptyText(R.string.no_media);
-        if (mErrorText == null || mErrorText.isEmpty()) setErrorText(R.string.error_fetching_media);
     }
 
     /**
@@ -484,7 +442,72 @@ public class MediaPickerFragment extends Fragment
      */
     public void setAdapter(MediaSourceAdapter adapter) {
         mAdapter = adapter;
-        mAdapterView.setAdapter(mAdapter);
+
+        if (mAdapterView != null) {
+            mAdapterView.setAdapter(mAdapter);
+        }
+    }
+
+    private void updateEmptyView(String text) {
+        if (mEmptyView != null) {
+            mEmptyView.setText(text);
+        }
+    }
+
+    /**
+     * Restores state from a given {@link android.os.Bundle}. Checks for media sources, selected
+     * content, custom view, custom action mode menu, and custom empty text.
+     *
+     * @param bundle
+     * Bundle containing all the data, can be null
+     */
+    private void restoreFromBundle(Bundle bundle) {
+        if (bundle != null) {
+            if (bundle.containsKey(KEY_MEDIA_SOURCES)) {
+                ArrayList<MediaSource> mediaSources = bundle.getParcelableArrayList(KEY_MEDIA_SOURCES);
+                setMediaSources(mediaSources);
+
+                if (bundle.containsKey(KEY_SELECTED_CONTENT)) {
+                    ArrayList<MediaItem> mediaItems = bundle.getParcelableArrayList(KEY_SELECTED_CONTENT);
+
+                    if (mediaItems != null) {
+                        mSelectedContent.addAll(mediaItems);
+                    }
+                }
+            }
+
+            if (bundle.containsKey(KEY_CUSTOM_LAYOUT)) {
+                setCustomLayout(bundle.getInt(KEY_CUSTOM_LAYOUT, -1));
+            }
+
+            if (bundle.containsKey(KEY_ACTION_MODE_MENU)) {
+                setActionModeMenu(bundle.getInt(KEY_ACTION_MODE_MENU, -1));
+            }
+
+            if (bundle.containsKey(KEY_LOADING_TEXT)) {
+                mLoadingText = bundle.getString(KEY_LOADING_TEXT, mLoadingText);
+            }
+
+            if (bundle.containsKey(KEY_EMPTY_TEXT)) {
+                mEmptyText = bundle.getString(KEY_EMPTY_TEXT, mEmptyText);
+            }
+
+            if (bundle.containsKey(KEY_ERROR_TEXT)) {
+                mErrorText = bundle.getString(KEY_ERROR_TEXT, mErrorText);
+            }
+        }
+    }
+
+    /**
+     * Sets the default empty text strings if they are not already set to something.
+     *
+     * @param overwrite
+     * true to overwrite any existing values
+     */
+    private void setDefaultTextValues(boolean overwrite) {
+        if (mLoadingText == null || overwrite) setLoadingText(R.string.fetching_media);
+        if (mEmptyText == null || overwrite) setEmptyText(R.string.no_media);
+        if (mErrorText == null || overwrite) setErrorText(R.string.error_fetching_media);
     }
 
     /**
@@ -508,12 +531,11 @@ public class MediaPickerFragment extends Fragment
 
         if (activity != null) {
             ImageLoader.ImageCache imageCache = mListener != null ? mListener.getImageCache() : null;
-            mAdapter = new MediaSourceAdapter(activity, mMediaSources, imageCache);
-            mAdapter.gatherFromSources(this);
 
-            if (mAdapterView != null) {
-                mAdapterView.setAdapter(mAdapter);
-            }
+            MediaSourceAdapter adapter = new MediaSourceAdapter(activity, mMediaSources, imageCache);
+            adapter.gatherFromSources(this);
+
+            setAdapter(adapter);
         }
     }
 
@@ -522,26 +544,18 @@ public class MediaPickerFragment extends Fragment
      * view to display it.
      */
     private void layoutAdapterView() {
+        // Safe to assume non-null since this is only called in onCreateView
         Activity activity = getActivity();
         Resources resources = activity.getResources();
-        int paddingLeft = Math.round(resources.getDimension(R.dimen.media_padding_left));
-        int paddingTop = Math.round(resources.getDimension(R.dimen.media_padding_top));
-        int paddingRight = Math.round(resources.getDimension(R.dimen.media_padding_right));
-        int paddingBottom = Math.round(resources.getDimension(R.dimen.media_padding_bottom));
         Drawable background = resources.getDrawable(R.drawable.media_picker_background);
 
         // Use setBackground(Drawable) when API min is >= 16
         mAdapterView.setBackgroundDrawable(background);
-        mAdapterView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
         mAdapterView.setClipToPadding(false);
         mAdapterView.setMultiChoiceModeListener(this);
         mAdapterView.setOnItemClickListener(this);
         mAdapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         mAdapterView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
-
-        generateAdapter();
-
-        toggleEmptyVisibility();
     }
 
     /**
@@ -554,7 +568,7 @@ public class MediaPickerFragment extends Fragment
     private void addSelectionConfirmationButtonMenuItem(Menu menu) {
         if (menu != null && menu.findItem(R.id.menu_media_selection_confirmed) == null) {
             menu.add(Menu.NONE, R.id.menu_media_selection_confirmed, Menu.FIRST, R.string.confirm)
-                    .setIcon(R.drawable.action_mode_confirm_checkmark);
+                .setIcon(R.drawable.action_mode_confirm_checkmark);
         }
     }
 
