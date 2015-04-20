@@ -8,11 +8,11 @@ Pod::Spec.new do |s|
                        * Multiple selection of media.
                        * Capture of new media while selecting
                        DESC
-  s.homepage         = "https://github.com/wordpress-mobile/WPMediaPicker"
+  s.homepage         = "https://github.com/wordpress-mobile/MediaPicker-iOS"
   s.screenshots      = "https://raw.githubusercontent.com/wordpress-mobile/WPMediaPicker/master/screenshots_1.jpg"
   s.license          = 'MIT'
   s.author           = { "WordPress" => "mobile@automattic.com" }
-  s.source           = { :git => "https://github.com/wordpress-mobile/WPMediaPicker.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/wordpress-mobile/MediaPicker-iOS.git", :tag => s.version.to_s }
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
