@@ -23,8 +23,8 @@
 
 @implementation WPMediaCollectionViewController
 
-static CGFloat SpaceBetweenPhotos = 2.0f;
-static CGFloat NumberOfPhotosForLine = 3;
+static CGFloat SpaceBetweenPhotos = 1.0f;
+static CGFloat NumberOfPhotosForLine = 4;
 static CGFloat SelectAnimationTime = 0.2;
 static CGFloat MinimumCellSize = 105;
 static NSString * const ArrowDown = @"\u25be";
