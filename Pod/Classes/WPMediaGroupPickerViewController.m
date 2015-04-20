@@ -1,7 +1,7 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static NSString * const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
+static NSString *const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
 static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
@@ -28,9 +28,9 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
-    
+
     // configure table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if ([self respondsToSelector:@selector(popoverPresentationController)]
@@ -39,16 +39,16 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     }
     [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
     self.tableView.rowHeight = WPMediaGroupCellHeight;
-    
+
     //Prepare data structures;
     if (!self.assetsLibrary) {
-        self.assetsLibrary =  [[ALAssetsLibrary alloc] init];
+        self.assetsLibrary = [[ALAssetsLibrary alloc] init];
     }
     self.assetGroups = [NSMutableArray array];
-    
+
     //Setup navigation
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
 
     [self loadData];
@@ -92,19 +92,19 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    WPMediaGroupTableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
-    
-    ALAssetsGroup * group = (ALAssetsGroup *)self.assetGroups[indexPath.row];
-    UIImage * posterImage = [UIImage imageWithCGImage:[group posterImage]];
+    WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
+
+    ALAssetsGroup *group = (ALAssetsGroup *)self.assetGroups[indexPath.row];
+    UIImage *posterImage = [UIImage imageWithCGImage:[group posterImage]];
     cell.imageView.image = posterImage;
     cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld",(long)[group numberOfAssets]];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-    if ( [[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]] ) {
+    if ([[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
         [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     } else {
@@ -115,9 +115,9 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSIndexPath * selectedPath = [self.tableView indexPathForSelectedRow];
+    NSIndexPath *selectedPath = [self.tableView indexPathForSelectedRow];
     if (selectedPath) {
-        UITableViewCell * cell = [self.tableView cellForRowAtIndexPath:selectedPath];
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:selectedPath];
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
     return indexPath;
@@ -125,7 +125,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell * cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [self notifySelectionOfGroup];
 }
@@ -134,7 +134,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (void)cancelPicker:(UIBarButtonItem *)sender
 {
-    if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewControllerDidCancel:)]){
+    if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewControllerDidCancel:)]) {
         [self.delegate mediaGroupPickerViewControllerDidCancel:self];
     }
 }
@@ -144,13 +144,11 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     if (!self.tableView.indexPathForSelectedRow) {
         return;
     }
-    if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewController:didPickGroup:)]){
+    if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewController:didPickGroup:)]) {
         NSInteger selectedRow = self.tableView.indexPathForSelectedRow.row;
-        ALAssetsGroup * group = self.assetGroups[selectedRow];
+        ALAssetsGroup *group = self.assetGroups[selectedRow];
         [self.delegate mediaGroupPickerViewController:self didPickGroup:group];
     }
-    
 }
-
 
 @end

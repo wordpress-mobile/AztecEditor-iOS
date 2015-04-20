@@ -13,5 +13,3 @@
 @property (nonatomic, assign) BOOL showMostRecentFirst;
 
 @end
-
-

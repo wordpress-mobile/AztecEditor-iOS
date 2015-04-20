@@ -1,5 +1,5 @@
 #import "WPMediaPickerViewController.h"
-#import "WPMediaCollectionViewController.h" 
+#import "WPMediaCollectionViewController.h"
 
 @interface WPMediaPickerViewController () <UINavigationControllerDelegate>
 
@@ -10,18 +10,18 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if ( self ) {
+    if (self) {
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
     }
-    
+
     return self;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     // Do any additional setup after loading the view.
     [self setupNavigationController];
 }
@@ -39,7 +39,7 @@
     vc.showMostRecentFirst = self.showMostRecentFirst;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.delegate = self;
-    
+
     [nav willMoveToParentViewController:self];
     [nav.view setFrame:self.view.bounds];
     [self.view addSubview:nav.view];

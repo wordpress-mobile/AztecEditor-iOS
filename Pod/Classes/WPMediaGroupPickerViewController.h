@@ -13,7 +13,7 @@
 /**
  The group that is being displaying on the picker. If not set the picker will try to select the default Camera Roll group.
  */
-@property (nonatomic, strong) ALAssetsGroup * selectedGroup;
+@property (nonatomic, strong) ALAssetsGroup *selectedGroup;
 
 /**
  The AssettLibrary that is being used to display the assets and groups. If not set the picker will create a new one.
@@ -23,7 +23,6 @@
 @end
 
 @protocol WPMediaGroupPickerViewControllerDelegate <NSObject>
-
 
 /**
  *  @name Closing the Picker

@@ -34,7 +34,6 @@
  */
 @protocol WPMediaPickerViewControllerDelegate <NSObject>
 
-
 /**
  *  @name Closing the Picker
  */
@@ -57,7 +56,6 @@
  *
  */
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker;
-
 
 /**
  *  @name Enabling Assets
@@ -84,7 +82,6 @@
  *
  */
 - (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldEnableAsset:(ALAsset *)asset;
-
 
 /**
  *  @name Managing the Selected Assets
