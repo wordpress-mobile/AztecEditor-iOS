@@ -11,7 +11,6 @@
 @interface WPMediaCollectionViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, WPMediaGroupPickerViewControllerDelegate, UIPopoverPresentationControllerDelegate>
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
-@property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
 @property (nonatomic, strong) NSMutableArray *assets;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
@@ -52,10 +51,7 @@ static NSString * const ArrowDown = @"\u25be";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    //Prepare data structures;
-    self.assetsLibrary =  [[ALAssetsLibrary alloc] init];
-    
+        
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
@@ -97,7 +93,19 @@ static NSString * const ArrowDown = @"\u25be";
     });
 }
 
+#pragma mark - Properties
+
+- (ALAssetsLibrary*)assetsLibrary
+{
+    static dispatch_once_t onceToken;
+    static ALAssetsLibrary *_assetsLibrary;
+    dispatch_once(&onceToken, ^{
+        _assetsLibrary = [[ALAssetsLibrary alloc] init];
+    });
+    return _assetsLibrary;
+}
 #pragma mark - Actions
+
 + (BOOL)isiOS8OrAbove
 {
     NSComparisonResult result = [[[UIDevice currentDevice] systemVersion] compare:@"8.0.0" options: NSNumericSearch];
