@@ -1,6 +1,6 @@
 # WPMediaPicker
 
-[![CI Status](http://img.shields.io/travis/wordpress-mobile/WPMediaPicker.svg?style=flat)](https://travis-ci.org/wordpress-mobile/WPMediaPicker)
+[![CI Status](http://img.shields.io/travis/wordpress-mobile/WPMediaPicker.svg?style=flat)](https://travis-ci.org/wordpress-mobile/MediaPicker-iOS)
 [![Version](https://img.shields.io/cocoapods/v/WPMediaPicker.svg?style=flat)](http://cocoadocs.org/docsets/WPMediaPicker)
 [![License](https://img.shields.io/cocoapods/l/WPMediaPicker.svg?style=flat)](http://cocoadocs.org/docsets/WPMediaPicker)
 [![Platform](https://img.shields.io/cocoapods/p/WPMediaPicker.svg?style=flat)](http://cocoadocs.org/docsets/WPMediaPicker)
