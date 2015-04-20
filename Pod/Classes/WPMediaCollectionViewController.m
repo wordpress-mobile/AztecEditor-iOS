@@ -260,9 +260,9 @@ static NSString * const ArrowDown = @"\u25be";
 
 - (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
 {
-    NSInteger roundedHours = lround(timeInterval / 3600);
-    NSInteger roundedMinutes = lround((timeInterval - (3600 * roundedHours)) /60);
-    NSInteger roundedSeconds = lround(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes* 60));
+    NSInteger roundedHours = floor(timeInterval / 3600);
+    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
+    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
     
     if (roundedHours > 0)
         return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
