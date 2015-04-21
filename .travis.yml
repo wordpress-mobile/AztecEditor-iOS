@@ -1,12 +1,10 @@
-# references:
-# * http://www.objc.io/issue-6/travis-ci.html
-# * https://github.com/supermarin/xcpretty#usage
-
 language: objective-c
 cache: cocoapods
 podfile: Example/Podfile
-before_install: cd Example && pod install && cd -
 install:
+- gem install cocoapods
 - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
+before_script:
+- cd Example && pod install && cd -
 script:
-- set -o pipefail && xcodebuild build -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
+- set -o pipefail && xcodebuild build -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
