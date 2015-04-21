@@ -17,6 +17,11 @@
  */
 @property (nonatomic, assign) BOOL showMostRecentFirst;
 
+/**
+ *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
+ */
+@property (nonatomic, strong) ALAssetsFilter *assetsFilter;
+
 @end
 
 /**

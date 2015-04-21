@@ -37,6 +37,7 @@
     WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
     vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
     vc.showMostRecentFirst = self.showMostRecentFirst;
+    vc.assetsFilter = self.assetsFilter;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.delegate = self;
 
