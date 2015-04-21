@@ -45,6 +45,7 @@ static NSString *const ArrowDown = @"\u25be";
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _liveAsset = [[ALAsset alloc] init];
+        _assetsFilter = [ALAssetsFilter allAssets];
     }
     return self;
 }
@@ -191,6 +192,7 @@ static NSString *const ArrowDown = @"\u25be";
     NSString *title = [NSString stringWithFormat:@"%@ %@", (NSString *)[self.assetsGroup valueForProperty:ALAssetsGroupPropertyName], ArrowDown];
     [self.titleButton setTitle:title forState:UIControlStateNormal];
     [self.titleButton sizeToFit];
+    [self.assetsGroup setAssetsFilter:self.assetsFilter];
     [self.assetsGroup enumerateAssetsWithOptions:self.showMostRecentFirst ? NSEnumerationReverse : 0
                                       usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
                                           if (result){
