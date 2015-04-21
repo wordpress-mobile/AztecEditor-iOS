@@ -7,4 +7,4 @@ install:
 before_script:
 - cd Example && pod install && cd -
 script:
-- set -o pipefail && xcodebuild build -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
+- set -o pipefail && xcodebuild build -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
