@@ -22,6 +22,12 @@
  */
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
 
+/**
+ If set the picker will allow the selection of multiple items. By default this value is YES.
+ */
+@property (nonatomic, assign) BOOL allowMultipleSelection;
+
+
 @end
 
 /**

@@ -319,6 +319,11 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.picker.delegate mediaPickerController:self.picker didSelectAsset:asset];
     }
+    if (!self.allowMultipleSelection) {
+        if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
+            [self.picker.delegate mediaPickerController:self.picker didFinishPickingAssets:[self.selectedAssets copy]];
+        }
+    }
 }
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
@@ -507,6 +512,11 @@ static NSString *const ArrowDown = @"\u25be";
     }
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.picker.delegate mediaPickerController:self.picker didSelectAsset:asset];
+    }
+    if (!self.allowMultipleSelection) {
+        if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
+            [self.picker.delegate mediaPickerController:self.picker didFinishPickingAssets:[self.selectedAssets copy]];
+        }
     }
 }
 

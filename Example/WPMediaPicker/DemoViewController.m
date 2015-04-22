@@ -60,7 +60,7 @@
     return cell;
 }
 
-#pragma - <SVEMediaPickerViewControllerDelegate>
+#pragma - <WPMediaPickerViewControllerDelegate>
 
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker
 {
