@@ -431,10 +431,10 @@ static NSString *const ArrowDown = @"\u25be";
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (!granted)
                 {
-                        [[[UIAlertView alloc] initWithTitle:@"Media Capture"
-                                                    message:@"This app doesn't have permission to use Camera, please change privacy settings"
+                        [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted")
+                                                    message:NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"")
                                                    delegate:self
-                                          cancelButtonTitle:@"OK"
+                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
                                           otherButtonTitles:nil] show];
                     return;
                 }
@@ -445,10 +445,10 @@ static NSString *const ArrowDown = @"\u25be";
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[[UIAlertView alloc] initWithTitle:@"Media Capture"
-                                    message:@"This app doesn't have permission to use Camera, please change the privacy settings"
+        [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted")
+                                    message:NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"")
                                    delegate:self
-                          cancelButtonTitle:@"OK"
+                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
                           otherButtonTitles:nil] show];
     });
 }
