@@ -18,6 +18,7 @@
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIPopoverController *popOverController;
+@property (nonatomic, assign) BOOL ignoreMediaNotifications;
 
 @end
 
@@ -83,16 +84,24 @@ static NSString *const ArrowDown = @"\u25be";
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
+    self.ignoreMediaNotifications = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
-
+    
     [self loadData];
 }
 
 - (void)handleLibraryNotification:(NSNotification *)note
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self loadData];
-    });
+    NSURL *currentGroupID = [self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL];
+    NSSet *groupsChanged = note.userInfo[ALAssetLibraryUpdatedAssetGroupsKey];
+    NSSet *assetsChanged = note.userInfo[ALAssetLibraryUpdatedAssetsKey];
+    if (  groupsChanged && [groupsChanged containsObject:currentGroupID]
+        && assetsChanged.count > 0
+        && !self.ignoreMediaNotifications) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self loadData];
+        });
+    }
 }
 
 #pragma mark - Properties
@@ -455,15 +464,18 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
+    self.ignoreMediaNotifications = YES;
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]) {
         UIImage *image = (UIImage *)info[UIImagePickerControllerOriginalImage];
         [self.assetsLibrary writeImageToSavedPhotosAlbum:[image CGImage] metadata:info[UIImagePickerControllerMediaMetadata] completionBlock:^(NSURL *assetURL, NSError *error) {
             if (error){
+                self.ignoreMediaNotifications = NO;
                 return;
             }
             [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self addAsset:asset];
+                    self.ignoreMediaNotifications = NO;
                 });
             } failureBlock:^(NSError *error) {
                 [self loadData];
@@ -472,11 +484,13 @@ static NSString *const ArrowDown = @"\u25be";
     } else if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeMovie]) {
         [self.assetsLibrary writeVideoAtPathToSavedPhotosAlbum:info[UIImagePickerControllerMediaURL] completionBlock:^(NSURL *assetURL, NSError *error) {
             if (error){
+                self.ignoreMediaNotifications = NO;
                 return;
             }
             [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self addAsset:asset];
+                    self.ignoreMediaNotifications = NO;
                 });
             } failureBlock:^(NSError *error) {
                 [self loadData];
@@ -504,7 +518,9 @@ static NSString *const ArrowDown = @"\u25be";
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
     } completion:^(BOOL finished) {
         if (finished){
-            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition+1 inSection:0]]];
+            NSUInteger reloadPosition = [self showMostRecentFirst] ? 1 : self.assets.count - 1;
+            NSArray * indexToReload = @[[NSIndexPath indexPathForItem:reloadPosition inSection:0]];
+            [self.collectionView reloadItemsAtIndexPaths:indexToReload];
         }
     }];
     if (!willBeSelected) {
