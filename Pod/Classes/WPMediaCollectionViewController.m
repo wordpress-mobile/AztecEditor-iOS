@@ -518,13 +518,7 @@ static NSString *const ArrowDown = @"\u25be";
     [self.assets insertObject:asset atIndex:insertPosition];
     [self.collectionView performBatchUpdates:^{
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-    } completion:^(BOOL finished) {
-        if (finished){
-            NSUInteger reloadPosition = [self showMostRecentFirst] ? 1 : self.assets.count - 1;
-            NSArray * indexToReload = @[[NSIndexPath indexPathForItem:reloadPosition inSection:0]];
-            [self.collectionView reloadItemsAtIndexPaths:indexToReload];
-        }
-    }];
+    } completion:nil];
     if (!willBeSelected) {
         return;
     }
