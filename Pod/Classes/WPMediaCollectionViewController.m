@@ -478,6 +478,7 @@ static NSString *const ArrowDown = @"\u25be";
                     self.ignoreMediaNotifications = NO;
                 });
             } failureBlock:^(NSError *error) {
+                self.ignoreMediaNotifications = NO;
                 [self loadData];
             }];
         }];
@@ -493,6 +494,7 @@ static NSString *const ArrowDown = @"\u25be";
                     self.ignoreMediaNotifications = NO;
                 });
             } failureBlock:^(NSError *error) {
+                self.ignoreMediaNotifications = NO;
                 [self loadData];
             }];
         }];
