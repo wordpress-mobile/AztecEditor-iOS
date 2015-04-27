@@ -471,6 +471,7 @@ static NSString *const ArrowDown = @"\u25be";
             return;
         }
         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
+            [self.assetsGroup addAsset:asset];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self addAsset:asset];
             });
