@@ -249,7 +249,7 @@ static NSString *const ArrowDown = @"\u25be";
     cell.image = thumbnail;
     NSUInteger position = [self findAsset:asset];
     if (position != NSNotFound) {
-        [self.collectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:UICollectionViewScrollPositionNone];
+        [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         [cell setPosition:position + 1];
         cell.selected = YES;
     } else {
