@@ -465,39 +465,29 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)processMediaCaptured:(NSDictionary *)info
 {
     self.ignoreMediaNotifications = YES;
+    ALAssetsLibraryWriteVideoCompletionBlock completionBlock = ^(NSURL *assetURL, NSError *error) {
+        if (error){
+            self.ignoreMediaNotifications = NO;
+            return;
+        }
+        [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self addAsset:asset];
+            });
+        } failureBlock:^(NSError *error) {
+            self.ignoreMediaNotifications = NO;
+            [self loadData];
+        }];
+    };
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]) {
         UIImage *image = (UIImage *)info[UIImagePickerControllerOriginalImage];
-        [self.assetsLibrary writeImageToSavedPhotosAlbum:[image CGImage] metadata:info[UIImagePickerControllerMediaMetadata] completionBlock:^(NSURL *assetURL, NSError *error) {
-            if (error){
-                self.ignoreMediaNotifications = NO;
-                return;
-            }
-            [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self addAsset:asset];
-                    self.ignoreMediaNotifications = NO;
-                });
-            } failureBlock:^(NSError *error) {
-                self.ignoreMediaNotifications = NO;
-                [self loadData];
-            }];
-        }];
+        [self.assetsLibrary writeImageToSavedPhotosAlbum:[image CGImage]
+                                                metadata:info[UIImagePickerControllerMediaMetadata]
+                                         completionBlock:completionBlock];
+        
     } else if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeMovie]) {
-        [self.assetsLibrary writeVideoAtPathToSavedPhotosAlbum:info[UIImagePickerControllerMediaURL] completionBlock:^(NSURL *assetURL, NSError *error) {
-            if (error){
-                self.ignoreMediaNotifications = NO;
-                return;
-            }
-            [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self addAsset:asset];
-                    self.ignoreMediaNotifications = NO;
-                });
-            } failureBlock:^(NSError *error) {
-                self.ignoreMediaNotifications = NO;
-                [self loadData];
-            }];
-        }];
+        [self.assetsLibrary writeVideoAtPathToSavedPhotosAlbum:info[UIImagePickerControllerMediaURL]
+                                               completionBlock:completionBlock];
     }
 }
 
@@ -518,7 +508,9 @@ static NSString *const ArrowDown = @"\u25be";
     [self.assets insertObject:asset atIndex:insertPosition];
     [self.collectionView performBatchUpdates:^{
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-    } completion:nil];
+    } completion:^(BOOL finished) {
+        self.ignoreMediaNotifications = NO;
+    }];
     if (!willBeSelected) {
         return;
     }
