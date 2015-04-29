@@ -218,38 +218,40 @@ static NSString *const ArrowDown = @"\u25be";
     NSString *title = [NSString stringWithFormat:@"%@ %@", (NSString *)[self.assetsGroup valueForProperty:ALAssetsGroupPropertyName], ArrowDown];
     [self.titleButton setTitle:title forState:UIControlStateNormal];
     [self.titleButton sizeToFit];
+    
     [self.assetsGroup setAssetsFilter:self.assetsFilter];
+    ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *result, NSUInteger index, BOOL *stop) {
+        if (result){
+            [self.assets addObject:result];
+            NSURL *assetURL = [result valueForProperty:ALAssetPropertyAssetURL];
+            if ([selectedAssetsSet containsObject:assetURL]) {
+                [stillExistingSeletedAssets addObject:assetURL];
+            }
+        } else {
+            [selectedAssetsSet minusSet:stillExistingSeletedAssets];
+            NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
+            NSMutableArray *assetsToRemove = [NSMutableArray array];
+            for (ALAsset *selectedAsset in self.selectedAssets){
+                if ([missingAsset containsObject:[selectedAsset valueForProperty:ALAssetPropertyAssetURL]]){
+                    [assetsToRemove addObject:selectedAsset];
+                }
+            }
+            [self.selectedAssets removeObjectsInArray:assetsToRemove];
+            // Add live data cell
+            if ([self isShowingCaptureCell]){
+                NSInteger insertPosition = self.showMostRecentFirst ? 0 : self.assets.count;
+                [self.assets insertObject:self.liveAsset atIndex:insertPosition];
+            }
+            // Make sure we reload the collection view
+            [self.collectionView reloadData];
+            // Scroll to the correct position
+            NSInteger sectionToScroll = 0;
+            NSInteger itemToScroll = self.showMostRecentFirst ? 0 :self.assets.count-1;
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+        }
+    };
     [self.assetsGroup enumerateAssetsWithOptions:self.showMostRecentFirst ? NSEnumerationReverse : 0
-                                      usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
-                                          if (result){
-                                              [self.assets addObject:result];
-                                              NSURL *assetURL = [result valueForProperty:ALAssetPropertyAssetURL];
-                                              if ([selectedAssetsSet containsObject:assetURL]) {
-                                                  [stillExistingSeletedAssets addObject:assetURL];
-                                              }
-                                          } else {
-                                              [selectedAssetsSet minusSet:stillExistingSeletedAssets];
-                                              NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
-                                              NSMutableArray *assetsToRemove = [NSMutableArray array];
-                                              for (ALAsset *selectedAsset in self.selectedAssets){
-                                                  if ([missingAsset containsObject:[selectedAsset valueForProperty:ALAssetPropertyAssetURL]]){
-                                                      [assetsToRemove addObject:selectedAsset];
-                                                  }
-                                              }
-                                              [self.selectedAssets removeObjectsInArray:assetsToRemove];
-                                              // Add live data cell
-                                              if ([self isShowingCaptureCell]){
-                                                  NSInteger insertPosition = self.showMostRecentFirst ? 0 : self.assets.count;
-                                                  [self.assets insertObject:self.liveAsset atIndex:insertPosition];
-                                              }
-                                              // Make sure we reload the collection view
-                                              [self.collectionView reloadData];
-                                              // Scroll to the correct position
-                                              NSInteger sectionToScroll = 0;
-                                              NSInteger itemToScroll = self.showMostRecentFirst ? 0 :self.assets.count-1;
-                                              [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-                                          }
-                                      }];
+                                      usingBlock:assetEnumerationBlock];
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
