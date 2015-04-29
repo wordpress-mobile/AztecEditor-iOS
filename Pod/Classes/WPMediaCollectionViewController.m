@@ -190,7 +190,7 @@ static NSString *const ArrowDown = @"\u25be";
     NSURL *currentGroupURL = [self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL];
     for (int i =0; i < self.selectedAssets.count; i++) {
         ALAsset *asset = (ALAsset *)self.selectedAssets[i];
-        NSURL *assetURL = (ALAsset *)[asset valueForProperty:ALAssetPropertyAssetURL];
+        NSURL *assetURL = (NSURL *)[asset valueForProperty:ALAssetPropertyAssetURL];
         [selectedAssetsSet addObject:assetURL];
         
         ALAssetsGroup *assetGroup = (ALAssetsGroup *)self.selectedAssetsGroup[i];
