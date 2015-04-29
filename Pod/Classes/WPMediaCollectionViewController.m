@@ -550,6 +550,10 @@ static NSString *const ArrowDown = @"\u25be";
     [self.collectionView performBatchUpdates:^{
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
     } completion:^(BOOL finished) {
+        if ( ![self showMostRecentFirst] ){
+            NSUInteger reloadPosition = self.assets.count - 1;
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+        }
         self.ignoreMediaNotifications = NO;
     }];
     if (!willBeSelected) {
