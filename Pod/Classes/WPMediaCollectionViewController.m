@@ -14,6 +14,7 @@
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
 @property (nonatomic, strong) NSMutableArray *assets;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
+@property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, strong) ALAsset *liveAsset;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
@@ -43,6 +44,7 @@ static NSString *const ArrowDown = @"\u25be";
         _layout = layout;
         _assets = [[NSMutableArray alloc] init];
         _selectedAssets = [[NSMutableArray alloc] init];
+        _selectedAssetsGroup = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _liveAsset = [[ALAsset alloc] init];
@@ -184,9 +186,18 @@ static NSString *const ArrowDown = @"\u25be";
     [self.assets removeAllObjects];
     
     NSMutableSet *selectedAssetsSet = [NSMutableSet set];
-    NSMutableSet *stillExistingSeletedAsssets = [NSMutableSet set];
-    for (ALAsset *asset in self.selectedAssets) {
-        [selectedAssetsSet addObject:[asset valueForProperty:ALAssetPropertyAssetURL] ];
+    NSMutableSet *stillExistingSeletedAssets = [NSMutableSet set];
+    NSURL *currentGroupURL = [self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL];
+    for (int i =0; i < self.selectedAssets.count; i++) {
+        ALAsset *asset = (ALAsset *)self.selectedAssets[i];
+        NSURL *assetURL = (ALAsset *)[asset valueForProperty:ALAssetPropertyAssetURL];
+        [selectedAssetsSet addObject:assetURL];
+        
+        ALAssetsGroup *assetGroup = (ALAssetsGroup *)self.selectedAssetsGroup[i];
+        NSURL *assetGroupURL = [assetGroup valueForProperty:ALAssetsGroupPropertyURL];
+        if ( ![assetGroupURL isEqual:currentGroupURL]) {
+            [stillExistingSeletedAssets addObject:assetURL];
+        }
     }
     
     if (!self.assetsGroup) {
@@ -214,10 +225,10 @@ static NSString *const ArrowDown = @"\u25be";
                                               [self.assets addObject:result];
                                               NSURL *assetURL = [result valueForProperty:ALAssetPropertyAssetURL];
                                               if ([selectedAssetsSet containsObject:assetURL]) {
-                                                  [stillExistingSeletedAsssets addObject:assetURL];
+                                                  [stillExistingSeletedAssets addObject:assetURL];
                                               }
                                           } else {
-                                              [selectedAssetsSet minusSet:stillExistingSeletedAsssets];
+                                              [selectedAssetsSet minusSet:stillExistingSeletedAssets];
                                               NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
                                               NSMutableArray *assetsToRemove = [NSMutableArray array];
                                               for (ALAsset *selectedAsset in self.selectedAssets){
@@ -341,6 +352,7 @@ static NSString *const ArrowDown = @"\u25be";
     }
 
     [self.selectedAssets addObject:asset];
+    [self.selectedAssetsGroup addObject:self.assetsGroup];
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [cell setPosition:self.selectedAssets.count];
@@ -383,6 +395,7 @@ static NSString *const ArrowDown = @"\u25be";
     NSUInteger deselectPosition = [self findAsset:asset];
     if (deselectPosition != NSNotFound) {
         [self.selectedAssets removeObjectAtIndex:deselectPosition];
+        [self.selectedAssetsGroup removeObjectAtIndex:deselectPosition];
     }
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
@@ -521,11 +534,13 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         if ([self.picker.delegate mediaPickerController:self.picker shouldSelectAsset:asset]) {
             [self.selectedAssets addObject:asset];
+            [self.selectedAssetsGroup addObject:self.assetsGroup];
         } else {
             willBeSelected = NO;
         }
     } else {
         [self.selectedAssets addObject:asset];
+        [self.selectedAssetsGroup addObject:self.assetsGroup];
     }
 
     NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : self.assets.count - 1;
