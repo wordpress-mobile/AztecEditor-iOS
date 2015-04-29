@@ -182,7 +182,13 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)loadData
 {
     [self.assets removeAllObjects];
-
+    
+    NSMutableSet *selectedAssetsSet = [NSMutableSet set];
+    NSMutableSet *stillExistingSeletedAsssets = [NSMutableSet set];
+    for (ALAsset *asset in self.selectedAssets) {
+        [selectedAssetsSet addObject:[asset valueForProperty:ALAssetPropertyAssetURL] ];
+    }
+    
     if (!self.assetsGroup) {
         [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if(!group){
@@ -206,12 +212,28 @@ static NSString *const ArrowDown = @"\u25be";
                                       usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
                                           if (result){
                                               [self.assets addObject:result];
+                                              NSURL *assetURL = [result valueForProperty:ALAssetPropertyAssetURL];
+                                              if ([selectedAssetsSet containsObject:assetURL]) {
+                                                  [stillExistingSeletedAsssets addObject:assetURL];
+                                              }
                                           } else {
+                                              [selectedAssetsSet minusSet:stillExistingSeletedAsssets];
+                                              NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
+                                              NSMutableArray *assetsToRemove = [NSMutableArray array];
+                                              for (ALAsset *selectedAsset in self.selectedAssets){
+                                                  if ([missingAsset containsObject:[selectedAsset valueForProperty:ALAssetPropertyAssetURL]]){
+                                                      [assetsToRemove addObject:selectedAsset];
+                                                  }
+                                              }
+                                              [self.selectedAssets removeObjectsInArray:assetsToRemove];
+                                              // Add live data cell
                                               if ([self isShowingCaptureCell]){
                                                   NSInteger insertPosition = self.showMostRecentFirst ? 0 : self.assets.count;
                                                   [self.assets insertObject:self.liveAsset atIndex:insertPosition];
                                               }
+                                              // Make sure we reload the collection view
                                               [self.collectionView reloadData];
+                                              // Scroll to the correct position
                                               NSInteger sectionToScroll = 0;
                                               NSInteger itemToScroll = self.showMostRecentFirst ? 0 :self.assets.count-1;
                                               [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
@@ -319,6 +341,7 @@ static NSString *const ArrowDown = @"\u25be";
     }
 
     [self.selectedAssets addObject:asset];
+    
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [cell setPosition:self.selectedAssets.count];
     [self animateCellSelection:cell completion:^{
