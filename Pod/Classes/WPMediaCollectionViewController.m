@@ -64,7 +64,14 @@ static NSString *const ArrowDown = @"\u25be";
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
-
+    // HACK: Fix for iOS 7 not respecting the appeareance background color
+    if (![[self class] isiOS8OrAbove]) {
+        UIColor * appearanceColor = [[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] backgroundColor];
+        if (!appearanceColor){
+            appearanceColor = [[UICollectionView appearance] backgroundColor];
+        }
+        self.collectionView.backgroundColor = appearanceColor;
+    }
     // Register cell classes
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
     [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
