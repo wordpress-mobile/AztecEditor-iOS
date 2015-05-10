@@ -1,6 +1,55 @@
 @import UIKit;
 @import AssetsLibrary;
 
+typedef NS_ENUM(NSInteger, WPMediaType){
+    WPMediaTypeImage,
+    WPMediaTypeVideo,
+    WPMediaTypeOther,
+    WPMediaTypeAll
+};
+
+@protocol WPMediaDetail <NSObject>
+
+- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (WPMediaType)mediaType;
+- (NSNumber *)duration;
+- (id)originalAsset;
+- (NSString *)identifier;
+- (NSDate *)date;
+
+@end
+
+typedef void (^WPMediaChangesBlock)();
+typedef void (^WPMediaFailureBlock)(NSError *error);
+typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
+
+@protocol WPMediaCollectionDataSource <NSObject>
+
+- (NSInteger)numberOfGroups;
+
+- (NSString *)titleOfGroupAtIndex:(NSInteger)index;
+
+- (void)selectGroupAtIndex:(NSInteger)index;
+
+- (NSInteger)indexOfSelectedGroup;
+
+- (NSString *)identifierOfSelectedGroup;
+
+- (NSInteger)numberOfAssetsInGroup;
+
+- (id<WPMediaDetail>) mediaAtIndex:(NSInteger)index;
+
+- (void)setupChangesObserverBlock:(WPMediaChangesBlock)callback;
+
+- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
+                    failure:(WPMediaFailureBlock)failureBlock;
+
+- (void)addImage:(UIImage *)image metadata:(NSDictionary *)metadata completionBlock:(WPMediaAddedBlock)completionBlock;
+
+- (void)addVideoFromURL:(NSURL *)url  completionBlock:(WPMediaAddedBlock)completionBlock;
+
+@end
+
 @protocol WPMediaPickerViewControllerDelegate;
 
 @interface WPMediaPickerViewController : UIViewController
