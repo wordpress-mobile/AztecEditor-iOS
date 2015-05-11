@@ -49,9 +49,10 @@
     if (  groupsChanged && [groupsChanged containsObject:currentGroupID]
         && assetsChanged.count > 0
         && !self.ignoreMediaNotifications) {
+        __weak __typeof__(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self loadDataWithSuccess:^{
-                [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+            [weakSelf loadDataWithSuccess:^{
+                [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
                     block();
                 }];
             } failure:nil];

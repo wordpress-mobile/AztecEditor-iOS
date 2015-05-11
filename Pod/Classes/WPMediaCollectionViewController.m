@@ -92,8 +92,9 @@ static NSString *const ArrowDown = @"\u25be";
     self.ignoreMediaNotifications = NO;
 
     [self.dataSource setMediaTypeFilter:self.filter];
+    __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [self refreshData];
+        [weakSelf refreshData];
     }];
     [self refreshData];
 }
