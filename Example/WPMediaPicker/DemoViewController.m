@@ -88,7 +88,7 @@
 {
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
-    mediaPicker.filter = WPMediaTypeVideo;
+    mediaPicker.showMostRecentFirst = YES;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

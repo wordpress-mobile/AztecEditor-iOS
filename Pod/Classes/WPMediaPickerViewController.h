@@ -44,6 +44,8 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group;
 
+- (NSInteger)numberOfAssets;
+
 - (id<WPMediaAsset>) mediaAtIndex:(NSInteger)index;
 
 - (void)registerChangeObserverBlock:(WPMediaChangesBlock)callback;

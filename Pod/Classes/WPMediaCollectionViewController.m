@@ -13,7 +13,6 @@
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
-//@property (nonatomic, strong) ALAsset *liveAsset;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIPopoverController *popOverController;
@@ -39,7 +38,6 @@ static NSString *const ArrowDown = @"\u25be";
         _selectedAssetsGroup = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
-        //_liveAsset = [[ALAsset alloc] init];
         _filter = WPMediaTypeAll;
     }
     return self;
@@ -166,9 +164,9 @@ static NSString *const ArrowDown = @"\u25be";
         [self.titleButton sizeToFit];
         [self.collectionView reloadData];
         // Scroll to the correct position
-        if ([mediaGroup numberOfAssets] > 0){
+        if ([self.dataSource numberOfAssets] > 0){
             NSInteger sectionToScroll = 0;
-            NSInteger itemToScroll = self.showMostRecentFirst ? 0 :[mediaGroup numberOfAssets]-1;
+            NSInteger itemToScroll = self.showMostRecentFirst ? 0 :[self.dataSource numberOfAssets]-1;
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
         }
 
@@ -194,7 +192,7 @@ static NSString *const ArrowDown = @"\u25be";
         }
     }
     
-    for (int i = 0; i < [mediaGroup numberOfAssets]; i++){
+    for (int i = 0; i < [self.dataSource numberOfAssets]; i++){
         id<WPMediaAsset> asset = (id<WPMediaAsset>)[self.dataSource mediaAtIndex:i];
         if ([selectedAssetsSet containsObject:[asset identifier]]) {
             [stillExistingSeletedAssets addObject:[asset identifier]];
@@ -219,20 +217,42 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return [[self.dataSource selectedGroup] numberOfAssets];
+    int extraAssets = self.allowCaptureOfMedia ? 1 : 0;
+    return [self.dataSource numberOfAssets] + extraAssets;
+}
+
+- (BOOL)isCaptureCellIndexPath:(NSIndexPath *)indexPath
+{
+    if (!self.allowCaptureOfMedia){
+        return NO;
+    }
+    NSInteger positionOfCapture = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets];
+    return positionOfCapture == indexPath.item;
+}
+
+- (id<WPMediaAsset>)assetForPosition:(NSIndexPath *)indexPath
+{
+    NSInteger itemPosition = indexPath.item;
+    NSInteger count = [self.dataSource numberOfAssets];
+    if (self.showMostRecentFirst){
+        itemPosition = count - 1 - itemPosition;
+        if (self.allowCaptureOfMedia) {
+            itemPosition++;
+        }
+    }
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:itemPosition];
+    return asset;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // load the asset for this cell
-    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
-
-//    if (asset == self.liveAsset) {
-//        self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
-//        [self.captureCell startCapture];
-//        return self.captureCell;
-//    }
-
+    if ([self isCaptureCellIndexPath:indexPath] ) {
+        self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
+        [self.captureCell startCapture];
+        return self.captureCell;
+    }
+    
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
 
     // Configure the cell
@@ -284,12 +304,11 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always select the capture
-//    if (self.liveAsset == asset) {
-//        return YES;
-//    }
-
+    if ([self isCaptureCellIndexPath:indexPath]) {
+        return YES;
+    }
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldSelectAsset:asset];
     }
@@ -298,15 +317,15 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
-//    if (self.liveAsset == asset) {
-//        [self.captureCell stopCaptureOnCompletion:^{
-//            [self captureMedia];
-//            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
-//        }];
-//        return;
-//    }
-
+    if ([self isCaptureCellIndexPath:indexPath]) {
+        [self.captureCell stopCaptureOnCompletion:^{
+            [self captureMedia];
+            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+        }];
+        return;
+    }
+    
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     [self.selectedAssets addObject:asset];
     [self.selectedAssetsGroup addObject:[[self.dataSource selectedGroup] identifier]];
     
@@ -328,12 +347,12 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always deselect the capture
-//    if (self.liveAsset == asset) {
-//        return YES;
-//    }
-
+    if ([self isCaptureCellIndexPath:indexPath]) {
+        return YES;
+    }
+    
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldDeselectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldDeselectAsset:asset];
     }
@@ -342,12 +361,12 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // check if deselected the capture item
-//    if (self.liveAsset == asset) {
-//        return;
-//    }
+    if ([self isCaptureCellIndexPath:indexPath]) {
+        return;
+    }
 
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
         [self.selectedAssets removeObjectAtIndex:deselectPosition];
@@ -489,16 +508,19 @@ static NSString *const ArrowDown = @"\u25be";
         [self.selectedAssetsGroup addObject:[mediaGroup identifier]];
     }
 
-    NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [mediaGroup numberOfAssets]  - 1;
-    [self.collectionView performBatchUpdates:^{
-        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-    } completion:^(BOOL finished) {
-        if ( ![self showMostRecentFirst] ){
-            NSUInteger reloadPosition = [mediaGroup numberOfAssets] - 1;
-            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-        }
-        self.ignoreMediaNotifications = NO;
-    }];
+    NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [self.dataSource numberOfAssets]-1;
+
+    [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
+
+    if ( ![self showMostRecentFirst] ){
+        NSUInteger reloadPosition = [self.dataSource numberOfAssets];
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+    } else {
+        NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+    }
+    self.ignoreMediaNotifications = NO;
+    
     if (!willBeSelected) {
         return;
     }

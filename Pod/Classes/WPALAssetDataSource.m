@@ -103,6 +103,11 @@
     return NSNotFound;
 }
 
+- (NSInteger)numberOfAssets
+{
+    return self.assets.count;
+}
+
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
     return [[WPALAssetDetail alloc] initWithAsset:self.assets[index]];
