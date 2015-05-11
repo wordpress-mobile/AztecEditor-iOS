@@ -106,7 +106,7 @@
     return [[WPALAssetDetail alloc] initWithAsset:self.assets[index]];
 }
 
-- (void)setupChangesObserverBlock:(WPMediaChangesBlock)callback
+- (void)registerChangeObserverBlock:(WPMediaChangesBlock)callback
 {
     self.mediaChangesCallbackBlock = callback;
 }
