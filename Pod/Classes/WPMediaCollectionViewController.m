@@ -88,6 +88,9 @@ static NSString *const ArrowDown = @"\u25be";
         self.dataSource = [[WPALAssetDataSource alloc] init];
         [self.dataSource setMediaTypeFilter:self.filter];
     }
+    [self.dataSource registerChangeObserverBlock:^{
+        [self refreshData];
+    }];
     [self refreshData];
 }
 
