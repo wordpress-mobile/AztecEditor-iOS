@@ -48,7 +48,9 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (id<WPMediaAsset>) mediaAtIndex:(NSInteger)index;
 
-- (void)registerChangeObserverBlock:(WPMediaChangesBlock)callback;
+- (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback;
+
+- (void)unregisterChangeObserver:(id<NSObject>)blockKey;
 
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock;

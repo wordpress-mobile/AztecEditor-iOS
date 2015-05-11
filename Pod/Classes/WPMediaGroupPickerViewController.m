@@ -6,6 +6,8 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
+@property (nonatomic, strong) NSObject *changesObserver;
+
 @end
 
 @implementation WPMediaGroupPickerViewController
@@ -16,6 +18,11 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     if (self) {
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_dataSource unregisterChangeObserver:_changesObserver];
 }
 
 - (void)viewDidLoad
@@ -35,13 +42,15 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
     //Setup navigation
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
+        [self loadData];
+    }];
     [self loadData];
 }
 
 - (void)loadData
 {
- 
+    [self.tableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource methods

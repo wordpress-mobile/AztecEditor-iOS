@@ -10,9 +10,9 @@
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
-@property (nonatomic, copy) WPMediaChangesBlock mediaChangesCallbackBlock;
 @property (nonatomic, assign) WPMediaType filter;
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
+@property (nonatomic, strong) NSMutableDictionary *observers;
 @end
 
 @implementation WPALAssetDataSource
@@ -32,6 +32,7 @@
     _selectedAssetsGroup = [[NSMutableArray alloc] init];
     _filter = WPMediaTypeAll;
     _assetsFilter = [ALAssetsFilter allAssets];
+    _observers = [[NSMutableDictionary alloc] init];
     return self;
 }
 
@@ -49,7 +50,11 @@
         && assetsChanged.count > 0
         && !self.ignoreMediaNotifications) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self loadDataWithSuccess:self.mediaChangesCallbackBlock failure:nil];
+            [self loadDataWithSuccess:^{
+                [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+                    block();
+                }];
+            } failure:nil];
         });
     }
 }
@@ -113,9 +118,17 @@
     return [[WPALAssetDetail alloc] initWithAsset:self.assets[index]];
 }
 
-- (void)registerChangeObserverBlock:(WPMediaChangesBlock)callback
+- (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
 {
-    self.mediaChangesCallbackBlock = callback;
+    NSUUID *blockKey = [NSUUID UUID];
+    [self.observers setObject:[callback copy] forKey:blockKey];
+    return blockKey;
+    
+}
+
+- (void)unregisterChangeObserver:(id<NSObject>)blockKey
+{
+    [self.observers removeObjectForKey:blockKey];
 }
 
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock

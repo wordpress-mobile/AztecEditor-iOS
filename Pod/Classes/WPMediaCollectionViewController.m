@@ -17,6 +17,7 @@
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
+@property (nonatomic, strong) NSObject *changesObserver;
 
 @end
 
@@ -41,6 +42,11 @@ static NSString *const ArrowDown = @"\u25be";
         _filter = WPMediaTypeAll;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_dataSource unregisterChangeObserver:_changesObserver];
 }
 
 - (void)viewDidLoad
@@ -86,7 +92,7 @@ static NSString *const ArrowDown = @"\u25be";
     self.ignoreMediaNotifications = NO;
 
     [self.dataSource setMediaTypeFilter:self.filter];
-    [self.dataSource registerChangeObserverBlock:^{
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
         [self refreshData];
     }];
     [self refreshData];
