@@ -66,16 +66,27 @@
 
 - (NSInteger)numberOfGroups
 {
-    return 1;
+    return self.groups.count;
 }
 
-- (NSString *)titleOfGroupAtIndex:(NSInteger)index
+- (id<WPMediaGroup>)groupAtIndex:(NSInteger)index {
+   return [[WPALAssetGroup alloc] initWithAssetsGroup:self.groups[index]];
+}
+
+- (void)selectGroupAtIndex:(NSInteger)index
 {
-    return (NSString *)[self.assetsGroup valueForProperty:ALAssetsGroupPropertyName];
+    self.assetsGroup = (ALAssetsGroup *)[self.groups[index] originalGroup];
 }
 
-- (void)selectGroupAtIndex:(NSInteger)index {
-    self.assetsGroup = self.groups[index];
+- (id<WPMediaGroup>)selectedGroup
+{
+    return [[WPALAssetGroup alloc] initWithAssetsGroup:self.assetsGroup];
+}
+
+- (void)setSelectedGroup:(id<WPMediaGroup>)group
+{
+    NSParameterAssert([group isKindOfClass:[WPALAssetGroup class]]);
+    self.assetsGroup = (ALAssetsGroup *)[group originalGroup];
 }
 
 - (NSInteger)indexOfSelectedGroup
@@ -88,16 +99,6 @@
         }
     }
     return NSNotFound;
-}
-
-- (NSString *)identifierOfSelectedGroup
-{
-    return [[self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL] absoluteString];
-}
-
-- (NSInteger)numberOfAssetsInGroup
-{
-    return self.assets.count;
 }
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
@@ -136,7 +137,7 @@
         }];
     }
     
-    //[self.assetsGroup setAssetsFilter:self.assetsFilter];
+    [self.assetsGroup setAssetsFilter:[ALAssetsFilter allAssets]];
     ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *asset, NSUInteger index, BOOL *stop) {
         if (asset){
             [self.assets addObject:asset];
@@ -276,3 +277,51 @@
 }
 
 @end
+
+#pragma mark - WPALAssetDetail
+
+@interface WPALAssetGroup()
+
+@property (nonatomic, strong) ALAssetsGroup *assetsGroup;
+
+@end
+
+@implementation WPALAssetGroup
+
+- (instancetype)initWithAssetsGroup:(ALAssetsGroup *)assetsGroup
+{
+    self = [super init];
+    if (!self){
+        return nil;
+    }
+    _assetsGroup = assetsGroup;
+    return self;
+}
+
+- (NSString *)name
+{
+    return [self.assetsGroup valueForProperty:ALAssetsGroupPropertyName];
+}
+
+- (UIImage *)thumbnailWithSize:(CGSize)size
+{
+    return [UIImage imageWithCGImage:[self.assetsGroup posterImage]];
+}
+
+- (id)originalGroup
+{
+    return self.assetsGroup;
+}
+
+- (NSString *)identifier
+{
+    return [[self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL] absoluteString];
+}
+
+- (NSInteger)numberOfAssets
+{
+    return self.assetsGroup.numberOfAssets;
+}
+
+@end
+

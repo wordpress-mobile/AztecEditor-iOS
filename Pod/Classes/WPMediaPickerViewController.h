@@ -8,6 +8,16 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeAll
 };
 
+@protocol WPMediaGroup <NSObject>
+
+- (NSString *)name;
+- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (id)originalGroup;
+- (NSString *)identifier;
+- (NSInteger)numberOfAssets;
+
+@end
+
 @protocol WPMediaAsset <NSObject>
 
 - (UIImage *)thumbnailWithSize:(CGSize)size;
@@ -27,15 +37,13 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (NSInteger)numberOfGroups;
 
-- (NSString *)titleOfGroupAtIndex:(NSInteger)index;
+- (id<WPMediaGroup>)groupAtIndex:(NSInteger)index;
 
 - (void)selectGroupAtIndex:(NSInteger)index;
 
-- (NSInteger)indexOfSelectedGroup;
+- (id<WPMediaGroup>)selectedGroup;
 
-- (NSString *)identifierOfSelectedGroup;
-
-- (NSInteger)numberOfAssetsInGroup;
+- (void)setSelectedGroup:(id<WPMediaGroup>)group;
 
 - (id<WPMediaAsset>) mediaAtIndex:(NSInteger)index;
 
