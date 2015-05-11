@@ -23,4 +23,9 @@
  */
 @property (nonatomic, assign) BOOL allowMultipleSelection;
 
+/**
+  The object that acts as the data source of the media picker.
+ */
+@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
+
 @end

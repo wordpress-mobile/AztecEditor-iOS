@@ -70,6 +70,14 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 @property (nonatomic, weak) id<WPMediaPickerViewControllerDelegate> delegate;
 
 /**
+ The object that acts as the data source of the media picker.
+ 
+ @Discussion
+ If no object is defined then the picker will use by defailt a data source that access the user media library.
+*/
+@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
+
+/**
  If set the picker will show a cell that allows capture of new media, that can be used immediatelly
  */
 @property (nonatomic, assign) BOOL allowCaptureOfMedia;

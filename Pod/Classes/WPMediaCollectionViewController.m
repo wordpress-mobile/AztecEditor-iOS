@@ -17,7 +17,7 @@
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
-@property (nonatomic, strong) id<WPMediaCollectionDataSource> dataSource;
+
 @end
 
 @implementation WPMediaCollectionViewController
@@ -84,10 +84,8 @@ static NSString *const ArrowDown = @"\u25be";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
     self.ignoreMediaNotifications = NO;
-    if (!self.dataSource) {
-        self.dataSource = [[WPALAssetDataSource alloc] init];
-        [self.dataSource setMediaTypeFilter:self.filter];
-    }
+
+    [self.dataSource setMediaTypeFilter:self.filter];
     [self.dataSource registerChangeObserverBlock:^{
         [self refreshData];
     }];
