@@ -1,5 +1,4 @@
 @import UIKit;
-@import AssetsLibrary;
 
 typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeImage,
@@ -56,6 +55,10 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (void)addVideoFromURL:(NSURL *)url  completionBlock:(WPMediaAddedBlock)completionBlock;
 
+- (void) setMediaTypeFilter:(WPMediaType)filter;
+
+- (WPMediaType) mediaTypeFilter;
+
 @end
 
 @protocol WPMediaPickerViewControllerDelegate;
@@ -77,7 +80,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 /**
  *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
  */
-@property (nonatomic, strong) ALAssetsFilter *assetsFilter;
+@property (nonatomic, assign) WPMediaType filter;
 
 /**
  If set the picker will allow the selection of multiple items. By default this value is YES.

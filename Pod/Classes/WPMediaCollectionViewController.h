@@ -1,5 +1,5 @@
 @import UIKit;
-@import AssetsLibrary;
+#import "WPMediaGroupPickerViewController.h"
 
 @interface WPMediaCollectionViewController : UICollectionViewController
 
@@ -16,7 +16,7 @@
 /**
  *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
  */
-@property (nonatomic, strong) ALAssetsFilter *assetsFilter;
+@property (nonatomic, assign) WPMediaType filter;
 
 /**
  If set the picker will allow the selection of multiple items. By default this value is YES.

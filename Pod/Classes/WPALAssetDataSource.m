@@ -11,7 +11,8 @@
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, copy) WPMediaChangesBlock mediaChangesCallbackBlock;
-
+@property (nonatomic, assign) WPMediaType filter;
+@property (nonatomic, strong) ALAssetsFilter *assetsFilter;
 @end
 
 @implementation WPALAssetDataSource
@@ -29,7 +30,8 @@
     _assets = [[NSMutableArray alloc] init];
     _selectedAssets = [[NSMutableArray alloc] init];
     _selectedAssetsGroup = [[NSMutableArray alloc] init];
-    
+    _filter = WPMediaTypeAll;
+    _assetsFilter = [ALAssetsFilter allAssets];
     return self;
 }
 
@@ -137,7 +139,7 @@
         }];
     }
     
-    [self.assetsGroup setAssetsFilter:[ALAssetsFilter allAssets]];
+    [self.assetsGroup setAssetsFilter:self.assetsFilter];
     ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *asset, NSUInteger index, BOOL *stop) {
         if (asset){
             [self.assets addObject:asset];
@@ -214,7 +216,31 @@
                self.ignoreMediaNotifications = NO;
            });
        }];
-    }];}
+    }];
+}
+
+- (void) setMediaTypeFilter:(WPMediaType)filter
+{
+    self.filter = filter;
+    switch (self.filter) {
+        case WPMediaTypeAll:
+            self.assetsFilter = [ALAssetsFilter allAssets];
+            break;
+        case WPMediaTypeImage:
+            self.assetsFilter = [ALAssetsFilter allPhotos];
+            break;
+        case WPMediaTypeVideo:
+            self.assetsFilter = [ALAssetsFilter allVideos];
+            break;
+        default:
+            self.assetsFilter = [ALAssetsFilter allAssets];
+            break;
+    }}
+
+- (WPMediaType)mediaTypeFilter
+{
+    return self.filter;
+}
 
 @end
 

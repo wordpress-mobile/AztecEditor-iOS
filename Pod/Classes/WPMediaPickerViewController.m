@@ -14,6 +14,7 @@
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _allowMultipleSelection = YES;
+        _filter = WPMediaTypeAll;
     }
 
     return self;
@@ -38,7 +39,7 @@
     WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
     vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
     vc.showMostRecentFirst = self.showMostRecentFirst;
-    vc.assetsFilter = self.assetsFilter;
+    vc.filter = self.filter;
     vc.allowMultipleSelection = self.allowMultipleSelection;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.delegate = self;

@@ -13,7 +13,7 @@
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
-@property (nonatomic, strong) ALAsset *liveAsset;
+//@property (nonatomic, strong) ALAsset *liveAsset;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIPopoverController *popOverController;
@@ -39,8 +39,8 @@ static NSString *const ArrowDown = @"\u25be";
         _selectedAssetsGroup = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
-        _liveAsset = [[ALAsset alloc] init];
-        _assetsFilter = [ALAssetsFilter allAssets];
+        //_liveAsset = [[ALAsset alloc] init];
+        _filter = WPMediaTypeAll;
     }
     return self;
 }
@@ -86,8 +86,10 @@ static NSString *const ArrowDown = @"\u25be";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
     self.ignoreMediaNotifications = NO;
-    
-    self.dataSource = [[WPALAssetDataSource alloc] init];
+    if (!self.dataSource) {
+        self.dataSource = [[WPALAssetDataSource alloc] init];
+        [self.dataSource setMediaTypeFilter:self.filter];
+    }
     [self refreshData];
 }
 
@@ -225,11 +227,11 @@ static NSString *const ArrowDown = @"\u25be";
     // load the asset for this cell
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
 
-    if (asset == self.liveAsset) {
-        self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
-        [self.captureCell startCapture];
-        return self.captureCell;
-    }
+//    if (asset == self.liveAsset) {
+//        self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
+//        [self.captureCell startCapture];
+//        return self.captureCell;
+//    }
 
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
 
@@ -284,9 +286,9 @@ static NSString *const ArrowDown = @"\u25be";
 {
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always select the capture
-    if (self.liveAsset == asset) {
-        return YES;
-    }
+//    if (self.liveAsset == asset) {
+//        return YES;
+//    }
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldSelectAsset:asset];
@@ -297,13 +299,13 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
-    if (self.liveAsset == asset) {
-        [self.captureCell stopCaptureOnCompletion:^{
-            [self captureMedia];
-            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
-        }];
-        return;
-    }
+//    if (self.liveAsset == asset) {
+//        [self.captureCell stopCaptureOnCompletion:^{
+//            [self captureMedia];
+//            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+//        }];
+//        return;
+//    }
 
     [self.selectedAssets addObject:asset];
     [self.selectedAssetsGroup addObject:[[self.dataSource selectedGroup] identifier]];
@@ -328,9 +330,9 @@ static NSString *const ArrowDown = @"\u25be";
 {
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always deselect the capture
-    if (self.liveAsset == asset) {
-        return YES;
-    }
+//    if (self.liveAsset == asset) {
+//        return YES;
+//    }
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldDeselectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldDeselectAsset:asset];
@@ -342,9 +344,9 @@ static NSString *const ArrowDown = @"\u25be";
 {
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // check if deselected the capture item
-    if (self.liveAsset == asset) {
-        return;
-    }
+//    if (self.liveAsset == asset) {
+//        return;
+//    }
 
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
