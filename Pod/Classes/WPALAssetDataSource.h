@@ -6,6 +6,6 @@
 
 @end
 
-@interface WPALAssetDetail : NSObject<WPMediaDetail>
+@interface WPALAssetDetail : NSObject<WPMediaAsset>
 - (instancetype)initWithAsset:(ALAsset *)asset;
 @end

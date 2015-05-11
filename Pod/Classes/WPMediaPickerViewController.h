@@ -8,7 +8,7 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeAll
 };
 
-@protocol WPMediaDetail <NSObject>
+@protocol WPMediaAsset <NSObject>
 
 - (UIImage *)thumbnailWithSize:(CGSize)size;
 - (WPMediaType)mediaType;
@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 
 typedef void (^WPMediaChangesBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
-typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
+typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 @protocol WPMediaCollectionDataSource <NSObject>
 
@@ -37,7 +37,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
 
 - (NSInteger)numberOfAssetsInGroup;
 
-- (id<WPMediaDetail>) mediaAtIndex:(NSInteger)index;
+- (id<WPMediaAsset>) mediaAtIndex:(NSInteger)index;
 
 - (void)setupChangesObserverBlock:(WPMediaChangesBlock)callback;
 
@@ -102,7 +102,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  Tells the delegate that the user finish picking photos or videos.
  *
  *  @param picker The controller object managing the assets picker interface.
- *  @param assets An array containing picked `ALAsset` objects.
+ *  @param assets An array containing picked `WPMediaAsset` objects.
  *
  */
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets;
@@ -130,7 +130,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  @return `YES` if the asset should be shown or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldShowAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldShowAsset:(id<WPMediaAsset>*)asset;
 
 /**
  *  Ask the delegate if the specified asset should be enabled for selection.
@@ -141,7 +141,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  @return `YES` if the asset should be enabled or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldEnableAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldEnableAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  @name Managing the Selected Assets
@@ -156,7 +156,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  @return `YES` if the asset should be selected or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldSelectAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldSelectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Tells the delegate that the asset was selected.
@@ -165,7 +165,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  @param asset  The asset that was selected.
  *
  */
-- (void)mediaPickerController:(WPMediaPickerViewController *)picker didSelectAsset:(ALAsset *)asset;
+- (void)mediaPickerController:(WPMediaPickerViewController *)picker didSelectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Asks the delegate if the specified asset should be deselected.
@@ -177,7 +177,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *
  *  @see assetsPickerController:shouldSelectAsset:
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldDeselectAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldDeselectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Tells the delegate that the item at the specified path was deselected.
@@ -186,6 +186,6 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaDetail> media, NSError *error);
  *  @param asset  The asset that was deselected.
  *
  */
-- (void)mediaPickerController:(WPMediaPickerViewController *)picker didDeselectAsset:(ALAsset *)asset;
+- (void)mediaPickerController:(WPMediaPickerViewController *)picker didDeselectAsset:(id<WPMediaAsset>)asset;
 
 @end

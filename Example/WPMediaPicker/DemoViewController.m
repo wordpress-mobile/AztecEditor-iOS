@@ -50,7 +50,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
     }
     
-    id<WPMediaDetail> asset = self.assets[indexPath.row];
+    id<WPMediaAsset> asset = self.assets[indexPath.row];
     cell.imageView.image = [asset thumbnailWithSize:CGSizeZero];
     
     cell.textLabel.text = [self.dateFormatter stringFromDate:[asset date]];

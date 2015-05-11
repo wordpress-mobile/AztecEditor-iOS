@@ -100,7 +100,7 @@
     return self.assets.count;
 }
 
-- (id<WPMediaDetail>)mediaAtIndex:(NSInteger)index
+- (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
     return [[WPALAssetDetail alloc] initWithAsset:self.assets[index]];
 }

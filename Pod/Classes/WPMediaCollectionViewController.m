@@ -166,7 +166,7 @@ static NSString *const ArrowDown = @"\u25be";
     NSString *currentGroupURL = [self.dataSource identifierOfSelectedGroup];
     
     for (int i =0; i < self.selectedAssets.count; i++) {
-        id<WPMediaDetail> asset = (id<WPMediaDetail>)self.selectedAssets[i];
+        id<WPMediaAsset> asset = (id<WPMediaAsset>)self.selectedAssets[i];
         [selectedAssetsSet addObject:[asset identifier]];
         
         NSString *assetGroupIdentifier = (NSString *)self.selectedAssetsGroup[i];
@@ -176,7 +176,7 @@ static NSString *const ArrowDown = @"\u25be";
     }
 
     for (int i=0; i< [self.dataSource numberOfAssetsInGroup]; i++){
-        id<WPMediaDetail> asset = (id<WPMediaDetail>)[self.dataSource mediaAtIndex:i];
+        id<WPMediaAsset> asset = (id<WPMediaAsset>)[self.dataSource mediaAtIndex:i];
         if ([selectedAssetsSet containsObject:[asset identifier]]) {
             [stillExistingSeletedAssets addObject:[asset identifier]];
         }
@@ -185,7 +185,7 @@ static NSString *const ArrowDown = @"\u25be";
     [selectedAssetsSet minusSet:stillExistingSeletedAssets];
     NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
     NSMutableArray *assetsToRemove = [NSMutableArray array];
-    for (id<WPMediaDetail> selectedAsset in self.selectedAssets){
+    for (id<WPMediaAsset> selectedAsset in self.selectedAssets){
         if ([missingAsset containsObject:[selectedAsset identifier]]){
             [assetsToRemove addObject:selectedAsset];
         }
@@ -216,7 +216,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     // load the asset for this cell
-    id<WPMediaDetail> asset = [self.dataSource mediaAtIndex:indexPath.item];
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
 
     if (asset == self.liveAsset) {
         self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
@@ -262,9 +262,9 @@ static NSString *const ArrowDown = @"\u25be";
         return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
 }
 
-- (NSUInteger)positionOfAssetInSelection:(id<WPMediaDetail>)asset
+- (NSUInteger)positionOfAssetInSelection:(id<WPMediaAsset>)asset
 {
-    NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaDetail> loopAsset, NSUInteger idx, BOOL *stop) {
+    NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaAsset> loopAsset, NSUInteger idx, BOOL *stop) {
         BOOL found =  [[asset identifier]  isEqual:[loopAsset identifier]];
         return found;
     }];
@@ -275,7 +275,7 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaDetail> asset = [self.dataSource mediaAtIndex:indexPath.item];
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always select the capture
     if (self.liveAsset == asset) {
         return YES;
@@ -289,7 +289,7 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaDetail> asset = [self.dataSource mediaAtIndex:indexPath.item];
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     if (self.liveAsset == asset) {
         [self.captureCell stopCaptureOnCompletion:^{
             [self captureMedia];
@@ -319,7 +319,7 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaDetail> asset = [self.dataSource mediaAtIndex:indexPath.item];
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // you can always deselect the capture
     if (self.liveAsset == asset) {
         return YES;
@@ -333,7 +333,7 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<WPMediaDetail> asset = [self.dataSource mediaAtIndex:indexPath.item];
+    id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:indexPath.item];
     // check if deselected the capture item
     if (self.liveAsset == asset) {
         return;
@@ -448,7 +448,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)processMediaCaptured:(NSDictionary *)info
 {
     self.ignoreMediaNotifications = YES;
-    WPMediaAddedBlock completionBlock = ^(id<WPMediaDetail> media, NSError *error) {
+    WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error){
             return;
         }
@@ -464,7 +464,7 @@ static NSString *const ArrowDown = @"\u25be";
     }
 }
 
-- (void)addMedia:(id<WPMediaDetail>)asset
+- (void)addMedia:(id<WPMediaAsset>)asset
 {
     BOOL willBeSelected = YES;
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
