@@ -287,7 +287,7 @@
     if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo) {
         duration = [self.asset valueForProperty:ALAssetPropertyDuration];
     }
-    return nil;
+    return duration;
 }
 
 - (id)originalAsset {
@@ -304,7 +304,7 @@
 
 @end
 
-#pragma mark - WPALAssetDetail
+#pragma mark - WPALAssetGroup
 
 @interface WPALAssetGroup()
 
