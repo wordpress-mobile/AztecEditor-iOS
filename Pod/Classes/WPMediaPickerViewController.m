@@ -1,5 +1,6 @@
 #import "WPMediaPickerViewController.h"
 #import "WPMediaCollectionViewController.h"
+#import "WPALAssetDataSource.h"
 
 @interface WPMediaPickerViewController () <UINavigationControllerDelegate>
 
@@ -14,6 +15,7 @@
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _allowMultipleSelection = YES;
+        _filter = WPMediaTypeAll;
     }
 
     return self;
@@ -38,8 +40,12 @@
     WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
     vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
     vc.showMostRecentFirst = self.showMostRecentFirst;
-    vc.assetsFilter = self.assetsFilter;
+    vc.filter = self.filter;
     vc.allowMultipleSelection = self.allowMultipleSelection;
+    if (!self.dataSource) {
+        self.dataSource = [self defaulDataSource];
+    }
+    vc.dataSource = self.dataSource;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.delegate = self;
 
@@ -48,6 +54,15 @@
     [self.view addSubview:nav.view];
     [self addChildViewController:nav];
     [nav didMoveToParentViewController:self];
+}
+
+- (id<WPMediaCollectionDataSource>) defaulDataSource {
+    static id<WPMediaCollectionDataSource> assetSource = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+       assetSource = [[WPALAssetDataSource alloc] init];
+    });
+    return assetSource;
 }
 
 @end

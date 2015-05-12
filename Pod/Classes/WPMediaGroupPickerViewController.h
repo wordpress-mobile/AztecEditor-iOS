@@ -1,5 +1,5 @@
 @import UIKit;
-@import AssetsLibrary;
+#import "WPMediaPickerViewController.h"
 
 @protocol WPMediaGroupPickerViewControllerDelegate;
 
@@ -11,14 +11,9 @@
 @property (nonatomic, weak) id<WPMediaGroupPickerViewControllerDelegate> delegate;
 
 /**
- The group that is being displaying on the picker. If not set the picker will try to select the default Camera Roll group.
+ The WPMediaCollectionDataSource that is being used to display the assets and groups. If not set the picker will create a new one.
  */
-@property (nonatomic, strong) ALAssetsGroup *selectedGroup;
-
-/**
- The AssettLibrary that is being used to display the assets and groups. If not set the picker will create a new one.
- */
-@property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic, strong) id<WPMediaCollectionDataSource> dataSource;
 
 @end
 
@@ -35,7 +30,7 @@
  *  @param assets An array containing picked `ALAsset` objects.
  *
  */
-- (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(ALAssetsGroup *)group;
+- (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group;
 
 @optional
 

@@ -1,5 +1,5 @@
 #import "DemoViewController.h"
-#import <WPMediaPicker/WPMediaPickerViewController.h>
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;
@@ -50,11 +50,11 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
     }
     
-    ALAsset * asset = self.assets[indexPath.row];
-    cell.imageView.image = [UIImage imageWithCGImage:[asset thumbnail]];
+    id<WPMediaAsset> asset = self.assets[indexPath.row];
+    cell.imageView.image = [asset thumbnailWithSize:CGSizeZero];
     
-    cell.textLabel.text = [self.dateFormatter stringFromDate:[asset valueForProperty:ALAssetPropertyDate]];
-    cell.detailTextLabel.text = [asset valueForProperty:ALAssetPropertyType];
+    cell.textLabel.text = [self.dateFormatter stringFromDate:[asset date]];
+    cell.detailTextLabel.text = [@([asset mediaType]) stringValue];
     cell.detailTextLabel.hidden = NO;
     
     return cell;
@@ -88,6 +88,7 @@
 {
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
+    mediaPicker.showMostRecentFirst = YES;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 
