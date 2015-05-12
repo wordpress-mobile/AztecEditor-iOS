@@ -46,7 +46,7 @@
 
 - (void)handleLibraryNotification:(NSNotification *)note
 {
-    if (  ![self shouldNotifyObservers:note]) {
+    if (![self shouldNotifyObservers:note]) {
         return;
     }
     __weak __typeof__(self) weakSelf = self;

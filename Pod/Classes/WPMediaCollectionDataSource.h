@@ -44,7 +44,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (NSInteger)numberOfAssets;
 
-- (id<WPMediaAsset>) mediaAtIndex:(NSInteger)index;
+- (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index;
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback;
 
@@ -57,7 +57,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (void)addVideoFromURL:(NSURL *)url  completionBlock:(WPMediaAddedBlock)completionBlock;
 
-- (void) setMediaTypeFilter:(WPMediaType)filter;
+- (void)setMediaTypeFilter:(WPMediaType)filter;
 
 - (WPMediaType) mediaTypeFilter;
 
