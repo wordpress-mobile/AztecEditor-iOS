@@ -1,5 +1,5 @@
 #import "DemoViewController.h"
-#import <WPMediaPicker/WPMediaPickerViewController.h>
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;

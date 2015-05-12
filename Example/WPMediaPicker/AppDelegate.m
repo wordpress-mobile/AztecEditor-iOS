@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 #import "DemoViewController.h"
-#import "WPMediaCollectionViewController.h"
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @implementation AppDelegate
 

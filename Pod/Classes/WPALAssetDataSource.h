@@ -1,6 +1,6 @@
 @import Foundation;
 @import AssetsLibrary;
-#import "WPMediaPickerViewController.h"
+#import "WPMediaCollectionDataSource.h"
 
 @interface WPALAssetDataSource : NSObject<WPMediaCollectionDataSource>
 
