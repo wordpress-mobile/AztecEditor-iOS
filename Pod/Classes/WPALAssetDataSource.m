@@ -157,7 +157,8 @@
     return self.groups.count;
 }
 
-- (id<WPMediaGroup>)groupAtIndex:(NSInteger)index {
+- (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
+{
    return [[WPALAssetGroup alloc] initWithAssetsGroup:self.groups[index]];
 }
 
@@ -323,13 +324,15 @@
     return self;
 }
 
-- (UIImage *)thumbnailWithSize:(CGSize)size {
+- (UIImage *)thumbnailWithSize:(CGSize)size
+{
     CGImageRef thumbnailImageRef = [self.asset thumbnail];
     UIImage *thumbnail = [UIImage imageWithCGImage:thumbnailImageRef];
     return thumbnail;
 }
 
-- (WPMediaType)mediaType {
+- (WPMediaType)mediaType
+{
     if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo){
         return WPMediaTypeVideo;
     } else if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypePhoto) {
@@ -341,7 +344,8 @@
     return WPMediaTypeOther;
 }
 
-- (NSNumber *)duration {
+- (NSNumber *)duration
+{
     NSNumber * duration = nil;
     if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo) {
         duration = [self.asset valueForProperty:ALAssetPropertyDuration];
@@ -349,15 +353,18 @@
     return duration;
 }
 
-- (id)originalAsset {
+- (id)originalAsset
+{
     return self.asset;
 }
 
-- (NSString *)identifier {
+- (NSString *)identifier
+{
     return [[self.asset valueForProperty:ALAssetPropertyAssetURL] absoluteString];
 }
 
-- (NSDate *)date {
+- (NSDate *)date
+{
     return [self.asset valueForProperty:ALAssetPropertyDate];
 }
 
