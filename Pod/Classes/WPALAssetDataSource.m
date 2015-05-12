@@ -13,6 +13,8 @@
 @property (nonatomic, assign) WPMediaType filter;
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
+@property (nonatomic, assign) BOOL refreshGroups;
+
 @end
 
 @implementation WPALAssetDataSource
@@ -33,6 +35,7 @@
     _filter = WPMediaTypeAll;
     _assetsFilter = [ALAssetsFilter allAssets];
     _observers = [[NSMutableDictionary alloc] init];
+    _refreshGroups = YES;
     return self;
 }
 
@@ -43,21 +46,41 @@
 
 - (void)handleLibraryNotification:(NSNotification *)note
 {
+    if (  ![self shouldNotifyObservers:note]) {
+        return;
+    }
+    __weak __typeof__(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf loadDataWithSuccess:^{
+            [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+                block();
+            }];
+        } failure:nil];
+    });
+}
+
+- (BOOL)shouldNotifyObservers:(NSNotification *)note
+{
+    if (!note.userInfo ||
+        note.userInfo[ALAssetLibraryUpdatedAssetGroupsKey] ||
+        [note.userInfo[ALAssetLibraryInsertedAssetGroupsKey] count] > 0 ||
+        [note.userInfo[ALAssetLibraryDeletedAssetGroupsKey] count] > 0
+        )
+    {
+        self.refreshGroups = YES;
+        return YES;
+    }
+
     NSURL *currentGroupID = [self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL];
     NSSet *groupsChanged = note.userInfo[ALAssetLibraryUpdatedAssetGroupsKey];
     NSSet *assetsChanged = note.userInfo[ALAssetLibraryUpdatedAssetsKey];
     if (  groupsChanged && [groupsChanged containsObject:currentGroupID]
         && assetsChanged.count > 0
         && !self.ignoreMediaNotifications) {
-        __weak __typeof__(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf loadDataWithSuccess:^{
-                [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
-                    block();
-                }];
-            } failure:nil];
-        });
+        return YES;
     }
+    
+    return NO;
 }
 
 - (ALAssetsLibrary *)assetsLibrary
@@ -68,6 +91,63 @@
         _assetsLibrary = [[ALAssetsLibrary alloc] init];
     });
     return _assetsLibrary;
+}
+
+- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
+                    failure:(WPMediaFailureBlock)failureBlock
+{
+    if (self.refreshGroups) {
+        [self loadGroupsWithSuccess:^{
+            self.refreshGroups = NO;
+            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+        } failure:failureBlock];
+    } else {
+        [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+    }
+}
+
+- (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
+                      failure:(WPMediaFailureBlock)failureBlock
+{
+    [self.groups removeAllObjects];
+    [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+        if(!group){
+            if (successBlock) {
+                successBlock();
+            }
+            return;
+        }
+        [self.groups addObject:group];
+        if (!self.assetsGroup){
+            if ([[group valueForProperty:ALAssetsGroupPropertyType] intValue] == ALAssetsGroupSavedPhotos){
+                self.assetsGroup = group;
+            }
+        }
+    } failureBlock:^(NSError *error) {
+        NSLog(@"Error: %@", [error localizedDescription]);
+        if (failureBlock) {
+            failureBlock(error);
+        }
+    }];
+}
+
+- (void)loadAssetsWithSuccess:(WPMediaChangesBlock)successBlock
+                      failure:(WPMediaFailureBlock)failureBlock
+{
+
+    [self.assets removeAllObjects];
+    [self.assetsGroup setAssetsFilter:self.assetsFilter];
+    ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *asset, NSUInteger index, BOOL *stop) {
+        if (asset){
+            [self.assets addObject:asset];
+        } else {
+            if (successBlock) {
+                successBlock();
+            }
+        }
+    };
+    [self.assetsGroup enumerateAssetsWithOptions: 0
+                                      usingBlock:assetEnumerationBlock];
 }
 
 #pragma mark - WPMediaCollectionDataSource
@@ -130,46 +210,6 @@
 - (void)unregisterChangeObserver:(id<NSObject>)blockKey
 {
     [self.observers removeObjectForKey:blockKey];
-}
-
-- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
-                failure:(WPMediaFailureBlock)failureBlock {
-    [self.assets removeAllObjects];
-    if (!self.assetsGroup){
-        [self.groups removeAllObjects];
-        [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-            if(!group){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self loadDataWithSuccess:successBlock failure:failureBlock];
-                });
-                return;
-            }
-            [self.groups addObject:group];
-            if (!self.assetsGroup){
-                if ([[group valueForProperty:ALAssetsGroupPropertyType] intValue] == ALAssetsGroupSavedPhotos){
-                    self.assetsGroup = group;
-                }
-            }
-        } failureBlock:^(NSError *error) {
-            NSLog(@"Error: %@", [error localizedDescription]);
-            if (failureBlock) {
-                failureBlock(error);
-            }
-        }];
-    }
-    
-    [self.assetsGroup setAssetsFilter:self.assetsFilter];
-    ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *asset, NSUInteger index, BOOL *stop) {
-        if (asset){
-            [self.assets addObject:asset];
-        } else {
-            if (successBlock) {
-                successBlock();
-            }
-        }
-    };
-    [self.assetsGroup enumerateAssetsWithOptions: 0
-                                      usingBlock:assetEnumerationBlock];
 }
 
 - (void)addImage:(UIImage *)image
