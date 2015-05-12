@@ -197,7 +197,7 @@
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
-    return [[WPALAssetDetail alloc] initWithAsset:self.assets[index]];
+    return [[WPALAssetMedia alloc] initWithAsset:self.assets[index]];
 }
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
@@ -229,7 +229,7 @@
         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
             [self.assets addObject:asset];
             [self.assetsGroup addAsset:asset];
-            WPALAssetDetail *mediaDetail = [[WPALAssetDetail alloc] initWithAsset:asset];
+            WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completionBlock) {
                     completionBlock(mediaDetail, nil);
@@ -261,7 +261,7 @@
        [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
            [self.assets addObject:asset];
            [self.assetsGroup addAsset:asset];
-           WPALAssetDetail *mediaDetail = [[WPALAssetDetail alloc] initWithAsset:asset];
+           WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
            dispatch_async(dispatch_get_main_queue(), ^{
                if (completionBlock) {
                    completionBlock(mediaDetail, nil);
@@ -304,15 +304,15 @@
 
 @end
 
-#pragma mark - WPALAssetDetail
+#pragma mark - WPALAssetMedia
 
-@interface WPALAssetDetail()
+@interface WPALAssetMedia()
 
 @property (nonatomic, strong) ALAsset *asset;
 
 @end
 
-@implementation WPALAssetDetail
+@implementation WPALAssetMedia
 
 - (instancetype)initWithAsset:(ALAsset *)asset
 {
