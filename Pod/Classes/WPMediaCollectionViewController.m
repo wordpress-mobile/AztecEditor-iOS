@@ -225,13 +225,13 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    int extraAssets = self.allowCaptureOfMedia ? 1 : 0;
+    int extraAssets = [self isShowingCaptureCell] ? 1 : 0;
     return [self.dataSource numberOfAssets] + extraAssets;
 }
 
 - (BOOL)isCaptureCellIndexPath:(NSIndexPath *)indexPath
 {
-    if (!self.allowCaptureOfMedia){
+    if (![self isShowingCaptureCell]){
         return NO;
     }
     NSInteger positionOfCapture = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets];
@@ -244,7 +244,7 @@ static NSString *const ArrowDown = @"\u25be";
     NSInteger count = [self.dataSource numberOfAssets];
     if (self.showMostRecentFirst){
         itemPosition = count - 1 - itemPosition;
-        if (self.allowCaptureOfMedia) {
+        if ([self isShowingCaptureCell]) {
             itemPosition++;
         }
     }
