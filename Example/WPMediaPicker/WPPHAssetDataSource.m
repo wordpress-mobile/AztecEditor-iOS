@@ -377,7 +377,9 @@
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
 {
-    return nil;
+    PHAsset * posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.assetCollection options:nil] firstObject];
+    WPPHAssetMedia * posterMedia = [[WPPHAssetMedia alloc] initWithAsset:posterAsset];
+    return [posterMedia thumbnailWithSize:size];
 }
 
 - (id)originalGroup
