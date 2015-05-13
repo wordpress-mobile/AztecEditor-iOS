@@ -59,7 +59,7 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (void)setMediaTypeFilter:(WPMediaType)filter;
 
-- (WPMediaType) mediaTypeFilter;
+- (WPMediaType)mediaTypeFilter;
 
 @end
 

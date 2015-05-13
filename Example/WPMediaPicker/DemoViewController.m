@@ -1,9 +1,11 @@
 #import "DemoViewController.h"
+#import "WPPHAssetDataSource.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
+@property (nonatomic, strong) WPPHAssetDataSource *phAssetDataSource;
 @end
 
 @implementation DemoViewController
@@ -89,6 +91,9 @@
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
     mediaPicker.showMostRecentFirst = YES;
+    self.phAssetDataSource = [[WPPHAssetDataSource alloc] init];
+    mediaPicker.dataSource = self.phAssetDataSource;
+    mediaPicker.filter = WPMediaTypeImage;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

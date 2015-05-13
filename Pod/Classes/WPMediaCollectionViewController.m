@@ -264,7 +264,7 @@ static NSString *const ArrowDown = @"\u25be";
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
 
     // Configure the cell
-    cell.image = [asset thumbnailWithSize:CGSizeZero];
+    cell.image = [asset thumbnailWithSize:cell.frame.size];
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];

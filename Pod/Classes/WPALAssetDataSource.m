@@ -7,8 +7,6 @@
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
 @property (nonatomic, strong) NSMutableArray *groups;
 @property (nonatomic, strong) NSMutableArray *assets;
-@property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, assign) WPMediaType filter;
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
@@ -30,8 +28,6 @@
                                                object:self.assetsLibrary];
     _groups = [[NSMutableArray alloc] init];
     _assets = [[NSMutableArray alloc] init];
-    _selectedAssets = [[NSMutableArray alloc] init];
-    _selectedAssetsGroup = [[NSMutableArray alloc] init];
     _filter = WPMediaTypeAll;
     _assetsFilter = [ALAssetsFilter allAssets];
     _observers = [[NSMutableDictionary alloc] init];
