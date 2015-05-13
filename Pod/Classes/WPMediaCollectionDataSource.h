@@ -36,8 +36,6 @@ typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index;
 
-- (void)selectGroupAtIndex:(NSInteger)index;
-
 - (id<WPMediaGroup>)selectedGroup;
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group;

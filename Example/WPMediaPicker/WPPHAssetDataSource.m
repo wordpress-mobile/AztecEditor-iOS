@@ -3,8 +3,8 @@
 
 @interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
 
-@property (nonatomic, strong) PHAssetCollection *assetsGroup;
-@property (nonatomic, strong) PHFetchResult *groups;
+@property (nonatomic, strong) PHAssetCollection *activeAssetsCollection;
+@property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
@@ -45,7 +45,7 @@
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
-    PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.groups];
+    PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.assetsCollections];
     PHFetchResultChangeDetails *assetsChangeDetails = [changeInstance changeDetailsForFetchResult:self.assets];
     
     if (!groupChangeDetails && !assetsChangeDetails) {
@@ -87,11 +87,11 @@
 - (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    self.groups = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+    self.assetsCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                            subtype:PHAssetCollectionSubtypeAny
                                                            options:nil];
-    if (self.groups.count > 0){
-        self.assetsGroup = self.groups[0];
+    if (self.assetsCollections.count > 0){
+        self.activeAssetsCollection = self.assetsCollections[0];
         if (successBlock) {
             successBlock();
         }
@@ -117,7 +117,7 @@
         }
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", mediaType];
     }
-    self.assets = [PHAsset fetchAssetsInAssetCollection:self.assetsGroup options:fetchOptions];
+    self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
     }
@@ -127,33 +127,23 @@
 
 - (NSInteger)numberOfGroups
 {
-    return self.groups.count;
+    return self.assetsCollections.count;
 }
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
 {
-    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.groups[index]];
-}
-
-- (void)selectGroupAtIndex:(NSInteger)index
-{
-    self.assetsGroup = self.groups[index];
+    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.assetsCollections[index]];
 }
 
 - (id<WPMediaGroup>)selectedGroup
 {
-    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.assetsGroup];
+    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.activeAssetsCollection];
 }
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
     NSParameterAssert([group isKindOfClass:[WPPHAssetCollection class]]);
-    self.assetsGroup = (PHAssetCollection *)[group originalGroup];
-}
-
-- (NSInteger)indexOfSelectedGroup
-{
-    return NSNotFound;
+    self.activeAssetsCollection = (PHAssetCollection *)[group originalGroup];
 }
 
 - (NSInteger)numberOfAssets
@@ -190,9 +180,9 @@
         PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
         PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
         assetIdentifier = [assetPlaceholder localIdentifier];
-        if ([self.assetsGroup canPerformEditOperation:PHCollectionEditOperationAddContent]) {
+        if ([self.activeAssetsCollection canPerformEditOperation:PHCollectionEditOperationAddContent]) {
             // Request editing the album.
-            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetsGroup];
+            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.activeAssetsCollection];
             [albumChangeRequest addAssets:@[ assetPlaceholder ]];
         }
     } completionHandler:^(BOOL success, NSError *error) {
@@ -234,9 +224,9 @@
         PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
         PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
         assetIdentifier = [assetPlaceholder localIdentifier];
-        if ([self.assetsGroup canPerformEditOperation:PHCollectionEditOperationAddContent]) {
+        if ([self.activeAssetsCollection canPerformEditOperation:PHCollectionEditOperationAddContent]) {
             // Request editing the album.
-            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetsGroup];
+            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.activeAssetsCollection];
             [albumChangeRequest addAssets:@[ assetPlaceholder ]];
         }
     } completionHandler:^(BOOL success, NSError *error) {
@@ -275,7 +265,7 @@
 
 @end
 
-#pragma mark - WPALAssetMedia
+#pragma mark - WPPHAssetMedia
 
 @interface WPPHAssetMedia()
 
@@ -356,7 +346,7 @@
 
 @interface WPPHAssetCollection()
 
-@property (nonatomic, strong) PHAssetCollection *assetsGroup;
+@property (nonatomic, strong) PHAssetCollection *assetCollection;
 
 @end
 
@@ -368,13 +358,13 @@
     if (!self){
         return nil;
     }
-    _assetsGroup = assetsGroup;
+    _assetCollection = assetsGroup;
     return self;
 }
 
 - (NSString *)name
 {
-    return [self.assetsGroup localizedTitle];
+    return [self.assetCollection localizedTitle];
 }
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
@@ -384,19 +374,19 @@
 
 - (id)originalGroup
 {
-    return self.assetsGroup;
+    return self.assetCollection;
 }
 
 - (NSString *)identifier
 {
-    return [self.assetsGroup localIdentifier];
+    return [self.assetCollection localIdentifier];
 }
 
 - (NSInteger)numberOfAssets
 {
-    NSInteger count = [self.assetsGroup estimatedAssetCount];
+    NSInteger count = [self.assetCollection estimatedAssetCount];
     if ( count == NSNotFound) {
-        count = [[PHAsset fetchAssetsInAssetCollection:self.assetsGroup options:nil] count];
+        count = [[PHAsset fetchAssetsInAssetCollection:self.assetCollection options:nil] count];
     }
     return count;
 }

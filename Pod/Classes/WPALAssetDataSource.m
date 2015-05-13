@@ -158,11 +158,6 @@
    return [[WPALAssetGroup alloc] initWithAssetsGroup:self.groups[index]];
 }
 
-- (void)selectGroupAtIndex:(NSInteger)index
-{
-    self.assetsGroup = (ALAssetsGroup *)[self.groups[index] originalGroup];
-}
-
 - (id<WPMediaGroup>)selectedGroup
 {
     return [[WPALAssetGroup alloc] initWithAssetsGroup:self.assetsGroup];
