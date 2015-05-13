@@ -1,7 +1,7 @@
 #import "WPPHAssetDataSource.h"
 @import Photos;
 
-@interface WPPHAssetDataSource  ()
+@interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
 
 @property (nonatomic, strong) PHAssetCollection *assetsGroup;
 @property (nonatomic, strong) PHFetchResult *groups;
@@ -24,12 +24,13 @@
     _mediaTypeFilter = WPMediaTypeAll;
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
+    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     return self;
 }
 
 - (void)dealloc
 {
-    
+    [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
 + (PHImageManager *) sharedImageManager {
@@ -42,10 +43,17 @@
     return _sharedImageManager;
 }
 
-- (void)handleLibraryNotification:(NSNotification *)note
+- (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
-    if (![self shouldNotifyObservers:note]) {
+    PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.groups];
+    PHFetchResultChangeDetails *assetsChangeDetails = [changeInstance changeDetailsForFetchResult:self.assets];
+    
+    if (!groupChangeDetails && !assetsChangeDetails) {
         return;
+    }
+    
+    if (groupChangeDetails){
+        self.refreshGroups = YES;
     }
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -55,16 +63,12 @@
             }];
         } failure:nil];
     });
+
 }
 
 - (BOOL)shouldNotifyObservers:(NSNotification *)note
 {
-    return NO;
-}
-
-- (PHPhotoLibrary *)assetsLibrary
-{
-    return [PHPhotoLibrary sharedPhotoLibrary];
+    return !self.ignoreMediaNotifications;
 }
 
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
@@ -83,7 +87,9 @@
 - (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    self.groups = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAny options:nil];
+    self.groups = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                           subtype:PHAssetCollectionSubtypeAny
+                                                           options:nil];
     if (self.groups.count > 0){
         self.assetsGroup = self.groups[0];
         if (successBlock) {
