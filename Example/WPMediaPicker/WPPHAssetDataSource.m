@@ -87,9 +87,18 @@
 - (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    self.assetsCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                           subtype:PHAssetCollectionSubtypeAny
-                                                           options:nil];
+    NSMutableArray * collectionsArray=[NSMutableArray array];
+    PHFetchResult * cameraAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                           subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+                                                                           options:nil];
+    PHFetchResult * albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                                           subtype:PHAssetCollectionSubtypeAny
+                                                                           options:nil];
+    [collectionsArray addObjectsFromArray:[cameraAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, cameraAlbum.count)]]];
+    [collectionsArray addObjectsFromArray:[albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, albums.count)]]];
+    
+    PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
+    self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
     if (self.assetsCollections.count > 0){
         self.activeAssetsCollection = self.assetsCollections[0];
         if (successBlock) {
@@ -101,7 +110,6 @@
         }
 
     }
-    
 }
 
 - (void)loadAssetsWithSuccess:(WPMediaChangesBlock)successBlock
