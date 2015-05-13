@@ -15,7 +15,8 @@
 
 @implementation WPPHAssetDataSource
 
-- (instancetype)init {
+- (instancetype)init
+{
     self = [super init];
     if (!self) {
         return nil;
@@ -176,66 +177,89 @@
         metadata:(NSDictionary *)metadata
  completionBlock:(WPMediaAddedBlock)completionBlock
 {
-//    self.ignoreMediaNotifications = YES;
-//    [self.assetsLibrary writeImageToSavedPhotosAlbum:[image CGImage]
-//                                            metadata:metadata
-//                                     completionBlock:^(NSURL *assetURL, NSError *error)
-//     {
-//         if (error){
-//             self.ignoreMediaNotifications = NO;
-//             return;
-//         }
-//         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-//             [self.assets addObject:asset];
-//             [self.assetsGroup addAsset:asset];
-//             WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 if (completionBlock) {
-//                     completionBlock(mediaDetail, nil);
-//                 }
-//                 self.ignoreMediaNotifications = NO;
-//             });
-//         } failureBlock:^(NSError *error) {
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 if (completionBlock) {
-//                     completionBlock(nil, error);
-//                 }
-//                 self.ignoreMediaNotifications = NO;
-//             });
-//         }];
-//     }];
+    self.ignoreMediaNotifications = YES;
+    __block NSString * assetIdentifier = nil;
+    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+        // Request creating an asset from the image.
+        PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
+        assetIdentifier = [assetPlaceholder localIdentifier];
+        if ([self.assetsGroup canPerformEditOperation:PHCollectionEditOperationAddContent]) {
+            // Request editing the album.
+            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetsGroup];
+            [albumChangeRequest addAssets:@[ assetPlaceholder ]];
+        }
+    } completionHandler:^(BOOL success, NSError *error) {
+        self.ignoreMediaNotifications = NO;
+        if (!success) {
+            if (completionBlock){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(nil, error);
+                });
+            }
+            return;
+        }
+        PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
+        if (result.count < 1){
+            if (completionBlock){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(nil, error);
+                });
+            }
+            return;
+        }
+        [self loadAssetsWithSuccess:nil failure:nil];
+        if (completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:result[0]];
+                completionBlock(assetMedia, nil);
+            });
+        }
+    }];
 }
 
 - (void)addVideoFromURL:(NSURL *)url
         completionBlock:(WPMediaAddedBlock)completionBlock
 {
-//    self.ignoreMediaNotifications = YES;
-//    [self.assetsLibrary writeVideoAtPathToSavedPhotosAlbum:url
-//                                           completionBlock:^(NSURL *assetURL, NSError *error)
-//     {
-//         if (error){
-//             self.ignoreMediaNotifications = NO;
-//             return;
-//         }
-//         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-//             [self.assets addObject:asset];
-//             [self.assetsGroup addAsset:asset];
-//             WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 if (completionBlock) {
-//                     completionBlock(mediaDetail, nil);
-//                 }
-//                 self.ignoreMediaNotifications = NO;
-//             });
-//         } failureBlock:^(NSError *error) {
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 if (completionBlock) {
-//                     completionBlock(nil, error);
-//                 }
-//                 self.ignoreMediaNotifications = NO;
-//             });
-//         }];
-//     }];
+    self.ignoreMediaNotifications = YES;
+    __block NSString * assetIdentifier = nil;
+    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+        // Request creating an asset from the image.
+        PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+        PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
+        assetIdentifier = [assetPlaceholder localIdentifier];
+        if ([self.assetsGroup canPerformEditOperation:PHCollectionEditOperationAddContent]) {
+            // Request editing the album.
+            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetsGroup];
+            [albumChangeRequest addAssets:@[ assetPlaceholder ]];
+        }
+    } completionHandler:^(BOOL success, NSError *error) {
+        self.ignoreMediaNotifications = NO;
+        if (!success) {
+            if (completionBlock){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(nil, error);
+                });
+            }
+            return;
+        }
+        PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
+        if (result.count < 1){
+            if (completionBlock){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(nil, error);
+                });
+            }
+            return;
+        }
+        [self loadAssetsWithSuccess:nil failure:nil];
+        if (completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:result[0]];
+                completionBlock(assetMedia, nil);
+            });
+        }
+    }];
 }
 
 - (void)setMediaTypeFilter:(WPMediaType)filter
