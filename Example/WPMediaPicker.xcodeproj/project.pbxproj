@@ -21,7 +21,6 @@
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		DD821F4817504E75FB9E2B91 /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA47A0718D787F4D3E328AF /* libPods-Tests.a */; };
-		FFD37FED1B022675000891FE /* WPPHAssetDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = FFD37FEC1B022675000891FE /* WPPHAssetDataSource.m */; };
 		FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFFFD8801A447E67000FC184 /* DemoViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -62,8 +61,6 @@
 		ED8347A02DA278006813C36B /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		F0D09511821A352B062D5699 /* WPMediaPicker.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = WPMediaPicker.podspec; path = ../WPMediaPicker.podspec; sourceTree = "<group>"; };
 		FBE1845B23E3060E3B0B5CF2 /* Pods-WPMediaPicker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.release.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.release.xcconfig"; sourceTree = "<group>"; };
-		FFD37FEB1B022675000891FE /* WPPHAssetDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WPPHAssetDataSource.h; sourceTree = "<group>"; };
-		FFD37FEC1B022675000891FE /* WPPHAssetDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WPPHAssetDataSource.m; sourceTree = "<group>"; };
 		FFFFD87F1A447E67000FC184 /* DemoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoViewController.h; sourceTree = "<group>"; };
 		FFFFD8801A447E67000FC184 /* DemoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -137,8 +134,6 @@
 				6003F59D195388D20070C39A /* AppDelegate.m */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
-				FFD37FEB1B022675000891FE /* WPPHAssetDataSource.h */,
-				FFD37FEC1B022675000891FE /* WPPHAssetDataSource.m */,
 			);
 			path = WPMediaPicker;
 			sourceTree = "<group>";
@@ -360,7 +355,6 @@
 			files = (
 				6003F59E195388D20070C39A /* AppDelegate.m in Sources */,
 				FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */,
-				FFD37FED1B022675000891FE /* WPPHAssetDataSource.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
