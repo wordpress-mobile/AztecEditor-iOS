@@ -45,6 +45,9 @@
     if (![self shouldNotifyObservers:note]) {
         return;
     }
+    if (self.ignoreMediaNotifications) {
+        return;
+    }
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf loadDataWithSuccess:^{
@@ -72,7 +75,7 @@
     NSSet *assetsChanged = note.userInfo[ALAssetLibraryUpdatedAssetsKey];
     if (  groupsChanged && [groupsChanged containsObject:currentGroupID]
         && assetsChanged.count > 0
-        && !self.ignoreMediaNotifications) {
+        ) {
         return YES;
     }
     
