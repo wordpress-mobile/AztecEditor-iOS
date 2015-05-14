@@ -58,9 +58,11 @@
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf loadDataWithSuccess:^{
-            [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
-                block();
-            }];
+            if (!self.ignoreMediaNotifications){
+                [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+                    block();
+                }];
+            }
         } failure:nil];
     });
 
@@ -211,8 +213,8 @@
             [albumChangeRequest addAssets:@[ assetPlaceholder ]];
         }
     } completionHandler:^(BOOL success, NSError *error) {
-        self.ignoreMediaNotifications = NO;
         if (!success) {
+            self.ignoreMediaNotifications = NO;
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionBlock(nil, error);
@@ -223,6 +225,7 @@
         PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
         if (result.count < 1){
             if (completionBlock){
+                self.ignoreMediaNotifications = NO;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionBlock(nil, error);
                 });
@@ -232,8 +235,9 @@
         [self loadAssetsWithSuccess:nil failure:nil];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:result[0]];
+                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:[result firstObject]];
                 completionBlock(assetMedia, nil);
+                self.ignoreMediaNotifications = NO;
             });
         }
     }];
