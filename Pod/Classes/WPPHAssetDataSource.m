@@ -181,55 +181,28 @@
         metadata:(NSDictionary *)metadata
  completionBlock:(WPMediaAddedBlock)completionBlock
 {
-    self.ignoreMediaNotifications = YES;
-    __block NSString * assetIdentifier = nil;
-    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-        // Request creating an asset from the image.
-        PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
-        PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
-        assetIdentifier = [assetPlaceholder localIdentifier];
-        if ([self.activeAssetsCollection canPerformEditOperation:PHCollectionEditOperationAddContent]) {
-            // Request editing the album.
-            PHAssetCollectionChangeRequest *albumChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.activeAssetsCollection];
-            [albumChangeRequest addAssets:@[ assetPlaceholder ]];
-        }
-    } completionHandler:^(BOOL success, NSError *error) {
-        self.ignoreMediaNotifications = NO;
-        if (!success) {
-            if (completionBlock){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(nil, error);
-                });
-            }
-            return;
-        }
-        PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
-        if (result.count < 1){
-            if (completionBlock){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(nil, error);
-                });
-            }
-            return;
-        }
-        [self loadAssetsWithSuccess:nil failure:nil];
-        if (completionBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:result[0]];
-                completionBlock(assetMedia, nil);
-            });
-        }
-    }];
+    [self addAssetWithChangeRequest:^PHAssetChangeRequest *{
+        return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+    } completionBlock:completionBlock];
 }
 
 - (void)addVideoFromURL:(NSURL *)url
         completionBlock:(WPMediaAddedBlock)completionBlock
 {
+    [self addAssetWithChangeRequest:^PHAssetChangeRequest *{
+        return [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+    } completionBlock:completionBlock];
+}
+
+- (void)addAssetWithChangeRequest:(PHAssetChangeRequest *(^)())changeRequestBlock
+        completionBlock:(WPMediaAddedBlock)completionBlock
+{
+    NSParameterAssert(changeRequestBlock);
     self.ignoreMediaNotifications = YES;
     __block NSString * assetIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
         // Request creating an asset from the image.
-        PHAssetChangeRequest *createAssetRequest = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+        PHAssetChangeRequest *createAssetRequest = changeRequestBlock();
         PHObjectPlaceholder *assetPlaceholder = [createAssetRequest placeholderForCreatedAsset];
         assetIdentifier = [assetPlaceholder localIdentifier];
         if ([self.activeAssetsCollection canPerformEditOperation:PHCollectionEditOperationAddContent]) {
