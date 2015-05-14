@@ -71,10 +71,10 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
 
     id<WPMediaGroup> group = [self.dataSource groupAtIndex:indexPath.row];
-    UIImage *posterImage = [group thumbnailWithSize:cell.imageView.frame.size];
+    UIImage *posterImage = [group thumbnailWithSize:CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight)];
     cell.imageView.image = posterImage;
-    cell.textLabel.text = [group name];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
+    cell.titleLabel.text = [group name];
+    cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
