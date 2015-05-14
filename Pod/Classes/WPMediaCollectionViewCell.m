@@ -40,6 +40,8 @@
 - (void)commonInit
 {
     _imageView = [[UIImageView alloc] init];
+    _imageView.contentMode = UIViewContentModeScaleAspectFill;
+    _imageView.clipsToBounds = YES;
     self.backgroundView = _imageView;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];

@@ -94,7 +94,9 @@ static NSString *const ArrowDown = @"\u25be";
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [weakSelf refreshData];
+        if (!self.ignoreMediaNotifications){
+            [weakSelf refreshData];
+        }
     }];
     [self refreshData];
 }
@@ -264,7 +266,7 @@ static NSString *const ArrowDown = @"\u25be";
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
 
     // Configure the cell
-    cell.image = [asset thumbnailWithSize:CGSizeZero];
+    cell.image = [asset thumbnailWithSize:cell.frame.size];
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
@@ -486,6 +488,7 @@ static NSString *const ArrowDown = @"\u25be";
     self.ignoreMediaNotifications = YES;
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error){
+            self.ignoreMediaNotifications = NO;
             return;
         }
         [self addMedia:media];

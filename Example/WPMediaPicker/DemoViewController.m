@@ -1,9 +1,11 @@
 #import "DemoViewController.h"
+#import "WPPHAssetDataSource.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
+@property (nonatomic, strong) WPPHAssetDataSource *phAssetDataSource;
 @end
 
 @implementation DemoViewController

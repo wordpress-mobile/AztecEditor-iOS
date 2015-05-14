@@ -7,8 +7,6 @@
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
 @property (nonatomic, strong) NSMutableArray *groups;
 @property (nonatomic, strong) NSMutableArray *assets;
-@property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, assign) WPMediaType filter;
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
@@ -30,8 +28,6 @@
                                                object:self.assetsLibrary];
     _groups = [[NSMutableArray alloc] init];
     _assets = [[NSMutableArray alloc] init];
-    _selectedAssets = [[NSMutableArray alloc] init];
-    _selectedAssetsGroup = [[NSMutableArray alloc] init];
     _filter = WPMediaTypeAll;
     _assetsFilter = [ALAssetsFilter allAssets];
     _observers = [[NSMutableDictionary alloc] init];
@@ -47,6 +43,9 @@
 - (void)handleLibraryNotification:(NSNotification *)note
 {
     if (![self shouldNotifyObservers:note]) {
+        return;
+    }
+    if (self.ignoreMediaNotifications) {
         return;
     }
     __weak __typeof__(self) weakSelf = self;
@@ -76,7 +75,7 @@
     NSSet *assetsChanged = note.userInfo[ALAssetLibraryUpdatedAssetsKey];
     if (  groupsChanged && [groupsChanged containsObject:currentGroupID]
         && assetsChanged.count > 0
-        && !self.ignoreMediaNotifications) {
+        ) {
         return YES;
     }
     
@@ -162,11 +161,6 @@
    return [[WPALAssetGroup alloc] initWithAssetsGroup:self.groups[index]];
 }
 
-- (void)selectGroupAtIndex:(NSInteger)index
-{
-    self.assetsGroup = (ALAssetsGroup *)[self.groups[index] originalGroup];
-}
-
 - (id<WPMediaGroup>)selectedGroup
 {
     return [[WPALAssetGroup alloc] initWithAssetsGroup:self.assetsGroup];
@@ -228,7 +222,9 @@
         }
         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
             [self.assets addObject:asset];
-            [self.assetsGroup addAsset:asset];
+            if ([self.assetsGroup isEditable]) {
+                [self.assetsGroup addAsset:asset];
+            }
             WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completionBlock) {
@@ -260,7 +256,9 @@
        }
        [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
            [self.assets addObject:asset];
-           [self.assetsGroup addAsset:asset];
+           if ([self.assetsGroup isEditable]) {
+               [self.assetsGroup addAsset:asset];
+           }
            WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
            dispatch_async(dispatch_get_main_queue(), ^{
                if (completionBlock) {
