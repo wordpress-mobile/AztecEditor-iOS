@@ -219,7 +219,9 @@
         }
         [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
             [self.assets addObject:asset];
-            [self.assetsGroup addAsset:asset];
+            if ([self.assetsGroup isEditable]) {
+                [self.assetsGroup addAsset:asset];
+            }
             WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completionBlock) {
@@ -251,7 +253,9 @@
        }
        [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
            [self.assets addObject:asset];
-           [self.assetsGroup addAsset:asset];
+           if ([self.assetsGroup isEditable]) {
+               [self.assetsGroup addAsset:asset];
+           }
            WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
            dispatch_async(dispatch_get_main_queue(), ^{
                if (completionBlock) {
