@@ -91,9 +91,6 @@
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
     mediaPicker.showMostRecentFirst = YES;
-    self.phAssetDataSource = [[WPPHAssetDataSource alloc] init];
-    mediaPicker.dataSource = self.phAssetDataSource;
-    //mediaPicker.filter = WPMediaTypeImage;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 
