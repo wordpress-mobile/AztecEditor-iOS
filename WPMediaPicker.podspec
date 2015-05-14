@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/wordpress-mobile/MediaPicker-iOS.git", :tag => s.version.to_s }
 
   s.platform     = :ios, '7.0'
-  s.requires_arc = true
+  s.requires_arc = true 
 
   s.source_files = 'Pod/Classes'
   s.resource_bundles = {
@@ -24,4 +24,5 @@ Pod::Spec.new do |s|
 
   s.public_header_files = 'Pod/Classes/**/*.h'
   s.frameworks = 'UIKit', 'AssetsLibrary', 'AVFoundation'
+  s.weak_framework = 'Photos'
 end
