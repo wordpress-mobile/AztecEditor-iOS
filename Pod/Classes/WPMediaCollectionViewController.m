@@ -94,7 +94,9 @@ static NSString *const ArrowDown = @"\u25be";
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [weakSelf refreshData];
+        if (!self.ignoreMediaNotifications){
+            [weakSelf refreshData];
+        }
     }];
     [self refreshData];
 }
@@ -486,6 +488,7 @@ static NSString *const ArrowDown = @"\u25be";
     self.ignoreMediaNotifications = YES;
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error){
+            self.ignoreMediaNotifications = NO;
             return;
         }
         [self addMedia:media];
