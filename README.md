@@ -9,8 +9,19 @@ WPMediaPicker is an iOS controller that allows capture and picking of media asse
 It allows:
  * Multiple selection of media.
  * Capture of new media while selecting
+ * Use different data sources for the media library.
+ * Selection of groups of media.
+ * Filtering by media types.
 
 ![Screenshot](screenshots_1.jpg "Screenshot")
+
+## Installation
+
+WPMediaPicker is available through [CocoaPods](http://cocoapods.org). To install
+it, simply add the following line to your Podfile:
+
+pod "WPMediaPicker"
+
 ## Usage
 
 To use the picker do the following:
@@ -18,12 +29,12 @@ To use the picker do the following:
 ### Import header
 
 ```` objective-c
-#import <WPMediaPicker/WPMediaPickerViewController.h>
+#import <WPMediaPicker/WPMediaPicker.h>
 ````
 
 ### Create and present WPMediaPickerViewController
 
-```` objective
+```` objective-c
 WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
 mediaPicker.delegate = self;
 [self presentViewController:mediaPicker animated:YES completion:nil];
@@ -37,7 +48,7 @@ The delegate is responsible for dismissing the picker when the operation complet
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets
 {
   [self dismissViewControllerAnimated:YES completion:nil];  
-  // assets contains ALAsset objects.
+  // assets contains WPMediaAsset objects.
 }
 ````
 
@@ -49,15 +60,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
  * ARC 
  * AssetsLibrary and MediaPlayer frameworks.
- * XCode 5
+ * XCode 6
  * iOS 7
-
-## Installation
-
-WPMediaPicker is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-    pod "WPMediaPicker"
 
 ## Author
 
