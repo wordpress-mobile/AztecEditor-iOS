@@ -17,7 +17,8 @@
 
 @implementation WPALAssetDataSource
 
-- (instancetype)init {
+- (instancetype)init
+{
     self = [super init];
     if (!self) {
         return nil;
