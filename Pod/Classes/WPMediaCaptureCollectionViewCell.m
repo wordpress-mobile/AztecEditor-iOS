@@ -48,6 +48,7 @@
 - (void)stopCaptureOnCompletion:(void (^)(void))block
 {
     if (!self.session) {
+        dispatch_async(dispatch_get_main_queue(), block);
         return;
     }
     self.captureVideoPreviewLayer.connection.enabled = NO;
@@ -61,7 +62,9 @@
 
 - (void)startCapture
 {
-    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusAuthorized && [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusNotDetermined) {
+    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusAuthorized &&
+        [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusNotDetermined)
+    {
         return;
     }
     dispatch_async(self.sessionQueue, ^{
