@@ -33,7 +33,8 @@
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
-+ (PHImageManager *) sharedImageManager {
++ (PHImageManager *) sharedImageManager
+{
     static id _sharedImageManager = nil;
     static dispatch_once_t _onceToken;
     dispatch_once(&_onceToken, ^{
