@@ -30,6 +30,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, strong) NSObject *changesObserver;
+@property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 
 @end
 
@@ -111,6 +112,23 @@ static NSString *const ArrowDown = @"\u25be";
         }
     }];
     [self refreshData];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    self.firstVisibleCell = [self.collectionView.indexPathsForVisibleItems firstObject];
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    if (!self.firstVisibleCell){
+        return;
+    }
+    [self.collectionView scrollToItemAtIndexPath:self.firstVisibleCell
+                                atScrollPosition:UICollectionViewScrollPositionLeft|UICollectionViewScrollPositionTop
+                                        animated:NO];
 }
 
 #pragma mark - Actions
