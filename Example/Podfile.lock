@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  WPMediaPicker: 53eb0bc7b04111a99f7be64ce873c12ff9600e7d
+  WPMediaPicker: 49172c69b90a9b6046f5fec08d80c4b5fecf13e3
 
 COCOAPODS: 0.37.1

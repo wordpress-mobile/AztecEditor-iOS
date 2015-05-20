@@ -64,14 +64,14 @@ typedef NS_ENUM(NSInteger, WPMediaType){
  *
  *  @return a WPMEdiaType object.
  */
-- (WPMediaType)mediaType;
+- (WPMediaType)assetType;
 
 /**
  *  The duration of a video media asset. The is only available on video assets.
  *
- *  @return The duration of a video asset. Nil if the asset is not a video.
+ *  @return The duration of a video asset. Always zero if the asset is not a video.
  */
-- (NSNumber *)duration;
+- (NSTimeInterval)duration;
 
 /**
  *  The original object that represents an asset on the underlying media implementation

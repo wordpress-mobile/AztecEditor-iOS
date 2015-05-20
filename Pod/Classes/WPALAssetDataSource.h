@@ -12,17 +12,13 @@
 /**
  An implementation of the WPMediaAsset protocol using the ALAsset class
  */
-@interface WPALAssetMedia : NSObject<WPMediaAsset>
-
-- (instancetype)initWithAsset:(ALAsset *)asset;
+@interface ALAsset(WPMediaAsset)<WPMediaAsset>
 
 @end
 
 /**
  An implementation of the WPMediaGroup protocol using the ALAssetsGroup class
  */
-@interface WPALAssetGroup : NSObject<WPMediaGroup>
-
-- (instancetype)initWithAssetsGroup:(ALAssetsGroup *)assetsGroup;
+@interface ALAssetsGroup(WPMediaGroup)<WPMediaGroup>
 
 @end

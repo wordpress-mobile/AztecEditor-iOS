@@ -329,9 +329,9 @@ static NSString *const ArrowDown = @"\u25be";
         cell.selected = NO;
     }
 
-    if ([asset mediaType] == WPMediaTypeVideo) {
-        NSNumber *duration = [asset duration];
-        NSString *caption = [self stringFromTimeInterval:[duration doubleValue]];
+    if ([asset assetType] == WPMediaTypeVideo) {
+        NSTimeInterval duration = [asset duration];
+        NSString *caption = [self stringFromTimeInterval:duration];
         [cell setCaption:caption];
     } else {
         [cell setCaption:@""];

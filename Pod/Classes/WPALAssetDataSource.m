@@ -1,7 +1,5 @@
 #import "WPALAssetDataSource.h"
 
-@import AssetsLibrary;
-
 @interface WPALAssetDataSource  ()
 
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
@@ -159,18 +157,18 @@
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
 {
-   return [[WPALAssetGroup alloc] initWithAssetsGroup:self.groups[index]];
+   return self.groups[index];
 }
 
 - (id<WPMediaGroup>)selectedGroup
 {
-    return [[WPALAssetGroup alloc] initWithAssetsGroup:self.assetsGroup];
+    return self.assetsGroup;
 }
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
-    NSParameterAssert([group isKindOfClass:[WPALAssetGroup class]]);
-    self.assetsGroup = (ALAssetsGroup *)[group originalGroup];
+    NSParameterAssert([group isKindOfClass:[ALAssetsGroup class]]);
+    self.assetsGroup = [group originalGroup];
 }
 
 - (NSInteger)indexOfSelectedGroup
@@ -192,7 +190,7 @@
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
-    return [[WPALAssetMedia alloc] initWithAsset:self.assets[index]];
+    return self.assets[index];
 }
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
@@ -226,10 +224,9 @@
             if ([self.assetsGroup isEditable]) {
                 [self.assetsGroup addAsset:asset];
             }
-            WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completionBlock) {
-                    completionBlock(mediaDetail, nil);
+                    completionBlock(asset, nil);
                 }
                 self.ignoreMediaNotifications = NO;
             });
@@ -260,10 +257,9 @@
            if ([self.assetsGroup isEditable]) {
                [self.assetsGroup addAsset:asset];
            }
-           WPALAssetMedia *mediaDetail = [[WPALAssetMedia alloc] initWithAsset:asset];
            dispatch_async(dispatch_get_main_queue(), ^{
                if (completionBlock) {
-                   completionBlock(mediaDetail, nil);
+                   completionBlock(asset, nil);
                }
                self.ignoreMediaNotifications = NO;
            });
@@ -305,113 +301,76 @@
 
 #pragma mark - WPALAssetMedia
 
-@interface WPALAssetMedia()
-
-@property (nonatomic, strong) ALAsset *asset;
-
-@end
-
-@implementation WPALAssetMedia
-
-- (instancetype)initWithAsset:(ALAsset *)asset
-{
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-    _asset = asset;
-    return self;
-}
+@implementation ALAsset(WPMediaAsset)
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
 {
-    CGImageRef thumbnailImageRef = [self.asset thumbnail];
+    CGImageRef thumbnailImageRef = [self thumbnail];
     UIImage *thumbnail = [UIImage imageWithCGImage:thumbnailImageRef];
     return thumbnail;
 }
 
-- (WPMediaType)mediaType
+- (WPMediaType)assetType
 {
-    if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo){
+    if ([self valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo){
         return WPMediaTypeVideo;
-    } else if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypePhoto) {
+    } else if ([self valueForProperty:ALAssetPropertyType] == ALAssetTypePhoto) {
         return WPMediaTypeImage;
-    } else if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeUnknown) {
+    } else if ([self valueForProperty:ALAssetPropertyType] == ALAssetTypeUnknown) {
         return WPMediaTypeOther;
     }
     
     return WPMediaTypeOther;
 }
 
-- (NSNumber *)duration
+- (NSTimeInterval)duration
 {
-    NSNumber * duration = nil;
-    if ([self.asset valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo) {
-        duration = [self.asset valueForProperty:ALAssetPropertyDuration];
+    NSTimeInterval duration = 0;
+    if ([self valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo) {
+        duration = [[self valueForProperty:ALAssetPropertyDuration] doubleValue];
     }
     return duration;
 }
 
 - (id)originalAsset
 {
-    return self.asset;
+    return self;
 }
 
 - (NSString *)identifier
 {
-    return [[self.asset valueForProperty:ALAssetPropertyAssetURL] absoluteString];
+    return [[self valueForProperty:ALAssetPropertyAssetURL] absoluteString];
 }
 
 - (NSDate *)date
 {
-    return [self.asset valueForProperty:ALAssetPropertyDate];
+    return [self valueForProperty:ALAssetPropertyDate];
 }
 
 @end
 
 #pragma mark - WPALAssetGroup
 
-@interface WPALAssetGroup()
-
-@property (nonatomic, strong) ALAssetsGroup *assetsGroup;
-
-@end
-
-@implementation WPALAssetGroup
-
-- (instancetype)initWithAssetsGroup:(ALAssetsGroup *)assetsGroup
-{
-    self = [super init];
-    if (!self){
-        return nil;
-    }
-    _assetsGroup = assetsGroup;
-    return self;
-}
+@implementation ALAssetsGroup(WPALAssetGroup)
 
 - (NSString *)name
 {
-    return [self.assetsGroup valueForProperty:ALAssetsGroupPropertyName];
+    return [self valueForProperty:ALAssetsGroupPropertyName];
 }
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
 {
-    return [UIImage imageWithCGImage:[self.assetsGroup posterImage]];
+    return [UIImage imageWithCGImage:[self posterImage]];
 }
 
 - (id)originalGroup
 {
-    return self.assetsGroup;
+    return self;
 }
 
 - (NSString *)identifier
 {
-    return [[self.assetsGroup valueForProperty:ALAssetsGroupPropertyURL] absoluteString];
-}
-
-- (NSInteger)numberOfAssets
-{
-    return self.assetsGroup.numberOfAssets;
+    return [[self valueForProperty:ALAssetsGroupPropertyURL] absoluteString];
 }
 
 @end
