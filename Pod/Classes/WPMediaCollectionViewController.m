@@ -200,16 +200,19 @@ static NSString *const ArrowDown = @"\u25be";
         [self refreshSelection];
         id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
         NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
-        [self.titleButton setTitle:title forState:UIControlStateNormal];
-        [self.titleButton sizeToFit];
-        [self.collectionView reloadData];
-        // Scroll to the correct position
-        if ([self.dataSource numberOfAssets] > 0){
-            NSInteger sectionToScroll = 0;
-            NSInteger itemToScroll = self.showMostRecentFirst ? 0 :[self.dataSource numberOfAssets]-1;
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll] atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
-        }
-
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.titleButton setTitle:title forState:UIControlStateNormal];
+            [self.titleButton sizeToFit];
+            [self.collectionView reloadData];
+            // Scroll to the correct position
+            if ([self.dataSource numberOfAssets] > 0){
+                NSInteger sectionToScroll = 0;
+                NSInteger itemToScroll = self.showMostRecentFirst ? 0 :[self.dataSource numberOfAssets]-1;
+                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
+                                            atScrollPosition:UICollectionViewScrollPositionBottom
+                                                    animated:NO];
+            }
+        });
     } failure:^(NSError *error) {
         if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
             if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
