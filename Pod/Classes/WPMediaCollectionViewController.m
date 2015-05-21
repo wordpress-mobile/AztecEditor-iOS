@@ -37,10 +37,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 
 @implementation WPMediaCollectionViewController
 
-static CGFloat SpaceBetweenPhotos = 1.0f;
-static CGFloat NumberOfPhotosForLine = 4;
 static CGFloat SelectAnimationTime = 0.2;
-static CGFloat MinimumCellSize = 105;
 static NSString *const ArrowDown = @"\u25be";
 
 - (void)dealloc
@@ -88,14 +85,7 @@ static NSString *const ArrowDown = @"\u25be";
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
     [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
 
-    // Configure collection view layout
-    CGFloat width = roundf((self.view.frame.size.width - ((NumberOfPhotosForLine - 1) * SpaceBetweenPhotos)) / NumberOfPhotosForLine);
-    width = MIN(width, MinimumCellSize);
-    self.layout.itemSize = CGSizeMake(width, width);
-    self.layout.minimumInteritemSpacing = SpaceBetweenPhotos;
-    self.layout.minimumLineSpacing = SpaceBetweenPhotos;
-    self.layout.sectionInset = UIEdgeInsetsMake(SpaceBetweenPhotos, 0, SpaceBetweenPhotos, 0);
-
+    [self setupLayoutForOrientation:self.interfaceOrientation];
     //setup navigation items
     self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
@@ -109,6 +99,27 @@ static NSString *const ArrowDown = @"\u25be";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
     
     [self loadData];
+}
+
+- (void)setupLayoutForOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    CGFloat minWidth = MIN (self.view.frame.size.width, self.view.frame.size.height);
+    // Configure collection view layout
+    CGFloat numberOfPhotosForLine = 4;
+    CGFloat spaceBetweenPhotos = 1.0f;
+    CGFloat leftRightInset = 0;
+    CGFloat topBottomInset = 5;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        numberOfPhotosForLine = 5;
+    }
+    
+    CGFloat width = floorf((minWidth - (((numberOfPhotosForLine -1) * spaceBetweenPhotos)) + (2*leftRightInset)) / numberOfPhotosForLine);
+    
+    self.layout.itemSize = CGSizeMake(width, width);
+    self.layout.minimumInteritemSpacing = spaceBetweenPhotos;
+    self.layout.minimumLineSpacing = spaceBetweenPhotos;
+    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, leftRightInset, topBottomInset, leftRightInset);
+
 }
 
 - (void)handleLibraryNotification:(NSNotification *)note
