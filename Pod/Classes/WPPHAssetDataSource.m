@@ -143,18 +143,17 @@
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
 {
-    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.assetsCollections[index]];
+    return self.assetsCollections[index];
 }
 
 - (id<WPMediaGroup>)selectedGroup
 {
-    return [[WPPHAssetCollection alloc] initWithAssetCollection:self.activeAssetsCollection];
+    return self.activeAssetsCollection;
 }
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
-    NSParameterAssert([group isKindOfClass:[WPPHAssetCollection class]]);
-    self.activeAssetsCollection = (PHAssetCollection *)[group originalGroup];
+    self.activeAssetsCollection = [group originalGroup];
 }
 
 - (NSInteger)numberOfAssets
@@ -164,7 +163,7 @@
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
-    return [[WPPHAssetMedia alloc] initWithAsset:self.assets[index]];
+    return self.assets[index];
 }
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
@@ -236,8 +235,7 @@
         [self loadAssetsWithSuccess:nil failure:nil];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                WPPHAssetMedia *assetMedia = [[WPPHAssetMedia alloc] initWithAsset:[result firstObject]];
-                completionBlock(assetMedia, nil);
+                completionBlock([result firstObject], nil);
                 self.ignoreMediaNotifications = NO;
             });
         }
@@ -253,23 +251,7 @@
 
 #pragma mark - WPPHAssetMedia
 
-@interface WPPHAssetMedia()
-
-@property (nonatomic, strong) PHAsset *asset;
-
-@end
-
-@implementation WPPHAssetMedia
-
-- (instancetype)initWithAsset:(PHAsset *)asset
-{
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-    _asset = asset;
-    return self;
-}
+@implementation PHAsset(WPMediaAsset)
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
 {
@@ -279,7 +261,7 @@
     options.synchronous = YES;
     options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
     __block UIImage *thumbnail = nil;
-    [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self.asset
+    [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:realSize
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
@@ -289,92 +271,67 @@
     return thumbnail;
 }
 
-- (WPMediaType)mediaType
+- (WPMediaType)assetType
 {
-    if ([self.asset mediaType] == PHAssetMediaTypeVideo){
+    if ([self mediaType] == PHAssetMediaTypeVideo){
         return WPMediaTypeVideo;
-    } else if ([self.asset mediaType] == PHAssetMediaTypeImage) {
+    } else if ([self mediaType] == PHAssetMediaTypeImage) {
         return WPMediaTypeImage;
-    } else if ([self.asset mediaType] == PHAssetMediaTypeUnknown) {
+    } else if ([self mediaType] == PHAssetMediaTypeUnknown) {
         return WPMediaTypeOther;
     }
     
     return WPMediaTypeOther;
 }
 
-- (NSNumber *)duration
-{
-    NSNumber * duration = nil;
-    if ([self.asset mediaType] == PHAssetMediaTypeVideo) {
-        duration = @([self.asset duration]);
-    }
-    return duration;
-}
-
 - (id)originalAsset
 {
-    return self.asset;
+    return self;
 }
 
 - (NSString *)identifier
 {
-    return [self.asset localIdentifier];
+    return [self localIdentifier];
 }
 
 - (NSDate *)date
 {
-    return [self.asset creationDate];
+    return [self creationDate];
 }
 
 @end
 
 #pragma mark - WPPHAssetCollection
 
-@interface WPPHAssetCollection()
+@implementation PHAssetCollection(WPPHAssetCollection)
 
-@property (nonatomic, strong) PHAssetCollection *assetCollection;
-
-@end
-
-@implementation WPPHAssetCollection
-
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetsGroup
-{
-    self = [super init];
-    if (!self){
-        return nil;
-    }
-    _assetCollection = assetsGroup;
-    return self;
-}
 
 - (NSString *)name
 {
-    return [self.assetCollection localizedTitle];
+    return [self localizedTitle];
 }
 
 - (UIImage *)thumbnailWithSize:(CGSize)size
 {
-    PHAsset * posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.assetCollection options:nil] firstObject];
-    WPPHAssetMedia * posterMedia = [[WPPHAssetMedia alloc] initWithAsset:posterAsset];
-    return [posterMedia thumbnailWithSize:size];
+    PHAsset * posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    return [posterAsset thumbnailWithSize:size];
 }
 
 - (id)originalGroup
 {
-    return self.assetCollection;
+    return self;
 }
 
 - (NSString *)identifier
 {
-    return [self.assetCollection localIdentifier];
+    return [self localIdentifier];
 }
 
 - (NSInteger)numberOfAssets
 {
-    NSInteger count = [self.assetCollection estimatedAssetCount];
+    NSInteger count = [self estimatedAssetCount];
     if ( count == NSNotFound) {
-        count = [[PHAsset fetchAssetsInAssetCollection:self.assetCollection options:nil] count];
+        count = [[PHAsset fetchAssetsInAssetCollection:self options:nil] count];
     }
     return count;
 }

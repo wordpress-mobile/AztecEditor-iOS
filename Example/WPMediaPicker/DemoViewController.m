@@ -56,7 +56,7 @@
     cell.imageView.image = [asset thumbnailWithSize:CGSizeZero];
     
     cell.textLabel.text = [self.dateFormatter stringFromDate:[asset date]];
-    cell.detailTextLabel.text = [@([asset mediaType]) stringValue];
+    cell.detailTextLabel.text = [@([asset assetType]) stringValue];
     cell.detailTextLabel.hidden = NO;
     
     return cell;
@@ -90,7 +90,8 @@
 {
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
-    //mediaPicker.showMostRecentFirst = YES;
+    self.phAssetDataSource = [[WPPHAssetDataSource alloc] init];
+    mediaPicker.dataSource = self.phAssetDataSource;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

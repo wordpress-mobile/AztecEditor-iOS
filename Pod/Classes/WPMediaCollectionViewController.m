@@ -97,7 +97,7 @@ static NSString *const ArrowDown = @"\u25be";
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (!self.ignoreMediaNotifications){
+        if (!weakSelf.ignoreMediaNotifications){
             [weakSelf refreshData];
         }
     }];
@@ -207,24 +207,27 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)refreshData
 {
+    __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
-        [self refreshSelection];
-        id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
+        __typeof__(self) strongSelf = weakSelf;
+        [strongSelf refreshSelection];
+        id<WPMediaGroup> mediaGroup = [strongSelf.dataSource selectedGroup];
         NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.titleButton setTitle:title forState:UIControlStateNormal];
-            [self.titleButton sizeToFit];
-            [self.collectionView reloadData];
+            [strongSelf.titleButton setTitle:title forState:UIControlStateNormal];
+            [strongSelf.titleButton sizeToFit];
+            [strongSelf.collectionView reloadData];
             // Scroll to the correct position
-            if ([self.dataSource numberOfAssets] > 0){
+            if ([strongSelf.dataSource numberOfAssets] > 0){
                 NSInteger sectionToScroll = 0;
-                NSInteger itemToScroll = self.showMostRecentFirst ? 0 :[self.dataSource numberOfAssets]-1;
-                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
+                NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
+                [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
                                             atScrollPosition:UICollectionViewScrollPositionBottom
                                                     animated:NO];
             }
         });
     } failure:^(NSError *error) {
+        __typeof__(self) strongSelf = weakSelf;
         if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
             if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -238,7 +241,7 @@ static NSString *const ArrowDown = @"\u25be";
                                       cancelButtonTitle:NSLocalizedString(@"OK", "")
                                       otherButtonTitles:otherButtonTitle,nil];
                     alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
-                    alertView.delegate = self;
+                    alertView.delegate = strongSelf;
                     [alertView show];
                 });
 
@@ -340,9 +343,9 @@ static NSString *const ArrowDown = @"\u25be";
         cell.selected = NO;
     }
 
-    if ([asset mediaType] == WPMediaTypeVideo) {
-        NSNumber *duration = [asset duration];
-        NSString *caption = [self stringFromTimeInterval:[duration doubleValue]];
+    if ([asset assetType] == WPMediaTypeVideo) {
+        NSTimeInterval duration = [asset duration];
+        NSString *caption = [self stringFromTimeInterval:duration];
         [cell setCaption:caption];
     } else {
         [cell setCaption:@""];

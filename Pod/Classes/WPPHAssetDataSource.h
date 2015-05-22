@@ -1,7 +1,7 @@
 @import Foundation;
 @import Photos;
 
-#import <WPMediaPicker/WPMediaPicker.h>
+#import "WPMediaCollectionDataSource.h"
 
 /**
  An implementation of the WPDataSource protocol using the Photos framework
@@ -13,17 +13,13 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetDataSource : NSObject<WPMediaCol
 /**
  An implementation of the WPMediaAsset protocol using the PHAsset class
  */
-NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetMedia : NSObject<WPMediaAsset>
-
-- (instancetype)initWithAsset:(PHAsset *)asset;
+@interface PHAsset(WPMediaAsset)<WPMediaAsset>
 
 @end
 
 /**
  An implementation of the WPMediaGroup protocol using the PHAssetCollection class
  */
-NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetCollection : NSObject<WPMediaGroup>
-
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection;
+@interface PHAssetCollection(WPMediaGroup)<WPMediaGroup>
 
 @end
