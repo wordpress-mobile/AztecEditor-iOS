@@ -1,7 +1,6 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static NSString *const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
 static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
@@ -71,8 +70,23 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
 
     id<WPMediaGroup> group = [self.dataSource groupAtIndex:indexPath.row];
-    UIImage *posterImage = [group thumbnailWithSize:CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight)];
-    cell.imageView.image = posterImage;
+    
+    cell.imagePosterView.image = nil;
+    __block WPMediaRequestID requestKey = 0;
+    requestKey = [group imageWithSize:CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight)
+                              completionHandler:^(UIImage *result, NSError *error)
+    {
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (cell.tag == requestKey){
+                cell.imagePosterView.image = result;
+            }
+        });
+    }];
+    cell.tag = requestKey;
     cell.titleLabel.text = [group name];
     cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
     cell.backgroundColor = [UIColor clearColor];

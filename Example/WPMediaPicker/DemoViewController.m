@@ -1,6 +1,7 @@
 #import "DemoViewController.h"
 #import "WPPHAssetDataSource.h"
 #import <WPMediaPicker/WPMediaPicker.h>
+#import <WPMediaPicker/WPMediaGroupTableViewCell.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;
@@ -24,6 +25,8 @@
     self.dateFormatter = [[NSDateFormatter alloc] init];
     self.dateFormatter.dateStyle = NSDateFormatterMediumStyle;
     self.dateFormatter.timeStyle = NSDateFormatterMediumStyle;
+    [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -46,18 +49,29 @@
 
 - (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    
-    if (!cell){
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
-    }
+    WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
     id<WPMediaAsset> asset = self.assets[indexPath.row];
-    cell.imageView.image = [asset thumbnailWithSize:CGSizeZero];
-    
-    cell.textLabel.text = [self.dateFormatter stringFromDate:[asset date]];
-    cell.detailTextLabel.text = [@([asset assetType]) stringValue];
-    cell.detailTextLabel.hidden = NO;
+    __block WPMediaRequestID requestID = 0;
+    requestID = [asset imageWithSize:CGSizeMake(100,100) completionHandler:^(UIImage *result, NSError *error) {
+        if (error) {
+            return;
+        }
+        if (cell.tag == requestID) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.imagePosterView.image = result;
+            });
+        }
+    }];
+    cell.tag = requestID;
+    cell.titleLabel.text = [self.dateFormatter stringFromDate:[asset date]];
+    if ([asset assetType] == WPMediaTypeImage) {
+        cell.countLabel.text = @"Image";
+    } else if ([asset assetType] == WPMediaTypeVideo) {
+        cell.countLabel.text = @"Video";
+    } else {
+        cell.countLabel.text = @"Other";
+    }
     
     return cell;
 }

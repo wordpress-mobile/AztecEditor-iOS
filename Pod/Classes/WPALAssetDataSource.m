@@ -303,11 +303,18 @@
 
 @implementation ALAsset(WPMediaAsset)
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 {
     CGImageRef thumbnailImageRef = [self thumbnail];
     UIImage *thumbnail = [UIImage imageWithCGImage:thumbnailImageRef];
-    return thumbnail;
+    if (completionHandler){
+        if (thumbnail) {
+            completionHandler(thumbnail, nil);
+        } else {
+            completionHandler(nil, nil);
+        }
+    }
+    return 0;
 }
 
 - (WPMediaType)assetType
@@ -358,9 +365,17 @@
     return [self valueForProperty:ALAssetsGroupPropertyName];
 }
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 {
-    return [UIImage imageWithCGImage:[self posterImage]];
+    UIImage *result = [UIImage imageWithCGImage:[self posterImage]];
+    if (completionHandler){
+        if (result) {
+            completionHandler(result, nil);
+        } else {
+            completionHandler(nil, nil);
+        }
+    }
+    return 0;
 }
 
 - (id)originalGroup

@@ -253,22 +253,31 @@
 
 @implementation PHAsset(WPMediaAsset)
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize realSize = CGSizeApplyAffineTransform(size, CGAffineTransformMakeScale(scale, scale));
-    options.synchronous = YES;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
-    __block UIImage *thumbnail = nil;
-    [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
+    options.synchronous = NO;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.networkAccessAllowed = YES;
+    return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:realSize
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
-                                                         thumbnail = result;
+                                                         NSError *error = info[PHImageErrorKey];
+                                                         if (error){
+                                                             if (completionHandler){
+                                                                 completionHandler(nil, error);
+                                                             }
+                                                             return;
+                                                         }
+                                                         if (completionHandler){
+                                                             completionHandler(result, nil);
+                                                         }
                                                      }];
-    return thumbnail;
 }
 
 - (WPMediaType)assetType
@@ -311,10 +320,11 @@
     return [self localizedTitle];
 }
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    PHAsset * posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
-    return [posterAsset thumbnailWithSize:size];
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    return [posterAsset imageWithSize:size completionHandler:completionHandler];
 }
 
 - (id)originalGroup

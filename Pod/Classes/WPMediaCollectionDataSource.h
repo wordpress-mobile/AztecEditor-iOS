@@ -5,6 +5,15 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeAll
 };
 
+@protocol WPMediaAsset;
+
+typedef void (^WPMediaChangesBlock)();
+typedef void (^WPMediaFailureBlock)(NSError *error);
+typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
+typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef NSUInteger WPMediaRequestID;
+
+
 /**
  * The WPMediaGroup protocol is adopted by an object that mediates between a media collection and it's representation on
  * an visualization like WPMediaGroupPickerViewController.
@@ -13,13 +22,13 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 
 - (NSString *)name;
 /**
- *  Returns a thumnail image that represents the group
+ *  Returns a image that represents the group
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
  *  @return an UIImage object that represents the media group
  */
-- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
 /**
  *  The original object that represents a group on the underlying media implementation
@@ -51,13 +60,13 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 @protocol WPMediaAsset <NSObject>
 
 /**
- *  Returns a thumbnail image that represents the asset
+ *  Returns a image that represents the asset
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
  *  @return an UIImage object that represents the media asset.
  */
-- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.
@@ -95,10 +104,6 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 - (NSDate *)date;
 
 @end
-
-typedef void (^WPMediaChangesBlock)();
-typedef void (^WPMediaFailureBlock)(NSError *error);
-typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 /**
  *  The WPMediaCollectionDataSource protocol is adopted by an object that mediates between a media library implementation

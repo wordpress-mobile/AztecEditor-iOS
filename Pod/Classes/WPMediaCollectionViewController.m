@@ -330,9 +330,22 @@ static NSString *const ArrowDown = @"\u25be";
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
-
+    cell.image = nil;
     // Configure the cell
-    cell.image = [asset thumbnailWithSize:cell.frame.size];
+    __block WPMediaRequestID requestKey = 0;
+    requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
+        if (error) {
+            cell.image = nil;
+            NSLog(@"%@", [error localizedDescription]);
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (requestKey == cell.tag){
+                cell.image = result;
+            }
+        });
+    }];
+    cell.tag = requestKey;
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
