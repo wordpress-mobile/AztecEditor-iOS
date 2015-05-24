@@ -21,12 +21,15 @@ typedef NSUInteger WPMediaRequestID;
 @protocol WPMediaGroup <NSObject>
 
 - (NSString *)name;
+
 /**
- *  Returns a image that represents the group
+ *  Assynchronously fetches an image that represents the group
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
- *  @return an UIImage object that represents the media group
+ *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
+ *
+ *  @return an unique ID of the fecth operation
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
@@ -60,11 +63,13 @@ typedef NSUInteger WPMediaRequestID;
 @protocol WPMediaAsset <NSObject>
 
 /**
- *  Returns a image that represents the asset
+ *  Assynchronously fetches an image that represents the asset with the requested size
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
- *  @return an UIImage object that represents the media asset.
+ *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
+ *
+ *  @return an unique ID of the fecth operation
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
