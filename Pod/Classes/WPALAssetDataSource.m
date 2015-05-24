@@ -306,10 +306,13 @@
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 {
     CGImageRef thumbnailImageRef = [self thumbnail];
-    UIImage *thumbnail = [UIImage imageWithCGImage:thumbnailImageRef];
+    UIImage *result = [UIImage imageWithCGImage:thumbnailImageRef];
+    if (result.size.width < size.width && result.size.height < size.height) {
+        result = [UIImage imageWithCGImage:[self.defaultRepresentation fullResolutionImage]];
+    }
     if (completionHandler){
-        if (thumbnail) {
-            completionHandler(thumbnail, nil);
+        if (result) {
+            completionHandler(result, nil);
         } else {
             completionHandler(nil, nil);
         }
