@@ -6,7 +6,7 @@
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate>
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
-@property (nonatomic, strong) WPPHAssetDataSource *phAssetDataSource;
+@property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
 @end
 
 @implementation DemoViewController
@@ -104,8 +104,8 @@
 {
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
-    self.phAssetDataSource = [[WPPHAssetDataSource alloc] init];
-    mediaPicker.dataSource = self.phAssetDataSource;
+    //self.customDataSource = [[WPALAssetDataSource alloc] init];
+    //mediaPicker.dataSource = self.customDataSource;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 
