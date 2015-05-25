@@ -281,6 +281,11 @@
     }];
 }
 
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    [[WPPHAssetDataSource sharedImageManager] cancelImageRequest:requestID];
+}
+
 - (WPMediaType)assetType
 {
     if ([self mediaType] == PHAssetMediaTypeVideo){
@@ -313,7 +318,7 @@
 
 #pragma mark - WPPHAssetCollection
 
-@implementation PHAssetCollection(WPPHAssetCollection)
+@implementation PHAssetCollection(WPMediaGroup)
 
 
 - (NSString *)name
@@ -326,6 +331,12 @@
 {
     PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
     return [posterAsset imageWithSize:size completionHandler:completionHandler];
+}
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    return [posterAsset cancelImageRequest:requestID];
 }
 
 - (id)originalGroup

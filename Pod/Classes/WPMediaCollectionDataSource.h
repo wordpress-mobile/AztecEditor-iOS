@@ -11,7 +11,7 @@ typedef void (^WPMediaChangesBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
-typedef NSUInteger WPMediaRequestID;
+typedef int32_t WPMediaRequestID;
 
 
 /**
@@ -32,6 +32,8 @@ typedef NSUInteger WPMediaRequestID;
  *  @return an unique ID of the fecth operation
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
 /**
  *  The original object that represents a group on the underlying media implementation
@@ -69,9 +71,16 @@ typedef NSUInteger WPMediaRequestID;
  *
  *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
  *
- *  @return an unique ID of the fecth operation
+ *  @return an unique ID of the fecth operation that can be used to cancel it.
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+
+/**
+ *  Cancels a previous ongoing request for an asset image
+ *
+ *  @param requestID an identifier returned by the imageWithSize:completionHandler: method.
+ */
+- (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.

@@ -343,6 +343,9 @@ static NSString *const ArrowDown = @"\u25be";
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
     cell.image = nil;
+    if (cell.tag != 0) {
+        [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
+    }
     // Configure the cell
     __block WPMediaRequestID requestKey = 0;
     requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {

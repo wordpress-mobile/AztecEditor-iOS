@@ -320,6 +320,11 @@
     return 0;
 }
 
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    //This implementation doens't actually makes work async so nothing to cancel here.
+}
+
 - (WPMediaType)assetType
 {
     if ([self valueForProperty:ALAssetPropertyType] == ALAssetTypeVideo){
@@ -379,6 +384,11 @@
         }
     }
     return 0;
+}
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    //This implementation doens't actually makes work async so nothing to cancel here.
 }
 
 - (id)originalGroup
