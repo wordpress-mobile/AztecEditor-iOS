@@ -42,7 +42,12 @@
     _imageView = [[UIImageView alloc] init];
     _imageView.contentMode = UIViewContentModeScaleAspectFill;
     _imageView.clipsToBounds = YES;
-    self.backgroundView = _imageView;
+    _imageView.alpha = 0;
+    UIView *backgroundView = [[UIView alloc] initWithFrame:self.frame];
+    backgroundView.backgroundColor = self.backgroundColor;
+    [backgroundView addSubview:_imageView];
+    self.backgroundView = backgroundView;
+    _imageView.frame = self.backgroundView.bounds;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
@@ -71,7 +76,15 @@
 
 - (void)setImage:(UIImage *)image
 {
-    self.imageView.image = image;
+    if (!image){
+        self.imageView.alpha = 0;
+        self.imageView.image = nil;
+    } else {
+        [UIView animateWithDuration:0.5 animations:^{
+            self.imageView.alpha = 1.0;
+            self.imageView.image = image;
+        }];
+    }
 }
 
 - (void)setPosition:(NSInteger)position
