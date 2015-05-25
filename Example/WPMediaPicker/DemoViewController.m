@@ -104,8 +104,8 @@
 {
     WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
-    //self.customDataSource = [[WPALAssetDataSource alloc] init];
-    //mediaPicker.dataSource = self.customDataSource;
+    self.customDataSource = [[WPPHAssetDataSource alloc] init];
+    mediaPicker.dataSource = self.customDataSource;
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

@@ -61,11 +61,7 @@
     static id<WPMediaCollectionDataSource> assetSource = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if (NSClassFromString(@"PHAsset")) {
-            assetSource = [[WPPHAssetDataSource alloc] init];
-        } else {
-            assetSource = [[WPALAssetDataSource alloc] init];
-        }
+        assetSource = [[WPALAssetDataSource alloc] init];
     });
     return assetSource;
 }

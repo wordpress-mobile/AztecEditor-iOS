@@ -11,7 +11,7 @@
  The object that acts as the data source of the media picker.
  
  @Discussion
- If no object is defined then the picker will use by defailt a data source that access the user media library.
+ If no object is defined before the picker is show then the picker will use a shared data source that access the user media library.
 */
 @property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
