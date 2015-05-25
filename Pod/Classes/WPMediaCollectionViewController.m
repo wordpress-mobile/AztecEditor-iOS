@@ -31,6 +31,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
+@property (nonatomic, assign) BOOL refreshGroupFirstTime;
 
 @end
 
@@ -50,6 +51,7 @@ static NSString *const ArrowDown = @"\u25be";
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeAll;
+        _refreshGroupFirstTime = YES;
     }
     return self;
 }
@@ -200,7 +202,7 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)isShowingCaptureCell
 {
-    return self.allowCaptureOfMedia && [self isMediaDeviceAvailable];
+    return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -209,6 +211,7 @@ static NSString *const ArrowDown = @"\u25be";
 {
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
+        self.refreshGroupFirstTime = NO;
         __typeof__(self) strongSelf = weakSelf;
         [strongSelf refreshSelection];
         id<WPMediaGroup> mediaGroup = [strongSelf.dataSource selectedGroup];
