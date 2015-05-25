@@ -27,10 +27,12 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
+@property (nonatomic, assign) BOOL refreshGroupFirstTime;
 
 @end
 
@@ -50,6 +52,7 @@ static NSString *const ArrowDown = @"\u25be";
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeAll;
+        _refreshGroupFirstTime = YES;
     }
     return self;
 }
@@ -63,6 +66,10 @@ static NSString *const ArrowDown = @"\u25be";
 {
     [super viewDidLoad];
 
+    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    self.activityIndicatorView.hidesWhenStopped = YES;
+    self.activityIndicatorView.center = self.view.center;
+    [self.view addSubview:self.activityIndicatorView];
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
@@ -83,17 +90,16 @@ static NSString *const ArrowDown = @"\u25be";
     [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
 
     [self setupLayoutForOrientation:self.interfaceOrientation];
+
     //setup navigation items
     self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.titleView = self.titleButton;
-
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
+    //setup data
     self.ignoreMediaNotifications = NO;
-
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
@@ -200,20 +206,25 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (BOOL)isShowingCaptureCell
 {
-    return self.allowCaptureOfMedia && [self isMediaDeviceAvailable];
+    return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
 #pragma mark - UICollectionViewDataSource
 
 - (void)refreshData
 {
+    if (self.refreshGroupFirstTime) {
+        [self.activityIndicatorView startAnimating];
+    }
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
+        strongSelf.refreshGroupFirstTime = NO;
         [strongSelf refreshSelection];
         id<WPMediaGroup> mediaGroup = [strongSelf.dataSource selectedGroup];
         NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf.activityIndicatorView stopAnimating];
             [strongSelf.titleButton setTitle:title forState:UIControlStateNormal];
             [strongSelf.titleButton sizeToFit];
             [strongSelf.collectionView reloadData];
@@ -228,6 +239,7 @@ static NSString *const ArrowDown = @"\u25be";
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
+        [strongSelf.activityIndicatorView stopAnimating];
         if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
             if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -330,9 +342,25 @@ static NSString *const ArrowDown = @"\u25be";
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
-
+    cell.image = nil;
+    if (cell.tag != 0) {
+        [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
+    }
     // Configure the cell
-    cell.image = [asset thumbnailWithSize:cell.frame.size];
+    __block WPMediaRequestID requestKey = 0;
+    requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
+        if (error) {
+            cell.image = nil;
+            NSLog(@"%@", [error localizedDescription]);
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (requestKey == cell.tag){
+                cell.image = result;
+            }
+        });
+    }];
+    cell.tag = requestKey;
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];

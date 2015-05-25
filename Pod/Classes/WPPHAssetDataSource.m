@@ -128,6 +128,7 @@
         }
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", mediaType];
     }
+    
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
@@ -253,22 +254,36 @@
 
 @implementation PHAsset(WPMediaAsset)
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize realSize = CGSizeApplyAffineTransform(size, CGAffineTransformMakeScale(scale, scale));
-    options.synchronous = YES;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
-    __block UIImage *thumbnail = nil;
-    [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
+    options.synchronous = NO;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.networkAccessAllowed = YES;
+    return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:realSize
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
-                                                         thumbnail = result;
-                                                     }];
-    return thumbnail;
+         NSError *error = info[PHImageErrorKey];
+         if (error){
+             if (completionHandler){
+                 completionHandler(nil, error);
+             }
+             return;
+         }
+         if (completionHandler){
+             completionHandler(result, nil);
+         }
+    }];
+}
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    [[WPPHAssetDataSource sharedImageManager] cancelImageRequest:requestID];
 }
 
 - (WPMediaType)assetType
@@ -303,7 +318,7 @@
 
 #pragma mark - WPPHAssetCollection
 
-@implementation PHAssetCollection(WPPHAssetCollection)
+@implementation PHAssetCollection(WPMediaGroup)
 
 
 - (NSString *)name
@@ -311,10 +326,17 @@
     return [self localizedTitle];
 }
 
-- (UIImage *)thumbnailWithSize:(CGSize)size
+
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    PHAsset * posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
-    return [posterAsset thumbnailWithSize:size];
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    return [posterAsset imageWithSize:size completionHandler:completionHandler];
+}
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID
+{
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    return [posterAsset cancelImageRequest:requestID];
 }
 
 - (id)originalGroup

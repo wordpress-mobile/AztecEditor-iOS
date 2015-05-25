@@ -5,6 +5,15 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeAll
 };
 
+@protocol WPMediaAsset;
+
+typedef void (^WPMediaChangesBlock)();
+typedef void (^WPMediaFailureBlock)(NSError *error);
+typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
+typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef int32_t WPMediaRequestID;
+
+
 /**
  * The WPMediaGroup protocol is adopted by an object that mediates between a media collection and it's representation on
  * an visualization like WPMediaGroupPickerViewController.
@@ -12,14 +21,19 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 @protocol WPMediaGroup <NSObject>
 
 - (NSString *)name;
+
 /**
- *  Returns a thumnail image that represents the group
+ *  Assynchronously fetches an image that represents the group
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
- *  @return an UIImage object that represents the media group
+ *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
+ *
+ *  @return an unique ID of the fecth operation
  */
-- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+
+- (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
 /**
  *  The original object that represents a group on the underlying media implementation
@@ -51,13 +65,22 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 @protocol WPMediaAsset <NSObject>
 
 /**
- *  Returns a thumbnail image that represents the asset
+ *  Assynchronously fetches an image that represents the asset with the requested size
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
- *  @return an UIImage object that represents the media asset.
+ *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
+ *
+ *  @return an unique ID of the fecth operation that can be used to cancel it.
  */
-- (UIImage *)thumbnailWithSize:(CGSize)size;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+
+/**
+ *  Cancels a previous ongoing request for an asset image
+ *
+ *  @param requestID an identifier returned by the imageWithSize:completionHandler: method.
+ */
+- (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.
@@ -95,10 +118,6 @@ typedef NS_ENUM(NSInteger, WPMediaType){
 - (NSDate *)date;
 
 @end
-
-typedef void (^WPMediaChangesBlock)();
-typedef void (^WPMediaFailureBlock)(NSError *error);
-typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 
 /**
  *  The WPMediaCollectionDataSource protocol is adopted by an object that mediates between a media library implementation

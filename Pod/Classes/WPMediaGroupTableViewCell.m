@@ -33,13 +33,13 @@ static CGFloat const WPMediaGroupTableViewCellImageMargin = 15.0;
     [super layoutSubviews];
     CGFloat cellHeight = self.contentView.frame.size.height;
     CGFloat imageHeight = cellHeight-(2*WPMediaGroupTableViewCellImagePadding);
-    self.imageView.frame = CGRectMake(WPMediaGroupTableViewCellImageMargin, WPMediaGroupTableViewCellImagePadding, imageHeight, imageHeight);
+    self.imagePosterView.frame = CGRectMake(WPMediaGroupTableViewCellImageMargin, WPMediaGroupTableViewCellImagePadding, imageHeight, imageHeight);
 
     CGFloat titleFontSize = [self.titleLabel.font ascender] - [self.titleLabel.font descender];
-    self.titleLabel.frame = CGRectMake(CGRectGetMaxX(self.imageView.frame) + WPMediaGroupTableViewCellImageMargin, (cellHeight/2)-titleFontSize, self.contentView.frame.size.width-CGRectGetMaxX(self.imageView.frame), titleFontSize);
+    self.titleLabel.frame = CGRectMake(CGRectGetMaxX(self.imagePosterView.frame) + WPMediaGroupTableViewCellImageMargin, (cellHeight/2)-titleFontSize, self.contentView.frame.size.width-CGRectGetMaxX(self.imageView.frame), titleFontSize);
     
     CGFloat countFontSize = [self.countLabel.font ascender] - [self.countLabel.font descender];
-    self.countLabel.frame = CGRectMake(CGRectGetMaxX(self.imageView.frame) + WPMediaGroupTableViewCellImageMargin, cellHeight/2, self.contentView.frame.size.width-CGRectGetMaxX(self.imageView.frame), countFontSize);
+    self.countLabel.frame = CGRectMake(CGRectGetMaxX(self.imagePosterView.frame) + WPMediaGroupTableViewCellImageMargin, cellHeight/2, self.contentView.frame.size.width-CGRectGetMaxX(self.imageView.frame), countFontSize);
 }
 
 @end
