@@ -17,9 +17,21 @@ static NSString *const ResourcesBundleName = @"WPMediaPicker";
 
 + (UIImage *)imageNamed:(NSString *)imageName withExtension:(NSString *)extension
 {
-    NSString *path = [[self resourceBundle] pathForResource:imageName ofType:extension];
-    UIImage *image = [UIImage imageWithContentsOfFile:path];
-
+    int scale = [[UIScreen mainScreen] scale];
+    NSString *scaleAdjustedImageName = [imageName copy];
+    UIImage *image = nil;
+    do {
+        if (scale > 1) {
+            scaleAdjustedImageName = [NSString stringWithFormat:@"%@@%ix",imageName, scale];
+        } else {
+            scaleAdjustedImageName = [imageName copy];
+        }
+        NSString *path = [[self resourceBundle] pathForResource:scaleAdjustedImageName ofType:extension];
+        image = [UIImage imageWithContentsOfFile:path];
+        if (!image) {
+            scale--;
+        }
+    } while (scale > 0 && !image);
     return image;
 }
 
