@@ -128,6 +128,7 @@
         }
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", mediaType];
     }
+    
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
@@ -267,17 +268,17 @@
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
-                                                         NSError *error = info[PHImageErrorKey];
-                                                         if (error){
-                                                             if (completionHandler){
-                                                                 completionHandler(nil, error);
-                                                             }
-                                                             return;
-                                                         }
-                                                         if (completionHandler){
-                                                             completionHandler(result, nil);
-                                                         }
-                                                     }];
+         NSError *error = info[PHImageErrorKey];
+         if (error){
+             if (completionHandler){
+                 completionHandler(nil, error);
+             }
+             return;
+         }
+         if (completionHandler){
+             completionHandler(result, nil);
+         }
+    }];
 }
 
 - (WPMediaType)assetType
