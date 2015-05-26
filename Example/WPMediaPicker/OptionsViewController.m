@@ -22,7 +22,8 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
 @implementation OptionsViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     self.tableView.allowsSelection = NO;
@@ -46,22 +47,20 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.showCameraCaptureCell.textLabel.text = @"Show Capture Cell";
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
     return 1;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
     return OptionsViewControllerCellTotal;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     switch (indexPath.row) {
         case OptionsViewControllerCellShowMostRecentFirst:
             return self.showMostRecentFirstCell;
@@ -81,20 +80,22 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 - (void) done:(id) sender
 {
     if ([self.delegate respondsToSelector:@selector(optionsViewController:changed:)]){
+        id<OptionsViewControllerDelegate> delegate = self.delegate;
         NSDictionary *newOptions = @{
              MediaPickerOptionsShowMostRecentFirst:@(((UISwitch *)self.showMostRecentFirstCell.accessoryView).on),
              MediaPickerOptionsUsePhotosLibrary:@(((UISwitch *)self.usePhotosLibraryCell.accessoryView).on),
              MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on)
              };
         
-        [self.delegate optionsViewController:self changed:newOptions];
+        [delegate optionsViewController:self changed:newOptions];
     }
 }
 
 - (void) cancel:(id) sender
 {
     if ([self.delegate respondsToSelector:@selector(cancelOptionsViewController:)]){
-        [self.delegate cancelOptionsViewController:self];
+        id<OptionsViewControllerDelegate> delegate = self.delegate;
+        [delegate cancelOptionsViewController:self];
     }
 }
 
