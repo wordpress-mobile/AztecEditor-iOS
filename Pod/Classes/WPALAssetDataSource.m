@@ -168,7 +168,7 @@
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
     NSParameterAssert([group isKindOfClass:[ALAssetsGroup class]]);
-    self.assetsGroup = [group originalGroup];
+    self.assetsGroup = [group baseGroup];
 }
 
 - (NSInteger)indexOfSelectedGroup
@@ -335,7 +335,7 @@
     return duration;
 }
 
-- (id)originalAsset
+- (id)baseAsset
 {
     return self;
 }
@@ -379,7 +379,7 @@
     //This implementation doens't actually makes work async so nothing to cancel here.
 }
 
-- (id)originalGroup
+- (id)baseGroup
 {
     return self;
 }

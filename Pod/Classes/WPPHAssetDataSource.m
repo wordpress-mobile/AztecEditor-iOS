@@ -146,7 +146,8 @@
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
-    self.activeAssetsCollection = [group originalGroup];
+    NSParameterAssert([group isKindOfClass:[PHAssetCollection class]]);
+    self.activeAssetsCollection = [group baseGroup];
 }
 
 - (NSInteger)numberOfAssets
@@ -287,7 +288,7 @@
     return WPMediaTypeOther;
 }
 
-- (id)originalAsset
+- (id)baseAsset
 {
     return self;
 }
@@ -327,7 +328,7 @@
     [posterAsset cancelImageRequest:requestID];
 }
 
-- (id)originalGroup
+- (id)baseGroup
 {
     return self;
 }
