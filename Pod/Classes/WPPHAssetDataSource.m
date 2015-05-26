@@ -336,7 +336,7 @@
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
 {
     PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
-    return [posterAsset cancelImageRequest:requestID];
+    [posterAsset cancelImageRequest:requestID];
 }
 
 - (id)originalGroup
