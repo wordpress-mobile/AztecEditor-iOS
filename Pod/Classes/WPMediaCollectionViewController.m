@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, strong) UIPopoverController *popOverController;
-@property (nonatomic, assign) BOOL ignoreMediaNotifications;
+@property (nonatomic, assign) NSTimeInterval ignoreMediaTimestamp;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
@@ -53,6 +53,7 @@ static NSString *const ArrowDown = @"\u25be";
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeAll;
         _refreshGroupFirstTime = YES;
+        _ignoreMediaTimestamp = 0;
     }
     return self;
 }
@@ -99,11 +100,10 @@ static NSString *const ArrowDown = @"\u25be";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
     //setup data
-    self.ignoreMediaNotifications = NO;
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (!weakSelf.ignoreMediaNotifications){
+        if (([NSDate timeIntervalSinceReferenceDate] - self.ignoreMediaTimestamp) > 1.5){
             [weakSelf refreshData];
         }
     }];
@@ -592,10 +592,9 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
-    self.ignoreMediaNotifications = YES;
+    self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error){
-            self.ignoreMediaNotifications = NO;
             return;
         }
         [self addMedia:media];
@@ -637,7 +636,6 @@ static NSString *const ArrowDown = @"\u25be";
         NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
     }
-    self.ignoreMediaNotifications = NO;
     
     if (!willBeSelected) {
         return;
