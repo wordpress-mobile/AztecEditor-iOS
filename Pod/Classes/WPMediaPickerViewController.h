@@ -1,11 +1,19 @@
 @import UIKit;
-@import AssetsLibrary;
+#import "WPMediaCollectionDataSource.h"
 
 @protocol WPMediaPickerViewControllerDelegate;
 
 @interface WPMediaPickerViewController : UIViewController
 
 @property (nonatomic, weak) id<WPMediaPickerViewControllerDelegate> delegate;
+
+/**
+ The object that acts as the data source of the media picker.
+ 
+ @Discussion
+ If no object is defined before the picker is show then the picker will use a shared data source that access the user media library.
+*/
+@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
 /**
  If set the picker will show a cell that allows capture of new media, that can be used immediatelly
@@ -20,7 +28,7 @@
 /**
  *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
  */
-@property (nonatomic, strong) ALAssetsFilter *assetsFilter;
+@property (nonatomic, assign) WPMediaType filter;
 
 /**
  If set the picker will allow the selection of multiple items. By default this value is YES.
@@ -53,7 +61,7 @@
  *  Tells the delegate that the user finish picking photos or videos.
  *
  *  @param picker The controller object managing the assets picker interface.
- *  @param assets An array containing picked `ALAsset` objects.
+ *  @param assets An array containing picked `WPMediaAsset` objects.
  *
  */
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets;
@@ -81,7 +89,7 @@
  *  @return `YES` if the asset should be shown or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldShowAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldShowAsset:(id<WPMediaAsset>*)asset;
 
 /**
  *  Ask the delegate if the specified asset should be enabled for selection.
@@ -92,7 +100,7 @@
  *  @return `YES` if the asset should be enabled or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldEnableAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldEnableAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  @name Managing the Selected Assets
@@ -107,7 +115,7 @@
  *  @return `YES` if the asset should be selected or `NO` if it should not.
  *
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldSelectAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldSelectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Tells the delegate that the asset was selected.
@@ -116,7 +124,7 @@
  *  @param asset  The asset that was selected.
  *
  */
-- (void)mediaPickerController:(WPMediaPickerViewController *)picker didSelectAsset:(ALAsset *)asset;
+- (void)mediaPickerController:(WPMediaPickerViewController *)picker didSelectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Asks the delegate if the specified asset should be deselected.
@@ -128,7 +136,7 @@
  *
  *  @see assetsPickerController:shouldSelectAsset:
  */
-- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldDeselectAsset:(ALAsset *)asset;
+- (BOOL)mediaPickerController:(WPMediaPickerViewController *)picker shouldDeselectAsset:(id<WPMediaAsset>)asset;
 
 /**
  *  Tells the delegate that the item at the specified path was deselected.
@@ -137,6 +145,6 @@
  *  @param asset  The asset that was deselected.
  *
  */
-- (void)mediaPickerController:(WPMediaPickerViewController *)picker didDeselectAsset:(ALAsset *)asset;
+- (void)mediaPickerController:(WPMediaPickerViewController *)picker didDeselectAsset:(id<WPMediaAsset>)asset;
 
 @end

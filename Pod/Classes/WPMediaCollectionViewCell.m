@@ -40,6 +40,9 @@
 - (void)commonInit
 {
     _imageView = [[UIImageView alloc] init];
+    _imageView.contentMode = UIViewContentModeScaleAspectFill;
+    _imageView.clipsToBounds = YES;
+    _imageView.backgroundColor = self.backgroundColor;
     self.backgroundView = _imageView;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
@@ -69,7 +72,15 @@
 
 - (void)setImage:(UIImage *)image
 {
-    self.imageView.image = image;
+    if (!image){
+        self.imageView.alpha = 0;
+        self.imageView.image = nil;
+    } else {
+        [UIView animateWithDuration:0.3 animations:^{
+            self.imageView.alpha = 1.0;
+            self.imageView.image = image;
+        }];
+    }
 }
 
 - (void)setPosition:(NSInteger)position

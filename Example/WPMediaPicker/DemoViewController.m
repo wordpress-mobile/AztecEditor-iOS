@@ -1,9 +1,16 @@
 #import "DemoViewController.h"
-#import <WPMediaPicker/WPMediaPickerViewController.h>
+#import "WPPHAssetDataSource.h"
+#import "OptionsViewController.h"
+#import <WPMediaPicker/WPMediaPicker.h>
+#import <WPMediaPicker/WPMediaGroupTableViewCell.h>
 
-@interface DemoViewController () <WPMediaPickerViewControllerDelegate>
+@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
+
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
+@property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
+@property (nonatomic, copy) NSDictionary *options;
+
 @end
 
 @implementation DemoViewController
@@ -14,7 +21,7 @@
     
     self.title = @"WPMediaPicker";
     //setup nav buttons
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(clearSelection:)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(showOptions:)];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(showPicker:)];
     
@@ -22,6 +29,13 @@
     self.dateFormatter = [[NSDateFormatter alloc] init];
     self.dateFormatter.dateStyle = NSDateFormatterMediumStyle;
     self.dateFormatter.timeStyle = NSDateFormatterMediumStyle;
+    [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
+    self.options = @{
+                     MediaPickerOptionsShowMostRecentFirst:@(NO),
+                     MediaPickerOptionsUsePhotosLibrary:@(NO),
+                     MediaPickerOptionsShowCameraCapture:@(YES)
+                     };
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -44,18 +58,29 @@
 
 - (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell"];
+    WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
-    if (!cell){
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
+    id<WPMediaAsset> asset = self.assets[indexPath.row];
+    __block WPMediaRequestID requestID = 0;
+    requestID = [asset imageWithSize:CGSizeMake(100,100) completionHandler:^(UIImage *result, NSError *error) {
+        if (error) {
+            return;
+        }
+        if (cell.tag == requestID) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.imagePosterView.image = result;
+            });
+        }
+    }];
+    cell.tag = requestID;
+    cell.titleLabel.text = [self.dateFormatter stringFromDate:[asset date]];
+    if ([asset assetType] == WPMediaTypeImage) {
+        cell.countLabel.text = @"Image";
+    } else if ([asset assetType] == WPMediaTypeVideo) {
+        cell.countLabel.text = @"Video";
+    } else {
+        cell.countLabel.text = @"Other";
     }
-    
-    ALAsset * asset = self.assets[indexPath.row];
-    cell.imageView.image = [UIImage imageWithCGImage:[asset thumbnail]];
-    
-    cell.textLabel.text = [self.dateFormatter stringFromDate:[asset valueForProperty:ALAssetPropertyDate]];
-    cell.detailTextLabel.text = [asset valueForProperty:ALAssetPropertyType];
-    cell.detailTextLabel.hidden = NO;
     
     return cell;
 }
@@ -86,9 +111,36 @@
 
 - (void) showPicker:(id) sender
 {
-    WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
+    WPMediaPickerViewController *mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
+    mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    if ([self.options[MediaPickerOptionsUsePhotosLibrary] boolValue]){
+        self.customDataSource = [[WPPHAssetDataSource alloc] init];
+        mediaPicker.dataSource = self.customDataSource;
+    }
+    mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     [self presentViewController:mediaPicker animated:YES completion:nil];
+}
+
+- (void) showOptions:(id) sender
+{
+    OptionsViewController *optionsViewController = [[OptionsViewController alloc] init];
+    optionsViewController.delegate = self;
+    optionsViewController.options = self.options;
+    [[self navigationController] pushViewController:optionsViewController animated:YES];
+}
+
+#pragma - Options
+
+- (void)optionsViewController:(OptionsViewController *)optionsViewController changed:(NSDictionary *)options
+{
+    self.options = options;
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)cancelOptionsViewController:(OptionsViewController *)optionsViewController
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end

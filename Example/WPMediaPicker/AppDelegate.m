@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 #import "DemoViewController.h"
-#import "WPMediaCollectionViewController.h"
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @implementation AppDelegate
 
@@ -17,6 +17,7 @@
     [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
     [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
     [[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
     return YES;
 }
 							

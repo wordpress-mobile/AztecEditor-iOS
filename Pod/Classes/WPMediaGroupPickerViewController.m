@@ -1,21 +1,15 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static NSString *const WPMediaGroupCellIdentifier = @"WPMediaGroupCell";
 static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
-@property (nonatomic, strong) NSMutableArray *assetGroups;
+@property (nonatomic, strong) NSObject *changesObserver;
 
 @end
 
 @implementation WPMediaGroupPickerViewController
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
 
 - (instancetype)init
 {
@@ -23,6 +17,11 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     if (self) {
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_dataSource unregisterChangeObserver:_changesObserver];
 }
 
 - (void)viewDidLoad
@@ -40,42 +39,18 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
     self.tableView.rowHeight = WPMediaGroupCellHeight;
 
-    //Prepare data structures;
-    if (!self.assetsLibrary) {
-        self.assetsLibrary = [[ALAssetsLibrary alloc] init];
-    }
-    self.assetGroups = [NSMutableArray array];
-
     //Setup navigation
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLibraryNotification:) name:ALAssetsLibraryChangedNotification object:self.assetsLibrary];
-
+    __weak __typeof__(self) weakSelf = self;
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
+        [weakSelf loadData];
+    }];
     [self loadData];
-}
-
-- (void)handleLibraryNotification:(NSNotification *)note
-{
-    if (note.userInfo[ALAssetLibraryInsertedAssetGroupsKey]
-        || note.userInfo[ALAssetLibraryDeletedAssetGroupsKey]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self loadData];
-        });
-    }
 }
 
 - (void)loadData
 {
-    [self.assetGroups removeAllObjects];
-    [self.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-        if(!group){
-            [self.tableView reloadData];
-            return;
-        }
-        [self.assetGroups addObject:group];
-    } failureBlock:^(NSError *error) {
-        NSLog(@"Error: %@", [error localizedDescription]);
-    }];
+    [self.tableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource methods
@@ -87,24 +62,39 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.assetGroups.count;
+    return [self.dataSource numberOfGroups];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
 
-    ALAssetsGroup *group = (ALAssetsGroup *)self.assetGroups[indexPath.row];
-    UIImage *posterImage = [UIImage imageWithCGImage:[group posterImage]];
-    cell.imageView.image = posterImage;
-    cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
+    id<WPMediaGroup> group = [self.dataSource groupAtIndex:indexPath.row];
+    
+    cell.imagePosterView.image = nil;
+    __block WPMediaRequestID requestKey = 0;
+    requestKey = [group imageWithSize:CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight)
+                              completionHandler:^(UIImage *result, NSError *error)
+    {
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (cell.tag == requestKey){
+                cell.imagePosterView.image = result;
+            }
+        });
+    }];
+    cell.tag = requestKey;
+    cell.titleLabel.text = [group name];
+    cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-    if ([[group valueForProperty:ALAssetsGroupPropertyPersistentID] isEqual:[self.selectedGroup valueForProperty:ALAssetsGroupPropertyPersistentID]]) {
+    if ([[group identifier] isEqual:[[self.dataSource selectedGroup] identifier]]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
         [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     } else {
@@ -146,7 +136,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     }
     if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewController:didPickGroup:)]) {
         NSInteger selectedRow = self.tableView.indexPathForSelectedRow.row;
-        ALAssetsGroup *group = self.assetGroups[selectedRow];
+        id<WPMediaGroup> group = [self.dataSource groupAtIndex:selectedRow];
         [self.delegate mediaGroupPickerViewController:self didPickGroup:group];
     }
 }
