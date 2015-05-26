@@ -42,12 +42,8 @@
     _imageView = [[UIImageView alloc] init];
     _imageView.contentMode = UIViewContentModeScaleAspectFill;
     _imageView.clipsToBounds = YES;
-    _imageView.alpha = 0;
-    UIView *backgroundView = [[UIView alloc] initWithFrame:self.frame];
-    backgroundView.backgroundColor = self.backgroundColor;
-    [backgroundView addSubview:_imageView];
-    self.backgroundView = backgroundView;
-    _imageView.frame = self.backgroundView.bounds;
+    _imageView.backgroundColor = self.backgroundColor;
+    self.backgroundView = _imageView;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
