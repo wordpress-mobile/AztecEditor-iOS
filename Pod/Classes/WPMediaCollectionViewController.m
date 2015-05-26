@@ -342,7 +342,6 @@ static NSString *const ArrowDown = @"\u25be";
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
-    cell.image = nil;
     if (cell.tag != 0) {
         [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
     }
@@ -354,11 +353,17 @@ static NSString *const ArrowDown = @"\u25be";
             NSLog(@"%@", [error localizedDescription]);
             return;
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if ([NSThread isMainThread]){
             if (requestKey == cell.tag){
                 cell.image = result;
             }
-        });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (requestKey == cell.tag){
+                    cell.image = result;
+                }
+            });
+        }
     }];
     cell.tag = requestKey;
     NSUInteger position = [self positionOfAssetInSelection:asset];
