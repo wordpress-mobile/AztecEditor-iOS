@@ -1,12 +1,16 @@
 #import "DemoViewController.h"
 #import "WPPHAssetDataSource.h"
+#import "OptionsViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 #import <WPMediaPicker/WPMediaGroupTableViewCell.h>
 
-@interface DemoViewController () <WPMediaPickerViewControllerDelegate>
+@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
+
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
 @property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
+@property (nonatomic, copy) NSDictionary *options;
+
 @end
 
 @implementation DemoViewController
@@ -17,7 +21,7 @@
     
     self.title = @"WPMediaPicker";
     //setup nav buttons
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(clearSelection:)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(showOptions:)];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(showPicker:)];
     
@@ -26,6 +30,11 @@
     self.dateFormatter.dateStyle = NSDateFormatterMediumStyle;
     self.dateFormatter.timeStyle = NSDateFormatterMediumStyle;
     [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
+    self.options = @{
+                     MediaPickerOptionsShowMostRecentFirst:@(NO),
+                     MediaPickerOptionsUsePhotosLibrary:@(NO),
+                     MediaPickerOptionsShowCameraCapture:@(YES)
+                     };
 
 }
 
@@ -102,11 +111,36 @@
 
 - (void) showPicker:(id) sender
 {
-    WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
+    WPMediaPickerViewController *mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
-    self.customDataSource = [[WPPHAssetDataSource alloc] init];
-    mediaPicker.dataSource = self.customDataSource;
+    mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    if ([self.options[MediaPickerOptionsUsePhotosLibrary] boolValue]){
+        self.customDataSource = [[WPPHAssetDataSource alloc] init];
+        mediaPicker.dataSource = self.customDataSource;
+    }
+    mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     [self presentViewController:mediaPicker animated:YES completion:nil];
+}
+
+- (void) showOptions:(id) sender
+{
+    OptionsViewController *optionsViewController = [[OptionsViewController alloc] init];
+    optionsViewController.delegate = self;
+    optionsViewController.options = self.options;
+    [[self navigationController] pushViewController:optionsViewController animated:YES];
+}
+
+#pragma - Options
+
+- (void)optionsViewController:(OptionsViewController *)optionsViewController changed:(NSDictionary *)options
+{
+    self.options = options;
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)cancelOptionsViewController:(OptionsViewController *)optionsViewController
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end
