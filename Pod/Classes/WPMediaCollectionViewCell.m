@@ -76,7 +76,7 @@
         self.imageView.alpha = 0;
         self.imageView.image = nil;
     } else {
-        [UIView animateWithDuration:0.5 animations:^{
+        [UIView animateWithDuration:0.3 animations:^{
             self.imageView.alpha = 1.0;
             self.imageView.image = image;
         }];
