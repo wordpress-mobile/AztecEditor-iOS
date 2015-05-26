@@ -40,7 +40,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return a object from the underlying media implementation
  */
-- (id)originalGroup;
+- (id)baseGroup;
 
 /**
  *  An unique identifer for the media group
@@ -101,7 +101,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return a object from the underlying media implementation
  */
-- (id)originalAsset;
+- (id)baseAsset;
 
 /**
  *  A unique identifier for the media asset
