@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, strong) UIPopoverController *popOverController;
-@property (nonatomic, assign) BOOL ignoreMediaNotifications;
+@property (nonatomic, assign) NSTimeInterval ignoreMediaTimestamp;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
@@ -40,6 +40,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 
 static CGFloat SelectAnimationTime = 0.2;
 static NSString *const ArrowDown = @"\u25be";
+static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (instancetype)init
 {
@@ -53,6 +54,7 @@ static NSString *const ArrowDown = @"\u25be";
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeAll;
         _refreshGroupFirstTime = YES;
+        _ignoreMediaTimestamp = 0;
     }
     return self;
 }
@@ -99,11 +101,10 @@ static NSString *const ArrowDown = @"\u25be";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
 
     //setup data
-    self.ignoreMediaNotifications = NO;
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (!weakSelf.ignoreMediaNotifications){
+        if (([NSDate timeIntervalSinceReferenceDate] - self.ignoreMediaTimestamp) > TimeToIgnoreNotificationAfterAddition){
             [weakSelf refreshData];
         }
     }];
@@ -342,7 +343,6 @@ static NSString *const ArrowDown = @"\u25be";
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
-    cell.image = nil;
     if (cell.tag != 0) {
         [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
     }
@@ -354,11 +354,17 @@ static NSString *const ArrowDown = @"\u25be";
             NSLog(@"%@", [error localizedDescription]);
             return;
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if ([NSThread isMainThread]){
             if (requestKey == cell.tag){
                 cell.image = result;
             }
-        });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (requestKey == cell.tag){
+                    cell.image = result;
+                }
+            });
+        }
     }];
     cell.tag = requestKey;
     NSUInteger position = [self positionOfAssetInSelection:asset];
@@ -435,9 +441,7 @@ static NSString *const ArrowDown = @"\u25be";
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [cell setPosition:self.selectedAssets.count];
-    [self animateCellSelection:cell completion:^{
-        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
-    }];
+    [self animateCellSelection:cell completion:nil];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.picker.delegate mediaPickerController:self.picker didSelectAsset:asset];
@@ -479,7 +483,14 @@ static NSString *const ArrowDown = @"\u25be";
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [self animateCellSelection:cell completion:^{
-        [self.collectionView reloadItemsAtIndexPaths:self.collectionView.indexPathsForSelectedItems];
+        for (NSIndexPath *selectedIndexPath in self.collectionView.indexPathsForSelectedItems){
+            WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:selectedIndexPath];
+            id<WPMediaAsset> asset = [self assetForPosition:selectedIndexPath];
+            NSUInteger position = [self positionOfAssetInSelection:asset];
+            if (position != NSNotFound) {
+                [cell setPosition:position + 1];
+            }
+        }
     }];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didDeselectAsset:)]) {
@@ -587,10 +598,9 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
-    self.ignoreMediaNotifications = YES;
+    self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error){
-            self.ignoreMediaNotifications = NO;
             return;
         }
         [self addMedia:media];
@@ -632,7 +642,10 @@ static NSString *const ArrowDown = @"\u25be";
         NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
     }
-    self.ignoreMediaNotifications = NO;
+    if (!self.showMostRecentFirst) {
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
+                                atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+    }
     
     if (!willBeSelected) {
         return;

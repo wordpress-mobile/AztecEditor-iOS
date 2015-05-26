@@ -6,7 +6,6 @@
 @property (nonatomic, strong) PHAssetCollection *activeAssetsCollection;
 @property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
-@property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
@@ -59,19 +58,12 @@
     __weak __typeof__(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf loadDataWithSuccess:^{
-            if (!self.ignoreMediaNotifications){
                 [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
                     block();
                 }];
-            }
         } failure:nil];
     });
 
-}
-
-- (BOOL)shouldNotifyObservers:(NSNotification *)note
-{
-    return !self.ignoreMediaNotifications;
 }
 
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
@@ -201,7 +193,6 @@
         completionBlock:(WPMediaAddedBlock)completionBlock
 {
     NSParameterAssert(changeRequestBlock);
-    self.ignoreMediaNotifications = YES;
     __block NSString * assetIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
         // Request creating an asset from the image.
@@ -215,7 +206,6 @@
         }
     } completionHandler:^(BOOL success, NSError *error) {
         if (!success) {
-            self.ignoreMediaNotifications = NO;
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionBlock(nil, error);
@@ -226,7 +216,6 @@
         PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
         if (result.count < 1){
             if (completionBlock){
-                self.ignoreMediaNotifications = NO;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionBlock(nil, error);
                 });
@@ -237,7 +226,6 @@
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock([result firstObject], nil);
-                self.ignoreMediaNotifications = NO;
             });
         }
     }];
@@ -261,7 +249,7 @@
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize realSize = CGSizeApplyAffineTransform(size, CGAffineTransformMakeScale(scale, scale));
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
     options.networkAccessAllowed = YES;
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:realSize
@@ -336,7 +324,7 @@
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
 {
     PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
-    return [posterAsset cancelImageRequest:requestID];
+    [posterAsset cancelImageRequest:requestID];
 }
 
 - (id)originalGroup

@@ -215,29 +215,7 @@
                                             metadata:metadata
                                      completionBlock:^(NSURL *assetURL, NSError *error)
     {
-        if (error){
-            self.ignoreMediaNotifications = NO;
-            return;
-        }
-        [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-            [self.assets addObject:asset];
-            if ([self.assetsGroup isEditable]) {
-                [self.assetsGroup addAsset:asset];
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (completionBlock) {
-                    completionBlock(asset, nil);
-                }
-                self.ignoreMediaNotifications = NO;
-            });
-        } failureBlock:^(NSError *error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (completionBlock) {
-                    completionBlock(nil, error);
-                }
-                self.ignoreMediaNotifications = NO;
-            });
-        }];
+        [self addMediaFromAssetURL:assetURL error:error completionBlock:completionBlock];
     }];
 }
 
@@ -248,29 +226,39 @@
     [self.assetsLibrary writeVideoAtPathToSavedPhotosAlbum:url
                                            completionBlock:^(NSURL *assetURL, NSError *error)
     {
-       if (error){
-           self.ignoreMediaNotifications = NO;
-           return;
-       }
-       [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-           [self.assets addObject:asset];
-           if ([self.assetsGroup isEditable]) {
-               [self.assetsGroup addAsset:asset];
-           }
-           dispatch_async(dispatch_get_main_queue(), ^{
-               if (completionBlock) {
-                   completionBlock(asset, nil);
-               }
-               self.ignoreMediaNotifications = NO;
-           });
-       } failureBlock:^(NSError *error) {
-           dispatch_async(dispatch_get_main_queue(), ^{
-               if (completionBlock) {
-                   completionBlock(nil, error);
-               }
-               self.ignoreMediaNotifications = NO;
-           });
-       }];
+        [self addMediaFromAssetURL:assetURL error:error completionBlock:completionBlock];
+    }];
+}
+
+-(void)addMediaFromAssetURL:(NSURL *)assetURL
+                      error:(NSError *)error
+            completionBlock:(WPMediaAddedBlock)completionBlock
+{
+    if (error){
+        self.ignoreMediaNotifications = NO;
+        if (completionBlock){
+            completionBlock(nil, error);
+        }
+        return;
+    }
+    [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
+        [self.assets addObject:asset];
+        if ([self.assetsGroup isEditable]) {
+            [self.assetsGroup addAsset:asset];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(asset, nil);
+            }
+            self.ignoreMediaNotifications = NO;
+        });
+    } failureBlock:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(nil, error);
+            }
+            self.ignoreMediaNotifications = NO;
+        });
     }];
 }
 
