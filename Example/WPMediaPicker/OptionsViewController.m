@@ -81,20 +81,22 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 - (void) done:(id) sender
 {
     if ([self.delegate respondsToSelector:@selector(optionsViewController:changed:)]){
+        id<OptionsViewControllerDelegate> delegate = self.delegate;
         NSDictionary *newOptions = @{
              MediaPickerOptionsShowMostRecentFirst:@(((UISwitch *)self.showMostRecentFirstCell.accessoryView).on),
              MediaPickerOptionsUsePhotosLibrary:@(((UISwitch *)self.usePhotosLibraryCell.accessoryView).on),
              MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on)
              };
         
-        [self.delegate optionsViewController:self changed:newOptions];
+        [delegate optionsViewController:self changed:newOptions];
     }
 }
 
 - (void) cancel:(id) sender
 {
     if ([self.delegate respondsToSelector:@selector(cancelOptionsViewController:)]){
-        [self.delegate cancelOptionsViewController:self];
+        id<OptionsViewControllerDelegate> delegate = self.delegate;
+        [delegate cancelOptionsViewController:self];
     }
 }
 
