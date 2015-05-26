@@ -40,6 +40,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 
 static CGFloat SelectAnimationTime = 0.2;
 static NSString *const ArrowDown = @"\u25be";
+static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (instancetype)init
 {
@@ -103,7 +104,7 @@ static NSString *const ArrowDown = @"\u25be";
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (([NSDate timeIntervalSinceReferenceDate] - self.ignoreMediaTimestamp) > 1.5){
+        if (([NSDate timeIntervalSinceReferenceDate] - self.ignoreMediaTimestamp) > TimeToIgnoreNotificationAfterAddition){
             [weakSelf refreshData];
         }
     }];
