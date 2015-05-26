@@ -636,6 +636,10 @@ static NSString *const ArrowDown = @"\u25be";
         NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
     }
+    if (!self.showMostRecentFirst) {
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
+                                atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+    }
     
     if (!willBeSelected) {
         return;
