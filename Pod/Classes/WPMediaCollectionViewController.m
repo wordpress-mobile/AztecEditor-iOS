@@ -435,9 +435,7 @@ static NSString *const ArrowDown = @"\u25be";
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [cell setPosition:self.selectedAssets.count];
-    [self animateCellSelection:cell completion:^{
-        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
-    }];
+    [self animateCellSelection:cell completion:nil];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.picker.delegate mediaPickerController:self.picker didSelectAsset:asset];
@@ -479,7 +477,14 @@ static NSString *const ArrowDown = @"\u25be";
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [self animateCellSelection:cell completion:^{
-        [self.collectionView reloadItemsAtIndexPaths:self.collectionView.indexPathsForSelectedItems];
+        for (NSIndexPath *selectedIndexPath in self.collectionView.indexPathsForSelectedItems){
+            WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:selectedIndexPath];
+            id<WPMediaAsset> asset = [self assetForPosition:selectedIndexPath];
+            NSUInteger position = [self positionOfAssetInSelection:asset];
+            if (position != NSNotFound) {
+                [cell setPosition:position + 1];
+            }
+        }
     }];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didDeselectAsset:)]) {
