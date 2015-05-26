@@ -22,7 +22,8 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
 @implementation OptionsViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     self.tableView.allowsSelection = NO;
@@ -46,22 +47,20 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.showCameraCaptureCell.textLabel.text = @"Show Capture Cell";
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
     return 1;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
     return OptionsViewControllerCellTotal;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     switch (indexPath.row) {
         case OptionsViewControllerCellShowMostRecentFirst:
             return self.showMostRecentFirstCell;
