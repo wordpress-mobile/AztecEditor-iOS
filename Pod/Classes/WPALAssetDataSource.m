@@ -115,11 +115,13 @@
             }
             return;
         }
-        [self.groups addObject:group];
-        if (!self.assetsGroup){
-            if ([[group valueForProperty:ALAssetsGroupPropertyType] intValue] == ALAssetsGroupSavedPhotos){
+        if ([[group valueForProperty:ALAssetsGroupPropertyType] intValue] == ALAssetsGroupSavedPhotos){
+            if (!self.assetsGroup){
                 self.assetsGroup = group;
             }
+            [self.groups insertObject:group atIndex:0];
+        } else {
+            [self.groups addObject:group];
         }
     } failureBlock:^(NSError *error) {
         NSLog(@"Error: %@", [error localizedDescription]);
