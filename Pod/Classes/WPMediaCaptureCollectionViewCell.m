@@ -77,7 +77,12 @@
             
             NSError *error = nil;
             AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
-            [self.session addInput:input];
+            if (input) {
+                [self.session addInput:input];
+            } else {
+                NSLog(@"Error: %@", error);
+                return;
+            }
         }
         if (!self.session.isRunning){
             [self.session startRunning];
