@@ -84,9 +84,9 @@ mediaPicker.dataSource = self.customDataSource;
 
 If you have a custom database of media and you want to display it using the WPMediaPicker you need to to implement the following protocols around your data:
 
- * WPMediaCollectionDataSource
- * WPMediaGroup
- * WPMediaAsset
+ * [WPMediaCollectionDataSource](Classes/WPMediaCollectionDataSource.h)
+ * [WPMediaGroup](Classes/WPMediaCollectionDataSource.h)
+ * [WPMediaAsset](Classes/WPMediaCollectionDataSource.h)
 
 You can view the protocols documentation for more implementation details. 
 After you have implemented it you can use it by simple doing the following:
