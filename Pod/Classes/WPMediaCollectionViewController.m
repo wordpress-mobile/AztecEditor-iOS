@@ -10,7 +10,8 @@
 
 typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
     WPMediaCollectionAlertMediaLibraryPermissionsNeeded,
-    WPMediaCollectionAlertMediaCapturePermissionsNeeded
+    WPMediaCollectionAlertMediaCapturePermissionsNeeded,
+    WPMediaCollectionAlertOtherError
 };
 
 @interface WPMediaCollectionViewController ()
@@ -68,7 +69,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 {
     [super viewDidLoad];
 
-    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     self.activityIndicatorView.hidesWhenStopped = YES;
     self.activityIndicatorView.center = self.view.center;
     [self.view addSubview:self.activityIndicatorView];
@@ -210,6 +211,13 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
+- (void)refreshTitle {
+    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
+    NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
+    [self.titleButton setTitle:title forState:UIControlStateNormal];
+    [self.titleButton sizeToFit];
+}
+
 #pragma mark - UICollectionViewDataSource
 
 - (void)refreshData
@@ -222,12 +230,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         __typeof__(self) strongSelf = weakSelf;
         strongSelf.refreshGroupFirstTime = NO;
         [strongSelf refreshSelection];
-        id<WPMediaGroup> mediaGroup = [strongSelf.dataSource selectedGroup];
-        NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf refreshTitle];
             [strongSelf.activityIndicatorView stopAnimating];
-            [strongSelf.titleButton setTitle:title forState:UIControlStateNormal];
-            [strongSelf.titleButton sizeToFit];
             [strongSelf.collectionView reloadData];
             // Scroll to the correct position
             if ([strongSelf.dataSource numberOfAssets] > 0){
@@ -240,27 +245,36 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
-        [strongSelf.activityIndicatorView stopAnimating];
-        if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
-            if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSString *otherButtonTitle = nil;
-                    if ([[self class] isiOS8OrAbove]) {
-                        otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-                    }
-                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
-                                                message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
-                                               delegate:self
-                                      cancelButtonTitle:NSLocalizedString(@"OK", "")
-                                      otherButtonTitles:otherButtonTitle,nil];
-                    alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
-                    alertView.delegate = strongSelf;
-                    [alertView show];
-                });
-
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf refreshTitle];
+            [strongSelf.activityIndicatorView stopAnimating];
+            [strongSelf.collectionView reloadData];
+            if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
+                if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
+                        NSString *otherButtonTitle = nil;
+                        if ([[self class] isiOS8OrAbove]) {
+                            otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
+                        }
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
+                                                    message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
+                                                   delegate:self
+                                          cancelButtonTitle:NSLocalizedString(@"OK", "")
+                                          otherButtonTitles:otherButtonTitle,nil];
+                        alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
+                        alertView.delegate = strongSelf;
+                        [alertView show];
+                        return;
+                }
             }
-        }
-        
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media")
+                                                                message:NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.")
+                                                               delegate:self
+                                                      cancelButtonTitle:NSLocalizedString(@"OK", "")
+                                                      otherButtonTitles:nil];
+            alertView.tag =  WPMediaCollectionAlertOtherError;
+            alertView.delegate = strongSelf;
+            [alertView show];
+        });
     }];
 }
 
@@ -683,6 +697,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
+    self.refreshGroupFirstTime = YES;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
         && ![[self class] isiOS8OrAbove]) {
         [self.popOverController dismissPopoverAnimated:YES];
@@ -690,6 +705,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         [self dismissViewControllerAnimated:YES completion:nil];
     }
     [self.dataSource setSelectedGroup:group];
+    [self refreshTitle];
     [self refreshData];
 }
 
