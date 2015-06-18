@@ -52,6 +52,50 @@ The delegate is responsible for dismissing the picker when the operation complet
 }
 ````
 
+### How to configure the appearance of the picker
+
+Just use the standard appearance methods from UIKIT. Here is an example how to configure the main components
+
+```` objective-c
+//Configure navigation bar background color
+[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
+//Configure navigation bar items text color
+[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
+//Configure navigation bar title text color
+[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
+//Configure background color for media scroll view
+[[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
+//Configure background color for media cell while loading image.
+[[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
+//Configure color for activity indicator while loading media collection
+[[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setColor:[UIColor grayColor]];
+````
+
+### How to use the Photos framework instead of the AssetLibrary framework
+
+Before you present the picker do the following:
+
+```` objective-c
+self.customDataSource = [[WPPHAssetDataSource alloc] init];
+mediaPicker.dataSource = self.customDataSource;
+````
+
+### How to use a custom data source for the picker
+
+If you have a custom database of media and you want to display it using the WPMediaPicker you need to to implement the following protocols around your data:
+
+ * [WPMediaCollectionDataSource](Pod/Classes/WPMediaCollectionDataSource.h)
+ * [WPMediaGroup](Pod/Classes/WPMediaCollectionDataSource.h)
+ * [WPMediaAsset](Pod/Classes/WPMediaCollectionDataSource.h)
+
+You can view the protocols documentation for more implementation details. 
+After you have implemented it you can use it by simple doing the following:
+
+```` objective-c
+self.customDataSource = [[WPCustomAssetDataSource alloc] init];
+mediaPicker.dataSource = self.customDataSource;
+````
+
 ### Sample Project
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
@@ -59,7 +103,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 ## Requirements
 
  * ARC 
- * AssetsLibrary and MediaPlayer frameworks.
+ * AssetsLibrary, MediaPlayer frameworks and optionally if you are in iOS 8 and above the Photos framework
  * XCode 6
  * iOS 7
 
