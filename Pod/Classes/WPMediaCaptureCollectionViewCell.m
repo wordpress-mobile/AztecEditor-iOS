@@ -62,12 +62,14 @@
 
 - (void)startCapture
 {
-    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusAuthorized &&
-        [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] != AVAuthorizationStatusNotDetermined)
-    {
-        return;
-    }
     dispatch_async(self.sessionQueue, ^{
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        if ( status != AVAuthorizationStatusAuthorized &&
+            status != AVAuthorizationStatusNotDetermined)
+        {
+            return;
+        }
+
         if (!self.session){
             self.session = [[AVCaptureSession alloc] init];
             self.session.sessionPreset = AVCaptureSessionPresetLow;
