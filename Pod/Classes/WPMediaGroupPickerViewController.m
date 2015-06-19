@@ -88,7 +88,12 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     }];
     cell.tag = requestKey;
     cell.titleLabel.text = [group name];
-    cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)[group numberOfAssets]];
+    NSInteger numberOfAssets = [group numberOfAssets];
+    if (numberOfAssets != NSNotFound) {
+        cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];
+    } else {
+        cell.countLabel.text = @"";
+    }
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
