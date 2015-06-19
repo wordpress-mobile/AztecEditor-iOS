@@ -225,6 +225,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     if (self.refreshGroupFirstTime) {
         [self.activityIndicatorView startAnimating];
     }
+    self.collectionView.allowsSelection = NO;
+    self.collectionView.scrollEnabled = NO;
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
@@ -233,6 +235,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf refreshTitle];
             [strongSelf.activityIndicatorView stopAnimating];
+            strongSelf.collectionView.allowsSelection = YES;
+            strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
             // Scroll to the correct position
             if ([strongSelf.dataSource numberOfAssets] > 0){
@@ -248,6 +252,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf refreshTitle];
             [strongSelf.activityIndicatorView stopAnimating];
+            strongSelf.collectionView.allowsSelection = YES;
+            strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
             if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
                 if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
