@@ -228,8 +228,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 {
     if (self.refreshGroupFirstTime) {
         if (![self.refreshControl isRefreshing]) {
-            [self.collectionView setContentOffset:CGPointMake(0, -[[self topLayoutGuide] length]) animated:NO];
-            [self.collectionView setContentOffset:CGPointMake(0, -[[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:YES];
+            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
+            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:YES];
             [self.refreshControl beginRefreshing];
         }
         [self.collectionView reloadData];
@@ -364,7 +364,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self isCaptureCellIndexPath:indexPath] ) {
+    if ([self isCaptureCellIndexPath:indexPath]) {
         self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
         [self.captureCell startCapture];
         return self.captureCell;
@@ -377,7 +377,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
     // Configure the cell
     __block WPMediaRequestID requestKey = 0;
+    NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
+        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
         if (error) {
             cell.image = nil;
             NSLog(@"%@", [error localizedDescription]);
@@ -385,12 +387,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         }
         if ([NSThread isMainThread]){
             if (requestKey == cell.tag){
-                cell.image = result;
+                [cell setImage:result animated:animated];
             }
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (requestKey == cell.tag){
-                    cell.image = result;
+                    [cell setImage:result animated:animated];
                 }
             });
         }
