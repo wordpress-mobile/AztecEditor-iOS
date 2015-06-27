@@ -7,4 +7,6 @@
 
 - (void)setCaption:(NSString *)caption;
 
+- (void)setImage:(UIImage *)image animated:(BOOL)animated;
+
 @end
