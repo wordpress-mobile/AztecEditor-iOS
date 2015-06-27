@@ -712,16 +712,28 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
+    if (group == [self.dataSource selectedGroup]){
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+            && ![[self class] isiOS8OrAbove]) {
+            [self.popOverController dismissPopoverAnimated:YES];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
+        return;
+    }
     self.refreshGroupFirstTime = YES;
+    [self.dataSource setSelectedGroup:group];
+    [self refreshTitle];
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
         && ![[self class] isiOS8OrAbove]) {
         [self.popOverController dismissPopoverAnimated:YES];
+        [self refreshData];
     } else {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self refreshData];
+        }];
     }
-    [self.dataSource setSelectedGroup:group];
-    [self refreshTitle];
-    [self refreshData];
+
 }
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
