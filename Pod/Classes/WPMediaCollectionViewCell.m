@@ -72,14 +72,24 @@
 
 - (void)setImage:(UIImage *)image
 {
+    [self setImage:image animated:YES];
+}
+
+- (void)setImage:(UIImage *)image animated:(BOOL)animated
+{
     if (!image){
         self.imageView.alpha = 0;
         self.imageView.image = nil;
     } else {
-        [UIView animateWithDuration:0.3 animations:^{
+        if (animated) {
+            [UIView animateWithDuration:0.3 animations:^{
+                self.imageView.alpha = 1.0;
+                self.imageView.image = image;
+            }];
+        } else {
             self.imageView.alpha = 1.0;
             self.imageView.image = image;
-        }];
+        }
     }
 }
 

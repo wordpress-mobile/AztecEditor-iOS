@@ -441,7 +441,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				ONLY_ACTIVE_ARCH = YES;
-				PROVISIONING_PROFILE = "8f3afaa9-210c-4da4-9ff5-3de3d5f7c9dd";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -493,6 +492,7 @@
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "387d680a-b90b-4cc0-b79f-8995aff8073d";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				WRAPPER_EXTENSION = app;
 			};
@@ -511,6 +511,7 @@
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "387d680a-b90b-4cc0-b79f-8995aff8073d";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				WRAPPER_EXTENSION = app;
 			};
