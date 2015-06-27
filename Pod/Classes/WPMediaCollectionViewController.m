@@ -28,7 +28,7 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
-@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) NSTimeInterval ignoreMediaTimestamp;
 @property (nonatomic, strong) NSObject *changesObserver;
@@ -68,11 +68,10 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    self.activityIndicatorView.hidesWhenStopped = YES;
-    self.activityIndicatorView.center = self.view.center;
-    [self.view addSubview:self.activityIndicatorView];
+    
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(pullToRefresh:) forControlEvents:UIControlEventValueChanged];
+    [self.collectionView addSubview:self.refreshControl];
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
@@ -159,6 +158,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return result == NSOrderedSame || result == NSOrderedDescending;
 }
 
+- (void)pullToRefresh:(id)sender
+{
+    [self refreshData];
+}
+
 - (void)changeGroup:(UIButton *)sender
 {
     WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
@@ -223,7 +227,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 - (void)refreshData
 {
     if (self.refreshGroupFirstTime) {
-        [self.activityIndicatorView startAnimating];
+        if (![self.refreshControl isRefreshing]) {
+            [self.collectionView setContentOffset:CGPointMake(0, -[[self topLayoutGuide] length]) animated:NO];
+            [self.collectionView setContentOffset:CGPointMake(0, -[[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:YES];
+            [self.refreshControl beginRefreshing];
+        }
+        [self.collectionView reloadData];
     }
     self.collectionView.allowsSelection = NO;
     self.collectionView.scrollEnabled = NO;
@@ -234,10 +243,10 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         [strongSelf refreshSelection];
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf refreshTitle];
-            [strongSelf.activityIndicatorView stopAnimating];
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
+            [strongSelf.refreshControl endRefreshing];
             // Scroll to the correct position
             if ([strongSelf.dataSource numberOfAssets] > 0){
                 NSInteger sectionToScroll = 0;
@@ -251,7 +260,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         __typeof__(self) strongSelf = weakSelf;
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf refreshTitle];
-            [strongSelf.activityIndicatorView stopAnimating];
+            [strongSelf.refreshControl endRefreshing];
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
@@ -703,16 +712,28 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
+    if (group == [self.dataSource selectedGroup]){
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
+            && ![[self class] isiOS8OrAbove]) {
+            [self.popOverController dismissPopoverAnimated:YES];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
+        return;
+    }
     self.refreshGroupFirstTime = YES;
+    [self.dataSource setSelectedGroup:group];
+    [self refreshTitle];
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
         && ![[self class] isiOS8OrAbove]) {
         [self.popOverController dismissPopoverAnimated:YES];
+        [self refreshData];
     } else {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self refreshData];
+        }];
     }
-    [self.dataSource setSelectedGroup:group];
-    [self refreshTitle];
-    [self refreshData];
+
 }
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
