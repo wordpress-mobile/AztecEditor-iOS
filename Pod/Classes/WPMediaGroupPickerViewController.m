@@ -92,7 +92,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     if (numberOfAssets != NSNotFound) {
         cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];
     } else {
-        cell.countLabel.text = @"";
+        cell.countLabel.text = NSLocalizedString(@"Counting media items...", @"Message to show while media data source is finding the number of items available.");
     }
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
