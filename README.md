@@ -113,5 +113,5 @@ WordPress, mobile@automattic.com
 
 ## License
 
-WPMediaPicker is available under the MIT license. See the LICENSE file for more info.
+WPMediaPicker is available under the GPL license. See the LICENSE file for more info.
 
