@@ -302,18 +302,26 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     
     for (int i = 0; i < self.selectedAssets.count; i++) {
         id<WPMediaAsset> asset = (id<WPMediaAsset>)self.selectedAssets[i];
-        [selectedAssetsSet addObject:[asset identifier]];
+        NSString *assetIdentifier = [asset identifier];
+        if (!assetIdentifier) {
+            continue;
+        }
+        [selectedAssetsSet addObject:assetIdentifier];
         
         NSString *assetGroupIdentifier = (NSString *)self.selectedAssetsGroup[i];
         if ( ![assetGroupIdentifier isEqual:currentGroupURL]) {
-            [stillExistingSeletedAssets addObject:[asset identifier]];
+            [stillExistingSeletedAssets addObject:assetIdentifier];
         }
     }
     
-    for (int i = 0; i < [self.dataSource numberOfAssets]; i++){
+    for (int i = 0; i < [self.dataSource numberOfAssets]; i++) {
         id<WPMediaAsset> asset = (id<WPMediaAsset>)[self.dataSource mediaAtIndex:i];
-        if ([selectedAssetsSet containsObject:[asset identifier]]) {
-            [stillExistingSeletedAssets addObject:[asset identifier]];
+        NSString *assetIdentifier = [asset identifier];
+        if (!assetIdentifier) {
+            continue;
+        }
+        if ([selectedAssetsSet containsObject:assetIdentifier]) {
+            [stillExistingSeletedAssets addObject:assetIdentifier];
         }
     }
     
