@@ -4,7 +4,6 @@
 
 @property (nonatomic, strong) ALAssetsGroup *assetsGroup;
 @property (nonatomic, strong) NSMutableArray *groups;
-@property (nonatomic, strong) NSMutableArray *assets;
 @property (nonatomic, assign) BOOL ignoreMediaNotifications;
 @property (nonatomic, assign) WPMediaType filter;
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
@@ -26,7 +25,6 @@
                                                  name:ALAssetsLibraryChangedNotification
                                                object:self.assetsLibrary];
     _groups = [[NSMutableArray alloc] init];
-    _assets = [[NSMutableArray alloc] init];
     _filter = WPMediaTypeAll;
     _assetsFilter = [ALAssetsFilter allAssets];
     _observers = [[NSMutableDictionary alloc] init];
@@ -134,20 +132,11 @@
 - (void)loadAssetsWithSuccess:(WPMediaChangesBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-
-    [self.assets removeAllObjects];
     [self.assetsGroup setAssetsFilter:self.assetsFilter];
-    ALAssetsGroupEnumerationResultsBlock assetEnumerationBlock = ^(ALAsset *asset, NSUInteger index, BOOL *stop) {
-        if (asset){
-            [self.assets addObject:asset];
-        } else {
-            if (successBlock) {
-                successBlock();
-            }
-        }
-    };
-    [self.assetsGroup enumerateAssetsWithOptions: 0
-                                      usingBlock:assetEnumerationBlock];
+    
+    if (successBlock) {
+        successBlock();
+    }
 }
 
 #pragma mark - WPMediaCollectionDataSource
@@ -187,12 +176,19 @@
 
 - (NSInteger)numberOfAssets
 {
-    return self.assets.count;
+    return [self.assetsGroup numberOfAssets];
 }
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
-    return self.assets[index];
+    __block ALAsset *asset;
+    [self.assetsGroup enumerateAssetsAtIndexes:[NSIndexSet indexSetWithIndex:index]
+                                       options:0 usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                                           if (result){
+                                               asset = result;
+                                           }
+                                       }];
+    return asset;
 }
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
@@ -244,7 +240,6 @@
         return;
     }
     [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-        [self.assets addObject:asset];
         if ([self.assetsGroup isEditable]) {
             [self.assetsGroup addAsset:asset];
         }
