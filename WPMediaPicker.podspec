@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "WPMediaPicker"
-  s.version          = "0.4.6"
+  s.version          = "0.4.7"
   s.summary          = "WPMediaPicker is an iOS controller that allows capture and picking of media assets."
   s.description      = <<-DESC
                        WPMediaPicker is an iOS controller that allows capture and picking of media assets.
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
                        DESC
   s.homepage         = "https://github.com/wordpress-mobile/MediaPicker-iOS"
   s.screenshots      = "https://raw.githubusercontent.com/wordpress-mobile/WPMediaPicker/master/screenshots_1.jpg"
-  s.license          = 'MIT'
+  s.license          = 'GPL'
   s.author           = { "WordPress" => "mobile@automattic.com" }
   s.source           = { :git => "https://github.com/wordpress-mobile/MediaPicker-iOS.git", :tag => s.version.to_s }
 
