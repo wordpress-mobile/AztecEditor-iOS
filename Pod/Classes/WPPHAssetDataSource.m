@@ -95,7 +95,9 @@
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
     if (self.assetsCollections.count > 0){
-        self.activeAssetsCollection = self.assetsCollections[0];
+        if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
+            self.activeAssetsCollection = self.assetsCollections[0];
+        }
         if (successBlock) {
             successBlock();
         }
