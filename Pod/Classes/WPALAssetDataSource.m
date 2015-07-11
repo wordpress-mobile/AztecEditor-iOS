@@ -9,6 +9,7 @@
 @property (nonatomic, strong) ALAssetsFilter *assetsFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
+@property (nonatomic, strong) NSMutableArray *extraAssets;
 
 @end
 
@@ -29,6 +30,7 @@
     _assetsFilter = [ALAssetsFilter allAssets];
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
+    _extraAssets = [NSMutableArray array];
     return self;
 }
 
@@ -92,6 +94,7 @@
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
+    [self.extraAssets removeAllObjects];
     if (self.refreshGroups) {
         [self loadGroupsWithSuccess:^{
             self.refreshGroups = NO;
@@ -176,11 +179,14 @@
 
 - (NSInteger)numberOfAssets
 {
-    return [self.assetsGroup numberOfAssets];
+    return [self.assetsGroup numberOfAssets] + [self.extraAssets count];
 }
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
+    if ( index >= [self.assetsGroup numberOfAssets]){
+        return self.extraAssets[index-self.assetsGroup.numberOfAssets];
+    }
     __block ALAsset *asset;
     [self.assetsGroup enumerateAssetsAtIndexes:[NSIndexSet indexSetWithIndex:index]
                                        options:0 usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
@@ -240,8 +246,19 @@
         return;
     }
     [self.assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-        if ([self.assetsGroup isEditable]) {
+        if (![self.assetsGroup isEditable] &&
+            [[self.assetsGroup valueForProperty:ALAssetsGroupPropertyType] intValue] != ALAssetsGroupSavedPhotos) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completionBlock) {
+                    completionBlock(nil, [NSError errorWithDomain:ALAssetsLibraryErrorDomain code:ALAssetsLibraryUnknownError userInfo:nil]);
+                }
+                self.ignoreMediaNotifications = NO;
+            });
+            return;
+        }
+        if ([self.assetsGroup isEditable]){
             [self.assetsGroup addAsset:asset];
+            [self.extraAssets addObject:asset];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completionBlock) {

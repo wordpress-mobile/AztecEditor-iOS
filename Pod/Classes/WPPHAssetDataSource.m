@@ -95,7 +95,9 @@
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
     if (self.assetsCollections.count > 0){
-        self.activeAssetsCollection = self.assetsCollections[0];
+        if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
+            self.activeAssetsCollection = self.assetsCollections[0];
+        }
         if (successBlock) {
             successBlock();
         }
@@ -214,7 +216,9 @@
             }
             return;
         }
-        PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
+        PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
+        fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(localIdentifier == %@)", assetIdentifier];
+        PHFetchResult * result = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
         if (result.count < 1){
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{
