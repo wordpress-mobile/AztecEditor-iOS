@@ -216,7 +216,9 @@
             }
             return;
         }
-        PHFetchResult * result = [PHAsset fetchAssetsWithLocalIdentifiers:@[assetIdentifier] options:nil];
+        PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
+        fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(localIdentifier == %@)", assetIdentifier];
+        PHFetchResult * result = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
         if (result.count < 1){
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{
