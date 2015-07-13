@@ -162,6 +162,7 @@
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
 {
     NSParameterAssert([group isKindOfClass:[ALAssetsGroup class]]);
+    [self.extraAssets removeAllObjects];
     self.assetsGroup = [group baseGroup];
 }
 
@@ -195,6 +196,21 @@
                                            }
                                        }];
     return asset;
+}
+
+- (id<WPMediaAsset>)mediaWithIdentifier:(NSString *)identifier
+{
+    NSParameterAssert(identifier);
+    __block ALAsset *assetResult = nil;
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    [self.assetsLibrary assetForURL:[NSURL URLWithString:identifier] resultBlock:^(ALAsset *asset) {
+        assetResult = asset;
+        dispatch_semaphore_signal(sema);
+    } failureBlock:^(NSError *error) {
+        dispatch_semaphore_signal(sema);
+    }];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    return assetResult;
 }
 
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback

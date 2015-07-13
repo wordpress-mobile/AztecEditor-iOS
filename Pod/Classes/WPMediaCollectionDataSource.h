@@ -174,6 +174,15 @@ typedef int32_t WPMediaRequestID;
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index;
 
 /**
+ *  Returns the object with the matching identifier if it exists on the datasource
+ *
+ *  @param identifier a unique identifier for the media
+ *
+ *  @return the media object if it exists or nil if it's not found.
+ */
+- (id<WPMediaAsset>)mediaWithIdentifier:(NSString *)identifier;
+
+/**
  *  Asks the data source to be notify about changes on the media library using the given callback block.
  *
  *  @discussion the callback object is retained by the data source so it needs to 
