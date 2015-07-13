@@ -162,6 +162,13 @@
     return self.assets[index];
 }
 
+- (id<WPMediaAsset>)mediaWithIdentifier:(NSString *)identifier
+{
+    PHFetchResult *result = [PHAsset fetchAssetsWithLocalIdentifiers:@[identifier] options:nil];
+    PHAsset *asset = (PHAsset *)[result lastObject];
+    return asset;
+}
+
 - (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback
 {
     NSUUID *blockKey = [NSUUID UUID];
