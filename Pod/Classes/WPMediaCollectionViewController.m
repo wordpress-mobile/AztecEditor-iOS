@@ -25,7 +25,6 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) NSMutableArray *selectedAssetsGroup;
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
@@ -50,7 +49,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     if (self) {
         _layout = layout;
         _selectedAssets = [[NSMutableArray alloc] init];
-        _selectedAssetsGroup = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeAll;
@@ -240,21 +238,24 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
         strongSelf.refreshGroupFirstTime = NO;
-        [strongSelf refreshSelection];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [strongSelf refreshTitle];
-            strongSelf.collectionView.allowsSelection = YES;
-            strongSelf.collectionView.scrollEnabled = YES;
-            [strongSelf.collectionView reloadData];
-            [strongSelf.refreshControl endRefreshing];
-            // Scroll to the correct position
-            if ([strongSelf.dataSource numberOfAssets] > 0){
-                NSInteger sectionToScroll = 0;
-                NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
-                [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
-                                            atScrollPosition:UICollectionViewScrollPositionBottom
-                                                    animated:NO];
-            }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [strongSelf refreshSelection];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [strongSelf refreshTitle];
+                strongSelf.collectionView.allowsSelection = YES;
+                strongSelf.collectionView.scrollEnabled = YES;
+                [strongSelf.collectionView reloadData];
+                [strongSelf.refreshControl endRefreshing];
+                // Scroll to the correct position
+                if ([strongSelf.dataSource numberOfAssets] > 0){
+                    NSInteger sectionToScroll = 0;
+                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
+                    [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
+                                                      atScrollPosition:UICollectionViewScrollPositionBottom
+                                                              animated:NO];
+                }
+            });
+ 
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
@@ -295,45 +296,15 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)refreshSelection
 {
-    NSMutableSet *selectedAssetsSet = [NSMutableSet set];
-    NSMutableSet *stillExistingSeletedAssets = [NSMutableSet set];
-    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
-    NSString *currentGroupURL = [mediaGroup identifier];
-    
-    for (int i = 0; i < self.selectedAssets.count; i++) {
-        id<WPMediaAsset> asset = (id<WPMediaAsset>)self.selectedAssets[i];
+    NSArray *selectedAssets = [NSArray arrayWithArray:self.selectedAssets];
+    NSMutableArray *stillExistingSeletedAssets = [NSMutableArray array];
+    for (id<WPMediaAsset> asset in selectedAssets) {
         NSString *assetIdentifier = [asset identifier];
-        if (!assetIdentifier) {
-            continue;
-        }
-        [selectedAssetsSet addObject:assetIdentifier];
-        
-        NSString *assetGroupIdentifier = (NSString *)self.selectedAssetsGroup[i];
-        if ( ![assetGroupIdentifier isEqual:currentGroupURL]) {
-            [stillExistingSeletedAssets addObject:assetIdentifier];
+        if ([self.dataSource mediaWithIdentifier:assetIdentifier]) {
+            [stillExistingSeletedAssets addObject:asset];
         }
     }
-    
-    for (int i = 0; i < [self.dataSource numberOfAssets]; i++) {
-        id<WPMediaAsset> asset = (id<WPMediaAsset>)[self.dataSource mediaAtIndex:i];
-        NSString *assetIdentifier = [asset identifier];
-        if (!assetIdentifier) {
-            continue;
-        }
-        if ([selectedAssetsSet containsObject:assetIdentifier]) {
-            [stillExistingSeletedAssets addObject:assetIdentifier];
-        }
-    }
-    
-    [selectedAssetsSet minusSet:stillExistingSeletedAssets];
-    NSSet *missingAsset = [NSSet setWithSet:selectedAssetsSet];
-    NSMutableArray *assetsToRemove = [NSMutableArray array];
-    for (id<WPMediaAsset> selectedAsset in self.selectedAssets){
-        if ([missingAsset containsObject:[selectedAsset identifier]]){
-            [assetsToRemove addObject:selectedAsset];
-        }
-    }
-    [self.selectedAssets removeObjectsInArray:assetsToRemove];
+    self.selectedAssets = stillExistingSeletedAssets;
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -382,6 +353,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
     if (cell.tag != 0) {
         [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
+        cell.tag = 0;
     }
     // Configure the cell
     __block WPMediaRequestID requestKey = 0;
@@ -476,7 +448,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     [self.selectedAssets addObject:asset];
-    [self.selectedAssetsGroup addObject:[[self.dataSource selectedGroup] identifier]];
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [cell setPosition:self.selectedAssets.count];
@@ -517,7 +488,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
         [self.selectedAssets removeObjectAtIndex:deselectPosition];
-        [self.selectedAssetsGroup removeObjectAtIndex:deselectPosition];
     }
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
@@ -639,7 +609,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 {
     self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
-        if (error){
+        if (error || !media) {
+            NSLog(@"%@", error);
             return;
         }
         [self addMedia:media];
@@ -657,17 +628,14 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 - (void)addMedia:(id<WPMediaAsset>)asset
 {
     BOOL willBeSelected = YES;
-    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         if ([self.picker.delegate mediaPickerController:self.picker shouldSelectAsset:asset]) {
             [self.selectedAssets addObject:asset];
-            [self.selectedAssetsGroup addObject:[mediaGroup identifier]];
         } else {
             willBeSelected = NO;
         }
     } else {
         [self.selectedAssets addObject:asset];
-        [self.selectedAssetsGroup addObject:[mediaGroup identifier]];
     }
 
     NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [self.dataSource numberOfAssets]-1;
