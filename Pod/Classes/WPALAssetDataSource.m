@@ -1,4 +1,5 @@
 #import "WPALAssetDataSource.h"
+#import "WPALAssetImageCacheManager.h"
 
 @interface WPALAssetDataSource  ()
 
@@ -323,27 +324,15 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        CGImageRef thumbnailImageRef = [self thumbnail];
-        UIImage *result = [UIImage imageWithCGImage:thumbnailImageRef];
-        if (result.size.width < size.width && result.size.height < size.height) {
-            result = [UIImage imageWithCGImage:[self.defaultRepresentation fullResolutionImage]];
-        }
-        if (completionHandler){
-            if (result) {
-                completionHandler(result, nil);
-            } else {
-                completionHandler(nil, nil);
-            }
-        }
-    });
-    
-    return (WPMediaRequestID)self;
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    return (WPMediaRequestID)[[WPALAssetImageCacheManager sharedInstance] requestImageForAsset:self
+                                                                  targetSize:size
+                                                                       scale:scale resultHandler:completionHandler];
 }
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
 {
-    //This implementation doens't actually makes work async so nothing to cancel here.
+    [[WPALAssetImageCacheManager sharedInstance] cancelImageRequest:requestID];
 }
 
 - (WPMediaType)assetType
@@ -423,4 +412,3 @@
 }
 
 @end
-
