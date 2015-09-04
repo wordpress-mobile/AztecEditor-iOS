@@ -57,12 +57,13 @@
 
 -(UIImage *)resizedImageWithSize:(CGSize)targetSize {
     ALAssetRepresentation *representation = [self.asset defaultRepresentation];
-    uint8_t *buffer = malloc(representation.size);
-    if ([representation getBytes:buffer fromOffset:0 length:representation.size error:nil] == 0){
+    size_t bufferSize = (size_t)representation.size;
+    uint8_t *buffer = malloc(bufferSize);
+    if ([representation getBytes:buffer fromOffset:0 length:bufferSize error:nil] == 0){
         free(buffer);
         return nil;
     }
-    NSData *data = [NSData dataWithBytesNoCopy:buffer length:representation.size];
+    NSData *data = [NSData dataWithBytesNoCopy:buffer length:bufferSize];
     CGImageSourceRef sourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
     
     NSDictionary *resizeOptions = @{
