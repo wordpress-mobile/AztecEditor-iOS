@@ -249,7 +249,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
                 // Scroll to the correct position
                 if ([strongSelf.dataSource numberOfAssets] > 0){
                     NSInteger sectionToScroll = 0;
-                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
+                    NSInteger showingLiveCellAdjustment = [self isShowingCaptureCell] ? 0:1;
+                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-showingLiveCellAdjustment;
                     [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
                                                       atScrollPosition:UICollectionViewScrollPositionBottom
                                                               animated:NO];
