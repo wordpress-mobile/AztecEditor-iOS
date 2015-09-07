@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "WPMediaPicker"
-  s.version          = "0.5.0"
+  s.version          = "0.6.0"
   s.summary          = "WPMediaPicker is an iOS controller that allows capture and picking of media assets."
   s.description      = <<-DESC
                        WPMediaPicker is an iOS controller that allows capture and picking of media assets.
@@ -23,6 +23,6 @@ Pod::Spec.new do |s|
   }
 
   s.public_header_files = 'Pod/Classes/**/*.h'
-  s.frameworks = 'UIKit', 'AssetsLibrary', 'AVFoundation'
+  s.frameworks = 'UIKit', 'AssetsLibrary', 'AVFoundation', 'ImageIO'
   s.weak_framework = 'Photos'
 end
