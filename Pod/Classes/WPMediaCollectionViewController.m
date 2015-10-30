@@ -215,6 +215,14 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)refreshTitle {
     id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
+    if (!mediaGroup) {
+        // mediaGroup can be nil in some cases. For instance if the
+        // user denied access to the device's Photos.
+        self.titleButton.hidden = YES;
+        return;
+    } else {
+        self.titleButton.hidden = NO;
+    }
     NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
     [self.titleButton setTitle:title forState:UIControlStateNormal];
     [self.titleButton sizeToFit];
