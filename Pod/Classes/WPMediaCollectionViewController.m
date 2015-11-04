@@ -390,7 +390,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-        [cell setPosition:position + 1];
+        if (self.allowMultipleSelection) {
+            [cell setPosition:position + 1];
+        } else {
+            [cell setPosition:NSNotFound];
+        }
         cell.selected = YES;
     } else {
         [cell setPosition:NSNotFound];
@@ -462,7 +466,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     [self.selectedAssets addObject:asset];
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-    [cell setPosition:self.selectedAssets.count];
+    if (self.allowMultipleSelection) {
+        [cell setPosition:self.selectedAssets.count];
+    } else {
+        [cell setPosition:NSNotFound];
+    }
     [self animateCellSelection:cell completion:nil];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
@@ -509,7 +517,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             id<WPMediaAsset> asset = [self assetForPosition:selectedIndexPath];
             NSUInteger position = [self positionOfAssetInSelection:asset];
             if (position != NSNotFound) {
-                [cell setPosition:position + 1];
+                if (self.allowMultipleSelection) {
+                    [cell setPosition:position + 1];
+                } else {
+                    [cell setPosition:NSNotFound];
+                }
             }
         }
     }];
