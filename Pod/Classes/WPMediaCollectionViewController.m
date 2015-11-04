@@ -73,7 +73,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
-    self.collectionView.allowsMultipleSelection = YES;
+    self.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
@@ -456,6 +456,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (!self.allowMultipleSelection) {
+        [self.selectedAssets removeAllObjects];
+    }
     [self.selectedAssets addObject:asset];
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
