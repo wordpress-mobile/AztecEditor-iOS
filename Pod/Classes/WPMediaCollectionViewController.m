@@ -346,6 +346,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             itemPosition++;
         }
     }
+    if (itemPosition >= count || itemPosition < 0) {
+        return nil;
+    }
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:itemPosition];
     return asset;
 }
