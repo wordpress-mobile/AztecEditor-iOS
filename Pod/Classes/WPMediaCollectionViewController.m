@@ -350,6 +350,24 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return asset;
 }
 
+- (NSString *)accessibilityLabelForType:(WPMediaType)assetType atIndexPath:(NSInteger)index
+{
+    NSString *accessibilityLabelFormat;
+    switch (assetType) {
+        case WPMediaTypeImage:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, image.", @"Accessibility label for image thumbnails in the media collection view. The parameter is the index of the image in the collection view.");
+            break;
+        case WPMediaTypeVideo:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, video", @"Accessibility label for video thumbnails in the media collection view. The parameter is the index of the video in the collection view.");
+            break;
+        default:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d", @"Accessibility label for asset (of unknown type) thumbnails in the media collection view. The parameter is the index of the asset in the collection view.");
+            break;
+    }
+
+    return [NSString stringWithFormat:accessibilityLabelFormat, index];
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self isCaptureCellIndexPath:indexPath]) {
@@ -367,6 +385,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     // Configure the cell
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
+    NSInteger itemIndex = indexPath.item + 1; // Asset position + 1 to avoid starting at "Asset 0"
+    WPMediaType assetType = asset.assetType;
     requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
         BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
         if (error) {
@@ -374,15 +394,20 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             NSLog(@"%@", [error localizedDescription]);
             return;
         }
-        if ([NSThread isMainThread]){
+        void (^setImage)() = ^{
             if (requestKey == cell.tag){
-                [cell setImage:result animated:animated];
+                NSString *accessibilityLabel = [self accessibilityLabelForType:assetType
+                                                                   atIndexPath:itemIndex];
+                [cell setImage:result
+                      animated:animated
+        withAccessibilityLabel:accessibilityLabel];
             }
+        };
+        if ([NSThread isMainThread]){
+            setImage();
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (requestKey == cell.tag){
-                    [cell setImage:result animated:animated];
-                }
+                setImage();
             });
         }
     }];
