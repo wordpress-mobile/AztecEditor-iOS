@@ -9,7 +9,8 @@ static NSString *const ResourcesBundleName = @"WPMediaPicker";
     static NSBundle *_bundle = nil;
     static dispatch_once_t _onceToken;
     dispatch_once(&_onceToken, ^{
-        NSString * bundlePath = [[NSBundle mainBundle] pathForResource:ResourcesBundleName ofType:@"bundle"];
+        NSBundle * classBundle = [NSBundle bundleForClass:[self class]];
+        NSString * bundlePath = [classBundle pathForResource:ResourcesBundleName ofType:@"bundle"];
         _bundle = [NSBundle bundleWithPath:bundlePath];
     });
     return _bundle;

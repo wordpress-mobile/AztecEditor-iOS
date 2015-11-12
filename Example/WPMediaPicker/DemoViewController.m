@@ -33,7 +33,8 @@
     self.options = @{
                      MediaPickerOptionsShowMostRecentFirst:@(NO),
                      MediaPickerOptionsUsePhotosLibrary:@(NO),
-                     MediaPickerOptionsShowCameraCapture:@(YES)
+                     MediaPickerOptionsShowCameraCapture:@(YES),
+                     MediaPickerOptionsAllowMultipleSelection:@(YES)
                      };
 
 }
@@ -119,6 +120,7 @@
         mediaPicker.dataSource = self.customDataSource;
     }
     mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

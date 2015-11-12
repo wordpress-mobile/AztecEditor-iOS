@@ -73,7 +73,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
-    self.collectionView.allowsMultipleSelection = YES;
+    self.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
@@ -102,7 +102,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (([NSDate timeIntervalSinceReferenceDate] - self.ignoreMediaTimestamp) > TimeToIgnoreNotificationAfterAddition){
+        if (([NSDate timeIntervalSinceReferenceDate] - weakSelf.ignoreMediaTimestamp) > TimeToIgnoreNotificationAfterAddition){
             [weakSelf refreshData];
         }
     }];
@@ -215,6 +215,14 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)refreshTitle {
     id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
+    if (!mediaGroup) {
+        // mediaGroup can be nil in some cases. For instance if the
+        // user denied access to the device's Photos.
+        self.titleButton.hidden = YES;
+        return;
+    } else {
+        self.titleButton.hidden = NO;
+    }
     NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
     [self.titleButton setTitle:title forState:UIControlStateNormal];
     [self.titleButton sizeToFit];
@@ -338,6 +346,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             itemPosition++;
         }
     }
+    if (itemPosition >= count || itemPosition < 0) {
+        return nil;
+    }
     id<WPMediaAsset> asset = [self.dataSource mediaAtIndex:itemPosition];
     return asset;
 }
@@ -382,7 +393,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-        [cell setPosition:position + 1];
+        if (self.allowMultipleSelection) {
+            [cell setPosition:position + 1];
+        } else {
+            [cell setPosition:NSNotFound];
+        }
         cell.selected = YES;
     } else {
         [cell setPosition:NSNotFound];
@@ -448,10 +463,17 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (!self.allowMultipleSelection) {
+        [self.selectedAssets removeAllObjects];
+    }
     [self.selectedAssets addObject:asset];
     
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-    [cell setPosition:self.selectedAssets.count];
+    if (self.allowMultipleSelection) {
+        [cell setPosition:self.selectedAssets.count];
+    } else {
+        [cell setPosition:NSNotFound];
+    }
     [self animateCellSelection:cell completion:nil];
 
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
@@ -498,7 +520,11 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             id<WPMediaAsset> asset = [self assetForPosition:selectedIndexPath];
             NSUInteger position = [self positionOfAssetInSelection:asset];
             if (position != NSNotFound) {
-                [cell setPosition:position + 1];
+                if (self.allowMultipleSelection) {
+                    [cell setPosition:position + 1];
+                } else {
+                    [cell setPosition:NSNotFound];
+                }
             }
         }
     }];

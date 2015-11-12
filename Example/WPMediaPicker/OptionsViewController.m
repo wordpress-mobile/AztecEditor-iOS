@@ -3,12 +3,13 @@
 NSString const *MediaPickerOptionsShowMostRecentFirst = @"MediaPickerOptionsShowMostRecentFirst";
 NSString const *MediaPickerOptionsUsePhotosLibrary = @"MediaPickerOptionsUsePhotosLibrary";
 NSString const *MediaPickerOptionsShowCameraCapture = @"MediaPickerOptionsShowCameraCapture";
-
+NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsAllowMultipleSelection";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
     OptionsViewControllerCellUsePhotosLibrary,
     OptionsViewControllerCellShowCameraCapture,
+    OptionsViewControllerCellAllowMultipleSelection,
     OptionsViewControllerCellTotal
 };
 
@@ -17,6 +18,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @property (nonatomic, strong) UITableViewCell *showMostRecentFirstCell;
 @property (nonatomic, strong) UITableViewCell *usePhotosLibraryCell;
 @property (nonatomic, strong) UITableViewCell *showCameraCaptureCell;
+@property (nonatomic, strong) UITableViewCell *allowMultipleSelectionCell;
 
 @end
 
@@ -31,20 +33,26 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done:)];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel:)];
     
-    self.showMostRecentFirstCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell-1"];
+    self.showMostRecentFirstCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.showMostRecentFirstCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.showMostRecentFirstCell.accessoryView).on = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
     self.showMostRecentFirstCell.textLabel.text = @"Show Most Recent First";
 
-    self.usePhotosLibraryCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell-2"];
+    self.usePhotosLibraryCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.usePhotosLibraryCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.usePhotosLibraryCell.accessoryView).on = [self.options[MediaPickerOptionsUsePhotosLibrary] boolValue];
     self.usePhotosLibraryCell.textLabel.text = @"Use Photos Library (iOS 8 Only)";
 
-    self.showCameraCaptureCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell-3"];
+    self.showCameraCaptureCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.showCameraCaptureCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.showCameraCaptureCell.accessoryView).on = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     self.showCameraCaptureCell.textLabel.text = @"Show Capture Cell";
+    
+    self.allowMultipleSelectionCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    self.allowMultipleSelectionCell.accessoryView = [[UISwitch alloc] init];
+    ((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    self.allowMultipleSelectionCell.textLabel.text = @"Allow Multiple Selection";
+
 }
 
 #pragma mark - Table view data source
@@ -71,6 +79,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellShowCameraCapture:
             return self.showCameraCaptureCell;
             break;
+        case OptionsViewControllerCellAllowMultipleSelection:
+            return self.allowMultipleSelectionCell;
+            break;
         default:
             break;
     }
@@ -84,7 +95,8 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         NSDictionary *newOptions = @{
              MediaPickerOptionsShowMostRecentFirst:@(((UISwitch *)self.showMostRecentFirstCell.accessoryView).on),
              MediaPickerOptionsUsePhotosLibrary:@(((UISwitch *)self.usePhotosLibraryCell.accessoryView).on),
-             MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on)
+             MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on),
+             MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on)
              };
         
         [delegate optionsViewController:self changed:newOptions];
