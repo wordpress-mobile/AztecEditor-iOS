@@ -3,7 +3,6 @@
 #import "WPMediaCaptureCollectionViewCell.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPALAssetDataSource.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -274,22 +273,21 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
-            if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
-                if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
-                        NSString *otherButtonTitle = nil;
-                        if ([[self class] isiOS8OrAbove]) {
-                            otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-                        }
-                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
-                                                    message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
-                                                   delegate:self
-                                          cancelButtonTitle:NSLocalizedString(@"OK", "")
-                                          otherButtonTitles:otherButtonTitle,nil];
-                        alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
-                        alertView.delegate = strongSelf;
-                        [alertView show];
-                        return;
+            if (error.domain == WPMediaPickerErrorDomain &&
+                error.code == WPMediaErrorCodePermissionsFailed) {
+                NSString *otherButtonTitle = nil;
+                if ([[self class] isiOS8OrAbove]) {
+                    otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
                 }
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
+                                            message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
+                                           delegate:self
+                                  cancelButtonTitle:NSLocalizedString(@"OK", "")
+                                  otherButtonTitles:otherButtonTitle,nil];
+                alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
+                alertView.delegate = strongSelf;
+                [alertView show];
+                return;
             }
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media")
                                                                 message:NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.")
@@ -353,6 +351,24 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return asset;
 }
 
+- (NSString *)accessibilityLabelForType:(WPMediaType)assetType atIndexPath:(NSInteger)index
+{
+    NSString *accessibilityLabelFormat;
+    switch (assetType) {
+        case WPMediaTypeImage:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, image.", @"Accessibility label for image thumbnails in the media collection view. The parameter is the index of the image in the collection view.");
+            break;
+        case WPMediaTypeVideo:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, video", @"Accessibility label for video thumbnails in the media collection view. The parameter is the index of the video in the collection view.");
+            break;
+        default:
+            accessibilityLabelFormat = NSLocalizedString(@"Asset %d", @"Accessibility label for asset (of unknown type) thumbnails in the media collection view. The parameter is the index of the asset in the collection view.");
+            break;
+    }
+
+    return [NSString stringWithFormat:accessibilityLabelFormat, index];
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self isCaptureCellIndexPath:indexPath]) {
@@ -370,6 +386,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     // Configure the cell
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
+    NSInteger itemIndex = indexPath.item + 1; // Asset position + 1 to avoid starting at "Asset 0"
+    WPMediaType assetType = asset.assetType;
     requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
         BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
         if (error) {
@@ -377,15 +395,20 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             NSLog(@"%@", [error localizedDescription]);
             return;
         }
-        if ([NSThread isMainThread]){
+        void (^setImage)() = ^{
             if (requestKey == cell.tag){
-                [cell setImage:result animated:animated];
+                NSString *accessibilityLabel = [self accessibilityLabelForType:assetType
+                                                                   atIndexPath:itemIndex];
+                [cell setImage:result
+                      animated:animated
+        withAccessibilityLabel:accessibilityLabel];
             }
+        };
+        if ([NSThread isMainThread]){
+            setImage();
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (requestKey == cell.tag){
-                    [cell setImage:result animated:animated];
-                }
+                setImage();
             });
         }
     }];
