@@ -69,14 +69,24 @@
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
-    if (self.refreshGroups) {
-        [self loadGroupsWithSuccess:^{
-            self.refreshGroups = NO;
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusDenied ||
+            [PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusRestricted) {
+            if (failureBlock) {
+                NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
+                failureBlock(error);
+            }
+            return;
+        }
+        if (self.refreshGroups) {
+            [self loadGroupsWithSuccess:^{
+                self.refreshGroups = NO;
+                [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+            } failure:failureBlock];
+        } else {
             [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-        } failure:failureBlock];
-    } else {
-        [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-    }
+        }
+    }];
 }
 
 - (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock

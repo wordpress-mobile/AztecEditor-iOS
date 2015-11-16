@@ -5,6 +5,13 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeAll
 };
 
+static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
+
+typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
+    WPMediaErrorCodePermissionsFailed,
+    WPMediaErrorCodePermissionsUnknow
+};
+
 @protocol WPMediaAsset;
 
 typedef void (^WPMediaChangesBlock)();
