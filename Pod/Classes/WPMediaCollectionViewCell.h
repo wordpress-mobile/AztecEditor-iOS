@@ -7,6 +7,6 @@
 
 - (void)setCaption:(NSString *)caption;
 
-- (void)setImage:(UIImage *)image animated:(BOOL)animated;
+- (void)setImage:(UIImage *)image animated:(BOOL)animated withAccessibilityLabel:(NSString*)accessibilityLabel;
 
 @end
