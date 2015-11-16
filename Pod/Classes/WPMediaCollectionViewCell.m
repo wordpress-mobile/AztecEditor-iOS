@@ -40,6 +40,7 @@
 - (void)commonInit
 {
     _imageView = [[UIImageView alloc] init];
+    _imageView.isAccessibilityElement = YES;
     _imageView.contentMode = UIViewContentModeScaleAspectFill;
     _imageView.clipsToBounds = YES;
     _imageView.backgroundColor = self.backgroundColor;
@@ -70,25 +71,28 @@
     [self.contentView addSubview:_captionLabel];
 }
 
-- (void)setImage:(UIImage *)image
+- (void)setImage:(UIImage *)image withAccessibilityLabel:(NSString*)accessibilityLabel
 {
-    [self setImage:image animated:YES];
+    [self setImage:image animated:YES withAccessibilityLabel:accessibilityLabel];
 }
 
-- (void)setImage:(UIImage *)image animated:(BOOL)animated
+- (void)setImage:(UIImage *)image animated:(BOOL)animated withAccessibilityLabel:(NSString*)accessibilityLabel
 {
     if (!image){
         self.imageView.alpha = 0;
         self.imageView.image = nil;
+        self.imageView.accessibilityLabel = nil;
     } else {
         if (animated) {
             [UIView animateWithDuration:0.3 animations:^{
                 self.imageView.alpha = 1.0;
                 self.imageView.image = image;
+                self.imageView.accessibilityLabel = accessibilityLabel;
             }];
         } else {
             self.imageView.alpha = 1.0;
             self.imageView.image = image;
+            self.imageView.accessibilityLabel = accessibilityLabel;
         }
     }
 }

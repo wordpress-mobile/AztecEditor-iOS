@@ -107,4 +107,14 @@
     }
 }
 
+- (BOOL)isAccessibilityElement
+{
+    return YES;
+}
+
+- (NSString *)accessibilityLabel
+{
+    return NSLocalizedString(@"Camera", @"Accessibility label for the camera tile in the collection view");
+}
+
 @end
