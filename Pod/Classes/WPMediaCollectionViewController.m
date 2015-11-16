@@ -3,7 +3,6 @@
 #import "WPMediaCaptureCollectionViewCell.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPALAssetDataSource.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -274,22 +273,21 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf.collectionView reloadData];
-            if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain]) {
-                if (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError) {
-                        NSString *otherButtonTitle = nil;
-                        if ([[self class] isiOS8OrAbove]) {
-                            otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-                        }
-                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
-                                                    message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
-                                                   delegate:self
-                                          cancelButtonTitle:NSLocalizedString(@"OK", "")
-                                          otherButtonTitles:otherButtonTitle,nil];
-                        alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
-                        alertView.delegate = strongSelf;
-                        [alertView show];
-                        return;
+            if (error.domain == WPMediaPickerErrorDomain &&
+                error.code == WPMediaErrorCodePermissionsFailed) {
+                NSString *otherButtonTitle = nil;
+                if ([[self class] isiOS8OrAbove]) {
+                    otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
                 }
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
+                                            message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
+                                           delegate:self
+                                  cancelButtonTitle:NSLocalizedString(@"OK", "")
+                                  otherButtonTitles:otherButtonTitle,nil];
+                alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
+                alertView.delegate = strongSelf;
+                [alertView show];
+                return;
             }
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media")
                                                                 message:NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.")

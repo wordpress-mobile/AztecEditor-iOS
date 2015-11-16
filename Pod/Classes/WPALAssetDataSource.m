@@ -95,6 +95,15 @@
 - (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
+    ALAuthorizationStatus authorizationStatus = ALAssetsLibrary.authorizationStatus;
+    if (authorizationStatus == ALAuthorizationStatusDenied ||
+        authorizationStatus == ALAuthorizationStatusRestricted) {
+        if (failureBlock) {
+            NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
+            failureBlock(error);
+        }
+        return;
+    }
     [self.extraAssets removeAllObjects];
     if (self.refreshGroups) {
         [self loadGroupsWithSuccess:^{
@@ -127,8 +136,14 @@
         }
     } failureBlock:^(NSError *error) {
         NSLog(@"Error: %@", [error localizedDescription]);
+        NSError * filteredError = error;
+        if ([error.domain isEqualToString:ALAssetsLibraryErrorDomain] &&
+            (error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError)
+            ) {
+            filteredError = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:error.userInfo];
+        }
         if (failureBlock) {
-            failureBlock(error);
+            failureBlock(filteredError);
         }
     }];
 }
