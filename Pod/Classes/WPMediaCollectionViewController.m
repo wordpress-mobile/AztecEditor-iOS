@@ -657,13 +657,15 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
+    NSInteger mediaItemsBefore = [self.dataSource numberOfAssets];
     self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error || !media) {
             NSLog(@"%@", error);
             return;
         }
-        [self addMedia:media];
+        NSInteger mediaItemsAfter = [self.dataSource numberOfAssets];
+        [self addMedia:media animated:mediaItemsAfter != mediaItemsBefore];
     };
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]) {
         UIImage *image = (UIImage *)info[UIImagePickerControllerOriginalImage];
@@ -675,7 +677,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
 }
 
-- (void)addMedia:(id<WPMediaAsset>)asset
+- (void)addMedia:(id<WPMediaAsset>)asset animated:(BOOL)animated
 {
     BOOL willBeSelected = YES;
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
@@ -687,21 +689,21 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     } else {
         [self.selectedAssets addObject:asset];
     }
-
     NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [self.dataSource numberOfAssets]-1;
+    if (animated){
+        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
 
-    [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-
-    if ( ![self showMostRecentFirst] ){
-        NSUInteger reloadPosition = [self.dataSource numberOfAssets];
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-    } else {
-        NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-    }
-    if (!self.showMostRecentFirst) {
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
-                                atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+        if ( ![self showMostRecentFirst] ){
+            NSUInteger reloadPosition = [self.dataSource numberOfAssets];
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+        } else {
+            NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+        }
+        if (!self.showMostRecentFirst) {
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
+                                    atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+        }
     }
     
     if (!willBeSelected) {
