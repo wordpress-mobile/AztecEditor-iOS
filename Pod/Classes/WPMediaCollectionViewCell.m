@@ -35,6 +35,7 @@
     [self setImage:nil];
     [self setCaption:@""];
     [self setPosition:NSNotFound];
+    [self setSelected:NO];
 }
 
 - (void)commonInit
