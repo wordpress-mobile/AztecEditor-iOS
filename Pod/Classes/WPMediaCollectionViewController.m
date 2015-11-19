@@ -661,7 +661,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error || !media) {
-            NSLog(@"%@", error);
+            NSLog(@"Adding media failed: %@", [error localizedDescription]);
             return;
         }
         NSInteger mediaItemsAfter = [self.dataSource numberOfAssets];
