@@ -188,6 +188,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return UIModalPresentationNone;
 }
 
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+                                                               traitCollection:(UITraitCollection *)traitCollection
+{
+    return UIModalPresentationNone;
+}
+
 - (void)cancelPicker:(UIBarButtonItem *)sender
 {
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
@@ -237,6 +243,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:YES];
             [self.refreshControl beginRefreshing];
         }
+        // NOTE: Sergio Estevao (2015-11-19)
+        // Clean all assets and refresh collection view when the group was changed
+        // This avoid to see data from previous group while the new one is loading.
         [self.collectionView reloadData];
     }
     self.collectionView.allowsSelection = NO;
@@ -268,37 +277,57 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [strongSelf refreshTitle];
-            [strongSelf.refreshControl endRefreshing];
-            strongSelf.collectionView.allowsSelection = YES;
-            strongSelf.collectionView.scrollEnabled = YES;
-            [strongSelf.collectionView reloadData];
-            if (error.domain == WPMediaPickerErrorDomain &&
-                error.code == WPMediaErrorCodePermissionsFailed) {
-                NSString *otherButtonTitle = nil;
-                if ([[self class] isiOS8OrAbove]) {
-                    otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-                }
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user")
-                                            message:NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.")
-                                           delegate:self
-                                  cancelButtonTitle:NSLocalizedString(@"OK", "")
-                                  otherButtonTitles:otherButtonTitle,nil];
-                alertView.tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
-                alertView.delegate = strongSelf;
-                [alertView show];
-                return;
-            }
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media")
-                                                                message:NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.")
-                                                               delegate:self
-                                                      cancelButtonTitle:NSLocalizedString(@"OK", "")
-                                                      otherButtonTitles:nil];
-            alertView.tag =  WPMediaCollectionAlertOtherError;
-            alertView.delegate = strongSelf;
-            [alertView show];
+            [strongSelf showError:error];
         });
     }];
+}
+
+- (void)showError:(NSError *)error {
+    [self refreshTitle];
+    [self.refreshControl endRefreshing];
+    self.collectionView.allowsSelection = YES;
+    self.collectionView.scrollEnabled = YES;
+    [self.collectionView reloadData];
+    NSString *title = NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media");
+    NSString *message = NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.");
+    NSString *cancelText = NSLocalizedString(@"OK", "");
+    NSString *otherButtonTitle = nil;
+    NSInteger tag =  WPMediaCollectionAlertOtherError;
+    if (error.domain == WPMediaPickerErrorDomain &&
+        error.code == WPMediaErrorCodePermissionsFailed) {
+        if ([[self class] isiOS8OrAbove]) {
+            otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
+        }
+        title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
+        message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.");
+        tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
+    }
+    if ([[self class] isiOS8OrAbove]) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+                [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
+            }
+        }];
+        [alertController addAction:okAction];
+        
+        if (otherButtonTitle) {
+            UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+                [[UIApplication sharedApplication] openURL:settingsURL];
+            }];
+            [alertController addAction:otherAction];
+            [self presentViewController:alertController animated:YES completion:nil];
+        }
+    } else {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
+                                                            message:message
+                                                           delegate:self
+                                                  cancelButtonTitle:cancelText
+                                                  otherButtonTitles:otherButtonTitle, nil];
+        alertView.tag = tag;
+        [alertView show];
+    }
 }
 
 - (void)refreshSelection
@@ -657,13 +686,15 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
+    NSInteger mediaItemsBefore = [self.dataSource numberOfAssets];
     self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error || !media) {
-            NSLog(@"%@", error);
+            NSLog(@"Adding media failed: %@", [error localizedDescription]);
             return;
         }
-        [self addMedia:media];
+        NSInteger mediaItemsAfter = [self.dataSource numberOfAssets];
+        [self addMedia:media animated:mediaItemsAfter != mediaItemsBefore];
     };
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]) {
         UIImage *image = (UIImage *)info[UIImagePickerControllerOriginalImage];
@@ -675,7 +706,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
 }
 
-- (void)addMedia:(id<WPMediaAsset>)asset
+- (void)addMedia:(id<WPMediaAsset>)asset animated:(BOOL)animated
 {
     BOOL willBeSelected = YES;
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
@@ -687,21 +718,21 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     } else {
         [self.selectedAssets addObject:asset];
     }
-
     NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [self.dataSource numberOfAssets]-1;
+    if (animated){
+        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
 
-    [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-
-    if ( ![self showMostRecentFirst] ){
-        NSUInteger reloadPosition = [self.dataSource numberOfAssets];
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-    } else {
-        NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-    }
-    if (!self.showMostRecentFirst) {
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
-                                atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+        if ( ![self showMostRecentFirst] ){
+            NSUInteger reloadPosition = [self.dataSource numberOfAssets];
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+        } else {
+            NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
+        }
+        if (!self.showMostRecentFirst) {
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
+                                    atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+        }
     }
     
     if (!willBeSelected) {
