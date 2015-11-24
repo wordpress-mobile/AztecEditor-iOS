@@ -301,7 +301,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     }
     if ([[self class] isiOS8OrAbove]) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
                 [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
             }
@@ -309,7 +309,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         [alertController addAction:okAction];
         
         if (otherButtonTitle) {
-            UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
                 [[UIApplication sharedApplication] openURL:settingsURL];
             }];
@@ -322,7 +322,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
                                                            delegate:self
                                                   cancelButtonTitle:cancelText
                                                   otherButtonTitles:otherButtonTitle, nil];
-        alertView.tag =  tag;
+        alertView.tag = tag;
         [alertView show];
     }
 }
