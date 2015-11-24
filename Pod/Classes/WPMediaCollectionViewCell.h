@@ -1,12 +1,9 @@
 @import UIKit;
+#import "WPMediaCollectionDataSource.h"
 
 @interface WPMediaCollectionViewCell : UICollectionViewCell
 
-@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) id<WPMediaAsset> asset;
 @property (nonatomic, assign) NSInteger position;
-
-- (void)setCaption:(NSString *)caption;
-
-- (void)setImage:(UIImage *)image animated:(BOOL)animated withAccessibilityLabel:(NSString*)accessibilityLabel;
 
 @end

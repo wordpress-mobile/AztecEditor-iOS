@@ -32,7 +32,11 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    [self setImage:nil];
+    if (self.tag != 0) {
+        [self.asset cancelImageRequest:(WPMediaRequestID)self.tag];
+    }
+    self.tag = 0;
+    [self setImage:nil animated:NO];
     [self setCaption:@""];
     [self setPosition:NSNotFound];
     [self setSelected:NO];
@@ -72,28 +76,97 @@
     [self.contentView addSubview:_captionLabel];
 }
 
-- (void)setImage:(UIImage *)image withAccessibilityLabel:(NSString*)accessibilityLabel
-{
-    [self setImage:image animated:YES withAccessibilityLabel:accessibilityLabel];
+- (void)setAsset:(id<WPMediaAsset>)asset {
+    _asset = asset;
+    __block WPMediaRequestID requestKey = 0;
+    NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
+    requestKey = [_asset imageWithSize:self.frame.size completionHandler:^(UIImage *result, NSError *error) {
+        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
+        if (error) {
+            self.image = nil;
+            NSLog(@"%@", [error localizedDescription]);
+            return;
+        }
+        // Did this request changed meanwhile
+        if (requestKey != self.tag) {
+            return;
+        }
+        if ([NSThread isMainThread]){
+            [self setImage:result
+                  animated:animated];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setImage:result
+                      animated:animated];
+            });
+        }
+    }];
+    self.tag = requestKey;
+    NSString *label = @"";
+    NSString *caption = @"";
+    WPMediaType assetType = _asset.assetType;
+    switch (assetType) {
+        case WPMediaTypeImage:
+            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."),
+                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
+        break;
+        case WPMediaTypeVideo:
+            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."),
+                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
+            NSTimeInterval duration = [asset duration];
+            caption = [self stringFromTimeInterval:duration];
+        break;
+        default:
+        break;
+    }
+    self.imageView.accessibilityLabel = label;
+    [self setCaption:caption];
 }
 
-- (void)setImage:(UIImage *)image animated:(BOOL)animated withAccessibilityLabel:(NSString*)accessibilityLabel
++ (NSDateFormatter *) dateFormatter {
+    static NSDateFormatter *_dateFormatter = nil;
+    static dispatch_once_t _onceToken;
+    dispatch_once(&_onceToken, ^{
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+        _dateFormatter.timeStyle = NSDateFormatterMediumStyle;
+    });
+    
+    return _dateFormatter;
+}
+
+- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSInteger roundedHours = floor(timeInterval / 3600);
+    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
+    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
+    
+    if (roundedHours > 0)
+        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
+    
+    else
+        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
+}
+
+- (void)setImage:(UIImage *)image
+{
+    [self setImage:image animated:YES];
+}
+
+- (void)setImage:(UIImage *)image animated:(BOOL)animated
 {
     if (!image){
         self.imageView.alpha = 0;
         self.imageView.image = nil;
-        self.imageView.accessibilityLabel = nil;
     } else {
         if (animated) {
             [UIView animateWithDuration:0.3 animations:^{
                 self.imageView.alpha = 1.0;
                 self.imageView.image = image;
-                self.imageView.accessibilityLabel = accessibilityLabel;
             }];
         } else {
             self.imageView.alpha = 1.0;
             self.imageView.image = image;
-            self.imageView.accessibilityLabel = accessibilityLabel;
         }
     }
 }
