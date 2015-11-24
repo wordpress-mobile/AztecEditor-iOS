@@ -380,24 +380,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return asset;
 }
 
-- (NSString *)accessibilityLabelForType:(WPMediaType)assetType atIndexPath:(NSInteger)index
-{
-    NSString *accessibilityLabelFormat;
-    switch (assetType) {
-        case WPMediaTypeImage:
-            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, image.", @"Accessibility label for image thumbnails in the media collection view. The parameter is the index of the image in the collection view.");
-            break;
-        case WPMediaTypeVideo:
-            accessibilityLabelFormat = NSLocalizedString(@"Asset %d, video", @"Accessibility label for video thumbnails in the media collection view. The parameter is the index of the video in the collection view.");
-            break;
-        default:
-            accessibilityLabelFormat = NSLocalizedString(@"Asset %d", @"Accessibility label for asset (of unknown type) thumbnails in the media collection view. The parameter is the index of the asset in the collection view.");
-            break;
-    }
-
-    return [NSString stringWithFormat:accessibilityLabelFormat, index];
-}
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self isCaptureCellIndexPath:indexPath]) {
@@ -408,40 +390,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
-    if (cell.tag != 0) {
-        [asset cancelImageRequest:(WPMediaRequestID)cell.tag];
-        cell.tag = 0;
-    }
+
     // Configure the cell
-    __block WPMediaRequestID requestKey = 0;
-    NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
-    NSInteger itemIndex = indexPath.item + 1; // Asset position + 1 to avoid starting at "Asset 0"
-    WPMediaType assetType = asset.assetType;
-    requestKey = [asset imageWithSize:cell.frame.size completionHandler:^(UIImage *result, NSError *error) {
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
-        if (error) {
-            cell.image = nil;
-            NSLog(@"%@", [error localizedDescription]);
-            return;
-        }
-        void (^setImage)() = ^{
-            if (requestKey == cell.tag){
-                NSString *accessibilityLabel = [self accessibilityLabelForType:assetType
-                                                                   atIndexPath:itemIndex];
-                [cell setImage:result
-                      animated:animated
-        withAccessibilityLabel:accessibilityLabel];
-            }
-        };
-        if ([NSThread isMainThread]){
-            setImage();
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                setImage();
-            });
-        }
-    }];
-    cell.tag = requestKey;
+    cell.asset = asset;
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
@@ -456,28 +407,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         cell.selected = NO;
     }
 
-    if ([asset assetType] == WPMediaTypeVideo) {
-        NSTimeInterval duration = [asset duration];
-        NSString *caption = [self stringFromTimeInterval:duration];
-        [cell setCaption:caption];
-    } else {
-        [cell setCaption:@""];
-    }
-
     return cell;
-}
-
-- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
-{
-    NSInteger roundedHours = floor(timeInterval / 3600);
-    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
-    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
-
-    if (roundedHours > 0)
-        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
-
-    else
-        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
 }
 
 - (NSUInteger)positionOfAssetInSelection:(id<WPMediaAsset>)asset
