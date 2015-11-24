@@ -188,6 +188,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return UIModalPresentationNone;
 }
 
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+                                                               traitCollection:(UITraitCollection *)traitCollection
+{
+    return UIModalPresentationNone;
+}
+
 - (void)cancelPicker:(UIBarButtonItem *)sender
 {
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
