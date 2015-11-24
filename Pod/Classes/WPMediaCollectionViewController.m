@@ -302,7 +302,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     if ([[self class] isiOS8OrAbove]) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            
+            if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+                [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
+            }
         }];
         [alertController addAction:okAction];
         
