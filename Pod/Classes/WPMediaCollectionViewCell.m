@@ -1,5 +1,8 @@
 #import "WPMediaCollectionViewCell.h"
 
+static const NSTimeInterval ThredsholdForAnimation = 0.03;
+static const CGFloat TimeForFadeAnimation = 0.3;
+
 @interface WPMediaCollectionViewCell ()
 
 @property (nonatomic, strong) UILabel *positionLabel;
@@ -81,7 +84,7 @@
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     requestKey = [_asset imageWithSize:self.frame.size completionHandler:^(UIImage *result, NSError *error) {
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > 0.03;
+        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThredsholdForAnimation;
         if (error) {
             self.image = nil;
             NSLog(@"%@", [error localizedDescription]);
@@ -160,7 +163,7 @@
         self.imageView.image = nil;
     } else {
         if (animated) {
-            [UIView animateWithDuration:0.3 animations:^{
+            [UIView animateWithDuration:TimeForFadeAnimation animations:^{
                 self.imageView.alpha = 1.0;
                 self.imageView.image = image;
             }];
