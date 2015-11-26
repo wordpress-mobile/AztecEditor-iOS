@@ -31,8 +31,8 @@
     self.dateFormatter.timeStyle = NSDateFormatterMediumStyle;
     [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
     self.options = @{
-                     MediaPickerOptionsShowMostRecentFirst:@(NO),
-                     MediaPickerOptionsUsePhotosLibrary:@(NO),
+                     MediaPickerOptionsShowMostRecentFirst:@(YES),
+                     MediaPickerOptionsUsePhotosLibrary:@(YES),
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES)
                      };
