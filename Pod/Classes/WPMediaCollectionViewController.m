@@ -559,9 +559,20 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 - (void)showMediaCaptureViewController
 {
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    imagePickerController.mediaTypes =
-        [UIImagePickerController availableMediaTypesForSourceType:
-                                     UIImagePickerControllerSourceTypeCamera];
+    NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
+                           UIImagePickerControllerSourceTypeCamera]];
+    switch (self.filter) {
+        case(WPMediaTypeImage): {
+            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeImage]]];
+        } break;
+        case(WPMediaTypeVideo): {
+            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeMovie]]];
+        } break;
+        default: {
+            //Don't intersect at all
+        }
+    }
+    imagePickerController.mediaTypes = [mediaTypes allObjects];
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
