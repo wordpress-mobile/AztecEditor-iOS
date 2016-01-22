@@ -1,7 +1,6 @@
 @import UIKit;
 
 extern NSString const *MediaPickerOptionsShowMostRecentFirst;
-extern NSString const *MediaPickerOptionsUsePhotosLibrary;
 extern NSString const *MediaPickerOptionsShowCameraCapture;
 extern NSString const *MediaPickerOptionsAllowMultipleSelection;
 

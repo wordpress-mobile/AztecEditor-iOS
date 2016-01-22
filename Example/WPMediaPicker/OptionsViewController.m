@@ -7,7 +7,6 @@ NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsA
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
-    OptionsViewControllerCellUsePhotosLibrary,
     OptionsViewControllerCellShowCameraCapture,
     OptionsViewControllerCellAllowMultipleSelection,
     OptionsViewControllerCellTotal
@@ -16,7 +15,6 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @interface OptionsViewController ()
 
 @property (nonatomic, strong) UITableViewCell *showMostRecentFirstCell;
-@property (nonatomic, strong) UITableViewCell *usePhotosLibraryCell;
 @property (nonatomic, strong) UITableViewCell *showCameraCaptureCell;
 @property (nonatomic, strong) UITableViewCell *allowMultipleSelectionCell;
 
@@ -37,11 +35,6 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.showMostRecentFirstCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.showMostRecentFirstCell.accessoryView).on = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
     self.showMostRecentFirstCell.textLabel.text = @"Show Most Recent First";
-
-    self.usePhotosLibraryCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    self.usePhotosLibraryCell.accessoryView = [[UISwitch alloc] init];
-    ((UISwitch *)self.usePhotosLibraryCell.accessoryView).on = [self.options[MediaPickerOptionsUsePhotosLibrary] boolValue];
-    self.usePhotosLibraryCell.textLabel.text = @"Use Photos Library (iOS 8 Only)";
 
     self.showCameraCaptureCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.showCameraCaptureCell.accessoryView = [[UISwitch alloc] init];
@@ -73,9 +66,6 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellShowMostRecentFirst:
             return self.showMostRecentFirstCell;
             break;
-        case OptionsViewControllerCellUsePhotosLibrary:
-            return self.usePhotosLibraryCell;
-            break;
         case OptionsViewControllerCellShowCameraCapture:
             return self.showCameraCaptureCell;
             break;
@@ -94,7 +84,6 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         id<OptionsViewControllerDelegate> delegate = self.delegate;
         NSDictionary *newOptions = @{
              MediaPickerOptionsShowMostRecentFirst:@(((UISwitch *)self.showMostRecentFirstCell.accessoryView).on),
-             MediaPickerOptionsUsePhotosLibrary:@(((UISwitch *)self.usePhotosLibraryCell.accessoryView).on),
              MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on),
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on)
              };
