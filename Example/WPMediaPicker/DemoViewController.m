@@ -116,6 +116,10 @@
     mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
     mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
+    UIPopoverPresentationController *ppc = mediaPicker.popoverPresentationController;
+    ppc.barButtonItem = sender;
+    
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 
