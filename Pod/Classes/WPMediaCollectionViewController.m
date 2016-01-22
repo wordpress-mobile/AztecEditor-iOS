@@ -7,12 +7,6 @@
 @import MobileCoreServices;
 @import AVFoundation;
 
-typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
-    WPMediaCollectionAlertMediaLibraryPermissionsNeeded,
-    WPMediaCollectionAlertMediaCapturePermissionsNeeded,
-    WPMediaCollectionAlertOtherError
-};
-
 @interface WPMediaCollectionViewController ()
 <
  UIImagePickerControllerDelegate,
