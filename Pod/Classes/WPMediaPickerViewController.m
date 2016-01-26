@@ -1,6 +1,5 @@
 #import "WPMediaPickerViewController.h"
 #import "WPMediaCollectionViewController.h"
-#import "WPALAssetDataSource.h"
 #import "WPPHAssetDataSource.h"
 
 @interface WPMediaPickerViewController () <UINavigationControllerDelegate>
@@ -61,7 +60,7 @@
     static id<WPMediaCollectionDataSource> assetSource = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        assetSource = [[WPALAssetDataSource alloc] init];
+        assetSource = [[WPPHAssetDataSource alloc] init];
     });
     return assetSource;
 }

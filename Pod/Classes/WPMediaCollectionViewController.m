@@ -7,19 +7,12 @@
 @import MobileCoreServices;
 @import AVFoundation;
 
-typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
-    WPMediaCollectionAlertMediaLibraryPermissionsNeeded,
-    WPMediaCollectionAlertMediaCapturePermissionsNeeded,
-    WPMediaCollectionAlertOtherError
-};
-
 @interface WPMediaCollectionViewController ()
 <
  UIImagePickerControllerDelegate,
  UINavigationControllerDelegate,
  WPMediaGroupPickerViewControllerDelegate,
- UIPopoverPresentationControllerDelegate,
- UIAlertViewDelegate
+ UIPopoverPresentationControllerDelegate
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
@@ -27,7 +20,6 @@ typedef NS_ENUM(NSUInteger, WPMediaCollectionAlert){
 @property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
-@property (nonatomic, strong) UIPopoverController *popOverController;
 @property (nonatomic, assign) NSTimeInterval ignoreMediaTimestamp;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
@@ -76,19 +68,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
-    // HACK: Fix for iOS 7 not respecting the appeareance background color
-    if (![[self class] isiOS8OrAbove]) {
-        UIColor * appearanceColor = [[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] backgroundColor];
-        if (!appearanceColor){
-            appearanceColor = [[UICollectionView appearance] backgroundColor];
-        }
-        self.collectionView.backgroundColor = appearanceColor;
-    }
+
     // Register cell classes
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
     [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
 
-    [self setupLayoutForOrientation:self.interfaceOrientation];
+    [self setupLayout];
 
     //setup navigation items
     self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -108,7 +93,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     [self refreshData];
 }
 
-- (void)setupLayoutForOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (void)setupLayout
 {
     CGFloat minWidth = MIN (self.view.frame.size.width, self.view.frame.size.height);
     // Configure collection view layout
@@ -116,9 +101,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     CGFloat spaceBetweenPhotos = 1.0f;
     CGFloat leftRightInset = 0;
     CGFloat topBottomInset = 5;
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        numberOfPhotosForLine = 5;
-    }
     
     CGFloat width = floorf((minWidth - (((numberOfPhotosForLine -1) * spaceBetweenPhotos)) + (2*leftRightInset)) / numberOfPhotosForLine);
     
@@ -146,14 +128,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
                                         animated:NO];
 }
 
-#pragma mark - Actions
-
-+ (BOOL)isiOS8OrAbove
-{
-    NSComparisonResult result = [[[UIDevice currentDevice] systemVersion] compare:@"8.0.0" options:NSNumericSearch];
-
-    return result == NSOrderedSame || result == NSOrderedDescending;
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    [self setupLayout];
 }
+
+#pragma mark - Actions
 
 - (void)pullToRefresh:(id)sender
 {
@@ -166,21 +146,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     groupViewController.delegate = self;
     groupViewController.dataSource = self.dataSource;
 
-    if ([[self class] isiOS8OrAbove]) {
-        groupViewController.modalPresentationStyle = UIModalPresentationPopover;
-        UIPopoverPresentationController *ppc = groupViewController.popoverPresentationController;
-        ppc.delegate = self;
-        ppc.sourceView = sender;
-        ppc.sourceRect = [sender bounds];
-        [self presentViewController:groupViewController animated:YES completion:nil];
-    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        self.popOverController = [[UIPopoverController alloc] initWithContentViewController:groupViewController];
-        [self.popOverController presentPopoverFromRect:[sender bounds] inView:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-
-    } else {
-        UINavigationController *groupNavigationController = [[UINavigationController alloc] initWithRootViewController:groupViewController];
-        [self presentViewController:groupNavigationController animated:YES completion:nil];
-    }
+    groupViewController.modalPresentationStyle = UIModalPresentationPopover;
+    UIPopoverPresentationController *ppc = groupViewController.popoverPresentationController;
+    ppc.delegate = self;
+    ppc.sourceView = sender;
+    ppc.sourceRect = [sender bounds];
+    [self presentViewController:groupViewController animated:YES completion:nil];
 }
 
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
@@ -292,42 +263,29 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     NSString *message = NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.");
     NSString *cancelText = NSLocalizedString(@"OK", "");
     NSString *otherButtonTitle = nil;
-    NSInteger tag =  WPMediaCollectionAlertOtherError;
     if (error.domain == WPMediaPickerErrorDomain &&
         error.code == WPMediaErrorCodePermissionsFailed) {
-        if ([[self class] isiOS8OrAbove]) {
-            otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-        }
-        title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
-        message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.");
-        tag =  WPMediaCollectionAlertMediaLibraryPermissionsNeeded;
+        otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
     }
-    if ([[self class] isiOS8OrAbove]) {
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
-                [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
-            }
+    title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
+    message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.");
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+            [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
+        }
+    }];
+    [alertController addAction:okAction];
+    
+    if (otherButtonTitle) {
+        UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+            [[UIApplication sharedApplication] openURL:settingsURL];
         }];
-        [alertController addAction:okAction];
-        
-        if (otherButtonTitle) {
-            UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                [[UIApplication sharedApplication] openURL:settingsURL];
-            }];
-            [alertController addAction:otherAction];
-            [self presentViewController:alertController animated:YES completion:nil];
-        }
-    } else {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
-                                                            message:message
-                                                           delegate:self
-                                                  cancelButtonTitle:cancelText
-                                                  otherButtonTitles:otherButtonTitle, nil];
-        alertView.tag = tag;
-        [alertView show];
+        [alertController addAction:otherAction];
     }
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)refreshSelection
@@ -611,18 +569,22 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)showAlertAboutMediaCapturePermission
 {
-    NSString *otherButtonTitle = nil;
-    if ([[self class] isiOS8OrAbove]) {
-        otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-    }
-
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted")
-                                message:NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"")
-                               delegate:self
-                      cancelButtonTitle:NSLocalizedString(@"OK", nil)
-                      otherButtonTitles:otherButtonTitle, nil];
-    alertView.tag = WPMediaCollectionAlertMediaCapturePermissionsNeeded;
-    [alertView show];
+    NSString *title = NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted");
+    NSString *message =NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"");
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", "Confirmation of action") style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:okAction];
+    
+    NSString *otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
+    UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction *action) {
+        NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [[UIApplication sharedApplication] openURL:settingsURL];
+    }];
+    [alertController addAction:otherAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)processMediaCaptured:(NSDictionary *)info
@@ -713,68 +675,20 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
     if (group == [self.dataSource selectedGroup]){
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
-            && ![[self class] isiOS8OrAbove]) {
-            [self.popOverController dismissPopoverAnimated:YES];
-        } else {
-            [self dismissViewControllerAnimated:YES completion:nil];
-        }
+        [self dismissViewControllerAnimated:YES completion:nil];
         return;
     }
     self.refreshGroupFirstTime = YES;
     [self.dataSource setSelectedGroup:group];
     [self refreshTitle];
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
-        && ![[self class] isiOS8OrAbove]) {
-        [self.popOverController dismissPopoverAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:^{
         [self refreshData];
-    } else {
-        [self dismissViewControllerAnimated:YES completion:^{
-            [self refreshData];
-        }];
-    }
-
+    }];
 }
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad
-        && ![[self class] isiOS8OrAbove]) {
-        [self.popOverController dismissPopoverAnimated:YES];
-    } else {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - UIAlertViewDelegate
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    switch (alertView.tag) {
-        case WPMediaCollectionAlertMediaLibraryPermissionsNeeded:
-        {
-            if (alertView.cancelButtonIndex == buttonIndex){
-                if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
-                    [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
-                }
-            } else if (alertView.firstOtherButtonIndex == buttonIndex) {
-                if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
-                    [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
-                }
-                NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                [[UIApplication sharedApplication] openURL:settingsURL];
-            }
-        } break;
-        case WPMediaCollectionAlertMediaCapturePermissionsNeeded:
-        {
-            if (alertView.firstOtherButtonIndex == buttonIndex) {
-                NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                [[UIApplication sharedApplication] openURL:settingsURL];
-            }
-        } break;
-
-            
-        default:
-            break;
-    }
-}
 @end
