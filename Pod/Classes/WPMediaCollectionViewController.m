@@ -111,23 +111,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 }
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    self.firstVisibleCell = [self.collectionView.indexPathsForVisibleItems firstObject];
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    if (!self.firstVisibleCell){
-        return;
-    }
-    [self.collectionView scrollToItemAtIndexPath:self.firstVisibleCell
-                                atScrollPosition:UICollectionViewScrollPositionLeft|UICollectionViewScrollPositionTop
-                                        animated:NO];
-}
-
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     [self setupLayout];
