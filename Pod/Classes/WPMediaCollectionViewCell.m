@@ -76,6 +76,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _captionLabel.textColor = [UIColor whiteColor];
     _captionLabel.textAlignment = NSTextAlignmentRight;
     _captionLabel.font = [UIFont systemFontOfSize:counterTextSize - 2];
+    _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
     [self.contentView addSubview:_captionLabel];
 }
 
