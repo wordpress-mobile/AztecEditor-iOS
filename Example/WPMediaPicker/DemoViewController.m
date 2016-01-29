@@ -32,7 +32,6 @@
     [self.tableView registerClass:[WPMediaGroupTableViewCell class] forCellReuseIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class])];
     self.options = @{
                      MediaPickerOptionsShowMostRecentFirst:@(YES),
-                     MediaPickerOptionsUsePhotosLibrary:@(YES),
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES)
                      };
@@ -115,12 +114,12 @@
     WPMediaPickerViewController *mediaPicker = [[WPMediaPickerViewController alloc] init];
     mediaPicker.delegate = self;
     mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    if ([self.options[MediaPickerOptionsUsePhotosLibrary] boolValue]){
-        self.customDataSource = [[WPPHAssetDataSource alloc] init];
-        mediaPicker.dataSource = self.customDataSource;
-    }
     mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
+    UIPopoverPresentationController *ppc = mediaPicker.popoverPresentationController;
+    ppc.barButtonItem = sender;
+    
     [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 

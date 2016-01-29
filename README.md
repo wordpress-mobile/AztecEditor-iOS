@@ -71,15 +71,6 @@ Just use the standard appearance methods from UIKIT. Here is an example how to c
 [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setColor:[UIColor grayColor]];
 ````
 
-### How to use the Photos framework instead of the AssetLibrary framework
-
-Before you present the picker do the following:
-
-```` objective-c
-self.customDataSource = [[WPPHAssetDataSource alloc] init];
-mediaPicker.dataSource = self.customDataSource;
-````
-
 ### How to use a custom data source for the picker
 
 If you have a custom database of media and you want to display it using the WPMediaPicker you need to to implement the following protocols around your data:
@@ -103,9 +94,9 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 ## Requirements
 
  * ARC 
- * AssetsLibrary, MediaPlayer frameworks and optionally if you are in iOS 8 and above the Photos framework
+ * Photos, AVFoundation, ImageIO
  * XCode 6
- * iOS 7
+ * iOS 8 or above
 
 ## Author
 
