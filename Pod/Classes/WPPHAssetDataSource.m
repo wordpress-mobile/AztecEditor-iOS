@@ -89,17 +89,43 @@
     }];
 }
 
+- (NSArray *)smartAlbumsToShow {
+    NSMutableArray *smartAlbumsOrder = [NSMutableArray arrayWithArray:@[
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                                                                        @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                                                                        ]];
+    // Add iOS 9's new albums
+    NSOperatingSystemVersion iOS9 = {9,0,0};
+    if ( [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:iOS9]) {
+        [smartAlbumsOrder insertObject:@(PHAssetCollectionSubtypeSmartAlbumSelfPortraits) atIndex:3];
+        [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumScreenshots)];
+    }
+    return [NSArray arrayWithArray:smartAlbumsOrder];
+}
+
 - (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    NSMutableArray * collectionsArray=[NSMutableArray array];
-    PHFetchResult * cameraAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                                           subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+    NSMutableArray *collectionsArray=[NSMutableArray array];
+    for (NSNumber *subType in [self smartAlbumsToShow]) {
+        PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                           subtype:[subType intValue]
                                                                            options:nil];
+        PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
+        if ([PHAsset fetchAssetsInAssetCollection:collection options:nil].count > 0){
+            [collectionsArray addObjectsFromArray:[smartAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, smartAlbum.count)]]];
+        }
+    }
+    
     PHFetchResult * albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
                                                                            subtype:PHAssetCollectionSubtypeAny
                                                                            options:nil];
-    [collectionsArray addObjectsFromArray:[cameraAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, cameraAlbum.count)]]];
+
     [collectionsArray addObjectsFromArray:[albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, albums.count)]]];
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
