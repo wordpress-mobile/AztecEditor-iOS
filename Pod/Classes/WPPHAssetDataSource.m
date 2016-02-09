@@ -365,7 +365,7 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] firstObject];
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self options:nil] lastObject];
     return [posterAsset imageWithSize:size completionHandler:completionHandler];
 }
 
