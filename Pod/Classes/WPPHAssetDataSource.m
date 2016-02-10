@@ -294,13 +294,12 @@
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
-    CGFloat scale = [[UIScreen mainScreen] scale];
-    CGSize realSize = CGSizeApplyAffineTransform(size, CGAffineTransformMakeScale(scale, scale));
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.resizeMode = PHImageRequestOptionsResizeModeExact;
     options.networkAccessAllowed = YES;
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
-                                                        targetSize:realSize
+                                                        targetSize:size
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {

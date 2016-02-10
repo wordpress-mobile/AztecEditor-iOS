@@ -73,7 +73,9 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     
     cell.imagePosterView.image = nil;
     __block WPMediaRequestID requestKey = 0;
-    requestKey = [group imageWithSize:CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight)
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    CGSize requestSize = CGSizeApplyAffineTransform(CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight), CGAffineTransformMakeScale(scale, scale));
+    requestKey = [group imageWithSize:requestSize
                               completionHandler:^(UIImage *result, NSError *error)
     {
         if (error) {
