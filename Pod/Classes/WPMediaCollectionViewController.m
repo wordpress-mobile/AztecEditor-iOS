@@ -206,8 +206,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     self.collectionView.scrollEnabled = NO;
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
-        __typeof__(self) strongSelf = weakSelf;
-        strongSelf.refreshGroupFirstTime = NO;
+        __typeof__(self) strongSelf = weakSelf;        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [strongSelf refreshSelection];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -217,7 +216,8 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
                 [strongSelf.collectionView reloadData];
                 [strongSelf.refreshControl endRefreshing];
                 // Scroll to the correct position
-                if ([strongSelf.dataSource numberOfAssets] > 0){
+                if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
+                    strongSelf.refreshGroupFirstTime = NO;
                     NSInteger sectionToScroll = 0;
                     NSInteger showingLiveCellAdjustment = [self isShowingCaptureCell] ? 0:1;
                     NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-showingLiveCellAdjustment;
