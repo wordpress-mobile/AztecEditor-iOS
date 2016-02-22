@@ -42,7 +42,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         _selectedAssets = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
-        _filter = WPMediaTypeAll;
+        _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
         _ignoreMediaTimestamp = 0;
     }
