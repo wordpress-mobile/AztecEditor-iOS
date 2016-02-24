@@ -15,7 +15,7 @@
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _allowMultipleSelection = YES;
-        _filter = WPMediaTypeAll;
+        _filter = WPMediaTypeVideoOrImage;
     }
 
     return self;

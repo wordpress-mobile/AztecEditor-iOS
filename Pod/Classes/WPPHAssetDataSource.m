@@ -20,7 +20,7 @@
     if (!self) {
         return nil;
     }
-    _mediaTypeFilter = WPMediaTypeAll;
+    _mediaTypeFilter = WPMediaTypeVideoOrImage;
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
@@ -149,16 +149,23 @@
                       failure:(WPMediaFailureBlock)failureBlock
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    if (self.mediaTypeFilter != WPMediaTypeAll) {
-        PHAssetMediaType mediaType = PHAssetMediaTypeUnknown;
-        if(self.mediaTypeFilter == WPMediaTypeVideo){
-            mediaType = PHAssetMediaTypeVideo;
-        } else if (self.mediaTypeFilter == WPMediaTypeImage){
-            mediaType = PHAssetMediaTypeImage;
-        }
-        fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", mediaType];
+    switch (self.mediaTypeFilter) {
+        case WPMediaTypeVideoOrImage:
+            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
+            break;
+        case WPMediaTypeImage:
+            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeImage];
+            break;
+        case WPMediaTypeVideo:
+            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
+            break;
+        case WPMediaTypeOther:
+            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
+            break;
+        case WPMediaTypeAll:
+            
+            break;
     }
-    
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
