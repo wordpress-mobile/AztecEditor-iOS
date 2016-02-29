@@ -1,6 +1,6 @@
 #import "WPMediaCollectionViewController.h"
 #import "WPMediaCollectionViewCell.h"
-#import "WPMediaCaptureCollectionViewCell.h"
+#import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
 
@@ -18,7 +18,7 @@
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
+@property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
@@ -31,7 +31,6 @@
 
 static CGFloat SelectAnimationTime = 0.2;
 static NSString *const ArrowDown = @"\u25be";
-static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (instancetype)init
@@ -71,8 +70,12 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
     // Register cell classes
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
-    [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
-    [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
+    [self.collectionView registerClass:[WPMediaCapturePreviewCollectionView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                   withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class])];
+    [self.collectionView registerClass:[WPMediaCapturePreviewCollectionView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                   withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class])];
     [self setupLayout];
 
     //setup navigation items
@@ -358,7 +361,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
        (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
     {
-        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
+        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
         if (self.captureCell.gestureRecognizers == nil) {
             UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
             [self.captureCell addGestureRecognizer:tapGestureRecognizer];

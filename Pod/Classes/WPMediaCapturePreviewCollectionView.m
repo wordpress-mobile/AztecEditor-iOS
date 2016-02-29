@@ -1,8 +1,8 @@
-#import "WPMediaCaptureCollectionViewCell.h"
+#import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerResources.h"
 @import AVFoundation;
 
-@interface WPMediaCaptureCollectionViewCell ()
+@interface WPMediaCapturePreviewCollectionView ()
 
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -11,7 +11,7 @@
 
 @end
 
-@implementation WPMediaCaptureCollectionViewCell
+@implementation WPMediaCapturePreviewCollectionView
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -28,7 +28,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
     self.backgroundColor = [UIColor blackColor];
-    _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCaptureCollectionViewCell", DISPATCH_QUEUE_SERIAL);
+    _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCapturePreviewCollectionView", DISPATCH_QUEUE_SERIAL);
     _previewView = [[UIView alloc] initWithFrame:self.bounds];
     _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_previewView];
