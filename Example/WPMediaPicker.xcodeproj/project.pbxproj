@@ -251,9 +251,6 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Sérgio Estêvão";
 				TargetAttributes = {
-					6003F589195388D20070C39A = {
-						DevelopmentTeam = PZYM8XX95Q;
-					};
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
 					};
@@ -523,7 +520,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
@@ -543,7 +539,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
