@@ -1,8 +1,8 @@
-#import "WPMediaCaptureCollectionViewCell.h"
+#import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerResources.h"
 @import AVFoundation;
 
-@interface WPMediaCaptureCollectionViewCell ()
+@interface WPMediaCapturePreviewCollectionView ()
 
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -11,7 +11,7 @@
 
 @end
 
-@implementation WPMediaCaptureCollectionViewCell
+@implementation WPMediaCapturePreviewCollectionView
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -28,21 +28,27 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
     self.backgroundColor = [UIColor blackColor];
-    _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCaptureCollectionViewCell", DISPATCH_QUEUE_SERIAL);
+    _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCapturePreviewCollectionView", DISPATCH_QUEUE_SERIAL);
     _previewView = [[UIView alloc] initWithFrame:self.bounds];
     _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self.contentView addSubview:_previewView];
-
+    [self addSubview:_previewView];
+    
     UIImage *cameraImage = [WPMediaPickerResources imageNamed:@"camera" withExtension:@"png"];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:cameraImage];
-    imageView.center = self.contentView.center;
-    imageView.contentMode = UIViewContentModeScaleAspectFit;
-    [self.contentView addSubview:imageView];
+    imageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2.0, CGRectGetHeight(self.frame) / 2.0);
+    imageView.contentMode = UIViewContentModeScaleAspectFill;
+    imageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    [self addSubview:imageView];
 }
 
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.captureVideoPreviewLayer.frame = self.previewView.bounds;
 }
 
 - (void)stopCaptureOnCompletion:(void (^)(void))block
@@ -72,7 +78,7 @@
 
         if (!self.session){
             self.session = [[AVCaptureSession alloc] init];
-            self.session.sessionPreset = AVCaptureSessionPresetLow;
+            self.session.sessionPreset = AVCaptureSessionPreset1280x720;
             
             AVCaptureDevice *device =
             [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];

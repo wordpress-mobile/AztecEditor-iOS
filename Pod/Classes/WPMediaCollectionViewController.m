@@ -1,6 +1,6 @@
 #import "WPMediaCollectionViewController.h"
 #import "WPMediaCollectionViewCell.h"
-#import "WPMediaCaptureCollectionViewCell.h"
+#import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
 
@@ -12,15 +12,15 @@
  UIImagePickerControllerDelegate,
  UINavigationControllerDelegate,
  WPMediaGroupPickerViewControllerDelegate,
- UIPopoverPresentationControllerDelegate
+ UIPopoverPresentationControllerDelegate,
+ UICollectionViewDelegateFlowLayout
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) WPMediaCaptureCollectionViewCell *captureCell;
+@property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
-@property (nonatomic, assign) NSTimeInterval ignoreMediaTimestamp;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
@@ -31,7 +31,7 @@
 
 static CGFloat SelectAnimationTime = 0.2;
 static NSString *const ArrowDown = @"\u25be";
-static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
+static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (instancetype)init
 {
@@ -44,7 +44,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
-        _ignoreMediaTimestamp = 0;
     }
     return self;
 }
@@ -71,8 +70,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
     // Register cell classes
     [self.collectionView registerClass:[WPMediaCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class])];
-    [self.collectionView registerClass:[WPMediaCaptureCollectionViewCell class] forCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class])];
-
+    [self.collectionView registerClass:[WPMediaCapturePreviewCollectionView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                   withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class])];
+    [self.collectionView registerClass:[WPMediaCapturePreviewCollectionView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                   withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class])];
     [self setupLayout];
 
     //setup navigation items
@@ -86,9 +89,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        if (([NSDate timeIntervalSinceReferenceDate] - weakSelf.ignoreMediaTimestamp) > TimeToIgnoreNotificationAfterAddition){
-            [weakSelf refreshData];
-        }
+        [weakSelf refreshData];
     }];
     [self refreshData];
 }
@@ -219,10 +220,9 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
                 if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
                     strongSelf.refreshGroupFirstTime = NO;
                     NSInteger sectionToScroll = 0;
-                    NSInteger showingLiveCellAdjustment = [self isShowingCaptureCell] ? 0:1;
-                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-showingLiveCellAdjustment;
+                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
                     [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
-                                                      atScrollPosition:UICollectionViewScrollPositionBottom
+                                                      atScrollPosition:UICollectionViewScrollPositionCenteredVertically
                                                               animated:NO];
                 }
             });
@@ -291,17 +291,7 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    int extraAssets = [self isShowingCaptureCell] ? 1 : 0;
-    return [self.dataSource numberOfAssets] + extraAssets;
-}
-
-- (BOOL)isCaptureCellIndexPath:(NSIndexPath *)indexPath
-{
-    if (![self isShowingCaptureCell]){
-        return NO;
-    }
-    NSInteger positionOfCapture = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets];
-    return positionOfCapture == indexPath.item;
+    return [self.dataSource numberOfAssets];
 }
 
 - (id<WPMediaAsset>)assetForPosition:(NSIndexPath *)indexPath
@@ -310,9 +300,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     NSInteger count = [self.dataSource numberOfAssets];
     if (self.showMostRecentFirst){
         itemPosition = count - 1 - itemPosition;
-        if ([self isShowingCaptureCell]) {
-            itemPosition++;
-        }
     }
     if (itemPosition >= count || itemPosition < 0) {
         return nil;
@@ -323,12 +310,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self isCaptureCellIndexPath:indexPath]) {
-        self.captureCell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCaptureCollectionViewCell class]) forIndexPath:indexPath];
-        [self.captureCell startCapture];
-        return self.captureCell;
-    }
-    
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     WPMediaCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([WPMediaCollectionViewCell class]) forIndexPath:indexPath];
 
@@ -351,6 +332,54 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
     return cell;
 }
 
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+referenceSizeForHeaderInSection:(NSInteger)section
+{
+    if ( [self isShowingCaptureCell] && self.showMostRecentFirst)
+    {
+        return CameraPreviewSize;
+    }
+    return CGSizeZero;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+referenceSizeForFooterInSection:(NSInteger)section
+{
+    if ( [self isShowingCaptureCell] && !self.showMostRecentFirst)
+    {
+        return CameraPreviewSize;
+    }
+    return CGSizeZero;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath
+{
+    if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
+       (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
+    {
+        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
+        if (self.captureCell.gestureRecognizers == nil) {
+            UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+            [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+        }
+        [self.captureCell startCapture];
+        return self.captureCell;
+    }
+
+    return nil;
+}
+
+- (void)showCapture {
+    [self.captureCell stopCaptureOnCompletion:^{
+        [self captureMedia];
+    }];
+    return;
+}
+
 - (NSUInteger)positionOfAssetInSelection:(id<WPMediaAsset>)asset
 {
     NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaAsset> loopAsset, NSUInteger idx, BOOL *stop) {
@@ -364,10 +393,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // you can always select the capture
-    if ([self isCaptureCellIndexPath:indexPath]) {
-        return YES;
-    }
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldSelectAsset:asset];
@@ -377,14 +402,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self isCaptureCellIndexPath:indexPath]) {
-        [self.captureCell stopCaptureOnCompletion:^{
-            [self captureMedia];
-            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
-        }];
-        return;
-    }
-    
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     if (!self.allowMultipleSelection) {
         [self.selectedAssets removeAllObjects];
@@ -411,11 +428,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // you can always deselect the capture
-    if ([self isCaptureCellIndexPath:indexPath]) {
-        return YES;
-    }
-    
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     if ([self.picker.delegate respondsToSelector:@selector(mediaPickerController:shouldDeselectAsset:)]) {
         return [self.picker.delegate mediaPickerController:self.picker shouldDeselectAsset:asset];
@@ -425,10 +437,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // check if deselected the capture item
-    if ([self isCaptureCellIndexPath:indexPath]) {
-        return;
-    }
 
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
@@ -572,15 +580,12 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
 
 - (void)processMediaCaptured:(NSDictionary *)info
 {
-    NSInteger mediaItemsBefore = [self.dataSource numberOfAssets];
-    self.ignoreMediaTimestamp = [NSDate timeIntervalSinceReferenceDate];
     WPMediaAddedBlock completionBlock = ^(id<WPMediaAsset> media, NSError *error) {
         if (error || !media) {
             NSLog(@"Adding media failed: %@", [error localizedDescription]);
             return;
         }
-        NSInteger mediaItemsAfter = [self.dataSource numberOfAssets];
-        [self addMedia:media animated:mediaItemsAfter != mediaItemsBefore];
+        [self addMedia:media animated:YES];
     };
     if ([info[UIImagePickerControllerMediaType] isEqual:(NSString *)kUTTypeImage]) {
         UIImage *image = (UIImage *)info[UIImagePickerControllerOriginalImage];
@@ -603,22 +608,6 @@ static NSTimeInterval TimeToIgnoreNotificationAfterAddition = 2;
         }
     } else {
         [self.selectedAssets addObject:asset];
-    }
-    NSUInteger insertPosition = [self showMostRecentFirst] ? 1 : [self.dataSource numberOfAssets]-1;
-    if (animated){
-        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:insertPosition inSection:0]]];
-
-        if ( ![self showMostRecentFirst] ){
-            NSUInteger reloadPosition = [self.dataSource numberOfAssets];
-            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-        } else {
-            NSUInteger reloadPosition = MIN([self.dataSource numberOfAssets], 2);
-            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:reloadPosition inSection:0]]];
-        }
-        if (!self.showMostRecentFirst) {
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:[self.dataSource numberOfAssets] inSection:0]
-                                    atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
-        }
     }
     
     if (!willBeSelected) {
