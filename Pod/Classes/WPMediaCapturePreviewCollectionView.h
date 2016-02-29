@@ -1,6 +1,6 @@
 @import UIKit;
 
-@interface WPMediaCaptureCollectionViewCell : UICollectionViewCell
+@interface WPMediaCapturePreviewCollectionView : UICollectionReusableView
 
 - (void)stopCaptureOnCompletion:(void (^)(void))block;
 - (void)startCapture;

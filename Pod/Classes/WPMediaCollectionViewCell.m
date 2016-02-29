@@ -84,7 +84,10 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _asset = asset;
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
-    requestKey = [_asset imageWithSize:self.frame.size completionHandler:^(UIImage *result, NSError *error) {
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
+
+    requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
         BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThredsholdForAnimation;
         if (error) {
             self.image = nil;
