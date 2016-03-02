@@ -319,8 +319,9 @@
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
          NSError *error = info[PHImageErrorKey];
+         NSNumber *canceled = info[PHImageCancelledKey];
          if (error){
-             if (completionHandler){
+             if (completionHandler && ![canceled boolValue]){
                  completionHandler(nil, error);
              }
              return;
