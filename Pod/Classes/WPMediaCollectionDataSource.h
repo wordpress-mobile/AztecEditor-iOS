@@ -13,9 +13,15 @@ typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
     WPMediaErrorCodePermissionsUnknow
 };
 
+@protocol WPMediaMove <NSObject>
+- (NSUInteger)from;
+- (NSUInteger)to;
+@end
+
 @protocol WPMediaAsset;
 
-typedef void (^WPMediaChangesBlock)();
+typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray<id<WPMediaMove>> *moves);
+typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
@@ -217,7 +223,7 @@ typedef int32_t WPMediaRequestID;
  *  @param successBlock a block that is invoked when the data is loaded with success.
  *  @param failureBlock a block that is invoked when the are is any kind of error when loading the data.
  */
-- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock;
 
 /**

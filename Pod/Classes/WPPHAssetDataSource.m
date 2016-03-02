@@ -1,4 +1,5 @@
 #import "WPPHAssetDataSource.h"
+#import "WPIndexMove.h"
 @import Photos;
 
 @interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
@@ -55,18 +56,26 @@
     if (groupChangeDetails){
         self.refreshGroups = YES;
     }
-    __weak __typeof__(self) weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [weakSelf loadDataWithSuccess:^{
-                [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
-                    block();
-                }];
-        } failure:nil];
-    });
+    BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
+    NSIndexSet *removedIndexes = assetsChangeDetails.removedIndexes;
+    NSIndexSet *insertedIndexes = assetsChangeDetails.insertedIndexes;
+    NSIndexSet *changedIndexes = assetsChangeDetails.changedIndexes;
+    NSMutableArray *moves = [NSMutableArray array];
+    if  (assetsChangeDetails.hasMoves) {
+        [assetsChangeDetails enumerateMovesWithBlock:^(NSUInteger fromIndex, NSUInteger toIndex) {
+            [moves addObject:[[WPIndexMove alloc] init:fromIndex to:toIndex]];
+        }];
+    }
+    if (incrementalChanges) {
+        self.assets = assetsChangeDetails.fetchResultAfterChanges;
+    }
 
+    [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+        block(incrementalChanges, removedIndexes, insertedIndexes, changedIndexes, moves);
+    }];
 }
 
-- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
@@ -108,7 +117,7 @@
     return [NSArray arrayWithArray:smartAlbumsOrder];
 }
 
-- (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
     NSMutableArray *collectionsArray=[NSMutableArray array];
@@ -145,7 +154,7 @@
     }
 }
 
-- (void)loadAssetsWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadAssetsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
@@ -277,7 +286,6 @@
             }
             return;
         }
-        [self loadAssetsWithSuccess:nil failure:nil];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock([result firstObject], nil);

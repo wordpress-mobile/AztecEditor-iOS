@@ -88,8 +88,16 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     //setup data
     [self.dataSource setMediaTypeFilter:self.filter];
     __weak __typeof__(self) weakSelf = self;
-    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [weakSelf refreshData];
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:
+                            ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (incrementalChanges) {
+                [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
+            } else {
+                [weakSelf refreshData];
+            }
+
+        });
     }];
     [self refreshData];
 }
@@ -189,6 +197,34 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 }
 
 #pragma mark - UICollectionViewDataSource
+
+-(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
+    [self.collectionView performBatchUpdates:^{
+        if (removed) {
+            [self.collectionView deleteItemsAtIndexPaths:[self indexPathsFromIndexSet:removed section:0]];
+        }
+        if (inserted) {
+            [self.collectionView insertItemsAtIndexPaths:[self indexPathsFromIndexSet:inserted section:0]];
+        }
+        if (changed) {
+            [self.collectionView reloadItemsAtIndexPaths:[self indexPathsFromIndexSet:changed section:0]];
+        }
+        for (id<WPMediaMove> move in moves) {
+            [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
+                                         toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
+        }
+    } completion:^(BOOL finished) {
+        [self refreshSelection];
+    }];
+}
+
+-(NSArray *)indexPathsFromIndexSet:(NSIndexSet *)indexSet section:(NSInteger)section{
+    NSMutableArray *indexPaths = [NSMutableArray array];
+    [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+        [indexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:section]];
+    }];
+    return [NSArray arrayWithArray:indexPaths];
+}
 
 - (void)refreshData
 {
