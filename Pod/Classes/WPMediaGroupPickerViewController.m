@@ -79,7 +79,6 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
                               completionHandler:^(UIImage *result, NSError *error)
     {
         if (error) {
-            NSLog(@"%@", [error localizedDescription]);
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
