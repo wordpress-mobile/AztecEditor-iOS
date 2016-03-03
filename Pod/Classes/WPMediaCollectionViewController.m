@@ -219,7 +219,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 }
 
 -(NSArray *)indexPathsFromIndexSet:(NSIndexSet *)indexSet section:(NSInteger)section{
-    NSMutableArray *indexPaths = [NSMutableArray array];
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:indexSet.count];
     [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
         [indexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:section]];
     }];
