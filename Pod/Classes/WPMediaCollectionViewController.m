@@ -218,6 +218,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             }
         } completion:^(BOOL finished) {
             [self refreshSelection];
+            [self.collectionView reloadItemsAtIndexPaths:self.collectionView.indexPathsForSelectedItems];
         }];
     }];
 
