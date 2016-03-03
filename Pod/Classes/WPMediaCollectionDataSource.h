@@ -261,5 +261,19 @@ typedef int32_t WPMediaRequestID;
  */
 - (WPMediaType)mediaTypeFilter;
 
+/**
+ *  Sets the sorting order the assets are show based on creationDate
+ *
+ *  @param ascending the order wich assets are retrieved, based on the creationDate. The default value is YES
+ */
+- (void)setAscendingOrdering:(BOOL)ascending;
+
+/**
+ *  The sorting order on wich the assets are returned
+ *
+ *  @return if the assets are return in ascending order
+ */
+- (BOOL)ascendingOrdering;
+
 @end
 

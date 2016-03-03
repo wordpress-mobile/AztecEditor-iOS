@@ -87,6 +87,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
     //setup data
     [self.dataSource setMediaTypeFilter:self.filter];
+    [self.dataSource setAscendingOrdering:!self.showMostRecentFirst];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:
                             ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
@@ -334,9 +335,6 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 {
     NSInteger itemPosition = indexPath.item;
     NSInteger count = [self.dataSource numberOfAssets];
-    if (self.showMostRecentFirst){
-        itemPosition = count - 1 - itemPosition;
-    }
     if (itemPosition >= count || itemPosition < 0) {
         return nil;
     }

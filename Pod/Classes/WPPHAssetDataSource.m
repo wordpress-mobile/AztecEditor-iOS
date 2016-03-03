@@ -10,6 +10,7 @@
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
+@property (nonatomic, assign) BOOL ascendingOrdering;
 
 @end
 
@@ -176,6 +177,7 @@
             
             break;
     }
+    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.ascendingOrdering]];
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
