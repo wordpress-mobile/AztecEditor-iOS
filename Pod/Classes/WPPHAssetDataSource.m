@@ -36,7 +36,7 @@
 
 + (PHImageManager *) sharedImageManager
 {
-    static id _sharedImageManager = nil;
+    static PHCachingImageManager *_sharedImageManager = nil;
     static dispatch_once_t _onceToken;
     dispatch_once(&_onceToken, ^{
         _sharedImageManager = [[PHCachingImageManager alloc] init];
