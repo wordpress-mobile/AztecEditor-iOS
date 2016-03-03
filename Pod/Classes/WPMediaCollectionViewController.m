@@ -207,16 +207,20 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         if (inserted) {
             [self.collectionView insertItemsAtIndexPaths:[self indexPathsFromIndexSet:inserted section:0]];
         }
-        if (changed) {
-            [self.collectionView reloadItemsAtIndexPaths:[self indexPathsFromIndexSet:changed section:0]];
-        }
-        for (id<WPMediaMove> move in moves) {
-            [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
-                                         toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
-        }
     } completion:^(BOOL finished) {
-        [self refreshSelection];
+        [self.collectionView performBatchUpdates:^{
+            if (changed) {
+                [self.collectionView reloadItemsAtIndexPaths:[self indexPathsFromIndexSet:changed section:0]];
+            }
+            for (id<WPMediaMove> move in moves) {
+                [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
+                                             toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
+            }
+        } completion:^(BOOL finished) {
+            [self refreshSelection];
+        }];
     }];
+
 }
 
 -(NSArray *)indexPathsFromIndexSet:(NSIndexSet *)indexSet section:(NSInteger)section{
