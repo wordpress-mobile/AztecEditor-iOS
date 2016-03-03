@@ -314,6 +314,7 @@
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
     options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.resizeMode = PHImageRequestOptionsResizeModeFast;
     options.networkAccessAllowed = YES;
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:size
