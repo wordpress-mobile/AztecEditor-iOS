@@ -34,7 +34,7 @@
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
-+ (PHImageManager *) sharedImageManager
++ (PHCachingImageManager *) sharedImageManager
 {
     static PHCachingImageManager *_sharedImageManager = nil;
     static dispatch_once_t _onceToken;
@@ -90,6 +90,7 @@
             return;
         }
         if (self.refreshGroups) {
+            [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
             [self loadGroupsWithSuccess:^{
                 self.refreshGroups = NO;
                 [self loadAssetsWithSuccess:successBlock failure:failureBlock];
