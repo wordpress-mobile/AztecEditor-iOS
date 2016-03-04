@@ -314,8 +314,8 @@
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
-    options.resizeMode = PHImageRequestOptionsResizeModeFast;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.resizeMode = PHImageRequestOptionsResizeModeExact;
     options.networkAccessAllowed = YES;
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:size
@@ -324,7 +324,7 @@
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
          NSError *error = info[PHImageErrorKey];
          NSNumber *canceled = info[PHImageCancelledKey];
-         if (error){
+         if (error || canceled){
              if (completionHandler && ![canceled boolValue]){
                  completionHandler(nil, error);
              }
