@@ -42,9 +42,9 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     //Setup navigation
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     __weak __typeof__(self) weakSelf = self;
-    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [weakSelf loadData];
-    }];
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:^(BOOL incrementalChanges, NSIndexSet *deleted, NSIndexSet *inserted, NSIndexSet *reload, NSArray *moves) {
+            [weakSelf loadData];
+        }];
     [self loadData];
 }
 
@@ -79,7 +79,6 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
                               completionHandler:^(UIImage *result, NSError *error)
     {
         if (error) {
-            NSLog(@"%@", [error localizedDescription]);
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
