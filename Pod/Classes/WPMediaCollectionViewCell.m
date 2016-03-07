@@ -1,6 +1,6 @@
 #import "WPMediaCollectionViewCell.h"
 
-static const NSTimeInterval ThredsholdForAnimation = 0.03;
+static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
 
 @interface WPMediaCollectionViewCell ()
@@ -88,16 +88,15 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
 
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThredsholdForAnimation;
         if (error) {
             self.image = nil;
-            NSLog(@"%@", [error localizedDescription]);
             return;
         }
         // Did this request changed meanwhile
         if (requestKey != self.tag) {
             return;
         }
+        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
         if ([NSThread isMainThread]){
             [self setImage:result
                   animated:animated];

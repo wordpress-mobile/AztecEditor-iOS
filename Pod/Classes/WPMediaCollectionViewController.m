@@ -87,9 +87,18 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
     //setup data
     [self.dataSource setMediaTypeFilter:self.filter];
+    [self.dataSource setAscendingOrdering:!self.showMostRecentFirst];
     __weak __typeof__(self) weakSelf = self;
-    self.changesObserver = [self.dataSource registerChangeObserverBlock:^{
-        [weakSelf refreshData];
+    self.changesObserver = [self.dataSource registerChangeObserverBlock:
+                            ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (incrementalChanges) {
+                [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
+            } else {
+                [weakSelf refreshData];
+            }
+
+        });
     }];
     [self refreshData];
 }
@@ -190,6 +199,39 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 #pragma mark - UICollectionViewDataSource
 
+-(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
+    [self.collectionView performBatchUpdates:^{
+        if (removed) {
+            [self.collectionView deleteItemsAtIndexPaths:[self indexPathsFromIndexSet:removed section:0]];
+        }
+        if (inserted) {
+            [self.collectionView insertItemsAtIndexPaths:[self indexPathsFromIndexSet:inserted section:0]];
+        }
+    } completion:^(BOOL finished) {
+        [self.collectionView performBatchUpdates:^{
+            if (changed) {
+                [self.collectionView reloadItemsAtIndexPaths:[self indexPathsFromIndexSet:changed section:0]];
+            }
+            for (id<WPMediaMove> move in moves) {
+                [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
+                                             toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
+            }
+        } completion:^(BOOL finished) {
+            [self refreshSelection];
+            [self.collectionView reloadItemsAtIndexPaths:self.collectionView.indexPathsForSelectedItems];
+        }];
+    }];
+
+}
+
+-(NSArray *)indexPathsFromIndexSet:(NSIndexSet *)indexSet section:(NSInteger)section{
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:indexSet.count];
+    [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+        [indexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:section]];
+    }];
+    return [NSArray arrayWithArray:indexPaths];
+}
+
 - (void)refreshData
 {
     if (self.refreshGroupFirstTime) {
@@ -249,12 +291,17 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     if (error.domain == WPMediaPickerErrorDomain &&
         error.code == WPMediaErrorCodePermissionsFailed) {
         otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
+        title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
+        message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",
+                                    @"Explaining to the user why the app needs access to the device media library.");
     }
-    title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
-    message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",  @"Explaining to the user why the app needs access to the device media library.");
     
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText
+                                                       style:UIAlertActionStyleCancel
+                                                     handler:^(UIAlertAction *action) {
         if ([self.picker.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
             [self.picker.delegate mediaPickerControllerDidCancel:self.picker];
         }
@@ -298,9 +345,6 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 {
     NSInteger itemPosition = indexPath.item;
     NSInteger count = [self.dataSource numberOfAssets];
-    if (self.showMostRecentFirst){
-        itemPosition = count - 1 - itemPosition;
-    }
     if (itemPosition >= count || itemPosition < 0) {
         return nil;
     }

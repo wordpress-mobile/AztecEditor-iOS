@@ -1,4 +1,5 @@
 #import "WPPHAssetDataSource.h"
+#import "WPIndexMove.h"
 @import Photos;
 
 @interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
@@ -9,6 +10,7 @@
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
+@property (nonatomic, assign) BOOL ascendingOrdering;
 
 @end
 
@@ -32,12 +34,13 @@
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
-+ (PHImageManager *) sharedImageManager
++ (PHCachingImageManager *) sharedImageManager
 {
-    static id _sharedImageManager = nil;
+    static PHCachingImageManager *_sharedImageManager = nil;
     static dispatch_once_t _onceToken;
     dispatch_once(&_onceToken, ^{
         _sharedImageManager = [[PHCachingImageManager alloc] init];
+        [_sharedImageManager setAllowsCachingHighQualityImages:NO];
     });
     
     return _sharedImageManager;
@@ -55,18 +58,26 @@
     if (groupChangeDetails){
         self.refreshGroups = YES;
     }
-    __weak __typeof__(self) weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [weakSelf loadDataWithSuccess:^{
-                [weakSelf.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
-                    block();
-                }];
-        } failure:nil];
-    });
+    BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
+    NSIndexSet *removedIndexes = assetsChangeDetails.removedIndexes;
+    NSIndexSet *insertedIndexes = assetsChangeDetails.insertedIndexes;
+    NSIndexSet *changedIndexes = assetsChangeDetails.changedIndexes;
+    NSMutableArray *moves = [NSMutableArray array];
+    if  (assetsChangeDetails.hasMoves) {
+        [assetsChangeDetails enumerateMovesWithBlock:^(NSUInteger fromIndex, NSUInteger toIndex) {
+            [moves addObject:[[WPIndexMove alloc] init:fromIndex to:toIndex]];
+        }];
+    }
+    if (incrementalChanges) {
+        self.assets = assetsChangeDetails.fetchResultAfterChanges;
+    }
 
+    [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+        block(incrementalChanges, removedIndexes, insertedIndexes, changedIndexes, moves);
+    }];
 }
 
-- (void)loadDataWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
@@ -79,6 +90,7 @@
             return;
         }
         if (self.refreshGroups) {
+            [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
             [self loadGroupsWithSuccess:^{
                 self.refreshGroups = NO;
                 [self loadAssetsWithSuccess:successBlock failure:failureBlock];
@@ -108,7 +120,7 @@
     return [NSArray arrayWithArray:smartAlbumsOrder];
 }
 
-- (void)loadGroupsWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
     NSMutableArray *collectionsArray=[NSMutableArray array];
@@ -145,7 +157,7 @@
     }
 }
 
-- (void)loadAssetsWithSuccess:(WPMediaChangesBlock)successBlock
+- (void)loadAssetsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
@@ -166,6 +178,7 @@
             
             break;
     }
+    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.ascendingOrdering]];
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
@@ -277,7 +290,6 @@
             }
             return;
         }
-        [self loadAssetsWithSuccess:nil failure:nil];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock([result firstObject], nil);
@@ -302,7 +314,8 @@
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    options.resizeMode = PHImageRequestOptionsResizeModeExact;
     options.networkAccessAllowed = YES;
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
                                                         targetSize:size
@@ -310,8 +323,9 @@
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
          NSError *error = info[PHImageErrorKey];
-         if (error){
-             if (completionHandler){
+         NSNumber *canceled = info[PHImageCancelledKey];
+         if (error || canceled){
+             if (completionHandler && ![canceled boolValue]){
                  completionHandler(nil, error);
              }
              return;
