@@ -1,5 +1,5 @@
 PODS:
-  - WPMediaPicker (0.8.2)
+  - WPMediaPicker (0.9.0)
 
 DEPENDENCIES:
   - WPMediaPicker (from `../`)
@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  WPMediaPicker: 29d9b97e11c872f62fc36a268a4c23b18ed53525
+  WPMediaPicker: 2c399b1cbd4d8a7fcd312eb93107a349d26fb23f
 
 COCOAPODS: 0.39.0
