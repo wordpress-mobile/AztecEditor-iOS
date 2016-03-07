@@ -1,6 +1,6 @@
 #import "WPMediaCollectionViewCell.h"
 
-static const NSTimeInterval ThredsholdForAnimation = 0.03;
+static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
 
 @interface WPMediaCollectionViewCell ()
@@ -96,7 +96,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         if (requestKey != self.tag) {
             return;
         }
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThredsholdForAnimation;
+        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
         if ([NSThread isMainThread]){
             [self setImage:result
                   animated:animated];
