@@ -5,7 +5,7 @@
 
 @interface WPMediaPickerViewController : UIViewController
 
-@property (nonatomic, weak) id<WPMediaPickerViewControllerDelegate> delegate;
+@property (nonatomic, weak) _Nullable id<WPMediaPickerViewControllerDelegate> delegate;
 
 /**
  The object that acts as the data source of the media picker.
@@ -13,7 +13,7 @@
  @Discussion
  If no object is defined before the picker is show then the picker will use a shared data source that access the user media library.
 */
-@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
+@property (nonatomic, weak) _Nullable id<WPMediaCollectionDataSource> dataSource;
 
 /**
  If set the picker will show a cell that allows capture of new media, that can be used immediatelly
