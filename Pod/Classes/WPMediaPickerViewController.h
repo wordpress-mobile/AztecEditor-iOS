@@ -35,6 +35,10 @@
  */
 @property (nonatomic, assign) BOOL allowMultipleSelection;
 
+/**
+ Pushes a given ViewController into the internal UINavigationController. Useful for post-processing steps.
+ */
+- (void)showAfterViewController:(UIViewController *)viewController;
 
 @end
 
