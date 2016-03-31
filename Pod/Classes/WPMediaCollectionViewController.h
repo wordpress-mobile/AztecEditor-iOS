@@ -14,6 +14,11 @@
 @property (nonatomic, assign) BOOL showMostRecentFirst;
 
 /**
+ If set the picker will display a Done button in the navigationBar's Right slot.
+ */
+@property (nonatomic, assign) BOOL showDoneButton;
+
+/**
  *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
  */
 @property (nonatomic, assign) WPMediaType filter;
