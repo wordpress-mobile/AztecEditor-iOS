@@ -20,6 +20,7 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
+		B5FF3BEA1CAD8AB100C1D597 /* PostProcessingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */; };
 		DD821F4817504E75FB9E2B91 /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA47A0718D787F4D3E328AF /* libPods-Tests.a */; };
 		FFC3F6F31B0D9BB100EFC359 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFC3F6F21B0D9BB100EFC359 /* Launch Screen.xib */; };
 		FFE69A1D1B14AB840073C2EB /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE69A1C1B14AB840073C2EB /* OptionsViewController.m */; };
@@ -56,6 +57,8 @@
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		9BA47A0718D787F4D3E328AF /* libPods-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5FF3BE81CAD8AB100C1D597 /* PostProcessingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostProcessingViewController.h; sourceTree = "<group>"; };
+		B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostProcessingViewController.m; sourceTree = "<group>"; };
 		C37855A2D5569FF3200A22B5 /* libPods-WPMediaPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WPMediaPicker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEF4FB57530C0C9D7C09607C /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		E02C8816F24DD6C15E1FC723 /* Pods-WPMediaPicker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.debug.xcconfig"; sourceTree = "<group>"; };
@@ -135,6 +138,8 @@
 			children = (
 				FFFFD87F1A447E67000FC184 /* DemoViewController.h */,
 				FFFFD8801A447E67000FC184 /* DemoViewController.m */,
+				B5FF3BE81CAD8AB100C1D597 /* PostProcessingViewController.h */,
+				B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */,
 				6003F59C195388D20070C39A /* AppDelegate.h */,
 				6003F59D195388D20070C39A /* AppDelegate.m */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
@@ -394,6 +399,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5FF3BEA1CAD8AB100C1D597 /* PostProcessingViewController.m in Sources */,
 				6003F59E195388D20070C39A /* AppDelegate.m in Sources */,
 				FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,

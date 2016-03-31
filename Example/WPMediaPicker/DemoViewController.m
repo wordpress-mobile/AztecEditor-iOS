@@ -1,6 +1,7 @@
 #import "DemoViewController.h"
 #import "WPPHAssetDataSource.h"
 #import "OptionsViewController.h"
+#import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 #import <WPMediaPicker/WPMediaGroupTableViewCell.h>
 
@@ -94,11 +95,17 @@
 
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
+    // Update Assets
     self.assets = assets;
-    
     [self.tableView reloadData];
+    
+    // Sample Post Processing
+    PostProcessingViewController *postProcessingViewController = [PostProcessingViewController new];
+    postProcessingViewController.onCompletion = ^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    };
+    
+    [picker showAfterViewController:postProcessingViewController];
 }
 
 #pragma - Actions
