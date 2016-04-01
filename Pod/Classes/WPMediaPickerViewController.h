@@ -39,7 +39,7 @@
 /**
  Pushes a given ViewController into the internal UINavigationController. Useful for post-processing steps.
  */
-- (void)showAfterViewController:(UIViewController *)viewController;
+- (void)showAfterViewController:(nonnull UIViewController *)viewController;
 
 @end
 
