@@ -1,6 +1,7 @@
 #import "DemoViewController.h"
 #import "WPPHAssetDataSource.h"
 #import "OptionsViewController.h"
+#import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 #import <WPMediaPicker/WPMediaGroupTableViewCell.h>
 
@@ -33,7 +34,8 @@
     self.options = @{
                      MediaPickerOptionsShowMostRecentFirst:@(YES),
                      MediaPickerOptionsShowCameraCapture:@(YES),
-                     MediaPickerOptionsAllowMultipleSelection:@(YES)
+                     MediaPickerOptionsAllowMultipleSelection:@(YES),
+                     MediaPickerOptionsPostProcessingStep:@(NO)
                      };
 
 }
@@ -94,11 +96,23 @@
 
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
+    // Update Assets
     self.assets = assets;
-    
     [self.tableView reloadData];
+    
+    // PostProcessing is Optional!
+    if ([self.options[MediaPickerOptionsPostProcessingStep] boolValue] == false) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
+    
+    // Sample Post Processing
+    PostProcessingViewController *postProcessingViewController = [PostProcessingViewController new];
+    postProcessingViewController.onCompletion = ^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    };
+    
+    [picker showAfterViewController:postProcessingViewController];
 }
 
 #pragma - Actions
