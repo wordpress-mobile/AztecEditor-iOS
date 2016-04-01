@@ -34,7 +34,8 @@
     self.options = @{
                      MediaPickerOptionsShowMostRecentFirst:@(YES),
                      MediaPickerOptionsShowCameraCapture:@(YES),
-                     MediaPickerOptionsAllowMultipleSelection:@(YES)
+                     MediaPickerOptionsAllowMultipleSelection:@(YES),
+                     MediaPickerOptionsPostProcessingStep:@(NO)
                      };
 
 }
@@ -98,6 +99,12 @@
     // Update Assets
     self.assets = assets;
     [self.tableView reloadData];
+    
+    // PostProcessing is Optional!
+    if ([self.options[MediaPickerOptionsPostProcessingStep] boolValue] == false) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
     
     // Sample Post Processing
     PostProcessingViewController *postProcessingViewController = [PostProcessingViewController new];
