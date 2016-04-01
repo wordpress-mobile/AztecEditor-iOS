@@ -15,7 +15,6 @@
         _allowCaptureOfMedia = YES;
         _showMostRecentFirst = NO;
         _allowMultipleSelection = YES;
-        _showDoneButton = YES;
         _filter = WPMediaTypeVideoOrImage;
     }
 
@@ -40,7 +39,6 @@
 {
     WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
     vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
-    vc.showDoneButton = self.showDoneButton;
     vc.showMostRecentFirst = self.showMostRecentFirst;
     vc.filter = self.filter;
     vc.allowMultipleSelection = self.allowMultipleSelection;

@@ -84,7 +84,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     self.navigationItem.titleView = self.titleButton;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     
-    if (self.showDoneButton) {
+    if (self.allowMultipleSelection) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     }
 

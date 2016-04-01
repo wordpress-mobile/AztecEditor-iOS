@@ -26,11 +26,6 @@
 @property (nonatomic, assign) BOOL allowMultipleSelection;
 
 /**
- If set the picker will display a Done button in the navigationBar's Right slot.
- */
-@property (nonatomic, assign) BOOL showDoneButton;
-
-/**
  If set the picker will show the most recent items on the top left. If not set it will show on the bottom right. Either way it will always scroll to the most recent item when showing the picker.
  */
 @property (nonatomic, assign) BOOL showMostRecentFirst;
