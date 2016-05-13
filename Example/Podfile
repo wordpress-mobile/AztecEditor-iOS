@@ -1,11 +1,9 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'WPMediaPicker', :exclusive => true do
-  pod "WPMediaPicker", :path => "../"
-end
-
-target 'Tests', :exclusive => true do
+target 'WPMediaPicker' do
   pod "WPMediaPicker", :path => "../"
 
-  
+  target 'Tests' do
+    inherit! :search_paths
+  end
 end
