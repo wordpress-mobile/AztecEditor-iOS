@@ -3,12 +3,14 @@
 NSString const *MediaPickerOptionsShowMostRecentFirst = @"MediaPickerOptionsShowMostRecentFirst";
 NSString const *MediaPickerOptionsUsePhotosLibrary = @"MediaPickerOptionsUsePhotosLibrary";
 NSString const *MediaPickerOptionsShowCameraCapture = @"MediaPickerOptionsShowCameraCapture";
+NSString const *MediaPickerOptionsPreferFrontCamera = @"MediaPickerOptionsPreferFrontCamera";
 NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsAllowMultipleSelection";
 NSString const *MediaPickerOptionsPostProcessingStep = @"MediaPickerOptionsPostProcessingStep";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
     OptionsViewControllerCellShowCameraCapture,
+    OptionsViewControllerCellPreferFrontCamera,
     OptionsViewControllerCellAllowMultipleSelection,
     OptionsViewControllerCellPostProcessingStep,
     OptionsViewControllerCellTotal
@@ -18,6 +20,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
 @property (nonatomic, strong) UITableViewCell *showMostRecentFirstCell;
 @property (nonatomic, strong) UITableViewCell *showCameraCaptureCell;
+@property (nonatomic, strong) UITableViewCell *preferFrontCameraCell;
 @property (nonatomic, strong) UITableViewCell *allowMultipleSelectionCell;
 @property (nonatomic, strong) UITableViewCell *postProcessingStepCell;
 
@@ -43,6 +46,10 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.showCameraCaptureCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.showCameraCaptureCell.accessoryView).on = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     self.showCameraCaptureCell.textLabel.text = @"Show Capture Cell";
+
+    self.preferFrontCameraCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    self.preferFrontCameraCell.accessoryView = [[UISwitch alloc] init];
+    self.preferFrontCameraCell.textLabel.text = @"Prefer Front Camera";
     
     self.allowMultipleSelectionCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.allowMultipleSelectionCell.accessoryView = [[UISwitch alloc] init];
@@ -76,6 +83,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellShowCameraCapture:
             return self.showCameraCaptureCell;
             break;
+        case OptionsViewControllerCellPreferFrontCamera:
+            return self.preferFrontCameraCell;
+            break;
         case OptionsViewControllerCellAllowMultipleSelection:
             return self.allowMultipleSelectionCell;
             break;
@@ -95,6 +105,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         NSDictionary *newOptions = @{
              MediaPickerOptionsShowMostRecentFirst:@(((UISwitch *)self.showMostRecentFirstCell.accessoryView).on),
              MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on),
+             MediaPickerOptionsPreferFrontCamera:@(((UISwitch *)self.preferFrontCameraCell.accessoryView).on),
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on),
              MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on)
              };

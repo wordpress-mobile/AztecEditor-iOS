@@ -21,6 +21,11 @@
 @property (nonatomic, assign) BOOL allowCaptureOfMedia;
 
 /**
+ If the media picker allows media capturing, it will use the front camera by default when possible
+ */
+@property (nonatomic, assign) BOOL preferFrontCamera;
+
+/**
  If set the picker will allow the selection of multiple items. By default this value is YES.
  */
 @property (nonatomic, assign) BOOL allowMultipleSelection;

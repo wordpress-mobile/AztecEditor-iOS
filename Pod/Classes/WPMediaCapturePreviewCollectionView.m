@@ -80,8 +80,7 @@
             self.session = [[AVCaptureSession alloc] init];
             self.session.sessionPreset = AVCaptureSessionPreset1280x720;
             
-            AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *device = [self captureDevice];
             
             NSError *error = nil;
             AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
@@ -121,6 +120,18 @@
 - (NSString *)accessibilityLabel
 {
     return NSLocalizedString(@"Camera", @"Accessibility label for the camera tile in the collection view");
+}
+
+- (AVCaptureDevice *)captureDevice
+{
+    if (self.preferFrontCamera) {
+        for (AVCaptureDevice *device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]) {
+            if (device.position == AVCaptureDevicePositionFront) {
+                return device;
+            }
+        }
+    }
+    return [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }
 
 @end

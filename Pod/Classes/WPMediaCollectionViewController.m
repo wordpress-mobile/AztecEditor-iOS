@@ -41,6 +41,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _layout = layout;
         _selectedAssets = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
+        _preferFrontCamera = NO;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
@@ -413,6 +414,7 @@ referenceSizeForFooterInSection:(NSInteger)section
             UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
             [self.captureCell addGestureRecognizer:tapGestureRecognizer];
         }
+        self.captureCell.preferFrontCamera = self.preferFrontCamera;
         [self.captureCell startCapture];
         return self.captureCell;
     }
@@ -571,10 +573,20 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.mediaTypes = [mediaTypes allObjects];
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self presentViewController:imagePickerController animated:YES completion:^{
 
     }];
+}
+
+- (UIImagePickerControllerCameraDevice)cameraDevice
+{
+    if (self.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
+        return UIImagePickerControllerCameraDeviceFront;
+    } else {
+        return UIImagePickerControllerCameraDeviceRear;
+    }
 }
 
 - (void)captureMedia
