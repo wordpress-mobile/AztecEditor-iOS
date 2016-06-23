@@ -250,6 +250,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         [self.collectionView reloadData];
     }
     self.collectionView.allowsSelection = NO;
+    self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
@@ -259,6 +260,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             dispatch_async(dispatch_get_main_queue(), ^{
                 [strongSelf refreshTitle];
                 strongSelf.collectionView.allowsSelection = YES;
+                strongSelf.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
                 [strongSelf.collectionView reloadData];
                 [strongSelf.refreshControl endRefreshing];
