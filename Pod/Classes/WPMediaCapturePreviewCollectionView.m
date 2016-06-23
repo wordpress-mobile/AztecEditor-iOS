@@ -99,6 +99,7 @@
                 self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
                 self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                 self.captureVideoPreviewLayer.frame = viewLayer.bounds;
+                self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIDevice currentDevice] orientation];
                 [viewLayer addSublayer:_captureVideoPreviewLayer];
             });
         }
@@ -108,7 +109,7 @@
 - (void)deviceOrientationDidChange:(NSNotification *)notification
 {
     if (self.captureVideoPreviewLayer.connection.supportsVideoOrientation) {
-        self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation];
+        self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIDevice currentDevice] orientation];
     }
 }
 
