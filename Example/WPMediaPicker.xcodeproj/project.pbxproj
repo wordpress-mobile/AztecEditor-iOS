@@ -209,12 +209,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "WPMediaPicker" */;
 			buildPhases = (
-				7EA950800F526715234B0740 /* 📦 Check Pods Manifest.lock */,
+				7EA950800F526715234B0740 /* [CP] Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
-				D575F271EA0E434D18070CC1 /* 📦 Embed Pods Frameworks */,
-				865547AC18FA191E35CB4709 /* 📦 Copy Pods Resources */,
+				D575F271EA0E434D18070CC1 /* [CP] Embed Pods Frameworks */,
+				865547AC18FA191E35CB4709 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -229,12 +229,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Tests" */;
 			buildPhases = (
-				F502AF126C3439A64B16CCFE /* 📦 Check Pods Manifest.lock */,
+				F502AF126C3439A64B16CCFE /* [CP] Check Pods Manifest.lock */,
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
-				05137B1F2BDA1CACBF9B1AEE /* 📦 Embed Pods Frameworks */,
-				B693436B67404226FB553D03 /* 📦 Copy Pods Resources */,
+				05137B1F2BDA1CACBF9B1AEE /* [CP] Embed Pods Frameworks */,
+				B693436B67404226FB553D03 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -302,14 +302,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		05137B1F2BDA1CACBF9B1AEE /* 📦 Embed Pods Frameworks */ = {
+		05137B1F2BDA1CACBF9B1AEE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -317,14 +317,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7EA950800F526715234B0740 /* 📦 Check Pods Manifest.lock */ = {
+		7EA950800F526715234B0740 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -332,14 +332,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		865547AC18FA191E35CB4709 /* 📦 Copy Pods Resources */ = {
+		865547AC18FA191E35CB4709 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,14 +347,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B693436B67404226FB553D03 /* 📦 Copy Pods Resources */ = {
+		B693436B67404226FB553D03 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,14 +362,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D575F271EA0E434D18070CC1 /* 📦 Embed Pods Frameworks */ = {
+		D575F271EA0E434D18070CC1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,14 +377,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F502AF126C3439A64B16CCFE /* 📦 Check Pods Manifest.lock */ = {
+		F502AF126C3439A64B16CCFE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
