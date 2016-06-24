@@ -1,0 +1,22 @@
+{
+  "name": "WordPress-Aztec-iOS",
+  "version": "0.1.0",
+  "summary": "A short description of WordPress-Aztec-iOS.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/<GITHUB_USERNAME>/WordPress-Aztec-iOS",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "Diego Rey Mendez": "diegoreymendez@gmail.com"
+  },
+  "source": {
+    "git": "https://github.com/<GITHUB_USERNAME>/WordPress-Aztec-iOS.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "WordPress-Aztec-iOS/Classes/**/*"
+}
