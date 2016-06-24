@@ -20,10 +20,6 @@ it, simply add the following line to your Podfile:
 pod "WordPress-Aztec-iOS"
 ```
 
-## Author
-
-Diego Rey Mendez, diegoreymendez@gmail.com
-
 ## License
 
 WordPress-Aztec-iOS is available under the MIT license. See the LICENSE file for more info.
