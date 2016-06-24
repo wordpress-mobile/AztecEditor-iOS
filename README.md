@@ -22,4 +22,4 @@ pod "WordPress-Aztec-iOS"
 
 ## License
 
-WordPress-Aztec-iOS is available under the MIT license. See the LICENSE file for more info.
+WordPress-Aztec-iOS is available under the GPLv2 license. See the LICENSE file for more info.
