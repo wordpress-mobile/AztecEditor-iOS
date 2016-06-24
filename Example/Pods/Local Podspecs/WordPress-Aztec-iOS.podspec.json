@@ -9,14 +9,18 @@
     "file": "LICENSE"
   },
   "authors": {
-    "Diego Rey Mendez": "diegoreymendez@gmail.com"
+    "Automattic": "mobile@automattic.com",
+    "Diego Rey Mendez": "diego.rey.mendez@automattic.com"
   },
   "source": {
     "git": "https://github.com/<GITHUB_USERNAME>/WordPress-Aztec-iOS.git",
     "tag": "0.1.0"
   },
   "platforms": {
-    "ios": "8.0"
+    "ios": "9.0"
   },
-  "source_files": "WordPress-Aztec-iOS/Classes/**/*"
+  "source_files": "WordPress-Aztec-iOS/Classes/**/*",
+  "ios": {
+    "libraries": "xml2"
+  }
 }

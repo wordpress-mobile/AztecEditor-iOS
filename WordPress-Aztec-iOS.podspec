@@ -21,20 +21,22 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/<GITHUB_USERNAME>/WordPress-Aztec-iOS'
+  s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com' }
-  s.source           = { :git => 'https://github.com/<GITHUB_USERNAME>/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.source_files = 'WordPress-Aztec-iOS/Classes/**/*'
   
   # s.resource_bundles = {
   #   'WordPress-Aztec-iOS' => ['WordPress-Aztec-iOS/Assets/*.png']
   # }
+  
+  s.ios.library = 'xml2'
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'

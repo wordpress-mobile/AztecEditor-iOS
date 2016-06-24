@@ -1,6 +1,0 @@
-framework module Pods_WordPress_Aztec_iOS_Example {
-  umbrella header "Pods-WordPress-Aztec-iOS_Example-umbrella.h"
-
-  export *
-  module * { export * }
-}
