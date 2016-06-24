@@ -31,7 +31,7 @@ TBD.  This will be modified as soon as we can publish more info.
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '8.0'
 
   s.source_files = 'WordPress-Aztec-iOS/Classes/**/*'
   
