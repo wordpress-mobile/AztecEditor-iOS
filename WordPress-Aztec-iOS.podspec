@@ -18,7 +18,10 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+TBD.  This will be modified as soon as we can publish more info.
+TBD.  This will be modified as soon as we can publish more info.
+TBD.  This will be modified as soon as we can publish more info.
+TBD.  This will be modified as soon as we can publish more info.
                        DESC
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
