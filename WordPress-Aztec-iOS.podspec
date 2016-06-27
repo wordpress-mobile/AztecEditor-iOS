@@ -39,7 +39,7 @@ TBD.  This will be modified as soon as we can publish more info.
   
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   #
-  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '/Users/diegoreymendez/Documents/Diego/Trabajo/Automattic/git/WordPress-Aztec-iOS/WordPress-Aztec-iOS/Modulemaps/libxml2/**', 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
+  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../WordPress-Aztec-iOS/Modulemaps/libxml2/**', 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
   s.preserve_paths = 'WordPress-Aztec-iOS/Modulemaps/libxml2/module.modulemap'
   
   # s.resource_bundles = {
