@@ -517,7 +517,7 @@
 			baseConfigurationReference = 3BBD869155A4461959D2884D /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
+					"\"$PODS_CONFIGURATION_BUILD_DIR/WordPress-Aztec-iOS\"",
 					"$(inherited)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -537,7 +537,7 @@
 			baseConfigurationReference = 1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
+					"\"$PODS_CONFIGURATION_BUILD_DIR/WordPress-Aztec-iOS\"",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
