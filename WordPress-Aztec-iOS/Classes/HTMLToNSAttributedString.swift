@@ -39,7 +39,10 @@ public class HTMLTag {
 
 public class HTMLToNSAttributedString {
 
-    func convert(html: NSData) -> NSAttributedString {
+    public init() {
+    }
+
+    public func convert(html: NSData) -> NSAttributedString {
 
         let bufferSize = 1024
         let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
