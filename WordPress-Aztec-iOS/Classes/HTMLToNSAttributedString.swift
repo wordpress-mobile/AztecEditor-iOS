@@ -104,10 +104,13 @@ public class HTMLToNSAttributedString {
 
             let tag = HTMLTag(name: rootElementName)
 
-            var property = rootElement.properties
+            var attributeRef = rootElement.properties
 
-            while (property != nil) {
-                guard let propertyName = String(CString: UnsafePointer<Int8>(property.memory.name), encoding: NSUTF8StringEncoding) else {
+            while (attributeRef != nil) {
+
+                let attribute = attributeRef.memory
+
+                guard let attributeName = String(CString: UnsafePointer<Int8>(attribute.name), encoding: NSUTF8StringEncoding) else {
                     // We should evaluate how to improve this condition check... is a nil value
                     // possible at all here?  If so... do we want to interrupt the parsing or try to
                     // recover from it?
@@ -118,10 +121,19 @@ public class HTMLToNSAttributedString {
                     fatalError("The root element name should not be nil.")
                 }
 
-                let attribute = HTMLTag.Attribute(name: propertyName)
-                tag.attributes.append(attribute)
+                let attributeValueRef = attribute.children
 
-                property = property.memory.next
+                if attributeValueRef != nil,
+                    let attributeValue = String(CString: UnsafePointer<Int8>(attributeValueRef.memory.content), encoding: NSUTF8StringEncoding) {
+
+                    let attribute = HTMLTag.StringAttribute(name: attributeName, value: attributeValue)
+                    tag.attributes.append(attribute)
+                } else {
+                    let attribute = HTMLTag.Attribute(name: attributeName)
+                    tag.attributes.append(attribute)
+                }
+
+                attributeRef = attribute.next
             }
 
             result.addAttribute("HTMLTag", value: tag, range: NSRange(location: 0, length: 0))
