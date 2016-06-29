@@ -1,41 +1,59 @@
 extension HTML {
 
+    /// Base class for all node types.
+    ///
     public class Node: CustomDebugStringConvertible {
 
         private(set) var attributes = [Attribute]()
         let name: String
-        let child: Node?
 
         public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes)); child: \(String(child))}>"
+                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes))}>"
             }
         }
 
-        init(name: String, child: Node?) {
+        init(name: String, attributes: [Attribute]) {
             self.name = name
-            self.child = child
-        }
-
-        func append(attributes attributes: [Attribute]) {
             self.attributes.appendContentsOf(attributes)
         }
     }
 
+    /// Element node.  Everything but text basically.
+    ///
+    public class ElementNode: Node {
+
+        let children: [Node]
+
+        override public var debugDescription: String {
+            get {
+                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes)); children: \(String(children))}>"
+            }
+        }
+
+        init(name: String, attributes: [Attribute], children: [Node]) {
+            self.children = children
+
+            super.init(name: name, attributes: attributes)
+        }
+    }
+
+    /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
+    ///
     public class TextNode: Node {
 
         let text: String
 
         override public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); text: \(String(text)); child: \(String(child))}>"
+                return "<\(String(self.dynamicType)): {name: \(name); text: \(String(text)); attributes: \(String(attributes))}>"
             }
         }
 
-        init(name: String, child: Node?, text: String) {
+        init(name: String, text: String, attributes: [Attribute]) {
             self.text = text
 
-            super.init(name: name, child: child)
+            super.init(name: name, attributes: attributes)
         }
     }
 }

@@ -4,6 +4,8 @@ import libxml2
 extension Libxml2 {
     class HTMLNodeConverter: Converter {
 
+        typealias Attribute = HTML.Attribute
+        typealias ElementNode = HTML.ElementNode
         typealias Node = HTML.Node
         typealias TextNode = HTML.TextNode
 
@@ -19,45 +21,58 @@ extension Libxml2 {
         ///
         func convert(rawNode: xmlNode) -> Node {
             var node: Node!
+
             let nodeName = getNodeName(rawNode)
 
             if nodeName.lowercaseString == "text" {
                 node = createTextNode(rawNode)
             } else {
-                node = createGenericNode(rawNode)
+                node = createElementNode(rawNode)
             }
-
-            let attributesConverter = HTMLAttributesConverter()
-            let attributes = attributesConverter.convert(rawNode.properties)
-            node.append(attributes: attributes)
 
             return node
         }
 
-        /// Converts a generic libxml2 xmlNode into a HTML.Node.
+        private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
+            let attributesConverter = HTMLAttributesConverter()
+            return attributesConverter.convert(rawNode.properties)
+        }
+
+        /// Creates an HTML.Node from a libxml2 element node.
         ///
         /// - Parameters:
         ///     - rawNode: the libxml2 xmlNode.
         ///
-        /// - Returns: the HTML.Node
+        /// - Returns: the HTML.ElementNode
         ///
-        private func createGenericNode(rawNode: xmlNode) -> Node {
+        private func createElementNode(rawNode: xmlNode) -> Node {
             let nodeName = getNodeName(rawNode)
-            var childNode: Node?
+            var children = [Node]()
 
             if rawNode.children != nil {
-                childNode = convert(rawNode.children.memory)
+                let nodesConverter = HTMLNodesConverter()
+                children.appendContentsOf(nodesConverter.convert(rawNode.children))
             }
 
-            let node = Node(name: nodeName, child: childNode)
+            let attributes = createAttributes(fromNode: rawNode)
+            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
 
             return node
         }
 
+        /// Creates an HTML.TextNode from a libxml2 element node.
+        ///
+        /// - Parameters:
+        ///     - rawNode: the libxml2 xmlNode.
+        ///
+        /// - Returns: the HTML.TextNode
+        ///
         private func createTextNode(rawNode: xmlNode) -> TextNode {
             let nodeName = getNodeName(rawNode)
+
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let node = TextNode(name: nodeName, child: nil, text: text)
+            let attributes = createAttributes(fromNode: rawNode)
+            let node = TextNode(name: nodeName, text: text, attributes: attributes)
 
             return node
         }

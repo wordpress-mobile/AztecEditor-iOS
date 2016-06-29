@@ -34,7 +34,7 @@ extension Libxml2 {
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
 
-            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
+            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
 
             let errorPtr = xmlGetLastError()
 
@@ -47,16 +47,17 @@ extension Libxml2 {
                     NSLog("Message: \(message)")
                 }
 
-                return NSAttributedString(string: "")
+                // Some errors are really not a problem for us (like "misplaced HTML tag"), so let's
+                // keep going.  In the future we should analyze the different errors here and decide
+                // if there's a need to handle any of them in a different way.
+                //
             }
 
-            let rootElementPtr = xmlDocGetRootElement(document)
+            let rootNodePtr = xmlDocGetRootElement(document)
 
-            if rootElementPtr != nil {
-                let rootNode = rootElementPtr.memory
-
-                let nodeConverter = HTMLNodeConverter()
-                let node = nodeConverter.convert(rootNode)
+            if rootNodePtr != nil {
+                let nodeConverter = HTMLNodesConverter()
+                let node = nodeConverter.convert(rootNodePtr)
 
                 result.addAttribute(self.dynamicType.nodeNSStringAttributeName, value: node, range: NSRange(location: 0, length: 0))
             }
