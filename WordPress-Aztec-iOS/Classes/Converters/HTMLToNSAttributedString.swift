@@ -1,7 +1,10 @@
 import Foundation
 import libxml2
 
-public class HTMLToNSAttributedString {
+public class HTMLToNSAttributedString: Converter {
+
+    typealias TypeIn = NSData
+    typealias TypeOut = NSAttributedString
 
     static let nodeNSStringAttributeName = "HMTLNode"
 
