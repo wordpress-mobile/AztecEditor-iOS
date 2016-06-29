@@ -56,8 +56,19 @@ extension Libxml2 {
             let rootNodePtr = xmlDocGetRootElement(document)
 
             if rootNodePtr != nil {
-                let nodeConverter = HTMLNodesConverter()
-                let node = nodeConverter.convert(rootNodePtr)
+                let rootNode = rootNodePtr.memory
+
+                // TODO: If the root node has siblings, they're loaded as children instead (by
+                // libxml2).  We need to test this a bit more, because saving the HTML back will
+                // produce a different result unless there's some way to identify this scenario.
+                //
+                // Example HTML: <a></a><b></b>
+                //
+                // It may be a good idea to wrap the HTML in a single fake root node before parsing
+                // it to bypass this behaviour.
+                //
+                let nodeConverter = HTMLNodeConverter()
+                let node = nodeConverter.convert(rootNode)
 
                 result.addAttribute(self.dynamicType.nodeNSStringAttributeName, value: node, range: NSRange(location: 0, length: 0))
             }
