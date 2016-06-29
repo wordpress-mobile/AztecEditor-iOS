@@ -1,7 +1,7 @@
 import XCTest
 import Aztec
 
-class HTMLToNSAttributedStringTests: XCTestCase {
+class HTMLConverterTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
