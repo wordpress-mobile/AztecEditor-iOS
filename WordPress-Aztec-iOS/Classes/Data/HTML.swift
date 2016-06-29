@@ -1,3 +1,2 @@
-class HTML {
-
+public enum HTML {
 }

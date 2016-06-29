@@ -14,7 +14,7 @@ class HTMLToNSAttributedStringTests: XCTestCase {
     }
 
     func testExample() {
-        let converter = HTMLToNSAttributedString()
+        let converter = Libxml2.HTMLToNSAttributedString()
 
         var range = NSRange(location: 0, length: 5)
 
