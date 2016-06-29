@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2 {
-    class RawNodeToNode: Converter {
+    class HTMLNodeConverter: Converter {
 
         typealias Node = HTML.Node
         typealias TextNode = HTML.TextNode

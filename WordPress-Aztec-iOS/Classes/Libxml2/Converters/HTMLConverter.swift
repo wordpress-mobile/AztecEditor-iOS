@@ -55,8 +55,8 @@ extension Libxml2 {
             if rootElementPtr != nil {
                 let rootNode = rootElementPtr.memory
 
-                let converter = RawNodeToNode()
-                let node = converter.convert(rootNode)
+                let nodeConverter = HTMLNodeConverter()
+                let node = nodeConverter.convert(rootNode)
 
                 result.addAttribute(self.dynamicType.nodeNSStringAttributeName, value: node, range: NSRange(location: 0, length: 0))
             }
