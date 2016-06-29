@@ -18,7 +18,14 @@ extension Libxml2 {
         /// - Returns: an HTML.Node.
         ///
         func convert(rawNode: xmlNode) -> Node {
-            let node = createNode(rawNode)
+            var node: Node!
+            let nodeName = getNodeName(rawNode)
+
+            if nodeName.lowercaseString == "text" {
+                node = createTextNode(rawNode)
+            } else {
+                node = createGenericNode(rawNode)
+            }
 
             let attributesConverter = HTMLAttributesConverter()
             let attributes = attributesConverter.convert(rawNode.properties)
@@ -27,16 +34,13 @@ extension Libxml2 {
             return node
         }
 
-        private func createNode(rawNode: xmlNode) -> Node {
-            let nodeName = getNodeName(rawNode)
-
-            if nodeName.lowercaseString == "text" {
-                return createTextNode(rawNode)
-            } else {
-                return createGenericNode(rawNode)
-            }
-        }
-
+        /// Converts a generic libxml2 xmlNode into a HTML.Node.
+        ///
+        /// - Parameters:
+        ///     - rawNode: the libxml2 xmlNode.
+        ///
+        /// - Returns: the HTML.Node
+        ///
         private func createGenericNode(rawNode: xmlNode) -> Node {
             let nodeName = getNodeName(rawNode)
             var childNode: Node?
