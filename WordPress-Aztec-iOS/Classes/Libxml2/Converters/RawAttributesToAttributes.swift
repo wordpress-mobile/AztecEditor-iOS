@@ -10,6 +10,14 @@ extension Libxml2 {
         typealias TypeIn = xmlAttrPtr
         typealias TypeOut = [Attribute]
 
+        /// Converts a linked list of attributes (from libxml2) into an array of our own
+        /// representation of attributes.
+        ///
+        /// - Parameters:
+        ///     - attributes: the libxml2 attributes to convert.  This is a linked list.
+        ///
+        /// - Returns: an array of HTML.Attribute.
+        ///
         func convert(attributes: xmlAttrPtr) -> [Attribute] {
 
             var result = [Attribute]()

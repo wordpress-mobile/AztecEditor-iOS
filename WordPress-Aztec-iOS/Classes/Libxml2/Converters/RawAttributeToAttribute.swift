@@ -10,6 +10,13 @@ extension Libxml2 {
         typealias TypeIn = xmlAttr
         typealias TypeOut = Attribute
 
+        /// Converts a single attribute (from libxml2) into an HTML.Attribute
+        ///
+        /// - Parameters:
+        ///     - attributes: the libxml2 attribute to convert.
+        ///
+        /// - Returns: an HTML.Attribute.
+        ///
         func convert(attribute: xmlAttr) -> Attribute {
             guard let attributeName = String(CString: UnsafePointer<Int8>(attribute.name), encoding: NSUTF8StringEncoding) else {
                 // We should evaluate how to improve this condition check... is a nil value
@@ -19,7 +26,7 @@ extension Libxml2 {
                 // For the sake of moving forward I'm just interrupting here, but this could change
                 // if we find a unit test causing a nil value here.
                 //
-                fatalError("The root element name should not be nil.")
+                fatalError("The attribute name should not be nil.")
             }
 
             let attributeValueRef = attribute.children

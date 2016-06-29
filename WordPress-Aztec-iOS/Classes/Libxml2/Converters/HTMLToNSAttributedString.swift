@@ -9,9 +9,18 @@ extension Libxml2 {
 
         static let nodeNSStringAttributeName = "HMTLNode"
 
+        /// Not sure why, but the compiler is requiring this initializer.
+        ///
         public init() {
         }
 
+        /// Converts HTML data into an attributed string representing the same data.
+        ///
+        /// - Parameters:
+        ///     - html: the HTML data to convert.
+        ///
+        /// - Returns: an attributed string representing the specified HTML data.
+        ///
         public func convert(html: NSData) -> NSAttributedString {
 
             let result = NSMutableAttributedString()
