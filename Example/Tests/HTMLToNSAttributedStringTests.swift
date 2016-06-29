@@ -14,12 +14,16 @@ class HTMLToNSAttributedStringTests: XCTestCase {
     }
 
     func testExample() {
-        let converter = Libxml2.HTMLToNSAttributedString()
+        let parser = Libxml2.HTMLConverter()
 
-        var range = NSRange(location: 0, length: 5)
+        let html = "<HTML style='a' nostye peace='123'>Hello World!</HTML>"
+        let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+        let output = parser.convert(htmlData)
 
-        let output = converter.convert("<HTML style='a' nostye peace='123'>Hello World!</HTML>".dataUsingEncoding(NSUTF8StringEncoding)!)
-        let attributes = output.attributesAtIndex(0, effectiveRange: &range)
-        print(output, attributes)
+        if output.length > 0 {
+            var range = NSRange(location: 0, length: output.length)
+            let attributes = output.attributesAtIndex(0, effectiveRange: &range)
+            print(output, attributes)
+        }
     }
 }

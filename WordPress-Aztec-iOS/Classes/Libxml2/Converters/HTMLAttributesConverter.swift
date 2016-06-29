@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2 {
-    class RawAttributesToAttributes: Converter {
+    class HTMLAttributesConverter: Converter {
 
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
@@ -26,7 +26,7 @@ extension Libxml2 {
             while (currentAttributePtr != nil) {
                 let attribute = currentAttributePtr.memory
 
-                let attributeConverter = RawAttributeToAttribute()
+                let attributeConverter = HTMLAttributeConverter()
                 result.append(attributeConverter.convert(attribute))
                 
                 currentAttributePtr = attribute.next

@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2 {
-    public class HTMLToNSAttributedString: Converter {
+    public class HTMLConverter: Converter {
 
         typealias TypeIn = NSData
         typealias TypeOut = NSAttributedString
@@ -23,6 +23,10 @@ extension Libxml2 {
         ///
         public func convert(html: NSData) -> NSAttributedString {
 
+            // We don't want <p> tags added automattically.
+            //
+            htmlHandleOmittedElem(0)
+
             let result = NSMutableAttributedString()
             let bufferSize = 1024
             let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
@@ -30,7 +34,7 @@ extension Libxml2 {
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
 
-            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, 0)
+            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
 
             let errorPtr = xmlGetLastError()
 

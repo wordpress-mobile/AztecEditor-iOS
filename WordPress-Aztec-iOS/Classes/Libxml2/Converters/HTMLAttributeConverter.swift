@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2 {
-    class RawAttributeToAttribute: Converter {
+    class HTMLAttributeConverter: Converter {
 
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
