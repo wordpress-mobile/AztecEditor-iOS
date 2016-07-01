@@ -3,22 +3,22 @@ import Foundation
 
 ///
 ///
-class AztecTextStorage: NSTextStorage {
+public class AztecTextStorage: NSTextStorage {
 
-    private var textStore = NSMutableAttributedString()
+    private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
 
-    override var string: String {
+    override public var string: String {
         return textStore.string
     }
 
 
-    override func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
+    override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
 
 
-    override func replaceCharactersInRange(range: NSRange, withString str: String) {
+    override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
 
         // NOTE: Hook in any custom attribute handling here.
@@ -30,7 +30,7 @@ class AztecTextStorage: NSTextStorage {
     }
 
 
-    override func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
+    override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
 
         // NOTE: Hook in any custom attribute handling here.
@@ -42,7 +42,7 @@ class AztecTextStorage: NSTextStorage {
     }
 
 
-    override func processEditing() {
+    override public func processEditing() {
         // Edits have happened and are about to be implemented.
         // Do any last minute changes here *BEFORE* calling super.about
 

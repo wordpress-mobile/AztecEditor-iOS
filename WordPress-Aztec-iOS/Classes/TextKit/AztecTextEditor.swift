@@ -1,18 +1,19 @@
 import Foundation
 
+
 ///
 ///
-class AztecTextEditor : NSObject {
+public class AztecTextEditor : NSObject {
 
     var textView: UITextView
-    var storage: AztecTextStorage
+    public private(set) var storage: AztecTextStorage
 
-    init(textView: UITextView) {
+    public init(textView: UITextView) {
         self.storage = AztecTextStorage()
         self.textView = textView
         super.init()
 
-        textView.textStorage.addLayoutManager(textView.layoutManager)
+        storage.addLayoutManager(textView.layoutManager)
         textView.layoutManager.delegate = self
     }
 

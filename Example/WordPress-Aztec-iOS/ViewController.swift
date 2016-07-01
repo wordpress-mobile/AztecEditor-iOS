@@ -1,11 +1,13 @@
 import UIKit
 
-
+///
+///
 class ViewController: UITableViewController
 {
 
     let cellIdentifier = "CellIdentifier"
     var rows:[DemoRow]!
+
 
     // MARK: LifeCycle Methods
 
@@ -14,7 +16,8 @@ class ViewController: UITableViewController
         super.viewDidLoad()
 
         rows = [
-            DemoRow(title: "Demo Controller", action: { self.showDemoController() })
+            DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
+            DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() })
         ]
     }
 
@@ -22,12 +25,20 @@ class ViewController: UITableViewController
     // MARK: Actions
 
 
-    func showDemoController() {
+    func showCursorCalloutDemo() {
+        let controller = CursorCalloutDemoController.controller()
+        navigationController?.pushViewController(controller, animated: true)
+    }
 
+
+    func showDraggableDemo() {
+        let controller = DraggableDemoController.controller()
+        navigationController?.pushViewController(controller, animated: true)
     }
 
 
     // MARK: TableView Methods
+
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -54,6 +65,7 @@ class ViewController: UITableViewController
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         rows[indexPath.row].action()
     }
+
 }
 
 

@@ -15,6 +15,9 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		6AED12F8D5A6FB84E1C3B519 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
 		758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
+		E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */; };
+		E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568F11D26DE9200E6913B /* DraggableDemoController.swift */; };
+		E66568F71D270F7F00E6913B /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E66568F61D270F7F00E6913B /* SampleText.rtf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +49,9 @@
 		870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
 		9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
+		E66568F11D26DE9200E6913B /* DraggableDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableDemoController.swift; sourceTree = "<group>"; };
+		E66568F61D270F7F00E6913B /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
 		F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -106,10 +112,13 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
+				E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */,
+				E66568F11D26DE9200E6913B /* DraggableDemoController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				E66568F61D270F7F00E6913B /* SampleText.rtf */,
 			);
 			name = "Example for WordPress-Aztec-iOS";
 			path = "WordPress-Aztec-iOS";
@@ -249,6 +258,7 @@
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
+				E66568F71D270F7F00E6913B /* SampleText.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,7 +369,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

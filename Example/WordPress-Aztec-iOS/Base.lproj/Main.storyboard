@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Root View Controller-->
@@ -33,6 +34,79 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bnq-8p-cXu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1596" y="558"/>
+        </scene>
+        <!--Draggable Demo Controller-->
+        <scene sceneID="5aI-VZ-Kuq">
+            <objects>
+                <viewController storyboardIdentifier="DraggableDemoController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Uxm-Po-MYF" customClass="DraggableDemoController" customModule="WordPress_Aztec_iOS_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="vKg-x4-cXu"/>
+                        <viewControllerLayoutGuide type="bottom" id="ZEP-a0-JgH"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="TWZ-yb-CMI">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yFc-rm-m3C">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <attributedString key="attributedText"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="ZEP-a0-JgH" firstAttribute="top" secondItem="yFc-rm-m3C" secondAttribute="bottom" id="187-c4-1l8"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="yFc-rm-m3C" secondAttribute="trailing" constant="-20" id="EsS-p6-0IK"/>
+                            <constraint firstItem="yFc-rm-m3C" firstAttribute="top" secondItem="vKg-x4-cXu" secondAttribute="bottom" constant="-20" id="Yxe-pP-1HY"/>
+                            <constraint firstItem="yFc-rm-m3C" firstAttribute="leading" secondItem="TWZ-yb-CMI" secondAttribute="leadingMargin" constant="-20" id="hP5-MR-G2B"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="textView" destination="yFc-rm-m3C" id="VAE-8d-fcl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XY2-zp-Eoo" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2225" y="86"/>
+        </scene>
+        <!--Cursor Callout Demo Controller-->
+        <scene sceneID="QUK-1o-3z0">
+            <objects>
+                <viewController storyboardIdentifier="CursorCalloutDemoController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="R0y-vz-x8i" customClass="CursorCalloutDemoController" customModule="WordPress_Aztec_iOS_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="WeD-JF-4jx"/>
+                        <viewControllerLayoutGuide type="bottom" id="tZp-mZ-BM8"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="pyu-jY-ESw">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yCI-Vs-ZmB">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <attributedString key="attributedText"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <connections>
+                                    <outlet property="delegate" destination="R0y-vz-x8i" id="MuZ-85-YId"/>
+                                </connections>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="yCI-Vs-ZmB" firstAttribute="leading" secondItem="pyu-jY-ESw" secondAttribute="leadingMargin" constant="-20" id="7Nl-sm-okY"/>
+                            <constraint firstItem="tZp-mZ-BM8" firstAttribute="top" secondItem="yCI-Vs-ZmB" secondAttribute="bottom" id="HvL-Oq-nHq"/>
+                            <constraint firstItem="yCI-Vs-ZmB" firstAttribute="top" secondItem="WeD-JF-4jx" secondAttribute="bottom" constant="-20" id="W6N-oR-zYG"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="yCI-Vs-ZmB" secondAttribute="trailing" constant="-20" id="bE2-0y-B4D"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="textView" destination="yCI-Vs-ZmB" id="RoV-eI-jEc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="U0y-h9-dqS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2225" y="784"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Wbq-aX-QcZ">
