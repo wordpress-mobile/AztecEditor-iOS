@@ -1,24 +1,66 @@
-//
-//  ViewController.swift
-//  WordPress-Aztec-iOS
-//
-//  Created by Diego Rey Mendez on 06/24/2016.
-//  Copyright (c) 2016 Diego Rey Mendez. All rights reserved.
-//
-
 import UIKit
 
-class ViewController: UIViewController {
+
+class ViewController: UITableViewController
+{
+
+    let cellIdentifier = "CellIdentifier"
+    var rows:[DemoRow]!
+
+    // MARK: LifeCycle Methods
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+        rows = [
+            DemoRow(title: "Demo Controller", action: { self.showDemoController() })
+        ]
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+
+    // MARK: Actions
+
+
+    func showDemoController() {
+
     }
 
+
+    // MARK: TableView Methods
+
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
+    }
+
+
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return rows.count
+    }
+
+
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier)!
+        cell.accessoryType = .DisclosureIndicator
+
+        let row = rows[indexPath.row]
+        cell.textLabel?.text = row.title
+
+        return cell
+    }
+
+
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        rows[indexPath.row].action()
+    }
 }
 
+
+typealias RowAction = () -> Void
+
+
+struct DemoRow {
+    var title: String
+    var action: RowAction
+}
