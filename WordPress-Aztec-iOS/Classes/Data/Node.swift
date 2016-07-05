@@ -2,15 +2,13 @@ extension HTML {
 
     /// Base class for all node types.
     ///
-    public class Node: CustomDebugStringConvertible {
+    public class Node: CustomReflectable {
 
         private(set) var attributes = [Attribute]()
         let name: String
 
-        public var debugDescription: String {
-            get {
-                return "<\(self.dynamicType)> {\n  name: \(name);\n  attributes: \(attributes)\n}"
-            }
+        public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "attributes": attributes])
         }
 
         init(name: String, attributes: [Attribute]) {
@@ -25,54 +23,14 @@ extension HTML {
 
         let children: [Node]
 
-        override public var debugDescription: String {
-            get {
-                return "<\(self.dynamicType)> {\n  ▿ name: \(name);\n  ▿ attributes: \(attributesDebugDescription())  ▿ children: \(childrenDebugDescription())}"
-            }
-        }
-
         init(name: String, attributes: [Attribute], children: [Node]) {
             self.children = children
 
             super.init(name: name, attributes: attributes)
         }
 
-        private func attributesDebugDescription() -> String {
-            let attributesDebugDescription = "\(attributes)"
-            var indentedDebugDescription = ""
-
-            attributesDebugDescription.enumerateLines { (line, stop) in
-                var newLine = line
-
-                if line.characters.first != "[" {
-                    newLine = "    \(newLine)"
-                }
-
-                newLine = "\(newLine)\n"
-
-                indentedDebugDescription.appendContentsOf(newLine)
-            }
-            
-            return indentedDebugDescription
-        }
-
-        private func childrenDebugDescription() -> String {
-            let childrenDebugDescription = "\(children)"
-            var indentedDebugDescription = ""
-
-            childrenDebugDescription.enumerateLines { (line, stop) in
-                var newLine = line
-
-                if line.characters.first != "[" {
-                    newLine = "    \(newLine)"
-                }
-
-                newLine = "\(newLine)\n"
-
-                indentedDebugDescription.appendContentsOf(newLine)
-            }
-
-            return indentedDebugDescription
+        override public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
     }
 
@@ -82,16 +40,14 @@ extension HTML {
 
         let text: String
 
-        override public var debugDescription: String {
-            get {
-                return "<\(self.dynamicType)> {\n  ▿ name: \(name);\n  ▿ text: \(text);\n  ▿ attributes: \(attributes)\r\n}"
-            }
-        }
-
         init(name: String, text: String, attributes: [Attribute]) {
             self.text = text
 
             super.init(name: name, attributes: attributes)
+        }
+
+        override public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "text": text, "attributes": attributes], ancestorRepresentation: .Suppressed)
         }
     }
 }
