@@ -5,6 +5,7 @@ extern NSString const *MediaPickerOptionsShowCameraCapture;
 extern NSString const *MediaPickerOptionsPreferFrontCamera;
 extern NSString const *MediaPickerOptionsAllowMultipleSelection;
 extern NSString const *MediaPickerOptionsPostProcessingStep;
+extern NSString const *MediaPickerOptionsFilterType;
 
 @class OptionsViewController;
 
