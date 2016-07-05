@@ -12,7 +12,7 @@ extension HTML {
 
         public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name)}>"
+                return "<\(String(self.dynamicType))> {\n  ▿ name: \(name)\n}"
             }
         }
     }
@@ -32,7 +32,7 @@ extension HTML {
 
         override public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); value: \(value)}>"
+                return "<\(String(self.dynamicType))> {\n  ▿ name: \(name);\n  ▿ value: \(value)\n}"
             }
         }
     }

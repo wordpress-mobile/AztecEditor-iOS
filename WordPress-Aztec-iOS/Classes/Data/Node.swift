@@ -9,7 +9,7 @@ extension HTML {
 
         public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes))}>"
+                return "<\(self.dynamicType)> {\n  name: \(name);\n  attributes: \(attributes)\n}"
             }
         }
 
@@ -27,7 +27,7 @@ extension HTML {
 
         override public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes)); children: \(String(children))}>"
+                return "<\(self.dynamicType)> {\n  ▿ name: \(name);\n  ▿ attributes: \(attributesDebugDescription())  ▿ children: \(childrenDebugDescription())}"
             }
         }
 
@@ -35,6 +35,44 @@ extension HTML {
             self.children = children
 
             super.init(name: name, attributes: attributes)
+        }
+
+        private func attributesDebugDescription() -> String {
+            let attributesDebugDescription = "\(attributes)"
+            var indentedDebugDescription = ""
+
+            attributesDebugDescription.enumerateLines { (line, stop) in
+                var newLine = line
+
+                if line.characters.first != "[" {
+                    newLine = "    \(newLine)"
+                }
+
+                newLine = "\(newLine)\n"
+
+                indentedDebugDescription.appendContentsOf(newLine)
+            }
+            
+            return indentedDebugDescription
+        }
+
+        private func childrenDebugDescription() -> String {
+            let childrenDebugDescription = "\(children)"
+            var indentedDebugDescription = ""
+
+            childrenDebugDescription.enumerateLines { (line, stop) in
+                var newLine = line
+
+                if line.characters.first != "[" {
+                    newLine = "    \(newLine)"
+                }
+
+                newLine = "\(newLine)\n"
+
+                indentedDebugDescription.appendContentsOf(newLine)
+            }
+
+            return indentedDebugDescription
         }
     }
 
@@ -46,7 +84,7 @@ extension HTML {
 
         override public var debugDescription: String {
             get {
-                return "<\(String(self.dynamicType)): {name: \(name); text: \(String(text)); attributes: \(String(attributes))}>"
+                return "<\(self.dynamicType)> {\n  ▿ name: \(name);\n  ▿ text: \(text);\n  ▿ attributes: \(attributes)\r\n}"
             }
         }
 
