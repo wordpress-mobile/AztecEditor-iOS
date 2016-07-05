@@ -24,7 +24,22 @@ class DraggableDemoController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        editor = AztecTextEditor(textView: textView)
+        configureEditor()
     }
+
+
+    func configureEditor() {
+        editor = AztecTextEditor(textView: textView)
+        if let filePath = NSBundle.mainBundle().URLForResource("SampleText", withExtension: "rtf"),
+            let attrStr = try? NSAttributedString(fileURL: filePath, options: [:], documentAttributes: nil) {
+
+//            editor.storage.appendAttributedString(attrStr)
+            textView.attributedText = attrStr
+        }
+    }
+
+
+
+    
 
 }

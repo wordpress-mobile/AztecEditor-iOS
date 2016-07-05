@@ -25,23 +25,22 @@ class CursorCalloutDemoController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureEditor()
+        configureTextView()
         configureContextMenu()
     }
 
 
-    func configureEditor() {
-        editor = AztecTextEditor(textView: textView)
+    func configureTextView() {
         if let filePath = NSBundle.mainBundle().URLForResource("SampleText", withExtension: "rtf"),
             let attrStr = try? NSAttributedString(fileURL: filePath, options: [:], documentAttributes: nil) {
 
-            editor.storage.appendAttributedString(attrStr)
+            textView.attributedText = attrStr
         }
     }
 
 
     func configureContextMenu() {
-        let menuItem = UIMenuItem(title: "Editor", action: #selector(CursorCalloutDemoController.showPopover))
+        let menuItem = UIMenuItem(title: "Popover", action: #selector(CursorCalloutDemoController.showPopover))
         UIMenuController.sharedMenuController().menuItems = [menuItem]
     }
 
