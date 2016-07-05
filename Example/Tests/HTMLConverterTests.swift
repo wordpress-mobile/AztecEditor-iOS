@@ -1,5 +1,5 @@
 import XCTest
-import Aztec
+@testable import Aztec
 
 class HTMLConverterTests: XCTestCase {
 
@@ -29,7 +29,7 @@ class HTMLConverterTests: XCTestCase {
  */
 
     func testExample2() {
-        let parser = Libxml2.HTMLConverter()
+        let parser = Libxml2.In.HTMLConverter()
 
         let html = "<HTML style='a' nostye peace='123'>Hello <b>World</b>!</HTML>"
         let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!

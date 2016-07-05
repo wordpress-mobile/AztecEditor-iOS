@@ -1,14 +1,11 @@
 import Foundation
 import libxml2
 
-extension Libxml2 {
-    class HTMLAttributesConverter: Converter {
+extension Libxml2.Out {
+    class AttributesConverter: Converter {
 
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
-
-        typealias TypeIn = xmlAttrPtr
-        typealias TypeOut = [Attribute]
 
         /// Converts a linked list of attributes (from libxml2) into an array of our own
         /// representation of attributes.
@@ -26,7 +23,7 @@ extension Libxml2 {
             while (currentAttributePtr != nil) {
                 let attribute = currentAttributePtr.memory
 
-                let attributeConverter = HTMLAttributeConverter()
+                let attributeConverter = AttributeConverter()
                 result.append(attributeConverter.convert(attribute))
                 
                 currentAttributePtr = attribute.next

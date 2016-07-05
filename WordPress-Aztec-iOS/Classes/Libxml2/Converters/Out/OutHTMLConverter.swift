@@ -1,11 +1,8 @@
 import Foundation
 import libxml2
 
-extension Libxml2 {
+extension Libxml2.Out {
     public class HTMLConverter: Converter {
-
-        typealias TypeIn = NSData
-        typealias TypeOut = NSAttributedString
 
         static let nodeNSStringAttributeName = "HMTLNode"
 
@@ -67,7 +64,7 @@ extension Libxml2 {
                 // It may be a good idea to wrap the HTML in a single fake root node before parsing
                 // it to bypass this behaviour.
                 //
-                let nodeConverter = HTMLNodeConverter()
+                let nodeConverter = NodeConverter()
                 let node = nodeConverter.convert(rootNode)
 
                 result.addAttribute(self.dynamicType.nodeNSStringAttributeName, value: node, range: NSRange(location: 0, length: 0))

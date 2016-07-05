@@ -1,14 +1,11 @@
 import Foundation
 import libxml2
 
-extension Libxml2 {
-    class HTMLNodesConverter: Converter {
+extension Libxml2.Out {
+    class NodesConverter: Converter {
 
         typealias Node = HTML.Node
         typealias StringAttribute = HTML.StringAttribute
-
-        typealias TypeIn = xmlNodePtr
-        typealias TypeOut = [Node]
 
         /// Converts a linked list of xmlNode (from libxml2) into [HTML.Node].
         ///
@@ -25,7 +22,7 @@ extension Libxml2 {
             while (currentNodePtr != nil) {
                 let node = currentNodePtr.memory
 
-                let nodeConverter = HTMLNodeConverter()
+                let nodeConverter = NodeConverter()
                 result.append(nodeConverter.convert(node))
 
                 currentNodePtr = node.next

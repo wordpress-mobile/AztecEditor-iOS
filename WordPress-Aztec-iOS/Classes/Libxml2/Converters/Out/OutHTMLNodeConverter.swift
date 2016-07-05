@@ -1,16 +1,13 @@
 import Foundation
 import libxml2
 
-extension Libxml2 {
-    class HTMLNodeConverter: Converter {
+extension Libxml2.Out {
+    class NodeConverter: Converter {
 
         typealias Attribute = HTML.Attribute
         typealias ElementNode = HTML.ElementNode
         typealias Node = HTML.Node
         typealias TextNode = HTML.TextNode
-
-        typealias TypeIn = xmlNode
-        typealias TypeOut = Node
 
         /// Converts a single node (from libxml2) into an HTML.Node.
         ///
@@ -34,7 +31,7 @@ extension Libxml2 {
         }
 
         private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
-            let attributesConverter = HTMLAttributesConverter()
+            let attributesConverter = AttributesConverter()
             return attributesConverter.convert(rawNode.properties)
         }
 
@@ -50,7 +47,7 @@ extension Libxml2 {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = HTMLNodesConverter()
+                let nodesConverter = NodesConverter()
                 children.appendContentsOf(nodesConverter.convert(rawNode.children))
             }
 

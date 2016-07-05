@@ -1,14 +1,11 @@
 import Foundation
 import libxml2
 
-extension Libxml2 {
-    class HTMLAttributeConverter: Converter {
+extension Libxml2.Out {
+    class AttributeConverter: Converter {
 
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
-
-        typealias TypeIn = xmlAttr
-        typealias TypeOut = Attribute
 
         /// Converts a single attribute (from libxml2) into an HTML.Attribute
         ///
