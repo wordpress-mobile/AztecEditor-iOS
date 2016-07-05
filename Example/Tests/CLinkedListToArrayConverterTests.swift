@@ -33,7 +33,7 @@ class CLinkedListToArrayConverterTests: XCTestCase {
         }
     }
 
-    func testStructcLinkedListToClassArrayConverter() {
+    func testConversion() {
         var struct4 = TestStruct(name: "Struct 4", next: nil)
         var struct3 = TestStruct(name: "Struct 3", next: &struct4)
         var struct2 = TestStruct(name: "Struct 2", next: &struct3)

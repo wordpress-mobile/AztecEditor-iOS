@@ -3,15 +3,12 @@ import libxml2
 
 extension Libxml2.In {
 
-    class AttributesConverter: Converter {
+    /// Converts a C linked list of xmlAttr to [HTML.Attribute].
+    ///
+    class AttributesConverter: CLinkedListToArrayConverter<AttributeConverter> {
 
-        func convert(attributes: xmlAttrPtr) -> [HTML.Attribute] {
-
-            let listToArrayConverter = CLinkedListToArrayConverter(elementConverter: AttributeConverter()) {
-                return $0.next
-            }
-
-            return listToArrayConverter.convert(attributes)
+        required init() {
+            super.init(elementConverter: AttributeConverter(), next: { return $0.next })
         }
     }
 }
