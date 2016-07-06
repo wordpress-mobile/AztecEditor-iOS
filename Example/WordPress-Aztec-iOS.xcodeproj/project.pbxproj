@@ -15,6 +15,7 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		6AED12F8D5A6FB84E1C3B519 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
 		758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
+		E60B0CF81D2D88A200AEAEEA /* AztecTextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60B0CF71D2D88A200AEAEEA /* AztecTextViewTests.swift */; };
 		E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */; };
 		E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568F11D26DE9200E6913B /* DraggableDemoController.swift */; };
 		E66568F71D270F7F00E6913B /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E66568F61D270F7F00E6913B /* SampleText.rtf */; };
@@ -49,6 +50,7 @@
 		870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
 		9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		E60B0CF71D2D88A200AEAEEA /* AztecTextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextViewTests.swift; sourceTree = "<group>"; };
 		E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
 		E66568F11D26DE9200E6913B /* DraggableDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableDemoController.swift; sourceTree = "<group>"; };
 		E66568F61D270F7F00E6913B /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
@@ -136,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				59BF3A201D2198F000F763A9 /* HTMLConverterTests.swift */,
+				E60B0CF71D2D88A200AEAEEA /* AztecTextViewTests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
 			path = Tests;
@@ -381,6 +384,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5950B3111D21A890004A419A /* HTMLConverterTests.swift in Sources */,
+				E60B0CF81D2D88A200AEAEEA /* AztecTextViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
