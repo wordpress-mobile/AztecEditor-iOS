@@ -123,13 +123,15 @@
 - (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
+    PHFetchOptions *fetchOptions = [PHFetchOptions new];
+    fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
     NSMutableArray *collectionsArray=[NSMutableArray array];
     for (NSNumber *subType in [self smartAlbumsToShow]) {
         PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                            subtype:[subType intValue]
                                                                            options:nil];
         PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
-        if ([PHAsset fetchAssetsInAssetCollection:collection options:nil].count > 0){
+        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0 || [subType intValue] == PHAssetCollectionSubtypeSmartAlbumUserLibrary){
             [collectionsArray addObjectsFromArray:[smartAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, smartAlbum.count)]]];
         }
     }
@@ -138,7 +140,11 @@
                                                                            subtype:PHAssetCollectionSubtypeAny
                                                                            options:nil];
 
-    [collectionsArray addObjectsFromArray:[albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, albums.count)]]];
+    [albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
+        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0) {
+            [collectionsArray addObject:collection];
+        }
+    }];
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
@@ -157,27 +163,32 @@
     }
 }
 
++ (NSPredicate *)predicateForFilterMediaType:(WPMediaType)mediaType
+{
+    switch (mediaType) {
+        case WPMediaTypeVideoOrImage:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
+            break;
+        case WPMediaTypeImage:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeImage];
+            break;
+        case WPMediaTypeVideo:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
+            break;
+        case WPMediaTypeOther:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
+            break;
+        case WPMediaTypeAll:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo, PHAssetMediaTypeAudio];
+            break;
+    }
+}
+
 - (void)loadAssetsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    switch (self.mediaTypeFilter) {
-        case WPMediaTypeVideoOrImage:
-            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
-            break;
-        case WPMediaTypeImage:
-            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeImage];
-            break;
-        case WPMediaTypeVideo:
-            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
-            break;
-        case WPMediaTypeOther:
-            fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
-            break;
-        case WPMediaTypeAll:
-            
-            break;
-    }
+    fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
     fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.ascendingOrdering]];
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
@@ -301,6 +312,8 @@
 - (void)setMediaTypeFilter:(WPMediaType)filter
 {
     _mediaTypeFilter = filter;
+    //if we change the filter we need to update the groups to reflect the new filter
+    _refreshGroups = YES;
 }
 
 @end
@@ -404,12 +417,13 @@
     return [self localIdentifier];
 }
 
-- (NSInteger)numberOfAssets
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
 {
-    NSInteger count = [self estimatedAssetCount];
-    if ( count == NSNotFound) {
-        count = [[PHAsset fetchAssetsInAssetCollection:self options:nil] count];
-    }
+    PHFetchOptions *fetchOptions = [PHFetchOptions new];
+    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];
+
+    NSInteger count = [[PHAsset fetchAssetsInAssetCollection:self options:fetchOptions] count];
+    
     return count;
 }
 

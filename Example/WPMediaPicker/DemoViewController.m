@@ -35,7 +35,8 @@
                      MediaPickerOptionsShowMostRecentFirst:@(YES),
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
-                     MediaPickerOptionsPostProcessingStep:@(NO)
+                     MediaPickerOptionsPostProcessingStep:@(NO),
+                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage)
                      };
 
 }
@@ -129,7 +130,9 @@
     mediaPicker.delegate = self;
     mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
     mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
     mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
     mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
     UIPopoverPresentationController *ppc = mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;

@@ -9,6 +9,11 @@
 @property (nonatomic, assign) BOOL allowCaptureOfMedia;
 
 /**
+ If the media picker allows media capturing, it will use the front camera by default when possible
+ */
+@property (nonatomic, assign) BOOL preferFrontCamera;
+
+/**
  If set the picker will show the most recent items on the top left. If not set it will show on the bottom right. Either way it will always scroll to the most recent item when showing the picker.
  */
 @property (nonatomic, assign) BOOL showMostRecentFirst;

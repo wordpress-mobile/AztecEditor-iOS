@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		006E2D5AA0195B088D0B943F /* libPods-WPMediaPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C37855A2D5569FF3200A22B5 /* libPods-WPMediaPicker.a */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -20,8 +19,9 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
+		702AD5F17F8916AABC105A1B /* libPods-WPMediaPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C1CDA09FDF3F25E866D8A4D /* libPods-WPMediaPicker.a */; };
+		AE22BBE03B862A6657E6B66E /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1E578A5967DE531E1AC701 /* libPods-Tests.a */; };
 		B5FF3BEA1CAD8AB100C1D597 /* PostProcessingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */; };
-		DD821F4817504E75FB9E2B91 /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA47A0718D787F4D3E328AF /* libPods-Tests.a */; };
 		FFC3F6F31B0D9BB100EFC359 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFC3F6F21B0D9BB100EFC359 /* Launch Screen.xib */; };
 		FFE69A1D1B14AB840073C2EB /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE69A1C1B14AB840073C2EB /* OptionsViewController.m */; };
 		FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFFFD8801A447E67000FC184 /* DemoViewController.m */; };
@@ -38,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1120051BDDDC8A558883872E /* Pods-WPMediaPicker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.release.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.release.xcconfig"; sourceTree = "<group>"; };
 		5709B45B57F590232B3E5DA7 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* WPMediaPicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WPMediaPicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -56,16 +57,15 @@
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
-		9BA47A0718D787F4D3E328AF /* libPods-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E1E578A5967DE531E1AC701 /* libPods-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		77BAAAD0DCE591BC9BED9E6D /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		8C1CDA09FDF3F25E866D8A4D /* libPods-WPMediaPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WPMediaPicker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		96397568C67A5B575A574CB8 /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
+		ABF10F16DB0AA9A8008C72C7 /* Pods-WPMediaPicker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.debug.xcconfig"; sourceTree = "<group>"; };
 		B5FF3BE81CAD8AB100C1D597 /* PostProcessingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostProcessingViewController.h; sourceTree = "<group>"; };
 		B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostProcessingViewController.m; sourceTree = "<group>"; };
-		C37855A2D5569FF3200A22B5 /* libPods-WPMediaPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WPMediaPicker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEF4FB57530C0C9D7C09607C /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		E02C8816F24DD6C15E1FC723 /* Pods-WPMediaPicker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.debug.xcconfig"; sourceTree = "<group>"; };
-		E649DE2458AC5BF08969DE12 /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
-		ED8347A02DA278006813C36B /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		F0D09511821A352B062D5699 /* WPMediaPicker.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = WPMediaPicker.podspec; path = ../WPMediaPicker.podspec; sourceTree = "<group>"; };
-		FBE1845B23E3060E3B0B5CF2 /* Pods-WPMediaPicker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WPMediaPicker.release.xcconfig"; path = "Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker.release.xcconfig"; sourceTree = "<group>"; };
 		FFC3F6F21B0D9BB100EFC359 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		FFE69A1B1B14AB840073C2EB /* OptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionsViewController.h; sourceTree = "<group>"; };
 		FFE69A1C1B14AB840073C2EB /* OptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionsViewController.m; sourceTree = "<group>"; };
@@ -81,7 +81,7 @@
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
-				006E2D5AA0195B088D0B943F /* libPods-WPMediaPicker.a in Frameworks */,
+				702AD5F17F8916AABC105A1B /* libPods-WPMediaPicker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,7 +92,7 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
-				DD821F4817504E75FB9E2B91 /* libPods-Tests.a in Frameworks */,
+				AE22BBE03B862A6657E6B66E /* libPods-Tests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,7 +107,7 @@
 				6003F5B5195388D20070C39A /* Tests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				E407CB686FC85EB404994FDE /* Pods */,
+				DEFA301703853F22FC055059 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -127,8 +127,8 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				9BA47A0718D787F4D3E328AF /* libPods-Tests.a */,
-				C37855A2D5569FF3200A22B5 /* libPods-WPMediaPicker.a */,
+				6E1E578A5967DE531E1AC701 /* libPods-Tests.a */,
+				8C1CDA09FDF3F25E866D8A4D /* libPods-WPMediaPicker.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -191,13 +191,13 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		E407CB686FC85EB404994FDE /* Pods */ = {
+		DEFA301703853F22FC055059 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				ED8347A02DA278006813C36B /* Pods-Tests.debug.xcconfig */,
-				E649DE2458AC5BF08969DE12 /* Pods-Tests.release.xcconfig */,
-				E02C8816F24DD6C15E1FC723 /* Pods-WPMediaPicker.debug.xcconfig */,
-				FBE1845B23E3060E3B0B5CF2 /* Pods-WPMediaPicker.release.xcconfig */,
+				77BAAAD0DCE591BC9BED9E6D /* Pods-Tests.debug.xcconfig */,
+				96397568C67A5B575A574CB8 /* Pods-Tests.release.xcconfig */,
+				ABF10F16DB0AA9A8008C72C7 /* Pods-WPMediaPicker.debug.xcconfig */,
+				1120051BDDDC8A558883872E /* Pods-WPMediaPicker.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -209,12 +209,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "WPMediaPicker" */;
 			buildPhases = (
-				6A299E470BC7CCF41972FEAB /* Check Pods Manifest.lock */,
+				7EA950800F526715234B0740 /* [CP] Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
-				273F2B3655FF3ED715DD5010 /* Copy Pods Resources */,
-				11C341739B27F91C059DDA35 /* Embed Pods Frameworks */,
+				D575F271EA0E434D18070CC1 /* [CP] Embed Pods Frameworks */,
+				865547AC18FA191E35CB4709 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -229,12 +229,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Tests" */;
 			buildPhases = (
-				F1D2D4978A8742F8FFEA7D7A /* Check Pods Manifest.lock */,
+				F502AF126C3439A64B16CCFE /* [CP] Check Pods Manifest.lock */,
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
-				61C249A98EC657C4CD0FFD2C /* Copy Pods Resources */,
-				C9C5616AF2A6D010B63EA423 /* Embed Pods Frameworks */,
+				05137B1F2BDA1CACBF9B1AEE /* [CP] Embed Pods Frameworks */,
+				B693436B67404226FB553D03 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -253,7 +253,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = WP;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Sérgio Estêvão";
 				TargetAttributes = {
 					6003F5AD195388D20070C39A = {
@@ -302,74 +302,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		11C341739B27F91C059DDA35 /* Embed Pods Frameworks */ = {
+		05137B1F2BDA1CACBF9B1AEE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		273F2B3655FF3ED715DD5010 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		61C249A98EC657C4CD0FFD2C /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6A299E470BC7CCF41972FEAB /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		C9C5616AF2A6D010B63EA423 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,14 +317,74 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F1D2D4978A8742F8FFEA7D7A /* Check Pods Manifest.lock */ = {
+		7EA950800F526715234B0740 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		865547AC18FA191E35CB4709 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B693436B67404226FB553D03 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D575F271EA0E434D18070CC1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WPMediaPicker/Pods-WPMediaPicker-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F502AF126C3439A64B16CCFE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -463,6 +463,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -519,7 +520,7 @@
 		};
 		6003F5C0195388D20070C39A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E02C8816F24DD6C15E1FC723 /* Pods-WPMediaPicker.debug.xcconfig */;
+			baseConfigurationReference = ABF10F16DB0AA9A8008C72C7 /* Pods-WPMediaPicker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -529,6 +530,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;
@@ -538,7 +540,7 @@
 		};
 		6003F5C1195388D20070C39A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FBE1845B23E3060E3B0B5CF2 /* Pods-WPMediaPicker.release.xcconfig */;
+			baseConfigurationReference = 1120051BDDDC8A558883872E /* Pods-WPMediaPicker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -548,6 +550,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WPMediaPicker/WPMediaPicker-Prefix.pch";
 				INFOPLIST_FILE = "WPMediaPicker/WPMediaPicker-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;
@@ -557,7 +560,7 @@
 		};
 		6003F5C3195388D20070C39A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ED8347A02DA278006813C36B /* Pods-Tests.debug.xcconfig */;
+			baseConfigurationReference = 77BAAAD0DCE591BC9BED9E6D /* Pods-Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/WPMediaPicker.app/WPMediaPicker";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -572,6 +575,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -580,7 +584,7 @@
 		};
 		6003F5C4195388D20070C39A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E649DE2458AC5BF08969DE12 /* Pods-Tests.release.xcconfig */;
+			baseConfigurationReference = 96397568C67A5B575A574CB8 /* Pods-Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/WPMediaPicker.app/WPMediaPicker";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -591,6 +595,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tests/Tests-Prefix.pch";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;

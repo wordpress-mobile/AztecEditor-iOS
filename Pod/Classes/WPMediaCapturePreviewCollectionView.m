@@ -80,8 +80,7 @@
             self.session = [[AVCaptureSession alloc] init];
             self.session.sessionPreset = AVCaptureSessionPreset1280x720;
             
-            AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *device = [self captureDevice];
             
             NSError *error = nil;
             AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
@@ -100,6 +99,7 @@
                 self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
                 self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                 self.captureVideoPreviewLayer.frame = viewLayer.bounds;
+                self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIDevice currentDevice] orientation];
                 [viewLayer addSublayer:_captureVideoPreviewLayer];
             });
         }
@@ -109,7 +109,7 @@
 - (void)deviceOrientationDidChange:(NSNotification *)notification
 {
     if (self.captureVideoPreviewLayer.connection.supportsVideoOrientation) {
-        self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation];
+        self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIDevice currentDevice] orientation];
     }
 }
 
@@ -121,6 +121,18 @@
 - (NSString *)accessibilityLabel
 {
     return NSLocalizedString(@"Camera", @"Accessibility label for the camera tile in the collection view");
+}
+
+- (AVCaptureDevice *)captureDevice
+{
+    if (self.preferFrontCamera) {
+        for (AVCaptureDevice *device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]) {
+            if (device.position == AVCaptureDevicePositionFront) {
+                return device;
+            }
+        }
+    }
+    return [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }
 
 @end

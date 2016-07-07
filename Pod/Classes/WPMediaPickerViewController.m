@@ -13,6 +13,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         _allowCaptureOfMedia = YES;
+        _preferFrontCamera = NO;
         _showMostRecentFirst = NO;
         _allowMultipleSelection = YES;
         _filter = WPMediaTypeVideoOrImage;
@@ -39,6 +40,7 @@
 {
     WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
     vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
+    vc.preferFrontCamera = self.preferFrontCamera;
     vc.showMostRecentFirst = self.showMostRecentFirst;
     vc.filter = self.filter;
     vc.allowMultipleSelection = self.allowMultipleSelection;

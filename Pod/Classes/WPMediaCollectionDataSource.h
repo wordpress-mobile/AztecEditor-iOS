@@ -68,7 +68,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return The numbers of assets that exist in the group
  */
-- (NSInteger)numberOfAssets;
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType;
 
 @end
 
@@ -250,7 +250,7 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Filter the assets acording to their media type.
  *
- *  @param filter the WMMediaType to filter objects to. The default value is WPMediaTypeAll
+ *  @param filter the WMMediaType to filter objects to. The default value is WPMediaTypeVideoOrImage
  */
 - (void)setMediaTypeFilter:(WPMediaType)filter;
 

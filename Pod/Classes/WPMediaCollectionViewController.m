@@ -41,6 +41,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _layout = layout;
         _selectedAssets = [[NSMutableArray alloc] init];
         _allowCaptureOfMedia = YES;
+        _preferFrontCamera = NO;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
@@ -249,6 +250,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         [self.collectionView reloadData];
     }
     self.collectionView.allowsSelection = NO;
+    self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
@@ -258,6 +260,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             dispatch_async(dispatch_get_main_queue(), ^{
                 [strongSelf refreshTitle];
                 strongSelf.collectionView.allowsSelection = YES;
+                strongSelf.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
                 [strongSelf.collectionView reloadData];
                 [strongSelf.refreshControl endRefreshing];
@@ -413,6 +416,7 @@ referenceSizeForFooterInSection:(NSInteger)section
             UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
             [self.captureCell addGestureRecognizer:tapGestureRecognizer];
         }
+        self.captureCell.preferFrontCamera = self.preferFrontCamera;
         [self.captureCell startCapture];
         return self.captureCell;
     }
@@ -571,10 +575,20 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.mediaTypes = [mediaTypes allObjects];
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self presentViewController:imagePickerController animated:YES completion:^{
 
     }];
+}
+
+- (UIImagePickerControllerCameraDevice)cameraDevice
+{
+    if (self.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
+        return UIImagePickerControllerCameraDeviceFront;
+    } else {
+        return UIImagePickerControllerCameraDeviceRear;
+    }
 }
 
 - (void)captureMedia
