@@ -89,7 +89,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     }];
     cell.tag = requestKey;
     cell.titleLabel.text = [group name];
-    NSInteger numberOfAssets = [group numberOfAssets];
+    NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter]];
     if (numberOfAssets != NSNotFound) {
         cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];
     } else {
