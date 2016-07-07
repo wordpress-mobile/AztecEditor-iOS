@@ -6,6 +6,7 @@ NSString const *MediaPickerOptionsShowCameraCapture = @"MediaPickerOptionsShowCa
 NSString const *MediaPickerOptionsPreferFrontCamera = @"MediaPickerOptionsPreferFrontCamera";
 NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsAllowMultipleSelection";
 NSString const *MediaPickerOptionsPostProcessingStep = @"MediaPickerOptionsPostProcessingStep";
+NSString const *MediaPickerOptionsFilterType = @"MediaPickerOptionsFilterType";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
@@ -13,6 +14,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellPreferFrontCamera,
     OptionsViewControllerCellAllowMultipleSelection,
     OptionsViewControllerCellPostProcessingStep,
+    OptionsViewControllerCellMediaType,
     OptionsViewControllerCellTotal
 };
 
@@ -23,6 +25,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @property (nonatomic, strong) UITableViewCell *preferFrontCameraCell;
 @property (nonatomic, strong) UITableViewCell *allowMultipleSelectionCell;
 @property (nonatomic, strong) UITableViewCell *postProcessingStepCell;
+@property (nonatomic, strong) UITableViewCell *filterMediaCell;
 
 @end
 
@@ -60,6 +63,12 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.postProcessingStepCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.postProcessingStepCell.accessoryView).on = [self.options[MediaPickerOptionsPostProcessingStep] boolValue];
     self.postProcessingStepCell.textLabel.text = @"Shows Post Processing Step";
+
+    self.filterMediaCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    UISegmentedControl *segment = [[UISegmentedControl alloc] initWithItems:@[@"Photos", @"Videos", @"Photos & Videos"]];
+    self.filterMediaCell.accessoryView = segment;
+    segment.selectedSegmentIndex = [self.options[MediaPickerOptionsFilterType] intValue];
+    self.filterMediaCell.textLabel.text = @"Media Type";
 }
 
 #pragma mark - Table view data source
@@ -92,10 +101,13 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellPostProcessingStep:
             return self.postProcessingStepCell;
             break;
+        case OptionsViewControllerCellMediaType:
+            return self.filterMediaCell;
+            break;
         default:
             break;
     }
-    return nil;
+    return [UITableViewCell new];
 }
 
 - (void)done:(id) sender
@@ -107,7 +119,8 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
              MediaPickerOptionsShowCameraCapture:@(((UISwitch *)self.showCameraCaptureCell.accessoryView).on),
              MediaPickerOptionsPreferFrontCamera:@(((UISwitch *)self.preferFrontCameraCell.accessoryView).on),
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on),
-             MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on)
+             MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on),
+             MediaPickerOptionsFilterType:@(((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex),
              };
         
         [delegate optionsViewController:self changed:newOptions];
