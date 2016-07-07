@@ -1,9 +1,10 @@
 import Foundation
 
 
-///
+/// Custom NSTextStorage
 ///
 public class AztecTextStorage: NSTextStorage {
+
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -39,6 +40,7 @@ public class AztecTextStorage: NSTextStorage {
         edited(.EditedAttributes, range: range, changeInLength: 0)
 
         endEditing()
+
     }
 
 
