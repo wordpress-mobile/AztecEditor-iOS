@@ -43,6 +43,73 @@ import Foundation
     }
 
 
+    /// Get the AztecTextAttachment being represented by the specified view.
+    ///
+    /// - Parameters:
+    ///     - view: The custom view representing the attachment.
+    ///
+    /// - Returns: The matching AztecTextAttachment or nil
+    ///
+    public func attachmentForView(view: UIView) -> AztecTextAttachment? {
+        for (identifier, attachmentView)  in attachmentViews {
+            if attachmentView.view == view {
+                return attachmentForIdentifier(identifier)
+            }
+        }
+        return nil
+    }
+
+
+    /// Get the AztecTextAttachment for the specified identifier.
+    ///
+    /// - Parameters:
+    ///     - identifier: The identifier of the attachment.
+    ///
+    /// - Returns: The matching AztecTextAttachment or nil
+    ///
+    public func attachmentForIdentifier(identifier: String) -> AztecTextAttachment? {
+        for attachment in attachments {
+            if attachment.identifier == identifier {
+                return attachment
+            }
+        }
+        return nil
+    }
+
+
+    /// Get the range in text storage of the AztecTextAttachment represented by 
+    /// the specified view.
+    ///
+    /// - Paramters:
+    ///     - view: The view representing an attachment.
+    ///
+    /// - Returns: The NSRange of the attachment represented by the view, or nil.
+    ///
+    public func rangeOfAttachmentForView(view: UIView) -> NSRange? {
+        var rangeOfAttachment: NSRange?
+
+        guard let targetAttachment = attachmentForView(view),
+            textStorage = layoutManager.textStorage else
+        {
+            return rangeOfAttachment
+        }
+
+        textStorage.enumerateAttribute(NSAttachmentAttributeName,
+                                       inRange: NSMakeRange(0, textStorage.length),
+                                       options: [],
+                                       usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                                        guard let attachment = object as? AztecTextAttachment else {
+                                            return
+                                        }
+                                        if attachment == targetAttachment {
+                                            rangeOfAttachment = range
+                                        }
+
+        })
+        return rangeOfAttachment
+    }
+
+
     /// Returns the custom view for the specified AztecTextAttachment or nil if not found.
     ///
     /// - Parameters:

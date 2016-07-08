@@ -9,6 +9,7 @@ class DraggableDemoController: UIViewController
 {
 
     @IBOutlet var textView: UITextView!
+    @IBOutlet var markerView: UIView!
 
     var attachmentManager: AztecAttachmentManager!
     var attachmentViewList = [String: UIView]()
@@ -30,6 +31,7 @@ class DraggableDemoController: UIViewController
         textView.attributedText = buildAttributedString()
         attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
 
+        hideMarkerView()
     }
 
 
@@ -54,6 +56,86 @@ class DraggableDemoController: UIViewController
         attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
 
         return NSAttributedString(attributedString: attrStr)
+    }
+
+
+
+    func handleLongPressGesture(gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .Began {
+            print("pressed")
+            moveMarkerView( gesture.locationInView(textView) )
+            showMarkerView()
+        }
+
+        if gesture.state == .Changed {
+            print("dragging")
+            moveMarkerView( gesture.locationInView(textView) )
+        }
+
+        if gesture.state == .Ended {
+            print("released")
+            let targetView = gesture.view!
+            let point = gesture.locationInView(targetView)
+            if targetView.bounds.contains(point) {
+                hideMarkerView()
+            } else {
+                showPrompt(gesture.locationInView(textView), targetView: targetView)
+            }
+        }
+    }
+
+
+    func showMarkerView() {
+        markerView.hidden = false
+    }
+
+
+    func moveMarkerView(point: CGPoint) {
+        var frame = markerView.frame
+        frame.origin.x = point.x
+        frame.origin.y = point.y
+        markerView.frame = frame
+    }
+
+
+    func hideMarkerView() {
+        markerView.hidden = true
+    }
+
+
+    func showPrompt(point: CGPoint, targetView: UIView) {
+        print("prompt")
+        let controller = UIAlertController(title: "Here?", message: nil, preferredStyle: .Alert)
+        controller.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            self.hideMarkerView()
+        }))
+        controller.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action) in
+            self.hideMarkerView()
+            self.moveAttachment(point, targetView: targetView)
+        }))
+        presentViewController(controller, animated: true, completion: nil)
+    }
+
+
+    func moveAttachment(point: CGPoint, targetView: UIView) {
+        // UITextRange
+        let textRange = textView.characterRangeAtPoint(point)!
+        var location = textView.offsetFromPosition(textView.beginningOfDocument, toPosition: textRange.start)
+
+        // NSRange
+        let attachmentRange = attachmentManager.rangeOfAttachmentForView(targetView)!
+        let attachmentAttrStr = textView.textStorage.attributedSubstringFromRange(attachmentRange)
+
+        // TODO: Adjust location if its after the attachmentRange
+        if location > attachmentRange.location {
+            location -= attachmentRange.length
+        }
+
+        // Remove the existing attachment
+        textView.textStorage.replaceCharactersInRange(attachmentRange, withString: "")
+
+        // Insert the attachment
+        textView.textStorage.insertAttributedString(attachmentAttrStr, atIndex: location)
     }
 
 }
@@ -88,6 +170,9 @@ extension DraggableDemoController : AztecAttachmentManagerDelegate
         label.textAlignment = .Center
         label.backgroundColor = UIColor.lightGrayColor()
         label.font = UIFont.systemFontOfSize(20)
+
+        let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(DraggableDemoController.handleLongPressGesture))
+        label.addGestureRecognizer(lpgr)
 
         attachmentViewList[attachment.identifier] = label
 
