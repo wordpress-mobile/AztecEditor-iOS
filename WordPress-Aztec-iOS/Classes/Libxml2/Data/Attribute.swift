@@ -1,19 +1,17 @@
-extension HTML {
+extension Libxml2.HTML {
 
     /// Represents a basic attribute with no value.  This is also the base class for all other
     /// attributes.
     ///
-    class Attribute: CustomDebugStringConvertible {
+    class Attribute: CustomReflectable {
         let name: String
 
         init(name: String) {
             self.name = name
         }
 
-        public var debugDescription: String {
-            get {
-                return "<\(String(self.dynamicType)): {name: \(name)}>"
-            }
+        public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name])
         }
     }
 
@@ -30,10 +28,8 @@ extension HTML {
             super.init(name: name)
         }
 
-        override public var debugDescription: String {
-            get {
-                return "<\(String(self.dynamicType)): {name: \(name); value: \(value)}>"
-            }
+        override public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .Suppressed)
         }
     }
 }

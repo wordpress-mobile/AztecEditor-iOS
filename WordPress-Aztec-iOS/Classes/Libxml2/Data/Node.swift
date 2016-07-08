@@ -1,16 +1,14 @@
-extension HTML {
+extension Libxml2.HTML {
 
     /// Base class for all node types.
     ///
-    public class Node: CustomDebugStringConvertible {
+    public class Node: CustomReflectable {
 
         private(set) var attributes = [Attribute]()
         let name: String
 
-        public var debugDescription: String {
-            get {
-                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes))}>"
-            }
+        public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "attributes": attributes])
         }
 
         init(name: String, attributes: [Attribute]) {
@@ -25,16 +23,14 @@ extension HTML {
 
         let children: [Node]
 
-        override public var debugDescription: String {
-            get {
-                return "<\(String(self.dynamicType)): {name: \(name); attributes: \(String(attributes)); children: \(String(children))}>"
-            }
-        }
-
         init(name: String, attributes: [Attribute], children: [Node]) {
             self.children = children
 
             super.init(name: name, attributes: attributes)
+        }
+
+        override public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
     }
 
@@ -44,16 +40,14 @@ extension HTML {
 
         let text: String
 
-        override public var debugDescription: String {
-            get {
-                return "<\(String(self.dynamicType)): {name: \(name); text: \(String(text)); attributes: \(String(attributes))}>"
-            }
-        }
-
         init(name: String, text: String, attributes: [Attribute]) {
             self.text = text
 
             super.init(name: name, attributes: attributes)
+        }
+
+        override public func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "text": text, "attributes": attributes], ancestorRepresentation: .Suppressed)
         }
     }
 }
