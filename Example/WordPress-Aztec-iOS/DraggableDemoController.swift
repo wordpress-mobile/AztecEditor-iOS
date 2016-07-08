@@ -29,11 +29,11 @@ class DraggableDemoController: UIViewController
         textView.layoutManager.delegate = self
         textView.delegate = self
         textView.attributedText = buildAttributedString()
+        textView.setContentOffset(CGPointZero, animated: false)
         attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
 
         hideMarkerView()
     }
-
 
 
     func buildAttributedString() -> NSAttributedString {
@@ -52,8 +52,6 @@ class DraggableDemoController: UIViewController
         attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
         attrStr.appendAttributedString(NSAttributedString(attachment: attachment2))
         attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
-        attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
-        attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
 
         return NSAttributedString(attributedString: attrStr)
     }
@@ -63,13 +61,13 @@ class DraggableDemoController: UIViewController
     func handleLongPressGesture(gesture: UILongPressGestureRecognizer) {
         if gesture.state == .Began {
             print("pressed")
-            moveMarkerView( gesture.locationInView(textView) )
+            moveMarkerView( gesture.locationInView(view) )
             showMarkerView()
         }
 
         if gesture.state == .Changed {
             print("dragging")
-            moveMarkerView( gesture.locationInView(textView) )
+            moveMarkerView( gesture.locationInView(view) )
         }
 
         if gesture.state == .Ended {
@@ -126,16 +124,15 @@ class DraggableDemoController: UIViewController
         let attachmentRange = attachmentManager.rangeOfAttachmentForView(targetView)!
         let attachmentAttrStr = textView.textStorage.attributedSubstringFromRange(attachmentRange)
 
-        // TODO: Adjust location if its after the attachmentRange
         if location > attachmentRange.location {
             location -= attachmentRange.length
         }
 
-        // Remove the existing attachment
+        // Remove the attachment
         textView.textStorage.replaceCharactersInRange(attachmentRange, withString: "")
-
         // Insert the attachment
         textView.textStorage.insertAttributedString(attachmentAttrStr, atIndex: location)
+        attachmentManager.updateAttachmentLayout()
     }
 
 }
@@ -170,6 +167,7 @@ extension DraggableDemoController : AztecAttachmentManagerDelegate
         label.textAlignment = .Center
         label.backgroundColor = UIColor.lightGrayColor()
         label.font = UIFont.systemFontOfSize(20)
+        label.userInteractionEnabled = true
 
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(DraggableDemoController.handleLongPressGesture))
         label.addGestureRecognizer(lpgr)
