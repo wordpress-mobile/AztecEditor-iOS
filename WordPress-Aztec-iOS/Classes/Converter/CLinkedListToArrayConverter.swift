@@ -45,14 +45,14 @@ class CLinkedListToArrayConverter<ElementConverterType: Converter>: Converter {
         self.next = next
     }
 
-    func convert(inputPtr: TypeIn) -> TypeOut {
+    func convert(inputPtr: TypeIn) throws -> TypeOut {
         var result = TypeOut()
         var currentPtr = inputPtr
 
         while currentPtr != nil {
             let element = currentPtr.memory
 
-            result.append(elementConverter.convert(element))
+            result.append(try elementConverter.convert(element))
 
             currentPtr = next(current: element)
         }

@@ -19,5 +19,5 @@ protocol Converter {
     ///
     /// - Returns: the converted object.
     ///
-    func convert(input: TypeIn) -> TypeOut
+    func convert(input: TypeIn) throws -> TypeOut
 }

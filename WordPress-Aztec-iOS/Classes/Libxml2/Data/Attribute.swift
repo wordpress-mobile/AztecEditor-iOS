@@ -1,4 +1,4 @@
-extension HTML {
+extension Libxml2.HTML {
 
     /// Represents a basic attribute with no value.  This is also the base class for all other
     /// attributes.

@@ -4,7 +4,9 @@ import libxml2
 extension Libxml2.In {
     public class HTMLConverter: Converter {
 
-        static let nodeNSStringAttributeName = "HMTLNode"
+        enum Error: String, ErrorType {
+            case NoRootNode = "No root node"
+        }
 
         /// Not sure why, but the compiler is requiring this initializer.
         ///
@@ -18,7 +20,7 @@ extension Libxml2.In {
         ///
         /// - Returns: an attributed string representing the specified HTML data.
         ///
-        public func convert(html: NSData) -> NSAttributedString {
+        public func convert(html: NSData) throws -> Libxml2.HTML.Node {
 
             // We don't want <p> tags added automattically.
             //
@@ -65,12 +67,12 @@ extension Libxml2.In {
                 // it to bypass this behaviour.
                 //
                 let nodeConverter = NodeConverter()
-                let node = nodeConverter.convert(rootNode)
+                let node = try nodeConverter.convert(rootNode)
 
-                result.addAttribute(self.dynamicType.nodeNSStringAttributeName, value: node, range: NSRange(location: 0, length: 0))
+                return node
+            } else {
+                throw Error.NoRootNode
             }
-
-            return result
         }
     }
 }

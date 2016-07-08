@@ -16,23 +16,23 @@ extension Libxml2.In {
         ///
         /// - Returns: an HTML.Node.
         ///
-        func convert(rawNode: xmlNode) -> Node {
+        func convert(rawNode: xmlNode) throws -> Node {
             var node: Node!
 
             let nodeName = getNodeName(rawNode)
 
             if nodeName.lowercaseString == "text" {
-                node = createTextNode(rawNode)
+                node = try createTextNode(rawNode)
             } else {
-                node = createElementNode(rawNode)
+                node = try createElementNode(rawNode)
             }
 
             return node
         }
 
-        private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
+        private func createAttributes(fromNode rawNode: xmlNode) throws -> [Attribute] {
             let attributesConverter = AttributesConverter()
-            return attributesConverter.convert(rawNode.properties)
+            return try attributesConverter.convert(rawNode.properties)
         }
 
         /// Creates an HTML.Node from a libxml2 element node.
@@ -42,16 +42,16 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.ElementNode
         ///
-        private func createElementNode(rawNode: xmlNode) -> Node {
+        private func createElementNode(rawNode: xmlNode) throws -> Node {
             let nodeName = getNodeName(rawNode)
             var children = [Node]()
 
             if rawNode.children != nil {
                 let nodesConverter = NodesConverter()
-                children.appendContentsOf(nodesConverter.convert(rawNode.children))
+                children.appendContentsOf(try nodesConverter.convert(rawNode.children))
             }
 
-            let attributes = createAttributes(fromNode: rawNode)
+            let attributes = try createAttributes(fromNode: rawNode)
             let node = ElementNode(name: nodeName, attributes: attributes, children: children)
 
             return node
@@ -64,11 +64,11 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.TextNode
         ///
-        private func createTextNode(rawNode: xmlNode) -> TextNode {
+        private func createTextNode(rawNode: xmlNode) throws -> TextNode {
             let nodeName = getNodeName(rawNode)
 
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let attributes = createAttributes(fromNode: rawNode)
+            let attributes = try createAttributes(fromNode: rawNode)
             let node = TextNode(name: nodeName, text: text, attributes: attributes)
 
             return node

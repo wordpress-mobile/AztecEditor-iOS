@@ -1,4 +1,4 @@
-extension HTML {
+extension Libxml2.HTML {
 
     /// Base class for all node types.
     ///

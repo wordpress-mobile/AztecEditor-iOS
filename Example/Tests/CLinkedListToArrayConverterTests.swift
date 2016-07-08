@@ -45,12 +45,16 @@ class CLinkedListToArrayConverterTests: XCTestCase {
         let elementConverter = TestStructToClassConverter()
         let listToArrayConverter = CLinkedListToArrayConverter(elementConverter: elementConverter, next: { return $0.next })
 
-        let array = listToArrayConverter.convert(&struct1)
+        do {
+            let array = try listToArrayConverter.convert(&struct1)
 
-        XCTAssertEqual(array.count, structArray.count)
+            XCTAssertEqual(array.count, structArray.count)
 
-        for (index, element) in array.enumerate() {
-            XCTAssertEqual(element.name, structArray[index].name)
+            for (index, element) in array.enumerate() {
+                XCTAssertEqual(element.name, structArray[index].name)
+            }
+        } catch {
+            XCTFail("Unexpected exception caught.")
         }
     }
 }
