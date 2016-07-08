@@ -28,11 +28,18 @@ class DraggableDemoController: UIViewController
 
         textView.layoutManager.delegate = self
         textView.delegate = self
-        textView.attributedText = buildAttributedString()
-        textView.setContentOffset(CGPointZero, animated: false)
+
         attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
 
         hideMarkerView()
+    }
+
+
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+
+        textView.attributedText = buildAttributedString()
+        attachmentManager.updateAttachmentLayout()
     }
 
 
@@ -57,21 +64,17 @@ class DraggableDemoController: UIViewController
     }
 
 
-
     func handleLongPressGesture(gesture: UILongPressGestureRecognizer) {
         if gesture.state == .Began {
-            print("pressed")
             moveMarkerView( gesture.locationInView(view) )
             showMarkerView()
         }
 
         if gesture.state == .Changed {
-            print("dragging")
             moveMarkerView( gesture.locationInView(view) )
         }
 
         if gesture.state == .Ended {
-            print("released")
             let targetView = gesture.view!
             let point = gesture.locationInView(targetView)
             if targetView.bounds.contains(point) {
@@ -102,7 +105,6 @@ class DraggableDemoController: UIViewController
 
 
     func showPrompt(point: CGPoint, targetView: UIView) {
-        print("prompt")
         let controller = UIAlertController(title: "Here?", message: nil, preferredStyle: .Alert)
         controller.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
             self.hideMarkerView()
