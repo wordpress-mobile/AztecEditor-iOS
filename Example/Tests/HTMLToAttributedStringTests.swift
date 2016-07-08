@@ -12,23 +12,8 @@ class HTMLToAttributedStringTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    /*
-     func testExample() {
-     let parser = Libxml2.HTMLConverter()
 
-     let html = "<HTML style='a' nostye peace='123'>Hello World!</HTML>"
-     let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
-     let output = parser.convert(htmlData)
-
-     if output.length > 0 {
-     var range = NSRange(location: 0, length: output.length)
-     let attributes = output.attributesAtIndex(0, effectiveRange: &range)
-     print(output, attributes)
-     }
-     }
-     */
-
-    func testExample2() {
+    func testSimpleBoldStringConversion() {
         let parser = HTMLToAttributedString()
 
         let html = "<bold>Hello</bold>"
@@ -36,10 +21,16 @@ class HTMLToAttributedStringTests: XCTestCase {
 
         do {
             let string = try parser.convert(htmlData)
+            let attributes = string.attributesAtIndex(0, effectiveRange: nil)
 
+            XCTAssert(attributes.count == 1 && attributes.keys.contains("HTMLTag"))
 
+            guard let boldAttribute = attributes[HTMLTagStringAttribute.key] as? HTMLTagStringAttribute else {
+                XCTFail("No bold string attribute found.")
+                return
+            }
 
-            print(string)
+            XCTAssert(boldAttribute.name == "bold")
         } catch {
             XCTFail("Unexpected conversion failure.")
         }

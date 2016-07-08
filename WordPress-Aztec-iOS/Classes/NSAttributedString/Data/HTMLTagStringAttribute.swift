@@ -2,7 +2,9 @@ import Foundation
 
 /// Custom attribute for NSAttributedString, representing any HTML tag.
 ///
-class HTMLTag {
+class HTMLTagStringAttribute {
+
+    static let key = "HTMLTag"
 
     /// The tag name.  The node name.  For example in the case of `<strong>` the name would be
     /// "strong".
