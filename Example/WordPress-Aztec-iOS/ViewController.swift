@@ -17,7 +17,8 @@ class ViewController: UITableViewController
 
         rows = [
             DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
-            DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() })
+            DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
+            DemoRow(title: "Formatter Demo", action: { self.showFormatterDemo() })
         ]
     }
 
@@ -36,6 +37,11 @@ class ViewController: UITableViewController
         navigationController?.pushViewController(controller, animated: true)
     }
 
+
+    func showFormatterDemo() {
+        let controller = FormattingDemoController.controller()
+        navigationController?.pushViewController(controller, animated: true)
+    }
 
     // MARK: TableView Methods
 

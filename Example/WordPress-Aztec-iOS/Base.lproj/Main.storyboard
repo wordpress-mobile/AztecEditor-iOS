@@ -113,6 +113,63 @@
             </objects>
             <point key="canvasLocation" x="2225" y="784"/>
         </scene>
+        <!--Formatting Demo Controller-->
+        <scene sceneID="QoB-mb-HpZ">
+            <objects>
+                <viewController storyboardIdentifier="FormattingDemoController" id="aP0-C6-qlL" customClass="FormattingDemoController" customModule="WordPress_Aztec_iOS_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="wH8-LD-nRE"/>
+                        <viewControllerLayoutGuide type="bottom" id="6EB-tz-iNk"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="sdZ-dG-t9p">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DeM-yw-u6b">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <attributedString key="attributedText"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZEK-ad-Hg3">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                <items>
+                                    <barButtonItem title="B" id="fPu-Uf-Zs9">
+                                        <connections>
+                                            <action selector="boldAction" destination="aP0-C6-qlL" id="iou-iH-RqX"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="I" id="03a-3g-pfT">
+                                        <connections>
+                                            <action selector="italicAction" destination="aP0-C6-qlL" id="Awb-EG-erY"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="U" id="5Dx-hh-6Ih">
+                                        <connections>
+                                            <action selector="underlineAction" destination="aP0-C6-qlL" id="Ura-kj-tjf"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Item" id="sIs-7D-eto"/>
+                                </items>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="DeM-yw-u6b" firstAttribute="top" secondItem="wH8-LD-nRE" secondAttribute="bottom" constant="-20" id="1dO-8h-7HA"/>
+                            <constraint firstItem="6EB-tz-iNk" firstAttribute="top" secondItem="DeM-yw-u6b" secondAttribute="bottom" id="Vbv-gs-1qn"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="DeM-yw-u6b" secondAttribute="trailing" constant="-20" id="d3j-M0-cKT"/>
+                            <constraint firstItem="DeM-yw-u6b" firstAttribute="leading" secondItem="sdZ-dG-t9p" secondAttribute="leadingMargin" constant="-20" id="umE-Hw-DHP"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <connections>
+                        <outlet property="textView" destination="DeM-yw-u6b" id="pdX-Ki-Zqr"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dZE-wo-AZx" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2225" y="1464"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="Wbq-aX-QcZ">
             <objects>
