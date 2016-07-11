@@ -682,6 +682,10 @@ referenceSizeForFooterInSection:(NSInteger)section
             [self.picker.delegate mediaPickerController:self.picker didFinishPickingAssets:[self.selectedAssets copy]];
         }
     }
+    NSInteger positionToUpdate = self.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
+    [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
+                                      animated:YES
+                                scrollPosition:UICollectionViewScrollPositionNone];
 }
 
 #pragma mark - UIImagePickerControllerDelegate
