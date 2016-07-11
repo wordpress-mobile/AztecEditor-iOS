@@ -22,16 +22,16 @@ extension Libxml2.In {
         ///
         public func convert(html: NSData) throws -> Libxml2.HTML.Node {
 
-            // We don't want <p> tags added automattically.
-            //
-            htmlHandleOmittedElem(0)
-
             let result = NSMutableAttributedString()
             let bufferSize = 1024
             let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
             let htmlPtr = UnsafePointer<Int8>(html.bytes)
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
+
+            // We don't want <p> tags added automattically.
+            //
+            htmlHandleOmittedElem(0)
 
             let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
 

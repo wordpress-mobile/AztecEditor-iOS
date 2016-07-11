@@ -43,9 +43,14 @@ class HMTLNodeToAttributedString: Converter {
             finalContent.appendAttributedString(content)
         }
 
-        let tag = HTMLTagStringAttribute(name: elementNode.name)
+        let tag = HTMLTagMetaData(name: elementNode.name)
 
-        finalContent.addAttribute("HTMLTag", value: tag, range: NSRange(location: 0, length: finalContent.length))
+        if let firstTag = finalContent.firstTag(forRange: NSRange(location: 0, length: finalContent.length)) {
+            tag.next = firstTag
+            firstTag.previous = tag
+        }
+
+        finalContent.addAttribute(tag.key(), value: tag, range: NSRange(location: 0, length: finalContent.length))
 
         return finalContent
     }
@@ -61,7 +66,7 @@ class HMTLNodeToAttributedString: Converter {
     private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
         assert(elementNode.children.count == 0)
 
-        let tag = HTMLTagStringAttribute(name: elementNode.name)
+        let tag = HTMLTagMetaData(name: elementNode.name)
 
         let placeholderContent: String
 
