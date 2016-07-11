@@ -20,6 +20,11 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetDataSource : NSObject<WPMediaCol
 /**
  An implementation of the WPMediaGroup protocol using the PHAssetCollection class
  */
-@interface PHAssetCollection(WPMediaGroup)<WPMediaGroup>
+@interface PHAssetCollectionForWPMediaGroup:NSObject <WPMediaGroup>
+
+@property(nonatomic, strong) PHAssetCollection *collection;
+@property(nonatomic, assign) WPMediaType mediaType;
+
+- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType;
 
 @end
