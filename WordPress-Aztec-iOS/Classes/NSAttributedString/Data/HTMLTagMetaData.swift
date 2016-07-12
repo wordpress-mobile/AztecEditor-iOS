@@ -14,12 +14,23 @@ class HTMLTagMetaData: CustomReflectable {
     ///
     let uuid = NSUUID().UUIDString
 
-    weak var previous: HTMLTagMetaData?
-    weak var next: HTMLTagMetaData?
+    // MARK: - Tag hierarchy
+
+    /// Child tag.
+    ///
+    weak var child: HTMLTagMetaData?
+
+    /// Parent tag.
+    ///
+    weak var parent: HTMLTagMetaData?
+
+    // MARK: - Init
 
     init(name: String) {
         self.name = name
     }
+
+    // MARK: - Attribute Key
 
     static func key(forTagNamed name: String, uniqueId uuid: String) -> String {
         return "Aztec.HTMLTag.\(name).\(uuid)"
@@ -32,6 +43,6 @@ class HTMLTagMetaData: CustomReflectable {
     // MARK: - CustomReflectable
 
     public func customMirror() -> Mirror {
-        return Mirror(self, children: ["name": name, "previous": previous, "next": next])
+        return Mirror(self, children: ["name": name, "parent": parent, "child": child])
     }
 }

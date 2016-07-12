@@ -45,9 +45,9 @@ class HMTLNodeToAttributedString: Converter {
 
         let tag = HTMLTagMetaData(name: elementNode.name)
 
-        if let firstTag = finalContent.firstTag(forRange: NSRange(location: 0, length: finalContent.length)) {
-            tag.next = firstTag
-            firstTag.previous = tag
+        if let firstTag = finalContent.firstTag(matchingRange: NSRange(location: 0, length: finalContent.length)) {
+            tag.child = firstTag
+            firstTag.parent = tag
         }
 
         finalContent.addAttribute(tag.key(), value: tag, range: NSRange(location: 0, length: finalContent.length))
