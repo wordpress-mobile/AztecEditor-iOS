@@ -15,7 +15,7 @@ class HTMLToAttributedStringTests: XCTestCase {
 
     /// Test the conversion of a single tag at the root level to `NSAttributedString`.
     ///
-    /// Example: <bold><italic>Hello</italic></bold>
+    /// Example: <bold>Hello</bold>
     ///
     func testSimpleTagToStringConversion() {
 
@@ -31,6 +31,37 @@ class HTMLToAttributedStringTests: XCTestCase {
                 let string = try parser.convert(htmlData)
 
                 guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
+                    XCTFail("Expected to find the first tag.")
+                    return
+                }
+
+                XCTAssert(firstTag.parent == nil)
+                XCTAssert(firstTag.name == tagNames[index].lowercaseString)
+                XCTAssert(firstTag.child == nil)
+            } catch {
+                XCTFail("Unexpected conversion failure.")
+            }
+        }
+    }
+
+    /// Test the conversion of a single tag at a non-root level to `NSAttributedString`.
+    ///
+    /// Example: Hello <italic>world</italic>!
+    ///
+    func testSimpleTagAtNonRootLevelToStringConversion() {
+
+        let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
+
+        for (index, tagName) in tagNames.enumerate() {
+            let parser = HTMLToAttributedString()
+
+            let html = "Hello <\(tagName)>world</\(tagName)>!"
+            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+
+            do {
+                let string = try parser.convert(htmlData)
+
+                guard let firstTag = string.firstTag(insideRange: NSRange(location: 0, length: string.length)) else {
                     XCTFail("Expected to find the first tag.")
                     return
                 }
