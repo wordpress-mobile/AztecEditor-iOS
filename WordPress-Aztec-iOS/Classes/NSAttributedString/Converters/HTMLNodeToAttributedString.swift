@@ -78,6 +78,6 @@ class HMTLNodeToAttributedString: Converter {
             placeholderContent = objectReplacementCharacter
         }
 
-        return NSAttributedString(string: placeholderContent, attributes: ["HTMLTag": tag])
+        return NSAttributedString(string: placeholderContent, attributes: [tag.key(): tag])
     }
 }
