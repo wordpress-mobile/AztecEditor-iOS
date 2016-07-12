@@ -11,7 +11,6 @@ class CursorCalloutDemoController: UIViewController
     @IBOutlet var textView: UITextView!
 
     var popover: UIViewController?
-    var editor: AztecTextEditor!
 
 
     ///
