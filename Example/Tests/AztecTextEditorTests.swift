@@ -1,7 +1,7 @@
 import XCTest
 import Aztec
 
-class AztecTextViewTests: XCTestCase {
+class AztecTextEditorTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
