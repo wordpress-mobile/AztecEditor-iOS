@@ -18,21 +18,34 @@ class HTMLConverterTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-/*
-    func testExample() {
-        let parser = Libxml2.HTMLConverter()
 
-        let html = "<HTML style='a' nostye peace='123'>Hello World!</HTML>"
+    func testSimpleHTMLConversion() {
+        let parser = Libxml2.In.HTMLConverter()
+
+        let html = "<bold>Hello!</bold>"
         let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
-        let output = parser.convert(htmlData)
 
-        if output.length > 0 {
-            var range = NSRange(location: 0, length: output.length)
-            let attributes = output.attributesAtIndex(0, effectiveRange: &range)
-            print(output, attributes)
+        do {
+            let node = try parser.convert(htmlData)
+
+            guard let htmlNode = node as? ElementNode else {
+                XCTFail("Expected an element node.")
+                return
+            }
+
+            XCTAssertEqual(htmlNode.name, "bold")
+            XCTAssertEqual(htmlNode.attributes.count, 0)
+
+            guard let textNode = htmlNode.children[0] as? TextNode else {
+                XCTFail("Expected a text node.")
+                return
+            }
+
+            XCTAssertEqual(textNode.text, "Hello!")
+        } catch {
+            XCTFail("Unexpected conversion failure.")
         }
     }
- */
 
     func testComplexHTMLConversion() {
         let parser = Libxml2.In.HTMLConverter()
