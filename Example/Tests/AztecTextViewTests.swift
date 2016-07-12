@@ -12,9 +12,11 @@ class AztecTextViewTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
-    func testAztecTextViewReferencesStorage() {
-        let textView = AztecTextView()
+
+    // Confirm the composed textView is property configured.
+    func testTextViewReferencesStorage() {
+
+        let textView = AztecTextEditor.createTextView()
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -28,6 +30,7 @@ class AztecTextViewTests: XCTestCase {
 
         XCTAssert(textView.textStorage == textView.layoutManager.textStorage)
         XCTAssert(textView.textStorage == textView.textContainer.layoutManager!.textStorage)
+        XCTAssert(textView.textStorage.isKindOfClass(AztecTextStorage))
     }
 
 }
