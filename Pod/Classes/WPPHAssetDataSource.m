@@ -386,6 +386,13 @@
 
 #pragma mark - WPPHAssetCollection
 
+@interface PHAssetCollectionForWPMediaGroup()
+
+@property(nonatomic, strong) PHAssetCollection *collection;
+@property(nonatomic, assign) WPMediaType mediaType;
+
+@end
+
 @implementation PHAssetCollectionForWPMediaGroup
 
 - (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType
