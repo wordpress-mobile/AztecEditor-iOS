@@ -67,7 +67,7 @@ extension Libxml2.In {
                 // it to bypass this behaviour.
                 //
                 let nodeConverter = NodeConverter()
-                let node = try nodeConverter.convert(rootNode)
+                let node = nodeConverter.convert(rootNode)
 
                 return node
             } else {

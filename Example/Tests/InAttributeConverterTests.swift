@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 import libxml2
 
-class Libxml2InAttributesConverterTests: XCTestCase {
+class InAttributesConverterTests: XCTestCase {
 
     typealias HTML = Libxml2.HTML
 

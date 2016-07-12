@@ -1,7 +1,7 @@
 import XCTest
 @testable import Aztec
 
-class HTMLConverterTests: XCTestCase {
+class InHTMLConverterTests: XCTestCase {
 
     typealias ElementNode = Libxml2.HTML.ElementNode
     typealias TextNode = Libxml2.HTML.TextNode
