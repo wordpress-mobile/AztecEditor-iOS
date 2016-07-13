@@ -19,7 +19,7 @@ public class AztecTextEditor : NSObject {
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
 
-        return UITextView(frame: CGRectZero, textContainer: container)
+        return UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
     }
 
 
