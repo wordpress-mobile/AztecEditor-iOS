@@ -26,7 +26,7 @@ class CLinkedListToArrayConverterTests: XCTestCase {
         }
     }
 
-    class TestStructToClassConverter: Converter {
+    class TestStructToClassConverter: SafeConverter {
         func convert(input: TestStruct) -> TestClass {
             let testClass = TestClass(name: input.name)
             return testClass
@@ -43,18 +43,14 @@ class CLinkedListToArrayConverterTests: XCTestCase {
         let structArray = [struct1, struct2, struct3, struct4]
 
         let elementConverter = TestStructToClassConverter()
-        let listToArrayConverter = CLinkedListToArrayConverter(elementConverter: elementConverter, next: { return $0.next })
+        let listToArrayConverter = SafeCLinkedListToArrayConverter(elementConverter: elementConverter, next: { return $0.next })
 
-        do {
-            let array = try listToArrayConverter.convert(&struct1)
+        let array = listToArrayConverter.convert(&struct1)
 
-            XCTAssertEqual(array.count, structArray.count)
+        XCTAssertEqual(array.count, structArray.count)
 
-            for (index, element) in array.enumerate() {
-                XCTAssertEqual(element.name, structArray[index].name)
-            }
-        } catch {
-            XCTFail("Unexpected exception caught.")
+        for (index, element) in array.enumerate() {
+            XCTAssertEqual(element.name, structArray[index].name)
         }
     }
 }
