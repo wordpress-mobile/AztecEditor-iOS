@@ -42,6 +42,7 @@
 		591D62711D2C0BB500AF4FA1 /* CLinkedListToArrayConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CLinkedListToArrayConverterTests.swift; sourceTree = "<group>"; };
 		591D62741D2C479400AF4FA1 /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		592CBEE91D301FEB005571B8 /* HTMLToAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedStringTests.swift; sourceTree = "<group>"; };
+		5993F2951D369CFC00919A22 /* UnsupportedTags.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = UnsupportedTags.rtf; path = "../WordPress-Aztec-iOS/Documentation/UnsupportedTags.rtf"; sourceTree = "<group>"; };
 		59BF3A201D2198F000F763A9 /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* WordPress-Aztec-iOS_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WordPress-Aztec-iOS_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -96,9 +97,18 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		5993F2941D369CCC00919A22 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				5993F2951D369CFC00919A22 /* UnsupportedTags.rtf */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				5993F2941D369CCC00919A22 /* Documentation */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
 				607FACE81AFB9204008FA782 /* Tests */,
