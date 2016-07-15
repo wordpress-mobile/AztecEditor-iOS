@@ -15,6 +15,7 @@ public class AztecFormatBarItem: UIBarButtonItem
 
     override public var tintColor: UIColor? {
         didSet {
+            button?.normalTintColor = tintColor
             button?.tintColor = tintColor
         }
     }
