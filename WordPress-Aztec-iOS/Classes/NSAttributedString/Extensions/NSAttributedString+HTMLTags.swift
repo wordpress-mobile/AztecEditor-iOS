@@ -4,7 +4,7 @@ extension NSAttributedString {
 
     /// Returns the first HTML tag for the specified range.
     ///
-    func firstTag(matchingRange range: NSRange) -> HTMLTagMetaData? {
+    func firstTag(matchingRange range: NSRange) -> HTMLNodeMetaData? {
 
         let tags = tagsAtIndex(range.location)
 
@@ -28,7 +28,7 @@ extension NSAttributedString {
 
     /// Returns the first HTML tag inside the specified range.
     ///
-    func firstTag(insideRange range: NSRange) -> HTMLTagMetaData? {
+    func firstTag(insideRange range: NSRange) -> HTMLNodeMetaData? {
 
         let tags = tagsInRange(range)
 
@@ -39,11 +39,11 @@ extension NSAttributedString {
         let fullRange = NSRange(location: 0, length: length)
         var tagRange = NSRange()
         var bestLocation = Int.max
-        var bestTag: HTMLTagMetaData? = nil
+        var bestTag: HTMLNodeMetaData? = nil
 
         enumerateAttributesInRange(range, options: NSAttributedStringEnumerationOptions(rawValue: 0)) { (attributes, attributesRange, stop) in
             for attributeData in attributes {
-                if let tagValue = attributeData.1 as? HTMLTagMetaData {
+                if let tagValue = attributeData.1 as? HTMLNodeMetaData {
                     let tagKey = attributeData.0
 
                     if let attribute = self.attribute(tagKey, atIndex: attributesRange.location, longestEffectiveRange: &tagRange, inRange: fullRange) {
@@ -81,12 +81,12 @@ extension NSAttributedString {
         return bestTag
     }
 
-    func tagsAtIndex(index: Int) -> [String: HTMLTagMetaData] {
+    func tagsAtIndex(index: Int) -> [String: HTMLNodeMetaData] {
 
-        var tags = [String: HTMLTagMetaData]()
+        var tags = [String: HTMLNodeMetaData]()
 
         attributesAtIndex(0, effectiveRange: nil).forEach { (key, value) in
-            if let tagValue = value as? HTMLTagMetaData {
+            if let tagValue = value as? HTMLNodeMetaData {
                 tags[key] = tagValue
             }
         }
@@ -94,13 +94,13 @@ extension NSAttributedString {
         return tags
     }
 
-    func tagsInRange(range: NSRange) -> [String: HTMLTagMetaData] {
+    func tagsInRange(range: NSRange) -> [String: HTMLNodeMetaData] {
 
-        var tags = [String: HTMLTagMetaData]()
+        var tags = [String: HTMLNodeMetaData]()
 
         enumerateAttributesInRange(range, options: NSAttributedStringEnumerationOptions(rawValue: 0)) { (attributes, range, stop) in
             for attribute in attributes {
-                if let tag = attribute.1 as? HTMLTagMetaData {
+                if let tag = attribute.1 as? HTMLNodeMetaData {
                     tags[attribute.0] = tag
                 }
             }

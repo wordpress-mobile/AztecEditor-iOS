@@ -5,7 +5,7 @@ extension Libxml2.In {
 
     /// Converts a C linked list of xmlNode to [HTML.Node].
     ///
-    class NodesConverter: CLinkedListToArrayConverter<NodeConverter> {
+    class NodesConverter: SafeCLinkedListToArrayConverter<NodeConverter> {
 
         required init() {
             super.init(elementConverter: NodeConverter(), next: { return $0.next })

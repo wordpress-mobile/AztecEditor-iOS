@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2.In {
-    class NodeConverter: Converter {
+    class NodeConverter: SafeConverter {
 
         typealias Attribute = HTML.Attribute
         typealias ElementNode = HTML.ElementNode
@@ -16,23 +16,23 @@ extension Libxml2.In {
         ///
         /// - Returns: an HTML.Node.
         ///
-        func convert(rawNode: xmlNode) throws -> Node {
+        func convert(rawNode: xmlNode) -> Node {
             var node: Node!
 
             let nodeName = getNodeName(rawNode)
 
             if nodeName.lowercaseString == "text" {
-                node = try createTextNode(rawNode)
+                node = createTextNode(rawNode)
             } else {
-                node = try createElementNode(rawNode)
+                node = createElementNode(rawNode)
             }
 
             return node
         }
 
-        private func createAttributes(fromNode rawNode: xmlNode) throws -> [Attribute] {
+        private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
             let attributesConverter = AttributesConverter()
-            return try attributesConverter.convert(rawNode.properties)
+            return attributesConverter.convert(rawNode.properties)
         }
 
         /// Creates an HTML.Node from a libxml2 element node.
@@ -42,16 +42,16 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.ElementNode
         ///
-        private func createElementNode(rawNode: xmlNode) throws -> Node {
+        private func createElementNode(rawNode: xmlNode) -> Node {
             let nodeName = getNodeName(rawNode)
             var children = [Node]()
 
             if rawNode.children != nil {
                 let nodesConverter = NodesConverter()
-                children.appendContentsOf(try nodesConverter.convert(rawNode.children))
+                children.appendContentsOf(nodesConverter.convert(rawNode.children))
             }
 
-            let attributes = try createAttributes(fromNode: rawNode)
+            let attributes = createAttributes(fromNode: rawNode)
             let node = ElementNode(name: nodeName, attributes: attributes, children: children)
 
             return node
@@ -64,11 +64,11 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.TextNode
         ///
-        private func createTextNode(rawNode: xmlNode) throws -> TextNode {
+        private func createTextNode(rawNode: xmlNode) -> TextNode {
             let nodeName = getNodeName(rawNode)
 
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let attributes = try createAttributes(fromNode: rawNode)
+            let attributes = createAttributes(fromNode: rawNode)
             let node = TextNode(name: nodeName, text: text, attributes: attributes)
 
             return node

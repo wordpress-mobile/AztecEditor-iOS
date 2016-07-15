@@ -1,10 +1,12 @@
 import Foundation
 
-class HMTLNodeToAttributedString: Converter {
+class HMTLNodeToAttributedString: SafeConverter {
     typealias HTML = Libxml2.HTML
     typealias ElementNode = HTML.ElementNode
     typealias Node = HTML.Node
     typealias TextNode = HTML.TextNode
+
+    let attributesConverter = HTMLAttributesToAttributesMetaData()
 
     func convert(node: Node) -> NSAttributedString {
 
@@ -43,7 +45,8 @@ class HMTLNodeToAttributedString: Converter {
             finalContent.appendAttributedString(content)
         }
 
-        let tag = HTMLTagMetaData(name: elementNode.name)
+        let attributes = attributesConverter.convert(elementNode.attributes)
+        let tag = HTMLNodeMetaData(name: elementNode.name, attributes: attributes)
 
         if let firstTag = finalContent.firstTag(matchingRange: NSRange(location: 0, length: finalContent.length)) {
             tag.child = firstTag
@@ -66,7 +69,7 @@ class HMTLNodeToAttributedString: Converter {
     private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
         assert(elementNode.children.count == 0)
 
-        let tag = HTMLTagMetaData(name: elementNode.name)
+        let tag = HTMLNodeMetaData(name: elementNode.name, attributes: [])
 
         let placeholderContent: String
 

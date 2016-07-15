@@ -1,13 +1,17 @@
 import Foundation
 
-/// Class for storing meta-data for a single HTML tag.
+/// Class for storing meta-data for a single HTML node.
 ///
-class HTMLTagMetaData: CustomReflectable {
+class HTMLNodeMetaData: CustomReflectable {
 
     /// The tag name.  The node name.  For example in the case of `<strong>` the name would be
     /// "strong".
     ///
     var name: String
+
+    /// The HTML attributes for this node.
+    ///
+    var attributes = [HTMLAttributeMetaData]()
 
     /// Unique ID to identify the tag.  Unfortunately we can't just use the tag name because
     /// doing so would break in cases such as `<div><div>...content...</div></div>`.
@@ -18,16 +22,17 @@ class HTMLTagMetaData: CustomReflectable {
 
     /// Child tag.
     ///
-    weak var child: HTMLTagMetaData?
+    weak var child: HTMLNodeMetaData?
 
     /// Parent tag.
     ///
-    weak var parent: HTMLTagMetaData?
+    weak var parent: HTMLNodeMetaData?
 
     // MARK: - Init
 
-    init(name: String) {
+    init(name: String, attributes: [HTMLAttributeMetaData]) {
         self.name = name
+        self.attributes.appendContentsOf(attributes)
     }
 
     // MARK: - Attribute Key
