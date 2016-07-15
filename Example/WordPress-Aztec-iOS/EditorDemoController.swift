@@ -9,22 +9,25 @@ class EditorDemoController: UIViewController
     private(set) var isShowingKeyboard = false
     private var bottomConstraint: NSLayoutConstraint?
 
-    lazy var textView: UITextView = {
+    private(set) lazy var textView: UITextView = {
         let tv = AztecTextEditor.createTextView()
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
         tv.accessibilityLabel = NSLocalizedString("Content", comment: "Post content")
         tv.delegate = self
         tv.font = font
-        tv.inputAccessoryView = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
+        tv.inputAccessoryView = AztecFormatBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
+
+        tv.addSubview(self.titleTextField)
+        tv.addSubview(self.separatorView)
 
         return tv
     }()
 
 
-    lazy var titleTextField: UITextField = {
+    private(set) lazy var titleTextField: UITextField = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
         let tf = UITextField()
 
@@ -34,7 +37,9 @@ class EditorDemoController: UIViewController
         tf.autoresizingMask = [UIViewAutoresizing.FlexibleWidth]
         tf.delegate = self
         tf.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
-        tf.inputAccessoryView = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
+        let toolbar = AztecFormatBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
+        toolbar.enabled = false
+        tf.inputAccessoryView = toolbar
         tf.returnKeyType = .Next
         tf.textColor = UIColor.darkTextColor()
 
@@ -42,7 +47,7 @@ class EditorDemoController: UIViewController
     }()
 
 
-    lazy var separatorView: UIView = {
+    private(set) lazy var separatorView: UIView = {
         let v = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
         v.autoresizingMask = [.FlexibleWidth]
@@ -50,6 +55,58 @@ class EditorDemoController: UIViewController
 
         return v
     }()
+
+
+    var titleFont: UIFont? {
+        get {
+            return titleTextField.font
+        }
+        set {
+            titleTextField.font = newValue
+            layoutTextView()
+        }
+    }
+
+
+    var titleColor: UIColor? {
+        get {
+            return titleTextField.textColor
+        }
+        set {
+            titleTextField.textColor = newValue
+        }
+    }
+
+
+    var bodyFont: UIFont? {
+        get {
+            return textView.font
+        }
+        set {
+            textView.font = newValue
+            layoutTextView()
+        }
+    }
+
+
+    var bodyColor: UIColor? {
+        get {
+            return textView.textColor
+        }
+        set {
+            textView.textColor = newValue
+        }
+    }
+
+
+    var separatorColor: UIColor? {
+        get {
+            return separatorView.backgroundColor
+        }
+        set {
+            separatorView.backgroundColor = newValue
+        }
+    }
 
 
     // MARK: - Lifecycle Methods
@@ -64,8 +121,8 @@ class EditorDemoController: UIViewController
         super.viewDidLoad()
 
         view.addSubview(textView)
-        configureTextView()
         configureConstraints()
+        layoutTextView()
     }
 
 
@@ -97,22 +154,6 @@ class EditorDemoController: UIViewController
     // MARK: - Configuration Methods
 
 
-    func configureTextView() {
-        let lineHeight = titleTextField.font!.lineHeight
-        let offset: CGFloat = 15.0
-        let width: CGFloat = textView.frame.width - (offset * 2)
-        let height: CGFloat = lineHeight * 2.0
-        titleTextField.frame = CGRect(x: offset, y: 0, width: width, height: height)
-        textView.addSubview(titleTextField)
-
-        separatorView.frame = CGRect(x: offset, y: titleTextField.frame.maxY, width: width, height: 1)
-        textView.addSubview(separatorView)
-
-        let top: CGFloat = separatorView.frame.maxY + lineHeight
-        textView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
-    }
-
-
     func configureConstraints() {
         let views = [
             "textView" : textView
@@ -130,6 +171,23 @@ class EditorDemoController: UIViewController
     }
 
 
+    // MARK: - Layout
+
+
+    func layoutTextView() {
+        let lineHeight = titleTextField.font!.lineHeight
+        let offset: CGFloat = 15.0
+        let width: CGFloat = textView.frame.width - (offset * 2)
+        let height: CGFloat = lineHeight * 2.0
+        titleTextField.frame = CGRect(x: offset, y: 0, width: width, height: height)
+
+        separatorView.frame = CGRect(x: offset, y: titleTextField.frame.maxY, width: width, height: 1)
+
+        let top: CGFloat = separatorView.frame.maxY + lineHeight
+        textView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
+    }
+
+
     // MARK: - Keyboard Handling
 
 
@@ -138,11 +196,13 @@ class EditorDemoController: UIViewController
 
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() else {
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue(),
+            let duration: NSTimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
+            else {
                 return
         }
         bottomConstraint?.constant = -(view.frame.maxY - keyboardFrame.minY)
-        UIView.animateWithDuration(0.25) {
+        UIView.animateWithDuration(duration) {
             self.view.layoutIfNeeded()
         }
     }
