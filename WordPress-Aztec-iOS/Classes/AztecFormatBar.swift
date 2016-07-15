@@ -71,6 +71,14 @@ public class AztecFormatBar: UIToolbar
     }()
 
 
+    lazy var htmlButton: AztecFormatBarItem = {
+        let image = self.getImageNamed("icon_format_html")
+        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleHtmlAction(_:)))
+        self.applyButtonStyle(button)
+        return button
+    }()
+
+
     public var enabled = true {
         didSet {
             guard let _ = items else {
@@ -134,6 +142,8 @@ public class AztecFormatBar: UIToolbar
             orderedListButton,
             flex,
             linkButton,
+            flex,
+            htmlButton,
             flex,
         ]
     }
@@ -199,4 +209,8 @@ public class AztecFormatBar: UIToolbar
         print("img")
     }
 
+
+    func handleHtmlAction(sender: AztecFormatBarItem) {
+        print("html")
+    }
 }
