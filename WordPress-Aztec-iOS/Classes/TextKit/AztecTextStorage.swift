@@ -50,4 +50,59 @@ public class AztecTextStorage: NSTextStorage {
 
         super.processEditing()
     }
+
+}
+
+public extension AztecTextStorage
+{
+
+
+
+    public func toggleFontTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
+        // Bail if nothing is selected
+        if range.length == 0 {
+            return
+        }
+
+        var assigning = false
+
+        // Assume we're removing the trait. If the trait is missing anywhere in the range assign it.
+        enumerateAttribute(NSFontAttributeName,
+                                   inRange: range,
+                                   options: [],
+                                   usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                                    guard let font = object as? UIFont else {
+                                        return
+                                    }
+                                    if !font.fontDescriptor().symbolicTraits.contains(trait) {
+                                        assigning = true
+                                        stop.memory = true
+                                    }
+        })
+
+        // Enumerate over each font and either assign or remove the trait.
+        enumerateAttribute(NSFontAttributeName,
+                                   inRange: range,
+                                   options: [],
+                                   usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                                    guard let font = object as? UIFont else {
+                                        return
+                                    }
+
+                                    var newTraits: UInt32
+                                    if assigning {
+                                        newTraits =  font.fontDescriptor().symbolicTraits.rawValue | trait.rawValue
+
+                                    } else {
+                                        newTraits =  font.fontDescriptor().symbolicTraits.rawValue & ~trait.rawValue
+                                    }
+
+                                    let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: newTraits))
+                                    let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
+
+                                    self.removeAttribute(NSFontAttributeName, range: range)
+                                    self.addAttribute(NSFontAttributeName, value: newFont, range: range)
+        })
+    }
+
 }

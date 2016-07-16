@@ -5,18 +5,25 @@ import Aztec
 
 class EditorDemoController: UIViewController
 {
-
-    private(set) var isShowingKeyboard = false
     private var bottomConstraint: NSLayoutConstraint?
 
+
+    private (set) lazy var editor: AztecVisualEditor = {
+        let e = AztecVisualEditor(textView: self.textView)
+        return e
+    }()
+
+
     private(set) lazy var textView: UITextView = {
-        let tv = AztecTextEditor.createTextView()
+        let tv = AztecVisualEditor.createTextView()
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
         tv.accessibilityLabel = NSLocalizedString("Content", comment: "Post content")
         tv.delegate = self
         tv.font = font
-        tv.inputAccessoryView = AztecFormatBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
+        let toolbar = AztecFormatBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0))
+        toolbar.formatter = self
+        tv.inputAccessoryView = toolbar
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
 
@@ -120,7 +127,11 @@ class EditorDemoController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // lazy load the editor
+        _ = editor
+
         view.addSubview(textView)
+
         configureConstraints()
         layoutTextView()
     }
@@ -192,8 +203,6 @@ class EditorDemoController: UIViewController
 
 
     func keyboardWillShow(notification: NSNotification) {
-        isShowingKeyboard = true
-
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue(),
@@ -209,20 +218,87 @@ class EditorDemoController: UIViewController
 
 
     func keyboardWillHide(notification: NSNotification) {
-        isShowingKeyboard = false
         bottomConstraint?.constant = 0
     }
 
+
+    func updateFormatBar() {
+        guard let toolbar = textView.inputAccessoryView as? AztecFormatBar else {
+            return
+        }
+        let identifiers = editor.styleIdentifiersAtIndex(textView.selectedRange.location)
+        toolbar.selectItemsMatchingIdentifiers(identifiers)
+    }
 }
 
 
 extension EditorDemoController : UITextViewDelegate
 {
-
+    func textViewDidChangeSelection(textView: UITextView) {
+        updateFormatBar()
+    }
 }
 
 
 extension EditorDemoController : UITextFieldDelegate
 {
 
+}
+
+
+extension EditorDemoController : AztecFormatBarDelegate
+{
+
+    func toggleBold() {
+        editor.toggleBold(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleItalic() {
+        editor.toggleItalic(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleUnderline() {
+        editor.toggleUnderline(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleStrikethrough() {
+        editor.toggleStrikethrough(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleOrderedList() {
+        editor.toggleOrderedList(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleUnorderedList() {
+        editor.toggleUnorderedList(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleBlockquote() {
+        editor.toggleBlockquote(range: textView.selectedRange)
+        updateFormatBar()
+    }
+
+
+    func toggleLink() {
+        editor.toggleLink(range: textView.selectedRange, params: [String : AnyObject]())
+        updateFormatBar()
+    }
+
+
+    func insertImage() {
+        editor.insertImage(textView.selectedRange.location, params: [String : AnyObject]())
+        updateFormatBar()
+    }
 }
