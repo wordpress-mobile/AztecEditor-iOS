@@ -143,6 +143,8 @@ public class AztecFormatBar: UIToolbar
             flex,
             italicButton,
             flex,
+            underlineButton,
+            flex,
             blockquoteButton,
             flex,
             unorderedListButton,

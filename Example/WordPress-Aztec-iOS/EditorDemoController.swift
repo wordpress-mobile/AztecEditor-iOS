@@ -226,9 +226,12 @@ class EditorDemoController: UIViewController
         guard let toolbar = textView.inputAccessoryView as? AztecFormatBar else {
             return
         }
-        let identifiers = editor.styleIdentifiersAtIndex(textView.selectedRange.location)
+
+        let range = textView.selectedRange
+        let identifiers = editor.formatIdentifiersSpanningRange(range)
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
+
 }
 
 
@@ -301,4 +304,5 @@ extension EditorDemoController : AztecFormatBarDelegate
         editor.insertImage(textView.selectedRange.location, params: [String : AnyObject]())
         updateFormatBar()
     }
+
 }

@@ -19,7 +19,7 @@ class FormattingDemoController: UIViewController
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        textView.delegate = self
         configureTextView()
     }
 
@@ -31,6 +31,51 @@ class FormattingDemoController: UIViewController
             textView.attributedText = attrStr
         }
     }
+
+
+    @IBAction func checkSelection() {
+        checkBoldSelection()
+
+//        checkUnderlineSelection()
+    }
+
+    func checkBoldSelection() {
+        let storage = textView.textStorage
+        guard storage.length > 0 else {
+            return
+        }
+
+        let selectedRange = textView.selectedRange
+        var effectiveRange = NSRange()
+        let index = max(0, selectedRange.location - 1)
+        let attr = storage.attribute(NSFontAttributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: selectedRange)
+
+        print("------------------------------------")
+        print("ATTRIBUTE : \(attr)")
+        if let font = attr as? UIFont {
+            if font.fontDescriptor().symbolicTraits.contains(.TraitBold) {
+                print("TRAIT FOUND")
+            }
+        }
+        print("SELECTED RANGE : \(selectedRange)")
+        print("EFFECTIVE RANGE : \(effectiveRange)")
+        print(" ")
+    }
+
+
+    func checkUnderlineSelection() {
+        let storage = textView.textStorage
+        let selectedRange = textView.selectedRange
+        var effectiveRange = NSRange()
+        let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: selectedRange.location, longestEffectiveRange: &effectiveRange, inRange: selectedRange)
+
+        print("------------------------------------")
+        print("ATTRIBUTE : \(attr)")
+        print("SELECTED RANGE : \(selectedRange)")
+        print("EFFECTIVE RANGE : \(effectiveRange)")
+        print(" ")
+    }
+
 
 
     @IBAction func boldAction() {
@@ -140,4 +185,11 @@ class FormattingDemoController: UIViewController
     }
     
 
+}
+
+extension FormattingDemoController : UITextViewDelegate
+{
+    func textViewDidChangeSelection(textView: UITextView) {
+        checkSelection()
+    }
 }

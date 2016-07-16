@@ -31,6 +31,9 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    // MARK: - Lifecycle Methods
+
+
     public init(textView: UITextView) {
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
@@ -43,27 +46,62 @@ public class AztecVisualEditor : NSObject
     }
 
 
-    // MARK: - Other Methods
+    // MARK: - Getting format identifiers
 
 
-    public func styleIdentifiersAtIndex(index: Int) -> [String] {
+    public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
         var identifiers = [String]()
 
         if storage.length == 0 {
             return identifiers
         }
 
-        let index = (storage.length < index) ? index : max(0, index - 1)
+        if range.length == 0 {
+            return formatIdentifiersAtIndex(range.location)
+        }
+
+        if boldFormattingSpansRange(range) {
+            identifiers.append(AztecFormattingIdentifier.Bold.rawValue)
+        }
+
+        if italicFormattingSpansRange(range) {
+            identifiers.append(AztecFormattingIdentifier.Italic.rawValue)
+        }
+
+        if underlineFormattingSpansRange(range) {
+            identifiers.append(AztecFormattingIdentifier.Underline.rawValue)
+        }
+
+        if strikethroughFormattingSpansRange(range) {
+            identifiers.append(AztecFormattingIdentifier.Strikethrough.rawValue)
+        }
+
+        return identifiers
+    }
+
+
+    public func formatIdentifiersAtIndex(index: Int) -> [String] {
+        var identifiers = [String]()
+
+        if storage.length == 0 {
+            return identifiers
+        }
+
+        let index = adjustedIndex(index)
+//        let index = max(0, index - 1)
 
         if formattingAtIndexContainsBold(index) {
             identifiers.append(AztecFormattingIdentifier.Bold.rawValue)
         }
+
         if formattingAtIndexContainsItalic(index) {
             identifiers.append(AztecFormattingIdentifier.Italic.rawValue)
         }
+
         if formattingAtIndexContainsUnderline(index) {
             identifiers.append(AztecFormattingIdentifier.Underline.rawValue)
         }
+
         if formattingAtIndexContainsStrikethrough(index) {
             identifiers.append(AztecFormattingIdentifier.Strikethrough.rawValue)
         }
@@ -188,26 +226,67 @@ public class AztecVisualEditor : NSObject
 
 
     // MARK - Inspectors
+    // MARK - Inspect Within Range
+
+
+    public func boldFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.fontTrait(.TraitBold, spansRange: range)
+    }
+
+
+    public func italicFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.fontTrait(.TraitItalic, spansRange: range)
+    }
+
+
+    public func underlineFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? Int {
+
+            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
+    public func strikethroughFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? Int {
+
+            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
+    func maxIndex(index: Int) -> Int {
+        if index >= storage.length {
+            return storage.length - 1
+        }
+        return index
+    }
+
+
+    func adjustedIndex(index: Int) -> Int {
+        let index = maxIndex(index)
+        return max(0, index - 1)
+    }
+
+
+    // MARK - Inspect at Index
 
 
     public func formattingAtIndexContainsBold(index: Int) -> Bool {
-        return fontTrait(.TraitBold, existsAtIndex: index)
+        return storage.fontTrait(.TraitBold, existsAtIndex: index)
     }
 
 
     public func formattingAtIndexContainsItalic(index: Int) -> Bool {
-        return fontTrait(.TraitItalic, existsAtIndex: index)
-    }
-
-
-    public func fontTrait(trait: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
-        guard let attr = storage.attribute(NSFontAttributeName, atIndex: index, effectiveRange: nil) else {
-            return false
-        }
-        if let font = attr as? UIFont {
-            return font.fontDescriptor().symbolicTraits.contains(trait)
-        }
-        return false
+        return storage.fontTrait(.TraitItalic, existsAtIndex: index)
     }
 
 
@@ -216,8 +295,8 @@ public class AztecVisualEditor : NSObject
             return false
         }
         // TODO: Figure out how to reconcile this with Link style.
-        if let style = attr as? NSUnderlineStyle {
-            return style == NSUnderlineStyle.StyleSingle
+        if let value = attr as? Int {
+            return value == NSUnderlineStyle.StyleSingle.rawValue
         }
         return false
     }
@@ -227,8 +306,8 @@ public class AztecVisualEditor : NSObject
         guard let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) else {
             return false
         }
-        if let style = attr as? NSUnderlineStyle {
-            return style == NSUnderlineStyle.StyleSingle
+        if let value = attr as? Int {
+            return value == NSUnderlineStyle.StyleSingle.rawValue
         }
         return false
     }
