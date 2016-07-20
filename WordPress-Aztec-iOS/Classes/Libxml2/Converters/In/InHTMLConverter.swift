@@ -13,19 +13,26 @@ extension Libxml2.In {
         public init() {
         }
 
-        /// Converts HTML data into an attributed string representing the same data.
+        /// Converts HTML data into an HTML Node representing the same data.
         ///
         /// - Parameters:
-        ///     - html: the HTML data to convert.
+        ///     - html: the HTML string to convert.
         ///
-        /// - Returns: an attributed string representing the specified HTML data.
+        /// - Returns: the HTML root node.
         ///
-        public func convert(html: NSData) throws -> Libxml2.HTML.Node {
+        public func convert(html: String) throws -> Libxml2.HTML.Node {
+
+            // We wrap the HTML into a special root node, since it helps avoid conversion issues
+            // with libxml2, where the library would add custom tags to "fix" the HTML code we
+            // provide.
+            //
+            let wrappedHTML = "<\(Aztec.AttributeName.rootNode)>\(html)</\(Aztec.AttributeName.rootNode)>"
+            let data = wrappedHTML.dataUsingEncoding(NSUTF8StringEncoding)!
 
             let result = NSMutableAttributedString()
             let bufferSize = 1024
             let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
-            let htmlPtr = UnsafePointer<Int8>(html.bytes)
+            let htmlPtr = UnsafePointer<Int8>(data.bytes)
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
 
@@ -33,7 +40,7 @@ extension Libxml2.In {
             //
             htmlHandleOmittedElem(0)
 
-            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(html.length), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
+            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(wrappedHTML.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
 
             let errorPtr = xmlGetLastError()
 

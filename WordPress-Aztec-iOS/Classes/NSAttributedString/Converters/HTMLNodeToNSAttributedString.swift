@@ -1,17 +1,15 @@
 import Foundation
 
-class HMTLNodeToAttributedString: SafeConverter {
+class HMTLNodeToNSAttributedString: SafeConverter {
     typealias HTML = Libxml2.HTML
     typealias ElementNode = HTML.ElementNode
     typealias Node = HTML.Node
     typealias TextNode = HTML.TextNode
 
-    let attributesConverter = HTMLAttributesToAttributesMetaData()
-
     func convert(node: Node) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
-            return NSAttributedString(string: textNode.text)
+            return NSAttributedString(string: textNode.text, attributes: [keyForNode(textNode): textNode])
         } else {
             guard let elementNode = node as? ElementNode else {
                 fatalError("Nodes can be either text or element nodes.")
@@ -22,6 +20,19 @@ class HMTLNodeToAttributedString: SafeConverter {
             } else {
                 return stringForNode(elementNode)
             }
+        }
+    }
+
+    /// Generates a unique ID for the specified node.
+    ///
+    private func keyForNode(node: Node) -> String {
+
+        if node.name == Aztec.AttributeName.rootNode {
+            return node.name
+        } else {
+            let uuid = NSUUID().UUIDString
+
+            return "Aztec.HTMLTag.\(node.name).\(uuid)"
         }
     }
 
@@ -45,15 +56,7 @@ class HMTLNodeToAttributedString: SafeConverter {
             finalContent.appendAttributedString(content)
         }
 
-        let attributes = attributesConverter.convert(elementNode.attributes)
-        let tag = HTMLNodeMetaData(name: elementNode.name, attributes: attributes)
-
-        if let firstTag = finalContent.firstTag(matchingRange: NSRange(location: 0, length: finalContent.length)) {
-            tag.child = firstTag
-            firstTag.parent = tag
-        }
-
-        finalContent.addAttribute(tag.key(), value: tag, range: NSRange(location: 0, length: finalContent.length))
+        finalContent.addAttribute(keyForNode(elementNode), value: elementNode, range: NSRange(location: 0, length: finalContent.length))
 
         return finalContent
     }
@@ -69,8 +72,6 @@ class HMTLNodeToAttributedString: SafeConverter {
     private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
         assert(elementNode.children.count == 0)
 
-        let tag = HTMLNodeMetaData(name: elementNode.name, attributes: [])
-
         let placeholderContent: String
 
         if elementNode.name.lowercaseString == "br" {
@@ -81,6 +82,6 @@ class HMTLNodeToAttributedString: SafeConverter {
             placeholderContent = objectReplacementCharacter
         }
 
-        return NSAttributedString(string: placeholderContent, attributes: [tag.key(): tag])
+        return NSAttributedString(string: placeholderContent, attributes: [keyForNode(elementNode): elementNode])
     }
 }

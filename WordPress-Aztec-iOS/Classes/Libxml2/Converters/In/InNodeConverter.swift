@@ -54,6 +54,12 @@ extension Libxml2.In {
             let attributes = createAttributes(fromNode: rawNode)
             let node = ElementNode(name: nodeName, attributes: attributes, children: children)
 
+            // TODO: This can be optimized to be set during instantiation of the child nodes.
+            //
+            for child in children {
+                child.parent = node
+            }
+
             return node
         }
 
