@@ -20,7 +20,7 @@ class OutNodeConverterTests: XCTestCase {
         super.tearDown()
     }
 
-    /// Tests a simple TextNode to xmlNode conversion
+    /// Tests a simple HTML.TextNode to xmlNode conversion
     ///
     func testSimpleTextNodeConversion() {
 

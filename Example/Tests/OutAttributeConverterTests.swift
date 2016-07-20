@@ -18,7 +18,7 @@ class OutAttributeConverterTests: XCTestCase {
         super.tearDown()
     }
 
-    /// Tests that the name in xmlAttr is maintained in a conversion to HTML.Attribute.
+    /// Tests a simple HTML.Attribute to xmlAttribute conversion
     ///
     func testSimpleConversion() {
         
