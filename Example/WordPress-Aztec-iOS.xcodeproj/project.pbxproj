@@ -20,6 +20,7 @@
 		758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
 		E60B0CF81D2D88A200AEAEEA /* AztecTextEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60B0CF71D2D88A200AEAEEA /* AztecTextEditorTests.swift */; };
 		E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BE9861D304A970065FF75 /* FormattingDemoController.swift */; };
+		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */; };
 		E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568F11D26DE9200E6913B /* DraggableDemoController.swift */; };
 		E66568F71D270F7F00E6913B /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E66568F61D270F7F00E6913B /* SampleText.rtf */; };
@@ -60,6 +61,7 @@
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		E60B0CF71D2D88A200AEAEEA /* AztecTextEditorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextEditorTests.swift; sourceTree = "<group>"; };
 		E63BE9861D304A970065FF75 /* FormattingDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingDemoController.swift; sourceTree = "<group>"; };
+		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
 		E66568F11D26DE9200E6913B /* DraggableDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableDemoController.swift; sourceTree = "<group>"; };
 		E66568F61D270F7F00E6913B /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
+				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
 				E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */,
 				E66568F11D26DE9200E6913B /* DraggableDemoController.swift */,
 				E63BE9861D304A970065FF75 /* FormattingDemoController.swift */,
@@ -395,6 +398,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */,
+				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */,
 				E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */,
