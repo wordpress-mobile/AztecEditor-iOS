@@ -9,73 +9,74 @@ extension Libxml2.Out {
         typealias Node = HTML.Node
         typealias TextNode = HTML.TextNode
 
-        /// Converts a single node (from libxml2) into an HTML.Node.
+        /// Converts a single HTML.Node into a libxml2 node
         ///
         /// - Parameters:
-        ///     - attributes: the libxml2 attribute to convert.
+        ///     - attributes: the HTML.Node convert.
         ///
-        /// - Returns: an HTML.Node.
+        /// - Returns: a libxml2 node.
         ///
-        func convert(rawNode: xmlNode) -> Node {
-            var node: Node!
-
-            let nodeName = getNodeName(rawNode)
-
-            if nodeName.lowercaseString == "text" {
-                node = createTextNode(rawNode)
-            } else {
-                node = createElementNode(rawNode)
+        func convert(rawNode: Node) -> xmlNode {
+            var node: xmlNode!
+            let nodeName = rawNode.name
+            
+            if let textNode = rawNode as? TextNode {
+                node = createTextNode(textNode)
+            } else  {
+                //node = createElementNode(rawNode)
             }
 
             return node
         }
 
-        private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
-            let attributesConverter = AttributesConverter()
-            return attributesConverter.convert(rawNode.properties)
-        }
-
-        /// Creates an HTML.Node from a libxml2 element node.
+        /// Creates a libxml2 element node from a HTML.Node
         ///
         /// - Parameters:
-        ///     - rawNode: the libxml2 xmlNode.
+        ///     - rawNode: HTML.ElementNode
         ///
-        /// - Returns: the HTML.ElementNode
+        /// - Returns: the the libxml2 xmlNode.
         ///
-        private func createElementNode(rawNode: xmlNode) -> Node {
-            let nodeName = getNodeName(rawNode)
-            var children = [Node]()
+//        private func createElementNode(rawNode: Node) -> xmlNode {
+//            let nodeName = getNodeName(rawNode)
+//            var children = [Node]()
+//
+//            if rawNode.children != nil {
+//                let nodesConverter = NodesConverter()
+//                children.appendContentsOf(nodesConverter.convert(rawNode.children))
+//            }
+//
+//            let attributes = createAttributes(fromNode: rawNode)
+//            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
+//
+//            return node
+//        }
 
-            if rawNode.children != nil {
-                let nodesConverter = NodesConverter()
-                children.appendContentsOf(nodesConverter.convert(rawNode.children))
-            }
-
-            let attributes = createAttributes(fromNode: rawNode)
-            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
-
-            return node
-        }
-
-        /// Creates an HTML.TextNode from a libxml2 element node.
+        /// Creates a libxml2 element node from a HTML.TextNode.
         ///
         /// - Parameters:
-        ///     - rawNode: the libxml2 xmlNode.
+        ///     - rawNode: the HTML.TextNode.
         ///
-        /// - Returns: the HTML.TextNode
+        /// - Returns: the libxml2 xmlNode
         ///
-        private func createTextNode(rawNode: xmlNode) -> TextNode {
-            let nodeName = getNodeName(rawNode)
-
-            let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let attributes = createAttributes(fromNode: rawNode)
-            let node = TextNode(name: nodeName, text: text, attributes: attributes)
+        private func createTextNode(rawNode: TextNode) -> xmlNode {
+            
+            let name = "text"
+            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let namePtr = UnsafePointer<xmlChar>(nameCStr)
+            
+            let value = rawNode.text
+            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+            
+            //let attributes = Libxml2.Out.AttributeConverter().convert(rawNode.attributes)
+            
+            var node = xmlNode()
+            node.name = namePtr
+            node.content = valuePtr
+            
+            
 
             return node
-        }
-
-        private func getNodeName(rawNode: xmlNode) -> String {
-            return String(CString: UnsafePointer<Int8>(rawNode.name), encoding: NSUTF8StringEncoding)!
         }
     }
 }

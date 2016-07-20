@@ -7,26 +7,25 @@ extension Libxml2.Out {
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
 
-        /// Converts a linked list of attributes (from libxml2) into an array of our own
-        /// representation of attributes.
+        /// Converts an array of our own representation of attributes into linked list of 
+        /// attributes (from libxml2).
         ///
         /// - Parameters:
-        ///     - attributes: the libxml2 attributes to convert.  This is a linked list.
+        ///     - attributes: an array of HTML.Attribute to convert.
         ///
-        /// - Returns: an array of HTML.Attribute.
+        /// - Returns: the libxml2 attributes. This is a linked list.
         ///
-        func convert(attributes: xmlAttrPtr) -> [Attribute] {
+        func convert(attributes: [Attribute]) -> xmlAttr {
 
-            var result = [Attribute]()
-            var currentAttributePtr = attributes
-
-            while (currentAttributePtr != nil) {
-                let attribute = currentAttributePtr.memory
-
-                let attributeConverter = AttributeConverter()
-                result.append(attributeConverter.convert(attribute))
-                
-                currentAttributePtr = attribute.next
+            let attributeConverter = AttributeConverter()
+            var result: xmlAttr = try attributeConverter.convert(attributes.first!)
+            var currentPtr: xmlAttr
+            
+            for (index, value) in attributes.enumerate() {
+                if index > 1 {
+                    currentPtr = try attributeConverter.convert(value)
+                    result.next = withUnsafeMutablePointer(&currentPtr) {UnsafeMutablePointer<xmlAttr>($0)}
+                }
             }
             
             return result

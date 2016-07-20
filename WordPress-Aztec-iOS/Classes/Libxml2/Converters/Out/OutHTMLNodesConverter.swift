@@ -7,25 +7,24 @@ extension Libxml2.Out {
         typealias Node = HTML.Node
         typealias StringAttribute = HTML.StringAttribute
 
-        /// Converts a linked list of xmlNode (from libxml2) into [HTML.Node].
+        /// Converts a array of HTML.Node into a linked list of xmlNode (from libxml2).
         ///
         /// - Parameters:
-        ///     - attributes: the libxml2 nodes to convert.  This is a linked list.
+        ///     - attributes: the array of HTML.Node to convert.
         ///
-        /// - Returns: an array of HTML.Node.
+        /// - Returns: an a linked list of xmlNode (from libxml2).
         ///
-        func convert(nodes: xmlNodePtr) -> [Node] {
-
-            var result = [Node]()
-            var currentNodePtr = nodes
-
-            while (currentNodePtr != nil) {
-                let node = currentNodePtr.memory
-
-                let nodeConverter = NodeConverter()
-                result.append(nodeConverter.convert(node))
-
-                currentNodePtr = node.next
+        func convert(nodes: [Node]) -> xmlNode {
+           
+            let attributeConverter = NodeConverter()
+            var result: xmlNode = try attributeConverter.convert(nodes.first!)
+            var currentPtr: xmlNode
+            
+            for (index, value) in nodes.enumerate() {
+                if index > 1 {
+                    currentPtr = try attributeConverter.convert(value)
+                    result.next = withUnsafeMutablePointer(&currentPtr) {UnsafeMutablePointer<xmlNode>($0)}
+                }
             }
             
             return result
