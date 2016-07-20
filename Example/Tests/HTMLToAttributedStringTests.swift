@@ -3,6 +3,9 @@ import XCTest
 
 class HTMLToAttributedStringTests: XCTestCase {
 
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias TextNode = Libxml2.HTML.TextNode
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -24,26 +27,40 @@ class HTMLToAttributedStringTests: XCTestCase {
         for (index, tagName) in tagNames.enumerate() {
             let parser = HTMLToAttributedString()
 
-            let html = "<\(tagName)>Hello</\(tagName)>"
+            let nodeText = "Hello"
+            let html = "<\(tagName)>\(nodeText)</\(tagName)>"
             let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
 
             do {
                 let string = try parser.convert(htmlData)
 
-                guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                guard rootNode.children.count > 0,
+                    let mainNode = rootNode.children[0] as? ElementNode else {
+
+                    XCTFail("Expected to find the first node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].lowercaseString)
-                XCTAssert(firstTag.child == nil)
+                XCTAssert(mainNode.parent == rootNode)
+                XCTAssert(mainNode.name == tagNames[index].lowercaseString)
+
+                guard mainNode.children.count > 0,
+                    let textNode = mainNode.children[0] as? TextNode else {
+
+                    XCTFail("Expected to find the text node.")
+                    return
+                }
+
+                XCTAssertEqual(textNode.text, nodeText)
+
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
         }
     }
-
+/*
     /// Test the conversion of a single tag at a non-root level to `NSAttributedString`.
     ///
     /// Example: Hello <italic>world</italic>!
@@ -216,4 +233,5 @@ class HTMLToAttributedStringTests: XCTestCase {
             }
         }
     }
+ */
 }

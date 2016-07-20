@@ -6,18 +6,18 @@ class NSAttributedStringToHMTLNode: SafeConverter {
     typealias Node = HTML.Node
     typealias TextNode = HTML.TextNode
 
-    let attributesConverter = HTMLAttributesToAttributesMetaData()
-
     func convert(string: NSAttributedString) -> Node {
 
-        let fullRange = NSRange(location: 0, length: string.length)
+        // The real conversion happens in real time during editing.  Nodes MUST be kept updated!
 
-        if let tag = string.firstTag(matchingRange: fullRange) {
-            return TextNode(name: "placeholder", text: "placeholder", attributes: [])
-        } else if let tag = string.firstTag(insideRange: fullRange) {
-            return TextNode(name: "placeholder", text: "placeholder", attributes: [])
+        let rootNode = string.rootNode()
+
+        if rootNode.children.count == 0 {
+            // No children at the root node means no post content.  An empty text node should do.
+            //
+            return TextNode(name: "text", text: "", attributes: [])
         } else {
-            return TextNode(name: "text", text: string.string, attributes: [])
+            return rootNode.children[0]
         }
     }
 }

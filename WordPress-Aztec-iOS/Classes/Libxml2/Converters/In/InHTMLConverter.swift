@@ -13,12 +13,12 @@ extension Libxml2.In {
         public init() {
         }
 
-        /// Converts HTML data into an attributed string representing the same data.
+        /// Converts HTML data into an HTML Node representing the same data.
         ///
         /// - Parameters:
         ///     - html: the HTML data to convert.
         ///
-        /// - Returns: an attributed string representing the specified HTML data.
+        /// - Returns: the HTML root node.
         ///
         public func convert(html: NSData) throws -> Libxml2.HTML.Node {
 
