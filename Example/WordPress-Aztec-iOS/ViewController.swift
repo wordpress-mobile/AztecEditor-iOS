@@ -16,6 +16,7 @@ class ViewController: UITableViewController
         super.viewDidLoad()
 
         rows = [
+            DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
             DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
             DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
             DemoRow(title: "Formatter Demo", action: { self.showFormatterDemo() })
@@ -24,6 +25,12 @@ class ViewController: UITableViewController
 
 
     // MARK: Actions
+
+
+    func showEditorDemo() {
+        let controller = EditorDemoController()
+        navigationController?.pushViewController(controller, animated: true)
+    }
 
 
     func showCursorCalloutDemo() {

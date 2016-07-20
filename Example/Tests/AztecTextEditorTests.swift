@@ -16,7 +16,7 @@ class AztecTextEditorTests: XCTestCase {
     // Confirm the composed textView is property configured.
     func testTextViewReferencesStorage() {
 
-        let textView = AztecTextEditor.createTextView()
+        let textView = AztecVisualEditor.createTextView()
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
