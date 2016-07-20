@@ -2,6 +2,8 @@ import Foundation
 
 enum Aztec {
     enum AttributeName {
-        static let rootNode = "Aztec.HTMLTag.rootNode"
+        /// - Important: Keep lower case!  Libxml2 makes all node names lower case.
+        ///
+        static let rootNode = "aztec.htmltag.rootnode"
     }
 }

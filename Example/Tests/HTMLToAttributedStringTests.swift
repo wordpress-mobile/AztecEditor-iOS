@@ -29,14 +29,13 @@ class HTMLToAttributedStringTests: XCTestCase {
 
             let nodeText = "Hello"
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
                 let rootNode = string.rootNode()
 
-                guard rootNode.children.count > 0,
+                guard rootNode.children.count == 1,
                     let mainNode = rootNode.children[0] as? ElementNode else {
 
                     XCTFail("Expected to find the first node.")
@@ -46,7 +45,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 XCTAssert(mainNode.parent == rootNode)
                 XCTAssert(mainNode.name == tagNames[index].lowercaseString)
 
-                guard mainNode.children.count > 0,
+                guard mainNode.children.count == 1,
                     let textNode = mainNode.children[0] as? TextNode else {
 
                     XCTFail("Expected to find the text node.")
@@ -60,7 +59,7 @@ class HTMLToAttributedStringTests: XCTestCase {
             }
         }
     }
-/*
+
     /// Test the conversion of a single tag at a non-root level to `NSAttributedString`.
     ///
     /// Example: Hello <italic>world</italic>!
@@ -72,10 +71,39 @@ class HTMLToAttributedStringTests: XCTestCase {
         for (index, tagName) in tagNames.enumerate() {
             let parser = HTMLToAttributedString()
 
-            let html = "Hello <\(tagName)>world</\(tagName)>!"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let firstText = "Hello "
+            let secondText = "world"
+            let thirdText = "!"
+            let html = "\(firstText)<\(tagName)>\(secondText)</\(tagName)>\(thirdText)"
 
             do {
+                let string = try parser.convert(html)
+
+                let rootNode = string.rootNode()
+
+                guard rootNode.children.count == 3,
+                    let firstTextNode = rootNode.children[0] as? TextNode,
+                    let elementNode = rootNode.children[1] as? ElementNode,
+                    let thirdTextNode = rootNode.children[2] as? TextNode else {
+
+                        XCTFail("Expected to find the main paragraph child nodes.")
+                        return
+                }
+                
+                XCTAssertEqual(firstTextNode.text, firstText)
+                XCTAssertEqual(elementNode.name, tagNames[index].lowercaseString)
+                XCTAssertEqual(thirdTextNode.text, thirdText)
+
+                guard elementNode.children.count == 1,
+                    let secondTextNode = elementNode.children[0] as? TextNode else {
+
+                    XCTFail("Expected to find the secondary text node.")
+                    return
+                }
+
+                XCTAssertEqual(secondTextNode.text, secondText)
+
+                /*
                 let string = try parser.convert(htmlData)
 
                 guard let firstTag = string.firstTag(insideRange: NSRange(location: 0, length: string.length)) else {
@@ -86,12 +114,13 @@ class HTMLToAttributedStringTests: XCTestCase {
                 XCTAssert(firstTag.parent == nil)
                 XCTAssert(firstTag.name == tagNames[index].lowercaseString)
                 XCTAssert(firstTag.child == nil)
+                 */
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
         }
     }
-
+/*
     /// Test the conversion of double tags at the root level to `NSAttributedString`.
     ///
     /// Example: <bold><italic>Hello</italic></bold>
