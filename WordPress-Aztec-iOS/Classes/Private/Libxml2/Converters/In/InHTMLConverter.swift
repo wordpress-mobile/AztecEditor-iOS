@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2.In {
-    public class HTMLConverter: Converter {
+    class HTMLConverter: Converter {
 
         enum Error: String, ErrorType {
             case NoRootNode = "No root node"
@@ -10,7 +10,7 @@ extension Libxml2.In {
 
         /// Not sure why, but the compiler is requiring this initializer.
         ///
-        public init() {
+        init() {
         }
 
         /// Converts HTML data into an HTML Node representing the same data.
@@ -20,7 +20,7 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML root node.
         ///
-        public func convert(html: String) throws -> Libxml2.HTML.Node {
+        func convert(html: String) throws -> Libxml2.HTML.Node {
 
             // We wrap the HTML into a special root node, since it helps avoid conversion issues
             // with libxml2, where the library would add custom tags to "fix" the HTML code we

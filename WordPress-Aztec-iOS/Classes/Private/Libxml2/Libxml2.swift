@@ -1,14 +1,14 @@
 import Foundation
 
-public enum Libxml2 {
-    public enum In {
+enum Libxml2 {
+    enum In {
         typealias HTML = Libxml2.HTML
     }
 
-    public enum Out {
+    enum Out {
         typealias HTML = Libxml2.HTML
     }
 
-    public enum HTML {
+    enum HTML {
     }
 }

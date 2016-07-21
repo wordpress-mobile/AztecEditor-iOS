@@ -2,13 +2,13 @@ extension Libxml2.HTML {
 
     /// Base class for all node types.
     ///
-    public class Node: Equatable, CustomReflectable {
+    class Node: Equatable, CustomReflectable {
 
         private(set) var attributes = [Attribute]()
         let name: String
         weak var parent: Node?
 
-        public func customMirror() -> Mirror {
+        func customMirror() -> Mirror {
             return Mirror(self, children: ["name": name, "parent": parent, "attributes": attributes])
         }
 
@@ -20,7 +20,7 @@ extension Libxml2.HTML {
 
     /// Element node.  Everything but text basically.
     ///
-    public class ElementNode: Node {
+    class ElementNode: Node {
 
         let children: [Node]
 
@@ -30,14 +30,14 @@ extension Libxml2.HTML {
             super.init(name: name, attributes: attributes)
         }
 
-        override public func customMirror() -> Mirror {
+        override func customMirror() -> Mirror {
             return Mirror(self, children: ["name": name, "parent": parent, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
     }
 
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    public class TextNode: Node {
+    class TextNode: Node {
 
         let text: String
 
@@ -47,7 +47,7 @@ extension Libxml2.HTML {
             super.init(name: name, attributes: attributes)
         }
 
-        override public func customMirror() -> Mirror {
+        override func customMirror() -> Mirror {
             return Mirror(self, children: ["name": name, "text": text, "parent": parent, "attributes": attributes], ancestorRepresentation: .Suppressed)
         }
     }
@@ -55,6 +55,6 @@ extension Libxml2.HTML {
 
 // MARK: - Node Equatable
 
-public func ==(lhs: Libxml2.HTML.Node, rhs: Libxml2.HTML.Node) -> Bool {
+func ==(lhs: Libxml2.HTML.Node, rhs: Libxml2.HTML.Node) -> Bool {
     return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
 }
