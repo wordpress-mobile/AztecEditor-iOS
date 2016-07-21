@@ -49,6 +49,13 @@ public class AztecVisualEditor : NSObject
     // MARK: - Getting format identifiers
 
 
+    /// Get a list of format identifiers spanning the specified range as a String array.
+    ///
+    /// - Paramters:
+    ///     - range: An NSRange to inspect.
+    ///
+    /// - Returns: A list of identifiers.
+    ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
         var identifiers = [String]()
 
@@ -80,6 +87,13 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// Get a list of format identifiers at a specific index as a String array.
+    ///
+    /// - Paramters:
+    ///     - range: The character index to inspect.
+    ///
+    /// - Returns: A list of identifiers.
+    ///
     public func formatIdentifiersAtIndex(index: Int) -> [String] {
         var identifiers = [String]()
 
@@ -88,7 +102,6 @@ public class AztecVisualEditor : NSObject
         }
 
         let index = adjustedIndex(index)
-//        let index = max(0, index - 1)
 
         if formattingAtIndexContainsBold(index) {
             identifiers.append(AztecFormattingIdentifier.Bold.rawValue)
@@ -115,6 +128,9 @@ public class AztecVisualEditor : NSObject
 
     /// Adds or removes a bold style from the specified range.
     ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
+    ///
     public func toggleBold(range range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
@@ -126,6 +142,9 @@ public class AztecVisualEditor : NSObject
 
     /// Adds or removes a bold style from the specified range.
     ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
+    ///
     public func toggleItalic(range range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
@@ -136,6 +155,9 @@ public class AztecVisualEditor : NSObject
 
 
     /// Adds or removes a bold style from the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
         // Bail if nothing is selected
@@ -160,6 +182,9 @@ public class AztecVisualEditor : NSObject
 
     /// Adds or removes a bold style from the specified range.
     ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
+    ///
     public func toggleStrikethrough(range range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
@@ -182,12 +207,18 @@ public class AztecVisualEditor : NSObject
 
     /// Adds or removes a bold style from the specified range.
     ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
+    ///
     public func toggleOrderedList(range range: NSRange) {
         print("ordered")
     }
 
 
     /// Adds or removes a bold style from the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
         print("unordered")
@@ -196,12 +227,18 @@ public class AztecVisualEditor : NSObject
 
     /// Adds or removes a bold style from the specified range.
     ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
+    ///
     public func toggleBlockquote(range range: NSRange) {
         print("quote")
     }
 
 
     /// Adds or removes a bold style from the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to edit.
     ///
     public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
         print("link")
@@ -213,12 +250,20 @@ public class AztecVisualEditor : NSObject
 
     /// Inserts an image at the specified index
     ///
+    /// - Paramters:
+    ///     - index: The character index at which to insert the image.
+    ///     - params: TBD
+    ///
     public func insertImage(index: Int, params: [String: AnyObject]) {
         print("image")
     }
 
 
     /// Inserts a Video attachment at the specified index
+    ///
+    /// - Paramters:
+    ///     - index: The character index at which to insert the image.
+    ///     - params: TBD
     ///
     public func insertVideo(index: Int, params: [String: AnyObject]) {
         print("video")
@@ -229,16 +274,37 @@ public class AztecVisualEditor : NSObject
     // MARK - Inspect Within Range
 
 
+    /// Check if the bold attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
     public func boldFormattingSpansRange(range: NSRange) -> Bool {
         return storage.fontTrait(.TraitBold, spansRange: range)
     }
 
 
+    /// Check if the italic attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
     public func italicFormattingSpansRange(range: NSRange) -> Bool {
         return storage.fontTrait(.TraitItalic, spansRange: range)
     }
 
 
+    /// Check if the underline attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
     public func underlineFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
@@ -251,6 +317,13 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// Check if the strikethrough attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
     public func strikethroughFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
@@ -263,6 +336,14 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// The maximum index should never exceed the length of the text storage minus one,
+    /// else we court out of index exceptions.
+    ///
+    /// - Parameters:
+    ///     - index: The candidate index. If the index is greater than the max allowed, the max is returned.
+    ///
+    /// - Returns: If the index is greater than the max allowed, the max is returned, else the original value.
+    ///
     func maxIndex(index: Int) -> Int {
         if index >= storage.length {
             return storage.length - 1
@@ -271,6 +352,14 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// In most instances, the value of NSRange.location is off by one when compared to a character index. 
+    /// Call this method to get an adjusted character index from an NSRange.location.
+    ///
+    /// - Parameters:
+    ///     - index: The candidate index.
+    ///
+    /// - Returns: The specified or maximum index.
+    ///
     func adjustedIndex(index: Int) -> Int {
         let index = maxIndex(index)
         return max(0, index - 1)
@@ -280,16 +369,37 @@ public class AztecVisualEditor : NSObject
     // MARK - Inspect at Index
 
 
+    /// Check if the bold attribute exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
     public func formattingAtIndexContainsBold(index: Int) -> Bool {
         return storage.fontTrait(.TraitBold, existsAtIndex: index)
     }
 
 
+    /// Check if the italic attribute exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
     public func formattingAtIndexContainsItalic(index: Int) -> Bool {
         return storage.fontTrait(.TraitItalic, existsAtIndex: index)
     }
 
 
+    /// Check if the underline attribute exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
     public func formattingAtIndexContainsUnderline(index: Int) -> Bool {
         guard let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) else {
             return false
@@ -302,6 +412,13 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// Check if the strikethrough attribute exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
     public func formattingAtIndexContainsStrikethrough(index: Int) -> Bool {
         guard let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) else {
             return false

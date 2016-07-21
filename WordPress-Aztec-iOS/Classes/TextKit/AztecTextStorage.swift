@@ -53,9 +53,21 @@ public class AztecTextStorage: NSTextStorage {
 
 }
 
+
+/// Convenience extension to group font trait realted methods.
+///
 public extension AztecTextStorage
 {
 
+
+    /// Checks if the specified font trait exists at the specified character index.
+    ///
+    /// - Parameters:
+    ///     - trait: A font trait.
+    ///     - index: A character index.
+    ///
+    /// - Returns: True if found.
+    ///
     public func fontTrait(trait: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
         guard let attr = attribute(NSFontAttributeName, atIndex: index, effectiveRange: nil) else {
             return false
@@ -67,6 +79,14 @@ public extension AztecTextStorage
     }
 
 
+    /// Checks if the specified font trait spans the specified NSRange.
+    ///
+    /// - Parameters:
+    ///     - trait: A font trait.
+    ///     - range: The NSRange to inspect
+    ///
+    /// - Returns: True if the trait spans the entire range.
+    ///
     public func fontTrait(trait: UIFontDescriptorSymbolicTraits, spansRange range: NSRange) -> Bool {
         var spansRange = true
 
@@ -88,6 +108,12 @@ public extension AztecTextStorage
     }
 
 
+    /// Adds or removes the specified font trait within the specified range.
+    ///
+    /// - Parameters:
+    ///     - trait: A font trait.
+    ///     - range: The NSRange to inspect
+    ///
     public func toggleFontTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
