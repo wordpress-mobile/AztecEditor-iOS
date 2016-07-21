@@ -27,7 +27,23 @@ class OutAttributeConverterTests: XCTestCase {
         let xmlAttribute = Libxml2.Out.AttributeConverter().convert(testAttribute)
         
         let xmlAttributeNameText = String(CString: UnsafePointer<Int8>(xmlAttribute.name), encoding: NSUTF8StringEncoding)
-        
         XCTAssertEqual(name, xmlAttributeNameText)
+    }
+        
+    /// Tests a simple HTML.Attribute to xmlAttribute conversion
+    ///
+    func testStringAttributeConversion() {
+        
+        let name = "StringAttribute"
+        let value = "StringAttributeValue"
+        let testAttribute = StringAttribute(name: name, value: value)
+        let xmlAttribute = Libxml2.Out.AttributeConverter().convert(testAttribute)
+        
+        let xmlAttributeNameText = String(CString: UnsafePointer<Int8>(xmlAttribute.name), encoding: NSUTF8StringEncoding)
+        XCTAssertEqual(name, xmlAttributeNameText)
+        
+//        let xmlAttributeValueNode = xmlAttribute.children.memory
+//        let xmlNodeText = String(CString: UnsafeMutablePointer<Int8>(xmlAttributeValueNode.content), encoding: NSUTF8StringEncoding)
+//        XCTAssertEqual(value, xmlNodeText)
     }
 }

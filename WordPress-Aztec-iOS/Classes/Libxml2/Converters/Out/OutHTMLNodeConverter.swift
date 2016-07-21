@@ -73,8 +73,6 @@ extension Libxml2.Out {
             var node = xmlNode()
             node.name = namePtr
             node.content = valuePtr
-            
-            
 
             return node
         }

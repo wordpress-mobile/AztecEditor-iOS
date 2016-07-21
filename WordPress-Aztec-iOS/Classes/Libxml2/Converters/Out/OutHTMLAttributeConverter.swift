@@ -17,7 +17,7 @@ extension Libxml2.Out {
         func convert(rawAttribute: Attribute) -> xmlAttr {
             var attribute: xmlAttr!
             
-            if let stringAttribute = attribute as? StringAttribute {
+            if let stringAttribute = rawAttribute as? StringAttribute {
                 attribute = createStringAttribute(stringAttribute)
             } else {
                 attribute = createAttribute(rawAttribute)
@@ -25,7 +25,6 @@ extension Libxml2.Out {
             
             return attribute;
         }
-        
         
         /// Creates a libxml2 string attribute from a HTML.StringAttribute.
         ///
