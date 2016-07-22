@@ -6,6 +6,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias Node = HTML.Node
     typealias TextNode = HTML.TextNode
 
+    /// The default font descriptor that will be used as a base for conversions.
+    ///
+    let defaultFontDescriptor: UIFontDescriptor
+
+    required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+        self.defaultFontDescriptor = defaultFontDescriptor
+    }
+
+    /// Main conversion method.
+    ///
     func convert(node: Node) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
@@ -48,17 +58,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     private func stringForNode(elementNode: ElementNode) -> NSAttributedString {
         assert(elementNode.children.count > 0)
 
-        let finalContent = NSMutableAttributedString()
+        let content = NSMutableAttributedString()
 
         for child in elementNode.children {
-            let content = convert(child)
+            let childContent = convert(child)
 
-            finalContent.appendAttributedString(content)
+            content.appendAttributedString(childContent)
         }
 
-        finalContent.addAttribute(keyForNode(elementNode), value: elementNode, range: NSRange(location: 0, length: finalContent.length))
+        addAttributes(toString: content, fromNode: elementNode)
 
-        return finalContent
+        return content
     }
 
     /// Returns an attributed string representing the specified empty node.  Empty means the
@@ -83,5 +93,66 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         return NSAttributedString(string: placeholderContent, attributes: [keyForNode(elementNode): elementNode])
+    }
+
+    // MARK: - String attributes
+
+    /// Adds all HTML-meta data and style attributes from the specified element node to the
+    /// specified string.
+    ///
+    /// - Parameters:
+    ///     - string: the string to add the attributes to.  This string will be modified in-place
+    ///             to add the necessary attributes.
+    ///     - node: the node to get the information from.
+    ///
+    private func addAttributes(toString string: NSMutableAttributedString, fromNode node: ElementNode) {
+
+        let fullRange = NSRange(location: 0, length: string.length)
+
+        addStyleAttributes(toString: string, fromNode: node)
+        string.addAttribute(keyForNode(node), value: node, range: fullRange)
+    }
+
+    /// Adds all style attributes from the specified element node to the specified string.
+    /// You'll usually want to call `addAttributes(toString:fromNode:)` instead of this method.
+    ///
+    /// - Parameters:
+    ///     - string: the string to apply the styles to.  This string will be modified in-place
+    ///             to add the necessary attributes.
+    ///     - node: the node to get the style information from.
+    ///
+    private func addStyleAttributes(toString string: NSMutableAttributedString, fromNode node: ElementNode) {
+
+        let fullRange = NSRange(location: 0, length: string.length)
+
+        let traits = symbolicTraits(fromNode: node)
+        let newFontDescriptor = defaultFontDescriptor.fontDescriptorWithSymbolicTraits(traits)
+        let newFont = UIFont(descriptor: newFontDescriptor, size: newFontDescriptor.pointSize)
+
+        string.addAttribute(NSFontAttributeName, value: newFont, range: fullRange)
+    }
+
+    /// Gets a list of symbolic traits representing the specified node.
+    ///
+    /// - Parameters:
+    ///     - node: the node to get the traits from.
+    ///
+    /// - Returns: the requested symbolic traits.
+    ///
+    private func symbolicTraits(fromNode node: ElementNode) -> UIFontDescriptorSymbolicTraits {
+        var traits = UIFontDescriptorSymbolicTraits(rawValue: 0)
+
+        let isBold = node.name == "b" || node.name == "strong"
+        let isItalic = node.name == "em" || node.name == "i"
+
+        if isBold {
+            traits.insert(.TraitBold)
+        }
+
+        if isItalic {
+            traits.insert(.TraitItalic)
+        }
+
+        return traits
     }
 }
