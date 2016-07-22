@@ -1,6 +1,6 @@
 import Foundation
 
-enum AztecFormattingIdentifier: String
+public enum AztecFormattingIdentifier: String
 {
     case Bold = "bold"
     case Italic = "italic"
@@ -10,4 +10,5 @@ enum AztecFormattingIdentifier: String
     case Unorderedlist = "unorderedlist"
     case Blockquote = "blockquote"
     case Link = "link"
+    case Media = "media"
 }

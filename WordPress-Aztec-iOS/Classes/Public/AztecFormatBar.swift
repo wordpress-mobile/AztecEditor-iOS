@@ -4,179 +4,101 @@ import UIKit
 
 public class AztecFormatBar: UIToolbar
 {
-    static let buttonFrame = CGRect(x: 0, y: 0, width: 44.0, height: 44.0)
 
     public var formatter: AztecFormatBarDelegate?
 
-    lazy var boldButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_bold")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleBoldAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Bold.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
 
-
-    lazy var italicButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_italic")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleItalicAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Italic.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var underlineButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_underline")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleUnderlineAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Underline.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var strikeButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_strikethrough")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleStrikethroughAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Strikethrough.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var orderedListButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_ol")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleOrderedListAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Orderedlist.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var unorderedListButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_ul")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleUnorderedListAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Unorderedlist.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var blockquoteButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_quote")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleBlockquoteAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Blockquote.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var linkButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_link")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleLinkAction(_:)))
-        button.identifier = AztecFormattingIdentifier.Link.rawValue
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    lazy var mediaButton: AztecFormatBarItem = {
-        let image = self.getImageNamed("icon_format_media")
-        let button = AztecFormatBarItem(image: image, frame: buttonFrame, target: self, action: #selector(self.dynamicType.handleMediaAction(_:)))
-        self.applyButtonStyle(button)
-        return button
-    }()
-
-
-    public var enabled = true {
+    override public var items: [UIBarButtonItem]? {
         didSet {
-            guard let items = items else {
-                return
-            }
-            for item in items {
-                if let barItem = item as? AztecFormatBarItem {
-                    barItem.enabled = enabled
-                }
+            for item in formatBarItems {
+                configureButtonStyle(item)
+                configureButtonAction(item)
             }
         }
     }
 
 
-    // MARK: - Lifecycle Methods
-
-
-    init() {
-        super.init(frame: CGRectZero)
-        setupButtons()
+    override public var tintColor: UIColor? {
+        didSet {
+            for item in formatBarItems {
+                item.tintColor = tintColor
+            }
+        }
     }
 
 
-    override public init(frame: CGRect) {
-        super.init(frame: frame)
-        setupButtons()
-    }
-    
-
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        setupButtons()
+    public var selectedTintColor: UIColor? {
+        didSet {
+            for item in formatBarItems {
+                item.selectedTintColor = selectedTintColor
+            }
+        }
     }
 
 
-    // MARK: - Setup
-
-
-    func getImageNamed(named: String) -> UIImage {
-        let bundle = NSBundle(forClass: self.dynamicType)
-        let image = UIImage(named: named, inBundle: bundle, compatibleWithTraitCollection: nil)
-        return image!.imageWithRenderingMode(.AlwaysTemplate)
+    public var highlightedTintColor: UIColor? {
+        didSet {
+            for item in formatBarItems {
+                item.highlightedTintColor = highlightedTintColor
+            }
+        }
     }
 
 
-    func setupButtons() {
-        let flex = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
-        items = [
-            flex,
-            mediaButton,
-            flex,
-            boldButton,
-            flex,
-            italicButton,
-            flex,
-            underlineButton,
-            flex,
-            blockquoteButton,
-            flex,
-            unorderedListButton,
-            flex,
-            orderedListButton,
-            flex,
-            linkButton,
-            flex,
-        ]
+    public var disabledTintColor: UIColor? {
+        didSet {
+            for item in formatBarItems {
+                item.disabledTintColor = disabledTintColor
+            }
+        }
+    }
+
+
+    public var enabled = true {
+        didSet {
+            for item in formatBarItems {
+                item.enabled = enabled
+            }
+        }
+    }
+
+
+    public var formatBarItems: [AztecFormatBarItem] {
+        guard let items = items else {
+            return [AztecFormatBarItem]()
+        }
+        return items.filter({ (element) -> Bool in
+            if let _ = element as? AztecFormatBarItem {
+                return true
+            }
+            return false
+        }) as! [AztecFormatBarItem]
     }
 
 
     // MARK: - Styles
 
 
-    func applyButtonStyle(button: AztecFormatBarItem) {
-        button.tintColor = UIColor.grayColor()
-        button.selectedTintColor = UIColor.darkGrayColor()
-        button.highlightedTintColor = UIColor.blueColor()
-        button.disabledTintColor = UIColor.lightGrayColor()
+    func configureButtonStyle(button: AztecFormatBarItem) {
+        button.tintColor = tintColor
+        button.selectedTintColor = selectedTintColor
+        button.highlightedTintColor = highlightedTintColor
+        button.disabledTintColor = disabledTintColor
+    }
+
+
+    func configureButtonAction(button: AztecFormatBarItem) {
+        button.target = self
+        button.action = #selector(self.dynamicType.handleButtonAction(_:))
     }
 
 
     ///
     ///
     public func selectItemsMatchingIdentifiers(identifiers: [String]) {
-        guard let items = items else {
-            return
-        }
-        for item in items {
-            if let barItem = item as? AztecFormatBarItem, let identifier = barItem.identifier {
-                barItem.selected = identifiers.contains(identifier)
+        for item in formatBarItems {
+            if let identifier = item.identifier {
+                item.selected = identifiers.contains(identifier)
             }
         }
     }
@@ -185,48 +107,8 @@ public class AztecFormatBar: UIToolbar
     // MARK: - Actions
 
 
-    func handleBoldAction(sender: AztecFormatBarItem) {
-        formatter?.toggleBold()
-    }
-
-
-    func handleItalicAction(sender: AztecFormatBarItem) {
-        formatter?.toggleItalic()
-    }
-
-
-    func handleUnderlineAction(sender: AztecFormatBarItem) {
-        formatter?.toggleUnderline()
-    }
-
-
-    func handleStrikethroughAction(sender: AztecFormatBarItem) {
-        formatter?.toggleStrikethrough()
-    }
-
-
-    func handleOrderedListAction(sender: AztecFormatBarItem) {
-        formatter?.toggleOrderedList()
-    }
-
-
-    func handleUnorderedListAction(sender: AztecFormatBarItem) {
-        formatter?.toggleUnorderedList()
-    }
-
-
-    func handleBlockquoteAction(sender: AztecFormatBarItem) {
-        formatter?.toggleBlockquote()
-    }
-
-
-    func handleLinkAction(sender: AztecFormatBarItem) {
-        formatter?.toggleLink()
-    }
-    
-    
-    func handleMediaAction(sender: AztecFormatBarItem) {
-        formatter?.insertImage()
+    func handleButtonAction(sender: AztecFormatBarItem) {
+        formatter?.handleActionForIdentifier(sender.identifier!)
     }
 
 }

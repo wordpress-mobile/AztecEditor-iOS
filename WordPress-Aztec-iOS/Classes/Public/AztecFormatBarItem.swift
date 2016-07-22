@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 
 
+
 public class AztecFormatBarItem: UIBarButtonItem
 {
 
@@ -68,6 +69,15 @@ public class AztecFormatBarItem: UIBarButtonItem
     }
 
 
+    // MARK: - Lifecycle
+
+    public convenience init(image: UIImage, identifier: String) {
+        let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        self.init(image: image, frame: defaultFrame, target: nil, action: nil)
+        self.identifier = identifier
+    }
+
+
     init(image: UIImage, frame: CGRect, target: AnyObject?, action: Selector) {
         super.init()
 
@@ -90,6 +100,8 @@ public class AztecFormatBarItem: UIBarButtonItem
         fatalError("init(coder:) has not been implemented")
     }
 
+
+    // MARK: - Actions
 
     func handleButtonTapped(sender: UIButton) {
         target?.performSelector(action, withObject: self)
