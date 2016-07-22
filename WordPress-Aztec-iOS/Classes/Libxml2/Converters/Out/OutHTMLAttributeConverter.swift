@@ -14,8 +14,8 @@ extension Libxml2.Out {
         ///
         /// - Returns: an libxml2 attribute.
         ///
-        func convert(rawAttribute: Attribute) -> xmlAttr {
-            var attribute: xmlAttr!
+        func convert(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
+            var attribute: UnsafeMutablePointer<xmlAttr>!
             
             if let stringAttribute = rawAttribute as? StringAttribute {
                 attribute = createStringAttribute(stringAttribute)
@@ -33,7 +33,7 @@ extension Libxml2.Out {
         ///
         /// - Returns: libxml2 string attribute
         ///
-        private func createStringAttribute(rawStringAttribute: StringAttribute) -> xmlAttr {
+        private func createStringAttribute(rawStringAttribute: StringAttribute) -> UnsafeMutablePointer<xmlAttr> {
             let name = rawStringAttribute.name
             let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
             let namePtr = UnsafePointer<xmlChar>(nameCStr)
@@ -42,14 +42,7 @@ extension Libxml2.Out {
             let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
             
-            var node = xmlNode()
-            node.content = valuePtr
-            
-            var xmlAttribute = xmlAttr()
-            xmlAttribute.name = namePtr
-            xmlAttribute.children = withUnsafeMutablePointer(&node) {UnsafeMutablePointer<xmlNode>($0)}
-            
-            return xmlAttribute
+            return xmlNewProp(nil, namePtr, valuePtr)
         }
         
         /// Creates a libxml2 attribute from a HTML.Attribute.
@@ -59,15 +52,12 @@ extension Libxml2.Out {
         ///
         /// - Returns: libxml2 attribute
         ///
-        private func createAttribute(rawAttribute: Attribute) -> xmlAttr {
+        private func createAttribute(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
             let name = rawAttribute.name
             let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
             let namePtr = UnsafePointer<xmlChar>(nameCStr)
             
-            var xmlAttribute = xmlAttr()
-            xmlAttribute.name = namePtr
-            
-            return xmlAttribute
+            return xmlNewProp(nil, namePtr, nil)
         }
     }
 }

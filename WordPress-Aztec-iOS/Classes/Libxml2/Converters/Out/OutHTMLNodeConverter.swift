@@ -16,14 +16,14 @@ extension Libxml2.Out {
         ///
         /// - Returns: a libxml2 node.
         ///
-        func convert(rawNode: Node) -> xmlNode {
-            var node: xmlNode!
+        func convert(rawNode: Node) -> UnsafeMutablePointer<xmlNode> {
+            var node: UnsafeMutablePointer<xmlNode>!
             let nodeName = rawNode.name
             
             if let textNode = rawNode as? TextNode {
                 node = createTextNode(textNode)
-            } else  {
-                //node = createElementNode(rawNode)
+            } else if let elementNode = rawNode as? ElementNode {
+                node = createElementNode(elementNode)
             }
 
             return node
@@ -36,20 +36,22 @@ extension Libxml2.Out {
         ///
         /// - Returns: the the libxml2 xmlNode.
         ///
-//        private func createElementNode(rawNode: Node) -> xmlNode {
-//            let nodeName = getNodeName(rawNode)
-//            var children = [Node]()
-//
-//            if rawNode.children != nil {
-//                let nodesConverter = NodesConverter()
-//                children.appendContentsOf(nodesConverter.convert(rawNode.children))
-//            }
-//
-//            let attributes = createAttributes(fromNode: rawNode)
-//            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
-//
-//            return node
-//        }
+        private func createElementNode(rawNode: ElementNode) -> UnsafeMutablePointer<xmlNode> {
+            let nodeConverter = NodeConverter()
+            
+            let name = rawNode.name
+            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let namePtr = UnsafeMutablePointer<xmlChar>(nameCStr)
+            
+            let node = xmlNewNode(nil, namePtr)
+            
+            for child in rawNode.children {
+                let childNode = nodeConverter.convert(child)
+                xmlAddChild(node, childNode)
+            }
+            
+            return node
+        }
 
         /// Creates a libxml2 element node from a HTML.TextNode.
         ///
@@ -58,23 +60,12 @@ extension Libxml2.Out {
         ///
         /// - Returns: the libxml2 xmlNode
         ///
-        private func createTextNode(rawNode: TextNode) -> xmlNode {
-            
-            let name = "text"
-            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let namePtr = UnsafePointer<xmlChar>(nameCStr)
-            
+        private func createTextNode(rawNode: TextNode) -> UnsafeMutablePointer<xmlNode> {
             let value = rawNode.text
             let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
             
-            //let attributes = Libxml2.Out.AttributeConverter().convert(rawNode.attributes)
-            
-            var node = xmlNode()
-            node.name = namePtr
-            node.content = valuePtr
-
-            return node
+            return xmlNewText(valuePtr)
         }
     }
 }

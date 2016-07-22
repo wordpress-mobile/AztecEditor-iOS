@@ -27,12 +27,35 @@ class OutNodeConverterTests: XCTestCase {
         let nodeNameText = "text"
         let nodeText = "This is the text."
         let testNode = TextNode(name: nodeNameText, text: nodeText, attributes: [])
-        let xmlNode = Libxml2.Out.NodeConverter().convert(testNode)
+        let xmlNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
         
-        let xmlNodeNameText = String(CString: UnsafePointer<Int8>(xmlNode.name), encoding: NSUTF8StringEncoding)
-        let xmlNodeText = String(CString: UnsafePointer<Int8>(xmlNode.content), encoding: NSUTF8StringEncoding)
+        let xmlNodeNameText = String(CString: UnsafePointer<Int8>(xmlNodePtr.memory.name), encoding: NSUTF8StringEncoding)
+        let xmlNodeText = String(CString: UnsafePointer<Int8>(xmlNodePtr.memory.content), encoding: NSUTF8StringEncoding)
         
+        XCTAssertEqual(nodeNameText, xmlNodeNameText)
         XCTAssertEqual(nodeText, xmlNodeText)
-        XCTAssertEqual(nodeNameText, xmlNodeNameText)        
+        
+        xmlFreeNode(xmlNodePtr)
+    }
+    
+    /// Tests a simple HTML.ElementNode to xmlNode conversion
+    ///
+    func testSimpleElementNodeConversion() {
+        
+        let nodeInnerNameText = "innerNode"
+        let testNodeInner = ElementNode(name: nodeInnerNameText, attributes: [], children: [])
+        
+        let nodeNameText = "element"
+        let testNode = ElementNode(name: nodeNameText, attributes: [], children: [testNodeInner])
+        
+        let xmlNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
+        
+        let xmlNodeNameText = String(CString: UnsafePointer<Int8>(xmlNodePtr.memory.name), encoding: NSUTF8StringEncoding)
+        XCTAssertEqual(nodeNameText, xmlNodeNameText)
+        
+        let xmlInnerNodeNameText = String(CString: UnsafePointer<Int8>(xmlNodePtr.memory.children.memory.name), encoding: NSUTF8StringEncoding)
+        XCTAssertEqual(nodeInnerNameText, xmlInnerNodeNameText)
+        
+        xmlFreeNode(xmlNodePtr)
     }
 }
