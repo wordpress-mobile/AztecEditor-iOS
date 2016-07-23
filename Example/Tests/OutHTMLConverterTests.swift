@@ -36,4 +36,21 @@ class OutHTMLConverterTests: XCTestCase {
         }
     }
 
+    func testSlightlyComplexNodeConversion() {
+        let inParser = Libxml2.In.HTMLConverter()
+        let outParser = Libxml2.Out.HTMLConverter()
+        
+        let html = "<HTML styLe='a' nostyle peace='123'>Hello <b>World</b>!</HTML>"
+        let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        do {
+            let inNode = try inParser.convert(htmlData)
+            let outHtml = outParser.convert(inNode)
+            
+            XCTAssertEqual(outHtml, html)
+        } catch {
+            XCTFail("Unexpected conversion failure.")
+        }
+    }
+    
 }

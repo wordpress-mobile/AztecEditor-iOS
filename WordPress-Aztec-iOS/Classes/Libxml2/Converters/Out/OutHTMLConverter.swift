@@ -6,31 +6,31 @@ extension Libxml2.Out {
         
         typealias Node = HTML.Node
 
-        /// Not sure why, but the compiler is requiring this initializer.
-        ///
-        public init() {
-        }
-
-        /// Converts the root node into HTML data representing the same data.
+        /// Converts the a Libxml2 Node into HTML representing the same data.
         ///
         /// - Parameters:
-        ///     - html: the HTML data to convert.
+        ///     - rawNode: the Libxml2 Node to convert.
         ///
-        /// - Returns: a NSData object representing the specified HTML data.
+        /// - Returns: a String object representing the specified HTML data.
         ///
         public func convert(rawNode: Libxml2.HTML.Node) -> String {
             
-            let bufferSize = 1024
-            let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
             let buf = xmlBufferCreate()
             let xmlDocPtr = xmlNewDoc(nil)
+            
+            // We don't want <p> tags added automattically.
+            //
+            htmlHandleOmittedElem(0)
+            
             let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
             
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
-            
             htmlNodeDump(buf, xmlDocPtr, xmlNodePtr)
             
             let htmlDumpString = String(CString: UnsafePointer<Int8>(buf.memory.content), encoding: NSUTF8StringEncoding)!
+            
+            xmlFreeDoc(xmlDocPtr)
+            xmlBufferFree(buf)
             
             return htmlDumpString
         }
