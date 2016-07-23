@@ -23,12 +23,19 @@ class InHTMLConverterTests: XCTestCase {
         let parser = Libxml2.In.HTMLConverter()
 
         let html = "<bold>Hello!</bold>"
-        let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
 
         do {
-            let node = try parser.convert(htmlData)
+            let node = try parser.convert(html)
 
-            guard let htmlNode = node as? ElementNode else {
+            guard let rootNode = node as? ElementNode
+                where rootNode.name == Aztec.AttributeName.rootNode else {
+                XCTFail("Expected the root element node.")
+                return
+            }
+
+            XCTAssertEqual(rootNode.children.count, 1)
+
+            guard let htmlNode = rootNode.children[0] as? ElementNode else {
                 XCTFail("Expected an element node.")
                 return
             }
@@ -50,28 +57,34 @@ class InHTMLConverterTests: XCTestCase {
     func testComplexHTMLConversion() {
         let parser = Libxml2.In.HTMLConverter()
 
-        let html = "<HTML styLe='a' nostyle peace='123'>Hello <b>World</b>!</HTML>"
-        let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+        let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
         do {
-            let node = try parser.convert(htmlData)
+            let node = try parser.convert(html)
 
-            guard let htmlNode = node as? ElementNode else {
-                XCTFail("Expected an element node.")
+            guard let rootNode = node as? ElementNode else {
+                XCTFail("Expected the root element node.")
                 return
             }
 
-            XCTAssertEqual(htmlNode.name, "html")
-            XCTAssertEqual(htmlNode.attributes.count, 3)
+            XCTAssertEqual(rootNode.children.count, 1)
 
-            guard let attribute1 = htmlNode.attributes[0] as? StringAttribute else {
+            guard let divNode = rootNode.children[0] as? ElementNode else {
+                XCTFail("Expected the div element node.")
+                return
+            }
+
+            XCTAssertEqual(divNode.name, "div")
+            XCTAssertEqual(divNode.attributes.count, 3)
+
+            guard let attribute1 = divNode.attributes[0] as? StringAttribute else {
                 XCTFail("Expected a string attribute.")
                 return
             }
 
-            let attribute2 = htmlNode.attributes[1]
+            let attribute2 = divNode.attributes[1]
 
-            guard let attribute3 = htmlNode.attributes[2] as? StringAttribute else {
+            guard let attribute3 = divNode.attributes[2] as? StringAttribute else {
                 XCTFail("Expected a string attribute.")
                 return
             }
@@ -82,10 +95,10 @@ class InHTMLConverterTests: XCTestCase {
             XCTAssertEqual(attribute3.name, "peace")
             XCTAssertEqual(attribute3.value, "123")
 
-            XCTAssert(htmlNode.children[0] is TextNode)
-            XCTAssert(htmlNode.children[2] is TextNode)
+            XCTAssert(divNode.children[0] is TextNode)
+            XCTAssert(divNode.children[2] is TextNode)
 
-            guard let boldNode = htmlNode.children[1] as? ElementNode else {
+            guard let boldNode = divNode.children[1] as? ElementNode else {
                 XCTFail("Expected an element node.")
                 return
             }

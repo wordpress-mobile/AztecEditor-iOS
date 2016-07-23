@@ -3,6 +3,9 @@ import XCTest
 
 class HTMLToAttributedStringTests: XCTestCase {
 
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias TextNode = Libxml2.HTML.TextNode
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -22,22 +25,35 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString()
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
 
-            let html = "<\(tagName)>Hello</\(tagName)>"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let nodeText = "Hello"
+            let html = "<\(tagName)>\(nodeText)</\(tagName)>"
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
-                guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                guard rootNode.children.count == 1,
+                    let mainNode = rootNode.children[0] as? ElementNode else {
+
+                    XCTFail("Expected to find the first node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].lowercaseString)
-                XCTAssert(firstTag.child == nil)
+                XCTAssert(mainNode.parent == rootNode)
+                XCTAssert(mainNode.name == tagNames[index].lowercaseString)
+
+                guard mainNode.children.count == 1,
+                    let textNode = mainNode.children[0] as? TextNode else {
+
+                    XCTFail("Expected to find the text node.")
+                    return
+                }
+
+                XCTAssertEqual(textNode.text, nodeText)
+
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
@@ -53,22 +69,39 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString()
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
 
-            let html = "Hello <\(tagName)>world</\(tagName)>!"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let firstText = "Hello "
+            let secondText = "world"
+            let thirdText = "!"
+            let html = "\(firstText)<\(tagName)>\(secondText)</\(tagName)>\(thirdText)"
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
-                guard let firstTag = string.firstTag(insideRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                guard rootNode.children.count == 3,
+                    let firstTextNode = rootNode.children[0] as? TextNode,
+                    let elementNode = rootNode.children[1] as? ElementNode,
+                    let thirdTextNode = rootNode.children[2] as? TextNode else {
+
+                        XCTFail("Expected to find the main paragraph child nodes.")
+                        return
+                }
+                
+                XCTAssertEqual(firstTextNode.text, firstText)
+                XCTAssertEqual(elementNode.name, tagNames[index].lowercaseString)
+                XCTAssertEqual(thirdTextNode.text, thirdText)
+
+                guard elementNode.children.count == 1,
+                    let secondTextNode = elementNode.children[0] as? TextNode else {
+
+                    XCTFail("Expected to find the secondary text node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].lowercaseString)
-                XCTAssert(firstTag.child == nil)
+                XCTAssertEqual(secondTextNode.text, secondText)
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
@@ -89,34 +122,49 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString()
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
 
-            let html = "<\(tagName.0)><\(tagName.1)>Hello</\(tagName.1)></\(tagName.0)>"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let text = "Hello"
+            let html = "<\(tagName.0)><\(tagName.1)>\(text)</\(tagName.1)></\(tagName.0)>"
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
-                guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.children.count, 1)
+
+                guard let firstNode = rootNode.children[0] as? ElementNode else {
+                    XCTFail("Expected to find the first node.")
                     return
                 }
 
-                guard let secondTag = firstTag.child else {
-                    XCTFail("Expected to find the second tag.")
+                XCTAssertEqual(firstNode.parent, rootNode)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.children.count, 1)
+
+                guard let secondNode = firstNode.children[0] as? ElementNode else {
+                    XCTFail("Expected to find the second node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].0.lowercaseString)
-                XCTAssert(secondTag.name == tagNames[index].1.lowercaseString)
-                XCTAssert(secondTag.child == nil)
+                XCTAssertEqual(secondNode.parent, firstNode)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.children.count, 1)
+
+                guard let textNode = secondNode.children[0] as? TextNode else {
+                    XCTFail("Expected to find the text node.")
+                    return
+                }
+
+                XCTAssertEqual(textNode.parent, secondNode)
+
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
         }
     }
-
 
     /// Test the conversion of double tags at different levels to `NSAttributedString`.
     ///
@@ -132,37 +180,68 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString()
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
 
-            let html = "<\(tagName.0)>Hello <\(tagName.1)>world</\(tagName.1)>!</\(tagName.0)>"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let firstText = "Hello "
+            let secondText = "world"
+            let thirdText = "!"
+            let html = "<\(tagName.0)>\(firstText)<\(tagName.1)>\(secondText)</\(tagName.1)>\(thirdText)</\(tagName.0)>"
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
-                guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.children.count, 1)
+
+                guard let firstNode = rootNode.children[0] as? ElementNode else {
+                    XCTFail("Expected to find the first node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].0.lowercaseString)
-                XCTAssert(firstTag.child == nil)
+                XCTAssertEqual(firstNode.parent, rootNode)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.children.count, 3)
 
-                guard let secondTag = string.firstTag(insideRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the second tag.")
+                guard let firstTextNode = firstNode.children[0] as? TextNode else {
+                    XCTFail("Expected to find the first text node.")
                     return
                 }
 
-                XCTAssert(secondTag.parent == nil)
-                XCTAssert(secondTag.name == tagNames[index].1.lowercaseString)
-                XCTAssert(secondTag.child == nil)
+                XCTAssertEqual(firstTextNode.parent, firstNode)
+                XCTAssertEqual(firstTextNode.text, firstText)
+
+                guard let secondNode = firstNode.children[1] as? ElementNode else {
+                    XCTFail("Expected to find the second node.")
+                    return
+                }
+
+                XCTAssertEqual(secondNode.parent, firstNode)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.children.count, 1)
+
+                guard let secondTextNode = secondNode.children[0] as? TextNode else {
+                    XCTFail("Expected to find the second text node.")
+                    return
+                }
+
+                XCTAssertEqual(secondTextNode.parent, secondNode)
+                XCTAssertEqual(secondTextNode.text, secondText)
+
+                guard let thirdTextNode = firstNode.children[2] as? TextNode else {
+                    XCTFail("Expected to find the third text node.")
+                    return
+                }
+
+                XCTAssertEqual(thirdTextNode.parent, firstNode)
+                XCTAssertEqual(thirdTextNode.text, thirdText)
+
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
         }
     }
-
 
     /// Test the conversion of a single tag at root level, and double tags at child level to
     /// `NSAttributedString`.
@@ -180,37 +259,71 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold", "italic")]
 
         for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString()
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
 
-            let html = "<\(tagName.0)>Hello <\(tagName.1)><\(tagName.2)>world</\(tagName.2)></\(tagName.1)>!</\(tagName.0)>"
-            let htmlData = html.dataUsingEncoding(NSUTF8StringEncoding)!
+            let firstText = "Hello "
+            let secondText = "world"
+            let thirdText = "!"
+            let html = "<\(tagName.0)>\(firstText)<\(tagName.1)><\(tagName.2)>\(secondText)</\(tagName.2)></\(tagName.1)>\(thirdText)</\(tagName.0)>"
 
             do {
-                let string = try parser.convert(htmlData)
+                let string = try parser.convert(html)
 
-                guard let firstTag = string.firstTag(matchingRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the first tag.")
+                let rootNode = string.rootNode()
+
+                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.children.count, 1)
+
+                guard let firstNode = rootNode.children[0] as? ElementNode else {
+                    XCTFail("Expected to find the first node.")
                     return
                 }
 
-                XCTAssert(firstTag.parent == nil)
-                XCTAssert(firstTag.name == tagNames[index].0.lowercaseString)
-                XCTAssert(firstTag.child == nil)
+                XCTAssertEqual(firstNode.parent, rootNode)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.children.count, 3)
 
-                guard let secondTag = string.firstTag(insideRange: NSRange(location: 0, length: string.length)) else {
-                    XCTFail("Expected to find the second tag.")
+                guard let firstTextNode = firstNode.children[0] as? TextNode else {
+                    XCTFail("Expected to find the first text node.")
                     return
                 }
 
-                guard let thirdTag = secondTag.child else {
-                    XCTFail("Expected to find the second tag.")
+                XCTAssertEqual(firstTextNode.parent, firstNode)
+                XCTAssertEqual(firstTextNode.text, firstText)
+
+                guard let secondNode = firstNode.children[1] as? ElementNode else {
+                    XCTFail("Expected to find the second node.")
                     return
                 }
 
-                XCTAssert(secondTag.parent == nil)
-                XCTAssert(secondTag.name == tagNames[index].1.lowercaseString)
-                XCTAssert(thirdTag.name == tagNames[index].2.lowercaseString)
-                XCTAssert(thirdTag.child == nil)
+                XCTAssertEqual(secondNode.parent, firstNode)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.children.count, 1)
+
+                guard let thirdNode = secondNode.children[0] as? ElementNode else {
+                    XCTFail("Expected to find the third node.")
+                    return
+                }
+
+                XCTAssertEqual(thirdNode.parent, secondNode)
+                XCTAssertEqual(thirdNode.name, tagNames[index].2.lowercaseString)
+                XCTAssertEqual(thirdNode.children.count, 1)
+
+                guard let secondTextNode = thirdNode.children[0] as? TextNode else {
+                    XCTFail("Expected to find the second text node.")
+                    return
+                }
+
+                XCTAssertEqual(secondTextNode.parent, thirdNode)
+                XCTAssertEqual(secondTextNode.text, secondText)
+
+                guard let thirdTextNode = firstNode.children[2] as? TextNode else {
+                    XCTFail("Expected to find the third text node.")
+                    return
+                }
+                
+                XCTAssertEqual(thirdTextNode.parent, firstNode)
+                XCTAssertEqual(thirdTextNode.text, thirdText)
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }

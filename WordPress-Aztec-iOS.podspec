@@ -30,7 +30,7 @@ TBD.  This will be modified as soon as we can publish more info.
   s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com' }
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/WordPress'
-
+  
   s.ios.deployment_target = '8.3'
 
   s.module_name = "Aztec"
