@@ -1,11 +1,11 @@
 use_frameworks!
 
 target 'WordPress-Aztec-iOS_Example' do
-  pod 'WordPress-Aztec-iOS', :path => '../WordPress-Aztec-iOS/'
+  pod 'WordPress-Aztec-iOS', :path => '../'
 
   target 'WordPress-Aztec-iOS_Tests' do
     inherit! :search_paths
 
-  	pod 'WordPress-Aztec-iOS', :path => '../WordPress-Aztec-iOS/'
+  	pod 'WordPress-Aztec-iOS', :path => '../'
   end
 end
