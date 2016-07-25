@@ -33,8 +33,7 @@ TBD.  This will be modified as soon as we can publish more info.
   s.ios.deployment_target = '8.3'
 
   s.module_name = "Aztec"
-  s.source_files = 'Classes/**/*', 'Modulemaps/**/*.{h}'
-  s.private_header_files = 'Modulemaps/libxml2/*.{h}'
+  s.source_files = 'Classes/**/*'
   
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   #
