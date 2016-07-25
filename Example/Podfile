@@ -6,7 +6,6 @@ target 'WordPress-Aztec-iOS_Example' do
   target 'WordPress-Aztec-iOS_Tests' do
     inherit! :search_paths
 
-    
   	pod 'WordPress-Aztec-iOS', :path => '../'
   end
 end
