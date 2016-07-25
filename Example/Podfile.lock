@@ -2,15 +2,15 @@ PODS:
   - WordPress-Aztec-iOS (0.1.0)
 
 DEPENDENCIES:
-  - WordPress-Aztec-iOS (from `../`)
+  - WordPress-Aztec-iOS (from `../WordPress-Aztec-iOS/`)
 
 EXTERNAL SOURCES:
   WordPress-Aztec-iOS:
-    :path: "../"
+    :path: "../WordPress-Aztec-iOS/"
 
 SPEC CHECKSUMS:
-  WordPress-Aztec-iOS: 799f6d2d36e469ca32bba25bb84bf3f7f6c5b6cc
+  WordPress-Aztec-iOS: 24afdc7d9d748126019b299e9de83ab666cbd1cb
 
-PODFILE CHECKSUM: d8fa4b36ff86c4e0e08222dbb2d250d72b61a494
+PODFILE CHECKSUM: 8216e71c1c6263ff2b046ff46d98d1372544165c
 
 COCOAPODS: 1.0.1

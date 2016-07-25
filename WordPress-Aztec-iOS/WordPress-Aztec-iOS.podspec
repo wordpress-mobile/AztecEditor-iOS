@@ -26,28 +26,19 @@ TBD.  This will be modified as soon as we can publish more info.
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'GPLv2', :file => 'LICENSE' }
+  s.license          = { :type => 'GPLv2', :file => '../LICENSE' }
   s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com' }
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/WordPress'
-  
   s.ios.deployment_target = '8.3'
 
   s.module_name = "Aztec"
-  s.source_files = 'WordPress-Aztec-iOS/Classes/**/*'
-  s.private_header_files = 'WordPress-Aztec-iOS/Modulemaps/libxml2/*.{h}'
+  s.source_files = 'Classes/**/*'
+  s.private_header_files = 'Modulemaps/libxml2/*.{h}'
   
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   #
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../WordPress-Aztec-iOS/Modulemaps/libxml2/**', 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
-  # s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../WordPress-Aztec-iOS/Modulemaps/libxml2/**'}
-  s.preserve_paths = 'WordPress-Aztec-iOS/Modulemaps/libxml2/module.modulemap'
-  
-  # s.resource_bundles = {
-  #   'WordPress-Aztec-iOS' => ['WordPress-Aztec-iOS/Assets/*.png']
-  # }
+  s.preserve_paths = 'Modulemaps/libxml2/module.modulemap'
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
 end
