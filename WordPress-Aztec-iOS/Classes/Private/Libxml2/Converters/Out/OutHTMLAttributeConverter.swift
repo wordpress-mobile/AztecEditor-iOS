@@ -6,35 +6,58 @@ extension Libxml2.Out {
 
         typealias Attribute = HTML.Attribute
         typealias StringAttribute = HTML.StringAttribute
-
-        /// Converts a single attribute (from libxml2) into an HTML.Attribute
+        
+        /// Converts a single HTML.Attribute into a single libxml2 attribute
         ///
         /// - Parameters:
-        ///     - attributes: the libxml2 attribute to convert.
+        ///     - attribute: the HTML.Attribute to convert.
         ///
-        /// - Returns: an HTML.Attribute.
+        /// - Returns: an libxml2 attribute.
         ///
-        func convert(attribute: xmlAttr) -> Attribute {
-            guard let attributeName = String(CString: UnsafePointer<Int8>(attribute.name), encoding: NSUTF8StringEncoding) else {
-                // We should evaluate how to improve this condition check... is a nil value
-                // possible at all here?  If so... do we want to interrupt the parsing or try to
-                // recover from it?
-                //
-                // For the sake of moving forward I'm just interrupting here, but this could change
-                // if we find a unit test causing a nil value here.
-                //
-                fatalError("The attribute name should not be nil.")
-            }
-
-            let attributeValueRef = attribute.children
-
-            if attributeValueRef != nil,
-                let attributeValue = String(CString: UnsafePointer<Int8>(attributeValueRef.memory.content), encoding: NSUTF8StringEncoding) {
-
-                return StringAttribute(name: attributeName, value: attributeValue)
+        func convert(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
+            var attribute: UnsafeMutablePointer<xmlAttr>!
+            
+            if let stringAttribute = rawAttribute as? StringAttribute {
+                attribute = createStringAttribute(stringAttribute)
             } else {
-                return Attribute(name: attributeName)
+                attribute = createAttribute(rawAttribute)
             }
+            
+            return attribute;
+        }
+        
+        /// Creates a libxml2 string attribute from a HTML.StringAttribute.
+        ///
+        /// - Parameters:
+        ///     - rawAttribute: HTML.StringAttribute.
+        ///
+        /// - Returns: libxml2 string attribute
+        ///
+        private func createStringAttribute(rawStringAttribute: StringAttribute) -> UnsafeMutablePointer<xmlAttr> {
+            let name = rawStringAttribute.name
+            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let namePtr = UnsafePointer<xmlChar>(nameCStr)
+            
+            let value = rawStringAttribute.value
+            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+            
+            return xmlNewProp(nil, namePtr, valuePtr)
+        }
+        
+        /// Creates a libxml2 attribute from a HTML.Attribute.
+        ///
+        /// - Parameters:
+        ///     - rawAttribute: HTML.Attribute.
+        ///
+        /// - Returns: libxml2 attribute
+        ///
+        private func createAttribute(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
+            let name = rawAttribute.name
+            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let namePtr = UnsafePointer<xmlChar>(nameCStr)
+            
+            return xmlNewProp(nil, namePtr, nil)
         }
     }
 }
