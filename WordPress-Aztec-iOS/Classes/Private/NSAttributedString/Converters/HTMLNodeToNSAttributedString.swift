@@ -125,11 +125,32 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         let fullRange = NSRange(location: 0, length: string.length)
 
+        if isUnderlined(node) {
+            string.addAttribute(NSUnderlineStyleAttributeName, value: 1, range: fullRange)
+        }
+
+        if isStrikedThrough(node) {
+            string.addAttribute(NSStrikethroughStyleAttributeName, value: 1, range: fullRange)
+        }
+
+        string.addAttribute(NSFontAttributeName, value: font(forNode: node), range: fullRange)
+    }
+
+    // MARK: - Font
+
+    /// Returns the correct font for the specified node.  Includes "bold" and "italic" styling
+    /// information.
+    ///
+    /// - Parameters:
+    ///     - node: the node to get the font for.
+    ///
+    /// - Returns: the requested font.
+    ///
+    private func font(forNode node: ElementNode) -> UIFont {
         let traits = symbolicTraits(fromNode: node)
         let newFontDescriptor = defaultFontDescriptor.fontDescriptorWithSymbolicTraits(traits)
-        let newFont = UIFont(descriptor: newFontDescriptor, size: newFontDescriptor.pointSize)
 
-        string.addAttribute(NSFontAttributeName, value: newFont, range: fullRange)
+        return UIFont(descriptor: newFontDescriptor, size: newFontDescriptor.pointSize)
     }
 
     /// Gets a list of symbolic traits representing the specified node.
@@ -142,17 +163,32 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     private func symbolicTraits(fromNode node: ElementNode) -> UIFontDescriptorSymbolicTraits {
         var traits = UIFontDescriptorSymbolicTraits(rawValue: 0)
 
-        let isBold = node.name == "b" || node.name == "strong"
-        let isItalic = node.name == "em" || node.name == "i"
-
-        if isBold {
+        if isBold(node) {
             traits.insert(.TraitBold)
         }
 
-        if isItalic {
+        if isItalic(node) {
             traits.insert(.TraitItalic)
         }
 
         return traits
+    }
+
+    // MARK: - Node styling
+
+    private func isBold(node: ElementNode) -> Bool {
+        return ["b", "strong"].contains(node.name)
+    }
+
+    private func isItalic(node: ElementNode) -> Bool {
+        return ["em", "i"].contains(node.name)
+    }
+
+    private func isStrikedThrough(node: ElementNode) -> Bool {
+        return ["strike", "del", "s"].contains(node.name)
+    }
+
+    private func isUnderlined(node: ElementNode) -> Bool {
+        return ["u"].contains(node.name)
     }
 }
