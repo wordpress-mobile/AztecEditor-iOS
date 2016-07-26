@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		591D62731D2C0BBE00AF4FA1 /* CLinkedListToArrayConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591D62711D2C0BB500AF4FA1 /* CLinkedListToArrayConverterTests.swift */; };
-		591D62761D2C49A000AF4FA1 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591D62741D2C479400AF4FA1 /* InAttributeConverterTests.swift */; };
-		592CBEEB1D301FED005571B8 /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592CBEE91D301FEB005571B8 /* HTMLToAttributedStringTests.swift */; };
-		5950B3111D21A890004A419A /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59BF3A201D2198F000F763A9 /* InHTMLConverterTests.swift */; };
+		59699BCB1D47C88400DC1F37 /* CLinkedListToArrayConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BBD1D47C87F00DC1F37 /* CLinkedListToArrayConverterTests.swift */; };
+		59699BCC1D47C88400DC1F37 /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BBE1D47C87F00DC1F37 /* HTMLToAttributedStringTests.swift */; };
+		59699BCD1D47C88400DC1F37 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BBF1D47C87F00DC1F37 /* InAttributeConverterTests.swift */; };
+		59699BCE1D47C88400DC1F37 /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BC01D47C87F00DC1F37 /* InHTMLConverterTests.swift */; };
+		59699BCF1D47C88400DC1F37 /* OutAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BC11D47C87F00DC1F37 /* OutAttributeConverterTests.swift */; };
+		59699BD01D47C88400DC1F37 /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BC21D47C87F00DC1F37 /* OutHTMLConverterTests.swift */; };
+		59699BD11D47C88400DC1F37 /* OutNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59699BC31D47C87F00DC1F37 /* OutNodeConverterTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		6AED12F8D5A6FB84E1C3B519 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
-		748B4D071D3D3CFF007BA3D8 /* OutNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748B4D051D3D21FE007BA3D8 /* OutNodeConverterTests.swift */; };
-		748B4D081D3D3D08007BA3D8 /* OutAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748B4D011D3D21A5007BA3D8 /* OutAttributeConverterTests.swift */; };
-		748B4D091D3D3D0C007BA3D8 /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748B4D031D3D21DE007BA3D8 /* OutHTMLConverterTests.swift */; };
 		758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
 		E60B0CF81D2D88A200AEAEEA /* AztecVisualEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60B0CF71D2D88A200AEAEEA /* AztecVisualEditorTests.swift */; };
 		E62AD5C81D404176002B58C2 /* AztecTextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62AD5C61D403CE6002B58C2 /* AztecTextStorageTests.swift */; };
@@ -44,11 +44,14 @@
 		1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3BBD869155A4461959D2884D /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		46F80AF8CF44F55383EEED45 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "WordPress-Aztec-iOS.podspec"; path = "../WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
-		591D62711D2C0BB500AF4FA1 /* CLinkedListToArrayConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CLinkedListToArrayConverterTests.swift; sourceTree = "<group>"; };
-		591D62741D2C479400AF4FA1 /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
-		592CBEE91D301FEB005571B8 /* HTMLToAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedStringTests.swift; sourceTree = "<group>"; };
+		59699BBD1D47C87F00DC1F37 /* CLinkedListToArrayConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CLinkedListToArrayConverterTests.swift; sourceTree = "<group>"; };
+		59699BBE1D47C87F00DC1F37 /* HTMLToAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedStringTests.swift; sourceTree = "<group>"; };
+		59699BBF1D47C87F00DC1F37 /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
+		59699BC01D47C87F00DC1F37 /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
+		59699BC11D47C87F00DC1F37 /* OutAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutAttributeConverterTests.swift; sourceTree = "<group>"; };
+		59699BC21D47C87F00DC1F37 /* OutHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverterTests.swift; sourceTree = "<group>"; };
+		59699BC31D47C87F00DC1F37 /* OutNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutNodeConverterTests.swift; sourceTree = "<group>"; };
 		5993F2951D369CFC00919A22 /* UnsupportedTags.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = UnsupportedTags.rtf; path = "../WordPress-Aztec-iOS/Documentation/UnsupportedTags.rtf"; sourceTree = "<group>"; };
-		59BF3A201D2198F000F763A9 /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* WordPress-Aztec-iOS_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WordPress-Aztec-iOS_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -60,9 +63,6 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C0BC2B0C0F5C2CF2F84CA2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		748B4D011D3D21A5007BA3D8 /* OutAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutAttributeConverterTests.swift; sourceTree = "<group>"; };
-		748B4D031D3D21DE007BA3D8 /* OutHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverterTests.swift; sourceTree = "<group>"; };
-		748B4D051D3D21FE007BA3D8 /* OutNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutNodeConverterTests.swift; sourceTree = "<group>"; };
 		870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
 		9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -105,6 +105,20 @@
 				1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		59699BBC1D47C87F00DC1F37 /* Converters */ = {
+			isa = PBXGroup;
+			children = (
+				59699BBD1D47C87F00DC1F37 /* CLinkedListToArrayConverterTests.swift */,
+				59699BBE1D47C87F00DC1F37 /* HTMLToAttributedStringTests.swift */,
+				59699BBF1D47C87F00DC1F37 /* InAttributeConverterTests.swift */,
+				59699BC01D47C87F00DC1F37 /* InHTMLConverterTests.swift */,
+				59699BC11D47C87F00DC1F37 /* OutAttributeConverterTests.swift */,
+				59699BC21D47C87F00DC1F37 /* OutHTMLConverterTests.swift */,
+				59699BC31D47C87F00DC1F37 /* OutNodeConverterTests.swift */,
+			);
+			path = Converters;
 			sourceTree = "<group>";
 		};
 		5993F2941D369CCC00919A22 /* Documentation */ = {
@@ -167,15 +181,9 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				591D62711D2C0BB500AF4FA1 /* CLinkedListToArrayConverterTests.swift */,
-				591D62741D2C479400AF4FA1 /* InAttributeConverterTests.swift */,
-				59BF3A201D2198F000F763A9 /* InHTMLConverterTests.swift */,
 				E62AD5C61D403CE6002B58C2 /* AztecTextStorageTests.swift */,
-748B4D051D3D21FE007BA3D8 /* OutNodeConverterTests.swift */,
-				748B4D011D3D21A5007BA3D8 /* OutAttributeConverterTests.swift */,
-				748B4D031D3D21DE007BA3D8 /* OutHTMLConverterTests.swift */,
 				E60B0CF71D2D88A200AEAEEA /* AztecVisualEditorTests.swift */,
-				592CBEE91D301FEB005571B8 /* HTMLToAttributedStringTests.swift */,
+				59699BBC1D47C87F00DC1F37 /* Converters */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
 			path = Tests;
@@ -422,15 +430,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				748B4D081D3D3D08007BA3D8 /* OutAttributeConverterTests.swift in Sources */,
-				592CBEEB1D301FED005571B8 /* HTMLToAttributedStringTests.swift in Sources */,
-				591D62731D2C0BBE00AF4FA1 /* CLinkedListToArrayConverterTests.swift in Sources */,
+				59699BD01D47C88400DC1F37 /* OutHTMLConverterTests.swift in Sources */,
+				59699BCF1D47C88400DC1F37 /* OutAttributeConverterTests.swift in Sources */,
 				E62AD5C81D404176002B58C2 /* AztecTextStorageTests.swift in Sources */,
-				5950B3111D21A890004A419A /* InHTMLConverterTests.swift in Sources */,
-				748B4D071D3D3CFF007BA3D8 /* OutNodeConverterTests.swift in Sources */,
+				59699BCC1D47C88400DC1F37 /* HTMLToAttributedStringTests.swift in Sources */,
+				59699BCB1D47C88400DC1F37 /* CLinkedListToArrayConverterTests.swift in Sources */,
+				59699BCD1D47C88400DC1F37 /* InAttributeConverterTests.swift in Sources */,
 				E60B0CF81D2D88A200AEAEEA /* AztecVisualEditorTests.swift in Sources */,
-				748B4D091D3D3D0C007BA3D8 /* OutHTMLConverterTests.swift in Sources */,
-				591D62761D2C49A000AF4FA1 /* InAttributeConverterTests.swift in Sources */,
+				59699BCE1D47C88400DC1F37 /* InHTMLConverterTests.swift in Sources */,
+				59699BD11D47C88400DC1F37 /* OutNodeConverterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
