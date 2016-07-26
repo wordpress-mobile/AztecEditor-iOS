@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AztecFormattingIdentifier: String
+public enum FormattingIdentifier: String
 {
     case Bold = "bold"
     case Italic = "italic"
