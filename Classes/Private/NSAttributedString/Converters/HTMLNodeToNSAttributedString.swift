@@ -14,24 +14,79 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
+    // MARK: - Conversion
+
     /// Main conversion method.
     ///
+    /// - Parameters:
+    ///     - node: the node to convert to `NSAttributedString`.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
     func convert(node: Node) -> NSAttributedString {
+        return convert(node, withBaseFontDescriptor: defaultFontDescriptor)
+    }
+
+    /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
+    /// converting.
+    ///
+    /// - Parameters:
+    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.  Any
+    ///             change to the font style will be applied on top of this base descriptor.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    private func convert(node: Node, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
-            return NSAttributedString(string: textNode.text, attributes: [keyForNode(textNode): textNode])
+            return convertTextNode(textNode, withBaseFontDescriptor: baseFontDescriptor)
         } else {
             guard let elementNode = node as? ElementNode else {
                 fatalError("Nodes can be either text or element nodes.")
             }
 
-            if elementNode.children.count == 0 {
-                return stringForEmptyNode(elementNode)
-            } else {
-                return stringForNode(elementNode)
-            }
+            return convertElementNode(elementNode, withBaseFontDescriptor: baseFontDescriptor)
         }
     }
+
+    /// Converts a `TextNode` to `NSAttributedString`.
+    ///
+    /// - Parameters:
+    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.
+    ///             Text nodes don't have styling information, so this will be used as-is.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    private func convertTextNode(node: TextNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+
+        let font = UIFont(descriptor: baseFontDescriptor, size: baseFontDescriptor.pointSize)
+        let attributes: [String:AnyObject] = [keyForNode(node): node,
+                                              NSFontAttributeName: font]
+
+        return NSAttributedString(string: node.text, attributes: attributes)
+    }
+
+    /// Converts an `ElementNode` to `NSAttributedString`.
+    ///
+    /// - Parameters:
+    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.
+    ///             Text nodes don't have styling information, so this will be used as-is.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    private func convertElementNode(node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+
+        if node.children.count == 0 {
+            return stringForEmptyNode(node)
+        } else {
+            return stringForNode(node, withBaseFontDescriptor: baseFontDescriptor)
+        }
+    }
+
+    // MARK: - Unique Key Generation
 
     /// Generates a unique ID for the specified node.
     ///
@@ -46,6 +101,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
     }
 
+    // MARK: - Node Styling
+
     /// Returns an attributed string representing the specified non-empty node.  Non-empty means
     /// the received node has children.
     ///
@@ -55,18 +112,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    private func stringForNode(elementNode: ElementNode) -> NSAttributedString {
-        assert(elementNode.children.count > 0)
+    private func stringForNode(node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+        assert(node.children.count > 0)
 
-        let content = NSMutableAttributedString()
+        let content = NSMutableAttributedString(string: "XX")
+        let descriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
 
-        for child in elementNode.children {
-            let childContent = convert(child)
+        content.addAttribute(NSFontAttributeName, value: font(forNode: node, withBaseFontDescriptor: baseFontDescriptor), range: NSRange(location: 0, length: content.length))
 
-            content.appendAttributedString(childContent)
+        let childrenContent = NSMutableAttributedString()
+
+        for child in node.children {
+            let childContent = convert(child, withBaseFontDescriptor: descriptor)
+
+            childrenContent.appendAttributedString(childContent)
         }
 
-        addAttributes(toString: content, fromNode: elementNode)
+        content.replaceCharactersInRange(NSRange(location: 0, length: content.length), withAttributedString: childrenContent)
+        content.addAttribute(keyForNode(node), value: node, range: NSRange(location: 0, length: content.length))
+        //content.insertAttributedString(childrenContent, atIndex: 1)
 
         return content
     }
@@ -133,7 +197,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             string.addAttribute(NSStrikethroughStyleAttributeName, value: 1, range: fullRange)
         }
 
-        string.addAttribute(NSFontAttributeName, value: font(forNode: node), range: fullRange)
+        //string.addAttribute(NSFontAttributeName, value: font(forNode: node), range: fullRange)
     }
 
     // MARK: - Font
@@ -146,11 +210,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the requested font.
     ///
-    private func font(forNode node: ElementNode) -> UIFont {
-        let traits = symbolicTraits(fromNode: node)
-        let newFontDescriptor = defaultFontDescriptor.fontDescriptorWithSymbolicTraits(traits)
+    private func font(forNode node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> UIFont {
+
+        let newFontDescriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
 
         return UIFont(descriptor: newFontDescriptor, size: newFontDescriptor.pointSize)
+    }
+
+    private func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
+        let traits = symbolicTraits(forNode: node, withBaseSymbolicTraits: fontDescriptor.symbolicTraits)
+
+        return fontDescriptor.fontDescriptorWithSymbolicTraits(traits)
     }
 
     /// Gets a list of symbolic traits representing the specified node.
@@ -160,8 +230,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the requested symbolic traits.
     ///
-    private func symbolicTraits(fromNode node: ElementNode) -> UIFontDescriptorSymbolicTraits {
-        var traits = UIFontDescriptorSymbolicTraits(rawValue: 0)
+    private func symbolicTraits(forNode node: ElementNode, withBaseSymbolicTraits baseTraits: UIFontDescriptorSymbolicTraits) -> UIFontDescriptorSymbolicTraits {
+
+        var traits = baseTraits
 
         if isBold(node) {
             traits.insert(.TraitBold)
