@@ -68,19 +68,19 @@ public class AztecVisualEditor : NSObject
         }
 
         if boldFormattingSpansRange(range) {
-            identifiers.append(AztecFormattingIdentifier.Bold.rawValue)
+            identifiers.append(FormattingIdentifier.Bold.rawValue)
         }
 
         if italicFormattingSpansRange(range) {
-            identifiers.append(AztecFormattingIdentifier.Italic.rawValue)
+            identifiers.append(FormattingIdentifier.Italic.rawValue)
         }
 
         if underlineFormattingSpansRange(range) {
-            identifiers.append(AztecFormattingIdentifier.Underline.rawValue)
+            identifiers.append(FormattingIdentifier.Underline.rawValue)
         }
 
         if strikethroughFormattingSpansRange(range) {
-            identifiers.append(AztecFormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
         return identifiers
@@ -104,19 +104,19 @@ public class AztecVisualEditor : NSObject
         let index = adjustedIndex(index)
 
         if formattingAtIndexContainsBold(index) {
-            identifiers.append(AztecFormattingIdentifier.Bold.rawValue)
+            identifiers.append(FormattingIdentifier.Bold.rawValue)
         }
 
         if formattingAtIndexContainsItalic(index) {
-            identifiers.append(AztecFormattingIdentifier.Italic.rawValue)
+            identifiers.append(FormattingIdentifier.Italic.rawValue)
         }
 
         if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(AztecFormattingIdentifier.Underline.rawValue)
+            identifiers.append(FormattingIdentifier.Underline.rawValue)
         }
 
         if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(AztecFormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
         return identifiers

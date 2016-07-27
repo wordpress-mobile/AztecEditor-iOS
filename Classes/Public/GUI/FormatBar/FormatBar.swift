@@ -2,10 +2,10 @@ import Foundation
 import UIKit
 
 
-public class AztecFormatBar: UIToolbar
+public class FormatBar: UIToolbar
 {
 
-    public var formatter: AztecFormatBarDelegate?
+    public var formatter: FormatBarDelegate?
 
 
     override public var items: [UIBarButtonItem]? {
@@ -63,23 +63,23 @@ public class AztecFormatBar: UIToolbar
     }
 
 
-    public var formatBarItems: [AztecFormatBarItem] {
+    public var formatBarItems: [FormatBarItem] {
         guard let items = items else {
-            return [AztecFormatBarItem]()
+            return [FormatBarItem]()
         }
         return items.filter({ (element) -> Bool in
-            if let _ = element as? AztecFormatBarItem {
+            if let _ = element as? FormatBarItem {
                 return true
             }
             return false
-        }) as! [AztecFormatBarItem]
+        }) as! [FormatBarItem]
     }
 
 
     // MARK: - Styles
 
 
-    func configureButtonStyle(button: AztecFormatBarItem) {
+    func configureButtonStyle(button: FormatBarItem) {
         button.tintColor = tintColor
         button.selectedTintColor = selectedTintColor
         button.highlightedTintColor = highlightedTintColor
@@ -87,7 +87,7 @@ public class AztecFormatBar: UIToolbar
     }
 
 
-    func configureButtonAction(button: AztecFormatBarItem) {
+    func configureButtonAction(button: FormatBarItem) {
         button.target = self
         button.action = #selector(self.dynamicType.handleButtonAction(_:))
     }
@@ -107,7 +107,7 @@ public class AztecFormatBar: UIToolbar
     // MARK: - Actions
 
 
-    func handleButtonAction(sender: AztecFormatBarItem) {
+    func handleButtonAction(sender: FormatBarItem) {
         formatter?.handleActionForIdentifier(sender.identifier!)
     }
 

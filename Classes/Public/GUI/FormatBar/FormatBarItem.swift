@@ -3,7 +3,7 @@ import UIKit
 
 
 
-public class AztecFormatBarItem: UIBarButtonItem
+public class FormatBarItem: UIBarButtonItem
 {
 
     public var identifier: String?

@@ -225,7 +225,7 @@ class EditorDemoController: UIViewController
 
 
     func updateFormatBar() {
-        guard let toolbar = textView.inputAccessoryView as? AztecFormatBar else {
+        guard let toolbar = textView.inputAccessoryView as? Aztec.FormatBar else {
             return
         }
 
@@ -251,36 +251,36 @@ extension EditorDemoController : UITextFieldDelegate
 }
 
 
-extension EditorDemoController : AztecFormatBarDelegate
+extension EditorDemoController : Aztec.FormatBarDelegate
 {
 
     func handleActionForIdentifier(identifier: String) {
         switch identifier {
-        case AztecFormattingIdentifier.Bold.rawValue :
+        case Aztec.FormattingIdentifier.Bold.rawValue :
             toggleBold()
             break
-        case AztecFormattingIdentifier.Italic.rawValue :
+        case Aztec.FormattingIdentifier.Italic.rawValue :
             toggleItalic()
             break
-        case AztecFormattingIdentifier.Underline.rawValue :
+        case Aztec.FormattingIdentifier.Underline.rawValue :
             toggleUnderline()
             break
-        case AztecFormattingIdentifier.Strikethrough.rawValue :
+        case Aztec.FormattingIdentifier.Strikethrough.rawValue :
             toggleStrikethrough()
             break
-        case AztecFormattingIdentifier.Blockquote.rawValue :
+        case Aztec.FormattingIdentifier.Blockquote.rawValue :
             toggleBlockquote()
             break
-        case AztecFormattingIdentifier.Unorderedlist.rawValue :
+        case Aztec.FormattingIdentifier.Unorderedlist.rawValue :
             toggleUnorderedList()
             break
-        case AztecFormattingIdentifier.Orderedlist.rawValue :
+        case Aztec.FormattingIdentifier.Orderedlist.rawValue :
             toggleOrderedList()
             break
-        case AztecFormattingIdentifier.Link.rawValue :
+        case Aztec.FormattingIdentifier.Link.rawValue :
             toggleLink()
             break
-        case AztecFormattingIdentifier.Media.rawValue :
+        case Aztec.FormattingIdentifier.Media.rawValue :
             insertImage()
             break;
         default:
@@ -335,31 +335,31 @@ extension EditorDemoController : AztecFormatBarDelegate
 
     // MARK: -
 
-    func createToolbar() -> AztecFormatBar {
+    func createToolbar() -> Aztec.FormatBar {
         let flex = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
         let items = [
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_media"), identifier: AztecFormattingIdentifier.Media.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: Aztec.FormattingIdentifier.Media.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: AztecFormattingIdentifier.Bold.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: Aztec.FormattingIdentifier.Bold.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: AztecFormattingIdentifier.Italic.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: Aztec.FormattingIdentifier.Italic.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: AztecFormattingIdentifier.Underline.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: Aztec.FormattingIdentifier.Underline.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: AztecFormattingIdentifier.Strikethrough.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: Aztec.FormattingIdentifier.Strikethrough.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: AztecFormattingIdentifier.Blockquote.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: Aztec.FormattingIdentifier.Blockquote.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: AztecFormattingIdentifier.Unorderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: Aztec.FormattingIdentifier.Unorderedlist.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: AztecFormattingIdentifier.Orderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: Aztec.FormattingIdentifier.Orderedlist.rawValue),
             flex,
-            AztecFormatBarItem(image: templateImage(named:"icon_format_link"), identifier: AztecFormattingIdentifier.Link.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: Aztec.FormattingIdentifier.Link.rawValue),
             flex,
         ]
 
-        let toolbar = AztecFormatBar()
+        let toolbar = Aztec.FormatBar()
         toolbar.tintColor = UIColor.grayColor()
         toolbar.highlightedTintColor = UIColor.blueColor()
         toolbar.selectedTintColor = UIColor.darkGrayColor()
