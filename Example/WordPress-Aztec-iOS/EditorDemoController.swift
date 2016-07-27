@@ -134,6 +134,8 @@ class EditorDemoController: UIViewController
 
         view.addSubview(textView)
 
+        textView.attributedText = self.getSampleHTML()
+
         configureConstraints()
         layoutTextView()
     }
@@ -234,6 +236,29 @@ class EditorDemoController: UIViewController
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
+    // MARK: - Sample Content
+
+    func getSampleHTML() -> NSAttributedString {
+        let htmlFilePath = NSBundle.mainBundle().pathForResource("content", ofType: "html")!
+        let fileContents: String
+
+        do {
+            fileContents = try String(contentsOfFile: htmlFilePath)
+        } catch {
+            fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
+        }
+
+        let converter = Aztec.HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let output: NSAttributedString
+
+        do {
+            output = try converter.convert(fileContents)
+        } catch {
+            fatalError("Could not convert the sample HTML.")
+        }
+
+        return output
+    }
 }
 
 
