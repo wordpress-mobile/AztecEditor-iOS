@@ -180,6 +180,48 @@ class FormattingDemoController: UIViewController
     }
 
 
+    @IBAction func blockquoteAction() {
+
+        let selectedRange = textView.selectedRange
+        let storage = textView.textStorage
+
+        let string = storage.string as NSString
+        let range = NSRange(location: 0, length: string.length)
+        string.enumerateSubstringsInRange(range,
+                                          options: .ByParagraphs,
+                                          usingBlock: { (substring, substringRange, enclosingRange, stop) in
+                                            // Stop if necessary.
+                                            if substringRange.location > NSMaxRange(selectedRange) {
+                                                stop.memory = true
+                                                return
+                                            }
+
+                                            // Bail early if the paragraph precedes the start of the selection
+                                            if NSMaxRange(substringRange) < selectedRange.location {
+                                                return
+                                            }
+
+                                            var r = NSRange()
+                                            let pStyle = storage.attribute(NSParagraphStyleAttributeName,
+                                                                           atIndex: substringRange.location,
+                                                                           effectiveRange: &r)  as! NSParagraphStyle
+
+                                            let tab:CGFloat = pStyle.headIndent == 0 ? 20 : 0
+
+                                            let mStyle = NSMutableParagraphStyle()
+                                            mStyle.setParagraphStyle(pStyle)
+                                            mStyle.headIndent = tab
+                                            mStyle.firstLineHeadIndent = tab
+                                            
+                                            storage.addAttribute(NSParagraphStyleAttributeName, value: mStyle, range: substringRange)
+        })
+
+
+    }
+
+
+
+
     func foo() {
 //        let attributes = textView.textStorage.attribute
     }
