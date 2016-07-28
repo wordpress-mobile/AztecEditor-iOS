@@ -194,11 +194,11 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isStrikedThrough(node) {
-            attributes[NSStrikethroughStyleAttributeName] = 1
+            attributes[NSStrikethroughStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
 
         if isUnderlined(node) {
-            attributes[NSUnderlineStyleAttributeName] = 1
+            attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
 
         return attributes
