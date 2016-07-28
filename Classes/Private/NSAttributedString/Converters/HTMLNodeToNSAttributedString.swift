@@ -182,7 +182,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         if isLink(node) {
             let linkURL: String
 
-            if let attribute = node.attributes.indexOf({ $0.name == "href" }) as? Libxml2.HTML.StringAttribute {
+            if let attribute = node.attributes.indexOf({ $0.name == HTMLLinkAttributes.Href.rawValue }) as? Libxml2.HTML.StringAttribute {
                 linkURL = attribute.value
             } else {
                 // We got a link tag without an HREF attribute
@@ -237,22 +237,26 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Node Style Checks
 
     private func isLink(node: ElementNode) -> Bool {
-        return node.name == "a"
+        return node.name == HTMLTags.Link.rawValue
     }
 
     private func isBold(node: ElementNode) -> Bool {
-        return ["b", "strong"].contains(node.name)
+        return [HTMLTags.Bold.rawValue,
+            HTMLTags.Strong.rawValue].contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return ["em", "i"].contains(node.name)
+        return [HTMLTags.Emphasized.rawValue,
+            HTMLTags.Italic.rawValue].contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return ["strike", "del", "s"].contains(node.name)
+        return [HTMLTags.Delete.rawValue,
+            HTMLTags.StrikeThrough1.rawValue,
+            HTMLTags.StrikeThrough2.rawValue].contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return ["u"].contains(node.name)
+        return node.name == HTMLTags.Underline.rawValue
     }
 }
