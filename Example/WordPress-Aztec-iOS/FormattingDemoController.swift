@@ -26,7 +26,7 @@ class FormattingDemoController: UIViewController
 
     func configureTextView() {
         if let filePath = NSBundle.mainBundle().URLForResource("SampleText", withExtension: "rtf"),
-            let attrStr = try? NSAttributedString(fileURL: filePath, options: [:], documentAttributes: nil) {
+            let attrStr = try? NSAttributedString(URL: filePath, options: [:], documentAttributes: nil) {
 
             textView.attributedText = attrStr
         }
