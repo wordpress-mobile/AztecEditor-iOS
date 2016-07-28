@@ -155,11 +155,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - String attributes
 
-    /// Calculates the attributes for this node based.  Returns a dictionary which includes
-    /// inherited attributes.
+    /// Calculates the attributes for the specified node.  Returns a dictionary including inherited
+    /// attributes.
     ///
     /// - Parameters:
     ///     - node: the node to get the information from.
+    ///
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
     private func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> [String:AnyObject] {
 
