@@ -200,6 +200,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isBlockquote(node) {
+            // TODO: this is very basic. We want to preserve nested indentation as well.
             let style = NSMutableParagraphStyle()
             style.headIndent = Metrics.defaultIndentation
             style.firstLineHeadIndent = style.headIndent
