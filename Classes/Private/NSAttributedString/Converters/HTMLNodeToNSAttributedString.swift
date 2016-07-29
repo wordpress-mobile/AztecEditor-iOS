@@ -130,6 +130,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         content.replaceCharactersInRange(NSRange(location: 0, length: content.length), withAttributedString: childrenContent)
         content.addAttribute(keyForNode(node), value: node, range: NSRange(location: 0, length: content.length))
+        addAttributes(toString: content, fromNode: node)
+
         //content.insertAttributedString(childrenContent, atIndex: 1)
 
         return content
@@ -197,6 +199,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             string.addAttribute(NSStrikethroughStyleAttributeName, value: 1, range: fullRange)
         }
 
+        if isBlockquote(node) {
+            let style = NSMutableParagraphStyle()
+            style.headIndent = Metrics.defaultIndentation
+            style.firstLineHeadIndent = style.headIndent
+            string.addAttribute(NSParagraphStyleAttributeName, value: style, range: fullRange)
+        }
+
         //string.addAttribute(NSFontAttributeName, value: font(forNode: node), range: fullRange)
     }
 
@@ -261,5 +270,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isUnderlined(node: ElementNode) -> Bool {
         return ["u"].contains(node.name)
+    }
+
+    private func isBlockquote(node: ElementNode) -> Bool {
+        return ["blockquote"].contains(node.name)
     }
 }

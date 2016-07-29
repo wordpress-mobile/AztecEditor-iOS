@@ -5,8 +5,6 @@ import Foundation
 ///
 public class AztecVisualEditor : NSObject
 {
-    static let standardIndentation = CGFloat(20)
-
     let textView: UITextView
     var attachmentManager: AztecAttachmentManager!
     var storage: AztecTextStorage {
@@ -319,9 +317,9 @@ public class AztecVisualEditor : NSObject
             var tab: CGFloat = 0
             if addingStyle {
                 // TODO: probably need to define an upper limit that we'll support.
-                tab = style.headIndent + AztecVisualEditor.standardIndentation
+                tab = style.headIndent + Metrics.defaultIndentation
             } else {
-                tab = max(0, style.headIndent - AztecVisualEditor.standardIndentation)
+                tab = max(0, style.headIndent - Metrics.defaultIndentation)
             }
 
             let newStyle = NSMutableParagraphStyle()
