@@ -316,8 +316,7 @@ public class AztecVisualEditor : NSObject
 
             var tab: CGFloat = 0
             if addingStyle {
-                // TODO: probably need to define an upper limit that we'll support.
-                tab = style.headIndent + Metrics.defaultIndentation
+                tab = min(style.headIndent + Metrics.defaultIndentation, Metrics.maxIndentation)
             } else {
                 tab = max(0, style.headIndent - Metrics.defaultIndentation)
             }
