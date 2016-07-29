@@ -1,15 +1,15 @@
 import Foundation
 
 public enum HTMLTags: String {
-    case Bold = "b"
-    case Delete = "del"
-    case Emphasized = "em"
-    case Italic = "i"
-    case Link = "a"
-    case StrikeThrough1 = "s"
-    case StrikeThrough2 = "strike"
+    case A = "a"
+    case B = "b"
+    case Del = "del"
+    case Em = "em"
+    case I = "i"
+    case S = "s"
+    case Strike = "strike"
     case Strong = "strong"
-    case Underline = "u"
+    case U = "u"
 }
 
 public enum HTMLLinkAttributes: String {

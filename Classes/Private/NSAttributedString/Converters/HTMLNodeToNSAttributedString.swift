@@ -237,26 +237,26 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Node Style Checks
 
     private func isLink(node: ElementNode) -> Bool {
-        return node.name == HTMLTags.Link.rawValue
+        return node.name == HTMLTags.A.rawValue
     }
 
     private func isBold(node: ElementNode) -> Bool {
-        return [HTMLTags.Bold.rawValue,
+        return [HTMLTags.B.rawValue,
             HTMLTags.Strong.rawValue].contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return [HTMLTags.Emphasized.rawValue,
-            HTMLTags.Italic.rawValue].contains(node.name)
+        return [HTMLTags.Em.rawValue,
+            HTMLTags.I.rawValue].contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return [HTMLTags.Delete.rawValue,
-            HTMLTags.StrikeThrough1.rawValue,
-            HTMLTags.StrikeThrough2.rawValue].contains(node.name)
+        return [HTMLTags.Del.rawValue,
+            HTMLTags.S.rawValue,
+            HTMLTags.Strike.rawValue].contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return node.name == HTMLTags.Underline.rawValue
+        return node.name == HTMLTags.U.rawValue
     }
 }
