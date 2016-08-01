@@ -24,7 +24,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(node: Node) -> NSAttributedString {
-        return convert(node, withBaseFontDescriptor: defaultFontDescriptor)
+
+        let defaultFont = UIFont(descriptor: defaultFontDescriptor, size: defaultFontDescriptor.pointSize)
+
+        return convert(node, inheritingAttributes: [NSFontAttributeName: defaultFont])
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -32,21 +35,20 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
-    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.  Any
-    ///             change to the font style will be applied on top of this base descriptor.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convert(node: Node, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+    private func convert(node: Node, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
-            return convertTextNode(textNode, withBaseFontDescriptor: baseFontDescriptor)
+            return convertTextNode(textNode, inheritingAttributes: attributes)
         } else {
             guard let elementNode = node as? ElementNode else {
                 fatalError("Nodes can be either text or element nodes.")
             }
 
-            return convertElementNode(elementNode, withBaseFontDescriptor: baseFontDescriptor)
+            return convertElementNode(elementNode, inheritingAttributes: attributes)
         }
     }
 
@@ -54,16 +56,14 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
-    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.
-    ///             Text nodes don't have styling information, so this will be used as-is.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convertTextNode(node: TextNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+    private func convertTextNode(node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
 
-        let font = UIFont(descriptor: baseFontDescriptor, size: baseFontDescriptor.pointSize)
-        let attributes: [String:AnyObject] = [keyForNode(node): node,
-                                              NSFontAttributeName: font]
+        var attributes = inheritedAttributes
+        attributes[keyForNode(node)] = node
 
         return NSAttributedString(string: node.text, attributes: attributes)
     }
@@ -72,17 +72,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
-    ///     - baseFontDescriptor: the base font descriptor to use for this node's conversion.
-    ///             Text nodes don't have styling information, so this will be used as-is.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convertElementNode(node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+    private func convertElementNode(node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
 
         if node.children.count == 0 {
             return stringForEmptyNode(node)
         } else {
-            return stringForNode(node, withBaseFontDescriptor: baseFontDescriptor)
+            return stringForNode(node, inheritingAttributes: attributes)
         }
     }
 
@@ -107,32 +106,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// the received node has children.
     ///
     /// - Parameters:
-    ///     - elementNode: the element node to generate a representation string of.
+    ///     - node: the element node to generate a representation string of.
+    ///     - inheritedAttributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    private func stringForNode(node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+    private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         assert(node.children.count > 0)
 
-        let content = NSMutableAttributedString(string: "XX")
-        let descriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
-
-        content.addAttribute(NSFontAttributeName, value: font(forNode: node, withBaseFontDescriptor: baseFontDescriptor), range: NSRange(location: 0, length: content.length))
-
-        let childrenContent = NSMutableAttributedString()
+        let content = NSMutableAttributedString()
+        let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
         for child in node.children {
-            let childContent = convert(child, withBaseFontDescriptor: descriptor)
+            let childContent = convert(child, inheritingAttributes: childAttributes)
 
-            childrenContent.appendAttributedString(childContent)
+            content.appendAttributedString(childContent)
         }
 
-        content.replaceCharactersInRange(NSRange(location: 0, length: content.length), withAttributedString: childrenContent)
         content.addAttribute(keyForNode(node), value: node, range: NSRange(location: 0, length: content.length))
-        addAttributes(toString: content, fromNode: node)
-
-        //content.insertAttributedString(childrenContent, atIndex: 1)
 
         return content
     }
@@ -163,69 +155,65 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - String attributes
 
-    /// Adds all HTML-meta data and style attributes from the specified element node to the
-    /// specified string.
+    /// Calculates the attributes for the specified node.  Returns a dictionary including inherited
+    /// attributes.
     ///
     /// - Parameters:
-    ///     - string: the string to add the attributes to.  This string will be modified in-place
-    ///             to add the necessary attributes.
     ///     - node: the node to get the information from.
     ///
-    private func addAttributes(toString string: NSMutableAttributedString, fromNode node: ElementNode) {
-
-        let fullRange = NSRange(location: 0, length: string.length)
-
-        addStyleAttributes(toString: string, fromNode: node)
-        string.addAttribute(keyForNode(node), value: node, range: fullRange)
-    }
-
-    /// Adds all style attributes from the specified element node to the specified string.
-    /// You'll usually want to call `addAttributes(toString:fromNode:)` instead of this method.
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    /// - Parameters:
-    ///     - string: the string to apply the styles to.  This string will be modified in-place
-    ///             to add the necessary attributes.
-    ///     - node: the node to get the style information from.
-    ///
-    private func addStyleAttributes(toString string: NSMutableAttributedString, fromNode node: ElementNode) {
+    private func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> [String:AnyObject] {
 
-        let fullRange = NSRange(location: 0, length: string.length)
+        var attributes = inheritedAttributes
 
-        if isUnderlined(node) {
-            string.addAttribute(NSUnderlineStyleAttributeName, value: 1, range: fullRange)
+        // Since a default font is requested by this class, there's no way this attribute should
+        // ever be unset.
+        //
+        precondition(inheritedAttributes[NSFontAttributeName] is UIFont)
+        let baseFont = inheritedAttributes[NSFontAttributeName] as! UIFont
+        let baseFontDescriptor = baseFont.fontDescriptor()
+        let descriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
+
+        if descriptor != baseFontDescriptor {
+            attributes[NSFontAttributeName] = UIFont(descriptor: descriptor, size: descriptor.pointSize)
+        }
+
+        if isLink(node) {
+            let linkURL: String
+
+            if let attribute = node.attributes.indexOf({ $0.name == HTMLLinkAttributes.Href.rawValue }) as? Libxml2.HTML.StringAttribute {
+                linkURL = attribute.value
+            } else {
+                // We got a link tag without an HREF attribute
+                //
+                linkURL = ""
+            }
+
+            attributes[NSLinkAttributeName] = linkURL
         }
 
         if isStrikedThrough(node) {
-            string.addAttribute(NSStrikethroughStyleAttributeName, value: 1, range: fullRange)
+            attributes[NSStrikethroughStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
+
+        if isUnderlined(node) {
+            attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
+        }
+
 
         if isBlockquote(node) {
             // TODO: this is very basic. We want to preserve nested indentation as well.
             let style = NSMutableParagraphStyle()
             style.headIndent = Metrics.defaultIndentation
             style.firstLineHeadIndent = style.headIndent
-            string.addAttribute(NSParagraphStyleAttributeName, value: style, range: fullRange)
+            attributes[NSParagraphStyleAttributeName] = style
         }
 
-        //string.addAttribute(NSFontAttributeName, value: font(forNode: node), range: fullRange)
+        return attributes
     }
 
     // MARK: - Font
-
-    /// Returns the correct font for the specified node.  Includes "bold" and "italic" styling
-    /// information.
-    ///
-    /// - Parameters:
-    ///     - node: the node to get the font for.
-    ///
-    /// - Returns: the requested font.
-    ///
-    private func font(forNode node: ElementNode, withBaseFontDescriptor baseFontDescriptor: UIFontDescriptor) -> UIFont {
-
-        let newFontDescriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
-
-        return UIFont(descriptor: newFontDescriptor, size: newFontDescriptor.pointSize)
-    }
 
     private func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
         let traits = symbolicTraits(forNode: node, withBaseSymbolicTraits: fontDescriptor.symbolicTraits)
@@ -255,25 +243,33 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         return traits
     }
 
-    // MARK: - Node styling
+    // MARK: - Node Style Checks
+
+    private func isLink(node: ElementNode) -> Bool {
+        return node.name == HTMLTags.A.rawValue
+    }
 
     private func isBold(node: ElementNode) -> Bool {
-        return ["b", "strong"].contains(node.name)
+        return [HTMLTags.B.rawValue,
+            HTMLTags.Strong.rawValue].contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return ["em", "i"].contains(node.name)
+        return [HTMLTags.Em.rawValue,
+            HTMLTags.I.rawValue].contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return ["strike", "del", "s"].contains(node.name)
+        return [HTMLTags.Del.rawValue,
+            HTMLTags.S.rawValue,
+            HTMLTags.Strike.rawValue].contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return ["u"].contains(node.name)
+        return node.name == HTMLTags.U.rawValue
     }
 
     private func isBlockquote(node: ElementNode) -> Bool {
-        return ["blockquote"].contains(node.name)
+        return [HTMLTags.Blockquote.rawValue].contains(node.name)
     }
 }
