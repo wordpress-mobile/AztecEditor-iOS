@@ -161,6 +161,10 @@ public class AztecVisualEditor : NSObject
             identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
+        if formattingAtIndexContainsBlockquote(index) {
+            identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+        }
+
         return identifiers
     }
 
@@ -526,7 +530,7 @@ public class AztecVisualEditor : NSObject
     }
 
 
-    /// Check if the strikethrough attribute exists at the specified index.
+    /// Check if the blockquote attribute exists at the specified index.
     ///
     /// - Paramters:
     ///     - index: The character index to inspect.
