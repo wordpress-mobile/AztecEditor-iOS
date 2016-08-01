@@ -436,6 +436,25 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// Check if the blockquote attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func blockquoteFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? NSParagraphStyle {
+
+            return value.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
     ///
