@@ -3,6 +3,7 @@ import Foundation
 public enum HTMLTags: String {
     case A = "a"
     case B = "b"
+    case Blockquote = "blockquote"
     case Del = "del"
     case Em = "em"
     case I = "i"

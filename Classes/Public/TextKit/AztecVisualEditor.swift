@@ -5,7 +5,6 @@ import Foundation
 ///
 public class AztecVisualEditor : NSObject
 {
-
     let textView: UITextView
     var attachmentManager: AztecAttachmentManager!
     var storage: AztecTextStorage {
@@ -43,6 +42,49 @@ public class AztecVisualEditor : NSObject
 
         attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
         textView.layoutManager.delegate = self
+    }
+
+
+    // MARK: - Misc helpers
+
+
+    /// Get the default paragraph style for the editor.
+    ///
+    /// - Returns: The default paragraph style.
+    ///
+    func defaultParagraphStyle() -> NSParagraphStyle {
+        // TODO: We need to implement this properly, Just stubbed for now.
+        return NSParagraphStyle()
+    }
+
+
+    /// Get the ranges of paragraphs that encompase the specified range.
+    ///
+    /// - Paramaters:
+    ///     - range: The specified NSRange.
+    ///
+    /// - Returns an array of NSRange objects.
+    ///
+    func rangesOfParagraphsEnclosingRange(range: NSRange) -> [NSRange] {
+        var paragraphRanges = [NSRange]()
+        let string = storage.string as NSString
+        string.enumerateSubstringsInRange(NSRange(location: 0, length: string.length),
+                                          options: .ByParagraphs,
+                                          usingBlock: { (substring, substringRange, enclosingRange, stop) in
+                                            // Stop if necessary.
+                                            if substringRange.location > NSMaxRange(range) {
+                                                stop.memory = true
+                                                return
+                                            }
+
+                                            // Bail early if the paragraph precedes the start of the selection
+                                            if NSMaxRange(substringRange) < range.location {
+                                                return
+                                            }
+
+                                            paragraphRanges.append(substringRange)
+        })
+        return paragraphRanges
     }
 
 
@@ -117,6 +159,10 @@ public class AztecVisualEditor : NSObject
 
         if formattingAtIndexContainsStrikethrough(index) {
             identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
+        }
+
+        if formattingAtIndexContainsBlockquote(index) {
+            identifiers.append(FormattingIdentifier.Blockquote.rawValue)
         }
 
         return identifiers
@@ -225,13 +271,67 @@ public class AztecVisualEditor : NSObject
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a blockquote style from the specified range.
+    /// Blockquotes are applied to an entire paragrah regardless of the range.
+    /// If the range spans multiple paragraphs, the style is applied to all
+    /// affected paragraphs.
     ///
     /// - Paramters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        print("quote")
+        let storage = textView.textStorage
+
+        // Check if the start of the selection is already in a blockquote.
+        let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
+
+        // Get the affected paragraphs
+        var paragraphRanges = rangesOfParagraphsEnclosingRange(range)
+        guard let firstRange = paragraphRanges.first else {
+            return
+        }
+
+        // Compose the range for the blockquote.
+        var length = 0
+        for range in paragraphRanges {
+            length += range.length
+        }
+        let blockquoteRange = NSRange(location: firstRange.location, length: length)
+
+        // TODO: Assign or remove the blockquote custom attribute.
+
+
+        // Add or remove indentation as needed.
+        // First get the list of pristine ranges to edit. We do this so
+        // a modification doesn't impact the next returned range as paragraph
+        // styles can be apparently merged to a single range in some cases.
+        var rangesToStyle = [NSRange]()
+        storage.enumerateAttribute(NSParagraphStyleAttributeName,
+                                   inRange: blockquoteRange,
+                                   options: [],
+                                   usingBlock: { (value, range, stop) in
+                                    rangesToStyle.append(range)
+        })
+        // Now loop over our pristine ranges knowing that any edits won't impact
+        // subsquent ranges.
+        for range in rangesToStyle {
+            let value = storage.attribute(NSParagraphStyleAttributeName, atIndex: range.location, effectiveRange: nil)
+            let style = value as? NSParagraphStyle ?? defaultParagraphStyle()
+
+            var tab: CGFloat = 0
+            if addingStyle {
+                tab = min(style.headIndent + Metrics.defaultIndentation, Metrics.maxIndentation)
+            } else {
+                tab = max(0, style.headIndent - Metrics.defaultIndentation)
+            }
+
+            let newStyle = NSMutableParagraphStyle()
+            newStyle.setParagraphStyle(style)
+            newStyle.headIndent = tab
+            newStyle.firstLineHeadIndent = tab
+
+            storage.addAttribute(NSParagraphStyleAttributeName, value: newStyle, range: range)
+        }
     }
 
 
@@ -336,6 +436,25 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    /// Check if the blockquote attribute spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func blockquoteFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? NSParagraphStyle {
+
+            return value.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
     ///
@@ -428,6 +547,24 @@ public class AztecVisualEditor : NSObject
         }
         return false
     }
+
+
+    /// Check if the blockquote attribute exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
+        guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
+            return false
+        }
+
+        // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
+        return attr.headIndent != 0
+    }
+
 
 }
 

@@ -187,16 +187,28 @@ class AztecVisualEditorTests: XCTestCase {
 
         XCTAssert(editor.strikethroughFormattingSpansRange(range))
     }
-    
+
+    func testToggleBlockquote() {
+        let editor = editorConfiguredWithParagraphs()
+        let range = NSRange(location: 0, length: 1)
+        let length = "Lorem ipsum dolar sit amet.\n".length
+
+        editor.toggleBlockquote(range: range)
+
+        XCTAssert(editor.formattingAtIndexContainsBlockquote(1))
+        XCTAssert(editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
+
+        editor.toggleBlockquote(range: range)
+
+        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
+        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
+    }
+
     func testToggleOrderedList() {
         // TODO
     }
 
     func testToggleUnorderedList() {
-        // TODO
-    }
-
-    func testToggleBlockquote() {
         // TODO
     }
 
@@ -262,6 +274,18 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.strikethroughFormattingSpansRange(NSRange(location: 4, length: 3)))
     }
 
+    func testBlockquoteSpansRange() {
+        let editor = editorConfiguredWithParagraphs()
+        let range = NSRange(location: 0, length: 1)
+        let length = "Lorem ipsum dolar sit amet.\n".length
+
+        editor.toggleBlockquote(range: range)
+
+        XCTAssert(editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
+        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length + 1)))
+        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 1, length: length)))
+    }
+
     func testBoldAtIndex() {
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
@@ -318,6 +342,20 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.formattingAtIndexContainsStrikethrough(6))
     }
 
+    func testBlockquoteAtIndex() {
+        let editor = editorConfiguredWithParagraphs()
+        let range = NSRange(location: 0, length: 1)
+
+        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
+
+        editor.toggleBlockquote(range: range)
+
+        XCTAssert(editor.formattingAtIndexContainsBlockquote(1))
+
+        editor.toggleBlockquote(range: range)
+
+        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
+    }
 
     // MARK: - Helpers
 
@@ -328,6 +366,23 @@ class AztecVisualEditorTests: XCTestCase {
         let attrStr = NSMutableAttributedString(string: "foo")
         attrStr.appendAttributedString(NSAttributedString(string: "bar", attributes: attributes))
         attrStr.appendAttributedString(NSAttributedString(string: "baz"))
+        textView.attributedText = attrStr
+
+        return editor
+    }
+
+    func editorConfiguredWithParagraphs() -> AztecVisualEditor {
+        let textView = AztecVisualEditor.createTextView()
+        let editor = AztecVisualEditor(textView: textView)
+
+        let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
+        let paragraph = "Lorem ipsum dolar sit amet.\n"
+        let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
+
+        let attrStr = NSMutableAttributedString()
+        attrStr.appendAttributedString(templateString)
+        attrStr.appendAttributedString(templateString)
+        attrStr.appendAttributedString(templateString)
         textView.attributedText = attrStr
 
         return editor

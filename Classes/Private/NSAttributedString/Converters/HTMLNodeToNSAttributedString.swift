@@ -201,6 +201,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
 
+
+        if isBlockquote(node) {
+            // TODO: this is very basic. We want to preserve nested indentation as well.
+            let style = NSMutableParagraphStyle()
+            style.headIndent = Metrics.defaultIndentation
+            style.firstLineHeadIndent = style.headIndent
+            attributes[NSParagraphStyleAttributeName] = style
+        }
+
         return attributes
     }
 
@@ -258,5 +267,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isUnderlined(node: ElementNode) -> Bool {
         return node.name == HTMLTags.U.rawValue
+    }
+
+    private func isBlockquote(node: ElementNode) -> Bool {
+        return node.name == HTMLTags.Blockquote.rawValue
     }
 }
