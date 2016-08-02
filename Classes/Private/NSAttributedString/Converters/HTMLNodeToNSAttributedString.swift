@@ -270,6 +270,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     }
 
     private func isBlockquote(node: ElementNode) -> Bool {
-        return [HTMLTags.Blockquote.rawValue].contains(node.name)
+        return node.name == HTMLTags.Blockquote.rawValue
     }
 }
