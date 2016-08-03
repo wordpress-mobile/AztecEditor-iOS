@@ -17,7 +17,7 @@ extension Libxml2.In {
         /// - Returns: an HTML.Node.
         ///
         func convert(rawNode: xmlNode) -> Node {
-            var node: Node!
+            var node: Node
 
             let nodeName = getNodeName(rawNode)
 
@@ -75,7 +75,7 @@ extension Libxml2.In {
 
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
             let attributes = createAttributes(fromNode: rawNode)
-            let node = TextNode(name: nodeName, text: text, attributes: attributes)
+            let node = TextNode(text: text, attributes: attributes)
 
             return node
         }

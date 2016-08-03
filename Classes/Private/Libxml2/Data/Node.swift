@@ -41,10 +41,10 @@ extension Libxml2.HTML {
 
         let text: String
 
-        init(name: String, text: String, attributes: [Attribute]) {
+        init(text: String, attributes: [Attribute]) {
             self.text = text
 
-            super.init(name: name, attributes: attributes)
+            super.init(name: "text", attributes: attributes)
         }
 
         override func customMirror() -> Mirror {
