@@ -27,7 +27,6 @@ class EditorDemoController: UIViewController
         tv.inputAccessoryView = toolbar
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
-
         tv.addSubview(self.titleTextField)
         tv.addSubview(self.separatorView)
 
@@ -280,36 +279,29 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 {
 
     func handleActionForIdentifier(identifier: String) {
+        guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
+            return
+        }
+
         switch identifier {
-        case Aztec.FormattingIdentifier.Bold.rawValue :
+        case .Bold:
             toggleBold()
-            break
-        case Aztec.FormattingIdentifier.Italic.rawValue :
+        case .Italic:
             toggleItalic()
-            break
-        case Aztec.FormattingIdentifier.Underline.rawValue :
+        case .Underline:
             toggleUnderline()
-            break
-        case Aztec.FormattingIdentifier.Strikethrough.rawValue :
+        case .Strikethrough:
             toggleStrikethrough()
-            break
-        case Aztec.FormattingIdentifier.Blockquote.rawValue :
+        case .Blockquote:
             toggleBlockquote()
-            break
-        case Aztec.FormattingIdentifier.Unorderedlist.rawValue :
+        case .Unorderedlist:
             toggleUnorderedList()
-            break
-        case Aztec.FormattingIdentifier.Orderedlist.rawValue :
+        case .Orderedlist:
             toggleOrderedList()
-            break
-        case Aztec.FormattingIdentifier.Link.rawValue :
+        case .Link:
             toggleLink()
-            break
-        case Aztec.FormattingIdentifier.Media.rawValue :
+        case .Media:
             insertImage()
-            break;
-        default:
-            break
         }
         updateFormatBar()
     }
