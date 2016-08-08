@@ -18,7 +18,7 @@ class EditorDemoController: UIViewController
         let tv = AztecVisualEditor.createTextView()
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
-        tv.accessibilityLabel = NSLocalizedString("Content", comment: "Post content")
+        tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         tv.delegate = self
         tv.font = font
         let toolbar = self.createToolbar()
@@ -33,6 +33,18 @@ class EditorDemoController: UIViewController
         return tv
     }()
 
+    private(set) lazy var htmlTextView: UITextView = {
+        let tv = UITextView()
+        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
+
+        tv.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
+        tv.font = font
+        tv.textColor = UIColor.darkTextColor()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.hidden = true
+
+        return tv
+    }()
 
     private(set) lazy var titleTextField: UITextField = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
@@ -63,6 +75,19 @@ class EditorDemoController: UIViewController
 
         return v
     }()
+
+
+
+    private(set) var mode = EditionMode.RichText {
+        didSet {
+            switch mode {
+            case .HTML:
+                switchToHTML()
+            case .RichText:
+                switchToRichText()
+            }
+        }
+    }
 
 
     var titleFont: UIFont? {
@@ -132,6 +157,7 @@ class EditorDemoController: UIViewController
         _ = editor
 
         view.addSubview(richTextView)
+        view.addSubview(htmlTextView)
 
         richTextView.attributedText = self.getSampleHTML()
 
@@ -179,6 +205,13 @@ class EditorDemoController: UIViewController
             richTextView.topAnchor.constraintEqualToAnchor(view.topAnchor),
             bottomConstraint!
         ])
+
+        NSLayoutConstraint.activateConstraints([
+            htmlTextView.leftAnchor.constraintEqualToAnchor(richTextView.leftAnchor),
+            htmlTextView.rightAnchor.constraintEqualToAnchor(richTextView.rightAnchor),
+            htmlTextView.topAnchor.constraintEqualToAnchor(richTextView.topAnchor),
+            htmlTextView.bottomAnchor.constraintEqualToAnchor(richTextView.bottomAnchor),
+        ])
     }
 
     func configureNavigationBar() {
@@ -192,10 +225,8 @@ class EditorDemoController: UIViewController
 
     // MARK: - Helpers
 
-
     @IBAction func switchEditionMode() {
-        let html = editor.toHTML()
-        NSLog("HTML \(html)")
+        mode.toggle()
     }
 
 
@@ -287,6 +318,39 @@ extension EditorDemoController : UITextViewDelegate
 extension EditorDemoController : UITextFieldDelegate
 {
 
+}
+
+extension EditorDemoController
+{
+    enum EditionMode {
+        case RichText
+        case HTML
+
+        mutating func toggle() {
+            switch self {
+            case .HTML:
+                self = .RichText
+            case .RichText:
+                self = .HTML
+            }
+        }
+    }
+
+    private func switchToHTML() {
+        htmlTextView.text = richTextView.toHTML()
+        htmlTextView.hidden = false
+
+        richTextView.endEditing(true)
+        richTextView.hidden = true
+    }
+
+    private func switchToRichText() {
+        richTextView.loadHTML(htmlTextView.text)
+        richTextView.hidden = false
+
+        htmlTextView.endEditing(true)
+        htmlTextView.hidden = true
+    }
 }
 
 
