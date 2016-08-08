@@ -566,18 +566,6 @@ public class AztecVisualEditor : NSObject
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
-
-
-    /// Converts the current Attributed Text into a raw HTML String
-    ///
-    /// - Returns: The HTML version of the current Attributed String.
-    //
-    public func toHTML() -> String {
-        let converter = Libxml2.Out.HTMLConverter()
-        let rawHtml = converter.convert(textView.attributedText.rootNode())
-
-        return rawHtml
-    }
 }
 
 
