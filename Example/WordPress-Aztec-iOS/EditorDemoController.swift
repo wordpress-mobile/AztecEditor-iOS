@@ -171,19 +171,14 @@ class EditorDemoController: UIViewController
 
 
     func configureConstraints() {
-        let views = [
-            "textView" : textView
-        ]
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[textView]|", options: [], metrics: nil, views: views))
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[textView]", options: [], metrics: nil, views: views))
-        bottomConstraint = NSLayoutConstraint(item: textView,
-                                              attribute: .Bottom,
-                                              relatedBy: .Equal,
-                                              toItem: view,
-                                              attribute: .Bottom,
-                                              multiplier: 1.0,
-                                              constant: 0.0)
-        view.addConstraint(bottomConstraint!)
+        bottomConstraint = richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
+
+        NSLayoutConstraint.activateConstraints([
+            richTextView.leftAnchor.constraintEqualToAnchor(view.leftAnchor),
+            richTextView.rightAnchor.constraintEqualToAnchor(view.rightAnchor),
+            richTextView.topAnchor.constraintEqualToAnchor(view.topAnchor),
+            bottomConstraint!
+        ])
     }
 
     func configureNavigationBar() {
