@@ -568,11 +568,15 @@ public class AztecVisualEditor : NSObject
     }
 
 
-    public func toggleHTML() {
+    /// Converts the current Attributed Text into a raw HTML String
+    ///
+    /// - Returns: The HTML version of the current Attributed String.
+    //
+    public func toHTML() -> String {
         let converter = Libxml2.Out.HTMLConverter()
         let rawHtml = converter.convert(textView.attributedText.rootNode())
-        NSLog("Pristine: \n\(textView.text)\n")
-        NSLog("RawHTML: \n\(rawHtml)")
+
+        return rawHtml
     }
 }
 
