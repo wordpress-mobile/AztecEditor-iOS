@@ -5,16 +5,16 @@ import Aztec
 
 class EditorDemoController: UIViewController
 {
-    private var bottomConstraint: NSLayoutConstraint?
+    private var bottomConstraint: NSLayoutConstraint!
 
 
     private (set) lazy var editor: AztecVisualEditor = {
-        let e = AztecVisualEditor(textView: self.textView)
+        let e = AztecVisualEditor(textView: self.richTextView)
         return e
     }()
 
 
-    private(set) lazy var textView: UITextView = {
+    private(set) lazy var richTextView: UITextView = {
         let tv = AztecVisualEditor.createTextView()
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
@@ -88,10 +88,10 @@ class EditorDemoController: UIViewController
 
     var bodyFont: UIFont? {
         get {
-            return textView.font
+            return richTextView.font
         }
         set {
-            textView.font = newValue
+            richTextView.font = newValue
             layoutTextView()
         }
     }
@@ -99,10 +99,10 @@ class EditorDemoController: UIViewController
 
     var bodyColor: UIColor? {
         get {
-            return textView.textColor
+            return richTextView.textColor
         }
         set {
-            textView.textColor = newValue
+            richTextView.textColor = newValue
         }
     }
 
@@ -131,9 +131,9 @@ class EditorDemoController: UIViewController
         // lazy load the editor
         _ = editor
 
-        view.addSubview(textView)
+        view.addSubview(richTextView)
 
-        textView.attributedText = self.getSampleHTML()
+        richTextView.attributedText = self.getSampleHTML()
 
         configureConstraints()
         configureNavigationBar()
@@ -194,7 +194,8 @@ class EditorDemoController: UIViewController
 
 
     @IBAction func switchEditionMode() {
-        editor.toggleHTML()
+        let html = editor.toHTML()
+        NSLog("HTML \(html)")
     }
 
 
@@ -204,14 +205,14 @@ class EditorDemoController: UIViewController
     func layoutTextView() {
         let lineHeight = titleTextField.font!.lineHeight
         let offset: CGFloat = 15.0
-        let width: CGFloat = textView.frame.width - (offset * 2)
+        let width: CGFloat = richTextView.frame.width - (offset * 2)
         let height: CGFloat = lineHeight * 2.0
         titleTextField.frame = CGRect(x: offset, y: 0, width: width, height: height)
 
         separatorView.frame = CGRect(x: offset, y: titleTextField.frame.maxY, width: width, height: 1)
 
         let top: CGFloat = separatorView.frame.maxY + lineHeight
-        textView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
+        richTextView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
     }
 
 
@@ -239,11 +240,11 @@ class EditorDemoController: UIViewController
 
 
     func updateFormatBar() {
-        guard let toolbar = textView.inputAccessoryView as? Aztec.FormatBar else {
+        guard let toolbar = richTextView.inputAccessoryView as? Aztec.FormatBar else {
             return
         }
 
-        let range = textView.selectedRange
+        let range = richTextView.selectedRange
         let identifiers = editor.formatIdentifiersSpanningRange(range)
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
@@ -321,47 +322,47 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     }
 
     func toggleBold() {
-        editor.toggleBold(range: textView.selectedRange)
+        editor.toggleBold(range: richTextView.selectedRange)
     }
 
 
     func toggleItalic() {
-        editor.toggleItalic(range: textView.selectedRange)
+        editor.toggleItalic(range: richTextView.selectedRange)
     }
 
 
     func toggleUnderline() {
-        editor.toggleUnderline(range: textView.selectedRange)
+        editor.toggleUnderline(range: richTextView.selectedRange)
     }
 
 
     func toggleStrikethrough() {
-        editor.toggleStrikethrough(range: textView.selectedRange)
+        editor.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
 
     func toggleOrderedList() {
-        editor.toggleOrderedList(range: textView.selectedRange)
+        editor.toggleOrderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleUnorderedList() {
-        editor.toggleUnorderedList(range: textView.selectedRange)
+        editor.toggleUnorderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleBlockquote() {
-        editor.toggleBlockquote(range: textView.selectedRange)
+        editor.toggleBlockquote(range: richTextView.selectedRange)
     }
 
 
     func toggleLink() {
-        editor.toggleLink(range: textView.selectedRange, params: [String : AnyObject]())
+        editor.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
     }
 
 
     func insertImage() {
-        editor.insertImage(textView.selectedRange.location, params: [String : AnyObject]())
+        editor.insertImage(richTextView.selectedRange.location, params: [String : AnyObject]())
     }
 
     // MARK: -
