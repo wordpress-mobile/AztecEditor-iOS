@@ -136,6 +136,8 @@ class EditorDemoController: UIViewController
         textView.attributedText = self.getSampleHTML()
 
         configureConstraints()
+        configureNavigationBar()
+
         layoutTextView()
     }
 
@@ -182,6 +184,22 @@ class EditorDemoController: UIViewController
                                               multiplier: 1.0,
                                               constant: 0.0)
         view.addConstraint(bottomConstraint!)
+    }
+
+    func configureNavigationBar() {
+        let title = NSLocalizedString("HTML", comment: "HTML!")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: title,
+                                                            style: .Plain,
+                                                            target: self,
+                                                           action: #selector(switchEditionMode))
+    }
+
+
+    // MARK: - Helpers
+
+
+    @IBAction func switchEditionMode() {
+        editor.toggleHTML()
     }
 
 
@@ -234,6 +252,7 @@ class EditorDemoController: UIViewController
         let identifiers = editor.formatIdentifiersSpanningRange(range)
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
+
 
     // MARK: - Sample Content
 
