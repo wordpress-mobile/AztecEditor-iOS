@@ -131,15 +131,15 @@ public extension AztecTextStorage
                                 return
                             }
 
-                            var newTraits: UInt32
-                            if assigning {
-                                newTraits =  font.fontDescriptor().symbolicTraits.rawValue | trait.rawValue
+                            var newTraits = font.fontDescriptor().symbolicTraits
 
+                            if assigning {
+                                newTraits.insert(trait)
                             } else {
-                                newTraits =  font.fontDescriptor().symbolicTraits.rawValue & ~trait.rawValue
+                                newTraits.remove(trait)
                             }
 
-                            let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: newTraits))
+                            let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(newTraits)
                             let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
 
                             self.removeAttribute(NSFontAttributeName, range: range)
