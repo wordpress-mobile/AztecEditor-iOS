@@ -337,6 +337,8 @@ extension EditorDemoController
     }
 
     private func switchToHTML() {
+        navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
+
         htmlTextView.text = richTextView.toHTML()
         htmlTextView.hidden = false
 
@@ -345,6 +347,8 @@ extension EditorDemoController
     }
 
     private func switchToRichText() {
+        navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
+
         richTextView.loadHTML(htmlTextView.text)
         richTextView.hidden = false
 
