@@ -568,6 +568,12 @@ public class AztecVisualEditor : NSObject
     }
 
 
+    public func toggleHTML() {
+        let converter = Libxml2.Out.HTMLConverter()
+        let rawHtml = converter.convert(textView.attributedText.rootNode())
+        NSLog("Pristine: \n\(textView.text)\n")
+        NSLog("RawHTML: \n\(rawHtml)")
+    }
 }
 
 
