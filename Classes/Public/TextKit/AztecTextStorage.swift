@@ -8,6 +8,7 @@ public class AztecTextStorage: NSTextStorage {
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
+    // MARK: - NSTextStorage
 
     override public var string: String {
         return textStore.string
@@ -30,7 +31,6 @@ public class AztecTextStorage: NSTextStorage {
         endEditing()
     }
 
-
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
 
@@ -40,7 +40,6 @@ public class AztecTextStorage: NSTextStorage {
         edited(.EditedAttributes, range: range, changeInLength: 0)
 
         endEditing()
-
     }
 
 
@@ -51,10 +50,40 @@ public class AztecTextStorage: NSTextStorage {
         super.processEditing()
     }
 
+    // MARK: - Styles
+
+    func toggleBold(range: NSRange) {
+
+        let enable = fontTrait(.TraitBold, spansRange: range)
+
+        modifyTrait(.TraitBold, range: range, enable: enable)
+
+        if enable {
+            enableBoldInDOM(range)
+        } else {
+            //    disableBoldInDom(range)
+        }
+    }
+
+    // MARK: - DOM
+
+    private func enableBoldInDOM(range: NSRange) {
+        wrap(range: range, inNodeNamed: "strong")
+    }
+
+    private func getNodeWrapping(range range: NSRange) -> Libxml2.HTML.ElementNode {
+
+        return rootNode().lowestElementNodeWrapping(range)
+    }
+
+    private func wrap(range range: NSRange, inNodeNamed nodeName: String) {
+        let node = getNodeWrapping(range: range)
+    }
+
 }
 
 
-/// Convenience extension to group font trait realted methods.
+/// Convenience extension to group font trait related methods.
 ///
 public extension AztecTextStorage
 {
@@ -120,9 +149,12 @@ public extension AztecTextStorage
             return
         }
 
-        let assigning = !fontTrait(trait, spansRange: range)
+        let enable = !fontTrait(trait, spansRange: range)
 
-        // Enumerate over each font and either assign or remove the trait.
+        modifyTrait(trait, range: range, enable: enable)
+    }
+
+    private func modifyTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
         enumerateAttribute(NSFontAttributeName,
                            inRange: range,
                            options: [],
@@ -133,7 +165,7 @@ public extension AztecTextStorage
 
                             var newTraits = font.fontDescriptor().symbolicTraits
 
-                            if assigning {
+                            if enable {
                                 newTraits.insert(trait)
                             } else {
                                 newTraits.remove(trait)

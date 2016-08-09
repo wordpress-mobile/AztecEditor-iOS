@@ -182,7 +182,7 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitBold, range: range)
+        storage.toggleFontTrait(.TraitBold, range: range)
     }
 
 
@@ -196,7 +196,7 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitItalic, range: range)
+        storage.toggleFontTrait(.TraitItalic, range: range)
     }
 
 
