@@ -18,6 +18,7 @@
 		59538A3C1D50ED7600E35CA3 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A351D50ED7600E35CA3 /* InAttributeConverterTests.swift */; };
 		59538A3D1D50ED7600E35CA3 /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A361D50ED7600E35CA3 /* InHTMLConverterTests.swift */; };
 		59538A3F1D50EE7100E35CA3 /* InNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A3E1D50EE7100E35CA3 /* InNodeConverterTests.swift */; };
+		59747E421D5B7D1B004DB462 /* ElementNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59747E411D5B7D1B004DB462 /* ElementNodeTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
@@ -59,6 +60,7 @@
 		59538A351D50ED7600E35CA3 /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59538A361D50ED7600E35CA3 /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		59538A3E1D50EE7100E35CA3 /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
+		59747E411D5B7D1B004DB462 /* ElementNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNodeTests.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* WordPress-Aztec-iOS_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WordPress-Aztec-iOS_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 				59538A2F1D50ED7600E35CA3 /* Exporter */,
 				59538A331D50ED7600E35CA3 /* Importer */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
+				59747E411D5B7D1B004DB462 /* ElementNodeTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -468,6 +471,7 @@
 				59538A3C1D50ED7600E35CA3 /* InAttributeConverterTests.swift in Sources */,
 				59538A3D1D50ED7600E35CA3 /* InHTMLConverterTests.swift in Sources */,
 				59538A3B1D50ED7600E35CA3 /* HTMLToAttributedStringTests.swift in Sources */,
+				59747E421D5B7D1B004DB462 /* ElementNodeTests.swift in Sources */,
 				59538A391D50ED7600E35CA3 /* OutHTMLConverterTests.swift in Sources */,
 				59538A381D50ED7600E35CA3 /* OutAttributeConverterTests.swift in Sources */,
 				59538A3F1D50EE7100E35CA3 /* InNodeConverterTests.swift in Sources */,
