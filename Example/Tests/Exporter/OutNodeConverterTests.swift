@@ -25,7 +25,7 @@ class OutNodeConverterTests: XCTestCase {
 
         let nodeName = "text"
         let nodeText = "This is the text."
-        let textNode = TextNode(text: nodeText, attributes: [])
+        let textNode = TextNode(text: nodeText)
         let xmlNodePtr = Libxml2.Out.NodeConverter().convert(textNode)
         let xmlNode = xmlNodePtr.memory
 
@@ -81,7 +81,7 @@ class OutNodeConverterTests: XCTestCase {
     func testElementAndChildTextNodeConversion() {
 
         let innerNodeText = "some text"
-        let innerNode = TextNode(text: innerNodeText, attributes: [])
+        let innerNode = TextNode(text: innerNodeText)
 
         let outerNodeName = "element"
         let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])

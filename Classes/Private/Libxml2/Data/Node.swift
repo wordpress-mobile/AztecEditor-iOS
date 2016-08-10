@@ -4,17 +4,15 @@ extension Libxml2.HTML {
     ///
     class Node: Equatable, CustomReflectable {
 
-        private(set) var attributes = [Attribute]()
         let name: String
         weak var parent: Node?
 
         func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "parent": parent, "attributes": attributes])
+            return Mirror(self, children: ["name": name, "parent": parent])
         }
 
-        init(name: String, attributes: [Attribute]) {
+        init(name: String) {
             self.name = name
-            self.attributes.appendContentsOf(attributes)
         }
 
         /// Override.
@@ -29,16 +27,18 @@ extension Libxml2.HTML {
     ///
     class ElementNode: Node {
 
+        private(set) var attributes = [Attribute]()
         let children: [Node]
 
         init(name: String, attributes: [Attribute], children: [Node]) {
             self.children = children
+            self.attributes.appendContentsOf(attributes)
 
-            super.init(name: name, attributes: attributes)
+            super.init(name: name)
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "parent": parent, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "element", "name": name, "parent": parent, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.  Calculated by adding the length of all child nodes.
@@ -97,14 +97,14 @@ extension Libxml2.HTML {
 
         let text: String
 
-        init(text: String, attributes: [Attribute]) {
+        init(text: String) {
             self.text = text
 
-            super.init(name: "text", attributes: attributes)
+            super.init(name: "text")
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "text": text, "parent": parent, "attributes": attributes], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.

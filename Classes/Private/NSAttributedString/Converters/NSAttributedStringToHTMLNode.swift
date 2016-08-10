@@ -15,7 +15,7 @@ class NSAttributedStringToHMTLNode: SafeConverter {
         if rootNode.children.count == 0 {
             // No children at the root node means no post content.  An empty text node should do.
             //
-            return TextNode(text: "", attributes: [])
+            return TextNode(text: "")
         } else {
             return rootNode.children[0]
         }

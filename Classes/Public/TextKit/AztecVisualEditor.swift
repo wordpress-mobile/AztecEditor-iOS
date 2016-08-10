@@ -6,7 +6,11 @@ import Foundation
 public class AztecVisualEditor : NSObject
 {
     let textView: UITextView
-    var attachmentManager: AztecAttachmentManager!
+
+    lazy var attachmentManager: AztecAttachmentManager = {
+        AztecAttachmentManager(textView: self.textView, delegate: self)
+    }()
+
     var storage: AztecTextStorage {
         return textView.textStorage as! AztecTextStorage
     }
@@ -32,7 +36,6 @@ public class AztecVisualEditor : NSObject
 
     // MARK: - Lifecycle Methods
 
-
     public init(textView: UITextView) {
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
@@ -40,7 +43,6 @@ public class AztecVisualEditor : NSObject
 
         super.init()
 
-        attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
         textView.layoutManager.delegate = self
     }
 

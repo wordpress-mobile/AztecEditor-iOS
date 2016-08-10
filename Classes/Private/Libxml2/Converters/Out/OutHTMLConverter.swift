@@ -18,11 +18,8 @@ extension Libxml2.Out {
             
             let buf = xmlBufferCreate()
             let xmlDocPtr = xmlNewDoc(nil)
-            
-            let rootNode = rawNode as! ElementNode
-            let htmlNode = rootNode.children[0] as! ElementNode
-            
-            let xmlNodePtr = Libxml2.Out.NodeConverter().convert(htmlNode)
+
+            let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
             
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
             htmlNodeDump(buf, xmlDocPtr, xmlNodePtr)
@@ -31,8 +28,10 @@ extension Libxml2.Out {
             
             xmlFreeDoc(xmlDocPtr)
             xmlBufferFree(buf)
+
+            let finalString = htmlDumpString.stringByReplacingOccurrencesOfString("<\(Aztec.AttributeName.rootNode)>", withString: "").stringByReplacingOccurrencesOfString("</\(Aztec.AttributeName.rootNode)>", withString: "")
             
-            return htmlDumpString
+            return finalString
         }
     }
 }

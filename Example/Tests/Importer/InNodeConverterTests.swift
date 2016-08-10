@@ -58,7 +58,6 @@ class InNodeConverterTests: XCTestCase {
         XCTAssertEqual(textNode.name, textNodeName)
         XCTAssertEqual(textNode.text, text)
         XCTAssertEqual(textNode.parent, nil)
-        XCTAssertEqual(textNode.attributes.count, 0)
     }
 
     func testTextNodeInParentNodeConversion() {
@@ -93,6 +92,5 @@ class InNodeConverterTests: XCTestCase {
         XCTAssertEqual(outTextNode.name, textNodeName)
         XCTAssertEqual(outTextNode.text, text)
         XCTAssertEqual(outTextNode.parent, outParentNode)
-        XCTAssertEqual(outTextNode.attributes.count, 0)
     }
 }
