@@ -156,6 +156,9 @@ class EditorDemoController: UIViewController
         // lazy load the editor
         _ = editor
 
+        edgesForExtendedLayout = .None
+        navigationController?.navigationBar.translucent = false
+
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
@@ -340,9 +343,9 @@ extension EditorDemoController
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
 
         htmlTextView.text = richTextView.toHTML()
-        htmlTextView.hidden = false
 
-        richTextView.endEditing(true)
+        view.endEditing(true)
+        htmlTextView.hidden = false
         richTextView.hidden = true
     }
 
@@ -350,9 +353,9 @@ extension EditorDemoController
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
 
         richTextView.loadHTML(htmlTextView.text)
-        richTextView.hidden = false
 
-        htmlTextView.endEditing(true)
+        view.endEditing(true)
+        richTextView.hidden = false
         htmlTextView.hidden = true
     }
 }
