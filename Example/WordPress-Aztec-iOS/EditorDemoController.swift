@@ -90,60 +90,7 @@ class EditorDemoController: UIViewController
     }
 
 
-    var titleFont: UIFont? {
-        get {
-            return titleTextField.font
-        }
-        set {
-            titleTextField.font = newValue
-            layoutTextView()
-        }
-    }
-
-
-    var titleColor: UIColor? {
-        get {
-            return titleTextField.textColor
-        }
-        set {
-            titleTextField.textColor = newValue
-        }
-    }
-
-
-    var bodyFont: UIFont? {
-        get {
-            return richTextView.font
-        }
-        set {
-            richTextView.font = newValue
-            layoutTextView()
-        }
-    }
-
-
-    var bodyColor: UIColor? {
-        get {
-            return richTextView.textColor
-        }
-        set {
-            richTextView.textColor = newValue
-        }
-    }
-
-
-    var separatorColor: UIColor? {
-        get {
-            return separatorView.backgroundColor
-        }
-        set {
-            separatorView.backgroundColor = newValue
-        }
-    }
-
-
     // MARK: - Lifecycle Methods
-
 
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
@@ -198,7 +145,6 @@ class EditorDemoController: UIViewController
 
     // MARK: - Configuration Methods
 
-
     func configureConstraints() {
         bottomConstraint = richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
 
@@ -233,8 +179,8 @@ class EditorDemoController: UIViewController
     }
 
 
-    // MARK: - Layout
 
+    // MARK: - Layout
 
     func layoutTextView() {
         let lineHeight = titleTextField.font!.lineHeight
@@ -251,7 +197,6 @@ class EditorDemoController: UIViewController
 
 
     // MARK: - Keyboard Handling
-
 
     func keyboardWillShow(notification: NSNotification) {
         guard
@@ -342,7 +287,7 @@ extension EditorDemoController
     private func switchToHTML() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
 
-        htmlTextView.text = richTextView.toHTML()
+        htmlTextView.text = richTextView.exportHTML()
 
         view.endEditing(true)
         htmlTextView.hidden = false
