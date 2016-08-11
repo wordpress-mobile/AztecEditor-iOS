@@ -147,6 +147,16 @@
                                             <action selector="blockquoteAction" destination="aP0-C6-qlL" id="klV-yF-XPM"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="OL" id="eNe-Ug-aoS">
+                                        <connections>
+                                            <action selector="toggleOrderedListAction" destination="aP0-C6-qlL" id="N5Q-Vr-HKb"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="UL" id="iMg-zN-6tW">
+                                        <connections>
+                                            <action selector="toggleUnorderedListAction" destination="aP0-C6-qlL" id="hOJ-5q-QAS"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem title="Check Selection" id="sIs-7D-eto">
                                         <connections>
                                             <action selector="checkSelection" destination="aP0-C6-qlL" id="XUp-At-ghr"/>
