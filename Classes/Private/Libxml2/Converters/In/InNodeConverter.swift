@@ -74,8 +74,7 @@ extension Libxml2.In {
             let nodeName = getNodeName(rawNode)
 
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let attributes = createAttributes(fromNode: rawNode)
-            let node = TextNode(text: text, attributes: attributes)
+            let node = TextNode(text: text)
 
             return node
         }
