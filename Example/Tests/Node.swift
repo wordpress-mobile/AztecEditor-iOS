@@ -16,7 +16,22 @@ class NodeTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
+
+    func testParentElementNodes() {
+
+        let text = TextNode(text: "text1 goes here")
+
+        let node1 = ElementNode(name: "p", attributes: [], children: [text])
+        let node2 = ElementNode(name: "p", attributes: [], children: [node1])
+        let node3 = ElementNode(name: "p", attributes: [], children: [node2])
+
+        let parentNodes = text.parentElementNodes()
+
+        XCTAssertEqual(parentNodes[0], node1)
+        XCTAssertEqual(parentNodes[1], node2)
+        XCTAssertEqual(parentNodes[2], node3)
+    }
+
     func testParentNodeInCommon1() {
 
         let text1 = TextNode(text: "text1 goes here")
