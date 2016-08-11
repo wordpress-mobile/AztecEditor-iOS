@@ -18,7 +18,7 @@ extension UITextView
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func toHTML() -> String {
+    public func exportHTML() -> String {
         let converter = Libxml2.Out.HTMLConverter()
         let rawHtml = converter.convert(attributedText.rootNode())
 
@@ -35,7 +35,8 @@ extension UITextView
         let converter = Libxml2.In.HTMLConverter()
 
         do {
-            let defaultFontDescriptor = UIFont.systemFontOfSize(12).fontDescriptor()
+            let defaultFontSize = CGFloat(12)
+            let defaultFontDescriptor = UIFont.systemFontOfSize(defaultFontSize).fontDescriptor()
             let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             attributedText = try converter.convert(html)
         } catch {
