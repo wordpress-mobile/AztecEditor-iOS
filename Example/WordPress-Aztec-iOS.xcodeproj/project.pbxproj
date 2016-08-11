@@ -10,6 +10,7 @@
 		590142EE1D58E4EA006415C3 /* EditingLogic.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 590142ED1D58E4EA006415C3 /* EditingLogic.rtf */; };
 		59280F2A1D47CAF40083FB59 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = 59280F281D47CAF40083FB59 /* content.html */; };
 		59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 59280F291D47CAF40083FB59 /* SampleText.rtf */; };
+		5940700C1D5CD95400352553 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5940700B1D5CD95400352553 /* Node.swift */; };
 		59538A371D50ED7600E35CA3 /* CLinkedListToArrayConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A2E1D50ED7600E35CA3 /* CLinkedListToArrayConverterTests.swift */; };
 		59538A381D50ED7600E35CA3 /* OutAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A301D50ED7600E35CA3 /* OutAttributeConverterTests.swift */; };
 		59538A391D50ED7600E35CA3 /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59538A311D50ED7600E35CA3 /* OutHTMLConverterTests.swift */; };
@@ -52,6 +53,7 @@
 		590142ED1D58E4EA006415C3 /* EditingLogic.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = EditingLogic.rtf; path = ../Documentation/EditingLogic.rtf; sourceTree = "<group>"; };
 		59280F281D47CAF40083FB59 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
 		59280F291D47CAF40083FB59 /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
+		5940700B1D5CD95400352553 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		59538A2E1D50ED7600E35CA3 /* CLinkedListToArrayConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CLinkedListToArrayConverterTests.swift; sourceTree = "<group>"; };
 		59538A301D50ED7600E35CA3 /* OutAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59538A311D50ED7600E35CA3 /* OutHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverterTests.swift; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 				59538A331D50ED7600E35CA3 /* Importer */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 				59747E411D5B7D1B004DB462 /* ElementNodeTests.swift */,
+				5940700B1D5CD95400352553 /* Node.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -471,6 +474,7 @@
 				59538A3C1D50ED7600E35CA3 /* InAttributeConverterTests.swift in Sources */,
 				59538A3D1D50ED7600E35CA3 /* InHTMLConverterTests.swift in Sources */,
 				59538A3B1D50ED7600E35CA3 /* HTMLToAttributedStringTests.swift in Sources */,
+				5940700C1D5CD95400352553 /* Node.swift in Sources */,
 				59747E421D5B7D1B004DB462 /* ElementNodeTests.swift in Sources */,
 				59538A391D50ED7600E35CA3 /* OutHTMLConverterTests.swift in Sources */,
 				59538A381D50ED7600E35CA3 /* OutAttributeConverterTests.swift in Sources */,

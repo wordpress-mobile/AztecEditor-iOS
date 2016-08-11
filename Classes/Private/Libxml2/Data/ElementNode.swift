@@ -70,6 +70,10 @@ extension Libxml2.HTML {
             self.attributes.appendContentsOf(attributes)
 
             super.init(name: name)
+
+            for child in children {
+                child.parent = self
+            }
         }
 
         override func customMirror() -> Mirror {
