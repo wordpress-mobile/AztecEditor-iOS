@@ -566,8 +566,6 @@ public class AztecVisualEditor : NSObject
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
-
-
 }
 
 
