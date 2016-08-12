@@ -1,21 +1,24 @@
 import Foundation
 
-public class HTMLToAttributedString: Converter {
+class HTMLToAttributedString: Converter {
+
+    typealias RootNode = Libxml2.HTML.RootNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
     let defaultFontDescriptor: UIFontDescriptor
 
-    public required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+    required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
-    public func convert(html: String) throws -> NSAttributedString {
+    func convert(html: String) throws -> (rootNode: RootNode, attributedString: NSAttributedString) {
         let htmlToNode = Libxml2.In.HTMLConverter()
         let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
-        let node = try htmlToNode.convert(html)
+        let rootNode = try htmlToNode.convert(html)
+        let attributedString = nodeToAttributedString.convert(rootNode)
 
-        return nodeToAttributedString.convert(node)
+        return (rootNode, attributedString)
     }
 }

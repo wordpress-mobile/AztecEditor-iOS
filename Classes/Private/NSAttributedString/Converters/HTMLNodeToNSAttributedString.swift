@@ -1,10 +1,11 @@
 import Foundation
 
 class HMTLNodeToNSAttributedString: SafeConverter {
-    typealias HTML = Libxml2.HTML
-    typealias ElementNode = HTML.ElementNode
-    typealias Node = HTML.Node
-    typealias TextNode = HTML.TextNode
+
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias Node = Libxml2.HTML.Node
+    typealias RootNode = Libxml2.HTML.RootNode
+    typealias TextNode = Libxml2.HTML.TextNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
@@ -91,7 +92,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     private func keyForNode(node: Node) -> String {
 
-        if node.name == Aztec.AttributeName.rootNode {
+        if node.name == RootNode.name {
             return node.name
         } else {
             let uuid = NSUUID().UUIDString

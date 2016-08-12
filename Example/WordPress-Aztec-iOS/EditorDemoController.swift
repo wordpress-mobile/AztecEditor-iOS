@@ -108,7 +108,9 @@ class EditorDemoController: UIViewController
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        richTextView.attributedText = self.getSampleHTML()
+        if let storage = richTextView.textStorage as? AztecTextStorage {
+            storage.setHTML(self.getSampleHTML())
+        }
 
         configureConstraints()
         configureNavigationBar()
@@ -230,7 +232,7 @@ class EditorDemoController: UIViewController
 
     // MARK: - Sample Content
 
-    func getSampleHTML() -> NSAttributedString {
+    func getSampleHTML() -> String {
         let htmlFilePath = NSBundle.mainBundle().pathForResource("content", ofType: "html")!
         let fileContents: String
 
@@ -240,16 +242,7 @@ class EditorDemoController: UIViewController
             fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
         }
 
-        let converter = Aztec.HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
-        let output: NSAttributedString
-
-        do {
-            output = try converter.convert(fileContents)
-        } catch {
-            fatalError("Could not convert the sample HTML.")
-        }
-
-        return output
+        return fileContents
     }
 }
 
@@ -286,7 +279,7 @@ extension EditorDemoController
     private func switchToHTML() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
 
-        htmlTextView.text = richTextView.exportHTML()
+        htmlTextView.text = editor.getHTML()
 
         view.endEditing(true)
         htmlTextView.hidden = false
@@ -296,7 +289,7 @@ extension EditorDemoController
     private func switchToRichText() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
 
-        richTextView.loadHTML(htmlTextView.text)
+        editor.setHTML(htmlTextView.text)
 
         view.endEditing(true)
         richTextView.hidden = false

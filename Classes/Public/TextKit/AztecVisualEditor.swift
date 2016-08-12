@@ -89,6 +89,26 @@ public class AztecVisualEditor : NSObject
         return paragraphRanges
     }
 
+    // MARK: - HTML Interaction
+
+    /// Converts the current Attributed Text into a raw HTML String
+    ///
+    /// - Returns: The HTML version of the current Attributed String.
+    ///
+    public func getHTML() -> String {
+        return storage.getHTML()
+    }
+
+
+    /// Loads the specified HTML into the editor.
+    ///
+    /// - Parameters:
+    ///     - html: The raw HTML we'd be editing.
+    ///
+    public func setHTML(html: String) {
+        storage.setHTML(html)
+    }
+
 
     // MARK: - Getting format identifiers
 
