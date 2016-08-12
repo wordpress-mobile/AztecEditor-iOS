@@ -108,9 +108,7 @@ class EditorDemoController: UIViewController
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        if let storage = richTextView.textStorage as? AztecTextStorage {
-            storage.setHTML(self.getSampleHTML())
-        }
+        editor.setHTML(getSampleHTML())
 
         configureConstraints()
         configureNavigationBar()

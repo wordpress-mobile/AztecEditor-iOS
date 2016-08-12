@@ -97,8 +97,8 @@ public class AztecTextStorage: NSTextStorage {
                     continue
                 }
 
-                let preRange = Range(start: node.text.startIndex, end: swiftRange.startIndex)
-                let postRange = Range(start: swiftRange.endIndex, end: node.text.endIndex)
+                let preRange = node.text.startIndex ..< swiftRange.startIndex
+                let postRange = swiftRange.endIndex ..< node.text.endIndex
 
                 if postRange.count > 0 {
                     let newNode = TextNode(text: node.text.substringWithRange(postRange))
