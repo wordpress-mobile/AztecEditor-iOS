@@ -215,7 +215,7 @@ public class AztecVisualEditor : NSObject
 
         var assigning = true
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if let _ = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
             assigning = !NSEqualRanges(range, effectiveRange)
         }
 
@@ -241,7 +241,7 @@ public class AztecVisualEditor : NSObject
 
         var assigning = true
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if let _ = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
             assigning = !NSEqualRanges(range, effectiveRange)
         }
 
@@ -288,7 +288,7 @@ public class AztecVisualEditor : NSObject
         let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
 
         // Get the affected paragraphs
-        var paragraphRanges = rangesOfParagraphsEnclosingRange(range)
+        let paragraphRanges = rangesOfParagraphsEnclosingRange(range)
         guard let firstRange = paragraphRanges.first else {
             return
         }

@@ -18,7 +18,6 @@ extension Libxml2.Out {
         ///
         func convert(rawNode: Node) -> UnsafeMutablePointer<xmlNode> {
             var node: UnsafeMutablePointer<xmlNode>!
-            let nodeName = rawNode.name
             
             if let textNode = rawNode as? TextNode {
                 node = createTextNode(textNode)
