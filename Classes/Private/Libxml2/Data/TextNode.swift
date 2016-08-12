@@ -14,7 +14,7 @@ extension Libxml2.HTML {
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.

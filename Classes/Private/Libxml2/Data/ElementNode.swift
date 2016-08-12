@@ -77,7 +77,7 @@ extension Libxml2.HTML {
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["type": "element", "name": name, "parent": parent, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
 
         // MARK: - Node Queries
@@ -198,7 +198,7 @@ extension Libxml2.HTML {
                     } else if let elementNode = child as? ElementNode {
                         let offsetRange = NSRange(location: range.location - offset, length: range.length)
 
-                        results.appendContentsOf(textNodesWrapping(offsetRange))
+                        results.appendContentsOf(elementNode.textNodesWrapping(offsetRange))
                     } else {
                         assertionFailure("This case should not be possible. Review the logic triggering this.")
                     }

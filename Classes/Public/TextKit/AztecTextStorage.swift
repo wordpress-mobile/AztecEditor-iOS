@@ -56,7 +56,7 @@ public class AztecTextStorage: NSTextStorage {
 
     func toggleBold(range: NSRange) {
 
-        let enable = fontTrait(.TraitBold, spansRange: range)
+        let enable = !fontTrait(.TraitBold, spansRange: range)
 
         modifyTrait(.TraitBold, range: range, enable: enable)
 
@@ -73,11 +73,6 @@ public class AztecTextStorage: NSTextStorage {
         wrap(range: range, inNodeNamed: "strong")
     }
 
-    private func getNodeWrapping(range range: NSRange) -> ElementNode {
-
-        return rootNode().lowestElementNodeWrapping(range)
-    }
-
     private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
 
         let textNodes = rootNode().textNodesWrapping(newNodeRange)
@@ -90,27 +85,33 @@ public class AztecTextStorage: NSTextStorage {
                 continue
             }
 
-            if range.length == node.length() {
-                let newNode = ElementNode(name: newNodeName, attributes: [], children: [node])
-                parent.children[nodeIndex] = newNode
-            } else {
+            let nodeLength = node.length()
 
+            if range.length != nodeLength {
                 guard let swiftRange = node.text.rangeFromNSRange(range) else {
                     assertionFailure("This scenario should not be possible. Review the logic.")
                     continue
                 }
 
-                let text = node.text.substringWithRange(swiftRange)
-                node.text.removeRange(swiftRange)
+                let preRange = Range(start: node.text.startIndex, end: swiftRange.startIndex)
+                let postRange = Range(start: swiftRange.endIndex, end: node.text.endIndex)
 
-                let newNode = TextNode(text: text)
+                if postRange.count > 0 {
+                    let newNode = TextNode(text: node.text.substringWithRange(postRange))
 
-                if range.location != 0 {
+                    node.text.removeRange(postRange)
                     parent.children.insert(newNode, atIndex: nodeIndex + 1)
-                } else { // Meaning: range.length < node.length()
+                }
+
+                if preRange.count > 0 {
+                    let newNode = TextNode(text: node.text.substringWithRange(preRange))
+
+                    node.text.removeRange(preRange)
                     parent.children.insert(newNode, atIndex: nodeIndex)
                 }
             }
+
+            node.wrapInNewNode(named: newNodeName)
         }
     }
 }

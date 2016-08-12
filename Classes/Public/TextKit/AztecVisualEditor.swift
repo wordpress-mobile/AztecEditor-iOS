@@ -184,7 +184,8 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(.TraitBold, range: range)
+        //storage.toggleFontTrait(.TraitBold, range: range)
+        storage.toggleBold(range)
     }
 
 

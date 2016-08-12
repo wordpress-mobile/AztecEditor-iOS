@@ -78,6 +78,33 @@ extension Libxml2.HTML {
 
             return nil
         }
+
+        /// Wraps this node in a new node with the specified name.  Also takes care of updating
+        /// the parent and child node references.
+        ///
+        /// - Parameters:
+        ///     - name: the new node name.
+        ///     - attributes: the new node attributes.
+        ///
+        /// - Returns: the newly created element.
+        ///
+        func wrapInNewNode(named name: String, attributes: [Attribute] = []) -> ElementNode {
+
+            let originalParent = parent
+
+            let newNode = ElementNode(name: name, attributes: attributes, children: [self])
+
+            if let parent = originalParent {
+                guard let index = parent.children.indexOf(self) else {
+                    assertionFailure("A node's parent should contain the node. Review the child/parent updating logic.")
+                    return newNode
+                }
+
+                parent.children[index] = newNode
+            }
+
+            return newNode
+        }
     }
 }
 
