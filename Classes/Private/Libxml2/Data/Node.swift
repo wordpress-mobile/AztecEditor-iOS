@@ -22,20 +22,28 @@ extension Libxml2.HTML {
             return 0
         }
 
-        /// Retrieve all parent nodes for a specified node.
+        /// Retrieve all element nodes between the receiver and the root node.
+        /// The root node is included in the results.  The receiver is only included if it's an
+        /// element node.
         ///
         /// - Parameters:
         ///     - interruptAtBlockLevel: whether the method should interrupt if it finds a
         ///             block-level element.
         ///
-        /// - Returns: an ordered array of parent nodes.  Element zero is the closest parent node.
+        /// - Returns: an ordered array of nodes.  Element zero is the receiver if it's an element
+        ///         node, otherwise its the receiver's parent node.  The last element is the root
+        ///         node.
         ///
-        func parentElementNodes(interruptAtBlockLevel interruptAtBlockLevel: Bool = false) -> [ElementNode] {
-            var parentNodes = [ElementNode]()
+        func elementNodesToRoot(interruptAtBlockLevel interruptAtBlockLevel: Bool = false) -> [ElementNode] {
+            var nodes = [ElementNode]()
             var currentNode = self.parent
 
+            if let elementNode = self as? ElementNode {
+                nodes.append(elementNode)
+            }
+
             while let node = currentNode {
-                parentNodes.append(node)
+                nodes.append(node)
 
                 if interruptAtBlockLevel && node.isBlockLevelElement() {
                     break
@@ -44,11 +52,11 @@ extension Libxml2.HTML {
                 currentNode = node.parent
             }
 
-            return parentNodes
+            return nodes
         }
 
-        /// This method returns the first parent `ElementNode` in common between the receiver and
-        /// the specified input parameter.
+        /// This method returns the first `ElementNode` in common between the receiver and
+        /// the specified input parameter, going up both branches.
         ///
         /// - Parameters:
         ///     - node: the algorythm will search for the parent nodes of the receiver, and this
@@ -56,11 +64,11 @@ extension Libxml2.HTML {
         ///     - interruptAtBlockLevel: whether the search should stop when a block-level
         ///             element has been found.
         ///
-        /// - Returns: the parent node in common, or `nil` if none was found.
+        /// - Returns: the first element node in common, or `nil` if none was found.
         ///
-        func parentNodeInCommon(withNode node: Node, interruptAtBlockLevel: Bool = false) -> ElementNode? {
-            let myParents = parentElementNodes(interruptAtBlockLevel: interruptAtBlockLevel)
-            let hisParents = node.parentElementNodes(interruptAtBlockLevel: interruptAtBlockLevel)
+        func firstElementNodeInCommon(withNode node: Node, interruptAtBlockLevel: Bool = false) -> ElementNode? {
+            let myParents = elementNodesToRoot(interruptAtBlockLevel: interruptAtBlockLevel)
+            let hisParents = node.elementNodesToRoot(interruptAtBlockLevel: interruptAtBlockLevel)
 
             for currentParent in hisParents {
                 if myParents.contains(currentParent) {

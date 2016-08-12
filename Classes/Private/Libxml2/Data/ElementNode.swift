@@ -57,7 +57,7 @@ extension Libxml2.HTML {
         }
 
         private(set) var attributes = [Attribute]()
-        let children: [Node]
+        var children: [Node]
 
         private var standardName: StandardName? {
             get {
@@ -80,6 +80,8 @@ extension Libxml2.HTML {
             return Mirror(self, children: ["type": "element", "name": name, "parent": parent, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
 
+        // MARK: - Node Queries
+
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
@@ -92,6 +94,24 @@ extension Libxml2.HTML {
 
             return length
         }
+
+        /// Find out if this is a block-level element.
+        ///
+        /// - Returns: `true` if this is a block-level element.  `false` otherwise.
+        ///
+        func isBlockLevelElement() -> Bool {
+
+            guard let standardName = standardName else {
+                // For now we're treating all non-standard element names as non-block-level
+                // elements.
+                //
+                return false
+            }
+
+            return StandardName.blockLevelNodeNames().contains(standardName)
+        }
+
+        // MARK: - DOM Branch Queries
 
         /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
         /// range.  If no child element node wraps the specified range, this method returns this
@@ -194,22 +214,6 @@ extension Libxml2.HTML {
             }
 
             return results
-        }
-
-        /// Find out if this is a block-level element.
-        ///
-        /// - Returns: `true` if this is a block-level element.  `false` otherwise.
-        ///
-        func isBlockLevelElement() -> Bool {
-
-            guard let standardName = standardName else {
-                // For now we're treating all non-standard element names as non-block-level
-                // elements.
-                //
-                return false
-            }
-
-            return StandardName.blockLevelNodeNames().contains(standardName)
         }
     }
 }
