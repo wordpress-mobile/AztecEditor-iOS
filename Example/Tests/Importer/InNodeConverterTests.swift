@@ -4,10 +4,9 @@ import libxml2
 
 class InNodeConverterTests: XCTestCase {
 
-    typealias HTML = Libxml2.HTML
-    typealias ElementNode = HTML.ElementNode
-    typealias Node = HTML.Node
-    typealias TextNode = HTML.TextNode
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias Node = Libxml2.HTML.Node
+    typealias TextNode = Libxml2.HTML.TextNode
 
     let textNodeName = "text"
 

@@ -31,7 +31,6 @@ extension Libxml2.In {
             let wrappedHTML = "<\(RootNode.name)>\(html)</\(RootNode.name)>"
             let data = wrappedHTML.dataUsingEncoding(NSUTF8StringEncoding)!
 
-            let result = NSMutableAttributedString()
             let bufferSize = 1024
             let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
             let htmlPtr = UnsafePointer<Int8>(data.bytes)

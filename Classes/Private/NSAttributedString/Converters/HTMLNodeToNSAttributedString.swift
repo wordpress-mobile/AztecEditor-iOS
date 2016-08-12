@@ -183,7 +183,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         if isLink(node) {
             let linkURL: String
 
-            if let attribute = node.attributes.indexOf({ $0.name == HTMLLinkAttribute.Href.rawValue }) as? Libxml2.HTML.StringAttribute {
+            if let attributeIndex = node.attributes.indexOf({ $0.name == HTMLLinkAttribute.Href.rawValue }),
+                let attribute = node.attributes[attributeIndex] as? Libxml2.HTML.StringAttribute {
+
                 linkURL = attribute.value
             } else {
                 // We got a link tag without an HREF attribute

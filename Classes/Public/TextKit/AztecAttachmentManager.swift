@@ -2,7 +2,7 @@ import Foundation
 
 /// Wrangles attachment layout and exclusion paths for the specified UITextView.
 ///
-@objc public class AztecAttachmentManager : NSObject
+public class AztecAttachmentManager
 {
 
     public var attachments = [AztecTextAttachment]()
@@ -25,7 +25,7 @@ import Foundation
         self.textView = textView
         self.delegate = delegate
 
-        super.init()
+        //super.init()
 
         enumerateAttachments()
     }
@@ -214,12 +214,12 @@ import Foundation
     ///
     private func frameForAttachmentView(attachmentView: AztecAttachmentView, forAttachment attachment: AztecTextAttachment, atRange range:NSRange) -> CGRect {
         let glyphRange = layoutManager.glyphRangeForCharacterRange(range, actualCharacterRange: nil)
-        guard let textContainer = layoutManager.textContainerForGlyphAtIndex(glyphRange.location, effectiveRange: nil) else {
+        guard let _ = layoutManager.textContainerForGlyphAtIndex(glyphRange.location, effectiveRange: nil) else {
             return CGRectZero
         }
 
         // The location of the attachment glyph
-        let glyphBoundingRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
+        //let glyphBoundingRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
         let lineFragmentRect = layoutManager.lineFragmentRectForGlyphAtIndex(glyphRange.location, effectiveRange: nil)
 
         // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.

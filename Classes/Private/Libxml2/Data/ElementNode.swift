@@ -137,7 +137,7 @@ extension Libxml2.HTML {
 
                         let childRange = NSRange(location: range.location - offset, length: range.length)
 
-                        return elementNode.lowestElementNodeWrapping(range)
+                        return elementNode.lowestElementNodeWrapping(childRange)
                     } else {
                         return self
                     }
@@ -160,7 +160,7 @@ extension Libxml2.HTML {
         ///         that they wrap.
         ///
         func lowestBlockElementNodesWrapping(range: NSRange) -> [(node: ElementNode, range: NSRange)] {
-            let mainNode = lowestElementNodeWrapping(range)
+            //let mainNode = lowestElementNodeWrapping(range)
 
             // Look for block-level elements in children
             return []

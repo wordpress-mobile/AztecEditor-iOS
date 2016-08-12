@@ -55,7 +55,7 @@ class SafeArrayConverter<ElementConverterType: SafeConverter>: SafeConverter {
         var output = TypeOut()
 
         for element in input {
-            try output.append(elementConverter.convert(element))
+            output.append(elementConverter.convert(element))
         }
 
         return output
