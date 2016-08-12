@@ -5,6 +5,8 @@ import Foundation
 ///
 public class AztecTextStorage: NSTextStorage {
 
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias TextNode = Libxml2.HTML.TextNode
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -71,15 +73,46 @@ public class AztecTextStorage: NSTextStorage {
         wrap(range: range, inNodeNamed: "strong")
     }
 
-    private func getNodeWrapping(range range: NSRange) -> Libxml2.HTML.ElementNode {
+    private func getNodeWrapping(range range: NSRange) -> ElementNode {
 
         return rootNode().lowestElementNodeWrapping(range)
     }
 
-    private func wrap(range range: NSRange, inNodeNamed nodeName: String) {
-        let node = getNodeWrapping(range: range)
-    }
+    private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
 
+        let textNodes = rootNode().textNodesWrapping(newNodeRange)
+
+        for (node, range) in textNodes {
+            guard let parent = node.parent,
+                let nodeIndex = parent.children.indexOf(node) else {
+
+                assertionFailure("This scenario should not be possible. Review the logic.")
+                continue
+            }
+
+            if range.length == node.length() {
+                let newNode = ElementNode(name: newNodeName, attributes: [], children: [node])
+                parent.children[nodeIndex] = newNode
+            } else {
+
+                guard let swiftRange = node.text.rangeFromNSRange(range) else {
+                    assertionFailure("This scenario should not be possible. Review the logic.")
+                    continue
+                }
+
+                let text = node.text.substringWithRange(swiftRange)
+                node.text.removeRange(swiftRange)
+
+                let newNode = TextNode(text: text)
+
+                if range.location != 0 {
+                    parent.children.insert(newNode, atIndex: nodeIndex + 1)
+                } else { // Meaning: range.length < node.length()
+                    parent.children.insert(newNode, atIndex: nodeIndex)
+                }
+            }
+        }
+    }
 }
 
 

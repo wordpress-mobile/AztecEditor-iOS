@@ -5,7 +5,7 @@ extension Libxml2.HTML {
     ///
     class TextNode: Node {
 
-        let text: String
+        var text: String
 
         init(text: String) {
             self.text = text
