@@ -2,10 +2,11 @@ import Foundation
 import libxml2
 
 extension Libxml2.Out {
-    public class HTMLConverter: Converter {
+    class HTMLConverter: Converter {
         
         typealias Node = HTML.Node
         typealias ElementNode = HTML.ElementNode
+        typealias RootNode = HTML.RootNode
 
         /// Converts the a Libxml2 Node into HTML representing the same data.
         ///
@@ -29,7 +30,7 @@ extension Libxml2.Out {
             xmlFreeDoc(xmlDocPtr)
             xmlBufferFree(buf)
 
-            let finalString = htmlDumpString.stringByReplacingOccurrencesOfString("<\(Aztec.AttributeName.rootNode)>", withString: "").stringByReplacingOccurrencesOfString("</\(Aztec.AttributeName.rootNode)>", withString: "")
+            let finalString = htmlDumpString.stringByReplacingOccurrencesOfString("<\(RootNode.name)>", withString: "").stringByReplacingOccurrencesOfString("</\(RootNode.name)>", withString: "")
             
             return finalString
         }

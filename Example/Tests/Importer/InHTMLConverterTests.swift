@@ -25,13 +25,7 @@ class InHTMLConverterTests: XCTestCase {
         let html = "<bold>Hello!</bold>"
 
         do {
-            let node = try parser.convert(html)
-
-            guard let rootNode = node as? ElementNode
-                where rootNode.name == Aztec.AttributeName.rootNode else {
-                XCTFail("Expected the root element node.")
-                return
-            }
+            let rootNode = try parser.convert(html)
 
             XCTAssertEqual(rootNode.children.count, 1)
 
@@ -60,12 +54,7 @@ class InHTMLConverterTests: XCTestCase {
         let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
         do {
-            let node = try parser.convert(html)
-
-            guard let rootNode = node as? ElementNode else {
-                XCTFail("Expected the root element node.")
-                return
-            }
+            let rootNode = try parser.convert(html)
 
             XCTAssertEqual(rootNode.children.count, 1)
 

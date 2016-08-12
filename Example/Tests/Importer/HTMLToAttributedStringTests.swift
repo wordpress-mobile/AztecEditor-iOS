@@ -4,6 +4,7 @@ import XCTest
 class HTMLToAttributedStringTests: XCTestCase {
 
     typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias RootNode = Libxml2.HTML.RootNode
     typealias TextNode = Libxml2.HTML.TextNode
 
     override func setUp() {
@@ -31,9 +32,9 @@ class HTMLToAttributedStringTests: XCTestCase {
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"
 
             do {
-                let string = try parser.convert(html)
+                let output = try parser.convert(html)
 
-                let rootNode = string.rootNode()
+                let rootNode = output.rootNode
 
                 guard rootNode.children.count == 1,
                     let mainNode = rootNode.children[0] as? ElementNode else {
@@ -77,9 +78,9 @@ class HTMLToAttributedStringTests: XCTestCase {
             let html = "\(firstText)<\(tagName)>\(secondText)</\(tagName)>\(thirdText)"
 
             do {
-                let string = try parser.convert(html)
+                let output = try parser.convert(html)
 
-                let rootNode = string.rootNode()
+                let rootNode = output.rootNode
 
                 guard rootNode.children.count == 3,
                     let firstTextNode = rootNode.children[0] as? TextNode,
@@ -128,11 +129,11 @@ class HTMLToAttributedStringTests: XCTestCase {
             let html = "<\(tagName.0)><\(tagName.1)>\(text)</\(tagName.1)></\(tagName.0)>"
 
             do {
-                let string = try parser.convert(html)
+                let output = try parser.convert(html)
 
-                let rootNode = string.rootNode()
+                let rootNode = output.rootNode
 
-                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.name, RootNode.name)
                 XCTAssertEqual(rootNode.children.count, 1)
 
                 guard let firstNode = rootNode.children[0] as? ElementNode else {
@@ -188,11 +189,11 @@ class HTMLToAttributedStringTests: XCTestCase {
             let html = "<\(tagName.0)>\(firstText)<\(tagName.1)>\(secondText)</\(tagName.1)>\(thirdText)</\(tagName.0)>"
 
             do {
-                let string = try parser.convert(html)
+                let output = try parser.convert(html)
 
-                let rootNode = string.rootNode()
+                let rootNode = output.rootNode
 
-                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.name, RootNode.name)
                 XCTAssertEqual(rootNode.children.count, 1)
 
                 guard let firstNode = rootNode.children[0] as? ElementNode else {
@@ -267,11 +268,11 @@ class HTMLToAttributedStringTests: XCTestCase {
             let html = "<\(tagName.0)>\(firstText)<\(tagName.1)><\(tagName.2)>\(secondText)</\(tagName.2)></\(tagName.1)>\(thirdText)</\(tagName.0)>"
 
             do {
-                let string = try parser.convert(html)
+                let output = try parser.convert(html)
 
-                let rootNode = string.rootNode()
+                let rootNode = output.rootNode
 
-                XCTAssertEqual(rootNode.name, Aztec.AttributeName.rootNode)
+                XCTAssertEqual(rootNode.name, RootNode.name)
                 XCTAssertEqual(rootNode.children.count, 1)
 
                 guard let firstNode = rootNode.children[0] as? ElementNode else {

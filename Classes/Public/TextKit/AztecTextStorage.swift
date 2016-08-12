@@ -7,8 +7,13 @@ public class AztecTextStorage: NSTextStorage {
 
     typealias ElementNode = Libxml2.HTML.ElementNode
     typealias TextNode = Libxml2.HTML.TextNode
+    typealias RootNode = Libxml2.HTML.RootNode
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
+
+    private var rootNode: RootNode = {
+        return RootNode(children: [])
+    }()
 
     // MARK: - NSTextStorage
 
@@ -20,7 +25,6 @@ public class AztecTextStorage: NSTextStorage {
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
-
 
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
@@ -75,7 +79,7 @@ public class AztecTextStorage: NSTextStorage {
 
     private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
 
-        let textNodes = rootNode().textNodesWrapping(newNodeRange)
+        let textNodes = rootNode.textNodesWrapping(newNodeRange)
 
         for (node, range) in textNodes {
             guard let parent = node.parent,
@@ -113,6 +117,32 @@ public class AztecTextStorage: NSTextStorage {
 
             node.wrapInNewNode(named: newNodeName)
         }
+    }
+
+    // MARK: - HTML Interaction
+
+    public func getHTML() -> String {
+        let converter = Libxml2.Out.HTMLConverter()
+        let html = converter.convert(rootNode)
+
+        return html
+    }
+
+    public func setHTML(html: String) {
+
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let output: (rootNode: RootNode, attributedString: NSAttributedString)
+
+        do {
+            output = try converter.convert(html)
+        } catch {
+            fatalError("Could not convert the HTML.")
+        }
+
+        let originalLength = textStore.length
+        textStore = NSMutableAttributedString(attributedString: output.attributedString)
+        edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        rootNode = output.rootNode
     }
 }
 
