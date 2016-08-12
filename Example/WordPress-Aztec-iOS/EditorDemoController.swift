@@ -9,8 +9,7 @@ class EditorDemoController: UIViewController
 
 
     private (set) lazy var editor: AztecVisualEditor = {
-        let e = AztecVisualEditor(textView: self.richTextView)
-        return e
+        return AztecVisualEditor(textView: self.richTextView)
     }()
 
 
