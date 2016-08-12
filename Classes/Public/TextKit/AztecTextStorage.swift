@@ -5,9 +5,14 @@ import Foundation
 ///
 public class AztecTextStorage: NSTextStorage {
 
+    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias RootNode = Libxml2.HTML.RootNode
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
+    private var rootNode: RootNode = {
+        return RootNode(children: [])
+    }()
 
     override public var string: String {
         return textStore.string
@@ -17,7 +22,6 @@ public class AztecTextStorage: NSTextStorage {
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
-
 
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
@@ -51,6 +55,31 @@ public class AztecTextStorage: NSTextStorage {
         super.processEditing()
     }
 
+    // MARK: - HTML Interaction
+
+    public func getHTML() -> String {
+        let converter = Libxml2.Out.HTMLConverter()
+        let html = converter.convert(rootNode)
+
+        return html
+    }
+
+    public func setHTML(html: String) {
+
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let output: (rootNode: RootNode, attributedString: NSAttributedString)
+
+        do {
+            output = try converter.convert(html)
+        } catch {
+            fatalError("Could not convert the HTML.")
+        }
+
+        let originalLength = textStore.length
+        textStore = NSMutableAttributedString(attributedString: output.attributedString)
+        edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        rootNode = output.rootNode
+    }
 }
 
 

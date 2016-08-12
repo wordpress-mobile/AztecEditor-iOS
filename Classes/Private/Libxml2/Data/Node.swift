@@ -51,6 +51,15 @@ extension Libxml2.HTML {
             return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent], ancestorRepresentation: .Suppressed)
         }
     }
+
+    class RootNode: ElementNode {
+
+        static let name = "aztec.htmltag.rootnode"
+
+        init(children: [Node]) {
+            super.init(name: self.dynamicType.name, attributes: [], children: children)
+        }
+    }
 }
 
 // MARK: - Node Equatable

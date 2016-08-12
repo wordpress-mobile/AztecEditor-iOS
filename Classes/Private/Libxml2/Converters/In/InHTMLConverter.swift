@@ -4,6 +4,8 @@ import libxml2
 extension Libxml2.In {
     class HTMLConverter: Converter {
 
+        typealias RootNode = HTML.RootNode
+
         enum Error: String, ErrorType {
             case NoRootNode = "No root node"
         }
@@ -20,13 +22,13 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML root node.
         ///
-        func convert(html: String) throws -> Libxml2.HTML.Node {
+        func convert(html: String) throws -> RootNode {
 
             // We wrap the HTML into a special root node, since it helps avoid conversion issues
             // with libxml2, where the library would add custom tags to "fix" the HTML code we
             // provide.
             //
-            let wrappedHTML = "<\(Aztec.AttributeName.rootNode)>\(html)</\(Aztec.AttributeName.rootNode)>"
+            let wrappedHTML = "<\(RootNode.name)>\(html)</\(RootNode.name)>"
             let data = wrappedHTML.dataUsingEncoding(NSUTF8StringEncoding)!
 
             let result = NSMutableAttributedString()
@@ -76,7 +78,7 @@ extension Libxml2.In {
                 let nodeConverter = NodeConverter()
                 let node = nodeConverter.convert(rootNode)
 
-                return node
+                return node as! RootNode
             } else {
                 throw Error.NoRootNode
             }
