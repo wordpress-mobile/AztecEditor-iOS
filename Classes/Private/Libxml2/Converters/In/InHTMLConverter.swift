@@ -75,9 +75,12 @@ extension Libxml2.In {
                 // it to bypass this behaviour.
                 //
                 let nodeConverter = NodeConverter()
-                let node = nodeConverter.convert(rootNode)
 
-                return node as! RootNode
+                guard let node = nodeConverter.convert(rootNode) as? RootNode else {
+                    throw Error.NoRootNode
+                }
+
+                return node
             } else {
                 throw Error.NoRootNode
             }

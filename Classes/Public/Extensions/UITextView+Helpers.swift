@@ -4,7 +4,6 @@ import UIKit
 ///
 extension UITextView
 {
-
     /// A convenience metod for getting the CGRect of the currentl text selection.
     ///
     /// - Returns: The CGRect of the current text selection.
