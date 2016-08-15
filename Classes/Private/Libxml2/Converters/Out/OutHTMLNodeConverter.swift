@@ -4,10 +4,10 @@ import libxml2
 extension Libxml2.Out {
     class NodeConverter: Converter {
 
-        typealias Attribute = HTML.Attribute
-        typealias ElementNode = HTML.ElementNode
-        typealias Node = HTML.Node
-        typealias TextNode = HTML.TextNode
+        typealias Attribute = Libxml2.Attribute
+        typealias ElementNode = Libxml2.ElementNode
+        typealias Node = Libxml2.Node
+        typealias TextNode = Libxml2.TextNode
 
         /// Converts a single HTML.Node into a libxml2 node
         ///
@@ -18,7 +18,6 @@ extension Libxml2.Out {
         ///
         func convert(rawNode: Node) -> UnsafeMutablePointer<xmlNode> {
             var node: UnsafeMutablePointer<xmlNode>!
-            let nodeName = rawNode.name
             
             if let textNode = rawNode as? TextNode {
                 node = createTextNode(textNode)

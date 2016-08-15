@@ -4,10 +4,9 @@ import libxml2
 
 class InNodeConverterTests: XCTestCase {
 
-    typealias HTML = Libxml2.HTML
-    typealias ElementNode = HTML.ElementNode
-    typealias Node = HTML.Node
-    typealias TextNode = HTML.TextNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias Node = Libxml2.Node
+    typealias TextNode = Libxml2.TextNode
 
     let textNodeName = "text"
 
@@ -58,7 +57,6 @@ class InNodeConverterTests: XCTestCase {
         XCTAssertEqual(textNode.name, textNodeName)
         XCTAssertEqual(textNode.text, text)
         XCTAssertEqual(textNode.parent, nil)
-        XCTAssertEqual(textNode.attributes.count, 0)
     }
 
     func testTextNodeInParentNodeConversion() {
@@ -93,6 +91,5 @@ class InNodeConverterTests: XCTestCase {
         XCTAssertEqual(outTextNode.name, textNodeName)
         XCTAssertEqual(outTextNode.text, text)
         XCTAssertEqual(outTextNode.parent, outParentNode)
-        XCTAssertEqual(outTextNode.attributes.count, 0)
     }
 }

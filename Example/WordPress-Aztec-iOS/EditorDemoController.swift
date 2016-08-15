@@ -5,20 +5,19 @@ import Aztec
 
 class EditorDemoController: UIViewController
 {
-    private var bottomConstraint: NSLayoutConstraint?
+    private var bottomConstraint: NSLayoutConstraint!
 
 
     private (set) lazy var editor: AztecVisualEditor = {
-        let e = AztecVisualEditor(textView: self.textView)
-        return e
+        return AztecVisualEditor(textView: self.richTextView)
     }()
 
 
-    private(set) lazy var textView: UITextView = {
+    private(set) lazy var richTextView: UITextView = {
         let tv = AztecVisualEditor.createTextView()
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
-        tv.accessibilityLabel = NSLocalizedString("Content", comment: "Post content")
+        tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         tv.delegate = self
         tv.font = font
         let toolbar = self.createToolbar()
@@ -27,13 +26,24 @@ class EditorDemoController: UIViewController
         tv.inputAccessoryView = toolbar
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
-
         tv.addSubview(self.titleTextField)
         tv.addSubview(self.separatorView)
 
         return tv
     }()
 
+    private(set) lazy var htmlTextView: UITextView = {
+        let tv = UITextView()
+        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
+
+        tv.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
+        tv.font = font
+        tv.textColor = UIColor.darkTextColor()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.hidden = true
+
+        return tv
+    }()
 
     private(set) lazy var titleTextField: UITextField = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
@@ -66,60 +76,20 @@ class EditorDemoController: UIViewController
     }()
 
 
-    var titleFont: UIFont? {
-        get {
-            return titleTextField.font
-        }
-        set {
-            titleTextField.font = newValue
-            layoutTextView()
-        }
-    }
 
-
-    var titleColor: UIColor? {
-        get {
-            return titleTextField.textColor
-        }
-        set {
-            titleTextField.textColor = newValue
-        }
-    }
-
-
-    var bodyFont: UIFont? {
-        get {
-            return textView.font
-        }
-        set {
-            textView.font = newValue
-            layoutTextView()
-        }
-    }
-
-
-    var bodyColor: UIColor? {
-        get {
-            return textView.textColor
-        }
-        set {
-            textView.textColor = newValue
-        }
-    }
-
-
-    var separatorColor: UIColor? {
-        get {
-            return separatorView.backgroundColor
-        }
-        set {
-            separatorView.backgroundColor = newValue
+    private(set) var mode = EditionMode.RichText {
+        didSet {
+            switch mode {
+            case .HTML:
+                switchToHTML()
+            case .RichText:
+                switchToRichText()
+            }
         }
     }
 
 
     // MARK: - Lifecycle Methods
-
 
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
@@ -132,11 +102,17 @@ class EditorDemoController: UIViewController
         // lazy load the editor
         _ = editor
 
-        view.addSubview(textView)
+        edgesForExtendedLayout = .None
+        navigationController?.navigationBar.translucent = false
 
-        textView.attributedText = self.getSampleHTML()
+        view.addSubview(richTextView)
+        view.addSubview(htmlTextView)
+
+        editor.setHTML(getSampleHTML())
 
         configureConstraints()
+        configureNavigationBar()
+
         layoutTextView()
     }
 
@@ -168,43 +144,58 @@ class EditorDemoController: UIViewController
 
     // MARK: - Configuration Methods
 
-
     func configureConstraints() {
-        let views = [
-            "textView" : textView
-        ]
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[textView]|", options: [], metrics: nil, views: views))
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[textView]", options: [], metrics: nil, views: views))
-        bottomConstraint = NSLayoutConstraint(item: textView,
-                                              attribute: .Bottom,
-                                              relatedBy: .Equal,
-                                              toItem: view,
-                                              attribute: .Bottom,
-                                              multiplier: 1.0,
-                                              constant: 0.0)
-        view.addConstraint(bottomConstraint!)
+        bottomConstraint = richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
+
+        NSLayoutConstraint.activateConstraints([
+            richTextView.leftAnchor.constraintEqualToAnchor(view.leftAnchor),
+            richTextView.rightAnchor.constraintEqualToAnchor(view.rightAnchor),
+            richTextView.topAnchor.constraintEqualToAnchor(view.topAnchor),
+            bottomConstraint!
+        ])
+
+        NSLayoutConstraint.activateConstraints([
+            htmlTextView.leftAnchor.constraintEqualToAnchor(richTextView.leftAnchor),
+            htmlTextView.rightAnchor.constraintEqualToAnchor(richTextView.rightAnchor),
+            htmlTextView.topAnchor.constraintEqualToAnchor(richTextView.topAnchor),
+            htmlTextView.bottomAnchor.constraintEqualToAnchor(richTextView.bottomAnchor),
+        ])
     }
+
+    func configureNavigationBar() {
+        let title = NSLocalizedString("HTML", comment: "HTML!")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: title,
+                                                            style: .Plain,
+                                                            target: self,
+                                                           action: #selector(switchEditionMode))
+    }
+
+
+    // MARK: - Helpers
+
+    @IBAction func switchEditionMode() {
+        mode.toggle()
+    }
+
 
 
     // MARK: - Layout
 
-
     func layoutTextView() {
         let lineHeight = titleTextField.font!.lineHeight
         let offset: CGFloat = 15.0
-        let width: CGFloat = textView.frame.width - (offset * 2)
+        let width: CGFloat = richTextView.frame.width - (offset * 2)
         let height: CGFloat = lineHeight * 2.0
         titleTextField.frame = CGRect(x: offset, y: 0, width: width, height: height)
 
         separatorView.frame = CGRect(x: offset, y: titleTextField.frame.maxY, width: width, height: 1)
 
         let top: CGFloat = separatorView.frame.maxY + lineHeight
-        textView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
+        richTextView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
     }
 
 
     // MARK: - Keyboard Handling
-
 
     func keyboardWillShow(notification: NSNotification) {
         guard
@@ -227,18 +218,19 @@ class EditorDemoController: UIViewController
 
 
     func updateFormatBar() {
-        guard let toolbar = textView.inputAccessoryView as? Aztec.FormatBar else {
+        guard let toolbar = richTextView.inputAccessoryView as? Aztec.FormatBar else {
             return
         }
 
-        let range = textView.selectedRange
+        let range = richTextView.selectedRange
         let identifiers = editor.formatIdentifiersSpanningRange(range)
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
+
     // MARK: - Sample Content
 
-    func getSampleHTML() -> NSAttributedString {
+    func getSampleHTML() -> String {
         let htmlFilePath = NSBundle.mainBundle().pathForResource("content", ofType: "html")!
         let fileContents: String
 
@@ -248,16 +240,7 @@ class EditorDemoController: UIViewController
             fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
         }
 
-        let converter = Aztec.HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
-        let output: NSAttributedString
-
-        do {
-            output = try converter.convert(fileContents)
-        } catch {
-            fatalError("Could not convert the sample HTML.")
-        }
-
-        return output
+        return fileContents
     }
 }
 
@@ -275,87 +258,117 @@ extension EditorDemoController : UITextFieldDelegate
 
 }
 
+extension EditorDemoController
+{
+    enum EditionMode {
+        case RichText
+        case HTML
+
+        mutating func toggle() {
+            switch self {
+            case .HTML:
+                self = .RichText
+            case .RichText:
+                self = .HTML
+            }
+        }
+    }
+
+    private func switchToHTML() {
+        navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
+
+        htmlTextView.text = editor.getHTML()
+
+        view.endEditing(true)
+        htmlTextView.hidden = false
+        richTextView.hidden = true
+    }
+
+    private func switchToRichText() {
+        navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
+
+        editor.setHTML(htmlTextView.text)
+
+        view.endEditing(true)
+        richTextView.hidden = false
+        htmlTextView.hidden = true
+    }
+}
+
 
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
 
     func handleActionForIdentifier(identifier: String) {
+        guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
+            return
+        }
+
         switch identifier {
-        case Aztec.FormattingIdentifier.Bold.rawValue :
+        case .Bold:
             toggleBold()
-            break
-        case Aztec.FormattingIdentifier.Italic.rawValue :
+        case .Italic:
             toggleItalic()
-            break
-        case Aztec.FormattingIdentifier.Underline.rawValue :
+        case .Underline:
             toggleUnderline()
-            break
-        case Aztec.FormattingIdentifier.Strikethrough.rawValue :
+        case .Strikethrough:
             toggleStrikethrough()
-            break
-        case Aztec.FormattingIdentifier.Blockquote.rawValue :
+        case .Blockquote:
             toggleBlockquote()
-            break
-        case Aztec.FormattingIdentifier.Unorderedlist.rawValue :
+        case .Unorderedlist:
             toggleUnorderedList()
-            break
-        case Aztec.FormattingIdentifier.Orderedlist.rawValue :
+        case .Orderedlist:
             toggleOrderedList()
-            break
-        case Aztec.FormattingIdentifier.Link.rawValue :
+        case .Link:
             toggleLink()
-            break
-        case Aztec.FormattingIdentifier.Media.rawValue :
+        case .Media:
             insertImage()
-            break;
-        default:
-            break
         }
         updateFormatBar()
     }
 
     func toggleBold() {
-        editor.toggleBold(range: textView.selectedRange)
+        editor.toggleBold(range: richTextView.selectedRange)
     }
 
 
     func toggleItalic() {
-        editor.toggleItalic(range: textView.selectedRange)
+        editor.toggleItalic(range: richTextView.selectedRange)
     }
 
 
     func toggleUnderline() {
-        editor.toggleUnderline(range: textView.selectedRange)
+        editor.toggleUnderline(range: richTextView.selectedRange)
     }
 
 
     func toggleStrikethrough() {
-        editor.toggleStrikethrough(range: textView.selectedRange)
+        editor.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
 
     func toggleOrderedList() {
-        editor.toggleOrderedList(range: textView.selectedRange)
+        editor.toggleOrderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleUnorderedList() {
-        editor.toggleUnorderedList(range: textView.selectedRange)
+        editor.toggleUnorderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleBlockquote() {
-        editor.toggleBlockquote(range: textView.selectedRange)
+        editor.toggleBlockquote(range: richTextView.selectedRange)
     }
 
 
     func toggleLink() {
-        editor.toggleLink(range: textView.selectedRange, params: [String : AnyObject]())
+        editor.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
     }
 
 
     func insertImage() {
-        editor.insertImage(textView.selectedRange.location, params: [String : AnyObject]())
+        editor.insertImage(richTextView.selectedRange.location, params: [String : AnyObject]())
     }
 
     // MARK: -

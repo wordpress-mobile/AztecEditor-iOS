@@ -3,10 +3,16 @@ import Foundation
 
 /// AztecVisualEditor
 ///
-public class AztecVisualEditor : NSObject
-{
+public class AztecVisualEditor : NSObject {
+
+    typealias ElementNode = Libxml2.ElementNode
+
     let textView: UITextView
-    var attachmentManager: AztecAttachmentManager!
+
+    lazy var attachmentManager: AztecAttachmentManager = {
+        AztecAttachmentManager(textView: self.textView, delegate: self)
+    }()
+
     var storage: AztecTextStorage {
         return textView.textStorage as! AztecTextStorage
     }
@@ -32,7 +38,6 @@ public class AztecVisualEditor : NSObject
 
     // MARK: - Lifecycle Methods
 
-
     public init(textView: UITextView) {
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
@@ -40,7 +45,6 @@ public class AztecVisualEditor : NSObject
 
         super.init()
 
-        attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
         textView.layoutManager.delegate = self
     }
 
@@ -85,6 +89,26 @@ public class AztecVisualEditor : NSObject
                                             paragraphRanges.append(substringRange)
         })
         return paragraphRanges
+    }
+
+    // MARK: - HTML Interaction
+
+    /// Converts the current Attributed Text into a raw HTML String
+    ///
+    /// - Returns: The HTML version of the current Attributed String.
+    ///
+    public func getHTML() -> String {
+        return storage.getHTML()
+    }
+
+
+    /// Loads the specified HTML into the editor.
+    ///
+    /// - Parameters:
+    ///     - html: The raw HTML we'd be editing.
+    ///
+    public func setHTML(html: String) {
+        storage.setHTML(html)
     }
 
 
@@ -182,7 +206,8 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitBold, range: range)
+        
+        storage.toggleBold(range)
     }
 
 
@@ -196,7 +221,7 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitItalic, range: range)
+        storage.toggleFontTrait(.TraitItalic, range: range)
     }
 
 
@@ -213,7 +238,7 @@ public class AztecVisualEditor : NSObject
 
         var assigning = true
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if let _ = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
             assigning = !NSEqualRanges(range, effectiveRange)
         }
 
@@ -239,7 +264,7 @@ public class AztecVisualEditor : NSObject
 
         var assigning = true
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if let _ = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
             assigning = !NSEqualRanges(range, effectiveRange)
         }
 
@@ -286,7 +311,7 @@ public class AztecVisualEditor : NSObject
         let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
 
         // Get the affected paragraphs
-        var paragraphRanges = rangesOfParagraphsEnclosingRange(range)
+        let paragraphRanges = rangesOfParagraphsEnclosingRange(range)
         guard let firstRange = paragraphRanges.first else {
             return
         }
@@ -564,8 +589,6 @@ public class AztecVisualEditor : NSObject
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
-
-
 }
 
 

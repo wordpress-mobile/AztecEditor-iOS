@@ -5,9 +5,17 @@ import Foundation
 ///
 public class AztecTextStorage: NSTextStorage {
 
+    typealias ElementNode = Libxml2.ElementNode
+    typealias TextNode = Libxml2.TextNode
+    typealias RootNode = Libxml2.RootNode
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
+    private var rootNode: RootNode = {
+        return RootNode(children: [])
+    }()
+
+    // MARK: - NSTextStorage
 
     override public var string: String {
         return textStore.string
@@ -17,7 +25,6 @@ public class AztecTextStorage: NSTextStorage {
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
-
 
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
@@ -30,7 +37,6 @@ public class AztecTextStorage: NSTextStorage {
         endEditing()
     }
 
-
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
 
@@ -40,7 +46,6 @@ public class AztecTextStorage: NSTextStorage {
         edited(.EditedAttributes, range: range, changeInLength: 0)
 
         endEditing()
-
     }
 
 
@@ -51,10 +56,98 @@ public class AztecTextStorage: NSTextStorage {
         super.processEditing()
     }
 
+    // MARK: - Styles
+
+    func toggleBold(range: NSRange) {
+
+        let enable = !fontTrait(.TraitBold, spansRange: range)
+
+        modifyTrait(.TraitBold, range: range, enable: enable)
+
+        if enable {
+            enableBoldInDOM(range)
+        } else {
+            //    disableBoldInDom(range)
+        }
+    }
+
+    // MARK: - DOM
+
+    private func enableBoldInDOM(range: NSRange) {
+        wrap(range: range, inNodeNamed: "strong")
+    }
+
+    private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
+
+        let textNodes = rootNode.textNodesWrapping(newNodeRange)
+
+        for (node, range) in textNodes {
+            guard let parent = node.parent,
+                let nodeIndex = parent.children.indexOf(node) else {
+
+                assertionFailure("This scenario should not be possible. Review the logic.")
+                continue
+            }
+
+            let nodeLength = node.length()
+
+            if range.length != nodeLength {
+                guard let swiftRange = node.text.rangeFromNSRange(range) else {
+                    assertionFailure("This scenario should not be possible. Review the logic.")
+                    continue
+                }
+
+                let preRange = node.text.startIndex ..< swiftRange.startIndex
+                let postRange = swiftRange.endIndex ..< node.text.endIndex
+
+                if postRange.count > 0 {
+                    let newNode = TextNode(text: node.text.substringWithRange(postRange))
+
+                    node.text.removeRange(postRange)
+                    parent.children.insert(newNode, atIndex: nodeIndex + 1)
+                }
+
+                if preRange.count > 0 {
+                    let newNode = TextNode(text: node.text.substringWithRange(preRange))
+
+                    node.text.removeRange(preRange)
+                    parent.children.insert(newNode, atIndex: nodeIndex)
+                }
+            }
+
+            node.wrapInNewNode(named: newNodeName)
+        }
+    }
+
+    // MARK: - HTML Interaction
+
+    public func getHTML() -> String {
+        let converter = Libxml2.Out.HTMLConverter()
+        let html = converter.convert(rootNode)
+
+        return html
+    }
+
+    public func setHTML(html: String) {
+
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let output: (rootNode: RootNode, attributedString: NSAttributedString)
+
+        do {
+            output = try converter.convert(html)
+        } catch {
+            fatalError("Could not convert the HTML.")
+        }
+
+        let originalLength = textStore.length
+        textStore = NSMutableAttributedString(attributedString: output.attributedString)
+        edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        rootNode = output.rootNode
+    }
 }
 
 
-/// Convenience extension to group font trait realted methods.
+/// Convenience extension to group font trait related methods.
 ///
 public extension AztecTextStorage
 {
@@ -120,9 +213,12 @@ public extension AztecTextStorage
             return
         }
 
-        let assigning = !fontTrait(trait, spansRange: range)
+        let enable = !fontTrait(trait, spansRange: range)
 
-        // Enumerate over each font and either assign or remove the trait.
+        modifyTrait(trait, range: range, enable: enable)
+    }
+
+    private func modifyTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
         enumerateAttribute(NSFontAttributeName,
                            inRange: range,
                            options: [],
@@ -131,15 +227,15 @@ public extension AztecTextStorage
                                 return
                             }
 
-                            var newTraits: UInt32
-                            if assigning {
-                                newTraits =  font.fontDescriptor().symbolicTraits.rawValue | trait.rawValue
+                            var newTraits = font.fontDescriptor().symbolicTraits
 
+                            if enable {
+                                newTraits.insert(trait)
                             } else {
-                                newTraits =  font.fontDescriptor().symbolicTraits.rawValue & ~trait.rawValue
+                                newTraits.remove(trait)
                             }
 
-                            let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: newTraits))
+                            let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(newTraits)
                             let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
 
                             self.removeAttribute(NSFontAttributeName, range: range)

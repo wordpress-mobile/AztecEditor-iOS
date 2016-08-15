@@ -1,10 +1,12 @@
 import Foundation
 
 class HMTLNodeToNSAttributedString: SafeConverter {
-    typealias HTML = Libxml2.HTML
-    typealias ElementNode = HTML.ElementNode
-    typealias Node = HTML.Node
-    typealias TextNode = HTML.TextNode
+
+    typealias ElementNode = Libxml2.ElementNode
+    typealias Node = Libxml2.Node
+    typealias RootNode = Libxml2.RootNode
+    typealias StringAttribute = Libxml2.StringAttribute
+    typealias TextNode = Libxml2.TextNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
@@ -91,7 +93,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     private func keyForNode(node: Node) -> String {
 
-        if node.name == Aztec.AttributeName.rootNode {
+        if node.name == RootNode.name {
             return node.name
         } else {
             let uuid = NSUUID().UUIDString
@@ -182,7 +184,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         if isLink(node) {
             let linkURL: String
 
-            if let attribute = node.attributes.indexOf({ $0.name == HTMLLinkAttributes.Href.rawValue }) as? Libxml2.HTML.StringAttribute {
+            if let attributeIndex = node.attributes.indexOf({ $0.name == HTMLLinkAttribute.Href.rawValue }),
+                let attribute = node.attributes[attributeIndex] as? StringAttribute {
+
                 linkURL = attribute.value
             } else {
                 // We got a link tag without an HREF attribute
@@ -246,30 +250,30 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Node Style Checks
 
     private func isLink(node: ElementNode) -> Bool {
-        return node.name == HTMLTags.A.rawValue
+        return node.name == ElementNode.StandardName.A.rawValue
     }
 
     private func isBold(node: ElementNode) -> Bool {
-        return [HTMLTags.B.rawValue,
-            HTMLTags.Strong.rawValue].contains(node.name)
+        return [ElementNode.StandardName.B.rawValue,
+            ElementNode.StandardName.Strong.rawValue].contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return [HTMLTags.Em.rawValue,
-            HTMLTags.I.rawValue].contains(node.name)
+        return [ElementNode.StandardName.Em.rawValue,
+            ElementNode.StandardName.I.rawValue].contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return [HTMLTags.Del.rawValue,
-            HTMLTags.S.rawValue,
-            HTMLTags.Strike.rawValue].contains(node.name)
+        return [ElementNode.StandardName.Del.rawValue,
+            ElementNode.StandardName.S.rawValue,
+            ElementNode.StandardName.Strike.rawValue].contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return node.name == HTMLTags.U.rawValue
+        return node.name == ElementNode.StandardName.U.rawValue
     }
 
     private func isBlockquote(node: ElementNode) -> Bool {
-        return node.name == HTMLTags.Blockquote.rawValue
+        return node.name == ElementNode.StandardName.Blockquote.rawValue
     }
 }

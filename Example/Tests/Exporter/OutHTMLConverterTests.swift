@@ -3,11 +3,11 @@ import XCTest
 
 class OutHTMLConverterTests: XCTestCase {
 
-    typealias ElementNode = Libxml2.HTML.ElementNode
-    typealias TextNode = Libxml2.HTML.TextNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias TextNode = Libxml2.TextNode
 
-    typealias Attribute = Libxml2.HTML.Attribute
-    typealias StringAttribute = Libxml2.HTML.StringAttribute
+    typealias Attribute = Libxml2.Attribute
+    typealias StringAttribute = Libxml2.StringAttribute
 
     override func setUp() {
         super.setUp()

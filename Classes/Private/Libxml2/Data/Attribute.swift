@@ -1,4 +1,4 @@
-extension Libxml2.HTML {
+extension Libxml2 {
 
     /// Represents a basic attribute with no value.  This is also the base class for all other
     /// attributes.
@@ -10,7 +10,7 @@ extension Libxml2.HTML {
             self.name = name
         }
 
-        public func customMirror() -> Mirror {
+        func customMirror() -> Mirror {
             return Mirror(self, children: ["name": name])
         }
     }
@@ -28,7 +28,7 @@ extension Libxml2.HTML {
             super.init(name: name)
         }
 
-        override public func customMirror() -> Mirror {
+        override func customMirror() -> Mirror {
             return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .Suppressed)
         }
     }

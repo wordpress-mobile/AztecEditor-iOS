@@ -2,10 +2,11 @@ import Foundation
 import libxml2
 
 extension Libxml2.Out {
-    public class HTMLConverter: Converter {
+    class HTMLConverter: Converter {
         
-        typealias Node = HTML.Node
-        typealias ElementNode = HTML.ElementNode
+        typealias Node = Libxml2.Node
+        typealias ElementNode = Libxml2.ElementNode
+        typealias RootNode = Libxml2.RootNode
 
         /// Converts the a Libxml2 Node into HTML representing the same data.
         ///
@@ -18,11 +19,8 @@ extension Libxml2.Out {
             
             let buf = xmlBufferCreate()
             let xmlDocPtr = xmlNewDoc(nil)
-            
-            let rootNode = rawNode as! ElementNode
-            let htmlNode = rootNode.children[0] as! ElementNode
-            
-            let xmlNodePtr = Libxml2.Out.NodeConverter().convert(htmlNode)
+
+            let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
             
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
             htmlNodeDump(buf, xmlDocPtr, xmlNodePtr)
@@ -31,8 +29,10 @@ extension Libxml2.Out {
             
             xmlFreeDoc(xmlDocPtr)
             xmlBufferFree(buf)
+
+            let finalString = htmlDumpString.stringByReplacingOccurrencesOfString("<\(RootNode.name)>", withString: "").stringByReplacingOccurrencesOfString("</\(RootNode.name)>", withString: "")
             
-            return htmlDumpString
+            return finalString
         }
     }
 }

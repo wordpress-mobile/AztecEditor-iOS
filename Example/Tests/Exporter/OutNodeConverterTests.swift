@@ -4,10 +4,9 @@ import libxml2
 
 class OutNodeConverterTests: XCTestCase {
 
-    typealias HTML = Libxml2.HTML
-    typealias ElementNode = HTML.ElementNode
-    typealias Node = HTML.Node
-    typealias TextNode = HTML.TextNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias Node = Libxml2.Node
+    typealias TextNode = Libxml2.TextNode
 
     override func setUp() {
         super.setUp()
@@ -25,7 +24,7 @@ class OutNodeConverterTests: XCTestCase {
 
         let nodeName = "text"
         let nodeText = "This is the text."
-        let textNode = TextNode(text: nodeText, attributes: [])
+        let textNode = TextNode(text: nodeText)
         let xmlNodePtr = Libxml2.Out.NodeConverter().convert(textNode)
         let xmlNode = xmlNodePtr.memory
 
@@ -81,7 +80,7 @@ class OutNodeConverterTests: XCTestCase {
     func testElementAndChildTextNodeConversion() {
 
         let innerNodeText = "some text"
-        let innerNode = TextNode(text: innerNodeText, attributes: [])
+        let innerNode = TextNode(text: innerNodeText)
 
         let outerNodeName = "element"
         let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])
