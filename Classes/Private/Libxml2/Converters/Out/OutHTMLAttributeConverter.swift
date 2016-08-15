@@ -4,8 +4,8 @@ import libxml2
 extension Libxml2.Out {
     class AttributeConverter: Converter {
 
-        typealias Attribute = HTML.Attribute
-        typealias StringAttribute = HTML.StringAttribute
+        typealias Attribute = Libxml2.Attribute
+        typealias StringAttribute = Libxml2.StringAttribute
         
         /// Converts a single HTML.Attribute into a single libxml2 attribute
         ///

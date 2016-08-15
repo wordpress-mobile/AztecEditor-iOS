@@ -3,8 +3,10 @@ import Foundation
 
 /// AztecVisualEditor
 ///
-public class AztecVisualEditor : NSObject
-{
+public class AztecVisualEditor : NSObject {
+
+    typealias ElementNode = Libxml2.ElementNode
+
     let textView: UITextView
 
     lazy var attachmentManager: AztecAttachmentManager = {
@@ -87,6 +89,26 @@ public class AztecVisualEditor : NSObject
                                             paragraphRanges.append(substringRange)
         })
         return paragraphRanges
+    }
+
+    // MARK: - HTML Interaction
+
+    /// Converts the current Attributed Text into a raw HTML String
+    ///
+    /// - Returns: The HTML version of the current Attributed String.
+    ///
+    public func getHTML() -> String {
+        return storage.getHTML()
+    }
+
+
+    /// Loads the specified HTML into the editor.
+    ///
+    /// - Parameters:
+    ///     - html: The raw HTML we'd be editing.
+    ///
+    public func setHTML(html: String) {
+        storage.setHTML(html)
     }
 
 
@@ -184,7 +206,8 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitBold, range: range)
+        
+        storage.toggleBold(range)
     }
 
 
@@ -198,7 +221,7 @@ public class AztecVisualEditor : NSObject
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(UIFontDescriptorSymbolicTraits.TraitItalic, range: range)
+        storage.toggleFontTrait(.TraitItalic, range: range)
     }
 
 

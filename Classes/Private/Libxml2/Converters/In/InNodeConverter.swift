@@ -4,10 +4,11 @@ import libxml2
 extension Libxml2.In {
     class NodeConverter: SafeConverter {
 
-        typealias Attribute = HTML.Attribute
-        typealias ElementNode = HTML.ElementNode
-        typealias Node = HTML.Node
-        typealias TextNode = HTML.TextNode
+        typealias Attribute = Libxml2.Attribute
+        typealias ElementNode = Libxml2.ElementNode
+        typealias Node = Libxml2.Node
+        typealias RootNode = Libxml2.RootNode
+        typealias TextNode = Libxml2.TextNode
 
         /// Converts a single node (from libxml2) into an HTML.Node.
         ///
@@ -21,7 +22,9 @@ extension Libxml2.In {
 
             let nodeName = getNodeName(rawNode)
 
-            if nodeName.lowercaseString == "text" {
+            if nodeName.lowercaseString == RootNode.name {
+                node = createRootNode(rawNode)
+            } else if nodeName.lowercaseString == "text" {
                 node = createTextNode(rawNode)
             } else {
                 node = createElementNode(rawNode)
@@ -42,7 +45,7 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.ElementNode
         ///
-        private func createElementNode(rawNode: xmlNode) -> Node {
+        private func createElementNode(rawNode: xmlNode) -> ElementNode {
             let nodeName = getNodeName(rawNode)
             var children = [Node]()
 
@@ -60,6 +63,32 @@ extension Libxml2.In {
                 child.parent = node
             }
 
+            return node
+        }
+
+        /// Creates an HTML.RootNode from a libxml2 element root node.
+        ///
+        /// - Parameters:
+        ///     - rawNode: the libxml2 xmlNode.
+        ///
+        /// - Returns: the HTML.RootNode
+        ///
+        private func createRootNode(rawNode: xmlNode) -> RootNode {
+            var children = [Node]()
+
+            if rawNode.children != nil {
+                let nodesConverter = NodesConverter()
+                children.appendContentsOf(nodesConverter.convert(rawNode.children))
+            }
+
+            let node = RootNode(children: children)
+
+            // TODO: This can be optimized to be set during instantiation of the child nodes.
+            //
+            for child in children {
+                child.parent = node
+            }
+            
             return node
         }
 

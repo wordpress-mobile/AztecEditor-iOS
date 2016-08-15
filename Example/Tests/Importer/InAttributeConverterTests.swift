@@ -4,7 +4,7 @@ import libxml2
 
 class InAttributesConverterTests: XCTestCase {
 
-    typealias HTML = Libxml2.HTML
+    typealias HTML = Libxml2
 
     override func setUp() {
         super.setUp()
