@@ -4,8 +4,8 @@ import libxml2
 
 class OutAttributeConverterTests: XCTestCase {
 
-    typealias Attribute = Libxml2.HTML.Attribute
-    typealias StringAttribute = Libxml2.HTML.StringAttribute
+    typealias Attribute = Libxml2.Attribute
+    typealias StringAttribute = Libxml2.StringAttribute
 
     override func setUp() {
         super.setUp()

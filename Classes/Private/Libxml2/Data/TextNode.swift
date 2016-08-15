@@ -1,6 +1,6 @@
 import Foundation
 
-extension Libxml2.HTML {
+extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
     class TextNode: Node {

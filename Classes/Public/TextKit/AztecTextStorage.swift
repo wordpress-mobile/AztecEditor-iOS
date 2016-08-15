@@ -5,9 +5,9 @@ import Foundation
 ///
 public class AztecTextStorage: NSTextStorage {
 
-    typealias ElementNode = Libxml2.HTML.ElementNode
-    typealias TextNode = Libxml2.HTML.TextNode
-    typealias RootNode = Libxml2.HTML.RootNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias TextNode = Libxml2.TextNode
+    typealias RootNode = Libxml2.RootNode
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 

@@ -3,10 +3,10 @@ import XCTest
 
 class ElementNodeTests: XCTestCase {
 
-    typealias Attribute = Libxml2.HTML.Attribute
-    typealias ElementNode = Libxml2.HTML.ElementNode
-    typealias StringAttribute = Libxml2.HTML.StringAttribute
-    typealias TextNode = Libxml2.HTML.TextNode
+    typealias Attribute = Libxml2.Attribute
+    typealias ElementNode = Libxml2.ElementNode
+    typealias StringAttribute = Libxml2.StringAttribute
+    typealias TextNode = Libxml2.TextNode
 
     override func setUp() {
         super.setUp()

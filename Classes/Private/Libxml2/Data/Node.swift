@@ -1,4 +1,4 @@
-extension Libxml2.HTML {
+extension Libxml2 {
 
     /// Base class for all node types.
     ///
@@ -110,6 +110,6 @@ extension Libxml2.HTML {
 
 // MARK: - Node Equatable
 
-func ==(lhs: Libxml2.HTML.Node, rhs: Libxml2.HTML.Node) -> Bool {
+func ==(lhs: Libxml2.Node, rhs: Libxml2.Node) -> Bool {
     return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
 }

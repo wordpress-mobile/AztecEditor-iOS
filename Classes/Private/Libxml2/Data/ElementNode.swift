@@ -1,6 +1,6 @@
 import UIKit
 
-extension Libxml2.HTML {
+extension Libxml2 {
 
     /// Element node.  Everything but text basically.
     ///
@@ -214,6 +214,29 @@ extension Libxml2.HTML {
             }
 
             return results
+        }
+    }
+
+
+    class RootNode: ElementNode {
+
+        static let name = "aztec.htmltag.rootnode"
+
+        override var parent: Libxml2.ElementNode? {
+            get {
+                return nil
+            }
+
+            set {
+            }
+        }
+
+        override func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "children": children])
+        }
+
+        init(children: [Node]) {
+            super.init(name: self.dynamicType.name, attributes: [], children: children)
         }
     }
 }

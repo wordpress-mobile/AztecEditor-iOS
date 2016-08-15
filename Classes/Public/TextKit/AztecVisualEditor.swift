@@ -5,7 +5,7 @@ import Foundation
 ///
 public class AztecVisualEditor : NSObject {
 
-    typealias ElementNode = Libxml2.HTML.ElementNode
+    typealias ElementNode = Libxml2.ElementNode
 
     let textView: UITextView
 

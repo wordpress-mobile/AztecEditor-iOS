@@ -3,9 +3,9 @@ import XCTest
 
 class NodeTests: XCTestCase {
 
-    typealias ElementNode = Libxml2.HTML.ElementNode
-    typealias Node = Libxml2.HTML.Node
-    typealias TextNode = Libxml2.HTML.TextNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias Node = Libxml2.Node
+    typealias TextNode = Libxml2.TextNode
 
     override func setUp() {
         super.setUp()

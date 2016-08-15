@@ -2,7 +2,7 @@ import Foundation
 
 class HTMLToAttributedString: Converter {
 
-    typealias RootNode = Libxml2.HTML.RootNode
+    typealias RootNode = Libxml2.RootNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
