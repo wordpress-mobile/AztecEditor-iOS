@@ -219,7 +219,7 @@ import Foundation
         }
 
         // The location of the attachment glyph
-        let glyphBoundingRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
+        let _ = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
         let lineFragmentRect = layoutManager.lineFragmentRectForGlyphAtIndex(glyphRange.location, effectiveRange: nil)
 
         // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.

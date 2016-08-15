@@ -71,8 +71,6 @@ extension Libxml2.In {
         /// - Returns: the HTML.TextNode
         ///
         private func createTextNode(rawNode: xmlNode) -> TextNode {
-            let nodeName = getNodeName(rawNode)
-
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
             let node = TextNode(text: text)
 

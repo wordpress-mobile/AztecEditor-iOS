@@ -32,8 +32,6 @@ extension UITextView
     ///     - html: The raw HTML we'd be editing.
     ///
     public func loadHTML(html: String) {
-        let converter = Libxml2.In.HTMLConverter()
-
         do {
             let defaultFontSize = CGFloat(12)
             let defaultFontDescriptor = UIFont.systemFontOfSize(defaultFontSize).fontDescriptor()
