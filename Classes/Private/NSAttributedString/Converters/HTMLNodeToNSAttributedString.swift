@@ -5,6 +5,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
     typealias RootNode = Libxml2.RootNode
+    typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
 
     /// The default font descriptor that will be used as a base for conversions.
@@ -184,7 +185,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             let linkURL: String
 
             if let attributeIndex = node.attributes.indexOf({ $0.name == HTMLLinkAttribute.Href.rawValue }),
-                let attribute = node.attributes[attributeIndex] as? Libxml2.StringAttribute {
+                let attribute = node.attributes[attributeIndex] as? StringAttribute {
 
                 linkURL = attribute.value
             } else {

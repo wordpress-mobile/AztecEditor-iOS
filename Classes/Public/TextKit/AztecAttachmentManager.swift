@@ -212,12 +212,12 @@ public class AztecAttachmentManager
     ///
     private func frameForAttachmentView(attachmentView: AztecAttachmentView, forAttachment attachment: AztecTextAttachment, atRange range:NSRange) -> CGRect {
         let glyphRange = layoutManager.glyphRangeForCharacterRange(range, actualCharacterRange: nil)
-        guard let _ = layoutManager.textContainerForGlyphAtIndex(glyphRange.location, effectiveRange: nil) else {
+        guard let textContainer = layoutManager.textContainerForGlyphAtIndex(glyphRange.location, effectiveRange: nil) else {
             return CGRectZero
         }
 
         // The location of the attachment glyph
-        let lineFragmentRect = layoutManager.lineFragmentRectForGlyphAtIndex(glyphRange.location, effectiveRange: nil)
+        let lineFragmentRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
 
         // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.
 
