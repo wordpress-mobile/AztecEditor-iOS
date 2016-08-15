@@ -4,7 +4,7 @@ import libxml2
 extension Libxml2.In {
     class HTMLConverter: Converter {
 
-        typealias RootNode = HTML.RootNode
+        typealias RootNode = Libxml2.RootNode
 
         enum Error: String, ErrorType {
             case NoRootNode = "No root node"
