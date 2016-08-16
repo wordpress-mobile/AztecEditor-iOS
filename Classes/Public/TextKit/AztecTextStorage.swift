@@ -102,6 +102,7 @@ public class AztecTextStorage: NSTextStorage {
 
                 if postRange.count > 0 {
                     let newNode = TextNode(text: node.text.substringWithRange(postRange))
+                    newNode.parent = parent
 
                     node.text.removeRange(postRange)
                     parent.children.insert(newNode, atIndex: nodeIndex + 1)
@@ -109,6 +110,7 @@ public class AztecTextStorage: NSTextStorage {
 
                 if preRange.count > 0 {
                     let newNode = TextNode(text: node.text.substringWithRange(preRange))
+                    newNode.parent = parent
 
                     node.text.removeRange(preRange)
                     parent.children.insert(newNode, atIndex: nodeIndex)
