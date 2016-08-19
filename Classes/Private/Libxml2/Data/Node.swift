@@ -101,6 +101,7 @@ extension Libxml2 {
                 }
 
                 parent.children[index] = newNode
+                newNode.parent = parent
             }
 
             return newNode
