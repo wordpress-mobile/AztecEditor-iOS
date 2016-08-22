@@ -36,8 +36,8 @@ TBD.  This will be modified as soon as we can publish more info.
   s.source_files = 'Classes/**/*'
   
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
-  #
-  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Modulemaps/libxml2/**', 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
+  # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
+  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Modulemaps/libxml2/**', 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
   s.preserve_paths = 'Modulemaps/libxml2/module.modulemap'
 
 end
