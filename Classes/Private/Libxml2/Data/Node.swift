@@ -15,11 +15,19 @@ extension Libxml2 {
             self.name = name
         }
 
+        func range() -> NSRange {
+            return NSRange(location: 0, length: length())
+        }
+
         /// Override.
         ///
         func length() -> Int {
             assertionFailure("This method should always be overridden.")
             return 0
+        }
+
+        func split(forRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
         }
 
         /// Retrieve all element nodes between the receiver and the root node.
@@ -83,16 +91,16 @@ extension Libxml2 {
         /// the parent and child node references.
         ///
         /// - Parameters:
-        ///     - name: the new node name.
+        ///     - nodeName: the new node name.
         ///     - attributes: the new node attributes.
         ///
         /// - Returns: the newly created element.
         ///
-        func wrapInNewNode(named name: String, attributes: [Attribute] = []) -> ElementNode {
+        func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
 
             let originalParent = parent
 
-            let newNode = ElementNode(name: name, attributes: attributes, children: [self])
+            let newNode = ElementNode(name: nodeName, attributes: attributes, children: [self])
 
             if let parent = originalParent {
                 guard let index = parent.children.indexOf(self) else {
@@ -105,6 +113,13 @@ extension Libxml2 {
             }
 
             return newNode
+        }
+
+        /// Override.
+        ///
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+            assertionFailure("This method should always be overridden.")
+            return
         }
     }
 }

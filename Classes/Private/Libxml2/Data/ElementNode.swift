@@ -111,7 +111,60 @@ extension Libxml2 {
             return StandardName.blockLevelNodeNames().contains(standardName)
         }
 
-        // MARK: - DOM Branch Queries
+        // MARK: - DOM Queries
+
+        /// Get a list of child nodes intersecting the specified range.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             this node's coordinates (the parent node's coordinates, from the children
+        ///             PoV).
+        ///
+        /// - Returns: an array of pairs of child nodes and their ranges in child coordinates.
+        ///
+        func childNodes(intersectingRange targetRange: NSRange) -> [(child: Node, intersection: NSRange)] {
+            var results = [(child: Node, intersection: NSRange)]()
+
+            enumerateChildNodes(intersectingRange: targetRange) { (child, intersection) in
+                results.append((child, intersection))
+            }
+
+            return results
+        }
+
+        /// Enumerate the child nodes intersecting the specified range.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             this node's coordinates (the parent node's coordinates, from the children
+        ///             PoV).
+        ///     - matchFound: the closure to execute for each child node intersecting
+        ///             `targetRange`.
+        ///
+        /// - Returns: an array of child nodes and their intersection.  The intersection range is in
+        ///         child coordinates.
+        ///
+        func enumerateChildNodes(intersectingRange targetRange: NSRange, onMatchFound matchFound: (child: Node, intersection: NSRange) -> Void ) {
+
+            var offset = Int(0)
+
+            for child in children {
+
+                let childLength = child.length()
+                let childRange = NSRange(location: offset, length: childLength)
+                let intersectionRange = NSIntersectionRange(childRange, targetRange)
+                let childRangeInterceptsTargetRange = (intersectionRange.length > 0)
+
+                if childRangeInterceptsTargetRange {
+
+                    let intersectionRangeInChildCoordinates = NSRange(location: intersectionRange.location - offset, length: intersectionRange.length)
+
+                    matchFound(child: child, intersection: intersectionRangeInChildCoordinates)
+                }
+
+                offset += childLength
+            }
+        }
 
         /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
         /// range.  If no child element node wraps the specified range, this method returns this
@@ -214,6 +267,258 @@ extension Libxml2 {
             }
 
             return results
+        }
+
+        // MARK: - DOM modification
+
+        func replace(child child: Node, with newNodes: [Node]) {
+            guard let childIndex = children.indexOf(child) else {
+                fatalError("This case should not be possible. Review the logic triggering this.")
+            }
+
+            for newNode in newNodes {
+                newNode.parent = self
+            }
+
+            children.removeAtIndex(childIndex)
+            children.insertContentsOf(newNodes, at: childIndex)
+        }
+
+        func remove(children: [Node], updateParent: Bool = true) {
+            self.children = self.children.filter({ child -> Bool in
+
+                let removeChild = children.contains(child)
+
+                if removeChild && updateParent {
+                    child.parent = nil
+                }
+
+                return removeChild
+            })
+        }
+
+        private func children(after range: NSRange, splitEdge: Bool = false) -> [Node] {
+
+            var result = [Node]()
+            var offset = length()
+
+            for index in children.count - 1...0 {
+
+                let child = children[index]
+
+                let childEndPosition = offset + child.length()
+                let rangeEndPosition = range.location + range.length
+
+                if offset > rangeEndPosition {
+                    result.insert(child, atIndex: 0)
+                } else if splitEdge && childEndPosition > rangeEndPosition {
+
+                    let splitRange = NSRange(location: rangeEndPosition, length: childEndPosition - rangeEndPosition)
+                    child.split(forRange: splitRange)
+
+                    result.insert(child, atIndex: 0)
+                    break
+                } else {
+                    break
+                }
+
+                offset = offset - child.length()
+            }
+            
+            return result
+        }
+
+        private func children(before range: NSRange, splitEdge: Bool = false) -> [Node] {
+
+            var result = [Node]()
+            var offset = Int(0)
+
+            for child in children {
+                if offset + child.length() < range.location {
+                    result.append(child)
+                } else if splitEdge && offset < range.location {
+
+                    let splitRange = NSRange(location: offset, length: range.location - offset)
+                    child.split(forRange: splitRange)
+
+                    result.append(child)
+                    break
+                } else {
+                    break
+                }
+
+                offset = offset + child.length()
+            }
+
+            return result
+        }
+
+        override func split(forRange range: NSRange) {
+
+            guard let parent = parent,
+                let nodeIndex = parent.children.indexOf(self) else {
+                    assertionFailure("Can't split a node without a parent.")
+                    return
+            }
+
+            let preNodes = children(before: range, splitEdge: true)
+            let postNodes = children(after: range, splitEdge: true)
+
+            if postNodes.count > 0 {
+                parent.children.insertContentsOf(postNodes, at: nodeIndex + 1)
+            }
+
+            if preNodes.count > 0 {
+                parent.children.insertContentsOf(preNodes, at: nodeIndex)
+            }
+        }
+
+        func unwrap() {
+            guard let parent = parent else {
+                assertionFailure("The root node in a hierarchy cannot be unwrapped using this method.")
+                return
+            }
+
+            parent.replace(child: self, with: self.children)
+        }
+
+        /// Unwraps the specified range from nodes with the specified name.  If there are multiple
+        /// nodes with the specified name, the range will be unwrapped from all of them.
+        ///
+        /// - Parameters:
+        ///     - range: the range that must be unwrapped.
+        ///     - nodeName: the name of the node the range must be unwrapped from.
+        ///
+        /// - Todo: this method works with node names only for now.  At some point we'll want to
+        ///         modify this to be able to do more complex lookups.  For instance we'll want
+        ///         to be able to unwrapp CSS attributes, not just nodes by name.
+        ///
+        func unwrap(range range: NSRange, fromNodeNamed nodeName: String) {
+
+            if name == nodeName {
+
+                let rangeEndLocation = range.location + range.length
+
+                let myLength = length()
+                assert(range.location >= 0 && rangeEndLocation <= myLength,
+                       "The specified range is out of bounds.")
+
+                if range.location > 0 {
+                    let preRange = NSRange(location: 0, length: range.location)
+                    let preNode = ElementNode(name: name, attributes: attributes, children: [])
+
+                    wrap(range: preRange, inNodeNamed: name, withAttributes: attributes)
+                }
+
+                if rangeEndLocation < myLength {
+                    let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
+                    let postNode = ElementNode(name: name, attributes: attributes, children: [])
+
+                    wrap(range: postRange, inNodeNamed: name, withAttributes: attributes)
+                }
+
+                unwrap()
+            }
+        }
+
+        /// Wraps the specified range inside a node with the specified properties.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range that must be wrapped.
+        ///     - nodeName: the name of the node to wrap the range in.
+        ///     - attributes: the attributes the wrapping node will have when created.
+        ///
+        override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+
+            guard !NSEqualRanges(targetRange, range()) else {
+                wrap(inNodeNamed: nodeName, withAttributes: attributes)
+                return
+            }
+
+            let childNodesIntersectingRange = childNodes(intersectingRange: targetRange)
+            assert(childNodesIntersectingRange.count > 0)
+
+            if childNodesIntersectingRange.count == 1 {
+                let childData = childNodesIntersectingRange[0]
+                let childNode = childData.child
+                let intersection = childData.intersection
+
+                childNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+            } else if childNodesIntersectingRange.count > 1 {
+
+                let firstChild = childNodesIntersectingRange[0].child
+                let firstChildRange = childNodesIntersectingRange[0].intersection
+
+                if !NSEqualRanges(firstChild.range(), firstChildRange) {
+
+                }
+
+                let lastChild = childNodesIntersectingRange[childNodesIntersectingRange.count - 1].child
+                let lastChildRange = childNodesIntersectingRange[0].intersection
+
+                if !NSEqualRanges(lastChild.range(), lastChildRange) {
+
+                }
+
+                wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
+
+                // Complex stuff happens here
+                //
+                // Break the first and last child nodes if not fully intercepted
+                // Wrap all fully-intecepted child nodes
+            }
+        }
+
+        /// Wraps the specified range inside a node with the specified name.
+        ///
+        /// - Parameters:
+        ///     - newNodeRange: the range that must be wrapped.
+        ///     - newNodeName: the name of the new node the range must be wrapped in.
+        ///
+        func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
+
+            let textNodes = textNodesWrapping(newNodeRange)
+
+            for (node, range) in textNodes {
+                let nodeLength = node.length()
+
+                if range.length != nodeLength {
+                    node.split(forRange: range)
+                }
+
+                node.wrap(inNodeNamed: newNodeName)
+            }
+        }
+
+        /// Wraps the specified children nodes in a newly created element with the specified name.
+        /// The newly created node will be inserted at the position of `children[0]`.
+        ///
+        /// - Parameters:
+        ///     - children: the children nodes to wrap in a new node.
+        ///     - nodeName: the name of the new node.
+        ///     - attributes: the attributes for the newly created node.
+        ///
+        /// - Returns: the newly created `ElementNode`.
+        ///
+        func wrap(children: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) -> ElementNode {
+
+            guard children.count > 0 else {
+                assertionFailure("Avoid calling this method with no nodes.")
+                return ElementNode(name: nodeName, attributes: attributes, children: [])
+            }
+
+            guard let insertionIndexOfNewNode = self.children.indexOf(children[0]) else {
+                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
+            }
+
+            let newNode = ElementNode(name: nodeName, attributes: attributes, children: children)
+
+            self.children[insertionIndexOfNewNode] = newNode
+            newNode.parent = self
+
+            remove(children, updateParent: false)
+
+            return newNode
         }
     }
 
