@@ -5,6 +5,7 @@ class ElementNodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
     typealias ElementNode = Libxml2.ElementNode
+    typealias RootNode = Libxml2.RootNode
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
 
@@ -195,6 +196,70 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(nodesAndRanges[0].node, text1)
 
         XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: text1.length() - 1, length: 0)))
+    }
+
+    func testSplitWithFullRange() {
+
+        let textNode = TextNode(text: "Some text goes here")
+        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: 0, length: textNode.length())
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 1)
+        XCTAssertEqual(rootNode.children[0], elemNode)
+
+        XCTAssertEqual(elemNode.children.count, 1)
+        XCTAssertEqual(elemNode.children[0], textNode)
+    }
+
+    func testSplitWithPartialRange1() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: 0, length: textPart1.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
     }
     
 }

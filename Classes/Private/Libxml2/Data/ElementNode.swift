@@ -293,7 +293,7 @@ extension Libxml2 {
                     child.parent = nil
                 }
 
-                return removeChild
+                return !removeChild
             })
         }
 
@@ -305,6 +305,8 @@ extension Libxml2 {
             for index in children.count - 1...0 {
 
                 let child = children[index]
+
+                offset = offset - child.length()
 
                 let childEndPosition = offset + child.length()
                 let rangeEndPosition = range.location + range.length
@@ -321,8 +323,6 @@ extension Libxml2 {
                 } else {
                     break
                 }
-
-                offset = offset - child.length()
             }
             
             return result
@@ -355,6 +355,10 @@ extension Libxml2 {
 
         override func split(forRange range: NSRange) {
 
+            guard range.location > 0 || range.length < length() else {
+                return
+            }
+
             guard let parent = parent,
                 let nodeIndex = parent.children.indexOf(self) else {
                     assertionFailure("Can't split a node without a parent.")
@@ -365,11 +369,17 @@ extension Libxml2 {
             let postNodes = children(after: range, splitEdge: true)
 
             if postNodes.count > 0 {
-                parent.children.insertContentsOf(postNodes, at: nodeIndex + 1)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
+
+                parent.children.insert(newElement, atIndex: nodeIndex + 1)
+                remove(postNodes, updateParent: false)
             }
 
             if preNodes.count > 0 {
-                parent.children.insertContentsOf(preNodes, at: nodeIndex)
+                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
+
+                parent.children.insert(newElement, atIndex: nodeIndex)
+                remove(preNodes, updateParent: false)
             }
         }
 
