@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import Aztec
+import Photos
 
 
 class EditorDemoController: UIViewController
@@ -65,7 +66,6 @@ class EditorDemoController: UIViewController
         return tf
     }()
 
-
     private(set) lazy var separatorView: UIView = {
         let v = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
@@ -74,8 +74,6 @@ class EditorDemoController: UIViewController
 
         return v
     }()
-
-
 
     private(set) var mode = EditionMode.RichText {
         didSet {
@@ -420,20 +418,74 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 }
 
 
+extension EditorDemoController : UINavigationControllerDelegate
+{
+
+}
+
+
 extension EditorDemoController : UIImagePickerControllerDelegate
 {
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-        dismissViewControllerAnimated(true) { 
+        dismissViewControllerAnimated(true, completion: nil)
+
+        guard let assetURL = info[UIImagePickerControllerReferenceURL] as? NSURL else {
+            return
         }
 
-//            NSURL *assetURL = info[UIImagePickerControllerReferenceURL];
-//            [self addAssetToContent:assetURL];
-//        editor.insertImage(richTextView.selectedRange.location, params: [String : AnyObject]())
+        addAssetToContent(assetURL)
     }
 }
 
 
-extension EditorDemoController : UINavigationControllerDelegate
+private extension EditorDemoController
 {
+    func addAssetToContent(assetURL: NSURL) {
+        let assets = PHAsset.fetchAssetsWithALAssetURLs([assetURL], options: nil)
+        guard let asset = assets.firstObject as? PHAsset else {
+            return;
+        }
 
+        switch asset.mediaType {
+        case .Image:
+            addImageAssetToContent(asset)
+        default:
+            break
+        }
+    }
+
+    func addImageAssetToContent(asset: PHAsset) {
+        let options = PHImageRequestOptions()
+        options.synchronous = false
+        options.networkAccessAllowed = true
+        options.resizeMode = .Exact
+        options.version = .Current
+        options.deliveryMode = .HighQualityFormat
+
+        PHImageManager.defaultManager().requestImageDataForAsset(asset, options: options) {
+            (data: NSData?, dataUTI: String?, orientation: UIImageOrientation, info: [NSObject : AnyObject]?) in
+
+            guard let data = data else {
+                return
+            }
+
+            self.addImageDataToContent(data)
+        }
+    }
+
+    func addImageDataToContent(data: NSData) {
+        let path = String("%@/%@.jpg", NSTemporaryDirectory(), NSUUID().UUIDString)
+        guard let imageURL = NSURL(string: path) else {
+            return
+        }
+
+        do {
+            try data.writeToFile(path, options: [.AtomicWrite])
+
+            dispatch_async(dispatch_get_main_queue()) {
+                self.editor.insertImage(imageURL, index: 0)
+            }
+        } catch {
+            NSLog("Error while writing temporary Image Asset")
+        }
 }

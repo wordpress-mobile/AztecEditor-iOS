@@ -376,10 +376,10 @@ public class AztecVisualEditor : NSObject {
     /// Inserts an image at the specified index
     ///
     /// - Paramters:
+    ///     - path: The path of the image to be inserted.
     ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
     ///
-    public func insertImage(index: Int, params: [String: AnyObject]) {
+    public func insertImage(path: NSURL, index: Int) {
         print("image")
     }
 
