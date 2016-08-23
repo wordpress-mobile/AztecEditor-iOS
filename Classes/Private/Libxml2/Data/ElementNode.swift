@@ -302,7 +302,7 @@ extension Libxml2 {
             var result = [Node]()
             var offset = length()
 
-            for index in children.count - 1...0 {
+            for index in (children.count - 1).stride(through: 0, by: -1) {
 
                 let child = children[index]
 
@@ -315,7 +315,7 @@ extension Libxml2 {
                     result.insert(child, atIndex: 0)
                 } else if splitEdge && childEndPosition > rangeEndPosition {
 
-                    let splitRange = NSRange(location: rangeEndPosition, length: childEndPosition - rangeEndPosition)
+                    let splitRange = NSRange(location: rangeEndPosition - offset, length: childEndPosition - rangeEndPosition)
                     child.split(forRange: splitRange)
 
                     result.insert(child, atIndex: 0)

@@ -261,5 +261,113 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(textNode1.text, textPart1)
         XCTAssertEqual(textNode2.text, textPart2)
     }
-    
+
+    func testSplitWithPartialRange2() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
+    }
+
+
+    func testSplitWithPartialRange3() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes "
+        let textPart3 = "here"
+        let fullText = "\(textPart1)\(textPart2)\(textPart3)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 3)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[2].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode3 = rootNode.children[2] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+        XCTAssertEqual(elemNode3.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode3 = elemNode3.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
+        XCTAssertEqual(textNode3.text, textPart3)
+    }
 }
