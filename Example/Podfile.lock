@@ -6,10 +6,10 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   WordPress-Aztec-iOS:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
-  WordPress-Aztec-iOS: 7a5d2bc6b8858d4a17c8bb0641db2a0b8274c67e
+  WordPress-Aztec-iOS: 2d4f65d04e9ce1c319c7893f725aec80a1c6af3f
 
 PODFILE CHECKSUM: f85a65b7fca14f769206c270317019280bf45903
 

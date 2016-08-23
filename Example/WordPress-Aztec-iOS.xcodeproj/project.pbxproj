@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0DCC2B9484E0CC4D2B74CA3B /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8A3F5027B989998D68F6612 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
 		590142EE1D58E4EA006415C3 /* EditingLogic.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 590142ED1D58E4EA006415C3 /* EditingLogic.rtf */; };
 		59280F2A1D47CAF40083FB59 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = 59280F281D47CAF40083FB59 /* content.html */; };
 		59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 59280F291D47CAF40083FB59 /* SampleText.rtf */; };
@@ -25,8 +26,7 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		6AED12F8D5A6FB84E1C3B519 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
-		758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */; };
+		B32F7669027D39A004FD46B8 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E70EF646EF8E211667E0596 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
 		E60B0CF81D2D88A200AEAEEA /* AztecVisualEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60B0CF71D2D88A200AEAEEA /* AztecVisualEditorTests.swift */; };
 		E62AD5C81D404176002B58C2 /* AztecTextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62AD5C61D403CE6002B58C2 /* AztecTextStorageTests.swift */; };
 		E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BE9861D304A970065FF75 /* FormattingDemoController.swift */; };
@@ -46,9 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		3BBD869155A4461959D2884D /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		46F80AF8CF44F55383EEED45 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "WordPress-Aztec-iOS.podspec"; path = "../WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
+		55A84D8BDE6D6AD461454C19 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		590142EB1D58E4C8006415C3 /* UnsupportedTags.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = UnsupportedTags.rtf; path = ../Documentation/UnsupportedTags.rtf; sourceTree = "<group>"; };
 		590142ED1D58E4EA006415C3 /* EditingLogic.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = EditingLogic.rtf; path = ../Documentation/EditingLogic.rtf; sourceTree = "<group>"; };
 		59280F281D47CAF40083FB59 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
@@ -72,18 +71,19 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* WordPress-Aztec-iOS_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "WordPress-Aztec-iOS_Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C0BC2B0C0F5C2CF2F84CA2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
-		9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		6E70EF646EF8E211667E0596 /* Pods_WordPress_Aztec_iOS_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		A8A3F5027B989998D68F6612 /* Pods_WordPress_Aztec_iOS_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3B9457EAD0795524810333B /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
+		D45CE6696347E5D6EA53B9B6 /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		E2C0973A4292C18938FC08ED /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		E60B0CF71D2D88A200AEAEEA /* AztecVisualEditorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecVisualEditorTests.swift; sourceTree = "<group>"; };
 		E62AD5C61D403CE6002B58C2 /* AztecTextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextStorageTests.swift; sourceTree = "<group>"; };
 		E63BE9861D304A970065FF75 /* FormattingDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingDemoController.swift; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
 		E66568F11D26DE9200E6913B /* DraggableDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableDemoController.swift; sourceTree = "<group>"; };
-		F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,7 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6AED12F8D5A6FB84E1C3B519 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */,
+				B32F7669027D39A004FD46B8 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,20 +99,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				758B7A123FB573A6EE598BD1 /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */,
+				0DCC2B9484E0CC4D2B74CA3B /* Pods_WordPress_Aztec_iOS_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		36DFAF1FA2AA101989D9E4E0 /* Pods */ = {
+		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */,
-				870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */,
-				3BBD869155A4461959D2884D /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */,
-				1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */,
+				6E70EF646EF8E211667E0596 /* Pods_WordPress_Aztec_iOS_Example.framework */,
+				A8A3F5027B989998D68F6612 /* Pods_WordPress_Aztec_iOS_Tests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		21285C4E394583BC9802CC03 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				55A84D8BDE6D6AD461454C19 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */,
+				C3B9457EAD0795524810333B /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */,
+				D45CE6696347E5D6EA53B9B6 /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */,
+				E2C0973A4292C18938FC08ED /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -181,8 +190,8 @@
 				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
 				607FACE81AFB9204008FA782 /* Tests */,
 				607FACD11AFB9204008FA782 /* Products */,
-				36DFAF1FA2AA101989D9E4E0 /* Pods */,
-				72B4518BB46AB0E29518ACE7 /* Frameworks */,
+				21285C4E394583BC9802CC03 /* Pods */,
+				02ECB379638AE0CDEAB24BEC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -252,15 +261,6 @@
 				A34514C1E6AC36B230E30AA6 /* LICENSE */,
 			);
 			name = "Podspec Metadata";
-			sourceTree = "<group>";
-		};
-		72B4518BB46AB0E29518ACE7 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				61F74F721499CBC2087AC827 /* Pods_WordPress_Aztec_iOS_Example.framework */,
-				F289576475698C2054C95567 /* Pods_WordPress_Aztec_iOS_Tests.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -610,7 +610,7 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9FF60010EF5DF62D9A8C6AC7 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */;
+			baseConfigurationReference = 55A84D8BDE6D6AD461454C19 /* Pods-WordPress-Aztec-iOS_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "WordPress-Aztec-iOS/Info.plist";
@@ -623,7 +623,7 @@
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 870A8286C016A1EA3AB361D2 /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */;
+			baseConfigurationReference = C3B9457EAD0795524810333B /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "WordPress-Aztec-iOS/Info.plist";
@@ -636,7 +636,7 @@
 		};
 		607FACF31AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3BBD869155A4461959D2884D /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */;
+			baseConfigurationReference = D45CE6696347E5D6EA53B9B6 /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$PODS_CONFIGURATION_BUILD_DIR/WordPress-Aztec-iOS\"",
@@ -655,7 +655,7 @@
 		};
 		607FACF41AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1CE6C3B63D4C5A1F8E43AD92 /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */;
+			baseConfigurationReference = E2C0973A4292C18938FC08ED /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$PODS_CONFIGURATION_BUILD_DIR/WordPress-Aztec-iOS\"",
