@@ -19,6 +19,8 @@ extension Libxml2 {
             return NSRange(location: 0, length: length())
         }
 
+        // MARK: - Override in Subclasses
+
         /// Override.
         ///
         func length() -> Int {
@@ -29,6 +31,14 @@ extension Libxml2 {
         func split(forRange range: NSRange) {
             assertionFailure("This method should always be overridden.")
         }
+
+
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+            assertionFailure("This method should always be overridden.")
+            return
+        }
+
+        // MARK: - DOM Queries
 
         /// Retrieve all element nodes between the receiver and the root node.
         /// The root node is included in the results.  The receiver is only included if it's an
@@ -87,6 +97,8 @@ extension Libxml2 {
             return nil
         }
 
+        // MARK: - DOM Modification
+
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.
         ///
@@ -108,18 +120,10 @@ extension Libxml2 {
                     return newNode
                 }
 
-                parent.children[index] = newNode
-                newNode.parent = parent
+                parent.insert(newNode, at: index)
             }
 
             return newNode
-        }
-
-        /// Override.
-        ///
-        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-            assertionFailure("This method should always be overridden.")
-            return
         }
     }
 }

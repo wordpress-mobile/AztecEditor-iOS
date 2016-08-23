@@ -40,18 +40,16 @@ extension Libxml2 {
 
             if postRange.count > 0 {
                 let newNode = TextNode(text: text.substringWithRange(postRange))
-                newNode.parent = parent
 
                 text.removeRange(postRange)
-                parent.children.insert(newNode, atIndex: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1)
             }
 
             if preRange.count > 0 {
                 let newNode = TextNode(text: text.substringWithRange(preRange))
-                newNode.parent = parent
 
                 text.removeRange(preRange)
-                parent.children.insert(newNode, atIndex: nodeIndex)
+                parent.insert(newNode, at: nodeIndex)
             }
         }
 

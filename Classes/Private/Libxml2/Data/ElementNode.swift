@@ -57,7 +57,7 @@ extension Libxml2 {
         }
 
         private(set) var attributes = [Attribute]()
-        var children: [Node]
+        private(set) var children: [Node]
 
         private var standardName: StandardName? {
             get {
@@ -271,19 +271,43 @@ extension Libxml2 {
 
         // MARK: - DOM modification
 
-        func replace(child child: Node, with newNodes: [Node]) {
+        /// Inserts a node into the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - child: the node to insert.
+        ///     - index: the position where to insert the node.
+        ///
+        func insert(child: Node, at index: Int) {
+            children.insert(child, atIndex: index)
+            child.parent = self
+        }
+
+        /// Replaces the specified node with several new nodes.
+        ///
+        /// - Parameters:
+        ///     - child: the node to remove.
+        ///     - newChildren: the new child nodes to insert.
+        ///
+        func replace(child child: Node, with newChildren: [Node]) {
             guard let childIndex = children.indexOf(child) else {
                 fatalError("This case should not be possible. Review the logic triggering this.")
             }
 
-            for newNode in newNodes {
+            for newNode in newChildren {
                 newNode.parent = self
             }
 
             children.removeAtIndex(childIndex)
-            children.insertContentsOf(newNodes, at: childIndex)
+            children.insertContentsOf(newChildren, at: childIndex)
         }
 
+        /// Removes the specified child nodes.  Only updates their parents if specified.
+        ///
+        /// - Parameters:
+        ///     - chldren: the child nodes to remove.
+        ///     - updateParent: whether the children node's parent must be update to `nil` or not.
+        ///             If not specified, the parent is updated.
+        ///
         func remove(children: [Node], updateParent: Bool = true) {
             self.children = self.children.filter({ child -> Bool in
 
@@ -297,7 +321,21 @@ extension Libxml2 {
             })
         }
 
-        private func children(after range: NSRange, splitEdge: Bool = false) -> [Node] {
+        /// Retrieves all child nodes positioned after a specified location.
+        ///
+        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
+        ///         Please refer to the parameter's documentation for more information.
+        ///
+        /// - Parameters:
+        ///     - location: marks the position after which nodes must be positioned.
+        ///     - splitEdge: if this is `true`, any node intersecting `location` will be split
+        ///             so that the part of it after `location` will be returned as a new node.
+        ///             If this is `false`, only nodes that are completely positioned after
+        ///             `location` will be returned and the DOM will be left unmodified.
+        ///
+        /// - Returns: the requested nodes.
+        ///
+        private func children(after location: Int, splitEdge: Bool = false) -> [Node] {
 
             var result = [Node]()
             var offset = length()
@@ -309,13 +347,12 @@ extension Libxml2 {
                 offset = offset - child.length()
 
                 let childEndPosition = offset + child.length()
-                let rangeEndPosition = range.location + range.length
 
-                if offset > rangeEndPosition {
+                if offset > location {
                     result.insert(child, atIndex: 0)
-                } else if splitEdge && childEndPosition > rangeEndPosition {
+                } else if splitEdge && childEndPosition > location {
 
-                    let splitRange = NSRange(location: rangeEndPosition - offset, length: childEndPosition - rangeEndPosition)
+                    let splitRange = NSRange(location: location - offset, length: childEndPosition - location)
                     child.split(forRange: splitRange)
 
                     result.insert(child, atIndex: 0)
@@ -328,17 +365,31 @@ extension Libxml2 {
             return result
         }
 
-        private func children(before range: NSRange, splitEdge: Bool = false) -> [Node] {
+        /// Retrieves all child nodes positioned before a specified location.
+        ///
+        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
+        ///         Please refer to the parameter's documentation for more information.
+        ///
+        /// - Parameters:
+        ///     - location: marks the position before which nodes must be positioned.
+        ///     - splitEdge: if this is `true`, any node intersecting `location` will be split
+        ///             so that the part of it after `location` will be returned as a new node.
+        ///             If this is `false`, only nodes that are completely positioned before
+        ///             `location` will be returned and the DOM will be left unmodified.
+        ///
+        /// - Returns: the requested nodes.
+        ///
+        private func children(before location: Int, splitEdge: Bool = false) -> [Node] {
 
             var result = [Node]()
             var offset = Int(0)
 
             for child in children {
-                if offset + child.length() < range.location {
+                if offset + child.length() < location {
                     result.append(child)
-                } else if splitEdge && offset < range.location {
+                } else if splitEdge && offset < location {
 
-                    let splitRange = NSRange(location: offset, length: range.location - offset)
+                    let splitRange = NSRange(location: offset, length: location - offset)
                     child.split(forRange: splitRange)
 
                     result.append(child)
@@ -353,6 +404,8 @@ extension Libxml2 {
             return result
         }
 
+        /// Splits this node following the specified range.
+        ///
         override func split(forRange range: NSRange) {
 
             guard range.location > 0 || range.length < length() else {
@@ -365,20 +418,21 @@ extension Libxml2 {
                     return
             }
 
-            let preNodes = children(before: range, splitEdge: true)
-            let postNodes = children(after: range, splitEdge: true)
+            let postNodes = children(after: range.location + range.length, splitEdge: true)
 
             if postNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
 
-                parent.children.insert(newElement, atIndex: nodeIndex + 1)
+                parent.insert(newElement, at: nodeIndex + 1)
                 remove(postNodes, updateParent: false)
             }
+
+            let preNodes = children(before: range, splitEdge: true)
 
             if preNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
 
-                parent.children.insert(newElement, atIndex: nodeIndex)
+                parent.insert(newElement, at: nodeIndex)
                 remove(preNodes, updateParent: false)
             }
         }
