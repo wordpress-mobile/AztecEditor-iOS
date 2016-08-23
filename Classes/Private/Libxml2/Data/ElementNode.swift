@@ -427,7 +427,7 @@ extension Libxml2 {
                 remove(postNodes, updateParent: false)
             }
 
-            let preNodes = children(before: range, splitEdge: true)
+            let preNodes = children(before: range.location, splitEdge: true)
 
             if preNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
