@@ -455,6 +455,18 @@ private extension EditorDemoController
     }
 
     func addImageAssetToContent(asset: PHAsset) {
+        loadImageAsset(asset) { image in
+            guard let image = image else {
+                return
+            }
+
+            dispatch_async(dispatch_get_main_queue()) {
+                self.insertImage(image)
+            }
+        }
+    }
+
+    func loadImageAsset(asset: PHAsset, completion: (UIImage?) -> Void) {
         let options = PHImageRequestOptions()
         options.synchronous = false
         options.networkAccessAllowed = true
@@ -462,30 +474,18 @@ private extension EditorDemoController
         options.version = .Current
         options.deliveryMode = .HighQualityFormat
 
-        PHImageManager.defaultManager().requestImageDataForAsset(asset, options: options) {
-            (data: NSData?, dataUTI: String?, orientation: UIImageOrientation, info: [NSObject : AnyObject]?) in
+        let targetSize = CGSize(width: view.bounds.width, height: CGFloat.max)
 
-            guard let data = data else {
-                return
-            }
+        let manager = PHImageManager.defaultManager()
+        manager.requestImageForAsset(asset, targetSize: targetSize, contentMode: .AspectFit, options: options) {
+            (image: UIImage?, info: [NSObject : AnyObject]?) in
 
-            self.addImageDataToContent(data)
+            completion(image)
         }
     }
 
-    func addImageDataToContent(data: NSData) {
-        let path = String("%@/%@.jpg", NSTemporaryDirectory(), NSUUID().UUIDString)
-        guard let imageURL = NSURL(string: path) else {
-            return
-        }
-
-        do {
-            try data.writeToFile(path, options: [.AtomicWrite])
-
-            dispatch_async(dispatch_get_main_queue()) {
-                self.editor.insertImage(imageURL, index: 0)
-            }
-        } catch {
-            NSLog("Error while writing temporary Image Asset")
-        }
+    func insertImage(image: UIImage) {
+        let index = richTextView.positionForCursor()
+        editor.insertImage(image, index: index)
+    }
 }
