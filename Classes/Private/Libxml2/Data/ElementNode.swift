@@ -34,7 +34,7 @@ extension Libxml2 {
             case Li = "li"
             case Noscript = "noscript"
             case Ol = "ol"
-            case P = "Paragraph"
+            case P = "p"
             case Pre = "pre"
             case S = "s"
             case Strike = "strike"
@@ -166,6 +166,120 @@ extension Libxml2 {
             }
         }
 
+        func lowestBlockLevelElements(intersectingRange targetRange: NSRange) -> [(element: ElementNode, intersection: NSRange)] {
+            var results = [(element: ElementNode, intersection: NSRange)]()
+
+            enumerateLowestBlockLevelElements(intersectingRange: targetRange) { result in
+                results.append(result)
+            }
+
+            return results
+        }
+
+        /// Enumerate the lowest block-level child elements intersecting the specified range.
+        /// Whenever a range doesn't intersect a block-level node, `self` (the receiver) is returned
+        /// as the owner of that range.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             this node's coordinates (the parent node's coordinates, from the children
+        ///             PoV).
+        ///     - matchFound: the closure to execute for each child element intersecting
+        ///             `targetRange`.
+        ///
+        /// - Returns: an array of child nodes and their intersection.  The intersection range is in
+        ///         child coordinates.
+        ///
+        func enumerateLowestBlockLevelElements(intersectingRange targetRange: NSRange, onMatchFound matchFound: (element: ElementNode, intersection: NSRange) -> Void ) {
+
+            enumerateLowestBlockLevelElements(
+                intersectingRange: targetRange,
+                onMatchNotFound: { (range) in
+                    matchFound(element: self, intersection: range)
+                },
+                onMatchFound: matchFound)
+        }
+
+        /// Enumerate the child elements intersecting the specified range.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             this node's coordinates (the parent node's coordinates, from the children
+        ///             PoV).
+        ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
+        ///             doesn't have a block-level node intersecting it.
+        ///     - matchFound: the closure to execute for each child element intersecting
+        ///             `targetRange`.
+        ///
+        /// - Returns: an array of child nodes and their intersection.  The intersection range is in
+        ///         child coordinates.
+        ///
+        private func enumerateLowestBlockLevelElements(intersectingRange targetRange: NSRange, onMatchNotFound matchNotFound: (range: NSRange) -> Void, onMatchFound matchFound: (element: ElementNode, intersection: NSRange) -> Void ) {
+
+            var rangeWithoutMatch: NSRange?
+            var offset = Int(0)
+
+            for child in children {
+
+                let childLength = child.length()
+                let childRange = NSRange(location: offset, length: childLength)
+                let intersectionRange = NSIntersectionRange(childRange, targetRange)
+                let childIntercectsTargetRange = (intersectionRange.length > 0)
+
+                if childIntercectsTargetRange {
+
+                    let intersectionRangeInChildCoordinates = NSRange(location: intersectionRange.location - offset, length: intersectionRange.length)
+
+                    if let childElement = child as? ElementNode {
+                        childElement.enumerateLowestBlockLevelElements(
+                            intersectingRange: intersectionRangeInChildCoordinates,
+                            onMatchNotFound: { (range) in
+
+                                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                                    rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + range.length)
+                                } else {
+                                    rangeWithoutMatch = range
+                                }
+                            },
+                            onMatchFound: { [weak self] (child, intersection) in
+
+                                guard let strongSelf = self else {
+                                    return
+                                }
+
+                                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                                    if strongSelf.isBlockLevelElement() {
+                                        matchFound(element: strongSelf, intersection: previousRangeWithoutMatch)
+                                        rangeWithoutMatch = nil
+                                    } else {
+                                        matchNotFound(range: previousRangeWithoutMatch)
+                                    }
+                                }
+
+                                matchFound(element: child, intersection: intersection)
+                        })
+                    } else {
+                        if let previousRangeWithoutMatch = rangeWithoutMatch {
+                            rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + intersectionRangeInChildCoordinates.length)
+                        } else {
+                            rangeWithoutMatch = intersectionRangeInChildCoordinates
+                        }
+                    }
+                }
+
+                offset += childLength
+            }
+
+            if let previousRangeWithoutMatch = rangeWithoutMatch {
+                if isBlockLevelElement() {
+                    matchFound(element: self, intersection: previousRangeWithoutMatch)
+                    rangeWithoutMatch = nil
+                } else {
+                    matchNotFound(range: previousRangeWithoutMatch)
+                }
+            }
+        }
+
         /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
         /// range.  If no child element node wraps the specified range, this method returns this
         /// node.
@@ -213,6 +327,7 @@ extension Libxml2 {
         ///         that they wrap.
         ///
         func lowestBlockElementNodesWrapping(range: NSRange) -> [(node: ElementNode, range: NSRange)] {
+
             //let mainNode = lowestElementNodeWrapping(range)
 
             // Look for block-level elements in children
