@@ -262,7 +262,8 @@ extension Libxml2 {
                         if let previousRangeWithoutMatch = rangeWithoutMatch {
                             rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + intersectionRangeInChildCoordinates.length)
                         } else {
-                            rangeWithoutMatch = intersectionRangeInChildCoordinates
+                            rangeWithoutMatch = intersectionRange
+
                         }
                     }
                 }
@@ -314,24 +315,6 @@ extension Libxml2 {
             }
 
             return self
-        }
-
-        /// Returns the lowest-level block-type element nodes in this node's hierarchy that wrap the 
-        /// specified range.  If no child element node wraps the specified range, this method
-        /// returns this node.
-        ///
-        /// - Parameters:
-        ///     - range: the range we want to find the wrapping node of.
-        ///
-        /// - Returns: an array of block-level nodes, and the sub-range (from the specified range)
-        ///         that they wrap.
-        ///
-        func lowestBlockElementNodesWrapping(range: NSRange) -> [(node: ElementNode, range: NSRange)] {
-
-            //let mainNode = lowestElementNodeWrapping(range)
-
-            // Look for block-level elements in children
-            return []
         }
 
         /// Calls this method to obtain all the text nodes containing a specified range.

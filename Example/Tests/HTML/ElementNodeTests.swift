@@ -378,7 +378,7 @@ class ElementNodeTests: XCTestCase {
     ///     - (node: div, range: (0...6))
     ///     - (node: p, range: (0...5))
     ///
-    func testEnumerate() {
+    func testLowestBlockLevelElements1() {
 
         let textPart1 = "Hello "
         let textPart2 = "there"
@@ -398,5 +398,70 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(results[1].element.name, "p")
         XCTAssertEqual(results[1].intersection.location, 0)
         XCTAssertEqual(results[1].intersection.length, 5)
+    }
+
+    /// Tests obtaining the block-level elements intercepting the full range of the following
+    /// HTML string: <div>Hello <p>there</p> man!</div>
+    ///
+    /// The results should be:
+    ///     - (node: div, range: (0...6))
+    ///     - (node: p, range: (0...5))
+    ///     - (node: div, range: (11...5))
+    ///
+    func testLowestBlockLevelElements2() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there"
+        let textPart3 = " man!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+        let textNode3 = TextNode(text: textPart3)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2])
+        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph, textNode3])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 3)
+        XCTAssertEqual(results[0].element.name, "div")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "p")
+        XCTAssertEqual(results[1].intersection.location, 0)
+        XCTAssertEqual(results[1].intersection.length, 5)
+        XCTAssertEqual(results[2].element.name, "div")
+        XCTAssertEqual(results[2].intersection.location, 11)
+        XCTAssertEqual(results[2].intersection.length, 5)
+    }
+
+
+    /// Tests obtaining the block-level elements intercepting the full range of the following
+    /// HTML string: <div><p>Hello </p>there!</div>
+    ///
+    /// The results should be:
+    ///     - (node: p, range: (0...6))
+    ///     - (node: div, range: (6...6))
+    ///
+    func testLowestBlockLevelElements3() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1])
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results[0].element.name, "p")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "div")
+        XCTAssertEqual(results[1].intersection.location, 6)
+        XCTAssertEqual(results[1].intersection.length, 6)
     }
 }
