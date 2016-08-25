@@ -382,13 +382,13 @@ public class AztecVisualEditor : NSObject {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
+        attachment.image = image
 
+        // Inject the Attachment and Layout
         let range = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
-        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
 
-        let imageView = UIImageView(image: image)
-        attachmentManager.assignView(imageView, forAttachment: attachment)
+        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
         attachmentManager.updateAttachmentLayout()
     }
 
