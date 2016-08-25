@@ -67,58 +67,18 @@ public class AztecTextStorage: NSTextStorage {
         if enable {
             enableBoldInDOM(range)
         } else {
-            //    disableBoldInDom(range)
+            disableBoldInDom(range)
         }
     }
 
     // MARK: - DOM
 
-    private func enableBoldInDOM(range: NSRange) {
-        wrap(range: range, inNodeNamed: "strong")
+    private func disableBoldInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromNodeNamed: "strong")
     }
 
-    private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
-
-        let textNodes = rootNode.textNodesWrapping(newNodeRange)
-
-        for (node, range) in textNodes {
-            guard let parent = node.parent,
-                let nodeIndex = parent.children.indexOf(node) else {
-
-                assertionFailure("This scenario should not be possible. Review the logic.")
-                continue
-            }
-
-            let nodeLength = node.length()
-
-            if range.length != nodeLength {
-                guard let swiftRange = node.text.rangeFromNSRange(range) else {
-                    assertionFailure("This scenario should not be possible. Review the logic.")
-                    continue
-                }
-
-                let preRange = node.text.startIndex ..< swiftRange.startIndex
-                let postRange = swiftRange.endIndex ..< node.text.endIndex
-
-                if postRange.count > 0 {
-                    let newNode = TextNode(text: node.text.substringWithRange(postRange))
-                    newNode.parent = parent
-
-                    node.text.removeRange(postRange)
-                    parent.children.insert(newNode, atIndex: nodeIndex + 1)
-                }
-
-                if preRange.count > 0 {
-                    let newNode = TextNode(text: node.text.substringWithRange(preRange))
-                    newNode.parent = parent
-
-                    node.text.removeRange(preRange)
-                    parent.children.insert(newNode, atIndex: nodeIndex)
-                }
-            }
-
-            node.wrapInNewNode(named: newNodeName)
-        }
+    private func enableBoldInDOM(range: NSRange) {
+        rootNode.wrap(range: range, inNodeNamed: "strong")
     }
 
     // MARK: - HTML Interaction

@@ -5,6 +5,7 @@ class ElementNodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
     typealias ElementNode = Libxml2.ElementNode
+    typealias RootNode = Libxml2.RootNode
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
 
@@ -196,5 +197,271 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: text1.length() - 1, length: 0)))
     }
-    
+
+    func testSplitWithFullRange() {
+
+        let textNode = TextNode(text: "Some text goes here")
+        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: 0, length: textNode.length())
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 1)
+        XCTAssertEqual(rootNode.children[0], elemNode)
+
+        XCTAssertEqual(elemNode.children.count, 1)
+        XCTAssertEqual(elemNode.children[0], textNode)
+    }
+
+    func testSplitWithPartialRange1() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: 0, length: textPart1.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
+    }
+
+    func testSplitWithPartialRange2() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
+    }
+
+
+    func testSplitWithPartialRange3() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes "
+        let textPart3 = "here"
+        let fullText = "\(textPart1)\(textPart2)\(textPart3)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 3)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[2].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode3 = rootNode.children[2] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+        XCTAssertEqual(elemNode3.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode3 = elemNode3.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text, textPart1)
+        XCTAssertEqual(textNode2.text, textPart2)
+        XCTAssertEqual(textNode3.text, textPart3)
+    }
+
+    /// Tests obtaining the block-level elements intercepting the full range of the following
+    /// HTML string: <div>Hello <p>there</p></div>
+    ///
+    /// The results should be:
+    ///     - (node: div, range: (0...6))
+    ///     - (node: p, range: (0...5))
+    ///
+    func testLowestBlockLevelElements1() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2])
+        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results[0].element.name, "div")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "p")
+        XCTAssertEqual(results[1].intersection.location, 0)
+        XCTAssertEqual(results[1].intersection.length, 5)
+    }
+
+    /// Tests obtaining the block-level elements intercepting the full range of the following
+    /// HTML string: <div>Hello <p>there</p> man!</div>
+    ///
+    /// The results should be:
+    ///     - (node: div, range: (0...6))
+    ///     - (node: p, range: (0...5))
+    ///     - (node: div, range: (11...5))
+    ///
+    func testLowestBlockLevelElements2() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there"
+        let textPart3 = " man!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+        let textNode3 = TextNode(text: textPart3)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2])
+        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph, textNode3])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 3)
+        XCTAssertEqual(results[0].element.name, "div")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "p")
+        XCTAssertEqual(results[1].intersection.location, 0)
+        XCTAssertEqual(results[1].intersection.length, 5)
+        XCTAssertEqual(results[2].element.name, "div")
+        XCTAssertEqual(results[2].intersection.location, 11)
+        XCTAssertEqual(results[2].intersection.length, 5)
+    }
+
+
+    /// Tests obtaining the block-level elements intercepting the full range of the following
+    /// HTML string: <div><p>Hello </p>there!</div>
+    ///
+    /// The results should be:
+    ///     - (node: p, range: (0...6))
+    ///     - (node: div, range: (6...6))
+    ///
+    func testLowestBlockLevelElements3() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1])
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results[0].element.name, "p")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "div")
+        XCTAssertEqual(results[1].intersection.location, 6)
+        XCTAssertEqual(results[1].intersection.length, 6)
+    }
 }
