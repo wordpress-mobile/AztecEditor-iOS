@@ -433,7 +433,9 @@ extension EditorDemoController : UIImagePickerControllerDelegate
             return
         }
 
+        // Insert Image + Reclaim Focus
         insertImage(image)
+        richTextView.becomeFirstResponder()
     }
 }
 
