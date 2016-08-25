@@ -78,7 +78,13 @@ public class AztecTextStorage: NSTextStorage {
     }
 
     private func enableBoldInDOM(range: NSRange) {
-        rootNode.wrap(range: range, inNodeNamed: "strong")
+        //rootNode.wrap(range: range, inNodeNamed: "strong")
+
+        let elementsAndRanges = rootNode.lowestBlockLevelElements(intersectingRange: range)
+
+        for (element, intersection) in elementsAndRanges.generate() {
+            element.wrapChildren(intersectingRange: intersection, inNodeNamed: "b", withAttributes: [])
+        }
     }
 
     // MARK: - HTML Interaction
