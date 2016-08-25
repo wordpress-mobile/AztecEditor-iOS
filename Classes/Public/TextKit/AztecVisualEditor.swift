@@ -380,13 +380,16 @@ public class AztecVisualEditor : NSObject {
     ///     - index: The character index at which to insert the image.
     ///
     public func insertImage(image: UIImage, index: Int) {
-        let attachment = NSTextAttachment()
-        attachment.bounds = CGRect(origin: CGPointZero, size: image.size)
-        attachment.image = image
+        let identifier = NSUUID().UUIDString
+        let attachment = AztecTextAttachment(identifier: identifier)
 
         let range = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
+
+        let imageView = UIImageView(image: image)
+        attachmentManager.assignView(imageView, forAttachment: attachment)
+        attachmentManager.updateAttachmentLayout()
     }
 
 
