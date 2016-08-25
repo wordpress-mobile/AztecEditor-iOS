@@ -429,61 +429,17 @@ extension EditorDemoController : UIImagePickerControllerDelegate
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
 
-        guard let assetURL = info[UIImagePickerControllerReferenceURL] as? NSURL else {
+        guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             return
         }
 
-        addAssetToContent(assetURL)
+        insertImage(image)
     }
 }
 
 
 private extension EditorDemoController
 {
-    func addAssetToContent(assetURL: NSURL) {
-        let assets = PHAsset.fetchAssetsWithALAssetURLs([assetURL], options: nil)
-        guard let asset = assets.firstObject as? PHAsset else {
-            return;
-        }
-
-        switch asset.mediaType {
-        case .Image:
-            addImageAssetToContent(asset)
-        default:
-            break
-        }
-    }
-
-    func addImageAssetToContent(asset: PHAsset) {
-        loadImageAsset(asset) { image in
-            guard let image = image else {
-                return
-            }
-
-            dispatch_async(dispatch_get_main_queue()) {
-                self.insertImage(image)
-            }
-        }
-    }
-
-    func loadImageAsset(asset: PHAsset, completion: (UIImage?) -> Void) {
-        let options = PHImageRequestOptions()
-        options.synchronous = false
-        options.networkAccessAllowed = true
-        options.resizeMode = .Exact
-        options.version = .Current
-        options.deliveryMode = .HighQualityFormat
-
-        let targetSize = CGSize(width: view.bounds.width, height: CGFloat.max)
-
-        let manager = PHImageManager.defaultManager()
-        manager.requestImageForAsset(asset, targetSize: targetSize, contentMode: .AspectFit, options: options) {
-            (image: UIImage?, info: [NSObject : AnyObject]?) in
-
-            completion(image)
-        }
-    }
-
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
         editor.insertImage(image, index: index)
