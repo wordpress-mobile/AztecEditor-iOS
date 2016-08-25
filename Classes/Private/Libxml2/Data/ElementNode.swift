@@ -402,7 +402,7 @@ extension Libxml2 {
         /// Removes the specified child nodes.  Only updates their parents if specified.
         ///
         /// - Parameters:
-        ///     - chldren: the child nodes to remove.
+        ///     - children: the child nodes to remove.
         ///     - updateParent: whether the children node's parent must be update to `nil` or not.
         ///             If not specified, the parent is updated.
         ///
