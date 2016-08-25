@@ -548,7 +548,7 @@ class ElementNodeTests: XCTestCase {
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
     /// HTML String: <div><em>Hello </em><i>there!</i></div>
-    /// Wrap range: (0...6)
+    /// Wrap range: full text range / full div node range
     ///
     /// The result should be: <div><b><em>Hello </em><u>there!</u></b></div>
     ///
