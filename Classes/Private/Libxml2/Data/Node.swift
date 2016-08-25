@@ -111,13 +111,13 @@ extension Libxml2 {
         func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
 
             let originalParent = parent
+            let originalIndex = parent?.children.indexOf(self)
 
             let newNode = ElementNode(name: nodeName, attributes: attributes, children: [self])
 
             if let parent = originalParent {
-                guard let index = parent.children.indexOf(self) else {
-                    assertionFailure("A node's parent should contain the node. Review the child/parent updating logic.")
-                    return newNode
+                guard let index = originalIndex else {
+                    fatalError("If the node has a parent, the index should be obtainable.")
                 }
 
                 parent.insert(newNode, at: index)

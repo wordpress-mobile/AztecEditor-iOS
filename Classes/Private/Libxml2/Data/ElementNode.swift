@@ -54,6 +54,14 @@ extension Libxml2 {
             static func blockLevelNodeNames() -> [StandardName] {
                 return [.Address, .Blockquote, .Div, .Dl, .Fieldset, .Form, .H1, .H2, .H3, .H4, .H5, .H6, .Hr, .Noscript, .Ol, .P, .Pre, .Table, .Ul]
             }
+
+            static func isBlockLevelNodeName(name: String) -> Bool {
+                return StandardName(rawValue: name)?.isBlockLevelNodeName() ?? false
+            }
+
+            func isBlockLevelNodeName() -> Bool {
+                return self.dynamicType.blockLevelNodeNames().contains(self)
+            }
         }
 
         private(set) var attributes = [Attribute]()
@@ -72,6 +80,11 @@ extension Libxml2 {
             super.init(name: name)
 
             for child in children {
+
+                if let parent = child.parent {
+                    parent.remove(child)
+                }
+
                 child.parent = self
             }
         }
@@ -108,7 +121,7 @@ extension Libxml2 {
                 return false
             }
 
-            return StandardName.blockLevelNodeNames().contains(standardName)
+            return standardName.isBlockLevelNodeName()
         }
 
         // MARK: - DOM Queries
@@ -417,6 +430,11 @@ extension Libxml2 {
         ///     - index: the position where to insert the node.
         ///
         func insert(child: Node, at index: Int) {
+
+            if let parent = child.parent {
+                parent.remove([child])
+            }
+
             children.insert(child, atIndex: index)
             child.parent = self
         }
@@ -440,6 +458,28 @@ extension Libxml2 {
             children.insertContentsOf(newChildren, at: childIndex)
         }
 
+
+        /// Removes the specified child node.  Only updates its parent if specified.
+        ///
+        /// - Parameters:
+        ///     - child: the child node to remove.
+        ///     - updateParent: whether the children node's parent must be update to `nil` or not.
+        ///             If not specified, the parent is updated.
+        ///
+        func remove(child: Node, updateParent: Bool = true) {
+
+            guard let index = children.indexOf(child) else {
+                assertionFailure("Can't remove a node that's not a child.")
+                return
+            }
+
+            children.removeAtIndex(index)
+
+            if updateParent {
+                child.parent = nil
+            }
+        }
+
         /// Removes the specified child nodes.  Only updates their parents if specified.
         ///
         /// - Parameters:
@@ -448,6 +488,7 @@ extension Libxml2 {
         ///             If not specified, the parent is updated.
         ///
         func remove(children: [Node], updateParent: Bool = true) {
+
             self.children = self.children.filter({ child -> Bool in
 
                 let removeChild = children.contains(child)
@@ -624,7 +665,6 @@ extension Libxml2 {
             }
         }
 
-
         /// Wraps the specified range inside a node with the specified properties.
         ///
         /// - Parameters:
@@ -634,23 +674,97 @@ extension Libxml2 {
         ///
         override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
 
-            guard !NSEqualRanges(targetRange, range()) else {
-                wrap(inNodeNamed: nodeName, withAttributes: attributes)
-                return
-            }
+            let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
 
-            wrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+            if mustFindLowestBlockLevelElements {
+                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
+
+                for elementAndIntersection in elementsAndIntersections {
+
+                    let element = elementAndIntersection.element
+                    let intersection = elementAndIntersection.intersection
+
+                    element.forceWrapChildren(
+                        intersectingRange: intersection,
+                        inNodeNamed: nodeName,
+                        withAttributes: attributes)
+                }
+            } else {
+                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+            }
         }
 
         /// Wraps child nodes intersecting the specified range inside new elements with the
         /// specified properties.
+        ///
+        /// - Important: this method doesn't check if the child nodes are block-level elements or
+        ///         not.  If you need to check for block level elements, you must obtain them
+        ///         before calling this method.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range that must be wrapped.
+        ///     - nodeName: the name of the node to wrap the range in.
+        ///     - attributes: the attributes the wrapping node will have when created.
+        ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
+        ///             lowest block-level element nodes before doing the wrapping.
+        ///
+        func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+
+            let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
+
+            if mustFindLowestBlockLevelElements {
+                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
+
+                for elementAndIntersection in elementsAndIntersections {
+
+                    let element = elementAndIntersection.element
+                    let intersection = elementAndIntersection.intersection
+
+                    element.forceWrapChildren(
+                        intersectingRange: intersection,
+                        inNodeNamed: nodeName,
+                        withAttributes: attributes)
+                }
+            } else {
+                forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+            }
+        }
+
+        /// Force-wraps the specified range inside a node with the specified properties.
         ///
         /// - Parameters:
         ///     - targetRange: the range that must be wrapped.
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+
+            guard !NSEqualRanges(targetRange, range()) else {
+                wrap(inNodeNamed: nodeName, withAttributes: attributes)
+                return
+            }
+
+            forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+        }
+
+
+        /// Force wraps child nodes intersecting the specified range inside new elements with the
+        /// specified properties.
+        ///
+        /// but it does not check any block-level element logic.
+        ///
+        /// - Important: this is almost the same as
+        ///         `wrapChildren(intersectingRange:, inNodeNamed:, withAttributes:)` but this
+        ///         method doesn't check if the child nodes are block-level elements or not.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range that must be wrapped.
+        ///     - nodeName: the name of the node to wrap the range in.
+        ///     - attributes: the attributes the wrapping node will have when created.
+        ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
+        ///             lowest block-level element nodes before doing the wrapping.
+        ///
+        private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
 
             let childNodesIntersectingRange = childNodes(intersectingRange: targetRange)
             assert(childNodesIntersectingRange.count > 0)
@@ -660,7 +774,11 @@ extension Libxml2 {
                 let childNode = childData.child
                 let intersection = childData.intersection
 
-                childNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+                if let childElement = childNode as? ElementNode {
+                    childElement.forceWrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+                } else {
+                    childNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+                }
             } else if childNodesIntersectingRange.count > 1 {
 
                 let firstChild = childNodesIntersectingRange[0].child
@@ -676,7 +794,7 @@ extension Libxml2 {
                 if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
                     lastChild.split(forRange: lastChildIntersection)
                 }
-
+                
                 wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
             }
         }
