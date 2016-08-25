@@ -390,9 +390,17 @@ class AztecAttachmentView
 ///
 public class AztecTextAttachment: NSTextAttachment
 {
+    /// Identifier used to match this attachment with a custom UIView subclass
+    ///
     private(set) public var identifier: String
 
+    /// Horizontal padding to be cut from, whenever we're dealing with an Image Attachment
+    ///
+    public var imageHorizontalPadding = CGFloat(10)
 
+
+    /// Designed Initializer
+    ///
     public init(identifier: String) {
         self.identifier = identifier
         super.init(data: nil, ofType: nil)
@@ -402,5 +410,20 @@ public class AztecTextAttachment: NSTextAttachment
     required public init?(coder aDecoder: NSCoder) {
         self.identifier = ""
         super.init(coder: aDecoder)
+    }
+
+
+    // MARK: - Overriden Methods
+
+    override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
+        guard let image = image else {
+            return super.attachmentBoundsForTextContainer(textContainer, proposedLineFragment: lineFrag, glyphPosition: position, characterIndex: charIndex)
+        }
+
+        let width = lineFrag.size.width
+        let imageSize = image.size
+        let scalingFactor = (width < imageSize.width) ? (width - imageHorizontalPadding) / image.size.width : CGFloat(1.0)
+
+        return CGRectMake(0, 0, imageSize.width * scalingFactor, imageSize.height * scalingFactor)
     }
 }
