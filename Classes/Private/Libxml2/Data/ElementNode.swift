@@ -766,11 +766,11 @@ extension Libxml2 {
         ///
         private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
 
-            let childNodesIntersectingRange = childNodes(intersectingRange: targetRange)
-            assert(childNodesIntersectingRange.count > 0)
+            let childNodesAndRanges = childNodes(intersectingRange: targetRange)
+            assert(childNodesAndRanges.count > 0)
 
-            if childNodesIntersectingRange.count == 1 {
-                let childData = childNodesIntersectingRange[0]
+            if childNodesAndRanges.count == 1 {
+                let childData = childNodesAndRanges[0]
                 let childNode = childData.child
                 let intersection = childData.intersection
 
@@ -779,22 +779,26 @@ extension Libxml2 {
                 } else {
                     childNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
                 }
-            } else if childNodesIntersectingRange.count > 1 {
+            } else if childNodesAndRanges.count > 1 {
 
-                let firstChild = childNodesIntersectingRange[0].child
-                let firstChildIntersection = childNodesIntersectingRange[0].intersection
+                let firstChild = childNodesAndRanges[0].child
+                let firstChildIntersection = childNodesAndRanges[0].intersection
 
                 if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
                     firstChild.split(forRange: firstChildIntersection)
                 }
 
-                let lastChild = childNodesIntersectingRange[childNodesIntersectingRange.count - 1].child
-                let lastChildIntersection = childNodesIntersectingRange[0].intersection
+                let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
+                let lastChildIntersection = childNodesAndRanges[0].intersection
 
                 if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
                     lastChild.split(forRange: lastChildIntersection)
                 }
-                
+
+                let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
+                    return child
+                })
+
                 wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
             }
         }
@@ -843,7 +847,7 @@ extension Libxml2 {
 
             let newNode = ElementNode(name: nodeName, attributes: attributes, children: children)
 
-            self.children[insertionIndexOfNewNode] = newNode
+            self.children.insert(newNode, atIndex: insertionIndexOfNewNode)
             newNode.parent = self
 
             remove(children, updateParent: false)
