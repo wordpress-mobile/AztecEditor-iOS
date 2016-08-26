@@ -376,11 +376,20 @@ public class AztecVisualEditor : NSObject {
     /// Inserts an image at the specified index
     ///
     /// - Paramters:
+    ///     - path: The path of the image to be inserted.
     ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
     ///
-    public func insertImage(index: Int, params: [String: AnyObject]) {
-        print("image")
+    public func insertImage(image: UIImage, index: Int) {
+        let identifier = NSUUID().UUIDString
+        let attachment = AztecTextAttachment(identifier: identifier)
+        attachment.image = image
+
+        // Inject the Attachment and Layout
+        let range = NSMakeRange(index, 0)
+        let attachmentString = NSAttributedString(attachment: attachment)
+
+        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
+        attachmentManager.updateAttachmentLayout()
     }
 
 
