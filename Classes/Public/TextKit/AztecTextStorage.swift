@@ -74,11 +74,12 @@ public class AztecTextStorage: NSTextStorage {
     // MARK: - DOM
 
     private func disableBoldInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromNodeNamed: "strong")
+        rootNode.unwrap(range: range, fromNodeNamed: "b")
     }
 
     private func enableBoldInDOM(range: NSRange) {
-        rootNode.wrap(range: range, inNodeNamed: "strong")
+
+        rootNode.wrapChildren(intersectingRange: range, inNodeNamed: "b", withAttributes: [])
     }
 
     // MARK: - HTML Interaction
