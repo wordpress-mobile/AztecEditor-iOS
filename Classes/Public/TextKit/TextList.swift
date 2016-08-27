@@ -14,7 +14,7 @@ class TextList
 class TextListItem
 {
     static let attributeName = "TextListItemAttributeName"
-
+    var number = 0
 }
 
 
