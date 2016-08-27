@@ -45,7 +45,7 @@ class ListFormatter
                 return true
             })
 
-            return applyTextListAttribute(type, atParagraphRanges: filtered, inAttributedString: attrString)
+            return applyTextListOfType(type, atParagraphRanges: filtered, inAttributedString: attrString)
         }
     }
 
@@ -96,8 +96,8 @@ class ListFormatter
     }
 
 
-    /// Applies a TextList attribute to the specified paragraph ranges in the
-    /// specified string. Each paragraph range is treated as a list item.
+    /// Applies a TextList attribute of the speciried type to the paragraph ranges
+    /// in the specified string. Each paragraph range is treated as a list item.
     ///
     /// - Parameters:
     ///     - type: The type of text list.
@@ -106,7 +106,42 @@ class ListFormatter
     ///
     /// - Returns: The affected NSRange, or nil if no changes were made.
     ///
-    func applyTextListAttribute(type: TextListType, atParagraphRanges ranges:[NSRange], inAttributedString attrString: NSMutableAttributedString) -> NSRange? {
+    func applyTextListOfType(type: TextListType, atParagraphRanges ranges:[NSRange], inAttributedString attrString: NSMutableAttributedString) -> NSRange? {
+        let textList = TextList()
+        textList.type = type
+        return applyTextList(textList, atParagraphRanges: ranges, inAttributedString: attrString, startingNumber: 1)
+    }
+
+
+    /// Applies a TextList attribute to the specified attributed string.
+    /// Each paragraph range is treated as a list item.
+    ///
+    /// - Parameters:
+    ///     - textList: The textList instance to assign to the textList attribute.
+    ///     - attrString: The NSMutableAttributedString to manipulate.
+    ///     - startingNumber: The starting number for the list items.
+    ///
+    /// - Returns: The affected NSRange, or nil if no changes were made.
+    ///
+    func applyTextList(textList: TextList, toAttributedString attrString: NSMutableAttributedString, startingNumber: Int) -> NSRange? {
+        let paragraphRanges = paragraphRangesInString(attrString.string, spanningRange: NSRange(location: 0, length: attrString.length))
+
+        return applyTextList(textList, atParagraphRanges: paragraphRanges, inAttributedString: attrString, startingNumber: startingNumber)
+    }
+
+
+    /// Applies a TextList attribute to the specified paragraph ranges in the
+    /// specified string. Each paragraph range is treated as a list item.
+    ///
+    /// - Parameters:
+    ///     - textList: A TextList instance.
+    ///     - ranges: The paragraph ranges to operate upon. Each range becomes a list item.
+    ///     - attrString: The NSMutableAttributedString to manipulate.
+    ///     - startingNumber: The starting item number for an ordered list.
+    ///
+    /// - Returns: The affected NSRange, or nil if no changes were made.
+    ///
+    func applyTextList(textList: TextList, atParagraphRanges ranges:[NSRange], inAttributedString attrString: NSMutableAttributedString, startingNumber: Int) -> NSRange? {
         if ranges.count == 0 {
             return nil
         }
@@ -123,12 +158,12 @@ class ListFormatter
 
         //- check preceding paragraph style for same kind of list & same list level.  If found add those paragraph ranges.
         var index = firstRange.location - 1
-        ranges = addParagraphRangesInString(attrString, forListOfType: type, atIndex: index, toArray: ranges)
+        ranges = addParagraphRangesInString(attrString, forListOfType: textList.type, atIndex: index, toArray: ranges)
 
 
         //- check following paragraph style for same kind of list & same list level. If found add those paragraph ranges.
         index = NSMaxRange(lastRange)
-        ranges = addParagraphRangesInString(attrString, forListOfType: type, atIndex: index, toArray: ranges)
+        ranges = addParagraphRangesInString(attrString, forListOfType: textList.type, atIndex: index, toArray: ranges)
 
         let startingLocation = ranges.first!.location
         var length = 0
@@ -141,15 +176,12 @@ class ListFormatter
         //- Iterate over affected paragraphs in reverse order.  Insert/replace list marker (attributes) into string and assign list item.
         for (idx, range) in ranges.enumerate().reverse() {
             let str = attrString.attributedSubstringFromRange(range)
-            let mstr = setTextListItemStyleForType(type, toString: str, itemIndex: idx + 1)
+            let mstr = setTextListItemStyleForType(textList.type, toString: str, itemNumber: idx + startingNumber)
             length += mstr.length
             attrString.replaceCharactersInRange(range, withAttributedString: mstr)
         }
 
         let listRange = NSRange(location: startingLocation, length: length)
-        //- set list type attribute for whole list
-        let textList = TextList()
-        textList.type = type
         attrString.addAttribute(TextList.attributeName, value: textList, range: listRange)
 
 
@@ -169,7 +201,7 @@ class ListFormatter
     ///
     /// - Return: An NSAttributedString.
     ///
-    func setTextListItemStyleForType(type: TextListType, toString attrString: NSAttributedString, itemIndex index: Int) -> NSAttributedString {
+    func setTextListItemStyleForType(type: TextListType, toString attrString: NSAttributedString, itemNumber number: Int) -> NSAttributedString {
         let mStr = NSMutableAttributedString(attributedString: attrString)
 
         // Remove any existing list marker.
@@ -185,7 +217,7 @@ class ListFormatter
         // TODO: Need to accomodate RTL languages too.
 
         // Add the correct list marker. (Tabs aren't really reliable for spacing. Need a better solution.)
-        let marker = type == .Ordered ? "\(index).\t" : "\u{2022}\t\t"
+        let marker = type == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
 
         let listMarker = NSAttributedString(string: marker, attributes: [TextListItemMarker.attributeName: TextListItemMarker()])
         mStr.insertAttributedString(listMarker, atIndex: 0)
@@ -203,8 +235,12 @@ class ListFormatter
             NSTextTab(textAlignment: .Natural, location: 32, options: [String : AnyObject]()),
             NSTextTab(textAlignment: .Natural, location: 64, options: [String : AnyObject]()),
         ]
+
+        let listItemAttr = TextListItem()
+        listItemAttr.number = number
+
         let attributes = [
-            TextListItem.attributeName: TextListItem(),
+            TextListItem.attributeName: listItemAttr,
             NSParagraphStyleAttributeName: paragraphStyle
             ] as [String: AnyObject]
 
@@ -353,7 +389,61 @@ class ListFormatter
         }
 
         let paragraphRanges = paragraphRangesInString(attrString.string, spanningRange: listRange)
-        return applyTextListAttribute(type, atParagraphRanges: paragraphRanges, inAttributedString: attrString)
+        return applyTextListOfType(type, atParagraphRanges: paragraphRanges, inAttributedString: attrString)
+    }
+
+
+    /// Get the range of a TextList containing the specified index in the supplied attributed string
+    ///
+    /// - Parameters:
+    ///     - attrString: The string to inspect
+    ///     - index: An index intersecting a TextList.
+    ///
+    /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
+    ///
+    func rangeOfListInString(attrString: NSAttributedString, atIndex index: Int) -> NSRange? {
+        var effectiveRange = NSRange()
+        if let _ = attrString.attribute(TextList.attributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: NSRange(location: 0, length: attrString.length)) as? TextList {
+            return effectiveRange
+        }
+        return nil
+    }
+
+
+    /// Retrieve the number of the TextListItem at the specified index in the supplied string.
+    ///
+    /// - Parameters:
+    ///     - attrString: The NSAttributedString to inspect. 
+    ///     - index: An index intersecting a list item.
+    ///
+    /// - Returns: The number of the item or zero if no TextListItem was found at the index.
+    ///
+    func numberOfListItemInString(attrString: NSAttributedString, atIndex index: Int) -> Int {
+        guard let listItemAttr = attrString.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem else {
+            return 0
+        }
+
+        return listItemAttr.number
+    }
+
+
+    /// Return the contents of a TextList following the specified index (inclusive).
+    /// Used to retrieve list items that need to be renumbered.
+    ///
+    /// - Parameters:
+    ///     - attrString: The string to inspect
+    ///     - index: An index intersecting a TextList.
+    ///
+    /// - Returns: An NSAttributedString optional containing the list from the specified range or nil if no list was found.
+    ///
+    func listContentsInString(attrString: NSAttributedString, followingIndex index: Int) -> NSAttributedString? {
+        guard let listRange = rangeOfListInString(attrString, atIndex: index) else {
+            return nil
+        }
+
+        let diff = index - listRange.location
+        let subRange = NSRange(location: index, length: listRange.length - diff)
+        return attrString.attributedSubstringFromRange(subRange)
     }
 
 }
