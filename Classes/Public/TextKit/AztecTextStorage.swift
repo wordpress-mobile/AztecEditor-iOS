@@ -9,6 +9,18 @@ public class AztecTextStorage: NSTextStorage {
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
 
+    /// Element names for bold.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForBold = ["b", "strong"]
+
+    /// Element names for italic.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForItalic = ["em", "i"]
+
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
     private var rootNode: RootNode = {
@@ -71,15 +83,51 @@ public class AztecTextStorage: NSTextStorage {
         }
     }
 
+    func toggleItalic(range: NSRange) {
+
+        let enable = !fontTrait(.TraitItalic, spansRange: range)
+
+        modifyTrait(.TraitItalic, range: range, enable: enable)
+
+        if enable {
+            enableItalicInDOM(range)
+        } else {
+            disableItalicInDom(range)
+        }
+    }
+
     // MARK: - DOM
 
     private func disableBoldInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromNodeNamed: "b")
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForBold)
+    }
+
+    private func disableItalicInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForItalic)
     }
 
     private func enableBoldInDOM(range: NSRange) {
 
-        rootNode.wrapChildren(intersectingRange: range, inNodeNamed: "b", withAttributes: [])
+        enableInDom(
+            self.dynamicType.elementNamesForBold[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForBold)
+    }
+
+    private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
+        rootNode.wrapChildren(
+            intersectingRange: range,
+            inNodeNamed: elementName,
+            withAttributes: [],
+            equivalentElementNames: equivalentElementNames)
+    }
+
+    private func enableItalicInDOM(range: NSRange) {
+
+        enableInDom(
+            self.dynamicType.elementNamesForItalic[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForItalic)
     }
 
     // MARK: - HTML Interaction

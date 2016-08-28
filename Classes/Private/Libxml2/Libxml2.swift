@@ -1,12 +1,9 @@
 import Foundation
 
-enum Libxml2 {
-    enum In {
+class Libxml2 {
+    class In {
     }
 
-    enum Out {
-    }
-
-    enum HTML {
+    class Out {
     }
 }

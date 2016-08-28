@@ -487,7 +487,7 @@ class ElementNodeTests: XCTestCase {
         let em = ElementNode(name: "em", attributes: [], children: [textNode1])
         let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
 
-        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
@@ -526,7 +526,7 @@ class ElementNodeTests: XCTestCase {
         let em = ElementNode(name: "em", attributes: [], children: [textNode1])
         let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
 
-        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
@@ -566,7 +566,7 @@ class ElementNodeTests: XCTestCase {
         let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
         let div = ElementNode(name: "div", attributes: [], children: [em, underline])
 
-        div.wrapChildren(intersectingRange: div.range(), inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: div.range(), inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 1)
 
