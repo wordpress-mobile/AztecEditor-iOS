@@ -402,9 +402,28 @@ class ListFormatter
     /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
     ///
     func rangeOfListInString(attrString: NSAttributedString, atIndex index: Int) -> NSRange? {
+        let stringRange = NSRange(location: 0, length: attrString.length)
         var effectiveRange = NSRange()
-        if let _ = attrString.attribute(TextList.attributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: NSRange(location: 0, length: attrString.length)) as? TextList {
+        if let _ = attrString.attribute(TextList.attributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: stringRange) as? TextList {
             return effectiveRange
+        }
+        return nil
+    }
+
+
+    /// Get the range of a TextListItem containing the specified index in the supplied attributed string
+    ///
+    /// - Parameters:
+    ///     - attrString: The string to inspect
+    ///     - index: An index intersecting a TextListItem.
+    ///
+    /// - Returns: An NSRange optional containing the range of the list item or nil if no item was found.
+    ///
+    func rangeOfListItemInString(attrString: NSAttributedString, atIndex index: Int) -> NSRange? {
+        let stringRange = NSRange(location: 0, length: attrString.length)
+        var itemRange = NSRange()
+        if let _ = attrString.attribute(TextListItem.attributeName, atIndex: index, longestEffectiveRange: &itemRange, inRange: stringRange) as? TextListItem {
+            return itemRange
         }
         return nil
     }

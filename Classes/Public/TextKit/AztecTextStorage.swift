@@ -87,13 +87,53 @@ public class AztecTextStorage: NSTextStorage {
             }
         }
 
-
         // Special handling for backspaces/delete
         if attrString.length == 0 {
-            // Check if this would intersect a list marker. If so, delete the
-            // entire list marker and reorder the list.
-            
-            
+
+            var listRange = NSRange()
+            if let textListAttr = attribute(TextList.attributeName, atIndex: range.location - 1,  longestEffectiveRange: &listRange, inRange: storageRange) as? TextList {
+
+                // Check if this would intersect a list marker. If so, delete the
+                // entire list marker and reorder the remaining list.
+                var markerRange = NSRange()
+                if let markerAttr = attribute(TextListItemMarker.attributeName, atIndex: range.location, longestEffectiveRange: &markerRange, inRange: storageRange) as? TextListItemMarker {
+                    var itemNumber = 1
+
+                    // The adjusted range is the range of the marker + the previous carriage return.
+                    adjustedRange = NSRange(location: markerRange.location - 1, length: markerRange.length + 1)
+
+                    // Now see if we need to make any other adjustments to the list as a consequence of deleting the marker.
+                    var adjustedList = NSMutableAttributedString()
+
+                    // Get the previous list item (if there was one.  We need its number to reorder any following list items
+                    // and to merge any remainder of the present list item.
+                    var previousItemRange = NSRange()
+                    if let listItem = attribute(TextListItem.attributeName, atIndex: markerRange.location - 1, longestEffectiveRange: &previousItemRange, inRange: storageRange) as? TextListItem {
+                        itemNumber = listItem.number
+                        adjustedList.appendAttributedString(attributedSubstringFromRange(previousItemRange))
+
+                        // The adjusted range must take into account the list item.
+                        adjustedRange = NSUnionRange(adjustedRange, previousItemRange)
+                    }
+
+                    // Now get any remainder of the list.
+                    if let listRemainder = ListFormatter().listContentsInString(self, followingIndex: range.location) where listRemainder.length > 0 {
+                        adjustedList.appendAttributedString(listRemainder)
+                        adjustedRange.length += listRemainder.length
+                    }
+
+                    // Update the the list items.
+                    if adjustedList.length > 0 {
+                        ListFormatter().applyTextList(textListAttr, toAttributedString: adjustedList, startingNumber: itemNumber)
+                    }
+
+                    // Finally, update our adjusted attributed stirng with the adjusted list.
+                    // The adjusted range should have already been updated.
+                    adjustedAttrStr.setAttributedString(adjustedList)
+                }
+
+            }
+
         }
 
         super.replaceCharactersInRange(adjustedRange, withAttributedString: adjustedAttrStr)
