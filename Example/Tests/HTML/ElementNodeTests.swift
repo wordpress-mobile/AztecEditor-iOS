@@ -615,8 +615,10 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(div.children.count, 3)
 
-        XCTAssertEqual(div.children[0], em)
-        XCTAssertEqual(div.children[2], underline)
+        XCTAssertEqual(div.children[0].name, "em")
+        XCTAssertEqual(div.children[0].length(), 2)
+        XCTAssertEqual(div.children[2].name, "u")
+        XCTAssertEqual(div.children[2].length(), 2)
 
         guard let boldNode = div.children[1] as? ElementNode else {
             XCTFail("Expected a bold node here.")
@@ -629,9 +631,9 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(boldNode.children[1], underline)
 
         XCTAssertEqual(em.children.count, 1)
-        XCTAssertEqual(em.children[0], textNode1)
+        XCTAssertEqual(em.children[0].length(), 4)
 
         XCTAssertEqual(underline.children.count, 1)
-        XCTAssertEqual(underline.children[0], textNode2)
+        XCTAssertEqual(underline.children[0].length(), 4)
     }
 }
