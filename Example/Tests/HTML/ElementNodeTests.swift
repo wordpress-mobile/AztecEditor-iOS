@@ -70,6 +70,39 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(node, mainNode)
     }
 
+    /// Tries to obtain the lowest block-level elements intersecting the specified range.
+    ///
+    /// HTML string: <p>Hello <b>world</b>!</p>
+    /// Range: (6...5)
+    ///
+    /// The result should be: 
+    ///     - element: the main paragraph
+    ///     - range: (6...5)
+    ///
+    func testEnumerateBlockLowestElementsIntersectingRange() {
+
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world")
+        let textNode3 = TextNode(text: "!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+
+        let range = NSRange(location: textNode1.length(), length: textNode2.length())
+        let atLeastOneElementFound = expectationWithDescription("At least one elements should be returned in the enumeration.")
+
+        paragraph.enumerateLowestBlockLevelElements(intersectingRange: range) { (element, intersection) in
+            XCTAssertEqual(element, paragraph)
+            XCTAssertEqual(intersection.location, range.location)
+            XCTAssertEqual(intersection.length, range.length)
+            atLeastOneElementFound.fulfill()
+        }
+        waitForExpectationsWithTimeout(0) { (error) in
+            if let error = error {
+                XCTFail(error.description)
+            }
+        }
+    }
+
     func testTextNodesWrappingRange1() {
         let text1 = TextNode(text: "text1 goes here")
         let text2 = TextNode(text: "text2 goes here")

@@ -300,7 +300,7 @@ extension Libxml2 {
                                 if let previousRangeWithoutMatch = rangeWithoutMatch {
                                     rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + range.length)
                                 } else {
-                                    rangeWithoutMatch = range
+                                    rangeWithoutMatch = NSRange(location: offset + range.location, length: range.length)
                                 }
                             },
                             onMatchFound: { [weak self] (child, intersection) in
