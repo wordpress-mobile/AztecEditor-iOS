@@ -203,7 +203,9 @@ extension Libxml2 {
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
                 let intersectionRange = NSIntersectionRange(childRange, targetRange)
-                let childRangeInterceptsTargetRange = (intersectionRange.length > 0)
+                let childRangeInterceptsTargetRange =
+                    (intersectionRange.location > 0 && intersectionRange.length < childLength)
+                    || intersectionRange.length > 0
 
                 if childRangeInterceptsTargetRange {
 
@@ -657,10 +659,6 @@ extension Libxml2 {
                     child.deleteCharacters(inRange: intersection)
                 }
             }
-
-            let child = childNode(atLocation: range.location)
-
-            child.replaceCharacters(inRange: range, withString: string)
         }
 
         /// Splits this node following the specified range.
