@@ -330,6 +330,10 @@ public class AztecAttachmentManager
         // Clean up any stale exclusion paths
         removeAttachmentExclusionPaths()
 
+        for (identifier, attachmentView) in attachmentViews {
+            attachmentView.view.removeFromSuperview()
+        }
+
         attachmentViews.removeAll()
         attachments.removeAll()
     }
