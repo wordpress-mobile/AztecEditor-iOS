@@ -203,7 +203,7 @@ public class AztecVisualEditor : NSObject {
     ///
     public func toggleBold(range range: NSRange) {
 
-        if range.length == 0 {
+        guard range.length > 0 else {
             return
         }
         
@@ -218,7 +218,7 @@ public class AztecVisualEditor : NSObject {
     ///
     public func toggleItalic(range range: NSRange) {
 
-        if range.length == 0 {
+        guard range.length > 0 else {
             return
         }
 
@@ -232,23 +232,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
 
-        var assigning = true
-        var effectiveRange = NSRange()
-        if let _ = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
-            assigning = !NSEqualRanges(range, effectiveRange)
-        }
-
-        // TODO: This is a bit tricky as we can collide with a link style.  We'll want to check for that and correct the style if necessary.
-        if assigning {
-            storage.addAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
-        } else {
-            storage.removeAttribute(NSUnderlineStyleAttributeName, range: range)
-        }
+        storage.toggleUnderlineForRange(range)
     }
 
 
@@ -258,22 +247,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
 
-        var assigning = true
-        var effectiveRange = NSRange()
-        if let _ = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
-            assigning = !NSEqualRanges(range, effectiveRange)
-        }
-
-        if assigning {
-            storage.addAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
-        } else {
-            storage.removeAttribute(NSStrikethroughStyleAttributeName, range: range)
-        }
+        storage.toggleStrikethrough(range)
     }
 
 
