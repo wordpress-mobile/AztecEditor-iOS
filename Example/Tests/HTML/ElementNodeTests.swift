@@ -70,6 +70,39 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(node, mainNode)
     }
 
+    /// Tries to obtain the lowest block-level elements intersecting the specified range.
+    ///
+    /// HTML string: <p>Hello <b>world</b>!</p>
+    /// Range: (6...5)
+    ///
+    /// The result should be: 
+    ///     - element: the main paragraph
+    ///     - range: (6...5)
+    ///
+    func testEnumerateBlockLowestElementsIntersectingRange() {
+
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world")
+        let textNode3 = TextNode(text: "!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+
+        let range = NSRange(location: textNode1.length(), length: textNode2.length())
+        let atLeastOneElementFound = expectationWithDescription("At least one elements should be returned in the enumeration.")
+
+        paragraph.enumerateLowestBlockLevelElements(intersectingRange: range) { (element, intersection) in
+            XCTAssertEqual(element, paragraph)
+            XCTAssertEqual(intersection.location, range.location)
+            XCTAssertEqual(intersection.length, range.length)
+            atLeastOneElementFound.fulfill()
+        }
+        waitForExpectationsWithTimeout(0) { (error) in
+            if let error = error {
+                XCTFail(error.description)
+            }
+        }
+    }
+
     func testTextNodesWrappingRange1() {
         let text1 = TextNode(text: "text1 goes here")
         let text2 = TextNode(text: "text2 goes here")
@@ -487,7 +520,7 @@ class ElementNodeTests: XCTestCase {
         let em = ElementNode(name: "em", attributes: [], children: [textNode1])
         let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
 
-        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
@@ -526,7 +559,7 @@ class ElementNodeTests: XCTestCase {
         let em = ElementNode(name: "em", attributes: [], children: [textNode1])
         let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
 
-        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
@@ -547,7 +580,7 @@ class ElementNodeTests: XCTestCase {
 
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
-    /// HTML String: <div><em>Hello </em><i>there!</i></div>
+    /// HTML String: <div><em>Hello </em><u>there!</u></div>
     /// Wrap range: full text range / full div node range
     ///
     /// The result should be: <div><b><em>Hello </em><u>there!</u></b></div>
@@ -566,7 +599,7 @@ class ElementNodeTests: XCTestCase {
         let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
         let div = ElementNode(name: "div", attributes: [], children: [em, underline])
 
-        div.wrapChildren(intersectingRange: div.range(), inNodeNamed: boldNodeName, withAttributes: [])
+        div.wrapChildren(intersectingRange: div.range(), inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(div.children.count, 1)
 
@@ -585,5 +618,55 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(underline.children.count, 1)
         XCTAssertEqual(underline.children[0], textNode2)
+    }
+
+
+    /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
+    ///
+    /// HTML String: <div><em>Hello </em><i>there!</i></div>
+    /// Wrap range: (2...8)
+    ///
+    /// The result should be: <div><em>He</em><b><em>llo </em><u>ther</u></b><u>e!</u></div>
+    ///
+    func testWrapChildrenInNewBNode4() {
+
+        let boldNodeName = "b"
+
+        let textPart1 = "Hello "
+        let textPart2 = "there!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+
+        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
+        let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
+        let div = ElementNode(name: "div", attributes: [], children: [em, underline])
+
+        let range = NSRange(location: 2, length: 8)
+
+        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
+
+        XCTAssertEqual(div.children.count, 3)
+
+        XCTAssertEqual(div.children[0].name, "em")
+        XCTAssertEqual(div.children[0].length(), 2)
+        XCTAssertEqual(div.children[2].name, "u")
+        XCTAssertEqual(div.children[2].length(), 2)
+
+        guard let boldNode = div.children[1] as? ElementNode else {
+            XCTFail("Expected a bold node here.")
+            return
+        }
+
+        XCTAssertEqual(boldNode.name, boldNodeName)
+        XCTAssertEqual(boldNode.children.count, 2)
+        XCTAssertEqual(boldNode.children[0], em)
+        XCTAssertEqual(boldNode.children[1], underline)
+
+        XCTAssertEqual(em.children.count, 1)
+        XCTAssertEqual(em.children[0].length(), 4)
+
+        XCTAssertEqual(underline.children.count, 1)
+        XCTAssertEqual(underline.children[0].length(), 4)
     }
 }

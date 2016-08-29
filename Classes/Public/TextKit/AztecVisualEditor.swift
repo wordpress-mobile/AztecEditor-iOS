@@ -202,7 +202,7 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
-        // Bail if nothing is selected
+
         if range.length == 0 {
             return
         }
@@ -217,11 +217,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
-        // Bail if nothing is selected
+
         if range.length == 0 {
             return
         }
-        storage.toggleFontTrait(.TraitItalic, range: range)
+
+        storage.toggleItalic(range)
     }
 
 
