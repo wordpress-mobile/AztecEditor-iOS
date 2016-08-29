@@ -382,7 +382,7 @@ public class AztecVisualEditor : NSObject {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        attachment.image = image
+        attachment.kind = .Image(image: image)
 
         // Inject the Attachment and Layout
         let range = NSMakeRange(index, 0)
@@ -614,6 +614,13 @@ extension AztecVisualEditor: NSLayoutManagerDelegate
 extension AztecVisualEditor: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
-        return nil
+        guard let kind = attachment.kind else {
+            return nil
+        }
+
+        switch kind {
+        case .Image(let image):
+            return UIImageView(image: image)
+        }
     }
 }
