@@ -689,7 +689,12 @@ class ElementNodeTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
 
         let children = paragraph.childNodes(intersectingRange: range)
-        XCTAssertEqual(children.count, 1)
+
+        guard children.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
         XCTAssertEqual(children[0].child, textNode)
         XCTAssert(NSEqualRanges(children[0].intersection, range))
     }

@@ -203,7 +203,7 @@ extension Libxml2 {
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
                 let intersectionRange = NSIntersectionRange(childRange, targetRange)
-                let childRangeInterceptsTargetRange =
+                let childRangeInterceptsTargetRange = 
                     (intersectionRange.location > 0 && intersectionRange.length < childLength)
                     || intersectionRange.length > 0
 
