@@ -78,7 +78,8 @@ public class AztecTextStorage: NSTextStorage {
 
                 // Finally update the remainder of the list (if any)
                 if let items = ListFormatter().listContentsInString(self, followingIndex: NSMaxRange(range) + 1) {
-                    let remainingItems = NSMutableAttributedString(attributedString: items)
+                    let remainingItems = NSMutableAttributedString(attributedString: attrString)
+                    remainingItems.appendAttributedString(items)
                     ListFormatter().applyTextList(remainderListAttr, toAttributedString: remainingItems, startingNumber: number)
 
                     adjustedAttrStr.appendAttributedString(remainingItems)
@@ -108,7 +109,7 @@ public class AztecTextStorage: NSTextStorage {
                     // Get the previous list item (if there was one.  We need its number to reorder any following list items
                     // and to merge any remainder of the present list item.
                     var previousItemRange = NSRange()
-                    if let listItem = attribute(TextListItem.attributeName, atIndex: markerRange.location - 1, longestEffectiveRange: &previousItemRange, inRange: storageRange) as? TextListItem {
+                    if let listItem = attribute(TextListItem.attributeName, atIndex: adjustedRange.location, longestEffectiveRange: &previousItemRange, inRange: storageRange) as? TextListItem {
                         itemNumber = listItem.number
                         adjustedList.appendAttributedString(attributedSubstringFromRange(previousItemRange))
 
@@ -117,7 +118,8 @@ public class AztecTextStorage: NSTextStorage {
                     }
 
                     // Now get any remainder of the list.
-                    if let listRemainder = ListFormatter().listContentsInString(self, followingIndex: range.location) where listRemainder.length > 0 {
+                    if let listRemainder = ListFormatter().listContentsInString(self, followingIndex: range.location + 2
+                        ) where listRemainder.length > 0 {
                         adjustedList.appendAttributedString(listRemainder)
                         adjustedRange.length += listRemainder.length
                     }
