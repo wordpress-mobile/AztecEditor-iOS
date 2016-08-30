@@ -216,13 +216,13 @@ public class AztecAttachmentManager
 
         // The location of the attachment glyph
         let lineFragmentRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
+        let containerInset = textView.textContainerInset
 
         // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.
-
         var frame = attachmentView.view.frame
-        frame.origin.y = textView.textContainerInset.top + lineFragmentRect.maxY
-        frame.origin.x = textView.textContainer.size.width / 2.0 - (attachmentView.view.frame.width / 2.0) + textView.textContainerInset.left
-NSLog("lineFragmentRect \(lineFragmentRect)\nFrame \(frame)")
+        frame.origin.y = containerInset.top + lineFragmentRect.maxY
+        frame.origin.x = (textView.textContainer.size.width - attachmentView.view.frame.width) * 0.5 + containerInset.left
+
         return frame
     }
 
