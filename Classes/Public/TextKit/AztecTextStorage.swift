@@ -41,19 +41,133 @@ public class AztecTextStorage: NSTextStorage {
 
     // MARK: - NSTextStorage
 
-    override public var string: String {
+    public override var string: String {
         return textStore.string
     }
 
 
-    override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
+    public override func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
 
-    override public func replaceCharactersInRange(range: NSRange, withString str: String) {
-        beginEditing()
 
-        // NOTE: Hook in any custom attribute handling here.
+    public override func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
+        // NOTE: Hook in any custom editing here, then call super.
+        // It is safe to query information about the current state the textStore,
+        // However, no changes should be made.
+        // Call super passing the adjusted range and attrString.
+        var adjustedRange = range
+        var adjustedAttrStr = NSMutableAttributedString(attributedString: attrString)
+        let storageRange = NSRange(location: 0, length: length)
+
+
+        // Ensure that custom attributes are correctly applied to newly typed characters.
+        // NOTE: Some attributes should *not* be propigated this way.  We'll need to 
+        // decide on a consistent way of identifying and filtering such attributes.
+        if range.location > 0 && range.length == 0 && attrString.length == 1 {
+            var previousAttributes = attributesAtIndex(range.location - 1, effectiveRange: nil)
+            // Remove non-propigating attributes.
+            previousAttributes.removeValueForKey(TextListItemMarker.attributeName)
+            adjustedAttrStr.addAttributes(previousAttributes, range: NSRange(location: 0, length: attrString.length))
+        }
+
+
+        // Special handling for carriage returns
+        if attrString.string == "\n" && range.location > 0 {
+
+            var listRange = NSRange()
+            if let textListAttr = attribute(TextList.attributeName, atIndex: range.location - 1,  longestEffectiveRange: &listRange, inRange: storageRange) as? TextList {
+                var number = 0
+                var remainderListAttr = textListAttr
+
+                var effectiveRange = NSRange()
+
+                // If the preceding text was an "empty" list marker, delete that marker and create a new paragraph.
+                // If not create and insert a new list marker of the appropriate type.
+                if let markerAttr = attribute(TextListItemMarker.attributeName, atIndex: range.location - 1, longestEffectiveRange: &effectiveRange, inRange: storageRange) as? TextListItemMarker {
+                    // Remove the preceding marker and let this be a new paragraph.
+                    // TODO: This needs to be whatever default paragraph style we decide on for the editor.
+                    let paragraphStyle = NSParagraphStyle()
+                    adjustedAttrStr.setAttributedString(NSAttributedString(string: "\n", attributes: [NSParagraphStyleAttributeName : paragraphStyle]))
+                    adjustedRange = NSUnionRange(adjustedRange, effectiveRange)
+
+                    // The remainder (if any) will be a new list of the same type starting at 1
+                    remainderListAttr = TextList()
+                    remainderListAttr.type = textListAttr.type
+                    number = 1
+
+                } else if let itemAttr = attribute(TextListItem.attributeName, atIndex: range.location - 1, effectiveRange: &effectiveRange) as? TextListItem {
+                    number = itemAttr.number + 1
+                }
+
+                // Finally update the remainder of the list (if any)
+                if let items = ListFormatter().listContentsInString(self, followingIndex: NSMaxRange(range) + 1) {
+                    let remainingItems = NSMutableAttributedString(attributedString: attrString)
+                    remainingItems.appendAttributedString(items)
+                    ListFormatter().applyTextList(remainderListAttr, toAttributedString: remainingItems, startingNumber: number)
+
+                    adjustedAttrStr.appendAttributedString(remainingItems)
+                    adjustedRange.length += remainingItems.length
+                }
+            }
+        }
+
+        // Special handling for backspaces/delete
+        if attrString.length == 0 {
+
+            var listRange = NSRange()
+            if let textListAttr = attribute(TextList.attributeName, atIndex: range.location - 1,  longestEffectiveRange: &listRange, inRange: storageRange) as? TextList {
+
+                // Check if this would intersect a list marker. If so, delete the
+                // entire list marker and reorder the remaining list.
+                var markerRange = NSRange()
+                if let markerAttr = attribute(TextListItemMarker.attributeName, atIndex: range.location, longestEffectiveRange: &markerRange, inRange: storageRange) as? TextListItemMarker {
+                    var itemNumber = 1
+
+                    // The adjusted range is the range of the marker + the previous carriage return.
+                    adjustedRange = NSRange(location: markerRange.location - 1, length: markerRange.length + 1)
+
+                    // Now see if we need to make any other adjustments to the list as a consequence of deleting the marker.
+                    var adjustedList = NSMutableAttributedString()
+
+                    // Get the previous list item (if there was one.  We need its number to reorder any following list items
+                    // and to merge any remainder of the present list item.
+                    var previousItemRange = NSRange()
+                    if let listItem = attribute(TextListItem.attributeName, atIndex: adjustedRange.location, longestEffectiveRange: &previousItemRange, inRange: storageRange) as? TextListItem {
+                        itemNumber = listItem.number
+                        adjustedList.appendAttributedString(attributedSubstringFromRange(previousItemRange))
+
+                        // The adjusted range must take into account the list item.
+                        adjustedRange = NSUnionRange(adjustedRange, previousItemRange)
+                    }
+
+                    // Now get any remainder of the list.
+                    if let listRemainder = ListFormatter().listContentsInString(self, followingIndex: range.location + 2
+                        ) where listRemainder.length > 0 {
+                        adjustedList.appendAttributedString(listRemainder)
+                        adjustedRange.length += listRemainder.length
+                    }
+
+                    // Update the the list items.
+                    if adjustedList.length > 0 {
+                        ListFormatter().applyTextList(textListAttr, toAttributedString: adjustedList, startingNumber: itemNumber)
+                    }
+
+                    // Finally, update our adjusted attributed stirng with the adjusted list.
+                    // The adjusted range should have already been updated.
+                    adjustedAttrStr.setAttributedString(adjustedList)
+                }
+
+            }
+
+        }
+
+        super.replaceCharactersInRange(adjustedRange, withAttributedString: adjustedAttrStr)
+    }
+
+
+    public override func replaceCharactersInRange(range: NSRange, withString str: String) {
+        beginEditing()
 
         textStore.replaceCharactersInRange(range, withString: str)
         rootNode.replaceCharacters(inRange: range, withString: str)
@@ -63,16 +177,24 @@ public class AztecTextStorage: NSTextStorage {
         endEditing()
     }
 
-    override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
-        beginEditing()
 
-        // NOTE: Hook in any custom attribute handling here.
+    public override func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
+        beginEditing()
 
         textStore.setAttributes(attrs, range: range)
         edited(.EditedAttributes, range: range, changeInLength: 0)
 
         endEditing()
     }
+
+
+    public override func processEditing() {
+        // Edits have happened and are about to be implemented.
+        // Do any last minute changes here *BEFORE* calling super.
+
+        super.processEditing()
+    }
+
 
     // MARK: - Styles
 

@@ -1,5 +1,12 @@
 import Foundation
 
+/// AztecVisualEditorDelegate
+///
+public protocol AztectVisualEditorDelegate : UITextViewDelegate
+{
+
+}
+
 
 /// AztecVisualEditor
 ///
@@ -9,6 +16,8 @@ public class AztecVisualEditor : NSObject {
 
     let textView: UITextView
 
+    var previousSelectedRange = NSRange()
+
     lazy var attachmentManager: AztecAttachmentManager = {
         AztecAttachmentManager(textView: self.textView, delegate: self)
     }()
@@ -16,6 +25,8 @@ public class AztecVisualEditor : NSObject {
     var storage: AztecTextStorage {
         return textView.textStorage as! AztecTextStorage
     }
+
+    public var delegate: AztectVisualEditorDelegate?
 
 
     /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
@@ -45,6 +56,7 @@ public class AztecVisualEditor : NSObject {
 
         super.init()
 
+        textView.delegate = self
         textView.layoutManager.delegate = self
     }
 
@@ -149,6 +161,14 @@ public class AztecVisualEditor : NSObject {
             identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
+        if orderedListFormattingSpansRange(range) {
+            identifiers.append(FormattingIdentifier.Orderedlist.rawValue)
+        }
+
+        if unorderedListFormattingSpansRange(range) {
+            identifiers.append(FormattingIdentifier.Unorderedlist.rawValue)
+        }
+
         return identifiers
     }
 
@@ -187,6 +207,14 @@ public class AztecVisualEditor : NSObject {
 
         if formattingAtIndexContainsBlockquote(index) {
             identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+        }
+
+        if formattingAtIndexContainsOrderedList(index) {
+            identifiers.append(FormattingIdentifier.Orderedlist.rawValue)
+        }
+
+        if formattingAtIndexContainsUnorderedList(index) {
+            identifiers.append(FormattingIdentifier.Unorderedlist.rawValue)
         }
 
         return identifiers
@@ -256,23 +284,33 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes an ordered list style from the specified range.
     ///
     /// - Paramters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
-        print("ordered")
+        let listFormatter = ListFormatter()
+        if let adjustedRange = listFormatter.listAction(.Ordered, atRange: range, attributedString: storage) {
+            if textView.selectedRange.length > 0 {
+                textView.selectedRange = adjustedRange
+            }
+        }
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes an unordered list style from the specified range.
     ///
     /// - Paramters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
-        print("unordered")
+        let listFormatter = ListFormatter()
+        if let adjustedRange = listFormatter.listAction(.Unordered, atRange: range, attributedString: storage) {
+            if textView.selectedRange.length > 0 {
+                textView.selectedRange = adjustedRange
+            }
+        }
     }
 
 
@@ -469,6 +507,44 @@ public class AztecVisualEditor : NSObject {
     }
 
 
+    /// Check if an ordered list spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func orderedListFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(TextList.attributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? TextList {
+
+            return value.type == TextListType.Ordered && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
+    /// Check if an unordered list spans the specified range.
+    ///
+    /// - Paramters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func unorderedListFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(TextList.attributeName, atIndex: index, effectiveRange: &effectiveRange),
+            let value = attr as? TextList {
+
+            return value.type == TextListType.Unordered && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
     ///
@@ -578,6 +654,37 @@ public class AztecVisualEditor : NSObject {
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
+
+
+    /// Check if an ordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsOrderedList(index: Int) -> Bool {
+        guard let attr = storage.attribute(TextList.attributeName, atIndex: index, effectiveRange: nil) as? TextList else {
+            return false
+        }
+        return attr.type == TextListType.Ordered
+    }
+
+
+    /// Check if an unordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsUnorderedList(index: Int) -> Bool {
+        guard let attr = storage.attribute(TextList.attributeName, atIndex: index, effectiveRange: nil) as? TextList else {
+            return false
+        }
+
+        return attr.type == TextListType.Unordered
+    }
 }
 
 
@@ -585,6 +692,69 @@ public class AztecVisualEditor : NSObject {
 ///
 extension AztecVisualEditor: NSLayoutManagerDelegate
 {
+
+}
+
+
+/// UITextViewDelegate methods.
+///
+extension AztecVisualEditor: UITextViewDelegate
+{
+
+    public func textViewDidChangeSelection(textView: UITextView) {
+        // Adjust selection for list markers
+        let adjustedRange = adjustedSelectionForListMarkers(selectedRange: textView.selectedRange, previousSelectedRange: previousSelectedRange)
+
+        // Update the selection
+        textView.selectedRange = adjustedRange
+
+        previousSelectedRange = adjustedRange
+
+        // Proxy the delegate call.
+        delegate?.textViewDidChangeSelection?(textView)
+    }
+
+
+    /// Adjusts the current selection to account for list markers intersected by
+    /// the selected range. The current (proposed), and previous selected ranges are compared
+    /// to determine the correct adjustment for the range.
+    ///
+    /// - Parameters:
+    ///     - selectedRange: The current selected range of a UITextView.
+    ///     - previousSelectedRange: The previously selected range of a UITextView.
+    ///
+    /// - Returns: An NSRange adjusted for lsit markers. 
+    ///
+    func adjustedSelectionForListMarkers(selectedRange selectedRange: NSRange, previousSelectedRange: NSRange) -> NSRange {
+        // Adjust selection for list markers
+        let forwardDirection = selectedRange.location > previousSelectedRange.location
+
+        var adjustedRange = selectedRange
+
+        let startingIndex = selectedRange.location
+        let endingIndex = NSMaxRange(selectedRange)
+
+        var effectiveRange = NSRange()
+        if let _ = storage.attribute(TextListItemMarker.attributeName, atIndex: startingIndex, effectiveRange: &effectiveRange) {
+            // The start of the selection overlaps a marker. Move the selection
+            // to the end of the marker.
+            adjustedRange.location = forwardDirection ? NSMaxRange(effectiveRange) : effectiveRange.location - 1
+        }
+
+        if selectedRange.length > 0 {
+            let diff = adjustedRange.location - selectedRange.location
+            adjustedRange.length = selectedRange.length - diff
+
+            if let _ = storage.attribute(TextListItemMarker.attributeName, atIndex: endingIndex, effectiveRange: &effectiveRange) {
+                // The start of the selection overlaps a marker. Move the selection
+                // to the end of the marker.
+                let adjustedEndingIndex = NSMaxRange(effectiveRange)
+                adjustedRange.length = max(0, adjustedEndingIndex - adjustedRange.location)
+            }
+        }
+
+        return adjustedRange
+    }
 
 }
 
