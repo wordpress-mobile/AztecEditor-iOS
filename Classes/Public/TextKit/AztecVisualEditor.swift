@@ -605,7 +605,9 @@ public class AztecVisualEditor : NSObject {
 ///
 extension AztecVisualEditor: NSLayoutManagerDelegate
 {
-
+    public func layoutManagerDidInvalidateLayout(sender: NSLayoutManager) {
+        attachmentManager.layoutAttachmentViews()
+    }
 }
 
 
