@@ -28,6 +28,14 @@ extension Libxml2 {
             return 0
         }
 
+        func deleteCharacters(inRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+        func replaceCharacters(inRange range: NSRange, withString: String) {
+            assertionFailure("This method should always be overridden.")
+        }
+
         func split(forRange range: NSRange) {
             assertionFailure("This method should always be overridden.")
         }

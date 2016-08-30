@@ -669,4 +669,33 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(underline.children.count, 1)
         XCTAssertEqual(underline.children[0].length(), 4)
     }
+
+    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
+    ///
+    /// Input HTML: <p>This is a test string.</p>
+    /// Range: (5...5)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the text node)
+    ///     - the range should be unchanged
+    ///
+    func testChildNodesIntersectingRange() {
+        let textNode = TextNode(text: "This is a test string.")
+        let rangeLocation = 5
+        XCTAssert(rangeLocation < textNode.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+
+        let children = paragraph.childNodes(intersectingRange: range)
+
+        guard children.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(children[0].child, textNode)
+        XCTAssert(NSEqualRanges(children[0].intersection, range))
+    }
 }

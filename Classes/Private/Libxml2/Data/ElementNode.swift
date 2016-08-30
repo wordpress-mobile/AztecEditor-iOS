@@ -136,6 +136,33 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
 
+        /// Returns the child node at the specified location.
+        ///
+        func childNode(atLocation location: Int, defaultToLeftNode: Bool = true) -> Node {
+
+            let defaultToRightNode = !defaultToLeftNode
+            let offset = Int(0)
+
+            for (index, child) in children.enumerate() {
+
+                // On the last element, we need to force-default to the left node.
+                //
+                let bypassedDefaultToLeftNode = (defaultToLeftNode || index == children.count)
+
+                let finalLocation = offset + child.length()
+                let returnThisNode =
+                    (location == offset && defaultToRightNode)
+                    || location < finalLocation
+                    || (location == offset + child.length() && bypassedDefaultToLeftNode)
+
+                if returnThisNode {
+                    return child
+                }
+            }
+
+            fatalError("The specified location is out of bounds.")
+        }
+
         /// Get a list of child nodes intersecting the specified range.
         ///
         /// - Parameters:
@@ -176,7 +203,9 @@ extension Libxml2 {
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
                 let intersectionRange = NSIntersectionRange(childRange, targetRange)
-                let childRangeInterceptsTargetRange = (intersectionRange.length > 0)
+                let childRangeInterceptsTargetRange = 
+                    (intersectionRange.location > 0 && intersectionRange.length < childLength)
+                    || intersectionRange.length > 0
 
                 if childRangeInterceptsTargetRange {
 
@@ -466,6 +495,17 @@ extension Libxml2 {
             children.insertContentsOf(newChildren, at: childIndex)
         }
 
+        /// Removes the receiver from its parent.
+        ///
+        func removeFromParent() {
+            guard let parent = parent else {
+                assertionFailure("It doesn't make sense to call this method without a parent")
+                return
+            }
+
+            parent.remove(self)
+        }
+
 
         /// Removes the specified child node.  Only updates its parent if specified.
         ///
@@ -590,6 +630,35 @@ extension Libxml2 {
             }
 
             return result
+        }
+
+        override func deleteCharacters(inRange range: NSRange) {
+            if range.location == 0 && range.length == length() {
+                removeFromParent()
+            } else {
+                let childrenAndIntersections = childNodes(intersectingRange: range)
+
+                for (child, intersection) in childrenAndIntersections {
+                    child.deleteCharacters(inRange: intersection)
+                }
+            }
+        }
+
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+
+            let childrenAndIntersections = childNodes(intersectingRange: range)
+
+            for (index, childAndIntersection) in childrenAndIntersections.enumerate() {
+
+                let child = childAndIntersection.child
+                let intersection = childAndIntersection.intersection
+
+                if index == 0 && string.characters.count > 0 {
+                    child.replaceCharacters(inRange: intersection, withString: string)
+                } else {
+                    child.deleteCharacters(inRange: intersection)
+                }
+            }
         }
 
         /// Splits this node following the specified range.
