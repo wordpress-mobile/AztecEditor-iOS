@@ -11,7 +11,7 @@ class EditorDemoController: UIViewController
 
     private (set) lazy var editor: AztecVisualEditor = {
         let editor = AztecVisualEditor(textView: self.richTextView)
-        editor.textViewDelegate = self
+        editor.delegate = self
         return editor
     }()
 
@@ -244,7 +244,7 @@ class EditorDemoController: UIViewController
 }
 
 
-extension EditorDemoController : UITextViewDelegate
+extension EditorDemoController : AztectVisualEditorDelegate
 {
     func textViewDidChangeSelection(textView: UITextView) {
         updateFormatBar()
