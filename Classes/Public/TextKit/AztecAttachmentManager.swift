@@ -222,12 +222,9 @@ public class AztecAttachmentManager
         // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.
 
         var frame = attachmentView.view.frame
-        // TODO: The padding should probably be (lineheight - capheight) / 2.
-        let topLinePadding:CGFloat = 4.0
-
-        frame.origin.y = lineFragmentRect.minY + textView.textContainerInset.top + topLinePadding;
-        frame.origin.x = textView.textContainer.size.width / 2.0 - (attachmentView.view.frame.width / 2.0)
-
+        frame.origin.y = textView.textContainerInset.top + lineFragmentRect.maxY
+        frame.origin.x = textView.textContainer.size.width / 2.0 - (attachmentView.view.frame.width / 2.0) + textView.textContainerInset.left
+NSLog("lineFragmentRect \(lineFragmentRect)\nFrame \(frame)")
         return frame
     }
 
