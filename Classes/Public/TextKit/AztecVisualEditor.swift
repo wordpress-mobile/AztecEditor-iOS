@@ -19,6 +19,8 @@ public class AztecVisualEditor : NSObject {
         return textView.textStorage as! AztecTextStorage
     }
 
+    public var textViewDelegate: UITextViewDelegate?
+
 
     /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
     ///
@@ -711,6 +713,9 @@ extension AztecVisualEditor: UITextViewDelegate
         textView.selectedRange = adjustedRange
 
         previousSelectedRange = adjustedRange
+
+        // Proxy the delegate call.
+        textViewDelegate?.textViewDidChangeSelection?(textView)
     }
 
 

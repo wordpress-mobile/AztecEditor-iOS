@@ -9,7 +9,9 @@ class EditorDemoController: UIViewController
 
 
     private (set) lazy var editor: AztecVisualEditor = {
-        return AztecVisualEditor(textView: self.richTextView)
+        let editor = AztecVisualEditor(textView: self.richTextView)
+        editor.textViewDelegate = self
+        return editor
     }()
 
 
@@ -18,7 +20,6 @@ class EditorDemoController: UIViewController
         let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
         tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
-        tv.delegate = self
         tv.font = font
         let toolbar = self.createToolbar()
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
