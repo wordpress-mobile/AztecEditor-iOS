@@ -15,12 +15,38 @@ extension Libxml2 {
             self.name = name
         }
 
+        func range() -> NSRange {
+            return NSRange(location: 0, length: length())
+        }
+
+        // MARK: - Override in Subclasses
+
         /// Override.
         ///
         func length() -> Int {
             assertionFailure("This method should always be overridden.")
             return 0
         }
+
+        func deleteCharacters(inRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+        func replaceCharacters(inRange range: NSRange, withString: String) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+        func split(forRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+            assertionFailure("This method should always be overridden.")
+            return
+        }
+
+        // MARK: - DOM Queries
 
         /// Retrieve all element nodes between the receiver and the root node.
         /// The root node is included in the results.  The receiver is only included if it's an
@@ -79,29 +105,30 @@ extension Libxml2 {
             return nil
         }
 
+        // MARK: - DOM Modification
+
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.
         ///
         /// - Parameters:
-        ///     - name: the new node name.
+        ///     - nodeName: the new node name.
         ///     - attributes: the new node attributes.
         ///
         /// - Returns: the newly created element.
         ///
-        func wrapInNewNode(named name: String, attributes: [Attribute] = []) -> ElementNode {
+        func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
 
             let originalParent = parent
+            let originalIndex = parent?.children.indexOf(self)
 
-            let newNode = ElementNode(name: name, attributes: attributes, children: [self])
+            let newNode = ElementNode(name: nodeName, attributes: attributes, children: [self])
 
             if let parent = originalParent {
-                guard let index = parent.children.indexOf(self) else {
-                    assertionFailure("A node's parent should contain the node. Review the child/parent updating logic.")
-                    return newNode
+                guard let index = originalIndex else {
+                    fatalError("If the node has a parent, the index should be obtainable.")
                 }
 
-                parent.children[index] = newNode
-                newNode.parent = parent
+                parent.insert(newNode, at: index)
             }
 
             return newNode

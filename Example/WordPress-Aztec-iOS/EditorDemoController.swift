@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import Aztec
+import Photos
 
 
 class EditorDemoController: UIViewController
@@ -66,7 +67,6 @@ class EditorDemoController: UIViewController
         return tf
     }()
 
-
     private(set) lazy var separatorView: UIView = {
         let v = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
@@ -75,8 +75,6 @@ class EditorDemoController: UIViewController
 
         return v
     }()
-
-
 
     private(set) var mode = EditionMode.RichText {
         didSet {
@@ -299,7 +297,6 @@ extension EditorDemoController
 
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
-
     func handleActionForIdentifier(identifier: String) {
         guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
             return
@@ -323,7 +320,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
         case .Link:
             toggleLink()
         case .Media:
-            insertImage()
+            showImagePicker()
         }
         updateFormatBar()
     }
@@ -368,8 +365,16 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     }
 
 
-    func insertImage() {
-        editor.insertImage(richTextView.selectedRange.location, params: [String : AnyObject]())
+    func showImagePicker() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .PhotoLibrary
+        picker.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(.PhotoLibrary) ?? []
+        picker.delegate = self
+        picker.allowsEditing = false
+        picker.navigationBar.translucent = false
+        picker.modalPresentationStyle = .CurrentContext
+
+        presentViewController(picker, animated: true, completion: nil)
     }
 
     // MARK: -
@@ -411,5 +416,35 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     func templateImage(named named: String) -> UIImage {
         return UIImage(named: named)!.imageWithRenderingMode(.AlwaysTemplate)
     }
+}
 
+
+extension EditorDemoController : UINavigationControllerDelegate
+{
+
+}
+
+
+extension EditorDemoController : UIImagePickerControllerDelegate
+{
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+        dismissViewControllerAnimated(true, completion: nil)
+
+        guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+            return
+        }
+
+        // Insert Image + Reclaim Focus
+        insertImage(image)
+        richTextView.becomeFirstResponder()
+    }
+}
+
+
+private extension EditorDemoController
+{
+    func insertImage(image: UIImage) {
+        let index = richTextView.positionForCursor()
+        editor.insertImage(image, index: index)
+    }
 }

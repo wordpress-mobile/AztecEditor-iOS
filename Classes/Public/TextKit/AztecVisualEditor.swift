@@ -223,8 +223,8 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
         
@@ -238,11 +238,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
-        storage.toggleFontTrait(.TraitItalic, range: range)
+
+        storage.toggleItalic(range)
     }
 
 
@@ -252,23 +253,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
 
-        var assigning = true
-        var effectiveRange = NSRange()
-        if let _ = storage.attribute(NSUnderlineStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
-            assigning = !NSEqualRanges(range, effectiveRange)
-        }
-
-        // TODO: This is a bit tricky as we can collide with a link style.  We'll want to check for that and correct the style if necessary.
-        if assigning {
-            storage.addAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
-        } else {
-            storage.removeAttribute(NSUnderlineStyleAttributeName, range: range)
-        }
+        storage.toggleUnderlineForRange(range)
     }
 
 
@@ -278,22 +268,12 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
+
+        guard range.length > 0 else {
             return
         }
 
-        var assigning = true
-        var effectiveRange = NSRange()
-        if let _ = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
-            assigning = !NSEqualRanges(range, effectiveRange)
-        }
-
-        if assigning {
-            storage.addAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
-        } else {
-            storage.removeAttribute(NSStrikethroughStyleAttributeName, range: range)
-        }
+        storage.toggleStrikethrough(range)
     }
 
 
@@ -407,11 +387,20 @@ public class AztecVisualEditor : NSObject {
     /// Inserts an image at the specified index
     ///
     /// - Paramters:
+    ///     - path: The path of the image to be inserted.
     ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
     ///
-    public func insertImage(index: Int, params: [String: AnyObject]) {
-        print("image")
+    public func insertImage(image: UIImage, index: Int) {
+        let identifier = NSUUID().UUIDString
+        let attachment = AztecTextAttachment(identifier: identifier)
+        attachment.image = image
+
+        // Inject the Attachment and Layout
+        let range = NSMakeRange(index, 0)
+        let attachmentString = NSAttributedString(attachment: attachment)
+
+        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
+        attachmentManager.updateAttachmentLayout()
     }
 
 

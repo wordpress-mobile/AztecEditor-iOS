@@ -9,6 +9,30 @@ public class AztecTextStorage: NSTextStorage {
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
 
+    /// Element names for bold.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForBold = ["b", "strong"]
+
+    /// Element names for italic.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForItalic = ["em", "i"]
+
+    /// Element names for strikethrough.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForStrikethrough = ["s", "strike"]
+
+    /// Element names for underline.
+    ///
+    /// - Note: The first element name is the preferred one.
+    ///
+    private static let elementNamesForUnderline = ["u"]
+
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
     private var rootNode: RootNode = {
@@ -145,7 +169,9 @@ public class AztecTextStorage: NSTextStorage {
     public override func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
 
-        textStore.replaceCharactersInRange(range, withString:str)
+        textStore.replaceCharactersInRange(range, withString: str)
+        rootNode.replaceCharacters(inRange: range, withString: str)
+
         edited(.EditedCharacters, range: range, changeInLength: (str as NSString).length - range.length)
 
         endEditing()
@@ -181,58 +207,113 @@ public class AztecTextStorage: NSTextStorage {
         if enable {
             enableBoldInDOM(range)
         } else {
-            //    disableBoldInDom(range)
+            disableBoldInDom(range)
+        }
+    }
+
+    func toggleItalic(range: NSRange) {
+
+        let enable = !fontTrait(.TraitItalic, spansRange: range)
+
+        modifyTrait(.TraitItalic, range: range, enable: enable)
+
+        if enable {
+            enableItalicInDOM(range)
+        } else {
+            disableItalicInDom(range)
+        }
+    }
+
+    func toggleStrikethrough(range: NSRange) {
+        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range, onEnable: enableStrikethroughInDOM, onDisable: disableStrikethroughInDom)
+    }
+
+    /// Toggles underline for the specified range.
+    ///
+    /// - Note: A better name would have been `toggleUnderline` but it was clashing with a method
+    ///     in the parent class.
+    ///
+    /// - Note: This is a bit tricky as we can collide with a link style.  We'll want to check for
+    ///     that and correct the style if necessary.
+    ///
+    /// - Parameters:
+    ///     - range: the range to toggle the style of.
+    ///
+    func toggleUnderlineForRange(range: NSRange) {
+        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range, onEnable: enableUnderlineInDOM, onDisable: disableUnderlineInDom)
+    }
+
+    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
+
+        var effectiveRange = NSRange()
+        let enable = attribute(attributeName, atIndex: range.location, effectiveRange: &effectiveRange) == nil
+            || !NSEqualRanges(range, effectiveRange)
+
+        if enable {
+            addAttribute(attributeName, value: value, range: range)
+            onEnable(range)
+        } else {
+            removeAttribute(attributeName, range: range)
+            onDisable(range)
         }
     }
 
     // MARK: - DOM
 
-    private func enableBoldInDOM(range: NSRange) {
-        wrap(range: range, inNodeNamed: "strong")
+    private func disableBoldInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForBold)
     }
 
-    private func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
+    private func disableItalicInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForItalic)
+    }
 
-        let textNodes = rootNode.textNodesWrapping(newNodeRange)
+    private func disableStrikethroughInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForStrikethrough)
+    }
 
-        for (node, range) in textNodes {
-            guard let parent = node.parent,
-                let nodeIndex = parent.children.indexOf(node) else {
+    private func disableUnderlineInDom(range: NSRange) {
+        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForUnderline)
+    }
 
-                assertionFailure("This scenario should not be possible. Review the logic.")
-                continue
-            }
+    private func enableBoldInDOM(range: NSRange) {
 
-            let nodeLength = node.length()
+        enableInDom(
+            self.dynamicType.elementNamesForBold[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForBold)
+    }
 
-            if range.length != nodeLength {
-                guard let swiftRange = node.text.rangeFromNSRange(range) else {
-                    assertionFailure("This scenario should not be possible. Review the logic.")
-                    continue
-                }
+    private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
+        rootNode.wrapChildren(
+            intersectingRange: range,
+            inNodeNamed: elementName,
+            withAttributes: [],
+            equivalentElementNames: equivalentElementNames)
+    }
 
-                let preRange = node.text.startIndex ..< swiftRange.startIndex
-                let postRange = swiftRange.endIndex ..< node.text.endIndex
+    private func enableItalicInDOM(range: NSRange) {
 
-                if postRange.count > 0 {
-                    let newNode = TextNode(text: node.text.substringWithRange(postRange))
-                    newNode.parent = parent
+        enableInDom(
+            self.dynamicType.elementNamesForItalic[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForItalic)
+    }
 
-                    node.text.removeRange(postRange)
-                    parent.children.insert(newNode, atIndex: nodeIndex + 1)
-                }
+    private func enableStrikethroughInDOM(range: NSRange) {
 
-                if preRange.count > 0 {
-                    let newNode = TextNode(text: node.text.substringWithRange(preRange))
-                    newNode.parent = parent
+        enableInDom(
+            self.dynamicType.elementNamesForStrikethrough[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForStrikethrough)
+    }
 
-                    node.text.removeRange(preRange)
-                    parent.children.insert(newNode, atIndex: nodeIndex)
-                }
-            }
+    private func enableUnderlineInDOM(range: NSRange) {
 
-            node.wrapInNewNode(named: newNodeName)
-        }
+        enableInDom(
+            self.dynamicType.elementNamesForUnderline[0],
+            inRange: range,
+            equivalentElementNames: self.dynamicType.elementNamesForUnderline)
     }
 
     // MARK: - HTML Interaction
