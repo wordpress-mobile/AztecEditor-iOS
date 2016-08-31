@@ -129,9 +129,9 @@ public class AztecAttachmentManager
     public func assignView(view: UIView, forAttachment attachment: AztecTextAttachment) {
         var attachmentView = attachmentViews[attachment.identifier]
 
-        if attachmentView != nil {
-            attachmentView!.view.removeFromSuperview()
-            attachmentView!.view = view
+        if let attachmentView = attachmentView {
+            attachmentView.view.removeFromSuperview()
+            attachmentView.view = view
 
         } else {
             attachmentView = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
