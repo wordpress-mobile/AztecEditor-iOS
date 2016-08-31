@@ -9,9 +9,7 @@ public class AztecVisualEditor : NSObject {
 
     let textView: UITextView
 
-    lazy var attachmentManager: AztecAttachmentManager = {
-        AztecAttachmentManager(textView: self.textView, delegate: self)
-    }()
+    let attachmentManager: AztecAttachmentManager
 
     var storage: AztecTextStorage {
         return textView.textStorage as! AztecTextStorage
@@ -38,19 +36,35 @@ public class AztecVisualEditor : NSObject {
 
     // MARK: - Lifecycle Methods
 
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
     public init(textView: UITextView) {
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
         self.textView = textView
+        self.attachmentManager = AztecAttachmentManager(textView: textView)
 
         super.init()
 
-        textView.layoutManager.delegate = self
+        startListeningToEvents()
     }
 
 
     // MARK: - Misc helpers
 
+    /// Wires all of the Notifications / Delegates required!
+    ///
+    private func startListeningToEvents() {
+        // Notifications
+        let nc = NSNotificationCenter.defaultCenter()
+        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: textView)
+
+        // Delegates
+        textView.layoutManager.delegate = self
+        attachmentManager.delegate = self
+    }
 
     /// Get the default paragraph style for the editor.
     ///
@@ -601,7 +615,7 @@ public class AztecVisualEditor : NSObject {
 }
 
 
-/// Stubs an NSLayoutManagerDelegate
+/// NSLayoutManagerDelegate Methods
 ///
 extension AztecVisualEditor: NSLayoutManagerDelegate
 {
@@ -609,7 +623,7 @@ extension AztecVisualEditor: NSLayoutManagerDelegate
 }
 
 
-/// Stubs an AztecAttachmentManagerDelegate
+/// AztecAttachmentManagerDelegate Methods
 ///
 extension AztecVisualEditor: AztecAttachmentManagerDelegate
 {
@@ -622,5 +636,15 @@ extension AztecVisualEditor: AztecAttachmentManagerDelegate
         case .Image(let image):
             return UIImageView(image: image)
         }
+    }
+}
+
+
+/// Notification Handlers
+///
+extension AztecVisualEditor
+{
+    func textViewDidChange(note: NSNotificationCenter) {
+        attachmentManager.layoutAttachmentViews()
     }
 }
