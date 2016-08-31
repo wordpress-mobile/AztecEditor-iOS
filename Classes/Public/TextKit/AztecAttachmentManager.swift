@@ -128,7 +128,7 @@ public class AztecAttachmentManager
 
         textView.addSubview(view)
 
-        resizeViewForAttachment(attachment, toFitSize: textView.textContainer.size)
+        resizeViewForAttachment(attachment, toFitInContainer: textView.textContainer)
 
         layoutAttachmentViews()
     }
@@ -234,20 +234,21 @@ public class AztecAttachmentManager
     ///     - attachment: The AztecTextAttachment
     ///     - size: Should be the size of the textContainer
     ///
-    private func resizeViewForAttachment(attachment: AztecTextAttachment, toFitSize size: CGSize) {
+    private func resizeViewForAttachment(attachment: AztecTextAttachment, toFitInContainer container: NSTextContainer) {
         guard let attachmentView = attachmentViews[attachment.identifier] else {
             return
         }
 
         let view = attachmentView.view
-        if view.frame.height == 0 {
+        guard view.frame.height != 0 else {
             return
         }
 
+        let maximumWidth = container.size.width - 2 * container.lineFragmentPadding
         let ratio = view.frame.size.width / view.frame.size.height
 
-        view.frame.size.width = floor(size.width)
-        view.frame.size.height = floor(size.width / ratio)
+        view.frame.size.width = floor(maximumWidth)
+        view.frame.size.height = floor(maximumWidth / ratio)
     }
 
 
@@ -274,7 +275,7 @@ public class AztecAttachmentManager
 
                                         if let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) {
                                             self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
-                                            self.resizeViewForAttachment(attachment, toFitSize: self.textView.textContainer.size)
+                                            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
                                             self.textView.addSubview(view)
                                         }
         })
@@ -301,17 +302,16 @@ public class AztecAttachmentManager
             return
         }
 
-        let newSize = textView.textContainer.size
-        textStorage.enumerateAttribute(NSAttachmentAttributeName,
-                                       inRange: NSMakeRange(0, textStorage.length),
-                                       options: [],
-                                       usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
-                                        guard let attachment = object as? AztecTextAttachment else {
-                                            return
-                                        }
+        let textContainer = textView.textContainer
+        let range = NSMakeRange(0, textStorage.length)
+        
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            guard let attachment = object as? AztecTextAttachment else {
+                return
+            }
 
-                                        self.resizeViewForAttachment(attachment, toFitSize: newSize)
-        })
+            self.resizeViewForAttachment(attachment, toFitInContainer: textContainer)
+        }
 
         layoutAttachmentViews()
     }
