@@ -4,12 +4,24 @@ import Foundation
 ///
 public class AztecAttachmentManager
 {
-
+    /// Attachments to be displayed in the Editor.
+    ///
     public var attachments = [AztecTextAttachment]()
-    var attachmentViews = [String : AztecAttachmentView]()
-    public weak var delegate: AztecAttachmentManagerDelegate?
-    private(set) public var textView:UITextView
 
+    /// Maps an Attachment Identifier to an AztecAttachmentView Helper.
+    ///
+    private(set) var attachmentViews = [String : AztecAttachmentView]()
+
+    /// Events Listener.
+    ///
+    public weak var delegate: AztecAttachmentManagerDelegate?
+
+    /// Editor''s TextView Instance
+    ///
+    private(set) public var textView: UITextView
+
+    /// Helper Computed Property!
+    ///
     var layoutManager: NSLayoutManager {
         return textView.layoutManager
     }
