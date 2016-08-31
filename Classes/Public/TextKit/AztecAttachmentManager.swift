@@ -275,21 +275,22 @@ public class AztecAttachmentManager
             return
         }
 
-        textStorage.enumerateAttribute(NSAttachmentAttributeName,
-                                       inRange: NSMakeRange(0, textStorage.length),
-                                       options: [],
-                                       usingBlock: { (object:AnyObject?, range:NSRange, stop:UnsafeMutablePointer<ObjCBool>) in
-                                        guard let attachment = object as? AztecTextAttachment else {
-                                            return
-                                        }
-                                        self.attachments.append(attachment)
+        let range = NSMakeRange(0, textStorage.length)
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            guard let attachment = object as? AztecTextAttachment else {
+                return
+            }
 
-                                        if let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) {
-                                            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
-                                            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
-                                            self.textView.addSubview(view)
-                                        }
-        })
+            self.attachments.append(attachment)
+
+            guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
+                return
+            }
+
+            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
+            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
+            self.textView.addSubview(view)
+        }
 
         layoutAttachmentViews()
     }
@@ -315,7 +316,7 @@ public class AztecAttachmentManager
 
         let textContainer = textView.textContainer
         let range = NSMakeRange(0, textStorage.length)
-        
+
         textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
             guard let attachment = object as? AztecTextAttachment else {
                 return
