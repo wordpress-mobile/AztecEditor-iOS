@@ -165,15 +165,14 @@ public class AztecAttachmentManager
         layoutManager.ensureLayoutForTextContainer(textView.textContainer)
 
         // Now do the update.
-        textStorage.enumerateAttribute(NSAttachmentAttributeName,
-                                       inRange: NSMakeRange(0, textStorage.length),
-                                       options: [],
-                                       usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
-                                        guard let attachment = object as? AztecTextAttachment else {
-                                            return
-                                        }
-                                        self.layoutAttachmentViewForAttachment(attachment, atRange: range)
-        })
+        let range = NSMakeRange(0, textStorage.length)
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            guard let attachment = object as? AztecTextAttachment else {
+                return
+            }
+
+            self.layoutAttachmentViewForAttachment(attachment, atRange: range)
+        }
     }
 
 
