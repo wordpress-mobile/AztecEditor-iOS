@@ -374,9 +374,19 @@ public protocol AztecAttachmentManagerDelegate : NSObjectProtocol
 ///
 class AztecAttachmentView
 {
+    /// Identifier used to match this helper with an AztecTextAttachment Instance.
+    ///
+    let identifier: String
+
+    /// View to be rendered onscreen.
+    ///
     var view: UIView
-    var identifier: String
+
+    /// Path that should be sent over to the TextStorage, for exclusion purposes.
+    ///
     var exclusionPath: UIBezierPath?
+
+
     init(view: UIView, identifier: String, exclusionPath: UIBezierPath?) {
         self.view = view
         self.identifier = identifier
