@@ -233,9 +233,8 @@ public class AztecAttachmentManager
         let lineFragmentRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
         let containerInset = textView.textContainerInset
 
-        // Place on the same line if the attachment glyph is at the beginning of the line fragment, otherwise the next line.
         var frame = attachmentView.view.frame
-        frame.origin.y = containerInset.top + lineFragmentRect.maxY
+        frame.origin.y = containerInset.top + lineFragmentRect.midY
         frame.origin.x = (textView.textContainer.size.width - attachmentView.view.frame.width) * 0.5 + containerInset.left
 
         return frame
