@@ -29,7 +29,8 @@ class DraggableDemoController: UIViewController
         textView.layoutManager.delegate = self
         textView.delegate = self
 
-        attachmentManager = AztecAttachmentManager(textView: textView, delegate: self)
+        attachmentManager = AztecAttachmentManager(textView: textView)
+        attachmentManager.delegate = self
 
         hideMarkerView()
     }
