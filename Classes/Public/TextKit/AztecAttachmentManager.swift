@@ -189,16 +189,20 @@ public class AztecAttachmentManager
             return
         }
 
-        var exclusionPaths = textView.textContainer.exclusionPaths
+        // Exclusion Frame needs to account for Insets, as well as line paddings!
+        let updatedFrame = frameForAttachmentView(attachmentView, forAttachment: attachment, atRange: range)
+        var exclusionFrame = updatedFrame
+        exclusionFrame.origin.x -= textView.textContainerInset.left
+        exclusionFrame.origin.y -= textView.textContainerInset.top
+        exclusionFrame.size.width += textView.textContainer.lineFragmentPadding * 2 + textView.textContainerInset.left + textView.textContainerInset.right
 
-        let exclusionFrame = frameForAttachmentView(attachmentView, forAttachment: attachment, atRange: range)
-
-        // Note: `append` is a mutable method. No need to reassign the exclusion paths
+        // Update the AttachmentView
         let newExclusionPath = UIBezierPath(rect: exclusionFrame)
-        exclusionPaths.append(newExclusionPath)
-
+        attachmentView.view.frame = updatedFrame
         attachmentView.exclusionPath = newExclusionPath
-        attachmentView.view.frame = exclusionFrame
+
+        // TextKit's Container!
+        textView.textContainer.exclusionPaths.append(newExclusionPath)
 
         // Always ensure layout after updating an individual exclusion path so
         // subsequent attachments are in their proper location.
