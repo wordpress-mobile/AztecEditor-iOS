@@ -12,7 +12,7 @@ public class AztecAttachmentManager
     ///
     private(set) var attachmentViews = [String : AztecAttachmentView]()
 
-    /// Events Listener.
+    /// The delegate who will provide the UIViews used as content represented by AztecTextAttachments in the UITextView's NSAttributedString.
     ///
     public weak var delegate: AztecAttachmentManagerDelegate?
 
@@ -31,11 +31,9 @@ public class AztecAttachmentManager
     ///
     /// - Parameters:
     ///     - textView: The UITextView to manage attachment layout.
-    ///     - delegate: The delegate who will provide the UIViews used as content represented by AztecTextAttachments in the UITextView's NSAttributedString.
     ///
-    public init(textView: UITextView, delegate: AztecAttachmentManagerDelegate) {
+    public init(textView: UITextView) {
         self.textView = textView
-        self.delegate = delegate
 
         enumerateAttachments()
     }
