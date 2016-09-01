@@ -6,6 +6,12 @@ extension Libxml2.Out {
 
         typealias Attribute = Libxml2.Attribute
         typealias StringAttribute = Libxml2.StringAttribute
+
+        private let node: xmlNodePtr
+
+        init(forNode node: xmlNodePtr = nil) {
+            self.node = node
+        }
         
         /// Converts a single HTML.Attribute into a single libxml2 attribute
         ///
@@ -41,8 +47,8 @@ extension Libxml2.Out {
             let value = rawStringAttribute.value
             let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
-            
-            return xmlNewProp(nil, namePtr, valuePtr)
+
+            return xmlNewProp(node, namePtr, valuePtr)
         }
         
         /// Creates a libxml2 attribute from a HTML.Attribute.
@@ -57,7 +63,7 @@ extension Libxml2.Out {
             let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
             let namePtr = UnsafePointer<xmlChar>(nameCStr)
             
-            return xmlNewProp(nil, namePtr, nil)
+            return xmlNewProp(node, namePtr, nil)
         }
     }
 }

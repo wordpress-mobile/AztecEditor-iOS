@@ -64,6 +64,16 @@ extension Libxml2 {
             }
         }
 
+        class Equivalence {
+            let elementName1: String
+            let elementName2: String
+
+            init(ofElementNamed elementName1: String, andElementNamed elementName2: String) {
+                self.elementName1 = elementName1
+                self.elementName2 = elementName2
+            }
+        }
+
         private(set) var attributes = [Attribute]()
         private(set) var children: [Node]
 
@@ -126,6 +136,33 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
 
+        /// Returns the child node at the specified location.
+        ///
+        func childNode(atLocation location: Int, defaultToLeftNode: Bool = true) -> Node {
+
+            let defaultToRightNode = !defaultToLeftNode
+            let offset = Int(0)
+
+            for (index, child) in children.enumerate() {
+
+                // On the last element, we need to force-default to the left node.
+                //
+                let bypassedDefaultToLeftNode = (defaultToLeftNode || index == children.count)
+
+                let finalLocation = offset + child.length()
+                let returnThisNode =
+                    (location == offset && defaultToRightNode)
+                    || location < finalLocation
+                    || (location == offset + child.length() && bypassedDefaultToLeftNode)
+
+                if returnThisNode {
+                    return child
+                }
+            }
+
+            fatalError("The specified location is out of bounds.")
+        }
+
         /// Get a list of child nodes intersecting the specified range.
         ///
         /// - Parameters:
@@ -166,7 +203,9 @@ extension Libxml2 {
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
                 let intersectionRange = NSIntersectionRange(childRange, targetRange)
-                let childRangeInterceptsTargetRange = (intersectionRange.length > 0)
+                let childRangeInterceptsTargetRange = 
+                    (intersectionRange.location > 0 && intersectionRange.length < childLength)
+                    || intersectionRange.length > 0
 
                 if childRangeInterceptsTargetRange {
 
@@ -187,8 +226,6 @@ extension Libxml2 {
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
-        ///     - matchFound: the closure to execute for each child element intersecting
-        ///             `targetRange`.
         ///
         /// - Returns: an array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
@@ -292,7 +329,7 @@ extension Libxml2 {
                                 if let previousRangeWithoutMatch = rangeWithoutMatch {
                                     rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + range.length)
                                 } else {
-                                    rangeWithoutMatch = range
+                                    rangeWithoutMatch = NSRange(location: offset + range.location, length: range.length)
                                 }
                             },
                             onMatchFound: { [weak self] (child, intersection) in
@@ -458,6 +495,17 @@ extension Libxml2 {
             children.insertContentsOf(newChildren, at: childIndex)
         }
 
+        /// Removes the receiver from its parent.
+        ///
+        func removeFromParent() {
+            guard let parent = parent else {
+                assertionFailure("It doesn't make sense to call this method without a parent")
+                return
+            }
+
+            parent.remove(self)
+        }
+
 
         /// Removes the specified child node.  Only updates its parent if specified.
         ///
@@ -584,11 +632,41 @@ extension Libxml2 {
             return result
         }
 
+        override func deleteCharacters(inRange range: NSRange) {
+            if range.location == 0 && range.length == length() {
+                removeFromParent()
+            } else {
+                let childrenAndIntersections = childNodes(intersectingRange: range)
+
+                for (child, intersection) in childrenAndIntersections {
+                    child.deleteCharacters(inRange: intersection)
+                }
+            }
+        }
+
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+
+            let childrenAndIntersections = childNodes(intersectingRange: range)
+
+            for (index, childAndIntersection) in childrenAndIntersections.enumerate() {
+
+                let child = childAndIntersection.child
+                let intersection = childAndIntersection.intersection
+
+                if index == 0 && string.characters.count > 0 {
+                    child.replaceCharacters(inRange: intersection, withString: string)
+                } else {
+                    child.deleteCharacters(inRange: intersection)
+                }
+            }
+        }
+
         /// Splits this node following the specified range.
         ///
         override func split(forRange range: NSRange) {
 
-            guard range.location > 0 || range.length < length() else {
+            guard range.location >= 0 && range.location + range.length <= length() else {
+                assertionFailure("Specified range is out-of-bounds.")
                 return
             }
 
@@ -617,13 +695,8 @@ extension Libxml2 {
             }
         }
 
-        func unwrap() {
-            guard let parent = parent else {
-                assertionFailure("The root node in a hierarchy cannot be unwrapped using this method.")
-                return
-            }
-
-            parent.replace(child: self, with: self.children)
+        func unwrap(fromElementsNamed elementNames: [String]) {
+            unwrap(range: range(), fromElementsNamed: elementNames)
         }
 
         /// Unwraps the specified range from nodes with the specified name.  If there are multiple
@@ -631,15 +704,17 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - range: the range that must be unwrapped.
-        ///     - nodeName: the name of the node the range must be unwrapped from.
+        ///     - elementNames: the names of the elements the range must be unwrapped from.
         ///
         /// - Todo: this method works with node names only for now.  At some point we'll want to
         ///         modify this to be able to do more complex lookups.  For instance we'll want
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
-        func unwrap(range range: NSRange, fromNodeNamed nodeName: String) {
+        func unwrap(range range: NSRange, fromElementsNamed elementNames: [String]) {
 
-            if name == nodeName {
+            unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames)
+
+            if elementNames.contains(name) {
 
                 let rangeEndLocation = range.location + range.length
 
@@ -661,7 +736,53 @@ extension Libxml2 {
                     wrap(range: postRange, inNodeNamed: name, withAttributes: attributes)
                 }
 
-                unwrap()
+                unwrapChildren()
+            }
+        }
+
+        /// Unwraps the receiver's children from the receiver.
+        ///
+        func unwrapChildren() {
+            if let parent = parent {
+                parent.replace(child: self, with: self.children)
+            } else {
+                for child in children {
+                    child.parent = nil
+                }
+
+                children.removeAll()
+            }
+        }
+
+        func unwrapChildren(children: [Node], fromElementsNamed elementNames: [String]) {
+
+            for child in children {
+
+                guard let childElement = child as? ElementNode else {
+                    continue
+                }
+
+                childElement.unwrap(fromElementsNamed: elementNames)
+            }
+        }
+
+        /// Unwraps all child nodes from elements with the specified names.
+        ///
+        /// - Parameters:
+        ///     - range: the range we want to unwrap.
+        ///     - elementNames: the name of the elements we want to unwrap the nodes from.
+        ///
+        func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
+
+            let childNodesAndRanges = childNodes(intersectingRange: range)
+            assert(childNodesAndRanges.count > 0)
+
+            for (child, range) in childNodesAndRanges {
+                guard let childElement = child as? ElementNode else {
+                    continue
+                }
+
+                childElement.unwrap(range: range, fromElementsNamed: elementNames)
             }
         }
 
@@ -708,17 +829,20 @@ extension Libxml2 {
         ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
         ///             lowest block-level element nodes before doing the wrapping.
         ///
-        func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+
+            // Before wrapping a range in a node, we remove all equivalent nodes from the range.
+            //
+            if equivalentElementNames.count > 0 {
+                unwrap(range: targetRange, fromElementsNamed: equivalentElementNames)
+            }
 
             let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
 
             if mustFindLowestBlockLevelElements {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
 
-                for elementAndIntersection in elementsAndIntersections {
-
-                    let element = elementAndIntersection.element
-                    let intersection = elementAndIntersection.intersection
+                for (element, intersection) in elementsAndIntersections {
 
                     element.forceWrapChildren(
                         intersectingRange: intersection,
@@ -747,11 +871,8 @@ extension Libxml2 {
             forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
         }
 
-
         /// Force wraps child nodes intersecting the specified range inside new elements with the
         /// specified properties.
-        ///
-        /// but it does not check any block-level element logic.
         ///
         /// - Important: this is almost the same as
         ///         `wrapChildren(intersectingRange:, inNodeNamed:, withAttributes:)` but this
@@ -761,8 +882,6 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
-        ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
-        ///             lowest block-level element nodes before doing the wrapping.
         ///
         private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
 
@@ -789,7 +908,7 @@ extension Libxml2 {
                 }
 
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
-                let lastChildIntersection = childNodesAndRanges[0].intersection
+                let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
 
                 if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
                     lastChild.split(forRange: lastChildIntersection)

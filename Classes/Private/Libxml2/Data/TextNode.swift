@@ -23,6 +23,24 @@ extension Libxml2 {
             return text.characters.count
         }
 
+        override func deleteCharacters(inRange range: NSRange) {
+
+            guard let textRange = text.rangeFromNSRange(range) else {
+                fatalError("The specified range is out of bounds.")
+            }
+
+            text.removeRange(textRange)
+        }
+
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+
+            guard let textRange = text.rangeFromNSRange(range) else {
+                fatalError("The specified range is out of bounds.")
+            }
+
+            text.replaceRange(textRange, with: string)
+        }
+
         override func split(forRange range: NSRange) {
 
             guard let swiftRange = text.rangeFromNSRange(range) else {

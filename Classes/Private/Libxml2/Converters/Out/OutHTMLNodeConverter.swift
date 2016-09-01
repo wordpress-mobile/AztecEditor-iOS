@@ -43,6 +43,11 @@ extension Libxml2.Out {
             let namePtr = UnsafeMutablePointer<xmlChar>(nameCStr)
             
             let node = xmlNewNode(nil, namePtr)
+            let attributeConverter = AttributeConverter(forNode: node)
+
+            for rawAttribute in rawNode.attributes {
+                attributeConverter.convert(rawAttribute)
+            }
             
             for child in rawNode.children {
                 let childNode = nodeConverter.convert(child)

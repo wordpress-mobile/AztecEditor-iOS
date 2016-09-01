@@ -73,10 +73,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Retrieve Format Identifiers
 
     func testFormatIdentifiersSpanningRange() {
-        let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
         let range = NSRange(location: 3, length: 3)
         let identifiers = editor.formatIdentifiersSpanningRange(range)
@@ -86,10 +83,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testFormatIdentifiersAtIndex() {
-        let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
         var identifiers = editor.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
@@ -117,10 +111,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Toggle Attributes
 
     func testToggleBold() {
-        let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(editor.boldFormattingSpansRange(range))
@@ -135,10 +126,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testToggleItalic() {
-        let attributes = [
-            NSFontAttributeName: UIFont.italicSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(editor.italicFormattingSpansRange(range))
@@ -153,10 +141,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testToggleUnderline() {
-        let attributes = [
-            NSUnderlineStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(editor.underlineFormattingSpansRange(range))
@@ -171,10 +156,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testToggleStrike() {
-        let attributes = [
-            NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(editor.strikethroughFormattingSpansRange(range))
@@ -219,10 +201,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Test Attributes Exist
 
     func testBoldSpansRange() {
-        let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
         XCTAssert(editor.boldFormattingSpansRange(NSRange(location: 3, length: 3)))
         XCTAssert(editor.boldFormattingSpansRange(NSRange(location: 3, length: 2)))
@@ -233,10 +212,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testItalicSpansRange() {
-        let attributes = [
-            NSFontAttributeName: UIFont.italicSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
 
         XCTAssert(editor.italicFormattingSpansRange(NSRange(location: 3, length: 3)))
         XCTAssert(editor.italicFormattingSpansRange(NSRange(location: 3, length: 2)))
@@ -247,10 +223,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testUnderlineSpansRange() {
-        let attributes = [
-            NSUnderlineStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
 
         XCTAssert(editor.underlineFormattingSpansRange(NSRange(location: 3, length: 3)))
         XCTAssert(editor.underlineFormattingSpansRange(NSRange(location: 3, length: 2)))
@@ -261,10 +234,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testStrikethroughSpansRange() {
-        let attributes = [
-            NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
 
         XCTAssert(editor.strikethroughFormattingSpansRange(NSRange(location: 3, length: 3)))
         XCTAssert(editor.strikethroughFormattingSpansRange(NSRange(location: 3, length: 2)))
@@ -287,10 +257,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testBoldAtIndex() {
-        let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
         XCTAssert(editor.formattingAtIndexContainsBold(3))
         XCTAssert(editor.formattingAtIndexContainsBold(4))
@@ -301,10 +268,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testItalicAtIndex() {
-        let attributes = [
-            NSFontAttributeName: UIFont.italicSystemFontOfSize(10)
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
 
         XCTAssert(editor.formattingAtIndexContainsItalic(3))
         XCTAssert(editor.formattingAtIndexContainsItalic(4))
@@ -315,10 +279,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testUnderlineAtIndex() {
-        let attributes = [
-            NSUnderlineStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
 
         XCTAssert(editor.formattingAtIndexContainsUnderline(3))
         XCTAssert(editor.formattingAtIndexContainsUnderline(4))
@@ -329,10 +290,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testStrikethroughAtIndex() {
-        let attributes = [
-            NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue
-        ]
-        let editor = editorConfiguredForTestingWithAttributes(attributes)
+        let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
 
         XCTAssert(editor.formattingAtIndexContainsStrikethrough(3))
         XCTAssert(editor.formattingAtIndexContainsStrikethrough(4))
@@ -359,14 +317,11 @@ class AztecVisualEditorTests: XCTestCase {
 
     // MARK: - Helpers
 
-    func editorConfiguredForTestingWithAttributes(attributes: [String: AnyObject]) -> AztecVisualEditor {
+    func editorConfiguredForTesting(withHTML html: String) -> AztecVisualEditor {
         let textView = AztecVisualEditor.createTextView()
         let editor = AztecVisualEditor(textView: textView)
 
-        let attrStr = NSMutableAttributedString(string: "foo")
-        attrStr.appendAttributedString(NSAttributedString(string: "bar", attributes: attributes))
-        attrStr.appendAttributedString(NSAttributedString(string: "baz"))
-        textView.attributedText = attrStr
+        editor.setHTML(html)
 
         return editor
     }
