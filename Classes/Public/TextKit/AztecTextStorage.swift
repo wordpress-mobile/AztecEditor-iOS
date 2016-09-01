@@ -36,7 +36,7 @@ public class AztecTextStorage: NSTextStorage {
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
     private var rootNode: RootNode = {
-        return RootNode(children: [])
+        return RootNode(children: [TextNode(text: "")])
     }()
 
     // MARK: - NSTextStorage

@@ -673,7 +673,7 @@ class ElementNodeTests: XCTestCase {
     /// Tests `childNodes(intersectingRange:)` with a zero-length range.
     ///
     /// Input HTML: <p>This is a test string.</p>
-    /// Range: (5...5)
+    /// Range: (5...0)
     ///
     /// Expected results:
     ///     - should find 1 matching child node (the text node)

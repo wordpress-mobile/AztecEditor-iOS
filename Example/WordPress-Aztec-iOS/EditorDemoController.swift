@@ -86,6 +86,8 @@ class EditorDemoController: UIViewController
         }
     }
 
+    var loadSampleHTML = false
+
 
     // MARK: - Lifecycle Methods
 
@@ -106,14 +108,19 @@ class EditorDemoController: UIViewController
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        editor.setHTML(getSampleHTML())
-
         configureConstraints()
         configureNavigationBar()
 
         layoutTextView()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if loadSampleHTML {
+            editor.setHTML(getSampleHTML())
+        }
+    }
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
