@@ -256,7 +256,7 @@ public class AztecAttachmentManager
             return
         }
 
-        let maximumWidth = container.size.width - 2 * container.lineFragmentPadding
+        let maximumWidth = container.size.width - (2 * container.lineFragmentPadding)
         let ratio = view.frame.size.width / view.frame.size.height
 
         view.frame.size.width = floor(maximumWidth)
