@@ -35,7 +35,7 @@ public class AztecAttachmentManager
     public init(textView: UITextView) {
         self.textView = textView
 
-        enumerateAttachments()
+        reloadAttachments()
     }
 
 
@@ -94,11 +94,10 @@ public class AztecAttachmentManager
             return nil
         }
 
-        let range = NSMakeRange(0, textStorage.length)
         var rangeOfAttachment: NSRange?
-        
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            guard let attachment = object as? AztecTextAttachment where attachment == targetAttachment else {
+
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+            guard attachment == targetAttachment else {
                 return
             }
 
@@ -139,12 +138,6 @@ public class AztecAttachmentManager
     /// or after updating an attachment's `image` property.
     ///
     public func layoutAttachmentViews() {
-        // Guard for paranoia
-        guard let textStorage = layoutManager.textStorage else {
-            assertionFailure("Unable to layout attachment views. No NSTextStorage.")
-            return
-        }
-
         // Remove any existing attachment exclusion paths and ensure layout.
         // This ensures previous (soon to be invalid) exclusion paths do not
         // conflict with the new layout.
@@ -153,12 +146,7 @@ public class AztecAttachmentManager
         layoutManager.ensureLayoutForTextContainer(textView.textContainer)
 
         // Now do the update.
-        let range = NSMakeRange(0, textStorage.length)
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            guard let attachment = object as? AztecTextAttachment else {
-                return
-            }
-
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.layoutAttachmentViewForAttachment(attachment, atRange: range)
         }
     }
@@ -272,20 +260,10 @@ public class AztecAttachmentManager
     /// AztecTextAttachments found in textStorage and asks the delegate for a
     /// custom view for the attachment.
     ///
-    private func enumerateAttachments() {
+    private func reloadAttachments() {
         resetAttachmentManager()
 
-        guard let textStorage = layoutManager.textStorage else {
-            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
-            return
-        }
-
-        let range = NSMakeRange(0, textStorage.length)
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            guard let attachment = object as? AztecTextAttachment else {
-                return
-            }
-
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
@@ -301,11 +279,34 @@ public class AztecAttachmentManager
     }
 
 
+    /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
+    /// For each one of those elements, the specified block will be called.
+    ///
+    /// - Parameters:
+    ///     - range: The range that should be checked. Nil wil cause the whole text to be scanned
+    ///     - type: The kind of Attachment we're after
+    ///     - block: Closure to be executed, for each one of the elements
+    ///
+    private func enumerateAttachments<T : NSTextAttachment>(range: NSRange? = nil, ofType type: T.Type, block: ((T, NSRange) -> Void)) {
+        guard let textStorage = layoutManager.textStorage else {
+            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
+            return
+        }
+
+        let range = range ?? NSMakeRange(0, textStorage.length)
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            if let object = object as? T {
+                block(object, range)
+            }
+        }
+    }
+
+
     /// Updates the layout and position of attachment views.  Should be called
     /// whenever the text in the textView changes.
     ///
     public func updateAttachmentLayout() {
-        enumerateAttachments()
+        reloadAttachments()
     }
 
 
@@ -315,18 +316,9 @@ public class AztecAttachmentManager
     /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
     ///
     public func resizeAttachments() {
-        guard let textStorage = layoutManager.textStorage else {
-            return
-        }
-
         let textContainer = textView.textContainer
-        let range = NSMakeRange(0, textStorage.length)
 
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            guard let attachment = object as? AztecTextAttachment else {
-                return
-            }
-
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.resizeViewForAttachment(attachment, toFitInContainer: textContainer)
         }
 
