@@ -418,6 +418,13 @@ public class AztecTextAttachment: NSTextAttachment
         case Image(image: UIImage)
     }
 
+    /// Wrapping Options. Analog to what Apple Pages does!
+    ///
+    public enum TextWrapping {
+        case Around
+        case AboveAndBelow
+    }
+
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     private(set) public var identifier: String
@@ -425,6 +432,10 @@ public class AztecTextAttachment: NSTextAttachment
     /// Attachment Kind
     ///
     public var kind: Kind?
+
+    /// Wrapping Mode
+    ///
+    public var textWrapping = TextWrapping.Around
 
 
     /// Designed Initializer
