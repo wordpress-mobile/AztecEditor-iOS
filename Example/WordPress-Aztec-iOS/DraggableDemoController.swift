@@ -40,7 +40,7 @@ class DraggableDemoController: UIViewController
         super.viewDidAppear(animated)
 
         textView.attributedText = buildAttributedString()
-        attachmentManager.updateAttachmentLayout()
+        attachmentManager.reloadAttachments()
     }
 
 
@@ -135,7 +135,7 @@ class DraggableDemoController: UIViewController
         textView.textStorage.replaceCharactersInRange(attachmentRange, withString: "")
         // Insert the attachment
         textView.textStorage.insertAttributedString(attachmentAttrStr, atIndex: location)
-        attachmentManager.updateAttachmentLayout()
+        attachmentManager.reloadAttachments()
     }
 
 }
@@ -144,7 +144,7 @@ class DraggableDemoController: UIViewController
 extension DraggableDemoController : UITextViewDelegate
 {
     func textViewDidChange(textView: UITextView) {
-        attachmentManager.updateAttachmentLayout()
+        attachmentManager.reloadAttachments()
     }
 }
 

@@ -181,6 +181,106 @@ public class AztecAttachmentManager
     }
 
 
+    /// This method loops over any AztecTextAttachments found in textStorage and asks the delegate for a
+    /// custom view for the attachment.
+    ///
+    public func reloadAttachments() {
+        resetAttachmentManager()
+
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+            self.attachments.append(attachment)
+
+            guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
+                return
+            }
+
+            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
+            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
+            self.textView.addSubview(view)
+        }
+
+        layoutAttachmentViews()
+    }
+
+
+    /// Resizes and updates layout for custom attachment views so they match the 
+    /// current textContainer size.
+    /// Should be called when the size of the UITextView's NSTextContainer changes
+    /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
+    ///
+    public func resizeAttachments() {
+        let textContainer = textView.textContainer
+
+        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+            self.resizeViewForAttachment(attachment, toFitInContainer: textContainer)
+        }
+
+        layoutAttachmentViews()
+    }
+
+
+    /// Resets the attachment manager. Any custom views for AztecTextAttachments are
+    /// removed from the UITextView, their exclusion paths are removed from 
+    /// textStorage.
+    ///
+    private func resetAttachmentManager() {
+        // Clean up any stale exclusion paths
+        removeAttachmentExclusionPaths()
+
+        for (identifier, attachmentView) in attachmentViews {
+            attachmentView.view.removeFromSuperview()
+        }
+
+        attachmentViews.removeAll()
+        attachments.removeAll()
+    }
+
+
+    /// Nukes all of the ExclusionPaths associated to the AttachmentViews collection.
+    ///
+    private func removeAttachmentExclusionPaths() {
+        let textContainer = textView.textContainer
+
+        let paths = attachmentViews.flatMap { (identifier, attachmentView) -> UIBezierPath? in
+            return attachmentView.exclusionPath
+        }
+        let pathsToKeep = textContainer.exclusionPaths.filter { (bezierPath) -> Bool in
+            return !paths.contains(bezierPath)
+        }
+
+        textContainer.exclusionPaths = pathsToKeep
+    }
+}
+
+
+
+/// Attachment Helpers
+///
+extension AztecAttachmentManager
+{
+    /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
+    /// For each one of those elements, the specified block will be called.
+    ///
+    /// - Parameters:
+    ///     - range: The range that should be checked. Nil wil cause the whole text to be scanned
+    ///     - type: The kind of Attachment we're after
+    ///     - block: Closure to be executed, for each one of the elements
+    ///
+    private func enumerateAttachments<T : NSTextAttachment>(range: NSRange? = nil, ofType type: T.Type, block: ((T, NSRange) -> Void)) {
+        guard let textStorage = layoutManager.textStorage else {
+            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
+            return
+        }
+
+        let range = range ?? NSMakeRange(0, textStorage.length)
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            if let object = object as? T {
+                block(object, range)
+            }
+        }
+    }
+
+
     /// Computes the frame for an attachment's custom view based on alignment
     /// and the size of the attachment.  Attachments with a maxSize of CGSizeZero
     /// will scale to match the current width of the textContainer. Attachments
@@ -253,109 +353,6 @@ public class AztecAttachmentManager
 
         view.frame.size.width = floor(maximumWidth)
         view.frame.size.height = floor(maximumWidth / ratio)
-    }
-
-
-    /// After resetting the attachment manager, this method loops over any
-    /// AztecTextAttachments found in textStorage and asks the delegate for a
-    /// custom view for the attachment.
-    ///
-    private func reloadAttachments() {
-        resetAttachmentManager()
-
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
-            self.attachments.append(attachment)
-
-            guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
-                return
-            }
-
-            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
-            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
-            self.textView.addSubview(view)
-        }
-
-        layoutAttachmentViews()
-    }
-
-
-    /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
-    /// For each one of those elements, the specified block will be called.
-    ///
-    /// - Parameters:
-    ///     - range: The range that should be checked. Nil wil cause the whole text to be scanned
-    ///     - type: The kind of Attachment we're after
-    ///     - block: Closure to be executed, for each one of the elements
-    ///
-    private func enumerateAttachments<T : NSTextAttachment>(range: NSRange? = nil, ofType type: T.Type, block: ((T, NSRange) -> Void)) {
-        guard let textStorage = layoutManager.textStorage else {
-            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
-            return
-        }
-
-        let range = range ?? NSMakeRange(0, textStorage.length)
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            if let object = object as? T {
-                block(object, range)
-            }
-        }
-    }
-
-
-    /// Updates the layout and position of attachment views.  Should be called
-    /// whenever the text in the textView changes.
-    ///
-    public func updateAttachmentLayout() {
-        reloadAttachments()
-    }
-
-
-    /// Resizes and updates layout for custom attachment views so they match the 
-    /// current textContainer size.
-    /// Should be called when the size of the UITextView's NSTextContainer changes
-    /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
-    ///
-    public func resizeAttachments() {
-        let textContainer = textView.textContainer
-
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
-            self.resizeViewForAttachment(attachment, toFitInContainer: textContainer)
-        }
-
-        layoutAttachmentViews()
-    }
-
-
-    /// Resets the attachment manager. Any custom views for AztecTextAttachments are
-    /// removed from the UITextView, their exclusion paths are removed from 
-    /// textStorage.
-    ///
-    private func resetAttachmentManager() {
-        // Clean up any stale exclusion paths
-        removeAttachmentExclusionPaths()
-
-        for (identifier, attachmentView) in attachmentViews {
-            attachmentView.view.removeFromSuperview()
-        }
-
-        attachmentViews.removeAll()
-        attachments.removeAll()
-    }
-
-
-    ///
-    ///
-    private func removeAttachmentExclusionPaths() {
-        let textContainer = textView.textContainer
-
-        let paths = attachmentViews.flatMap { (identifier, attachmentView) -> UIBezierPath? in
-            return attachmentView.exclusionPath
-        }
-        let pathsToKeep = textContainer.exclusionPaths.filter { (bezierPath) -> Bool in
-            return !paths.contains(bezierPath)
-        }
-
-        textContainer.exclusionPaths = pathsToKeep
     }
 }
 

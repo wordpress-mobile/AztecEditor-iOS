@@ -383,7 +383,7 @@ public class AztecVisualEditor : NSObject {
         let attachmentString = NSAttributedString(attachment: attachment)
 
         textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
-        attachmentManager.updateAttachmentLayout()
+        attachmentManager.reloadAttachments()
     }
 
 
