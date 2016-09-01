@@ -59,10 +59,8 @@ public class AztecAttachmentManager
     /// - Returns: The matching AztecTextAttachment or nil
     ///
     public func attachmentForView(view: UIView) -> AztecTextAttachment? {
-        for (identifier, attachmentView)  in attachmentViews {
-            if attachmentView.view == view {
-                return attachmentForIdentifier(identifier)
-            }
+        for (identifier, attachmentView) in attachmentViews where attachmentView.view == view {
+            return attachmentForIdentifier(identifier)
         }
         return nil
     }
@@ -76,10 +74,8 @@ public class AztecAttachmentManager
     /// - Returns: The matching AztecTextAttachment or nil
     ///
     public func attachmentForIdentifier(identifier: String) -> AztecTextAttachment? {
-        for attachment in attachments {
-            if attachment.identifier == identifier {
-                return attachment
-            }
+        for attachment in attachments where attachment.identifier == identifier {
+            return attachment
         }
         return nil
     }
@@ -94,26 +90,20 @@ public class AztecAttachmentManager
     /// - Returns: The NSRange of the attachment represented by the view, or nil.
     ///
     public func rangeOfAttachmentForView(view: UIView) -> NSRange? {
-        var rangeOfAttachment: NSRange?
-
-        guard let targetAttachment = attachmentForView(view),
-            textStorage = layoutManager.textStorage else
-        {
-            return rangeOfAttachment
+        guard let targetAttachment = attachmentForView(view), textStorage = layoutManager.textStorage else {
+            return nil
         }
 
-        textStorage.enumerateAttribute(NSAttachmentAttributeName,
-                                       inRange: NSMakeRange(0, textStorage.length),
-                                       options: [],
-                                       usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
-                                        guard let attachment = object as? AztecTextAttachment else {
-                                            return
-                                        }
-                                        if attachment == targetAttachment {
-                                            rangeOfAttachment = range
-                                        }
+        let range = NSMakeRange(0, textStorage.length)
+        var rangeOfAttachment: NSRange?
+        
+        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            guard let attachment = object as? AztecTextAttachment where attachment == targetAttachment else {
+                return
+            }
 
-        })
+            rangeOfAttachment = range
+        }
         return rangeOfAttachment
     }
 
