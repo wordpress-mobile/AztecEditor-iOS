@@ -222,15 +222,15 @@ extension Libxml2 {
                         || intersectionRange.length > 0
                 } else {
                     let targetLocation = targetRange.location
-                    let preferLeftNode = preferLeftNode || (index == children.count - 1)
-                    let preferRightNode = !preferLeftNode || (index == 0)
+                    let preferLeftNode = preferLeftNode || (index == children.count - 1 && targetLocation == offset + childLength)
+                    let preferRightNode = !preferLeftNode || (index == 0 && targetLocation == 0)
 
                     childRangeInterceptsTargetRange =
                         (preferRightNode && targetLocation == offset)
                         || (preferLeftNode && targetLocation == offset + childLength)
                         || (targetLocation > offset && targetLocation < offset + childLength)
 
-                    intersectionRange = NSRange(location: targetLocation - offset, length: 0)
+                    intersectionRange = NSRange(location: targetLocation, length: 0)
                 }
 
                 if childRangeInterceptsTargetRange {
