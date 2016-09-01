@@ -188,15 +188,10 @@ public class AztecAttachmentManager
         }
 
         // Exclusion Frame needs to account for Insets, as well as line paddings!
-        let updatedFrame = frameForAttachmentView(attachmentView, forAttachment: attachment, atRange: range)
-        var exclusionFrame = updatedFrame
-        exclusionFrame.origin.x -= textView.textContainerInset.left
-        exclusionFrame.origin.y -= textView.textContainerInset.top
-        exclusionFrame.size.width += textView.textContainer.lineFragmentPadding * 2 + textView.textContainerInset.left + textView.textContainerInset.right
+        let newFrame = frameForAttachmentView(attachmentView, forAttachment: attachment, atRange: range)
+        let newExclusionPath = exclusionPathForAttachmentFrame(newFrame, textWrapping: attachment.textWrapping)
 
-        // Update the AttachmentView
-        let newExclusionPath = UIBezierPath(rect: exclusionFrame)
-        attachmentView.view.frame = updatedFrame
+        attachmentView.view.frame = newFrame
         attachmentView.exclusionPath = newExclusionPath
 
         // TextKit's Container!
@@ -232,10 +227,29 @@ public class AztecAttachmentManager
         let containerInset = textView.textContainerInset
 
         var frame = attachmentView.view.frame
-        frame.origin.y = containerInset.top + lineFragmentRect.midY
+        frame.origin.y = containerInset.top + lineFragmentRect.maxY
         frame.origin.x = (textView.textContainer.size.width - attachmentView.view.frame.width) * 0.5 + containerInset.left
 
         return frame
+    }
+
+
+    /// Calculates the Exclusion Path, for a given Attachment Frame, in the specified Wrapping Mode.
+    ///
+    /// - Parameters:
+    ///     - attachmentFrame: The frame in which the attachment will be rendered.
+    ///     - textWrapping: The way in which the surrounding text will be handled.
+    ///
+    /// - Returns: The BezierPath for the specified Attachment settings.
+    ///
+    private func exclusionPathForAttachmentFrame(attachmentFrame: CGRect, textWrapping: AztecTextAttachment.TextWrapping) -> UIBezierPath {
+        let textInsets = textView.textContainerInset
+        var newExclusion = attachmentFrame
+
+        newExclusion.origin.x -= textInsets.left
+        newExclusion.origin.y -= textInsets.top
+
+        return UIBezierPath(rect: newExclusion)
     }
 
 
