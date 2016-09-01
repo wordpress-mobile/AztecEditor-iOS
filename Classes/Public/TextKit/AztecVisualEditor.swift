@@ -625,6 +625,6 @@ extension AztecVisualEditor: AztecAttachmentManagerDelegate
 extension AztecVisualEditor
 {
     func textViewDidChange(note: NSNotification) {
-        attachmentManager.layoutAttachmentViews()
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
     }
 }
