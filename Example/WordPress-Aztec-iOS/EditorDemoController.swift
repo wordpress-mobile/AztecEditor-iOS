@@ -107,13 +107,6 @@ class EditorDemoController: UIViewController
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        configureConstraints()
-        configureNavigationBar()
-    }
-
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-
         let html: String
 
         if loadSampleHTML {
@@ -123,6 +116,9 @@ class EditorDemoController: UIViewController
         }
 
         editor.setHTML(html)
+
+        configureConstraints()
+        configureNavigationBar()
     }
 
     override func viewDidAppear(animated: Bool) {
