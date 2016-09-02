@@ -21,12 +21,10 @@ public class AztecVisualEditor : NSObject {
     ///
     /// - Returns: A UITextView.
     ///
-    public class func createTextView(withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor = UIFont.systemFontOfSize(14).fontDescriptor()) -> UITextView {
+    public class func createTextView() -> UITextView {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
-
-        storage.defaultFontDescriptor = defaultFontDescriptor
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
@@ -109,7 +107,7 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
-        storage.setHTML(html)
+        storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
     }
 
 
