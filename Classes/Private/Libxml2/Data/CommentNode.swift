@@ -28,8 +28,8 @@ extension Libxml2 {
             guard let textRange = text.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
-
-            text.removeRange(textRange)
+            // When a comment is deleted we take it all in one go
+            text.removeAll()
         }
 
         override func replaceCharacters(inRange range: NSRange, withString string: String) {

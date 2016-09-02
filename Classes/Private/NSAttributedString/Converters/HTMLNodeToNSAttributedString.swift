@@ -78,7 +78,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convertCommentNode(node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
-        return NSAttributedString(string: "", attributes: inheritedAttributes)
+        return NSAttributedString(string: "\n", attributes: inheritedAttributes)
     }
 
     /// Converts an `ElementNode` to `NSAttributedString`.
