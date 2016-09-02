@@ -653,10 +653,14 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                if index == 0 && string.characters.count > 0 {
-                    child.replaceCharacters(inRange: intersection, withString: string)
+                if intersection.location == 0 && intersection.length == child.length() {
+                    remove(child)
                 } else {
-                    child.deleteCharacters(inRange: intersection)
+                    if index == 0 && string.characters.count > 0 {
+                        child.replaceCharacters(inRange: intersection, withString: string)
+                    } else {
+                        child.deleteCharacters(inRange: intersection)
+                    }
                 }
             }
         }
