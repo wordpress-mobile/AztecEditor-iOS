@@ -17,15 +17,16 @@ public class AztecVisualEditor : NSObject {
         return textView.textStorage as! AztecTextStorage
     }
 
-
     /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
     ///
     /// - Returns: A UITextView.
     ///
-    public class func createTextView() -> UITextView {
+    public class func createTextView(withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor = UIFont.systemFontOfSize(14).fontDescriptor()) -> UITextView {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
+
+        storage.defaultFontDescriptor = defaultFontDescriptor
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)

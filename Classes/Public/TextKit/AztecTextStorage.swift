@@ -39,6 +39,8 @@ public class AztecTextStorage: NSTextStorage {
         return RootNode(children: [TextNode(text: "")])
     }()
 
+    var defaultFontDescriptor = UIFont.systemFontOfSize(12).fontDescriptor()
+
     // MARK: - NSTextStorage
 
     override public var string: String {
@@ -205,7 +207,7 @@ public class AztecTextStorage: NSTextStorage {
 
     public func setHTML(html: String) {
 
-        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
         let output: (rootNode: RootNode, attributedString: NSAttributedString)
 
         do {
