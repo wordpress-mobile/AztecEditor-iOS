@@ -17,7 +17,6 @@ public class AztecVisualEditor : NSObject {
         return textView.textStorage as! AztecTextStorage
     }
 
-
     /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
     ///
     /// - Returns: A UITextView.
@@ -108,7 +107,7 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
-        storage.setHTML(html)
+        storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
     }
 
 

@@ -169,13 +169,17 @@ extension Libxml2 {
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
+        ///     - preferLeftNode: for zero-length target ranges, this parameter is used to
+        ///             disambiguate if we're referring to the last position in a node, or to the
+        ///             first position in the following node (since both positions have the same
+        ///             offset).  By default this is true.
         ///
         /// - Returns: an array of pairs of child nodes and their ranges in child coordinates.
         ///
-        func childNodes(intersectingRange targetRange: NSRange) -> [(child: Node, intersection: NSRange)] {
+        func childNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true) -> [(child: Node, intersection: NSRange)] {
             var results = [(child: Node, intersection: NSRange)]()
 
-            enumerateChildNodes(intersectingRange: targetRange) { (child, intersection) in
+            enumerateChildNodes(intersectingRange: targetRange, preferLeftNode: preferLeftNode) { (child, intersection) in
                 results.append((child, intersection))
             }
 
@@ -188,24 +192,46 @@ extension Libxml2 {
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
+        ///     - preferLeftNode: for zero-length target ranges, this parameter is used to
+        ///             disambiguate if we're referring to the last position in a node, or to the
+        ///             first position in the following node (since both positions have the same
+        ///             offset).
         ///     - matchFound: the closure to execute for each child node intersecting
         ///             `targetRange`.
         ///
         /// - Returns: an array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
         ///
-        func enumerateChildNodes(intersectingRange targetRange: NSRange, onMatchFound matchFound: (child: Node, intersection: NSRange) -> Void ) {
+        func enumerateChildNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true, onMatchFound matchFound: (child: Node, intersection: NSRange) -> Void ) {
 
             var offset = Int(0)
 
-            for child in children {
+            for (index, child) in children.enumerate() {
 
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
-                let intersectionRange = NSIntersectionRange(childRange, targetRange)
-                let childRangeInterceptsTargetRange = 
-                    (intersectionRange.location > 0 && intersectionRange.length < childLength)
-                    || intersectionRange.length > 0
+                let intersectionRange: NSRange
+                let childRangeInterceptsTargetRange: Bool
+
+                if targetRange.length > 0 {
+
+                    intersectionRange = NSIntersectionRange(childRange, targetRange)
+
+                    childRangeInterceptsTargetRange =
+                        (intersectionRange.location > 0 && intersectionRange.length < childLength)
+                        || intersectionRange.length > 0
+                } else {
+                    let targetLocation = targetRange.location
+                    let preferLeftNode = preferLeftNode || (index == children.count - 1 && targetLocation == offset + childLength)
+                    let preferRightNode = !preferLeftNode || (index == 0 && targetLocation == 0)
+
+                    childRangeInterceptsTargetRange =
+                        (preferRightNode && targetLocation == offset)
+                        || (preferLeftNode && targetLocation == offset + childLength)
+                        || (targetLocation > offset && targetLocation < offset + childLength)
+
+                    intersectionRange = NSRange(location: targetLocation, length: 0)
+                }
 
                 if childRangeInterceptsTargetRange {
 
@@ -459,6 +485,21 @@ extension Libxml2 {
         }
 
         // MARK: - DOM modification
+
+        /// Appends a node into the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - child: the node to append.
+        ///
+        func append(child: Node) {
+
+            if let parent = child.parent {
+                parent.remove([child])
+            }
+
+            children.append(child)
+            child.parent = self
+        }
 
         /// Inserts a node into the list of children for this element.
         ///
