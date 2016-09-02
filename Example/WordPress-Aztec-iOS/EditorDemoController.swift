@@ -7,6 +7,7 @@ import Photos
 class EditorDemoController: UIViewController
 {
     static let margin = CGFloat(20)
+    static let defaultContentFont = UIFont.systemFontOfSize(14)
 
     private (set) lazy var editor: AztecVisualEditor = {
         return AztecVisualEditor(textView: self.richTextView)
@@ -15,11 +16,10 @@ class EditorDemoController: UIViewController
 
     private(set) lazy var richTextView: UITextView = {
         let tv = AztecVisualEditor.createTextView()
-        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
         tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         tv.delegate = self
-        tv.font = font
+        tv.font = defaultContentFont
         let toolbar = self.createToolbar()
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.formatter = self
@@ -32,10 +32,9 @@ class EditorDemoController: UIViewController
 
     private(set) lazy var htmlTextView: UITextView = {
         let tv = UITextView()
-        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
 
         tv.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        tv.font = font
+        tv.font = defaultContentFont
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.hidden = true
@@ -108,16 +107,18 @@ class EditorDemoController: UIViewController
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        configureConstraints()
-        configureNavigationBar()
-    }
-
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
+        let html: String
 
         if loadSampleHTML {
-            editor.setHTML(getSampleHTML())
+            html = getSampleHTML()
+        } else {
+            html = ""
         }
+
+        editor.setHTML(html)
+
+        configureConstraints()
+        configureNavigationBar()
     }
 
     override func viewDidAppear(animated: Bool) {
