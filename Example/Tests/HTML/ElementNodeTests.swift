@@ -673,13 +673,13 @@ class ElementNodeTests: XCTestCase {
     /// Tests `childNodes(intersectingRange:)` with a zero-length range.
     ///
     /// Input HTML: <p>This is a test string.</p>
-    /// Range: (5...5)
+    /// Range: (5...0)
     ///
     /// Expected results:
     ///     - should find 1 matching child node (the text node)
     ///     - the range should be unchanged
     ///
-    func testChildNodesIntersectingRange() {
+    func testChildNodesIntersectingRange1() {
         let textNode = TextNode(text: "This is a test string.")
         let rangeLocation = 5
         XCTAssert(rangeLocation < textNode.length(),
@@ -688,14 +688,117 @@ class ElementNodeTests: XCTestCase {
         let range = NSRange(location: rangeLocation, length: 0)
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
 
-        let children = paragraph.childNodes(intersectingRange: range)
+        let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
 
-        guard children.count == 1 else {
+        guard childrenAndRanges.count == 1 else {
             XCTFail("Expected 1 child.")
             return
         }
 
-        XCTAssertEqual(children[0].child, textNode)
-        XCTAssert(NSEqualRanges(children[0].intersection, range))
+        XCTAssertEqual(childrenAndRanges[0].child, textNode)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+    }
+
+
+    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
+    ///
+    /// Input HTML: <p>This is a test string.</p>
+    /// Range: (0...0)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the text node)
+    ///     - the range should be unchanged
+    ///
+    func testChildNodesIntersectingRange2() {
+        let textNode = TextNode(text: "This is a test string.")
+        let rangeLocation = 0
+        XCTAssert(rangeLocation < textNode.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+
+        let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
+
+        guard childrenAndRanges.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].child, textNode)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+    }
+
+    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
+    ///
+    /// Input HTML: <p><b>Hello</b><b>Hello again!</b></p>
+    /// Prefer left node: true
+    /// Range: (5...0)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the first bold node)
+    ///     - the range should be unchanged
+    ///
+    func testChildNodesIntersectingRange3() {
+
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: "Hello again!")
+
+        let rangeLocation = 5
+        XCTAssert(rangeLocation == textNode1.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+
+        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
+
+        let childrenAndRanges = paragraph.childNodes(intersectingRange: range, preferLeftNode: true)
+
+        guard childrenAndRanges.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].child, bold1)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+    }
+
+
+    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
+    ///
+    /// Input HTML: <p><b>Hello</b><b>Hello again!</b></p>
+    /// Prefer left node: false
+    /// Range: (5...0)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the second bold node)
+    ///     - the range should be unchanged
+    ///
+    func testChildNodesIntersectingRange4() {
+
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: "Hello again!")
+
+        let rangeLocation = 5
+        XCTAssert(rangeLocation == textNode1.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+
+        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
+
+        let childrenAndRanges = paragraph.childNodes(intersectingRange: range, preferLeftNode: false)
+
+        guard childrenAndRanges.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].child, bold2)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, NSRange(location: 0, length: 0)))
     }
 }
