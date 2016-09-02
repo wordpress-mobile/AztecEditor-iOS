@@ -218,6 +218,16 @@ public class AztecAttachmentManager
         let newExclusionPath = attachmentViews.values.flatMap { $0.exclusionPath }
         textContainer.exclusionPaths += newExclusionPath
         layoutManager.ensureLayoutForTextContainer(textContainer)
+
+        // HACK HACK
+        // Hoping that both, God and the reviewer forgive me... this fixes several scenarios in which 
+        // Exclusion Paths were not being properly respected.
+        // Ref. http://stackoverflow.com/questions/24681960/incorrect-exclusionpaths-with-new-lines-in-a-uitextview?noredirect=1&lq=1
+        //
+        if newExclusionPath.isEmpty == false {
+            textView.scrollEnabled = false
+            textView.scrollEnabled = true
+        }
     }
 }
 
