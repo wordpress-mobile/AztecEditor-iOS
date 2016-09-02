@@ -24,19 +24,19 @@ extension Libxml2 {
         }
 
         override func deleteCharacters(inRange range: NSRange) {
-            assertionFailure("No-op.  This method will be removed from this type of node.  Please remove this call.")
+            // No-op, will be removed.
         }
 
         override func replaceCharacters(inRange range: NSRange, withString string: String) {
-            assertionFailure("No-op.  This method will be removed from this type of node.  Please remove this call.")
+            // No-op, will be removed.
         }
 
         override func split(forRange range: NSRange) {
-            assertionFailure("No-op.  This method will be removed from this type of node.  Please remove this call.")
+            // No-op, will be removed.
         }
 
         override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-            assertionFailure("No-op.  This method will be removed from this type of node.  Please remove this call.")
+            // No-op, will be removed.
         }
     }
 }
