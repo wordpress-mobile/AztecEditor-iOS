@@ -33,6 +33,12 @@ public class AztecAttachmentManager
         return textView.textStorage as! AztecTextStorage
     }
 
+    /// TextKit's Text Container
+    ///
+    private var textContainer: NSTextContainer {
+        return textView.textContainer
+    }
+
 
     /// Designaged initializer.
     ///
@@ -203,10 +209,15 @@ public class AztecAttachmentManager
 
         layoutManager.ensureLayoutForTextContainer(textView.textContainer)
 
-        // Now do the update.
+        // Layout
         enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.layoutAttachmentViewForAttachment(attachment, atRange: range)
         }
+
+        // Apply Exclusion Paths
+        let newExclusionPath = attachmentViews.values.flatMap { $0.exclusionPath }
+        textContainer.exclusionPaths += newExclusionPath
+        layoutManager.ensureLayoutForTextContainer(textContainer)
     }
 }
 
@@ -295,13 +306,6 @@ private extension AztecAttachmentManager
 
         attachmentView.view.frame = newFrame
         attachmentView.exclusionPath = newExclusionPath
-
-        // TextKit's Container!
-        textView.textContainer.exclusionPaths.append(newExclusionPath)
-
-        // Always ensure layout after updating an individual exclusion path so
-        // subsequent attachments are in their proper location.
-        layoutManager.ensureLayoutForTextContainer(textView.textContainer)
     }
 
 
