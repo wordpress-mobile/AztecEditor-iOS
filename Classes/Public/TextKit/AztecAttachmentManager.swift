@@ -363,15 +363,11 @@ private extension AztecAttachmentManager
     ///     - size: Should be the size of the textContainer
     ///
     func resizeViewForAttachment(attachment: AztecTextAttachment, toFitInContainer container: NSTextContainer) {
-        guard let attachmentView = attachmentViews[attachment.identifier] else {
+        guard let attachmentView = attachmentViews[attachment.identifier] where attachmentView.view.frame.height != 0 else {
             return
         }
 
         let view = attachmentView.view
-        guard view.frame.height != 0 else {
-            return
-        }
-
         let maximumWidth = container.size.width - (2 * container.lineFragmentPadding)
         let ratio = view.frame.size.width / view.frame.size.height
 
