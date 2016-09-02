@@ -17,6 +17,7 @@ class ViewController: UITableViewController
 
         rows = [
             DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
+            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) }),
             DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
             DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
             DemoRow(title: "Formatter Demo", action: { self.showFormatterDemo() })
@@ -27,8 +28,9 @@ class ViewController: UITableViewController
     // MARK: Actions
 
 
-    func showEditorDemo() {
+    func showEditorDemo(loadSampleHTML loadSampleHTML: Bool = true) {
         let controller = EditorDemoController()
+        controller.loadSampleHTML = loadSampleHTML
         navigationController?.pushViewController(controller, animated: true)
     }
 

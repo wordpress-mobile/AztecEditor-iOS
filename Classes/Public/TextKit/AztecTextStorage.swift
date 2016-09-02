@@ -36,8 +36,10 @@ public class AztecTextStorage: NSTextStorage {
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
     private var rootNode: RootNode = {
-        return RootNode(children: [])
+        return RootNode(children: [TextNode(text: "")])
     }()
+
+    var defaultFontDescriptor = UIFont.systemFontOfSize(12).fontDescriptor()
 
     // MARK: - NSTextStorage
 
@@ -222,7 +224,7 @@ public class AztecTextStorage: NSTextStorage {
 
     public func setHTML(html: String) {
 
-        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
         let output: (rootNode: RootNode, attributedString: NSAttributedString)
 
         do {

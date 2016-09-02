@@ -6,8 +6,7 @@ import Photos
 
 class EditorDemoController: UIViewController
 {
-    private var bottomConstraint: NSLayoutConstraint!
-
+    static let margin = CGFloat(20)
 
     private (set) lazy var editor: AztecVisualEditor = {
         return AztecVisualEditor(textView: self.richTextView)
@@ -27,8 +26,6 @@ class EditorDemoController: UIViewController
         tv.inputAccessoryView = toolbar
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.addSubview(self.titleTextField)
-        tv.addSubview(self.separatorView)
 
         return tv
     }()
@@ -53,7 +50,6 @@ class EditorDemoController: UIViewController
         tf.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
         tf.attributedPlaceholder = NSAttributedString(string: placeholderText,
                                                       attributes: [NSForegroundColorAttributeName: UIColor.lightGrayColor()])
-        tf.autoresizingMask = [UIViewAutoresizing.FlexibleWidth]
         tf.delegate = self
         tf.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
         let toolbar = self.createToolbar()
@@ -62,6 +58,7 @@ class EditorDemoController: UIViewController
         tf.inputAccessoryView = toolbar
         tf.returnKeyType = .Next
         tf.textColor = UIColor.darkTextColor()
+        tf.translatesAutoresizingMaskIntoConstraints = false
 
         return tf
     }()
@@ -69,8 +66,8 @@ class EditorDemoController: UIViewController
     private(set) lazy var separatorView: UIView = {
         let v = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
-        v.autoresizingMask = [.FlexibleWidth]
         v.backgroundColor = UIColor.darkTextColor()
+        v.translatesAutoresizingMaskIntoConstraints = false
 
         return v
     }()
@@ -85,6 +82,8 @@ class EditorDemoController: UIViewController
             }
         }
     }
+
+    var loadSampleHTML = false
 
 
     // MARK: - Lifecycle Methods
@@ -103,17 +102,23 @@ class EditorDemoController: UIViewController
         edgesForExtendedLayout = .None
         navigationController?.navigationBar.translucent = false
 
+        view.backgroundColor = UIColor.whiteColor()
+        view.addSubview(titleTextField)
+        view.addSubview(separatorView)
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
 
-        editor.setHTML(getSampleHTML())
-
         configureConstraints()
         configureNavigationBar()
-
-        layoutTextView()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if loadSampleHTML {
+            editor.setHTML(getSampleHTML())
+        }
+    }
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
@@ -143,21 +148,34 @@ class EditorDemoController: UIViewController
     // MARK: - Configuration Methods
 
     func configureConstraints() {
-        bottomConstraint = richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
 
         NSLayoutConstraint.activateConstraints([
-            richTextView.leftAnchor.constraintEqualToAnchor(view.leftAnchor),
-            richTextView.rightAnchor.constraintEqualToAnchor(view.rightAnchor),
-            richTextView.topAnchor.constraintEqualToAnchor(view.topAnchor),
-            bottomConstraint!
-        ])
+            titleTextField.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
+            titleTextField.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
+            titleTextField.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: self.dynamicType.margin),
+            titleTextField.heightAnchor.constraintEqualToConstant(titleTextField.font!.lineHeight)
+            ])
+
+        NSLayoutConstraint.activateConstraints([
+            separatorView.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
+            separatorView.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
+            separatorView.topAnchor.constraintEqualToAnchor(titleTextField.bottomAnchor, constant: self.dynamicType.margin),
+            separatorView.heightAnchor.constraintEqualToConstant(separatorView.frame.height)
+            ])
+
+        NSLayoutConstraint.activateConstraints([
+            richTextView.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
+            richTextView.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
+            richTextView.topAnchor.constraintEqualToAnchor(separatorView.bottomAnchor, constant: self.dynamicType.margin),
+            richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -self.dynamicType.margin)
+            ])
 
         NSLayoutConstraint.activateConstraints([
             htmlTextView.leftAnchor.constraintEqualToAnchor(richTextView.leftAnchor),
             htmlTextView.rightAnchor.constraintEqualToAnchor(richTextView.rightAnchor),
             htmlTextView.topAnchor.constraintEqualToAnchor(richTextView.topAnchor),
             htmlTextView.bottomAnchor.constraintEqualToAnchor(richTextView.bottomAnchor),
-        ])
+            ])
     }
 
     func configureNavigationBar() {
@@ -176,42 +194,37 @@ class EditorDemoController: UIViewController
     }
 
 
-
-    // MARK: - Layout
-
-    func layoutTextView() {
-        let lineHeight = titleTextField.font!.lineHeight
-        let offset: CGFloat = 15.0
-        let width: CGFloat = richTextView.frame.width - (offset * 2)
-        let height: CGFloat = lineHeight * 2.0
-        titleTextField.frame = CGRect(x: offset, y: 0, width: width, height: height)
-
-        separatorView.frame = CGRect(x: offset, y: titleTextField.frame.maxY, width: width, height: 1)
-
-        let top: CGFloat = separatorView.frame.maxY + lineHeight
-        richTextView.textContainerInset = UIEdgeInsets(top: top, left: offset, bottom: lineHeight, right: offset)
-    }
-
-
     // MARK: - Keyboard Handling
 
     func keyboardWillShow(notification: NSNotification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue(),
-            let duration: NSTimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
             else {
                 return
         }
-        bottomConstraint?.constant = -(view.frame.maxY - keyboardFrame.minY)
-        UIView.animateWithDuration(duration) {
-            self.view.layoutIfNeeded()
-        }
+
+        refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
 
     func keyboardWillHide(notification: NSNotification) {
-        bottomConstraint?.constant = 0
+        guard
+            let userInfo = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
+            else {
+                return
+        }
+
+        refreshInsets(forKeyboardFrame: keyboardFrame)
+    }
+
+    private func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
+        htmlTextView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
+        htmlTextView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
+
+        richTextView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
+        richTextView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
     }
 
 
