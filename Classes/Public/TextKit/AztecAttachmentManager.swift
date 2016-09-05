@@ -10,7 +10,7 @@ public class AztecAttachmentManager
 
     /// Maps an Attachment Identifier to an AztecAttachmentView Helper.
     ///
-    private var attachmentViews = [String : AztecAttachmentView]()
+    private var attachmentViews = [String: AztecAttachmentView]()
 
     /// The delegate who will provide the UIViews used as content represented by AztecTextAttachments 
     /// in the UITextView's NSAttributedString.
@@ -134,7 +134,7 @@ public class AztecAttachmentManager
             attachmentView.view = view
 
         } else {
-            attachmentView = AztecAttachmentView(view: view, identifier: attachment.identifier)
+            attachmentView = AztecAttachmentView(view: view)
             attachmentViews[attachment.identifier] = attachmentView!
         }
 
@@ -172,7 +172,7 @@ public class AztecAttachmentManager
                 return
             }
 
-            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view, identifier: attachment.identifier, exclusionPath: nil)
+            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view)
             self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
             self.textView.addSubview(view)
         }
@@ -409,10 +409,6 @@ public protocol AztecAttachmentManagerDelegate : NSObjectProtocol
 ///
 private class AztecAttachmentView
 {
-    /// Identifier used to match this helper with an AztecTextAttachment Instance.
-    ///
-    let identifier: String
-
     /// View to be rendered onscreen.
     ///
     var view: UIView
@@ -422,9 +418,8 @@ private class AztecAttachmentView
     var exclusionPath: UIBezierPath?
 
 
-    init(view: UIView, identifier: String, exclusionPath: UIBezierPath? = nil) {
+    init(view: UIView, exclusionPath: UIBezierPath? = nil) {
         self.view = view
-        self.identifier = identifier
         self.exclusionPath = exclusionPath
     }
 }
