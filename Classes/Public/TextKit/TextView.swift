@@ -1,27 +1,20 @@
-import Foundation
+import UIKit
 
-
-/// AztecVisualEditor
-///
-public class AztecVisualEditor : NSObject {
+public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
-    let textView: UITextView
-
     lazy var attachmentManager: AztecAttachmentManager = {
-        AztecAttachmentManager(textView: self.textView, delegate: self)
+        AztecAttachmentManager(textView: self, delegate: self)
     }()
 
     var storage: AztecTextStorage {
-        return textView.textStorage as! AztecTextStorage
+        return textStorage as! AztecTextStorage
     }
 
-    /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
-    ///
-    /// - Returns: A UITextView.
-    ///
-    public class func createTextView() -> UITextView {
+    // MARK: - Initializers
+
+    public init() {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
@@ -30,23 +23,12 @@ public class AztecVisualEditor : NSObject {
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
 
-        // Arbitrary starting frame.
-        return UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
+        super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
     }
-
-
-    // MARK: - Lifecycle Methods
-
-    public init(textView: UITextView) {
-        assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
-
-        self.textView = textView
-
-        super.init()
-
-        textView.layoutManager.delegate = self
+    
+    required public init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
-
 
     // MARK: - Misc helpers
 
@@ -107,7 +89,7 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
-        storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
+        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
 
 
@@ -205,7 +187,7 @@ public class AztecVisualEditor : NSObject {
         guard range.length > 0 else {
             return
         }
-        
+
         storage.toggleBold(range)
     }
 
@@ -284,7 +266,7 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        let storage = textView.textStorage
+        let storage = textStorage
 
         // Check if the start of the selection is already in a blockquote.
         let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
@@ -367,7 +349,7 @@ public class AztecVisualEditor : NSObject {
         let range = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
 
-        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
+        textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
         attachmentManager.updateAttachmentLayout()
     }
 
@@ -484,7 +466,7 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// In most instances, the value of NSRange.location is off by one when compared to a character index. 
+    /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
     ///
     /// - Parameters:
@@ -560,8 +542,8 @@ public class AztecVisualEditor : NSObject {
         }
         return false
     }
-
-
+    
+    
     /// Check if the blockquote attribute exists at the specified index.
     ///
     /// - Paramters:
@@ -573,7 +555,7 @@ public class AztecVisualEditor : NSObject {
         guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
             return false
         }
-
+        
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
@@ -582,7 +564,7 @@ public class AztecVisualEditor : NSObject {
 
 /// Stubs an NSLayoutManagerDelegate
 ///
-extension AztecVisualEditor: NSLayoutManagerDelegate
+extension TextView: NSLayoutManagerDelegate
 {
 
 }
@@ -590,7 +572,7 @@ extension AztecVisualEditor: NSLayoutManagerDelegate
 
 /// Stubs an AztecAttachmentManagerDelegate
 ///
-extension AztecVisualEditor: AztecAttachmentManagerDelegate
+extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
         return nil

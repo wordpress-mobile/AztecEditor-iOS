@@ -17,7 +17,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testTextViewReferencesStorage() {
 
-        let textView = AztecVisualEditor.createTextView()
+        let textView = Aztec.TextView()
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -38,8 +38,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Test Index Wrangling
 
     func testMaxIndex() {
-        let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let textView = Aztec.TextView()
 
         textView.text = "foo"
 
@@ -47,13 +46,12 @@ class AztecVisualEditorTests: XCTestCase {
         let maxIndex = count - 1
 
         // Test upper and lower bounds
-        XCTAssert(maxIndex == editor.maxIndex(100))
-        XCTAssert(0 == editor.maxIndex(0))
+        XCTAssert(maxIndex == textView.maxIndex(100))
+        XCTAssert(0 == textView.maxIndex(0))
     }
 
     func testAdjustedIndex() {
-        let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let textView = Aztec.TextView()
 
         textView.text = "foobarbaz"
 
@@ -63,10 +61,10 @@ class AztecVisualEditorTests: XCTestCase {
         // Test upper and lower bounds.
         // Remember that an adjusted character index should be one less than 
         // the NSRange.location.
-        XCTAssert(maxIndex - 1 == editor.adjustedIndex(100))
-        XCTAssert(0 == editor.adjustedIndex(0))
-        XCTAssert(0 == editor.adjustedIndex(1))
-        XCTAssert(1 == editor.adjustedIndex(2))
+        XCTAssert(maxIndex - 1 == textView.adjustedIndex(100))
+        XCTAssert(0 == textView.adjustedIndex(0))
+        XCTAssert(0 == textView.adjustedIndex(1))
+        XCTAssert(1 == textView.adjustedIndex(2))
     }
 
 
@@ -317,18 +315,16 @@ class AztecVisualEditorTests: XCTestCase {
 
     // MARK: - Helpers
 
-    func editorConfiguredForTesting(withHTML html: String) -> AztecVisualEditor {
-        let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+    func editorConfiguredForTesting(withHTML html: String) -> Aztec.TextView {
+        let richTextView = Aztec.TextView()
 
-        editor.setHTML(html)
+        richTextView.setHTML(html)
 
-        return editor
+        return richTextView
     }
 
-    func editorConfiguredWithParagraphs() -> AztecVisualEditor {
-        let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+    func editorConfiguredWithParagraphs() -> Aztec.TextView {
+        let richTextView = Aztec.TextView()
 
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let paragraph = "Lorem ipsum dolar sit amet.\n"
@@ -338,8 +334,8 @@ class AztecVisualEditorTests: XCTestCase {
         attrStr.appendAttributedString(templateString)
         attrStr.appendAttributedString(templateString)
         attrStr.appendAttributedString(templateString)
-        textView.attributedText = attrStr
+        richTextView.attributedText = attrStr
 
-        return editor
+        return richTextView
     }
 }
