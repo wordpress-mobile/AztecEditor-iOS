@@ -8,16 +8,20 @@ public class TextView: UITextView {
         AztecAttachmentManager(textView: self)
     }()
 
+    let defaultFont: UIFont
+
     var storage: AztecTextStorage {
         return textStorage as! AztecTextStorage
     }
 
     // MARK: - Initializers
 
-    public init() {
+    public init(defaultFont: UIFont) {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
+
+        self.defaultFont = defaultFont
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
@@ -29,6 +33,9 @@ public class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
+
+        defaultFont = UIFont.systemFontOfSize(14)
+
         super.init(coder: aDecoder)
     }
 
@@ -106,6 +113,14 @@ public class TextView: UITextView {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
+        // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
+        //      conditions.  We are assigning the default font here again to avoid that issue.
+        //
+        //      More information about the bug here:
+        //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
+        //
+        font = defaultFont
+
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
 

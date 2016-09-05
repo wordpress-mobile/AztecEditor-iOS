@@ -10,7 +10,7 @@ class EditorDemoController: UIViewController
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
     private(set) lazy var richTextView: Aztec.TextView = {
-        let tv = Aztec.TextView()
+        let tv = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont)
 
         tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         tv.delegate = self

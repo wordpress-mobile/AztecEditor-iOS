@@ -17,7 +17,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testTextViewReferencesStorage() {
 
-        let textView = Aztec.TextView()
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14))
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -38,7 +38,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Test Index Wrangling
 
     func testMaxIndex() {
-        let textView = Aztec.TextView()
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14))
 
         textView.text = "foo"
 
@@ -51,7 +51,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testAdjustedIndex() {
-        let textView = Aztec.TextView()
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14))
 
         textView.text = "foobarbaz"
 
@@ -316,7 +316,7 @@ class AztecVisualEditorTests: XCTestCase {
     // MARK: - Helpers
 
     func editorConfiguredForTesting(withHTML html: String) -> Aztec.TextView {
-        let richTextView = Aztec.TextView()
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14))
 
         richTextView.setHTML(html)
 
@@ -324,7 +324,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func editorConfiguredWithParagraphs() -> Aztec.TextView {
-        let richTextView = Aztec.TextView()
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14))
 
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let paragraph = "Lorem ipsum dolar sit amet.\n"
