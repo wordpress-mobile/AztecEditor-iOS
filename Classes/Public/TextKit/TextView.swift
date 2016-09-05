@@ -1,58 +1,47 @@
-import Foundation
+import UIKit
 
-
-/// AztecVisualEditor
-///
-public class AztecVisualEditor : NSObject {
+public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
-    let defaultFont: UIFont
-    let textView: UITextView
+    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+        AztecAttachmentManager(textView: self)
+    }()
 
-    let attachmentManager: AztecAttachmentManager
+    let defaultFont: UIFont
 
     var storage: AztecTextStorage {
-        return textView.textStorage as! AztecTextStorage
+        return textStorage as! AztecTextStorage
     }
 
-    /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
-    ///
-    /// - Returns: A UITextView.
-    ///
-    public class func createTextView() -> UITextView {
+    // MARK: - Initializers
+
+    public init(defaultFont: UIFont) {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
+
+        self.defaultFont = defaultFont
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
 
-        // Arbitrary starting frame.
-        return UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
-    }
-
-
-    // MARK: - Lifecycle Methods
-
-    deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
-    }
-
-    public init(textView: UITextView, defaultFont: UIFont) {
-
-        assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
-
-        self.defaultFont = defaultFont
-        self.textView = textView
-        self.attachmentManager = AztecAttachmentManager(textView: textView)
-
-        super.init()
+        super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
 
         startListeningToEvents()
     }
 
+    required public init?(coder aDecoder: NSCoder) {
+
+        defaultFont = UIFont.systemFontOfSize(14)
+
+        super.init(coder: aDecoder)
+    }
+
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
 
     // MARK: - Misc helpers
 
@@ -61,10 +50,10 @@ public class AztecVisualEditor : NSObject {
     private func startListeningToEvents() {
         // Notifications
         let nc = NSNotificationCenter.defaultCenter()
-        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: textView)
+        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: self)
 
         // Delegates
-        textView.layoutManager.delegate = self
+        layoutManager.delegate = self
         attachmentManager.delegate = self
     }
 
@@ -124,16 +113,15 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
-
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
         //      More information about the bug here:
         //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
         //
-        textView.font = defaultFont
+        font = defaultFont
 
-        storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
+        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
 
 
@@ -231,7 +219,7 @@ public class AztecVisualEditor : NSObject {
         guard range.length > 0 else {
             return
         }
-        
+
         storage.toggleBold(range)
     }
 
@@ -310,7 +298,7 @@ public class AztecVisualEditor : NSObject {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        let storage = textView.textStorage
+        let storage = textStorage
 
         // Check if the start of the selection is already in a blockquote.
         let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
@@ -392,11 +380,11 @@ public class AztecVisualEditor : NSObject {
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
-        textView.textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+        textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
 
         // Move the cursor after the attachment
         let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
-        textView.selectedRange = selectionRange
+        selectedRange = selectionRange
 
         // Make sure to reload + layout
         attachmentManager.reloadAttachments()
@@ -515,7 +503,7 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// In most instances, the value of NSRange.location is off by one when compared to a character index. 
+    /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
     ///
     /// - Parameters:
@@ -591,8 +579,8 @@ public class AztecVisualEditor : NSObject {
         }
         return false
     }
-
-
+    
+    
     /// Check if the blockquote attribute exists at the specified index.
     ///
     /// - Paramters:
@@ -604,7 +592,7 @@ public class AztecVisualEditor : NSObject {
         guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
             return false
         }
-
+        
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
@@ -613,7 +601,7 @@ public class AztecVisualEditor : NSObject {
 
 /// NSLayoutManagerDelegate Methods
 ///
-extension AztecVisualEditor: NSLayoutManagerDelegate
+extension TextView: NSLayoutManagerDelegate
 {
 
 }
@@ -621,7 +609,7 @@ extension AztecVisualEditor: NSLayoutManagerDelegate
 
 /// AztecAttachmentManagerDelegate Methods
 ///
-extension AztecVisualEditor: AztecAttachmentManagerDelegate
+extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
         guard let kind = attachment.kind else {
@@ -638,7 +626,7 @@ extension AztecVisualEditor: AztecAttachmentManagerDelegate
 
 /// Notification Handlers
 ///
-extension AztecVisualEditor
+extension TextView
 {
     func textViewDidChange(note: NSNotification) {
         attachmentManager.reloadOrLayoutAttachmentsAsNeeded()

@@ -9,13 +9,8 @@ class EditorDemoController: UIViewController
     static let margin = CGFloat(20)
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
-    private (set) lazy var editor: AztecVisualEditor = {
-        return AztecVisualEditor(textView: self.richTextView, defaultFont: self.dynamicType.defaultContentFont)
-    }()
-
-
-    private(set) lazy var richTextView: UITextView = {
-        let tv = AztecVisualEditor.createTextView()
+    private(set) lazy var richTextView: Aztec.TextView = {
+        let tv = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont)
 
         tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         tv.delegate = self
@@ -95,9 +90,6 @@ class EditorDemoController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // lazy load the editor
-        _ = editor
-
         edgesForExtendedLayout = .None
         navigationController?.navigationBar.translucent = false
 
@@ -115,7 +107,7 @@ class EditorDemoController: UIViewController
             html = ""
         }
 
-        editor.setHTML(html)
+        richTextView.setHTML(html)
 
         configureConstraints()
         configureNavigationBar()
@@ -238,7 +230,7 @@ class EditorDemoController: UIViewController
         }
 
         let range = richTextView.selectedRange
-        let identifiers = editor.formatIdentifiersSpanningRange(range)
+        let identifiers = richTextView.formatIdentifiersSpanningRange(range)
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -292,7 +284,7 @@ extension EditorDemoController
     private func switchToHTML() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
 
-        htmlTextView.text = editor.getHTML()
+        htmlTextView.text = richTextView.getHTML()
 
         view.endEditing(true)
         htmlTextView.hidden = false
@@ -302,7 +294,7 @@ extension EditorDemoController
     private func switchToRichText() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
 
-        editor.setHTML(htmlTextView.text)
+        richTextView.setHTML(htmlTextView.text)
 
         view.endEditing(true)
         richTextView.hidden = false
@@ -342,42 +334,42 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     }
 
     func toggleBold() {
-        editor.toggleBold(range: richTextView.selectedRange)
+        richTextView.toggleBold(range: richTextView.selectedRange)
     }
 
 
     func toggleItalic() {
-        editor.toggleItalic(range: richTextView.selectedRange)
+        richTextView.toggleItalic(range: richTextView.selectedRange)
     }
 
 
     func toggleUnderline() {
-        editor.toggleUnderline(range: richTextView.selectedRange)
+        richTextView.toggleUnderline(range: richTextView.selectedRange)
     }
 
 
     func toggleStrikethrough() {
-        editor.toggleStrikethrough(range: richTextView.selectedRange)
+        richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
 
     func toggleOrderedList() {
-        editor.toggleOrderedList(range: richTextView.selectedRange)
+        richTextView.toggleOrderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleUnorderedList() {
-        editor.toggleUnorderedList(range: richTextView.selectedRange)
+        richTextView.toggleUnorderedList(range: richTextView.selectedRange)
     }
 
 
     func toggleBlockquote() {
-        editor.toggleBlockquote(range: richTextView.selectedRange)
+        richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
 
 
     func toggleLink() {
-        editor.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
+        richTextView.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
     }
 
 
@@ -461,6 +453,6 @@ private extension EditorDemoController
 {
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
-        editor.insertImage(image, index: index)
+        richTextView.insertImage(image, index: index)
     }
 }
