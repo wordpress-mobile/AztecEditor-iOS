@@ -765,14 +765,12 @@ extension Libxml2 {
 
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
-                    let preNode = ElementNode(name: name, attributes: attributes, children: [])
 
                     wrap(range: preRange, inNodeNamed: name, withAttributes: attributes)
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    let postNode = ElementNode(name: name, attributes: attributes, children: [])
 
                     wrap(range: postRange, inNodeNamed: name, withAttributes: attributes)
                 }

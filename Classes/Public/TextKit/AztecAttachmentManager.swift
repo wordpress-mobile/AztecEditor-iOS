@@ -103,7 +103,7 @@ public class AztecAttachmentManager
     /// - Returns: The NSRange of the attachment represented by the view, or nil.
     ///
     public func rangeOfAttachmentForView(view: UIView) -> NSRange? {
-        guard let targetAttachment = attachmentForView(view), textStorage = layoutManager.textStorage else {
+        guard let targetAttachment = attachmentForView(view) else {
             return nil
         }
 
@@ -237,7 +237,7 @@ private extension AztecAttachmentManager
         // Clean up any stale exclusion paths
         removeAttachmentExclusionPaths()
 
-        for (identifier, attachmentView) in attachmentViews {
+        for (_, attachmentView) in attachmentViews {
             attachmentView.view.removeFromSuperview()
         }
 

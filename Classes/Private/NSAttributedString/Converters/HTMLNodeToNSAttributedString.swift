@@ -113,8 +113,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         assert(node.children.count > 0)
 
-        let test = NSAttributedString(string: "diego")
-
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
