@@ -10,9 +10,7 @@ public class AztecVisualEditor : NSObject {
     let defaultFont: UIFont
     let textView: UITextView
 
-    lazy var attachmentManager: AztecAttachmentManager = {
-        AztecAttachmentManager(textView: self.textView, delegate: self)
-    }()
+    let attachmentManager: AztecAttachmentManager
 
     var storage: AztecTextStorage {
         return textView.textStorage as! AztecTextStorage
@@ -38,20 +36,37 @@ public class AztecVisualEditor : NSObject {
 
     // MARK: - Lifecycle Methods
 
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
     public init(textView: UITextView, defaultFont: UIFont) {
+
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
         self.defaultFont = defaultFont
         self.textView = textView
+        self.attachmentManager = AztecAttachmentManager(textView: textView)
 
         super.init()
 
-        textView.layoutManager.delegate = self
+        startListeningToEvents()
     }
 
 
     // MARK: - Misc helpers
 
+    /// Wires all of the Notifications / Delegates required!
+    ///
+    private func startListeningToEvents() {
+        // Notifications
+        let nc = NSNotificationCenter.defaultCenter()
+        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: textView)
+
+        // Delegates
+        textView.layoutManager.delegate = self
+        attachmentManager.delegate = self
+    }
 
     /// Get the default paragraph style for the editor.
     ///
@@ -372,14 +387,19 @@ public class AztecVisualEditor : NSObject {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        attachment.image = image
+        attachment.kind = .Image(image: image)
 
         // Inject the Attachment and Layout
-        let range = NSMakeRange(index, 0)
+        let insertionRange = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
+        textView.textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
 
-        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
-        attachmentManager.updateAttachmentLayout()
+        // Move the cursor after the attachment
+        let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
+        textView.selectedRange = selectionRange
+
+        // Make sure to reload + layout
+        attachmentManager.reloadAttachments()
     }
 
 
@@ -591,7 +611,7 @@ public class AztecVisualEditor : NSObject {
 }
 
 
-/// Stubs an NSLayoutManagerDelegate
+/// NSLayoutManagerDelegate Methods
 ///
 extension AztecVisualEditor: NSLayoutManagerDelegate
 {
@@ -599,11 +619,28 @@ extension AztecVisualEditor: NSLayoutManagerDelegate
 }
 
 
-/// Stubs an AztecAttachmentManagerDelegate
+/// AztecAttachmentManagerDelegate Methods
 ///
 extension AztecVisualEditor: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
-        return nil
+        guard let kind = attachment.kind else {
+            return nil
+        }
+
+        switch kind {
+        case .Image(let image):
+            return UIImageView(image: image)
+        }
+    }
+}
+
+
+/// Notification Handlers
+///
+extension AztecVisualEditor
+{
+    func textViewDidChange(note: NSNotification) {
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
     }
 }
