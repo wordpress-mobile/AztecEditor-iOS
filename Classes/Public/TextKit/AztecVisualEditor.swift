@@ -378,10 +378,12 @@ public class AztecVisualEditor : NSObject {
         attachment.kind = .Image(image: image)
 
         // Inject the Attachment and Layout
-        let range = NSMakeRange(index, 0)
+        let insertionRange = NSMakeRange(index, 0)
+        let selectionRange = NSMakeRange(index + 1, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
 
-        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
+        textView.textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+        textView.selectedRange = selectionRange
         attachmentManager.reloadAttachments()
     }
 
