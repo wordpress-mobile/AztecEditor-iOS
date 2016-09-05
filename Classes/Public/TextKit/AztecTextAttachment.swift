@@ -56,9 +56,9 @@ public class AztecTextAttachment: NSTextAttachment
     }
 
     private func aboveAndBelowBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint) -> CGRect {
-        let width = (lineFrag.width - position.x) - (textContainer!.lineFragmentPadding * 2.0)
-        let rect = CGRectMake(0.0, 0.0, floor(width), 1.0)
-        
-        return rect
+        let padding = textContainer?.lineFragmentPadding ?? 0.0
+        let width = lineFrag.width - position.x - padding * 2.0
+
+        return CGRect(x: 0.0, y: 0.0, width: floor(width), height: lineFrag.height)
     }
 }
