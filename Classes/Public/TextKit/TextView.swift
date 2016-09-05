@@ -4,8 +4,8 @@ public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
-    lazy var attachmentManager: AztecAttachmentManager = {
-        AztecAttachmentManager(textView: self, delegate: self)
+    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+        AztecAttachmentManager(textView: self)
     }()
 
     var storage: AztecTextStorage {
@@ -24,14 +24,31 @@ public class TextView: UITextView {
         container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
+
+        startListeningToEvents()
     }
-    
+
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
 
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
     // MARK: - Misc helpers
 
+    /// Wires all of the Notifications / Delegates required!
+    ///
+    private func startListeningToEvents() {
+        // Notifications
+        let nc = NSNotificationCenter.defaultCenter()
+        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: self)
+
+        // Delegates
+        layoutManager.delegate = self
+        attachmentManager.delegate = self
+    }
 
     /// Get the default paragraph style for the editor.
     ///
@@ -343,14 +360,19 @@ public class TextView: UITextView {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        attachment.image = image
+        attachment.kind = .Image(image: image)
 
         // Inject the Attachment and Layout
-        let range = NSMakeRange(index, 0)
+        let insertionRange = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
+        textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
 
-        textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
-        attachmentManager.updateAttachmentLayout()
+        // Move the cursor after the attachment
+        let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
+        selectedRange = selectionRange
+
+        // Make sure to reload + layout
+        attachmentManager.reloadAttachments()
     }
 
 
@@ -562,7 +584,7 @@ public class TextView: UITextView {
 }
 
 
-/// Stubs an NSLayoutManagerDelegate
+/// NSLayoutManagerDelegate Methods
 ///
 extension TextView: NSLayoutManagerDelegate
 {
@@ -570,11 +592,28 @@ extension TextView: NSLayoutManagerDelegate
 }
 
 
-/// Stubs an AztecAttachmentManagerDelegate
+/// AztecAttachmentManagerDelegate Methods
 ///
 extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
-        return nil
+        guard let kind = attachment.kind else {
+            return nil
+        }
+
+        switch kind {
+        case .Image(let image):
+            return UIImageView(image: image)
+        }
+    }
+}
+
+
+/// Notification Handlers
+///
+extension TextView
+{
+    func textViewDidChange(note: NSNotification) {
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
     }
 }
