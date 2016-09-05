@@ -379,11 +379,14 @@ public class AztecVisualEditor : NSObject {
 
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(index, 0)
-        let selectionRange = NSMakeRange(index + 1, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
-
         textView.textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+
+        // Move the cursor after the attachment
+        let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
         textView.selectedRange = selectionRange
+
+        // Make sure to reload + layout
         attachmentManager.reloadAttachments()
     }
 
