@@ -31,7 +31,11 @@ public class AztecVisualEditor : NSObject {
         container.widthTracksTextView = true
 
         // Arbitrary starting frame.
-        return UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
+        let textView = UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
+
+        textView.font = UIFont.systemFontOfSize(14)
+
+        return textView
     }
 
 

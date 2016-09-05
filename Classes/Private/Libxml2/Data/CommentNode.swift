@@ -22,21 +22,5 @@ extension Libxml2 {
         override func length() -> Int {
             return 1
         }
-
-        override func deleteCharacters(inRange range: NSRange) {
-            // No-op, will be removed.
-        }
-
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
-            // No-op, will be removed.
-        }
-
-        override func split(forRange range: NSRange) {
-            // No-op, will be removed.
-        }
-
-        override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-            // No-op, will be removed.
-        }
     }
 }

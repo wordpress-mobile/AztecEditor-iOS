@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    class TextNode: Node {
+    class TextNode: Node, EditableNode {
 
         var text: String
 
@@ -23,7 +23,9 @@ extension Libxml2 {
             return text.characters.count
         }
 
-        override func deleteCharacters(inRange range: NSRange) {
+        // MARK: - EditableNode
+
+        func deleteCharacters(inRange range: NSRange) {
 
             guard let textRange = text.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -32,7 +34,7 @@ extension Libxml2 {
             text.removeRange(textRange)
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
 
             guard let textRange = text.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -41,7 +43,7 @@ extension Libxml2 {
             text.replaceRange(textRange, with: string)
         }
 
-        override func split(forRange range: NSRange) {
+        func split(forRange range: NSRange) {
 
             guard let swiftRange = text.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -79,7 +81,7 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
                 wrap(inNodeNamed: nodeName, withAttributes: attributes)
