@@ -10,7 +10,7 @@ class EditorDemoController: UIViewController
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
     private (set) lazy var editor: AztecVisualEditor = {
-        return AztecVisualEditor(textView: self.richTextView)
+        return AztecVisualEditor(textView: self.richTextView, defaultFont: self.dynamicType.defaultContentFont)
     }()
 
 

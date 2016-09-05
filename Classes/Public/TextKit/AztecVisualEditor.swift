@@ -7,6 +7,7 @@ public class AztecVisualEditor : NSObject {
 
     typealias ElementNode = Libxml2.ElementNode
 
+    let defaultFont: UIFont
     let textView: UITextView
 
     lazy var attachmentManager: AztecAttachmentManager = {
@@ -37,9 +38,10 @@ public class AztecVisualEditor : NSObject {
 
     // MARK: - Lifecycle Methods
 
-    public init(textView: UITextView) {
+    public init(textView: UITextView, defaultFont: UIFont) {
         assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
 
+        self.defaultFont = defaultFont
         self.textView = textView
 
         super.init()
@@ -107,6 +109,15 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
+
+        // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
+        //      conditions.  We are assigning the default font here again to avoid that issue.
+        //
+        //      More information about the bug here:
+        //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
+        //
+        textView.font = defaultFont
+
         storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
     }
 

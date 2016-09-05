@@ -39,7 +39,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testMaxIndex() {
         let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let editor = AztecVisualEditor(textView: textView, defaultFont: UIFont.systemFontOfSize(14))
 
         textView.text = "foo"
 
@@ -53,7 +53,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testAdjustedIndex() {
         let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let editor = AztecVisualEditor(textView: textView, defaultFont: UIFont.systemFontOfSize(14))
 
         textView.text = "foobarbaz"
 
@@ -319,7 +319,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func editorConfiguredForTesting(withHTML html: String) -> AztecVisualEditor {
         let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let editor = AztecVisualEditor(textView: textView, defaultFont: UIFont.systemFontOfSize(14))
 
         editor.setHTML(html)
 
@@ -328,7 +328,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func editorConfiguredWithParagraphs() -> AztecVisualEditor {
         let textView = AztecVisualEditor.createTextView()
-        let editor = AztecVisualEditor(textView: textView)
+        let editor = AztecVisualEditor(textView: textView, defaultFont: UIFont.systemFontOfSize(14))
 
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let paragraph = "Lorem ipsum dolar sit amet.\n"
