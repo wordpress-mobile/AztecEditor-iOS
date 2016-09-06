@@ -9,7 +9,8 @@ extension Libxml2.In {
         typealias Node = Libxml2.Node
         typealias RootNode = Libxml2.RootNode
         typealias TextNode = Libxml2.TextNode
-
+        typealias CommentNode = Libxml2.CommentNode
+        
         /// Converts a single node (from libxml2) into an HTML.Node.
         ///
         /// - Parameters:
@@ -26,6 +27,8 @@ extension Libxml2.In {
                 node = createRootNode(rawNode)
             } else if nodeName.lowercaseString == "text" {
                 node = createTextNode(rawNode)
+            } else if nodeName.lowercaseString == "comment" {
+                node = createCommentNode(rawNode)
             } else {
                 node = createElementNode(rawNode)
             }
@@ -102,6 +105,20 @@ extension Libxml2.In {
         private func createTextNode(rawNode: xmlNode) -> TextNode {
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
             let node = TextNode(text: text)
+
+            return node
+        }
+
+        /// Creates an HTML.CommentNode from a libxml2 element node.
+        ///
+        /// - Parameters:
+        ///     - rawNode: the libxml2 xmlNode.
+        ///
+        /// - Returns: the HTML.CommentNode
+        ///
+        private func createCommentNode(rawNode: xmlNode) -> CommentNode {
+            let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
+            let node = CommentNode(text: text)
 
             return node
         }
