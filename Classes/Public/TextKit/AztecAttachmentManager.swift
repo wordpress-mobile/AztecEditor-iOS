@@ -10,7 +10,7 @@ public class AztecAttachmentManager
 
     /// Maps an Attachment Identifier to an AztecAttachmentView Helper.
     ///
-    private var attachmentViews = [String: AztecAttachmentView]()
+    private var attachmentViews = [String: UIView]()
 
     /// The delegate who will provide the UIViews used as content represented by AztecTextAttachments 
     /// in the UITextView's NSAttributedString.
@@ -42,8 +42,7 @@ public class AztecAttachmentManager
 
     /// Designaged initializer.
     ///
-    /// - Parameters:
-    ///     - textView: The UITextView to manage attachment layout.
+    /// - Parameter textView: The UITextView to manage attachment layout.
     ///
     public init(textView: UITextView) {
         self.textView = textView
@@ -54,35 +53,33 @@ public class AztecAttachmentManager
 
     /// Returns the custom view for the specified AztecTextAttachment or nil if not found.
     ///
-    /// - Parameters:
-    ///     - attachment: The AztecTextAttachment
+    /// - Parameter attachment: The AztecTextAttachment
     ///
     /// - Returns: A UIView optional
     ///
     public func viewForAttachment(attachment: AztecTextAttachment) -> UIView? {
-        return attachmentViews[attachment.identifier]?.view
+        return attachmentViews[attachment.identifier]
     }
 
 
     /// Get the AztecTextAttachment being represented by the specified view.
     ///
-    /// - Parameters:
-    ///     - view: The custom view representing the attachment.
+    /// - Parameter view: The custom view representing the attachment.
     ///
     /// - Returns: The matching AztecTextAttachment or nil
     ///
     public func attachmentForView(view: UIView) -> AztecTextAttachment? {
-        for (identifier, attachmentView) in attachmentViews where attachmentView.view == view {
+        for (identifier, attachmentView) in attachmentViews where attachmentView == view {
             return attachmentForIdentifier(identifier)
         }
+
         return nil
     }
 
 
     /// Get the AztecTextAttachment for the specified identifier.
     ///
-    /// - Parameters:
-    ///     - identifier: The identifier of the attachment.
+    /// - Parameter identifier: The identifier of the attachment.
     ///
     /// - Returns: The matching AztecTextAttachment or nil
     ///
@@ -90,6 +87,7 @@ public class AztecAttachmentManager
         for attachment in attachments where attachment.identifier == identifier {
             return attachment
         }
+
         return nil
     }
 
@@ -97,8 +95,7 @@ public class AztecAttachmentManager
     /// Get the range in text storage of the AztecTextAttachment represented by 
     /// the specified view.
     ///
-    /// - Paramters:
-    ///     - view: The view representing an attachment.
+    /// - Parameter view: The view representing an attachment.
     ///
     /// - Returns: The NSRange of the attachment represented by the view, or nil.
     ///
@@ -109,13 +106,14 @@ public class AztecAttachmentManager
 
         var rangeOfAttachment: NSRange?
 
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             guard attachment == targetAttachment else {
                 return
             }
 
             rangeOfAttachment = range
         }
+
         return rangeOfAttachment
     }
 
@@ -127,20 +125,13 @@ public class AztecAttachmentManager
     ///     - attachment: The AztecTextAttachment
     ///
     public func assignView(view: UIView, forAttachment attachment: AztecTextAttachment) {
-        var attachmentView = attachmentViews[attachment.identifier]
-
-        if let attachmentView = attachmentView {
-            attachmentView.view.removeFromSuperview()
-            attachmentView.view = view
-
-        } else {
-            attachmentView = AztecAttachmentView(view: view)
-            attachmentViews[attachment.identifier] = attachmentView!
+        if let attachmentView = attachmentViews[attachment.identifier] {
+            attachmentView.removeFromSuperview()
         }
 
+        attachmentViews[attachment.identifier] = view
+        resizeViewForAttachment(attachment, toFitInContainer: textContainer)
         textView.addSubview(view)
-
-        resizeViewForAttachment(attachment, toFitInContainer: textView.textContainer)
 
         layoutAttachmentViews()
     }
@@ -165,15 +156,15 @@ public class AztecAttachmentManager
     public func reloadAttachments() {
         resetAttachmentManager()
 
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
                 return
             }
 
-            self.attachmentViews[attachment.identifier] = AztecAttachmentView(view: view)
-            self.resizeViewForAttachment(attachment, toFitInContainer: self.textView.textContainer)
+            self.attachmentViews[attachment.identifier] = view
+            self.resizeViewForAttachment(attachment, toFitInContainer: self.textContainer)
             self.textView.addSubview(view)
         }
 
@@ -187,10 +178,8 @@ public class AztecAttachmentManager
     /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
     ///
     public func resizeAttachments() {
-        let textContainer = textView.textContainer
-
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
-            self.resizeViewForAttachment(attachment, toFitInContainer: textContainer)
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+            self.resizeViewForAttachment(attachment, toFitInContainer: self.textContainer)
         }
 
         layoutAttachmentViews()
@@ -202,25 +191,20 @@ public class AztecAttachmentManager
     /// or after updating an attachment's `image` property.
     ///
     public func layoutAttachmentViews() {
-        // Remove any existing attachment exclusion paths and ensure layout.
-        // This ensures previous (soon to be invalid) exclusion paths do not
-        // conflict with the new layout.
-        removeAttachmentExclusionPaths()
-
-        layoutManager.ensureLayoutForTextContainer(textView.textContainer)
-
-        // Layout
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
-            self.layoutAttachmentViewForAttachment(attachment, atRange: range)
-        }
+        layoutManager.ensureLayoutForTextContainer(textContainer)
 
         // HACK HACK
-        // Hoping that both, God and the reviewer forgive me... this fixes several scenarios in which 
+        // Hoping that both, God and the reviewer forgive me... this fixes several scenarios in which
         // Exclusion Paths were not being properly respected.
         // Ref. http://stackoverflow.com/questions/24681960/incorrect-exclusionpaths-with-new-lines-in-a-uitextview?noredirect=1&lq=1
         //
         textView.scrollEnabled = false
         textView.scrollEnabled = true
+
+        // Layout
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+            self.layoutAttachmentViewForAttachment(attachment, atRange: range)
+        }
     }
 }
 
@@ -234,11 +218,8 @@ private extension AztecAttachmentManager
     /// the UITextView, their exclusion paths are removed from textStorage.
     ///
     func resetAttachmentManager() {
-        // Clean up any stale exclusion paths
-        removeAttachmentExclusionPaths()
-
         for (_, attachmentView) in attachmentViews {
-            attachmentView.view.removeFromSuperview()
+            attachmentView.removeFromSuperview()
         }
 
         attachmentViews.removeAll()
@@ -246,50 +227,6 @@ private extension AztecAttachmentManager
     }
 
 
-    /// Nukes all of the ExclusionPaths associated to the AttachmentViews collection.
-    ///
-    func removeAttachmentExclusionPaths() {
-        let textContainer = textView.textContainer
-
-        let paths = attachmentViews.flatMap { (identifier, attachmentView) -> UIBezierPath? in
-            return attachmentView.exclusionPath
-        }
-        let pathsToKeep = textContainer.exclusionPaths.filter { (bezierPath) -> Bool in
-            return !paths.contains(bezierPath)
-        }
-
-        textContainer.exclusionPaths = pathsToKeep
-    }
-
-
-    /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
-    /// For each one of those elements, the specified block will be called.
-    ///
-    /// - Parameters:
-    ///     - range: The range that should be checked. Nil wil cause the whole text to be scanned
-    ///     - type: The kind of Attachment we're after
-    ///     - block: Closure to be executed, for each one of the elements
-    ///
-    func enumerateAttachments<T : NSTextAttachment>(range: NSRange? = nil, ofType type: T.Type, block: ((T, NSRange) -> Void)) {
-        guard let textStorage = layoutManager.textStorage else {
-            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
-            return
-        }
-
-        let range = range ?? NSMakeRange(0, textStorage.length)
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            if let object = object as? T {
-                block(object, range)
-            }
-        }
-    }
-}
-
-
-/// AztecAttachmentManager Layout Helpers
-///
-private extension AztecAttachmentManager
-{
     /// Updates the layout of the attachment view for the specified attachment but
     /// creating a new exclusion path for the view based on the location of the
     /// specified attachment.
@@ -299,90 +236,49 @@ private extension AztecAttachmentManager
     ///     - range: The range of the AztecTextAttachment in the textView's NSTextStorage
     ///
     private func layoutAttachmentViewForAttachment(attachment: AztecTextAttachment, atRange range: NSRange) {
-        guard let attachmentView = attachmentViews[attachment.identifier] else {
+        guard let view = attachmentViews[attachment.identifier] else {
             return
         }
 
-        // Exclusion Frame needs to account for Insets, as well as line paddings!
-        let newFrame = frameForAttachmentView(attachmentView, forAttachment: attachment, atRange: range)
-        let newExclusionPath = exclusionPathForAttachmentFrame(newFrame, textWrapping: attachment.textWrapping)
+        let size = view.frame.size
+        var frame = textView.frameForTextInRange(range)
 
-        attachmentView.view.frame = newFrame
-        attachmentView.exclusionPath = newExclusionPath
-
-        textContainer.exclusionPaths.append(newExclusionPath)
-        layoutManager.ensureLayoutForTextContainer(textContainer)
-    }
-
-
-    /// Computes the frame for an attachment's custom view based on alignment
-    /// and the size of the attachment.  Attachments with a maxSize of CGSizeZero
-    /// will scale to match the current width of the textContainer. Attachments
-    /// with a maxSize greater than CGSizeZero will never scale up, but may be
-    /// scaled down to match the width of the textContainer.
-    ///
-    /// - Parameters:
-    ///     - attachmentView: The AztecAttachmentView in question.
-    ///     - attachment: The AztecTextAttachment
-    ///     - range: The range of the AztecTextAttachment in the textView's NSTextStorage
-    ///
-    /// - Returns: The frame for the specified custom attachment view.
-    ///
-    func frameForAttachmentView(attachmentView: AztecAttachmentView, forAttachment attachment: AztecTextAttachment, atRange range:NSRange) -> CGRect {
-        let glyphRange = layoutManager.glyphRangeForCharacterRange(range, actualCharacterRange: nil)
-        guard let textContainer = layoutManager.textContainerForGlyphAtIndex(glyphRange.location, effectiveRange: nil) else {
-            return CGRectZero
+        switch attachment.alignment {
+        case .Left:
+            frame.origin.x = textContainer.lineFragmentPadding
+        case .Center:
+            frame.origin.x = round((textContainer.size.width - size.width) * 0.5)
+        case .Right:
+            frame.origin.x = textContainer.size.width - size.width - textContainer.lineFragmentPadding
+        case .None:
+            break
         }
 
-        // The location of the attachment glyph
-        let lineFragmentRect = layoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer)
-        let containerInset = textView.textContainerInset
-
-        var frame = attachmentView.view.frame
-        frame.origin.y = containerInset.top + lineFragmentRect.maxY
-        frame.origin.x = (textView.textContainer.size.width - attachmentView.view.frame.width) * 0.5 + containerInset.left
-
-        return frame
+        frame.size = size
+        view.frame = frame
     }
 
 
-    /// Calculates the Exclusion Path, for a given Attachment Frame, in the specified Wrapping Mode.
+    /// Resize (if necessary) the custom view for the specified attachment so that it fits within the
+    /// width of its textContainer.
     ///
-    /// - Parameters:
-    ///     - attachmentFrame: The frame in which the attachment will be rendered.
-    ///     - textWrapping: The way in which the surrounding text will be handled.
-    ///
-    /// - Returns: The BezierPath for the specified Attachment settings.
-    ///
-    func exclusionPathForAttachmentFrame(attachmentFrame: CGRect, textWrapping: AztecTextAttachment.TextWrapping) -> UIBezierPath {
-        let textInsets = textView.textContainerInset
-        var newExclusion = attachmentFrame
-
-        newExclusion.origin.x -= textInsets.left
-        newExclusion.origin.y -= textInsets.top
-
-        return UIBezierPath(rect: newExclusion)
-    }
-
-
-    /// Resize (if necessary) the custom view for the specified attachment so that
-    /// it fits within the width of its textContainer.
+    /// Note: We also set the Attachment's Line Height!!
     ///
     /// - Parameters:
     ///     - attachment: The AztecTextAttachment
     ///     - size: Should be the size of the textContainer
     ///
     func resizeViewForAttachment(attachment: AztecTextAttachment, toFitInContainer container: NSTextContainer) {
-        guard let attachmentView = attachmentViews[attachment.identifier] where attachmentView.view.frame.height != 0 else {
+        guard let view = attachmentViews[attachment.identifier] where view.frame.height != 0 else {
             return
         }
 
-        let view = attachmentView.view
-        let maximumWidth = container.size.width - (2 * container.lineFragmentPadding)
+        let maximumWidth = attachment.maximumAssociatedViewWidthForContainer(textContainer)
         let ratio = view.frame.size.width / view.frame.size.height
+        let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 
-        view.frame.size.width = floor(maximumWidth)
-        view.frame.size.height = floor(maximumWidth / ratio)
+        view.frame.size = newSize
+        attachment.associatedViewSize = newSize
     }
 }
 
@@ -402,24 +298,4 @@ public protocol AztecAttachmentManagerDelegate : NSObjectProtocol
     /// - Returns: A UIView to represent the specified AztecTextAttachment or nil.
     ///
     func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView?
-}
-
-
-/// A convenience class for grouping a custom view with its attachment and exclusion path.
-///
-private class AztecAttachmentView
-{
-    /// View to be rendered onscreen.
-    ///
-    var view: UIView
-
-    /// Path that should be sent over to the TextStorage, for exclusion purposes.
-    ///
-    var exclusionPath: UIBezierPath?
-
-
-    init(view: UIView, exclusionPath: UIBezierPath? = nil) {
-        self.view = view
-        self.exclusionPath = exclusionPath
-    }
 }
