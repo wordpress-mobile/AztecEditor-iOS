@@ -1,59 +1,61 @@
-import Foundation
+import UIKit
 
-
-/// AztecVisualEditor
-///
-public class AztecVisualEditor : NSObject {
+public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
-    let textView: UITextView
-
-    lazy var attachmentManager: AztecAttachmentManager = {
-        AztecAttachmentManager(textView: self.textView, delegate: self)
+    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+        AztecAttachmentManager(textView: self)
     }()
 
+    let defaultFont: UIFont
+
     var storage: AztecTextStorage {
-        return textView.textStorage as! AztecTextStorage
+        return textStorage as! AztecTextStorage
     }
 
-    /// Returns a UITextView whose TextKit stack is composted to use AztecTextStorage.
-    ///
-    /// - Returns: A UITextView.
-    ///
-    public class func createTextView() -> UITextView {
+    // MARK: - Initializers
+
+    public init(defaultFont: UIFont) {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
+
+        self.defaultFont = defaultFont
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
 
-        // Arbitrary starting frame.
-        let textView = UITextView(frame: CGRectMake(0, 0, 100, 44), textContainer: container)
+        super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
 
-        textView.font = UIFont.systemFontOfSize(14)
-
-        return textView
+        startListeningToEvents()
     }
 
+    required public init?(coder aDecoder: NSCoder) {
 
-    // MARK: - Lifecycle Methods
+        defaultFont = UIFont.systemFontOfSize(14)
 
-    public init(textView: UITextView) {
-        assert(textView.textStorage.isKindOfClass(AztecTextStorage.self), "AztecVisualEditor should only be used with UITextView's backed by AztecTextStorage")
-
-        self.textView = textView
-
-        super.init()
-
-        textView.layoutManager.delegate = self
+        super.init(coder: aDecoder)
     }
 
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
 
     // MARK: - Misc helpers
 
+    /// Wires all of the Notifications / Delegates required!
+    ///
+    private func startListeningToEvents() {
+        // Notifications
+        let nc = NSNotificationCenter.defaultCenter()
+        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: self)
+
+        // Delegates
+        layoutManager.delegate = self
+        attachmentManager.delegate = self
+    }
 
     /// Get the default paragraph style for the editor.
     ///
@@ -67,7 +69,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Get the ranges of paragraphs that encompase the specified range.
     ///
-    /// - Paramaters:
+    /// - Parameters:
     ///     - range: The specified NSRange.
     ///
     /// - Returns an array of NSRange objects.
@@ -111,7 +113,15 @@ public class AztecVisualEditor : NSObject {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
-        storage.setHTML(html, withDefaultFontDescriptor: textView.font!.fontDescriptor())
+        // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
+        //      conditions.  We are assigning the default font here again to avoid that issue.
+        //
+        //      More information about the bug here:
+        //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
+        //
+        font = defaultFont
+
+        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
 
 
@@ -120,7 +130,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: An NSRange to inspect.
     ///
     /// - Returns: A list of identifiers.
@@ -158,7 +168,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Get a list of format identifiers at a specific index as a String array.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The character index to inspect.
     ///
     /// - Returns: A list of identifiers.
@@ -201,7 +211,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Adds or removes a bold style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
@@ -209,14 +219,14 @@ public class AztecVisualEditor : NSObject {
         guard range.length > 0 else {
             return
         }
-        
+
         storage.toggleBold(range)
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a italic style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
@@ -229,9 +239,9 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a underline style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
@@ -244,9 +254,9 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a strikethrough style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
@@ -259,9 +269,9 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a ordered list style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
@@ -269,7 +279,7 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a unordered list style from the specified range.
     ///
     /// - Paramters:
     ///     - range: The NSRange to edit.
@@ -284,11 +294,11 @@ public class AztecVisualEditor : NSObject {
     /// If the range spans multiple paragraphs, the style is applied to all
     /// affected paragraphs.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        let storage = textView.textStorage
+        let storage = textStorage
 
         // Check if the start of the selection is already in a blockquote.
         let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
@@ -343,9 +353,9 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a link from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
@@ -358,27 +368,32 @@ public class AztecVisualEditor : NSObject {
 
     /// Inserts an image at the specified index
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - path: The path of the image to be inserted.
     ///     - index: The character index at which to insert the image.
     ///
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        attachment.image = image
+        attachment.kind = .Image(image: image)
 
         // Inject the Attachment and Layout
-        let range = NSMakeRange(index, 0)
+        let insertionRange = NSMakeRange(index, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
+        textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
 
-        textView.textStorage.replaceCharactersInRange(range, withAttributedString: attachmentString)
-        attachmentManager.updateAttachmentLayout()
+        // Move the cursor after the attachment
+        let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
+        selectedRange = selectionRange
+
+        // Make sure to reload + layout
+        attachmentManager.reloadAttachments()
     }
 
 
     /// Inserts a Video attachment at the specified index
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index at which to insert the image.
     ///     - params: TBD
     ///
@@ -393,7 +408,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the bold attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -405,7 +420,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the italic attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -417,7 +432,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the underline attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -436,7 +451,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the strikethrough attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -455,7 +470,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the blockquote attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -488,7 +503,7 @@ public class AztecVisualEditor : NSObject {
     }
 
 
-    /// In most instances, the value of NSRange.location is off by one when compared to a character index. 
+    /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
     ///
     /// - Parameters:
@@ -507,7 +522,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the bold attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -519,7 +534,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the italic attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -531,7 +546,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the underline attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -550,7 +565,7 @@ public class AztecVisualEditor : NSObject {
 
     /// Check if the strikethrough attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -564,11 +579,11 @@ public class AztecVisualEditor : NSObject {
         }
         return false
     }
-
-
+    
+    
     /// Check if the blockquote attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -577,26 +592,43 @@ public class AztecVisualEditor : NSObject {
         guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
             return false
         }
-
+        
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
 }
 
 
-/// Stubs an NSLayoutManagerDelegate
+/// NSLayoutManagerDelegate Methods
 ///
-extension AztecVisualEditor: NSLayoutManagerDelegate
+extension TextView: NSLayoutManagerDelegate
 {
 
 }
 
 
-/// Stubs an AztecAttachmentManagerDelegate
+/// AztecAttachmentManagerDelegate Methods
 ///
-extension AztecVisualEditor: AztecAttachmentManagerDelegate
+extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
-        return nil
+        guard let kind = attachment.kind else {
+            return nil
+        }
+
+        switch kind {
+        case .Image(let image):
+            return UIImageView(image: image)
+        }
+    }
+}
+
+
+/// Notification Handlers
+///
+extension TextView
+{
+    func textViewDidChange(note: NSNotification) {
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
     }
 }

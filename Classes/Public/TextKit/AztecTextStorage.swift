@@ -46,6 +46,23 @@ public class AztecTextStorage: NSTextStorage {
     }
 
 
+    // MARK: - Attachments
+
+    public func aztecTextAttachments() -> [AztecTextAttachment] {
+        let range = NSMakeRange(0, length)
+        var attachments = [AztecTextAttachment]()
+        enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+            if let attachment = object as? AztecTextAttachment {
+                attachments.append(attachment)
+            }
+        }
+
+        return attachments
+    }
+
+
+    // MARK: - Overriden Methods
+
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
