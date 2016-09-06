@@ -42,8 +42,7 @@ public class AztecAttachmentManager
 
     /// Designaged initializer.
     ///
-    /// - Parameters:
-    ///     - textView: The UITextView to manage attachment layout.
+    /// - Parameter textView: The UITextView to manage attachment layout.
     ///
     public init(textView: UITextView) {
         self.textView = textView
@@ -54,8 +53,7 @@ public class AztecAttachmentManager
 
     /// Returns the custom view for the specified AztecTextAttachment or nil if not found.
     ///
-    /// - Parameters:
-    ///     - attachment: The AztecTextAttachment
+    /// - Parameter attachment: The AztecTextAttachment
     ///
     /// - Returns: A UIView optional
     ///
@@ -66,8 +64,7 @@ public class AztecAttachmentManager
 
     /// Get the AztecTextAttachment being represented by the specified view.
     ///
-    /// - Parameters:
-    ///     - view: The custom view representing the attachment.
+    /// - Parameter view: The custom view representing the attachment.
     ///
     /// - Returns: The matching AztecTextAttachment or nil
     ///
@@ -81,8 +78,7 @@ public class AztecAttachmentManager
 
     /// Get the AztecTextAttachment for the specified identifier.
     ///
-    /// - Parameters:
-    ///     - identifier: The identifier of the attachment.
+    /// - Parameter identifier: The identifier of the attachment.
     ///
     /// - Returns: The matching AztecTextAttachment or nil
     ///
@@ -97,8 +93,7 @@ public class AztecAttachmentManager
     /// Get the range in text storage of the AztecTextAttachment represented by 
     /// the specified view.
     ///
-    /// - Paramters:
-    ///     - view: The view representing an attachment.
+    /// - Parameter view: The view representing an attachment.
     ///
     /// - Returns: The NSRange of the attachment represented by the view, or nil.
     ///
@@ -215,7 +210,7 @@ public class AztecAttachmentManager
         }
 
         // HACK HACK
-        // Hoping that both, God and the reviewer forgive me... this fixes several scenarios in which 
+        // Hoping that both, God and the reviewer forgive me... this fixes several scenarios in which
         // Exclusion Paths were not being properly respected.
         // Ref. http://stackoverflow.com/questions/24681960/incorrect-exclusionpaths-with-new-lines-in-a-uitextview?noredirect=1&lq=1
         //
