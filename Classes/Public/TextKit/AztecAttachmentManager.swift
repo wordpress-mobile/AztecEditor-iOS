@@ -100,19 +100,20 @@ public class AztecAttachmentManager
     /// - Returns: The NSRange of the attachment represented by the view, or nil.
     ///
     public func rangeOfAttachmentForView(view: UIView) -> NSRange? {
-        guard let targetAttachment = attachmentForView(view), textStorage = layoutManager.textStorage else {
+        guard let targetAttachment = attachmentForView(view) else {
             return nil
         }
 
         var rangeOfAttachment: NSRange?
 
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             guard attachment == targetAttachment else {
                 return
             }
 
             rangeOfAttachment = range
         }
+
         return rangeOfAttachment
     }
 
@@ -131,7 +132,6 @@ public class AztecAttachmentManager
         attachmentViews[attachment.identifier] = view
         resizeViewForAttachment(attachment, toFitInContainer: textContainer)
         textView.addSubview(view)
-
 
         layoutAttachmentViews()
     }
@@ -156,7 +156,7 @@ public class AztecAttachmentManager
     public func reloadAttachments() {
         resetAttachmentManager()
 
-        enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
@@ -227,28 +227,6 @@ private extension AztecAttachmentManager
     }
 
 
-
-    /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
-    /// For each one of those elements, the specified block will be called.
-    ///
-    /// - Parameters:
-    ///     - range: The range that should be checked. Nil wil cause the whole text to be scanned
-    ///     - type: The kind of Attachment we're after
-    ///     - block: Closure to be executed, for each one of the elements
-    ///
-    func enumerateAttachments<T : NSTextAttachment>(range: NSRange? = nil, ofType type: T.Type, block: ((T, NSRange) -> Void)) {
-        guard let textStorage = layoutManager.textStorage else {
-            assertionFailure("Unable to enumerate attachments. No NSTextStorage.")
-            return
-        }
-
-        let range = range ?? NSMakeRange(0, textStorage.length)
-        textStorage.enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            if let object = object as? T {
-                block(object, range)
-            }
-        }
-    }
     /// Updates the layout of the attachment view for the specified attachment but
     /// creating a new exclusion path for the view based on the location of the
     /// specified attachment.
