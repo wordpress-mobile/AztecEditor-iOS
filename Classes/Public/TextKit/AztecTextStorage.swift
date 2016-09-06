@@ -70,20 +70,16 @@ public class AztecTextStorage: NSTextStorage {
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
 
-        // NOTE: Hook in any custom attribute handling here.
-
         textStore.replaceCharactersInRange(range, withString: str)
         rootNode.replaceCharacters(inRange: range, withString: str)
 
-        edited(.EditedCharacters, range: range, changeInLength: (str as NSString).length - range.length)
+        edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
 
         endEditing()
     }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
-
-        // NOTE: Hook in any custom attribute handling here.
 
         textStore.setAttributes(attrs, range: range)
         edited(.EditedAttributes, range: range, changeInLength: 0)
@@ -311,6 +307,7 @@ public extension AztecTextStorage
     }
 
     private func modifyTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+
         enumerateAttribute(NSFontAttributeName,
                            inRange: range,
                            options: [],

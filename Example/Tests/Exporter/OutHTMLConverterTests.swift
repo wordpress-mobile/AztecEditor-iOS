@@ -35,4 +35,20 @@ class OutHTMLConverterTests: XCTestCase {
         }
     }
 
+    func testCommentNodeConversion() {
+        let inParser = Libxml2.In.HTMLConverter()
+        let outParser = Libxml2.Out.HTMLConverter()
+
+        let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
+
+        do {
+            let inNode = try inParser.convert(html)
+            let outHtml = outParser.convert(inNode)
+
+            XCTAssertEqual(outHtml, html)
+        } catch {
+            XCTFail("Unexpected conversion failure.")
+        }
+    }
+
 }

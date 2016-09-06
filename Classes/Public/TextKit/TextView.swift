@@ -14,6 +14,17 @@ public class TextView: UITextView {
         return textStorage as! AztecTextStorage
     }
 
+    override public var bounds: CGRect {
+        didSet {
+            if oldValue.size == bounds.size {
+                return
+            }
+
+            attachmentManager.resizeAttachments()
+        }
+    }
+
+
     // MARK: - Initializers
 
     public init(defaultFont: UIFont) {
@@ -57,6 +68,7 @@ public class TextView: UITextView {
         attachmentManager.delegate = self
     }
 
+
     /// Get the default paragraph style for the editor.
     ///
     /// - Returns: The default paragraph style.
@@ -69,7 +81,7 @@ public class TextView: UITextView {
 
     /// Get the ranges of paragraphs that encompase the specified range.
     ///
-    /// - Paramaters:
+    /// - Parameters:
     ///     - range: The specified NSRange.
     ///
     /// - Returns an array of NSRange objects.
@@ -130,7 +142,7 @@ public class TextView: UITextView {
 
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: An NSRange to inspect.
     ///
     /// - Returns: A list of identifiers.
@@ -168,7 +180,7 @@ public class TextView: UITextView {
 
     /// Get a list of format identifiers at a specific index as a String array.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The character index to inspect.
     ///
     /// - Returns: A list of identifiers.
@@ -211,7 +223,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a bold style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
@@ -224,9 +236,9 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a italic style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
@@ -239,9 +251,9 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a underline style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
@@ -254,9 +266,9 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a strikethrough style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
@@ -269,9 +281,9 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a ordered list style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
@@ -279,7 +291,7 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a unordered list style from the specified range.
     ///
     /// - Paramters:
     ///     - range: The NSRange to edit.
@@ -294,7 +306,7 @@ public class TextView: UITextView {
     /// If the range spans multiple paragraphs, the style is applied to all
     /// affected paragraphs.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
@@ -353,9 +365,9 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a bold style from the specified range.
+    /// Adds or removes a link from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
@@ -368,7 +380,7 @@ public class TextView: UITextView {
 
     /// Inserts an image at the specified index
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - path: The path of the image to be inserted.
     ///     - index: The character index at which to insert the image.
     ///
@@ -393,7 +405,7 @@ public class TextView: UITextView {
 
     /// Inserts a Video attachment at the specified index
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index at which to insert the image.
     ///     - params: TBD
     ///
@@ -408,7 +420,7 @@ public class TextView: UITextView {
 
     /// Check if the bold attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -420,7 +432,7 @@ public class TextView: UITextView {
 
     /// Check if the italic attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -432,7 +444,7 @@ public class TextView: UITextView {
 
     /// Check if the underline attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -451,7 +463,7 @@ public class TextView: UITextView {
 
     /// Check if the strikethrough attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -470,7 +482,7 @@ public class TextView: UITextView {
 
     /// Check if the blockquote attribute spans the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
@@ -522,7 +534,7 @@ public class TextView: UITextView {
 
     /// Check if the bold attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -534,7 +546,7 @@ public class TextView: UITextView {
 
     /// Check if the italic attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -546,7 +558,7 @@ public class TextView: UITextView {
 
     /// Check if the underline attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -565,7 +577,7 @@ public class TextView: UITextView {
 
     /// Check if the strikethrough attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
@@ -583,7 +595,7 @@ public class TextView: UITextView {
     
     /// Check if the blockquote attribute exists at the specified index.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.

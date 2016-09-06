@@ -5,19 +5,6 @@ import Foundation
 ///
 public class AztecTextAttachment: NSTextAttachment
 {
-    /// Supported Types
-    ///
-    public enum Kind {
-        case Image(image: UIImage)
-    }
-
-    /// Wrapping Options. Analog to what Apple Pages does!
-    ///
-    public enum TextWrapping {
-        case Around
-        case AboveAndBelow
-    }
-
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     private(set) public var identifier: String
@@ -26,9 +13,18 @@ public class AztecTextAttachment: NSTextAttachment
     ///
     public var kind: Kind?
 
-    /// Wrapping Mode
+    /// Attachment Alignment
     ///
-    public var textWrapping = TextWrapping.AboveAndBelow
+    public var alignment: Alignment = .Center
+
+    /// Attachment Size
+    ///
+    public var size: Size = .Maximum
+
+// TODO: Nuke If Possible
+    /// Indicates the scaled dimensions of the associated view
+    ///
+    var associatedViewSize = CGSizeZero
 
 
     /// Designed Initializer
@@ -38,27 +34,82 @@ public class AztecTextAttachment: NSTextAttachment
         super.init(data: nil, ofType: nil)
     }
 
+    /// Required Initializer
+    ///
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
         super.init(coder: aDecoder)
     }
 
-
-    /// Overriden Methods
+    /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
+    /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
+    /// Otherwise, we'll always take the whole container's width.
     ///
     public override func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-        switch textWrapping {
-        case .AboveAndBelow:
-            return aboveAndBelowBoundsForTextContainer(textContainer, proposedLineFragment: lineFrag, glyphPosition: position)
-        case .Around:
-            return super.attachmentBoundsForTextContainer(textContainer, proposedLineFragment: lineFrag, glyphPosition: position, characterIndex: charIndex)
+        let characterSize: CGSize
+        switch alignment {
+        case .None:
+            characterSize = associatedViewSize
+        default:
+            characterSize = CGSizeMake(lineFrag.width, associatedViewSize.height)
         }
+
+        return CGRect(origin: CGPointZero, size: characterSize)
     }
 
-    private func aboveAndBelowBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint) -> CGRect {
-        let padding = textContainer?.lineFragmentPadding ?? 0.0
-        let width = lineFrag.width - position.x - padding * 2.0
+// TODO: Nuke If Possible
+    /// Returns the maximum allowed Width for a given TextContainer, considering both, container constraints
+    /// and Attachment Target Size.
+    ///
+    func maximumAssociatedViewWidthForContainer(textContainer: NSTextContainer) -> CGFloat {
+        let maximumContainerWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
+        return min(size.targetWidth, maximumContainerWidth)
+    }
+}
 
-        return CGRect(x: 0.0, y: 0.0, width: floor(width), height: lineFrag.height)
+
+
+/// Nested Types
+///
+extension AztecTextAttachment
+{
+    /// Alignment
+    ///
+    public enum Alignment {
+        case None
+        case Left
+        case Center
+        case Right
+    }
+
+    /// Supported Media
+    ///
+    public enum Kind {
+        case Image(image: UIImage)
+    }
+
+    /// Size Onscreen!
+    ///
+    public enum Size {
+        case Thumbnail
+        case Medium
+        case Large
+        case Maximum
+
+        var targetWidth: CGFloat {
+            switch self {
+            case .Thumbnail: return Settings.thumbnail
+            case .Medium: return Settings.medium
+            case .Large: return Settings.large
+            case .Maximum: return Settings.maximum
+            }
+        }
+
+        private struct Settings {
+            static let thumbnail = CGFloat(135)
+            static let medium = CGFloat(270)
+            static let large = CGFloat(360)
+            static let maximum = CGFloat.max
+        }
     }
 }
