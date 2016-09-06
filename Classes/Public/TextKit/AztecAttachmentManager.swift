@@ -236,16 +236,24 @@ private extension AztecAttachmentManager
     ///     - range: The range of the AztecTextAttachment in the textView's NSTextStorage
     ///
     private func layoutAttachmentViewForAttachment(attachment: AztecTextAttachment, atRange range: NSRange) {
-        guard let attachmentView = attachmentViews[attachment.identifier] else {
+        guard let view = attachmentViews[attachment.identifier] else {
             return
         }
 
-        attachmentView.frame = textView.frameForTextInRange(range)
+/// TODO: Alignment
+        let size = view.frame.size
+        var frame = textView.frameForTextInRange(range)
+        frame.size = size
+        frame.origin.x = textContainer.size.width - size.width - textContainer.lineFragmentPadding
+
+        view.frame = frame
     }
 
 
-    /// Resize (if necessary) the custom view for the specified attachment so that
-    /// it fits within the width of its textContainer.
+    /// Resize (if necessary) the custom view for the specified attachment so that it fits within the
+    /// width of its textContainer.
+    ///
+    /// Note: We also set the Attachment's Line Height!!
     ///
     /// - Parameters:
     ///     - attachment: The AztecTextAttachment
@@ -256,12 +264,12 @@ private extension AztecAttachmentManager
             return
         }
 
-        let maximumWidth = container.size.width - (2 * container.lineFragmentPadding)
+        let maximumWidth = attachment.maximumWidthForContainer(textContainer)
         let ratio = view.frame.size.width / view.frame.size.height
+        let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 
-        let newSize = CGSizeMake(floor(maximumWidth), floor(maximumWidth / ratio))
         view.frame.size = newSize
-        attachment.size = newSize
+        attachment.lineHeight = newSize.height
     }
 }
 
