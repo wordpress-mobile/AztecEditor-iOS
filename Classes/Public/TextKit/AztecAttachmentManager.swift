@@ -157,6 +157,7 @@ public class AztecAttachmentManager
         resetAttachmentManager()
 
         textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
+            attachment.manager = self
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
@@ -280,7 +281,6 @@ private extension AztecAttachmentManager
         let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 
         view.frame.size = newSize
-        attachment.associatedViewSize = newSize
     }
 }
 
