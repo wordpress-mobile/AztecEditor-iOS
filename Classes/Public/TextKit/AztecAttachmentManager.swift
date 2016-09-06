@@ -106,7 +106,7 @@ public class AztecAttachmentManager
 
         var rangeOfAttachment: NSRange?
 
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             guard attachment == targetAttachment else {
                 return
             }
@@ -156,7 +156,7 @@ public class AztecAttachmentManager
     public func reloadAttachments() {
         resetAttachmentManager()
 
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
@@ -178,7 +178,7 @@ public class AztecAttachmentManager
     /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
     ///
     public func resizeAttachments() {
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             self.resizeViewForAttachment(attachment, toFitInContainer: self.textContainer)
         }
 
@@ -202,7 +202,7 @@ public class AztecAttachmentManager
         textView.scrollEnabled = true
 
         // Layout
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             self.layoutAttachmentViewForAttachment(attachment, atRange: range)
         }
     }
