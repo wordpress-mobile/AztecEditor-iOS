@@ -15,7 +15,7 @@ public class AztecTextAttachment: NSTextAttachment
 
     /// Attachment Size
     ///
-    public var size: Size = .Maximum
+    public var size: Size = .Medium
 
     /// Indicates the Height to be occupied onscreen
     ///

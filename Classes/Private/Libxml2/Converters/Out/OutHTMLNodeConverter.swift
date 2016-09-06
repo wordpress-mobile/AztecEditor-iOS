@@ -8,6 +8,7 @@ extension Libxml2.Out {
         typealias ElementNode = Libxml2.ElementNode
         typealias Node = Libxml2.Node
         typealias TextNode = Libxml2.TextNode
+        typealias CommentNode = Libxml2.CommentNode
 
         /// Converts a single HTML.Node into a libxml2 node
         ///
@@ -23,6 +24,8 @@ extension Libxml2.Out {
                 node = createTextNode(textNode)
             } else if let elementNode = rawNode as? ElementNode {
                 node = createElementNode(elementNode)
+            } else if let commentNode = rawNode as? CommentNode {
+                node = createCommentNode(commentNode)
             }
 
             return node
@@ -70,6 +73,21 @@ extension Libxml2.Out {
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
             
             return xmlNewText(valuePtr)
+        }
+
+        /// Creates a libxml2 element node from a HTML.CommentNode.
+        ///
+        /// - Parameters:
+        ///     - rawNode: the HTML.CommentNode.
+        ///
+        /// - Returns: the libxml2 xmlNode
+        ///
+        private func createCommentNode(rawNode: CommentNode) -> UnsafeMutablePointer<xmlNode> {
+            let value = rawNode.text
+            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
+            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+
+            return xmlNewComment(valuePtr)
         }
     }
 }

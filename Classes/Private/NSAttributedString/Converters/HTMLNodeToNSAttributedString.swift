@@ -7,6 +7,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias RootNode = Libxml2.RootNode
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
+    typealias CommentNode = Libxml2.CommentNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
@@ -45,6 +46,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         if let textNode = node as? TextNode {
             return convertTextNode(textNode, inheritingAttributes: attributes)
+        } else if let commentNode = node as? CommentNode {
+            return convertCommentNode(commentNode, inheritingAttributes: attributes)
         } else {
             guard let elementNode = node as? ElementNode else {
                 fatalError("Nodes can be either text or element nodes.")
@@ -64,6 +67,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     private func convertTextNode(node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         return NSAttributedString(string: node.text, attributes: inheritedAttributes)
+    }
+
+    /// Converts a `CommentNode` to `NSAttributedString`.
+    ///
+    /// - Parameters:
+    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - attributes: the inherited attributes from parent nodes.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    private func convertCommentNode(node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+        return NSAttributedString(string: "\n", attributes: inheritedAttributes)
     }
 
     /// Converts an `ElementNode` to `NSAttributedString`.
@@ -112,8 +127,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         assert(node.children.count > 0)
-
-        let test = NSAttributedString(string: "diego")
 
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)

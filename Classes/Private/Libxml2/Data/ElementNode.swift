@@ -4,7 +4,7 @@ extension Libxml2 {
 
     /// Element node.  Everything but text basically.
     ///
-    class ElementNode: Node {
+    class ElementNode: Node, EditableNode {
 
         /// This enum provides a list of HTML5 standard element names.  The reason why this isn't
         /// used as the `name` property of `ElementNode` is that element nodes could theoretically
@@ -619,10 +619,10 @@ extension Libxml2 {
 
                 if offset > location {
                     result.insert(child, atIndex: 0)
-                } else if splitEdge && childEndPosition > location {
+                } else if let childEditableNode = child as? EditableNode where splitEdge && childEndPosition > location {
 
                     let splitRange = NSRange(location: location - offset, length: childEndPosition - location)
-                    child.split(forRange: splitRange)
+                    childEditableNode.split(forRange: splitRange)
 
                     result.insert(child, atIndex: 0)
                     break
@@ -656,10 +656,10 @@ extension Libxml2 {
             for child in children {
                 if offset + child.length() < location {
                     result.append(child)
-                } else if splitEdge && offset < location {
+                } else if let childEditableNode = child as? EditableNode where splitEdge && offset < location {
 
                     let splitRange = NSRange(location: offset, length: location - offset)
-                    child.split(forRange: splitRange)
+                    childEditableNode.split(forRange: splitRange)
 
                     result.append(child)
                     break
@@ -673,19 +673,26 @@ extension Libxml2 {
             return result
         }
 
-        override func deleteCharacters(inRange range: NSRange) {
+        // MARK: - EditableNode
+
+        func deleteCharacters(inRange range: NSRange) {
             if range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
                 let childrenAndIntersections = childNodes(intersectingRange: range)
 
                 for (child, intersection) in childrenAndIntersections {
-                    child.deleteCharacters(inRange: intersection)
+
+                    if let childEditableNode = child as? EditableNode {
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                    } else {
+                        remove(child)
+                    }
                 }
             }
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
 
             let childrenAndIntersections = childNodes(intersectingRange: range)
 
@@ -694,17 +701,21 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                if index == 0 && string.characters.count > 0 {
-                    child.replaceCharacters(inRange: intersection, withString: string)
-                } else {
-                    child.deleteCharacters(inRange: intersection)
+                if intersection.location == 0 && intersection.length == child.length() {
+                    remove(child)
+                } else if let childEditableNode = child as? EditableNode {
+                    if index == 0 && string.characters.count > 0 {
+                        childEditableNode.replaceCharacters(inRange: intersection, withString: string)
+                    } else {
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                    }
                 }
             }
         }
 
         /// Splits this node following the specified range.
         ///
-        override func split(forRange range: NSRange) {
+        func split(forRange range: NSRange) {
 
             guard range.location >= 0 && range.location + range.length <= length() else {
                 assertionFailure("Specified range is out-of-bounds.")
@@ -736,6 +747,38 @@ extension Libxml2 {
             }
         }
 
+
+        /// Wraps the specified range inside a node with the specified properties.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range that must be wrapped.
+        ///     - nodeName: the name of the node to wrap the range in.
+        ///     - attributes: the attributes the wrapping node will have when created.
+        ///
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+
+            let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
+
+            if mustFindLowestBlockLevelElements {
+                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
+
+                for elementAndIntersection in elementsAndIntersections {
+
+                    let element = elementAndIntersection.element
+                    let intersection = elementAndIntersection.intersection
+
+                    element.forceWrapChildren(
+                        intersectingRange: intersection,
+                        inNodeNamed: nodeName,
+                        withAttributes: attributes)
+                }
+            } else {
+                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+            }
+        }
+
+        // MARK: - Unwrapping
+
         func unwrap(fromElementsNamed elementNames: [String]) {
             unwrap(range: range(), fromElementsNamed: elementNames)
         }
@@ -765,14 +808,12 @@ extension Libxml2 {
 
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
-                    let preNode = ElementNode(name: name, attributes: attributes, children: [])
 
                     wrap(range: preRange, inNodeNamed: name, withAttributes: attributes)
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    let postNode = ElementNode(name: name, attributes: attributes, children: [])
 
                     wrap(range: postRange, inNodeNamed: name, withAttributes: attributes)
                 }
@@ -824,35 +865,6 @@ extension Libxml2 {
                 }
 
                 childElement.unwrap(range: range, fromElementsNamed: elementNames)
-            }
-        }
-
-        /// Wraps the specified range inside a node with the specified properties.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range that must be wrapped.
-        ///     - nodeName: the name of the node to wrap the range in.
-        ///     - attributes: the attributes the wrapping node will have when created.
-        ///
-        override func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-
-            let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
-
-            if mustFindLowestBlockLevelElements {
-                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
-
-                for elementAndIntersection in elementsAndIntersections {
-
-                    let element = elementAndIntersection.element
-                    let intersection = elementAndIntersection.intersection
-
-                    element.forceWrapChildren(
-                        intersectingRange: intersection,
-                        inNodeNamed: nodeName,
-                        withAttributes: attributes)
-                }
-            } else {
-                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
             }
         }
 
@@ -936,23 +948,25 @@ extension Libxml2 {
 
                 if let childElement = childNode as? ElementNode {
                     childElement.forceWrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+                } else if let childTextNode = childNode as? TextNode {
+                    childTextNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
                 } else {
-                    childNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
+                    childNode.wrap(inNodeNamed: nodeName)
                 }
             } else if childNodesAndRanges.count > 1 {
 
                 let firstChild = childNodesAndRanges[0].child
                 let firstChildIntersection = childNodesAndRanges[0].intersection
 
-                if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                    firstChild.split(forRange: firstChildIntersection)
+                if let firstEditableChild = firstChild as? EditableNode where !NSEqualRanges(firstChild.range(), firstChildIntersection) {
+                    firstEditableChild.split(forRange: firstChildIntersection)
                 }
 
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
 
-                if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
-                    lastChild.split(forRange: lastChildIntersection)
+                if let lastEditableChild = lastChild as? EditableNode where !NSEqualRanges(lastChild.range(), lastChildIntersection) {
+                    lastEditableChild.split(forRange: lastChildIntersection)
                 }
 
                 let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in

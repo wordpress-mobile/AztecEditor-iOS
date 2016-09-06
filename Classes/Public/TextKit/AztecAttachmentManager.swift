@@ -218,7 +218,7 @@ private extension AztecAttachmentManager
     /// the UITextView, their exclusion paths are removed from textStorage.
     ///
     func resetAttachmentManager() {
-        for (identifier, attachmentView) in attachmentViews {
+        for (_, attachmentView) in attachmentViews {
             attachmentView.removeFromSuperview()
         }
 

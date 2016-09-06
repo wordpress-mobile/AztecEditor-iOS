@@ -623,7 +623,7 @@ class ElementNodeTests: XCTestCase {
 
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
-    /// HTML String: <div><em>Hello </em><i>there!</i></div>
+    /// HTML String: <div><em>Hello </em><u>there!</u></div>
     /// Wrap range: (2...8)
     ///
     /// The result should be: <div><em>He</em><b><em>llo </em><u>ther</u></b><u>e!</u></div>
