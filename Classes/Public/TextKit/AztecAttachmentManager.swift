@@ -273,7 +273,9 @@ private extension AztecAttachmentManager
             return
         }
 
-        let maximumWidth = attachment.maximumAssociatedViewWidthForContainer(textContainer)
+        let visibleWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
+        let maximumWidth = min(attachment.size.targetWidth, visibleWidth)
+
         let ratio = view.frame.size.width / view.frame.size.height
         let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 

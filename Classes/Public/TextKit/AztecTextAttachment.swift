@@ -56,15 +56,6 @@ public class AztecTextAttachment: NSTextAttachment
 
         return CGRect(origin: CGPointZero, size: characterSize)
     }
-
-// TODO: Nuke If Possible
-    /// Returns the maximum allowed Width for a given TextContainer, considering both, container constraints
-    /// and Attachment Target Size.
-    ///
-    func maximumAssociatedViewWidthForContainer(textContainer: NSTextContainer) -> CGFloat {
-        let maximumContainerWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
-        return min(size.targetWidth, maximumContainerWidth)
-    }
 }
 
 
