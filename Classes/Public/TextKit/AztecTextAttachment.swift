@@ -98,18 +98,18 @@ extension AztecTextAttachment
 
         var targetWidth: CGFloat {
             switch self {
-            case .Thumbnail:    return Settings.thumbnail
-            case .Medium:       return Settings.medium
-            case .Large:        return Settings.large
-            case .Maximum:      return Settings.maximum
+            case .Thumbnail: return Settings.thumbnail
+            case .Medium: return Settings.medium
+            case .Large: return Settings.large
+            case .Maximum: return Settings.maximum
             }
         }
 
         private struct Settings {
-            static let thumbnail    = CGFloat(135)
-            static let medium       = CGFloat(270)
-            static let large        = CGFloat(360)
-            static let maximum      = CGFloat.max
+            static let thumbnail = CGFloat(135)
+            static let medium = CGFloat(270)
+            static let large = CGFloat(360)
+            static let maximum = CGFloat.max
         }
     }
 }
