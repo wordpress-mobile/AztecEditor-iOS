@@ -240,12 +240,21 @@ private extension AztecAttachmentManager
             return
         }
 
-/// TODO: Alignment
         let size = view.frame.size
         var frame = textView.frameForTextInRange(range)
-        frame.size = size
-        frame.origin.x = textContainer.size.width - size.width - textContainer.lineFragmentPadding
 
+        switch attachment.alignment {
+        case .Left:
+            frame.origin.x = textContainer.lineFragmentPadding
+        case .Center:
+            frame.origin.x = round((textContainer.size.width - size.width) * 0.5)
+        case .Right:
+            frame.origin.x = textContainer.size.width - size.width - textContainer.lineFragmentPadding
+        case .None:
+            break
+        }
+
+        frame.size = size
         view.frame = frame
     }
 
@@ -264,12 +273,12 @@ private extension AztecAttachmentManager
             return
         }
 
-        let maximumWidth = attachment.maximumWidthForContainer(textContainer)
+        let maximumWidth = attachment.maximumAssociatedViewWidthForContainer(textContainer)
         let ratio = view.frame.size.width / view.frame.size.height
         let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 
         view.frame.size = newSize
-        attachment.lineHeight = newSize.height
+        attachment.associatedViewSize = newSize
     }
 }
 

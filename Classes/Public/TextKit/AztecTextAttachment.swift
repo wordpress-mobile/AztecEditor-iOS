@@ -13,13 +13,18 @@ public class AztecTextAttachment: NSTextAttachment
     ///
     public var kind: Kind?
 
+    /// Attachment Alignment
+    ///
+    public var alignment: Alignment = .Center
+
     /// Attachment Size
     ///
-    public var size: Size = .Medium
+    public var size: Size = .Maximum
 
-    /// Indicates the Height to be occupied onscreen
+// TODO: Nuke If Possible
+    /// Indicates the scaled dimensions of the associated view
     ///
-    var lineHeight = CGFloat.min
+    var associatedViewSize = CGSizeZero
 
 
     /// Designed Initializer
@@ -36,19 +41,27 @@ public class AztecTextAttachment: NSTextAttachment
         super.init(coder: aDecoder)
     }
 
-    /// Returns the "Onscreen Character Size". We'll always return the full width, plus, the scaled View's
-    /// Height.
+    /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
+    /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
+    /// Otherwise, we'll always take the whole container's width.
     ///
     public override func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-        let characterSize = CGSizeMake(lineFrag.width, lineHeight)
+        let characterSize: CGSize
+        switch alignment {
+        case .None:
+            characterSize = associatedViewSize
+        default:
+            characterSize = CGSizeMake(lineFrag.width, associatedViewSize.height)
+        }
+
         return CGRect(origin: CGPointZero, size: characterSize)
     }
 
-
+// TODO: Nuke If Possible
     /// Returns the maximum allowed Width for a given TextContainer, considering both, container constraints
     /// and Attachment Target Size.
     ///
-    func maximumWidthForContainer(textContainer: NSTextContainer) -> CGFloat {
+    func maximumAssociatedViewWidthForContainer(textContainer: NSTextContainer) -> CGFloat {
         let maximumContainerWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
         return min(size.targetWidth, maximumContainerWidth)
     }
@@ -60,6 +73,15 @@ public class AztecTextAttachment: NSTextAttachment
 ///
 extension AztecTextAttachment
 {
+    /// Alignment
+    ///
+    public enum Alignment {
+        case None
+        case Left
+        case Center
+        case Right
+    }
+
     /// Supported Media
     ///
     public enum Kind {
