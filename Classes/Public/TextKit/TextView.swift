@@ -14,6 +14,17 @@ public class TextView: UITextView {
         return textStorage as! AztecTextStorage
     }
 
+    override public var bounds: CGRect {
+        didSet {
+            if oldValue.size == bounds.size {
+                return
+            }
+
+            attachmentManager.resizeAttachments()
+        }
+    }
+
+
     // MARK: - Initializers
 
     public init(defaultFont: UIFont) {
@@ -56,6 +67,7 @@ public class TextView: UITextView {
         layoutManager.delegate = self
         attachmentManager.delegate = self
     }
+
 
     /// Get the default paragraph style for the editor.
     ///
