@@ -21,6 +21,7 @@ class EditorDemoController: UIViewController
         tv.inputAccessoryView = toolbar
         tv.textColor = UIColor.darkTextColor()
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.addGestureRecognizer(self.tapGestureRecognizer)
 
         return tv
     }()
@@ -76,6 +77,13 @@ class EditorDemoController: UIViewController
             }
         }
     }
+
+    private(set) lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
+        recognizer.cancelsTouchesInView = false
+        recognizer.delegate = self
+        return recognizer
+    }()
 
     var loadSampleHTML = false
 
@@ -427,13 +435,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 }
 
 
-extension EditorDemoController : UINavigationControllerDelegate
+extension EditorDemoController: UINavigationControllerDelegate
 {
 
 }
 
 
-extension EditorDemoController : UIImagePickerControllerDelegate
+extension EditorDemoController: UIImagePickerControllerDelegate
 {
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
@@ -454,5 +462,34 @@ private extension EditorDemoController
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
         richTextView.insertImage(image, index: index)
+    }
+
+    func displayDetailsForAttachment(attachment: AztecTextAttachment) {
+        let detailsViewController = AttachmentDetailsViewController()
+        detailsViewController.attachment = attachment
+        detailsViewController.onUpdate = {
+            self.richTextView.attachmentManager.reloadAttachments()
+        }
+
+        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        presentViewController(navigationController, animated: true, completion: nil)
+    }
+}
+
+
+
+extension EditorDemoController: UIGestureRecognizerDelegate
+{
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+    func richTextViewWasPressed(recognizer: UIGestureRecognizer) {
+        let locationInTextView = recognizer.locationInView(richTextView)
+        guard let attachment = richTextView.textAttachmentAtPoint(locationInTextView) else {
+            return
+        }
+
+        displayDetailsForAttachment(attachment)
     }
 }
