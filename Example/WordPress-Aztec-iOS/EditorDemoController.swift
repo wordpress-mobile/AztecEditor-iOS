@@ -78,8 +78,8 @@ class EditorDemoController: UIViewController
         }
     }
 
-    private(set) lazy var tapGestureRecognizer: UITapGestureRecognizer = {
-        let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
+    private(set) lazy var tapGestureRecognizer: UILongPressGestureRecognizer = {
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
         recognizer.cancelsTouchesInView = false
         recognizer.delegate = self
         return recognizer
