@@ -273,6 +273,10 @@ private extension AztecAttachmentManager
             return
         }
 
+        guard textView.window != nil else {
+            return
+        }
+
         let maximumWidth = attachment.maximumAssociatedViewWidthForContainer(textContainer)
         let ratio = view.frame.size.width / view.frame.size.height
         let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))

@@ -54,6 +54,15 @@ public class TextView: UITextView {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
 
+
+    // MARK: - UIView Overriden Methods
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        attachmentManager.layoutAttachmentViews()
+    }
+
+
     // MARK: - Misc helpers
 
     /// Wires all of the Notifications / Delegates required!
@@ -134,7 +143,7 @@ public class TextView: UITextView {
         font = defaultFont
 
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
-        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
+        attachmentManager.reloadAttachments()
     }
 
 
@@ -616,9 +625,7 @@ public class TextView: UITextView {
 ///
 extension TextView: NSLayoutManagerDelegate
 {
-    public func layoutManager(layoutManager: NSLayoutManager, textContainer: NSTextContainer, didChangeGeometryFromSize oldSize: CGSize) {
-        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
-    }
+
 }
 
 
