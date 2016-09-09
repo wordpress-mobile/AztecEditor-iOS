@@ -105,6 +105,17 @@ extension Libxml2 {
 
         // MARK: - Node Queries
 
+        func valueForStringAttribute(named attributeName: String) -> String? {
+
+            for attribute in attributes {
+                if let attribute = attribute as? StringAttribute where attribute.name == attributeName {
+                    return attribute.value
+                }
+            }
+
+            return nil
+        }
+
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {

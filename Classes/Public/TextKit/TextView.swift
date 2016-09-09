@@ -134,6 +134,7 @@ public class TextView: UITextView {
         font = defaultFont
 
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
     }
 
 
@@ -615,7 +616,9 @@ public class TextView: UITextView {
 ///
 extension TextView: NSLayoutManagerDelegate
 {
-
+    public func layoutManager(layoutManager: NSLayoutManager, textContainer: NSTextContainer, didChangeGeometryFromSize oldSize: CGSize) {
+        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
+    }
 }
 
 
@@ -629,6 +632,14 @@ extension TextView: AztecAttachmentManagerDelegate
         }
 
         switch kind {
+        case .MissingImage:
+            let placeholder = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+            placeholder.backgroundColor = UIColor.redColor()
+            return placeholder
+        case .RemoteImage(let url):
+            let placeholder = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+            placeholder.backgroundColor = UIColor.redColor()
+            return placeholder
         case .Image(let image):
             return UIImageView(image: image)
         }

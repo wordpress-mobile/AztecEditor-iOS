@@ -21,15 +21,12 @@ extension Libxml2.In {
         func convert(rawNode: xmlNode) -> Node {
             var node: Node
 
-            let nodeName = getNodeName(rawNode)
-
-            if nodeName.lowercaseString == RootNode.name {
-                node = createRootNode(rawNode)
-            } else if nodeName.lowercaseString == "text" {
+            switch rawNode.type {
+            case XML_TEXT_NODE:
                 node = createTextNode(rawNode)
-            } else if nodeName.lowercaseString == "comment" {
+            case XML_COMMENT_NODE:
                 node = createCommentNode(rawNode)
-            } else {
+            default:
                 node = createElementNode(rawNode)
             }
 
@@ -49,7 +46,16 @@ extension Libxml2.In {
         /// - Returns: the HTML.ElementNode
         ///
         private func createElementNode(rawNode: xmlNode) -> ElementNode {
+
             let nodeName = getNodeName(rawNode)
+
+            switch nodeName.lowercaseString {
+            case RootNode.name:
+                return createRootNode(rawNode)
+            default:
+                break
+            }
+
             var children = [Node]()
 
             if rawNode.children != nil {

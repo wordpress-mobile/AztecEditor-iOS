@@ -151,17 +151,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
         assert(elementNode.children.count == 0)
 
-        let placeholderContent: String
+        let elementName = elementNode.name.lowercaseString
 
-        if elementNode.name.lowercaseString == "br" {
-            placeholderContent = "\n";
+        if elementName == "br" {
+            return NSAttributedString(string: "\n")
+        } else if elementName == "img" {
+
+            let identifier = NSUUID().UUIDString
+            let attachment = AztecTextAttachment(identifier: identifier)
+
+            if let url = elementNode.valueForStringAttribute(named: "src") {
+                attachment.kind = .RemoteImage(url: url)
+            } else {
+                attachment.kind = .MissingImage
+            }
+
+            return NSAttributedString(attachment: attachment)
         } else {
-            let objectReplacementCharacter = "\u{fffc}"
-
-            placeholderContent = objectReplacementCharacter
+            return NSAttributedString(string: "")
         }
-
-        return NSAttributedString(string: placeholderContent, attributes: [keyForNode(elementNode): elementNode])
     }
 
     // MARK: - String attributes
