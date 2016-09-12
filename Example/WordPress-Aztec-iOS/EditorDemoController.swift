@@ -1,28 +1,34 @@
 import Foundation
-import UIKit
+import Alamofire
+import AlamofireImage
 import Aztec
+import Gridicons
 import Photos
+import UIKit
 
 
-class EditorDemoController: UIViewController
-{
+class EditorDemoController: UIViewController {
     static let margin = CGFloat(20)
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
     private(set) lazy var richTextView: Aztec.TextView = {
-        let tv = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont)
+        let defaultMissingImage = Gridicon.iconOfType(.Image)
+        let textView = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont, defaultMissingImage: defaultMissingImage)
 
-        tv.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
-        tv.delegate = self
-        tv.font = defaultContentFont
+        textView.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
+        textView.delegate = self
+        textView.mediaDelegate = self
+        textView.font = defaultContentFont
+
         let toolbar = self.createToolbar()
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.formatter = self
-        tv.inputAccessoryView = toolbar
-        tv.textColor = UIColor.darkTextColor()
-        tv.translatesAutoresizingMaskIntoConstraints = false
 
-        return tv
+        textView.inputAccessoryView = toolbar
+        textView.textColor = UIColor.darkTextColor()
+        textView.translatesAutoresizingMaskIntoConstraints = false
+
+        return textView
     }()
 
     private(set) lazy var htmlTextView: UITextView = {
@@ -426,15 +432,31 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     }
 }
 
+extension EditorDemoController : TextViewMediaDelegate {
 
-extension EditorDemoController : UINavigationControllerDelegate
-{
+    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
+
+        Alamofire.request(.GET, url).responseImage { response in
+
+            if let image = response.result.value {
+                success(image)
+            } else {
+                failure()
+            }
+
+        }
+
+        return Gridicon.iconOfType(.Attachment)
+    }
+}
+
+
+extension EditorDemoController : UINavigationControllerDelegate {
 
 }
 
 
-extension EditorDemoController : UIImagePickerControllerDelegate
-{
+extension EditorDemoController : UIImagePickerControllerDelegate {
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
 
@@ -449,8 +471,7 @@ extension EditorDemoController : UIImagePickerControllerDelegate
 }
 
 
-private extension EditorDemoController
-{
+private extension EditorDemoController {
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
         richTextView.insertImage(image, index: index)

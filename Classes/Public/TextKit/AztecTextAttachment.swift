@@ -86,7 +86,7 @@ extension AztecTextAttachment
     ///
     public enum Kind {
         case MissingImage
-        case RemoteImage(url: String)
+        case RemoteImage(url: NSURL)
         case Image(image: UIImage)
     }
 
