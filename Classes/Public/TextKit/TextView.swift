@@ -221,6 +221,10 @@ public class TextView: UITextView {
             identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
+        if linkFormattingSpansRange(range) {
+            identifiers.append(FormattingIdentifier.Link.rawValue)
+        }
+
         return identifiers
     }
 
@@ -259,6 +263,10 @@ public class TextView: UITextView {
 
         if formattingAtIndexContainsBlockquote(index) {
             identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+        }
+
+        if formattingAtIndexContainsLink(index) {
+            identifiers.append(FormattingIdentifier.Link.rawValue)
         }
 
         return identifiers
@@ -526,6 +534,25 @@ public class TextView: UITextView {
         return false
     }
 
+    /// Check if the link attribute spans the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func linkFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+
+           return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+
+
 
     /// Check if the blockquote attribute spans the specified range.
     ///
@@ -638,7 +665,22 @@ public class TextView: UITextView {
         }
         return false
     }
-    
+
+    /// Check if the link attribute exists at the specified index.
+    ///
+    /// - Parameters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsLink(index: Int) -> Bool {
+        guard let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: nil) else {
+            return false
+        }
+
+        return true
+    }
+
     
     /// Check if the blockquote attribute exists at the specified index.
     ///
