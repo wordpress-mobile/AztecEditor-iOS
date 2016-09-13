@@ -22,11 +22,9 @@ public class TextView: UITextView {
     typealias ElementNode = Libxml2.ElementNode
 
 
-//    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
-
     // MARK: - Properties: Attachments & Media
 
-    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
 
         AztecAttachmentManager(textView: self)
     }()
