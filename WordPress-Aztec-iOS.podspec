@@ -39,6 +39,8 @@ TBD.  This will be modified as soon as we can publish more info.
   # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Modulemaps/libxml2/**'}
   s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
-  s.preserve_paths = 'Modulemaps/libxml2/*'    
+  s.preserve_paths = 'Modulemaps/libxml2/*'   
+  
+  s.dependency 'Gridicons', '0.2'
 
 end

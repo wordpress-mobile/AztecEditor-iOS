@@ -1,18 +1,53 @@
 import UIKit
+import Gridicons
+
+public protocol TextViewMediaDelegate: class {
+
+    /// This method requests from the delegate the image at the specified URL.
+    ///
+    /// - Parameters:
+    ///     - textView: the `TextView` the call has been made from.
+    ///     - url: the url to download the image from.
+    ///     - success: when the image is obtained, this closure should be executed.
+    ///     - failure: if the image cannot be obtained, this closure should be executed.
+    ///
+    /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
+    ///         of the images.
+    ///
+    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+}
 
 public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
-    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
+
+//    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
+
+    // MARK: - Properties: Attachments & Media
+
+    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+
         AztecAttachmentManager(textView: self)
     }()
 
+    /// The media delegate takes care of providing remote media when requested by the `TextView`.
+    /// If this is not set, all remove images will be left blank.
+    ///
+    public weak var mediaDelegate: TextViewMediaDelegate? = nil
+
+    // MARK: - Properties: GUI Defaults
+
     let defaultFont: UIFont
+    var defaultMissingImage: UIImage
+
+    // MARK: - Properties: Text Storage
 
     var storage: AztecTextStorage {
         return textStorage as! AztecTextStorage
     }
+
+    // MARK: - Properties: UIView Overrides
 
     override public var bounds: CGRect {
         didSet {
@@ -24,15 +59,15 @@ public class TextView: UITextView {
         }
     }
 
+    // MARK: - Init & deinit
 
-    // MARK: - Initializers
-
-    public init(defaultFont: UIFont) {
+    public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
         let storage = AztecTextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
 
         self.defaultFont = defaultFont
+        self.defaultMissingImage = defaultMissingImage
 
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
@@ -46,15 +81,25 @@ public class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
+        defaultMissingImage = Gridicon.iconOfType(.Image)
 
         super.init(coder: aDecoder)
     }
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        stopListeningToEvents()
     }
 
-    // MARK: - Misc helpers
+
+    // MARK: - UIView Overrides
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        attachmentManager.layoutAttachmentViews()
+    }
+
+
+    // MARK: - Events
 
     /// Wires all of the Notifications / Delegates required!
     ///
@@ -68,6 +113,11 @@ public class TextView: UITextView {
         attachmentManager.delegate = self
     }
 
+    private func stopListeningToEvents() {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
+    // MARK: - Paragraphs
 
     /// Get the default paragraph style for the editor.
     ///
@@ -134,6 +184,7 @@ public class TextView: UITextView {
         font = defaultFont
 
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
+        attachmentManager.reloadAttachments()
     }
 
 
@@ -628,16 +679,15 @@ public class TextView: UITextView {
 }
 
 
-/// NSLayoutManagerDelegate Methods
-///
+// MARK: - NSLayoutManagerDelegate
+
 extension TextView: NSLayoutManagerDelegate
 {
 
 }
 
+// MARK: - AztecAttachmentManagerDelegate
 
-/// AztecAttachmentManagerDelegate Methods
-///
 extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
@@ -646,6 +696,27 @@ extension TextView: AztecAttachmentManagerDelegate
         }
 
         switch kind {
+        case .MissingImage:
+            let missingImageView = UIImageView(image: defaultMissingImage)
+            return missingImageView
+        case .RemoteImage(let url):
+            if let mediaDelegate = mediaDelegate {
+
+                let success = { [weak self] (image: UIImage) -> Void in
+                    self?.attachmentManager.assignView(UIImageView(image: image), forAttachment: attachment)
+                }
+
+                let failure = { [weak self] () -> () in
+                    self?.attachmentManager.assignView(UIImageView(image: self?.defaultMissingImage), forAttachment: attachment)
+                }
+
+                let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
+                let placeholderImageView = UIImageView(image: placeholderImage)
+                return placeholderImageView
+            } else {
+                return UIImageView(image: defaultMissingImage)
+            }
+
         case .Image(let image):
             return UIImageView(image: image)
         }
@@ -653,8 +724,8 @@ extension TextView: AztecAttachmentManagerDelegate
 }
 
 
-/// Notification Handlers
-///
+// MARK: - Notification Handlers
+
 extension TextView
 {
     func textViewDidChange(note: NSNotification) {

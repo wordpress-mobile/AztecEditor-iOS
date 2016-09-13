@@ -2,6 +2,9 @@ use_frameworks!
 
 target 'WordPress-Aztec-iOS_Example' do
   pod 'WordPress-Aztec-iOS', :path => '../'
+  pod 'Alamofire', '3.5.0'
+  pod 'AlamofireImage', '2.5.0'
+  pod 'Gridicons', '0.2'
 
   target 'WordPress-Aztec-iOS_Tests' do
     inherit! :search_paths
