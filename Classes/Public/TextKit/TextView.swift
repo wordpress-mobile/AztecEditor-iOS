@@ -21,9 +21,11 @@ public class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
+
     // MARK: - Properties: Attachments & Media
 
-    private(set) lazy var attachmentManager: AztecAttachmentManager = {
+    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
+
         AztecAttachmentManager(textView: self)
     }()
 
@@ -47,7 +49,7 @@ public class TextView: UITextView {
 
     override public var bounds: CGRect {
         didSet {
-            if oldValue.size == bounds.size {
+            guard oldValue.size != bounds.size else {
                 return
             }
 
@@ -91,7 +93,8 @@ public class TextView: UITextView {
 
     public override func didMoveToWindow() {
         super.didMoveToWindow()
-        attachmentManager.layoutAttachmentViews()
+        layoutIfNeeded()
+        attachmentManager.resizeAttachments()
     }
 
 
@@ -463,6 +466,23 @@ public class TextView: UITextView {
 
     // MARK - Inspectors
     // MARK - Inspect Within Range
+
+
+    /// Returns the associated AztecTextAttachment, at a given point, if any.
+    ///
+    /// - Parameters:
+    ///     - point: The point on screen to check for attachments.
+    ///
+    /// - Returns: The associated AztecTextAttachment.
+    ///
+    public func textAttachmentAtPoint(point: CGPoint) -> AztecTextAttachment? {
+        let index = layoutManager.characterIndexForPoint(point, inTextContainer: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        guard index <= textStorage.length else {
+            return nil
+        }
+
+        return textStorage.attribute(NSAttachmentAttributeName, atIndex: index, effectiveRange: nil) as? AztecTextAttachment
+    }
 
 
     /// Check if the bold attribute spans the specified range.

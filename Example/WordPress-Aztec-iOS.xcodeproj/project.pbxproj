@@ -27,6 +27,8 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		B32F7669027D39A004FD46B8 /* Pods_WordPress_Aztec_iOS_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E70EF646EF8E211667E0596 /* Pods_WordPress_Aztec_iOS_Example.framework */; };
+		B5771B531D81BF08004D8457 /* AttachmentDetailsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5771B521D81BF08004D8457 /* AttachmentDetailsViewController.xib */; };
+		B5C77ADF1D81B8E900733726 /* AttachmentDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C77ADE1D81B8E900733726 /* AttachmentDetailsViewController.swift */; };
 		E60B0CF81D2D88A200AEAEEA /* AztecVisualEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60B0CF71D2D88A200AEAEEA /* AztecVisualEditorTests.swift */; };
 		E62AD5C81D404176002B58C2 /* AztecTextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62AD5C61D403CE6002B58C2 /* AztecTextStorageTests.swift */; };
 		E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BE9861D304A970065FF75 /* FormattingDemoController.swift */; };
@@ -75,6 +77,8 @@
 		6E70EF646EF8E211667E0596 /* Pods_WordPress_Aztec_iOS_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A34514C1E6AC36B230E30AA6 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		A8A3F5027B989998D68F6612 /* Pods_WordPress_Aztec_iOS_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_Aztec_iOS_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5771B521D81BF08004D8457 /* AttachmentDetailsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AttachmentDetailsViewController.xib; sourceTree = "<group>"; };
+		B5C77ADE1D81B8E900733726 /* AttachmentDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentDetailsViewController.swift; sourceTree = "<group>"; };
 		C3B9457EAD0795524810333B /* Pods-WordPress-Aztec-iOS_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Example/Pods-WordPress-Aztec-iOS_Example.release.xcconfig"; sourceTree = "<group>"; };
 		D45CE6696347E5D6EA53B9B6 /* Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		E2C0973A4292C18938FC08ED /* Pods-WordPress-Aztec-iOS_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-Aztec-iOS_Tests/Pods-WordPress-Aztec-iOS_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -210,6 +214,8 @@
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
+				B5C77ADE1D81B8E900733726 /* AttachmentDetailsViewController.swift */,
+				B5771B521D81BF08004D8457 /* AttachmentDetailsViewController.xib */,
 				E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */,
 				E66568F11D26DE9200E6913B /* DraggableDemoController.swift */,
 				E63BE9861D304A970065FF75 /* FormattingDemoController.swift */,
@@ -356,6 +362,7 @@
 				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 				590142EE1D58E4EA006415C3 /* EditingLogic.rtf in Resources */,
+				B5771B531D81BF08004D8457 /* AttachmentDetailsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +474,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */,
+				B5C77ADF1D81B8E900733726 /* AttachmentDetailsViewController.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */,

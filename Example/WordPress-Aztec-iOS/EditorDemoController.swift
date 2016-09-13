@@ -27,6 +27,7 @@ class EditorDemoController: UIViewController {
         textView.inputAccessoryView = toolbar
         textView.textColor = UIColor.darkTextColor()
         textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.addGestureRecognizer(self.tapGestureRecognizer)
 
         return textView
     }()
@@ -82,6 +83,13 @@ class EditorDemoController: UIViewController {
             }
         }
     }
+
+    private(set) lazy var tapGestureRecognizer: UILongPressGestureRecognizer = {
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
+        recognizer.cancelsTouchesInView = false
+        recognizer.delegate = self
+        return recognizer
+    }()
 
     var loadSampleHTML = false
 
@@ -432,8 +440,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate
     }
 }
 
-extension EditorDemoController : TextViewMediaDelegate {
-
+extension EditorDemoController: TextViewMediaDelegate
+{
     func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
 
         Alamofire.request(.GET, url).responseImage { response in
@@ -451,12 +459,14 @@ extension EditorDemoController : TextViewMediaDelegate {
 }
 
 
-extension EditorDemoController : UINavigationControllerDelegate {
+extension EditorDemoController: UINavigationControllerDelegate
+{
 
 }
 
 
-extension EditorDemoController : UIImagePickerControllerDelegate {
+extension EditorDemoController: UIImagePickerControllerDelegate
+{
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         dismissViewControllerAnimated(true, completion: nil)
 
@@ -471,9 +481,39 @@ extension EditorDemoController : UIImagePickerControllerDelegate {
 }
 
 
-private extension EditorDemoController {
+private extension EditorDemoController
+{
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
         richTextView.insertImage(image, index: index)
+    }
+
+    func displayDetailsForAttachment(attachment: AztecTextAttachment) {
+        let detailsViewController = AttachmentDetailsViewController()
+        detailsViewController.attachment = attachment
+        detailsViewController.onUpdate = {
+            self.richTextView.attachmentManager.reloadAttachments()
+        }
+
+        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        presentViewController(navigationController, animated: true, completion: nil)
+    }
+}
+
+
+
+extension EditorDemoController: UIGestureRecognizerDelegate
+{
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+    func richTextViewWasPressed(recognizer: UIGestureRecognizer) {
+        let locationInTextView = recognizer.locationInView(richTextView)
+        guard let attachment = richTextView.textAttachmentAtPoint(locationInTextView) else {
+            return
+        }
+
+        displayDetailsForAttachment(attachment)
     }
 }
