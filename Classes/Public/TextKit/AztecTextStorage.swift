@@ -325,7 +325,7 @@ public extension AztecTextStorage
                             }
 
                             let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(newTraits)
-                            let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
+                            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                             self.removeAttribute(NSFontAttributeName, range: range)
                             self.addAttribute(NSFontAttributeName, value: newFont, range: range)

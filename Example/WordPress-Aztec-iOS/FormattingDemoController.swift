@@ -112,7 +112,7 @@ class FormattingDemoController: UIViewController
                                                     }
 
                                                     let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
-                                                    let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
+                                                    let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                                                     self.textView.textStorage.removeAttribute(NSFontAttributeName, range: range)
                                                     self.textView.textStorage.addAttribute(NSFontAttributeName, value: newFont, range: range)
@@ -154,7 +154,7 @@ class FormattingDemoController: UIViewController
                                                     }
 
                                                     let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
-                                                    let newFont = UIFont(descriptor: descriptor, size: font.pointSize)
+                                                    let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                                                     self.textView.textStorage.removeAttribute(NSFontAttributeName, range: range)
                                                     self.textView.textStorage.addAttribute(NSFontAttributeName, value: newFont, range: range)
