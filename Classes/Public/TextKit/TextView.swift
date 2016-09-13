@@ -49,7 +49,7 @@ public class TextView: UITextView {
 
     override public var bounds: CGRect {
         didSet {
-            if oldValue.size == bounds.size {
+            guard oldValue.size != bounds.size else {
                 return
             }
 
@@ -93,7 +93,8 @@ public class TextView: UITextView {
 
     public override func didMoveToWindow() {
         super.didMoveToWindow()
-        attachmentManager.layoutAttachmentViews()
+        layoutIfNeeded()
+        attachmentManager.resizeAttachments()
     }
 
 
