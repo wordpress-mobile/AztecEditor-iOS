@@ -426,6 +426,7 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
+        
         print("link")
     }
 
@@ -551,8 +552,25 @@ public class TextView: UITextView {
         return false
     }
 
+    /**
+     Returns an NSURL if the specified range as attached a link attribute
 
+     - parameter range: The NSRange to inspect
 
+     - returns: the NSURL if available
+     */
+    public func linkURL(forRange range: NSRange) -> NSURL? {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+            if let url = attr as? NSURL {
+                return url
+            } else if let urlString = attr as? String {
+                return NSURL(string:urlString)
+            }
+        }
+        return nil
+    }
 
     /// Check if the blockquote attribute spans the specified range.
     ///

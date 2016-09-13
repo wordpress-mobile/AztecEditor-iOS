@@ -375,7 +375,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
 
     func toggleLink() {
-        richTextView.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
+        if richTextView.linkFormattingSpansRange(richTextView.selectedRange) {
+            let linkURL = richTextView.linkURL(forRange: richTextView.selectedRange)
+            // update an existing link
+            print(linkURL)
+            //richTextView.toggleLink(range: richTextView.selectedRange, params: [String : AnyObject]())
+        } else {
+            // insert new link
+        }
     }
 
 
