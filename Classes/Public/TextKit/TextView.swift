@@ -420,16 +420,19 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a link from the specified range.
+    /// Adds a link to the desiganted url on the specified range.
     ///
     /// - Parameters:
+    ///     - url: the NSURL to link to.
     ///     - range: The NSRange to edit.
     ///
-    public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
-        
-        print("link")
+    public func setLink(url: NSURL, inRange range: NSRange) {
+        storage.setLink(url, forRange: range)
     }
 
+    public func removeLink(inRange range:NSRange) {
+        storage.removeLink(inRange: range)
+    }
 
     // MARK: - Embeds
 
@@ -568,6 +571,15 @@ public class TextView: UITextView {
             } else if let urlString = attr as? String {
                 return NSURL(string:urlString)
             }
+        }
+        return nil
+    }
+
+    public func linkFullRange(forRange range: NSRange) -> NSRange? {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+            return effectiveRange
         }
         return nil
     }

@@ -134,6 +134,28 @@ public class AztecTextStorage: NSTextStorage {
         toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range, onEnable: enableUnderlineInDOM, onDisable: disableUnderlineInDom)
     }
 
+    func setLink(url: NSURL, forRange range: NSRange) {
+        var effectiveRange = range
+        if let urlString = attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+            //if there was a link there before let's remove it
+            removeAttribute(NSLinkAttributeName, range: effectiveRange)
+        } else {
+            //if a link was not there we are just going to add it to the provided range
+            effectiveRange = range
+        }
+
+        addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
+    }
+
+    func removeLink(inRange range: NSRange){
+        var effectiveRange = range
+        if let urlString = attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+            //if there was a link there before let's remove it
+            removeAttribute(NSLinkAttributeName, range: effectiveRange)
+        }
+    }
+
+
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
 
         var effectiveRange = NSRange()
