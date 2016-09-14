@@ -438,15 +438,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
                                             guard
                                                 let urlString = linkURLString,
-                                                let url = NSURL(string:urlString)
+                                                let url = NSURL(string:urlString),
+                                                let title = linkTitle
                                                 else {
                                                     return
                                             }
-                                            if isInsertingNewLink {
-                                                self?.richTextView.setLink(url, inRange: range)
-                                            } else {
-                                                self?.richTextView.setLink(url, inRange: range)
-                                            }
+                                            self?.richTextView.setLink(url, title:title, inRange: range)
                                             })
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
