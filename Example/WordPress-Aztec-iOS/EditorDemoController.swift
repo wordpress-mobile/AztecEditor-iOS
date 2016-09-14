@@ -375,24 +375,20 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
 
     func toggleLink() {
-        if richTextView.linkFormattingSpansRange(richTextView.selectedRange),
-           let linkRange = richTextView.linkFullRange(forRange: richTextView.selectedRange) {
-
-           let linkURL = richTextView.linkURL(forRange: richTextView.selectedRange)
-           let linkTitle = richTextView.attributedText.attributedSubstringFromRange(linkRange).string
-            // update an existing link
-            showLinkDialog(forURL: linkURL, title: linkTitle)
-        } else {
-            // insert new link
-            var linkTitle = ""
-            if richTextView.selectedRange.length > 0 {
-                linkTitle = richTextView.attributedText.attributedSubstringFromRange(richTextView.selectedRange).string
-            }
-            showLinkDialog(forURL: nil, title: linkTitle)
+        var linkTitle = ""
+        var linkURL: NSURL? = nil
+        var linkRange = richTextView.selectedRange
+        // Let's check if the current range already has a link assigned to it.
+        if let expandedRange = richTextView.linkFullRange(forRange: richTextView.selectedRange) {
+           linkRange = expandedRange
+           linkURL = richTextView.linkURL(forRange: expandedRange)
         }
+
+        linkTitle = richTextView.attributedText.attributedSubstringFromRange(linkRange).string
+        showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
     }
 
-    func showLinkDialog(forURL url: NSURL?, title: String?) {
+    func showLinkDialog(forURL url: NSURL?, title: String?, range: NSRange) {
 
         let isInsertingNewLink = (url == nil)
         // TODO: grab link from pasteboard if available
@@ -442,15 +438,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
                                             guard
                                                 let urlString = linkURLString,
-                                                let url = NSURL(string:urlString),
-                                                let selectedRange = self?.richTextView.selectedRange
+                                                let url = NSURL(string:urlString)
                                                 else {
                                                     return
                                             }
                                             if isInsertingNewLink {
-                                                self?.richTextView.setLink(url, inRange: selectedRange)
+                                                self?.richTextView.setLink(url, inRange: range)
                                             } else {
-                                                self?.richTextView.setLink(url, inRange: selectedRange)
+                                                self?.richTextView.setLink(url, inRange: range)
                                             }
                                             })
 
@@ -458,12 +453,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
                                          style:UIAlertActionStyle.Destructive,
                                          handler:{ [weak self] action in
                                             self?.richTextView.becomeFirstResponder()
-                                            guard
-                                                let selectedRange = self?.richTextView.selectedRange
-                                                else {
-                                                    return
-                                            }
-                                            self?.richTextView.removeLink(inRange: selectedRange)
+                                            self?.richTextView.removeLink(inRange: range)
             })
 
         let cancelAction = UIAlertAction(title: cancelButtonTitle,
