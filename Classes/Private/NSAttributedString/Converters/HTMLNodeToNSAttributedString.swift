@@ -240,7 +240,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     private func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
         let traits = symbolicTraits(forNode: node, withBaseSymbolicTraits: fontDescriptor.symbolicTraits)
 
-        return fontDescriptor.fontDescriptorWithSymbolicTraits(traits)
+        return fontDescriptor.fontDescriptorWithSymbolicTraits(traits)!
     }
 
     /// Gets a list of symbolic traits representing the specified node.

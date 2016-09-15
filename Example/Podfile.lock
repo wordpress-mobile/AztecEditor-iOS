@@ -9,12 +9,20 @@ PODS:
 DEPENDENCIES:
   - Alamofire (= 3.5.0)
   - AlamofireImage (= 2.5.0)
-  - Gridicons (= 0.2)
+  - Gridicons (from `https://github.com/Automattic/Gridicons-iOS.git`, commit `8bd04e18eddaaf36810887c94837571e68f7cc24`)
   - WordPress-Aztec-iOS (from `../`)
 
 EXTERNAL SOURCES:
+  Gridicons:
+    :commit: 8bd04e18eddaaf36810887c94837571e68f7cc24
+    :git: https://github.com/Automattic/Gridicons-iOS.git
   WordPress-Aztec-iOS:
-    :path: ../
+    :path: "../"
+
+CHECKOUT OPTIONS:
+  Gridicons:
+    :commit: 8bd04e18eddaaf36810887c94837571e68f7cc24
+    :git: https://github.com/Automattic/Gridicons-iOS.git
 
 SPEC CHECKSUMS:
   Alamofire: b70a7352335f8ea5babd0a923eb7e8eacc67b877
@@ -22,6 +30,6 @@ SPEC CHECKSUMS:
   Gridicons: 5c33065054b19e56a47d252b52e321746b97a414
   WordPress-Aztec-iOS: 6e2bc76c4201877935122b64ad4afd680d6de050
 
-PODFILE CHECKSUM: 7c675f4a4f3d2aafbeca4be1a1edf43c11f2ec9e
+PODFILE CHECKSUM: 92538c659f74ff7abbced41e910a8750610584f6
 
 COCOAPODS: 1.0.1

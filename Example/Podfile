@@ -4,7 +4,7 @@ target 'WordPress-Aztec-iOS_Example' do
   pod 'WordPress-Aztec-iOS', :path => '../'
   pod 'Alamofire', '3.5.0'
   pod 'AlamofireImage', '2.5.0'
-  pod 'Gridicons', '0.2'
+    pod 'Gridicons', :git => "https://github.com/Automattic/Gridicons-iOS.git", :commit => "8bd04e18eddaaf36810887c94837571e68f7cc24"
 
   target 'WordPress-Aztec-iOS_Tests' do
     inherit! :search_paths
