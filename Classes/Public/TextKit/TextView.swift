@@ -427,16 +427,11 @@ public class TextView: UITextView {
     ///     - title: the text for the link
     ///     - range: The NSRange to edit.
     public func setLink(url: NSURL, title: String, inRange range: NSRange) {
-        if range.length > 0 {
-            storage.setLink(url, forRange: range)
-            storage.replaceCharactersInRange(range, withString: title)
-        } else {
-            let index = range.location
-            let length = title.characters.count
-            let insertionRange = NSMakeRange(index, length)
-            storage.replaceCharactersInRange(range, withString: title)
-            storage.setLink(url, forRange: insertionRange)
-        }
+        let index = range.location
+        let length = title.characters.count
+        let insertionRange = NSMakeRange(index, length)
+        storage.replaceCharactersInRange(range, withString: title)
+        storage.setLink(url, forRange: insertionRange)
     }
 
     public func removeLink(inRange range:NSRange) {
