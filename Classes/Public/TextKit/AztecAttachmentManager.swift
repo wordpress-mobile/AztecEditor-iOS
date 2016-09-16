@@ -106,7 +106,7 @@ public class AztecAttachmentManager
 
         var rangeOfAttachment: NSRange?
 
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             guard attachment == targetAttachment else {
                 return
             }
@@ -156,7 +156,8 @@ public class AztecAttachmentManager
     public func reloadAttachments() {
         resetAttachmentManager()
 
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
+            attachment.manager = self
             self.attachments.append(attachment)
 
             guard let view = self.delegate?.attachmentManager(self, viewForAttachment: attachment) else {
@@ -178,7 +179,7 @@ public class AztecAttachmentManager
     /// or from `NSLayoutManagerDelegate.layoutManager(layoutManager, textContainer, didChangeGeometryFromSize oldSize)`
     ///
     public func resizeAttachments() {
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             self.resizeViewForAttachment(attachment, toFitInContainer: self.textContainer)
         }
 
@@ -202,7 +203,7 @@ public class AztecAttachmentManager
         textView.scrollEnabled = true
 
         // Layout
-        textStorage.enumerateAttachments(ofType: AztecTextAttachment.self) { (attachment, range) in
+        textStorage.enumerateAttachmentsOfType(AztecTextAttachment.self) { (attachment, range) in
             self.layoutAttachmentViewForAttachment(attachment, atRange: range)
         }
     }
@@ -277,12 +278,12 @@ private extension AztecAttachmentManager
             return
         }
 
-        let maximumWidth = attachment.maximumAssociatedViewWidthForContainer(textContainer)
+        let visibleWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
+        let maximumWidth = min(attachment.size.targetWidth, visibleWidth)
         let ratio = view.frame.size.width / view.frame.size.height
         let newSize = CGSize(width: floor(maximumWidth), height: floor(maximumWidth / ratio))
 
         view.frame.size = newSize
-        attachment.associatedViewSize = newSize
     }
 }
 
