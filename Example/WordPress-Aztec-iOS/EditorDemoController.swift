@@ -478,8 +478,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate
             insertAction.enabled = !text.isEmpty
         }
 
-        //[self.editorView saveSelection];
-        //[self.editorView endEditing];
         self.presentViewController(alertController, animated:true, completion:nil)
     }
 
