@@ -224,6 +224,10 @@ public class TextView: UITextView {
             identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
         }
 
+        if linkFormattingSpansRange(range) {
+            identifiers.append(FormattingIdentifier.Link.rawValue)
+        }
+
         return identifiers
     }
 
@@ -262,6 +266,10 @@ public class TextView: UITextView {
 
         if formattingAtIndexContainsBlockquote(index) {
             identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+        }
+
+        if formattingAtIndexContainsLink(index) {
+            identifiers.append(FormattingIdentifier.Link.rawValue)
         }
 
         return identifiers
@@ -415,15 +423,23 @@ public class TextView: UITextView {
     }
 
 
-    /// Adds or removes a link from the specified range.
+    /// Adds a link to the desiganted url on the specified range.
     ///
     /// - Parameters:
+    ///     - url: the NSURL to link to.
+    ///     - title: the text for the link
     ///     - range: The NSRange to edit.
-    ///
-    public func toggleLink(range range: NSRange, params: [String: AnyObject]) {
-        print("link")
+    public func setLink(url: NSURL, title: String, inRange range: NSRange) {
+        let index = range.location
+        let length = title.characters.count
+        let insertionRange = NSMakeRange(index, length)
+        storage.replaceCharactersInRange(range, withString: title)
+        storage.setLink(url, forRange: insertionRange)
     }
 
+    public func removeLink(inRange range:NSRange) {
+        storage.removeLink(inRange: range)
+    }
 
     // MARK: - Embeds
 
@@ -546,6 +562,51 @@ public class TextView: UITextView {
         return false
     }
 
+    /// Check if the link attribute spans the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func linkFormattingSpansRange(range: NSRange) -> Bool {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+
+           return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        }
+        return false
+    }
+
+    /**
+     Returns an NSURL if the specified range as attached a link attribute
+
+     - parameter range: The NSRange to inspect
+
+     - returns: the NSURL if available
+     */
+    public func linkURL(forRange range: NSRange) -> NSURL? {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+            if let url = attr as? NSURL {
+                return url
+            } else if let urlString = attr as? String {
+                return NSURL(string:urlString)
+            }
+        }
+        return nil
+    }
+
+    public func linkFullRange(forRange range: NSRange) -> NSRange? {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+            return effectiveRange
+        }
+        return nil
+    }
 
     /// Check if the blockquote attribute spans the specified range.
     ///
@@ -658,7 +719,22 @@ public class TextView: UITextView {
         }
         return false
     }
-    
+
+    /// Check if the link attribute exists at the specified index.
+    ///
+    /// - Parameters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsLink(index: Int) -> Bool {
+        guard let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: nil) else {
+            return false
+        }
+
+        return true
+    }
+
     
     /// Check if the blockquote attribute exists at the specified index.
     ///
