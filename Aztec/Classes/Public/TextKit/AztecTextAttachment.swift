@@ -21,10 +21,9 @@ public class AztecTextAttachment: NSTextAttachment
     ///
     public var size: Size = .Maximum
 
-// TODO: Nuke If Possible
-    /// Indicates the scaled dimensions of the associated view
+    /// Attachments Manager
     ///
-    var associatedViewSize = CGSizeZero
+    weak var manager: AztecAttachmentManager?
 
 
     /// Designed Initializer
@@ -46,7 +45,9 @@ public class AztecTextAttachment: NSTextAttachment
     /// Otherwise, we'll always take the whole container's width.
     ///
     public override func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
+        let associatedViewSize = manager?.viewForAttachment(self)?.frame.size ?? CGSizeZero
         let characterSize: CGSize
+
         switch alignment {
         case .None:
             characterSize = associatedViewSize
@@ -55,15 +56,6 @@ public class AztecTextAttachment: NSTextAttachment
         }
 
         return CGRect(origin: CGPointZero, size: characterSize)
-    }
-
-// TODO: Nuke If Possible
-    /// Returns the maximum allowed Width for a given TextContainer, considering both, container constraints
-    /// and Attachment Target Size.
-    ///
-    func maximumAssociatedViewWidthForContainer(textContainer: NSTextContainer) -> CGFloat {
-        let maximumContainerWidth = textContainer.size.width - (2 * textContainer.lineFragmentPadding)
-        return min(size.targetWidth, maximumContainerWidth)
     }
 }
 

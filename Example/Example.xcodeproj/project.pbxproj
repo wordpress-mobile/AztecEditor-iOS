@@ -16,6 +16,8 @@
 		599F25841D8BD998002871D6 /* Alamofire.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193B1D8BC60D00F18F7F /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		599F25851D8BD998002871D6 /* AlamofireImage.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193C1D8BC60D00F18F7F /* AlamofireImage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		599F25861D8BD998002871D6 /* Gridicons.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193D1D8BC60D00F18F7F /* Gridicons.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */; };
+		59D2873C1D8C599B00B99C80 /* AttachmentDetailsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2873A1D8C599B00B99C80 /* AttachmentDetailsViewController.xib */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
@@ -80,6 +82,8 @@
 		5967193D1D8BC60D00F18F7F /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		599F256F1D8BCF57002871D6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		599F25711D8BD044002871D6 /* Aztec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Aztec.xcodeproj; path = ../Aztec.xcodeproj; sourceTree = "<group>"; };
+		59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentDetailsViewController.swift; sourceTree = "<group>"; };
+		59D2873A1D8C599B00B99C80 /* AttachmentDetailsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AttachmentDetailsViewController.xib; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD71AFB9204008FA782 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -175,6 +179,8 @@
 			isa = PBXGroup;
 			children = (
 				599F256F1D8BCF57002871D6 /* AppDelegate.swift */,
+				59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */,
+				59D2873A1D8C599B00B99C80 /* AttachmentDetailsViewController.xib */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
 				E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */,
@@ -261,7 +267,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -328,6 +334,7 @@
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				59280F2A1D47CAF40083FB59 /* content.html in Resources */,
 				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
+				59D2873C1D8C599B00B99C80 /* AttachmentDetailsViewController.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,6 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
+				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
@@ -410,8 +418,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -456,8 +466,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -477,6 +489,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

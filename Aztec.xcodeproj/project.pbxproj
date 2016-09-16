@@ -164,7 +164,6 @@
 			children = (
 				5951CB901D8BC93600E1866F /* Aztec */,
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
-				599F25551D8BCA01002871D6 /* Modulemaps */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
 				5951CB8F1D8BC93600E1866F /* Products */,
 			);
@@ -185,6 +184,7 @@
 				5951CB921D8BC93600E1866F /* Info.plist */,
 				599F25001D8BC9A1002871D6 /* Classes */,
 				599F25911D8BDCA9002871D6 /* Documentation */,
+				599F25551D8BCA01002871D6 /* Modulemaps */,
 			);
 			path = Aztec;
 			sourceTree = "<group>";
@@ -733,7 +733,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = ./Modulemaps/libxml2;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -759,7 +759,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = ./Modulemaps/libxml2;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
