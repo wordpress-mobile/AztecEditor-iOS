@@ -137,7 +137,7 @@ public class AztecTextStorage: NSTextStorage {
 
     func setLink(url: NSURL, forRange range: NSRange) {
         var effectiveRange = range
-        if let urlString = attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
         } else {
@@ -149,13 +149,13 @@ public class AztecTextStorage: NSTextStorage {
         rootNode.wrapChildren(
             intersectingRange: effectiveRange,
             inNodeNamed: "a",
-            withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)],
+            withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
             equivalentElementNames: [])
     }
 
     func removeLink(inRange range: NSRange){
         var effectiveRange = range
-        if let urlString = attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) {
+        if attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
             rootNode.unwrap(range: effectiveRange, fromElementsNamed: ["a"])

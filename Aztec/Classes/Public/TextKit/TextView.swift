@@ -572,7 +572,7 @@ public class TextView: UITextView {
     public func linkFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+        if storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) != nil {
 
            return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
         }
@@ -602,7 +602,7 @@ public class TextView: UITextView {
     public func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
+        if storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) != nil {
             return effectiveRange
         }
         return nil
@@ -728,7 +728,7 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsLink(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: nil) else {
+        guard storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: nil) != nil else {
             return false
         }
 
