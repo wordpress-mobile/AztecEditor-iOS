@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'TBD.  This will be modified as soon as we can publish more info.'
 
 # This description is used to generate tags and improve search results.
