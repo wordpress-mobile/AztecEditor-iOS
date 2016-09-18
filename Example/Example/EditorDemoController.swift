@@ -33,15 +33,15 @@ class EditorDemoController: UIViewController {
     }()
 
     private(set) lazy var htmlTextView: UITextView = {
-        let tv = UITextView()
+        let textView = UITextView()
 
-        tv.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        tv.font = defaultContentFont
-        tv.textColor = UIColor.darkTextColor()
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.hidden = true
+        textView.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
+        textView.font = defaultContentFont
+        textView.textColor = UIColor.darkTextColor()
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.hidden = true
 
-        return tv
+        return textView
     }()
 
     private(set) lazy var titleTextField: UITextField = {
