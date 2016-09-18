@@ -46,31 +46,31 @@ class EditorDemoController: UIViewController {
 
     private(set) lazy var titleTextField: UITextField = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
-        let tf = UITextField()
+        let textField = UITextField()
 
-        tf.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
-        tf.attributedPlaceholder = NSAttributedString(string: placeholderText,
+        textField.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
+        textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
                                                       attributes: [NSForegroundColorAttributeName: UIColor.lightGrayColor()])
-        tf.delegate = self
-        tf.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
+        textField.delegate = self
+        textField.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
         let toolbar = self.createToolbar()
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.enabled = false
-        tf.inputAccessoryView = toolbar
-        tf.returnKeyType = .Next
-        tf.textColor = UIColor.darkTextColor()
-        tf.translatesAutoresizingMaskIntoConstraints = false
+        textField.inputAccessoryView = toolbar
+        textField.returnKeyType = .Next
+        textField.textColor = UIColor.darkTextColor()
+        textField.translatesAutoresizingMaskIntoConstraints = false
 
-        return tf
+        return textField
     }()
 
     private(set) lazy var separatorView: UIView = {
-        let v = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
+        let separatorView = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
-        v.backgroundColor = UIColor.darkTextColor()
-        v.translatesAutoresizingMaskIntoConstraints = false
+        separatorView.backgroundColor = UIColor.darkTextColor()
+        separatorView.translatesAutoresizingMaskIntoConstraints = false
 
-        return v
+        return separatorView
     }()
 
     private(set) var mode = EditionMode.RichText {

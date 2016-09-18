@@ -8,7 +8,6 @@ class ViewController: UITableViewController
     let cellIdentifier = "CellIdentifier"
     var rows:[DemoRow]!
 
-
     // MARK: LifeCycle Methods
 
 
@@ -19,7 +18,8 @@ class ViewController: UITableViewController
             DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
             DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) }),
             DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
-            DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
+            // DRM: this was broken at some point, so I'm disabling it for the time being.
+            // DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
             DemoRow(title: "Formatter Demo", action: { self.showFormatterDemo() })
         ]
     }
