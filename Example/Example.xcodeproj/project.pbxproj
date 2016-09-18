@@ -281,7 +281,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0800;
-				ORGANIZATIONNAME = CocoaPods;
+				ORGANIZATIONNAME = "Automattic Inc.";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;

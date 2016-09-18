@@ -1,11 +1,3 @@
-//
-//  AppDelegate.swift
-//  WordPress-Aztec-iOS
-//
-//  Created by Diego Rey Mendez on 06/24/2016.
-//  Copyright (c) 2016 Diego Rey Mendez. All rights reserved.
-//
-
 import UIKit
 
 @UIApplicationMain
