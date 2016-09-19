@@ -1,4 +1,5 @@
 import Foundation
+import Gridicons
 import UIKit
 
 class HMTLNodeToNSAttributedString: SafeConverter {
@@ -146,6 +147,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - elementNode: the element node to generate a representation string of.
+    ///     - attributes: inherited attributes
     ///
     /// - Returns: the attributed string representing the specified element node.
     ///
@@ -160,13 +162,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
             let identifier = NSUUID().UUIDString
             let attachment = AztecTextAttachment(identifier: identifier)
-
+            attachment.image = Gridicon.iconOfType(.Camera)
+/*
             if let urlString = elementNode.valueForStringAttribute(named: "src"),
                 let url = NSURL(string: urlString) {
                 attachment.kind = .RemoteImage(url: url)
             } else {
                 attachment.kind = .MissingImage
             }
+ */
 
             return NSAttributedString(attachment: attachment)
         } else {

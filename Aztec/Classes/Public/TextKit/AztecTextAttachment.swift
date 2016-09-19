@@ -15,16 +15,11 @@ public class AztecTextAttachment: NSTextAttachment
 
     /// Attachment Alignment
     ///
-    public var alignment: Alignment = .Center
+    internal(set) public var alignment: Alignment = .Center
 
     /// Attachment Size
     ///
     public var size: Size = .Maximum
-
-    /// Attachments Manager
-    ///
-    weak var manager: AztecAttachmentManager?
-
 
     /// Designed Initializer
     ///
@@ -40,22 +35,77 @@ public class AztecTextAttachment: NSTextAttachment
         super.init(coder: aDecoder)
     }
 
+    // MARK: - Origin calculation
+
+    func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
+
+        let imageWidth = onScreenWidth()
+
+        switch (alignment) {
+        case .Center:
+            return Int(floor((containerWidth - imageWidth) / 2))
+        case .Right:
+            return Int(floor(containerWidth - imageWidth))
+        default:
+            return 0
+        }
+    }
+
+    func onScreenHeight() -> CGFloat {
+        if let image = image {
+            let targetWidth = onScreenWidth()
+            let scale = targetWidth / image.size.width
+
+            return image.size.height * scale
+        } else {
+            return 0
+        }
+    }
+
+    func onScreenWidth() -> CGFloat {
+        if let image = image {
+            switch (size) {
+            case .Maximum:
+                return image.size.width
+            default:
+                return size.width
+            }
+        } else {
+            return 0
+        }
+    }
+
+    // MARK: - NSTextAttachmentContainer
+
+    override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
+
+        var glyphImage: UIImage? = nil
+
+        let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
+        let size = CGSize(width: onScreenWidth(), height: onScreenHeight())
+
+        if let image = image {
+            UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, 1.0)
+
+            image.drawInRect(CGRect(origin: origin, size: size))
+            glyphImage = UIGraphicsGetImageFromCurrentImageContext()
+
+            UIGraphicsEndImageContext()
+        }
+
+        return glyphImage
+    }
+
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
     /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
     /// Otherwise, we'll always take the whole container's width.
     ///
-    public override func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-        let associatedViewSize = manager?.viewForAttachment(self)?.frame.size ?? CGSizeZero
-        let characterSize: CGSize
+    override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
 
-        switch alignment {
-        case .None:
-            characterSize = associatedViewSize
-        default:
-            characterSize = CGSizeMake(lineFrag.width, associatedViewSize.height)
-        }
+        let padding = textContainer?.lineFragmentPadding ?? 0
+        let width = lineFrag.width - padding * 2
 
-        return CGRect(origin: CGPointZero, size: characterSize)
+        return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight()))
     }
 }
 
@@ -90,7 +140,7 @@ extension AztecTextAttachment
         case Large
         case Maximum
 
-        var targetWidth: CGFloat {
+        var width: CGFloat {
             switch self {
             case .Thumbnail: return Settings.thumbnail
             case .Medium: return Settings.medium

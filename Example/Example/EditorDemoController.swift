@@ -598,15 +598,18 @@ private extension EditorDemoController
     func displayDetailsForAttachment(attachment: AztecTextAttachment) {
         let detailsViewController = AttachmentDetailsViewController()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = {
-            self.richTextView.attachmentManager.reloadAttachments()
+        detailsViewController.onUpdate = { [weak self] (alignment, size) in
+
+            if let strongSelf = self {
+                strongSelf.richTextView.changeAlignment(forAttachment: attachment, to: alignment)
+                strongSelf.richTextView.changeSize(forAttachment: attachment, to: size)
+            }
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)
         presentViewController(navigationController, animated: true, completion: nil)
     }
 }
-
 
 
 extension EditorDemoController: UIGestureRecognizerDelegate
@@ -617,7 +620,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
 
     func richTextViewWasPressed(recognizer: UIGestureRecognizer) {
         let locationInTextView = recognizer.locationInView(richTextView)
-        guard let attachment = richTextView.textAttachmentAtPoint(locationInTextView) else {
+        guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
             return
         }
 

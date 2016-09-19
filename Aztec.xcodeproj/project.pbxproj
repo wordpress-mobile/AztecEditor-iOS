@@ -44,7 +44,6 @@
 		599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252B1D8BC9A1002871D6 /* FormatBarDelegate.swift */; };
 		599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252C1D8BC9A1002871D6 /* FormatBarItem.swift */; };
 		599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252D1D8BC9A1002871D6 /* FormattingIdentifier.swift */; };
-		599F25511D8BC9A1002871D6 /* AztecAttachmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252F1D8BC9A1002871D6 /* AztecAttachmentManager.swift */; };
 		599F25521D8BC9A1002871D6 /* AztecTextAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */; };
 		599F25531D8BC9A1002871D6 /* AztecTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
@@ -116,7 +115,6 @@
 		599F252B1D8BC9A1002871D6 /* FormatBarDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormatBarDelegate.swift; sourceTree = "<group>"; };
 		599F252C1D8BC9A1002871D6 /* FormatBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormatBarItem.swift; sourceTree = "<group>"; };
 		599F252D1D8BC9A1002871D6 /* FormattingIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingIdentifier.swift; sourceTree = "<group>"; };
-		599F252F1D8BC9A1002871D6 /* AztecAttachmentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecAttachmentManager.swift; sourceTree = "<group>"; };
 		599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextAttachment.swift; sourceTree = "<group>"; };
 		599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextStorage.swift; sourceTree = "<group>"; };
 		599F25321D8BC9A1002871D6 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
@@ -363,7 +361,6 @@
 		599F252E1D8BC9A1002871D6 /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
-				599F252F1D8BC9A1002871D6 /* AztecAttachmentManager.swift */,
 				599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */,
 				599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
@@ -561,7 +558,6 @@
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSTextStorage+Helpers.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
-				599F25511D8BC9A1002871D6 /* AztecAttachmentManager.swift in Sources */,
 				599F25451D8BC9A1002871D6 /* Libxml2.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,

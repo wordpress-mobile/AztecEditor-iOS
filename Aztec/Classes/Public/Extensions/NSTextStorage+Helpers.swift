@@ -14,11 +14,11 @@ extension NSTextStorage
     ///     - type: The kind of Attachment we're after
     ///     - block: Closure to be executed, for each one of the elements
     ///
-    func enumerateAttachmentsOfType<T : NSTextAttachment>(type: T.Type, range: NSRange? = nil, block: ((T, NSRange) -> Void)) {
+    func enumerateAttachmentsOfType<T : NSTextAttachment>(type: T.Type, range: NSRange? = nil, block: ((T, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
         let range = range ?? NSMakeRange(0, length)
         enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
             if let object = object as? T {
-                block(object, range)
+                block(object, range, stop)
             }
         }
     }

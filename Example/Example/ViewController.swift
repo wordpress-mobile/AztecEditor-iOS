@@ -42,8 +42,8 @@ class ViewController: UITableViewController
 
 
     func showDraggableDemo() {
-        let controller = DraggableDemoController.controller()
-        navigationController?.pushViewController(controller, animated: true)
+        //let controller = DraggableDemoController.controller()
+        //navigationController?.pushViewController(controller, animated: true)
     }
 
 

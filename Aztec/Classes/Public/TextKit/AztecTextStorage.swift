@@ -61,6 +61,24 @@ public class AztecTextStorage: NSTextStorage {
         return attachments
     }
 
+    public func range(forAttachment attachment: AztecTextAttachment) -> NSRange {
+
+        var range: NSRange?
+
+        enumerateAttachmentsOfType(AztecTextAttachment.self) { (currentAttachment, currentRange, stop) in
+            if attachment == currentAttachment {
+                range = currentRange
+                stop.memory = true
+            }
+        }
+
+        if let range = range {
+            return range
+        } else {
+            fatalError("The attachment does not exist inside this text view.")
+        }
+    }
+
 
     // MARK: - Overriden Methods
 

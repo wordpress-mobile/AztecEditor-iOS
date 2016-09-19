@@ -24,11 +24,6 @@ public class TextView: UITextView {
 
     // MARK: - Properties: Attachments & Media
 
-    private(set) public lazy var attachmentManager: AztecAttachmentManager = {
-
-        AztecAttachmentManager(textView: self)
-    }()
-
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
@@ -43,18 +38,6 @@ public class TextView: UITextView {
 
     var storage: AztecTextStorage {
         return textStorage as! AztecTextStorage
-    }
-
-    // MARK: - Properties: UIView Overrides
-
-    override public var bounds: CGRect {
-        didSet {
-            guard oldValue.size != bounds.size else {
-                return
-            }
-
-            attachmentManager.resizeAttachments()
-        }
     }
 
     // MARK: - Init & deinit
@@ -94,7 +77,6 @@ public class TextView: UITextView {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         layoutIfNeeded()
-        attachmentManager.resizeAttachments()
     }
 
 
@@ -103,13 +85,8 @@ public class TextView: UITextView {
     /// Wires all of the Notifications / Delegates required!
     ///
     private func startListeningToEvents() {
-        // Notifications
-        let nc = NSNotificationCenter.defaultCenter()
-        nc.addObserver(self, selector: #selector(textViewDidChange), name: UITextViewTextDidChangeNotification, object: self)
-
         // Delegates
         layoutManager.delegate = self
-        attachmentManager.delegate = self
     }
 
     private func stopListeningToEvents() {
@@ -183,7 +160,6 @@ public class TextView: UITextView {
         font = defaultFont
 
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
-        attachmentManager.reloadAttachments()
     }
 
 
@@ -453,7 +429,8 @@ public class TextView: UITextView {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        attachment.kind = .Image(image: image)
+        //attachment.kind = .Image(image: image)
+        attachment.image = image
 
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(index, 0)
@@ -465,7 +442,7 @@ public class TextView: UITextView {
         selectedRange = selectionRange
 
         // Make sure to reload + layout
-        attachmentManager.reloadAttachments()
+        //attachmentManager.reloadAttachments()
     }
 
 
@@ -491,7 +468,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: The associated AztecTextAttachment.
     ///
-    public func textAttachmentAtPoint(point: CGPoint) -> AztecTextAttachment? {
+    public func attachmentAtPoint(point: CGPoint) -> AztecTextAttachment? {
         let index = layoutManager.characterIndexForPoint(point, inTextContainer: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index <= textStorage.length else {
             return nil
@@ -751,6 +728,27 @@ public class TextView: UITextView {
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
+
+    // MARK: - Attachments
+
+    public func changeAlignment(forAttachment attachment: AztecTextAttachment, to alignment: AztecTextAttachment.Alignment) {
+        attachment.alignment = alignment
+
+        invalidateLayoutForAttachment(attachment)
+    }
+
+    public func changeSize(forAttachment attachment: AztecTextAttachment, to size: AztecTextAttachment.Size) {
+        attachment.size = size
+
+        invalidateLayoutForAttachment(attachment)
+    }
+
+    private func invalidateLayoutForAttachment(attachment: AztecTextAttachment) {
+
+        let range = storage.range(forAttachment: attachment)
+
+        layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
+    }
 }
 
 
@@ -762,7 +760,7 @@ extension TextView: NSLayoutManagerDelegate
 }
 
 // MARK: - AztecAttachmentManagerDelegate
-
+/*
 extension TextView: AztecAttachmentManagerDelegate
 {
     public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
@@ -797,13 +795,4 @@ extension TextView: AztecAttachmentManagerDelegate
         }
     }
 }
-
-
-// MARK: - Notification Handlers
-
-extension TextView
-{
-    func textViewDidChange(note: NSNotification) {
-        attachmentManager.reloadOrLayoutAttachmentsAsNeeded()
-    }
-}
+*/
