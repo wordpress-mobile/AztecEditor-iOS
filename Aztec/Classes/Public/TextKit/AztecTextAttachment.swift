@@ -38,7 +38,6 @@ public class AztecTextAttachment: NSTextAttachment
     // MARK: - Origin calculation
 
     func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
-
         let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
