@@ -32,7 +32,7 @@ class AztecVisualEditorTests: XCTestCase {
 
         XCTAssert(textView.textStorage == textView.layoutManager.textStorage)
         XCTAssert(textView.textStorage == textView.textContainer.layoutManager!.textStorage)
-        XCTAssert(textView.textStorage.isKindOfClass(AztecTextStorage))
+        XCTAssert(textView.textStorage.isKindOfClass(TextStorage))
     }
 
 

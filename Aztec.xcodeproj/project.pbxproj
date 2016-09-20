@@ -44,11 +44,11 @@
 		599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252B1D8BC9A1002871D6 /* FormatBarDelegate.swift */; };
 		599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252C1D8BC9A1002871D6 /* FormatBarItem.swift */; };
 		599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252D1D8BC9A1002871D6 /* FormattingIdentifier.swift */; };
-		599F25521D8BC9A1002871D6 /* AztecTextAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */; };
-		599F25531D8BC9A1002871D6 /* AztecTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */; };
+		599F25521D8BC9A1002871D6 /* TextAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* TextAttachment.swift */; };
+		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
-		599F25941D8BDCFC002871D6 /* AztecTextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25921D8BDCFC002871D6 /* AztecTextStorageTests.swift */; };
+		599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25921D8BDCFC002871D6 /* TextStorageTests.swift */; };
 		599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25931D8BDCFC002871D6 /* AztecVisualEditorTests.swift */; };
 		59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA05F1D8BDFA700D138DF /* OutHTMLConverterTests.swift */; };
 		59FEA0741D8BDFA700D138DF /* ElementNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0651D8BDFA700D138DF /* ElementNodeTests.swift */; };
@@ -115,15 +115,15 @@
 		599F252B1D8BC9A1002871D6 /* FormatBarDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormatBarDelegate.swift; sourceTree = "<group>"; };
 		599F252C1D8BC9A1002871D6 /* FormatBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormatBarItem.swift; sourceTree = "<group>"; };
 		599F252D1D8BC9A1002871D6 /* FormattingIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingIdentifier.swift; sourceTree = "<group>"; };
-		599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextAttachment.swift; sourceTree = "<group>"; };
-		599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextStorage.swift; sourceTree = "<group>"; };
+		599F25301D8BC9A1002871D6 /* TextAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextAttachment.swift; sourceTree = "<group>"; };
+		599F25311D8BC9A1002871D6 /* TextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextStorage.swift; sourceTree = "<group>"; };
 		599F25321D8BC9A1002871D6 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		599F25571D8BCA01002871D6 /* libxml2-umbrella.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "libxml2-umbrella.h"; sourceTree = "<group>"; };
 		599F25581D8BCA01002871D6 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		599F255B1D8BCDB4002871D6 /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Example/Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		599F258F1D8BDCA9002871D6 /* EditingLogic.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = EditingLogic.rtf; path = ../Documentation/EditingLogic.rtf; sourceTree = "<group>"; };
 		599F25901D8BDCA9002871D6 /* UnsupportedTags.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = UnsupportedTags.rtf; path = ../Documentation/UnsupportedTags.rtf; sourceTree = "<group>"; };
-		599F25921D8BDCFC002871D6 /* AztecTextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecTextStorageTests.swift; sourceTree = "<group>"; };
+		599F25921D8BDCFC002871D6 /* TextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextStorageTests.swift; sourceTree = "<group>"; };
 		599F25931D8BDCFC002871D6 /* AztecVisualEditorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AztecVisualEditorTests.swift; sourceTree = "<group>"; };
 		59FEA05E1D8BDFA700D138DF /* OutAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA05F1D8BDFA700D138DF /* OutHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverterTests.swift; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				5951CB9E1D8BC93600E1866F /* Info.plist */,
-				599F25921D8BDCFC002871D6 /* AztecTextStorageTests.swift */,
+				599F25921D8BDCFC002871D6 /* TextStorageTests.swift */,
 				599F25931D8BDCFC002871D6 /* AztecVisualEditorTests.swift */,
 				59FEA05D1D8BDFA700D138DF /* Exporter */,
 				59FEA0641D8BDFA700D138DF /* HTML */,
@@ -361,8 +361,8 @@
 		599F252E1D8BC9A1002871D6 /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
-				599F25301D8BC9A1002871D6 /* AztecTextAttachment.swift */,
-				599F25311D8BC9A1002871D6 /* AztecTextStorage.swift */,
+				599F25301D8BC9A1002871D6 /* TextAttachment.swift */,
+				599F25311D8BC9A1002871D6 /* TextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
 			);
 			path = TextKit;
@@ -545,7 +545,7 @@
 			files = (
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
 				599F25371D8BC9A1002871D6 /* InAttributeConverter.swift in Sources */,
-				599F25531D8BC9A1002871D6 /* AztecTextStorage.swift in Sources */,
+				599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */,
 				599F25461D8BC9A1002871D6 /* HTMLNodeToNSAttributedString.swift in Sources */,
 				599F253C1D8BC9A1002871D6 /* OutHTMLAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
@@ -554,7 +554,7 @@
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
-				599F25521D8BC9A1002871D6 /* AztecTextAttachment.swift in Sources */,
+				599F25521D8BC9A1002871D6 /* TextAttachment.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Helpers.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
@@ -591,7 +591,7 @@
 				599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */,
 				594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */,
 				59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */,
-				599F25941D8BDCFC002871D6 /* AztecTextStorageTests.swift in Sources */,
+				599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */,
 				59FEA0741D8BDFA700D138DF /* ElementNodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

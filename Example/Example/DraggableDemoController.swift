@@ -46,8 +46,8 @@ class DraggableDemoController: UIViewController
 
     func buildAttributedString() -> NSAttributedString {
         let lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n"
-        let attachment1 = AztecTextAttachment(identifier: "foo")
-        let attachment2 = AztecTextAttachment(identifier: "bar")
+        let attachment1 = TextAttachment(identifier: "foo")
+        let attachment2 = TextAttachment(identifier: "bar")
 
         let attributes = [
             NSParagraphStyleAttributeName : NSParagraphStyle.defaultParagraphStyle(),
@@ -160,7 +160,7 @@ extension DraggableDemoController : NSLayoutManagerDelegate
 extension DraggableDemoController : AztecAttachmentManagerDelegate
 {
 
-    func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
+    func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: TextAttachment) -> UIView? {
         if let attachmentView = attachmentViewList[attachment.identifier] {
             return attachmentView
         }

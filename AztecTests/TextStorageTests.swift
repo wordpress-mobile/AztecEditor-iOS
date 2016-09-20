@@ -3,7 +3,7 @@ import XCTest
 @testable import Aztec
 
 
-class AztecTextStorageTests: XCTestCase
+class TextStorageTests: XCTestCase
 {
 
     override func setUp() {
@@ -22,7 +22,7 @@ class AztecTextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
         ]
-        let storage = AztecTextStorage()
+        let storage = TextStorage()
         storage.appendAttributedString(NSAttributedString(string: "foo"))
         storage.appendAttributedString(NSAttributedString(string: "bar", attributes: attributes))
         storage.appendAttributedString(NSAttributedString(string: "baz"))
@@ -43,7 +43,7 @@ class AztecTextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
         ]
-        let storage = AztecTextStorage()
+        let storage = TextStorage()
         storage.appendAttributedString(NSAttributedString(string: "foo"))
         storage.appendAttributedString(NSAttributedString(string: "bar", attributes: attributes))
         storage.appendAttributedString(NSAttributedString(string: "baz"))
@@ -57,7 +57,7 @@ class AztecTextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
         ]
-        let storage = AztecTextStorage()
+        let storage = TextStorage()
         storage.appendAttributedString(NSAttributedString(string: "foo"))
         storage.appendAttributedString(NSAttributedString(string: "bar", attributes: attributes))
         storage.appendAttributedString(NSAttributedString(string: "baz"))

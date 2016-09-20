@@ -595,7 +595,7 @@ private extension EditorDemoController
         richTextView.insertImage(image, index: index)
     }
 
-    func displayDetailsForAttachment(attachment: AztecTextAttachment) {
+    func displayDetailsForAttachment(attachment: TextAttachment) {
         let detailsViewController = AttachmentDetailsViewController()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size) in
