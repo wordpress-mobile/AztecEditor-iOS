@@ -26,7 +26,6 @@
 		E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BE9861D304A970065FF75 /* FormattingDemoController.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */; };
-		E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568F11D26DE9200E6913B /* DraggableDemoController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -373,7 +372,6 @@
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */,
-				E66568F21D26DE9200E6913B /* DraggableDemoController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

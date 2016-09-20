@@ -7,7 +7,7 @@ class AttachmentDetailsViewController: UIViewController
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
     var attachment: AztecTextAttachment?
-    var onUpdate: (() -> Void)?
+    var onUpdate: ((AztecTextAttachment.Alignment, AztecTextAttachment.Size) -> Void)?
 
 
     override func viewDidLoad() {
@@ -47,15 +47,12 @@ class AttachmentDetailsViewController: UIViewController
 
     @IBAction func doneWasPressed() {
         guard let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
-            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex),
-            attachment = attachment else
+            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex) else
         {
             fatalError()
         }
 
-        attachment.alignment = alignment.toAttachmentAlignment()
-        attachment.size = size.toAttachmentSize()
-        onUpdate?()
+        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize())
         
         dismissViewControllerAnimated(true, completion: nil)
     }

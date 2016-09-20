@@ -1,4 +1,5 @@
 import Foundation
+import Gridicons
 import UIKit
 
 class HMTLNodeToNSAttributedString: SafeConverter {
@@ -146,6 +147,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - elementNode: the element node to generate a representation string of.
+    ///     - attributes: inherited attributes
     ///
     /// - Returns: the attributed string representing the specified element node.
     ///
