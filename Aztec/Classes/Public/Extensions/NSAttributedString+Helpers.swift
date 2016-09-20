@@ -2,9 +2,9 @@ import Foundation
 import UIKit
 
 
-/// NSTextStorage Helpers
+/// NSAttributedString Extension for Attachments
 ///
-extension NSTextStorage
+extension NSAttributedString
 {
     /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
     /// For each one of those elements, the specified block will be called.

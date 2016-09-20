@@ -37,7 +37,7 @@
 		599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25201D8BC9A1002871D6 /* HTMLConstants.swift */; };
 		599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25211D8BC9A1002871D6 /* Metrics.swift */; };
 		599F25491D8BC9A1002871D6 /* HTMLToAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25231D8BC9A1002871D6 /* HTMLToAttributedString.swift */; };
-		599F254A1D8BC9A1002871D6 /* NSTextStorage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25251D8BC9A1002871D6 /* NSTextStorage+Helpers.swift */; };
+		599F254A1D8BC9A1002871D6 /* NSAttributedString+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25251D8BC9A1002871D6 /* NSAttributedString+Helpers.swift */; };
 		599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */; };
 		599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */; };
 		599F254D1D8BC9A1002871D6 /* FormatBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F252A1D8BC9A1002871D6 /* FormatBar.swift */; };
@@ -108,7 +108,7 @@
 		599F25201D8BC9A1002871D6 /* HTMLConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLConstants.swift; sourceTree = "<group>"; };
 		599F25211D8BC9A1002871D6 /* Metrics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Metrics.swift; sourceTree = "<group>"; };
 		599F25231D8BC9A1002871D6 /* HTMLToAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedString.swift; sourceTree = "<group>"; };
-		599F25251D8BC9A1002871D6 /* NSTextStorage+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSTextStorage+Helpers.swift"; sourceTree = "<group>"; };
+		599F25251D8BC9A1002871D6 /* NSAttributedString+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Helpers.swift"; sourceTree = "<group>"; };
 		599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+RangeConversion.swift"; sourceTree = "<group>"; };
 		599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextView+Helpers.swift"; sourceTree = "<group>"; };
 		599F252A1D8BC9A1002871D6 /* FormatBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormatBar.swift; sourceTree = "<group>"; };
@@ -332,7 +332,7 @@
 		599F25241D8BC9A1002871D6 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				599F25251D8BC9A1002871D6 /* NSTextStorage+Helpers.swift */,
+				599F25251D8BC9A1002871D6 /* NSAttributedString+Helpers.swift */,
 				599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */,
 				599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */,
 			);
@@ -556,7 +556,7 @@
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* AztecTextAttachment.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
-				599F254A1D8BC9A1002871D6 /* NSTextStorage+Helpers.swift in Sources */,
+				599F254A1D8BC9A1002871D6 /* NSAttributedString+Helpers.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
 				599F25451D8BC9A1002871D6 /* Libxml2.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,

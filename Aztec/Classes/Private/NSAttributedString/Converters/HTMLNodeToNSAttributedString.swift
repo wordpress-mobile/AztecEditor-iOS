@@ -162,15 +162,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
             let identifier = NSUUID().UUIDString
             let attachment = AztecTextAttachment(identifier: identifier)
-            attachment.image = Gridicon.iconOfType(.Camera)
-/*
+
             if let urlString = elementNode.valueForStringAttribute(named: "src"),
                 let url = NSURL(string: urlString) {
                 attachment.kind = .RemoteImage(url: url)
             } else {
                 attachment.kind = .MissingImage
             }
- */
 
             return NSAttributedString(attachment: attachment)
         } else {

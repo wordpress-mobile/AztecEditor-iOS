@@ -11,7 +11,7 @@ public class AztecTextAttachment: NSTextAttachment
 
     /// Attachment Kind
     ///
-    public var kind: Kind?
+    public var kind: Kind = .MissingImage
 
     /// Attachment Alignment
     ///
@@ -39,7 +39,7 @@ public class AztecTextAttachment: NSTextAttachment
 
     func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
 
-        let imageWidth = onScreenWidth()
+        let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
         case .Center:
@@ -51,9 +51,9 @@ public class AztecTextAttachment: NSTextAttachment
         }
     }
 
-    func onScreenHeight() -> CGFloat {
+    func onScreenHeight(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
-            let targetWidth = onScreenWidth()
+            let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
 
             return image.size.height * scale
@@ -62,13 +62,13 @@ public class AztecTextAttachment: NSTextAttachment
         }
     }
 
-    func onScreenWidth() -> CGFloat {
+    func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {
             case .Maximum:
-                return image.size.width
+                return min(image.size.width, containerWidth)
             default:
-                return size.width
+                return min(size.width, containerWidth)
             }
         } else {
             return 0
@@ -81,8 +81,9 @@ public class AztecTextAttachment: NSTextAttachment
 
         var glyphImage: UIImage? = nil
 
+        let containerWidth = imageBounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
-        let size = CGSize(width: onScreenWidth(), height: onScreenHeight())
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
 
         if let image = image {
             UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, 1.0)
@@ -105,7 +106,7 @@ public class AztecTextAttachment: NSTextAttachment
         let padding = textContainer?.lineFragmentPadding ?? 0
         let width = lineFrag.width - padding * 2
 
-        return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight()))
+        return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
     }
 }
 
@@ -129,7 +130,8 @@ extension AztecTextAttachment
     public enum Kind {
         case MissingImage
         case RemoteImage(url: NSURL)
-        case Image(image: UIImage)
+        case RemoteImageDownloaded(url: NSURL, image: UIImage)
+        case Image
     }
 
     /// Size Onscreen!

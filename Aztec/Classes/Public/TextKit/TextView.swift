@@ -56,7 +56,7 @@ public class TextView: UITextView {
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
 
-        startListeningToEvents()
+        storage.imageProvider = self
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -67,30 +67,12 @@ public class TextView: UITextView {
         super.init(coder: aDecoder)
     }
 
-    deinit {
-        stopListeningToEvents()
-    }
-
 
     // MARK: - UIView Overrides
 
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         layoutIfNeeded()
-    }
-
-
-    // MARK: - Events
-
-    /// Wires all of the Notifications / Delegates required!
-    ///
-    private func startListeningToEvents() {
-        // Delegates
-        layoutManager.delegate = self
-    }
-
-    private func stopListeningToEvents() {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
 
     // MARK: - Paragraphs
@@ -429,7 +411,7 @@ public class TextView: UITextView {
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = AztecTextAttachment(identifier: identifier)
-        //attachment.kind = .Image(image: image)
+        attachment.kind = .Image
         attachment.image = image
 
         // Inject the Attachment and Layout
@@ -440,9 +422,6 @@ public class TextView: UITextView {
         // Move the cursor after the attachment
         let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
         selectedRange = selectionRange
-
-        // Make sure to reload + layout
-        //attachmentManager.reloadAttachments()
     }
 
 
@@ -734,65 +713,30 @@ public class TextView: UITextView {
     public func changeAlignment(forAttachment attachment: AztecTextAttachment, to alignment: AztecTextAttachment.Alignment) {
         attachment.alignment = alignment
 
-        invalidateLayoutForAttachment(attachment)
+        storage.invalidateLayoutForAttachment(attachment)
     }
 
     public func changeSize(forAttachment attachment: AztecTextAttachment, to size: AztecTextAttachment.Size) {
         attachment.size = size
 
-        invalidateLayoutForAttachment(attachment)
-    }
-
-    private func invalidateLayoutForAttachment(attachment: AztecTextAttachment) {
-
-        let range = storage.range(forAttachment: attachment)
-
-        layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
+        storage.invalidateLayoutForAttachment(attachment)
     }
 }
 
+// MARK: - TextStorageAttachmentsDelegate
 
-// MARK: - NSLayoutManagerDelegate
+extension TextView: TextStorageImageProvider {
 
-extension TextView: NSLayoutManagerDelegate
-{
-
-}
-
-// MARK: - AztecAttachmentManagerDelegate
-/*
-extension TextView: AztecAttachmentManagerDelegate
-{
-    public func attachmentManager(attachmentManager: AztecAttachmentManager, viewForAttachment attachment: AztecTextAttachment) -> UIView? {
-        guard let kind = attachment.kind else {
-            return nil
-        }
-
-        switch kind {
-        case .MissingImage:
-            let missingImageView = UIImageView(image: defaultMissingImage)
-            return missingImageView
-        case .RemoteImage(let url):
-            if let mediaDelegate = mediaDelegate {
-
-                let success = { [weak self] (image: UIImage) -> Void in
-                    self?.attachmentManager.assignView(UIImageView(image: image), forAttachment: attachment)
-                }
-
-                let failure = { [weak self] () -> () in
-                    self?.attachmentManager.assignView(UIImageView(image: self?.defaultMissingImage), forAttachment: attachment)
-                }
-
-                let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
-                let placeholderImageView = UIImageView(image: placeholderImage)
-                return placeholderImageView
-            } else {
-                return UIImageView(image: defaultMissingImage)
-            }
-
-        case .Image(let image):
-            return UIImageView(image: image)
+    func storage(storage: AztecTextStorage, attachment: AztecTextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
+        if let mediaDelegate = mediaDelegate {
+            let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
+            return placeholderImage
+        } else {
+            return Gridicon.iconOfType(.Attachment)
         }
     }
+
+    func storage(storage: AztecTextStorage, missingImageForAttachment: AztecTextAttachment) -> UIImage {
+        return defaultMissingImage
+    }
 }
-*/

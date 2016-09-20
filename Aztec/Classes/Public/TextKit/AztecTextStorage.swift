@@ -1,6 +1,10 @@
 import Foundation
 import UIKit
 
+protocol TextStorageImageProvider {
+    func storage(storage: AztecTextStorage, attachment: AztecTextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func storage(storage: AztecTextStorage, missingImageForAttachment: AztecTextAttachment) -> UIImage
+}
 
 /// Custom NSTextStorage
 ///
@@ -46,8 +50,9 @@ public class AztecTextStorage: NSTextStorage {
         return textStore.string
     }
 
-
     // MARK: - Attachments
+
+    var imageProvider: TextStorageImageProvider?
 
     public func aztecTextAttachments() -> [AztecTextAttachment] {
         let range = NSMakeRange(0, length)
@@ -61,22 +66,18 @@ public class AztecTextStorage: NSTextStorage {
         return attachments
     }
 
-    public func range(forAttachment attachment: AztecTextAttachment) -> NSRange {
+    public func range(forAttachment attachment: AztecTextAttachment) -> NSRange? {
 
         var range: NSRange?
 
-        enumerateAttachmentsOfType(AztecTextAttachment.self) { (currentAttachment, currentRange, stop) in
+        textStore.enumerateAttachmentsOfType(AztecTextAttachment.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.memory = true
             }
         }
 
-        if let range = range {
-            return range
-        } else {
-            fatalError("The attachment does not exist inside this text view.")
-        }
+        return range
     }
 
 
@@ -88,22 +89,19 @@ public class AztecTextStorage: NSTextStorage {
 
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
-
         textStore.replaceCharactersInRange(range, withString: str)
         rootNode.replaceCharacters(inRange: range, withString: str)
+        endEditing()
 
         edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
-
-        endEditing()
     }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
-
         textStore.setAttributes(attrs, range: range)
-        edited(.EditedAttributes, range: range, changeInLength: 0)
-
         endEditing()
+
+        edited(.EditedAttributes, range: range, changeInLength: 0)
     }
 
     // MARK: - Styles
@@ -263,7 +261,7 @@ public class AztecTextStorage: NSTextStorage {
         return html
     }
 
-    public func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
 
         let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
         let output: (rootNode: RootNode, attributedString: NSAttributedString)
@@ -278,6 +276,71 @@ public class AztecTextStorage: NSTextStorage {
         textStore = NSMutableAttributedString(attributedString: output.attributedString)
         edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
         rootNode = output.rootNode
+
+        enumerateAttachmentsOfType(AztecTextAttachment.self) { [weak self] (attachment, range, stop) in
+            self?.loadImageForAttachment(attachment, inRange: range)
+        }
+    }
+
+    func loadImageForAttachment(attachment: AztecTextAttachment, inRange range: NSRange) {
+
+        guard let imageProvider = imageProvider else {
+            fatalError("The image provider should've been set at this point.")
+        }
+
+        switch (attachment.kind) {
+        case .RemoteImage(let url):
+            attachment.image = imageProvider.storage(self, attachment: attachment, imageForURL: url, onSuccess: { [weak self] image in
+                self?.downloadSuccess(attachment, url: url, image: image)
+                }, onFailure: { [weak self] in
+                    self?.downloadFailure(attachment)
+            })
+        case .RemoteImageDownloaded(_, let image):
+            attachment.image = image
+
+        default:
+            attachment.image = imageProvider.storage(self, missingImageForAttachment: attachment)
+        }
+
+        invalidateLayoutForAttachment(attachment)
+    }
+
+    private func downloadSuccess(attachment: AztecTextAttachment, url: NSURL, image: UIImage) {
+
+        attachment.kind = .RemoteImageDownloaded(url: url, image: image)
+
+        attachment.image = image
+        invalidateLayoutForAttachment(attachment)
+    }
+
+    private func downloadFailure(attachment: AztecTextAttachment) {
+        guard let imageProvider = imageProvider else {
+            fatalError("The image provider should've been set at this point.")
+        }
+
+        attachment.image = imageProvider.storage(self, missingImageForAttachment: attachment)
+        invalidateLayoutForAttachment(attachment)
+    }
+
+    /// Invalidates the full layout.
+    /// This is actually intended to invalidate the layout for a single attachment, but we've found
+    /// crashing bugs when trying to figure out the correct range for an attachment.
+    ///
+    /// I'm temporarily commenting out the breaking code, but leaving it in to see if we can fix it.
+    ///
+    func invalidateLayoutForAttachment(attachment: AztecTextAttachment) {
+
+        guard layoutManagers.count > 0 else {
+            fatalError("This storage should have at least one layout manager assigned.")
+        }
+
+        let layoutManager = layoutManagers[0]
+
+        //if let range = range(forAttachment: attachment) {
+            //layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
+        layoutManager.invalidateLayoutForCharacterRange(NSRange(location: 0, length: textStore.length), actualCharacterRange: nil)
+        //layoutManager.ensureLayoutForTextContainer(layoutManager.textContainers[0])
+        //}
     }
 }
 
