@@ -78,21 +78,23 @@ public class AztecTextAttachment: NSTextAttachment
     // MARK: - NSTextAttachmentContainer
 
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
+        guard let image = image else {
+            return nil
+        }
 
-        var glyphImage: UIImage? = nil
 
         let containerWidth = imageBounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
+        let scale = UIScreen.mainScreen().scale
+        let glyphImage: UIImage?
 
-        if let image = image {
-            UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, 1.0)
+        UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, scale)
 
-            image.drawInRect(CGRect(origin: origin, size: size))
-            glyphImage = UIGraphicsGetImageFromCurrentImageContext()
+        image.drawInRect(CGRect(origin: origin, size: size))
+        glyphImage = UIGraphicsGetImageFromCurrentImageContext()
 
-            UIGraphicsEndImageContext()
-        }
+        UIGraphicsEndImageContext()
 
         return glyphImage
     }
