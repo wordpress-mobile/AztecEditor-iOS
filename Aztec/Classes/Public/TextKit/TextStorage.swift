@@ -2,13 +2,13 @@ import Foundation
 import UIKit
 
 protocol TextStorageImageProvider {
-    func storage(storage: AztecTextStorage, attachment: AztecTextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
-    func storage(storage: AztecTextStorage, missingImageForAttachment: AztecTextAttachment) -> UIImage
+    func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
 }
 
 /// Custom NSTextStorage
 ///
-public class AztecTextStorage: NSTextStorage {
+public class TextStorage: NSTextStorage {
 
     typealias ElementNode = Libxml2.ElementNode
     typealias TextNode = Libxml2.TextNode
@@ -54,11 +54,11 @@ public class AztecTextStorage: NSTextStorage {
 
     var imageProvider: TextStorageImageProvider?
 
-    public func aztecTextAttachments() -> [AztecTextAttachment] {
+    public func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
-        var attachments = [AztecTextAttachment]()
+        var attachments = [TextAttachment]()
         enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
-            if let attachment = object as? AztecTextAttachment {
+            if let attachment = object as? TextAttachment {
                 attachments.append(attachment)
             }
         }
@@ -66,11 +66,11 @@ public class AztecTextStorage: NSTextStorage {
         return attachments
     }
 
-    public func range(forAttachment attachment: AztecTextAttachment) -> NSRange? {
+    public func range(forAttachment attachment: TextAttachment) -> NSRange? {
 
         var range: NSRange?
 
-        textStore.enumerateAttachmentsOfType(AztecTextAttachment.self) { (currentAttachment, currentRange, stop) in
+        textStore.enumerateAttachmentsOfType(TextAttachment.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.memory = true
@@ -277,12 +277,12 @@ public class AztecTextStorage: NSTextStorage {
         edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
         rootNode = output.rootNode
 
-        enumerateAttachmentsOfType(AztecTextAttachment.self) { [weak self] (attachment, range, stop) in
+        enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
             self?.loadImageForAttachment(attachment, inRange: range)
         }
     }
 
-    func loadImageForAttachment(attachment: AztecTextAttachment, inRange range: NSRange) {
+    func loadImageForAttachment(attachment: TextAttachment, inRange range: NSRange) {
 
         guard let imageProvider = imageProvider else {
             fatalError("The image provider should've been set at this point.")
@@ -305,7 +305,7 @@ public class AztecTextStorage: NSTextStorage {
         invalidateLayoutForAttachment(attachment)
     }
 
-    private func downloadSuccess(attachment: AztecTextAttachment, url: NSURL, image: UIImage) {
+    private func downloadSuccess(attachment: TextAttachment, url: NSURL, image: UIImage) {
 
         attachment.kind = .RemoteImageDownloaded(url: url, image: image)
 
@@ -313,7 +313,7 @@ public class AztecTextStorage: NSTextStorage {
         invalidateLayoutForAttachment(attachment)
     }
 
-    private func downloadFailure(attachment: AztecTextAttachment) {
+    private func downloadFailure(attachment: TextAttachment) {
         guard let imageProvider = imageProvider else {
             fatalError("The image provider should've been set at this point.")
         }
@@ -328,7 +328,7 @@ public class AztecTextStorage: NSTextStorage {
     ///
     /// I'm temporarily commenting out the breaking code, but leaving it in to see if we can fix it.
     ///
-    func invalidateLayoutForAttachment(attachment: AztecTextAttachment) {
+    func invalidateLayoutForAttachment(attachment: TextAttachment) {
 
         guard layoutManagers.count > 0 else {
             fatalError("This storage should have at least one layout manager assigned.")
@@ -347,7 +347,7 @@ public class AztecTextStorage: NSTextStorage {
 
 /// Convenience extension to group font trait related methods.
 ///
-public extension AztecTextStorage
+public extension TextStorage
 {
 
 

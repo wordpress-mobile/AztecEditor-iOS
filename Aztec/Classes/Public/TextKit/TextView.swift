@@ -36,14 +36,14 @@ public class TextView: UITextView {
 
     // MARK: - Properties: Text Storage
 
-    var storage: AztecTextStorage {
-        return textStorage as! AztecTextStorage
+    var storage: TextStorage {
+        return textStorage as! TextStorage
     }
 
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
-        let storage = AztecTextStorage()
+        let storage = TextStorage()
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
 
@@ -410,7 +410,7 @@ public class TextView: UITextView {
     ///
     public func insertImage(image: UIImage, index: Int) {
         let identifier = NSUUID().UUIDString
-        let attachment = AztecTextAttachment(identifier: identifier)
+        let attachment = TextAttachment(identifier: identifier)
         attachment.kind = .Image
         attachment.image = image
 
@@ -440,20 +440,20 @@ public class TextView: UITextView {
     // MARK - Inspect Within Range
 
 
-    /// Returns the associated AztecTextAttachment, at a given point, if any.
+    /// Returns the associated TextAttachment, at a given point, if any.
     ///
     /// - Parameters:
     ///     - point: The point on screen to check for attachments.
     ///
-    /// - Returns: The associated AztecTextAttachment.
+    /// - Returns: The associated TextAttachment.
     ///
-    public func attachmentAtPoint(point: CGPoint) -> AztecTextAttachment? {
+    public func attachmentAtPoint(point: CGPoint) -> TextAttachment? {
         let index = layoutManager.characterIndexForPoint(point, inTextContainer: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index <= textStorage.length else {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, atIndex: index, effectiveRange: nil) as? AztecTextAttachment
+        return textStorage.attribute(NSAttachmentAttributeName, atIndex: index, effectiveRange: nil) as? TextAttachment
     }
 
 
@@ -710,13 +710,13 @@ public class TextView: UITextView {
 
     // MARK: - Attachments
 
-    public func changeAlignment(forAttachment attachment: AztecTextAttachment, to alignment: AztecTextAttachment.Alignment) {
+    public func changeAlignment(forAttachment attachment: TextAttachment, to alignment: TextAttachment.Alignment) {
         attachment.alignment = alignment
 
         storage.invalidateLayoutForAttachment(attachment)
     }
 
-    public func changeSize(forAttachment attachment: AztecTextAttachment, to size: AztecTextAttachment.Size) {
+    public func changeSize(forAttachment attachment: TextAttachment, to size: TextAttachment.Size) {
         attachment.size = size
 
         storage.invalidateLayoutForAttachment(attachment)
@@ -727,7 +727,7 @@ public class TextView: UITextView {
 
 extension TextView: TextStorageImageProvider {
 
-    func storage(storage: AztecTextStorage, attachment: AztecTextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
+    func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
         if let mediaDelegate = mediaDelegate {
             let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
             return placeholderImage
@@ -736,7 +736,7 @@ extension TextView: TextStorageImageProvider {
         }
     }
 
-    func storage(storage: AztecTextStorage, missingImageForAttachment: AztecTextAttachment) -> UIImage {
+    func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
         return defaultMissingImage
     }
 }

@@ -6,8 +6,8 @@ class AttachmentDetailsViewController: UIViewController
 {
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
-    var attachment: AztecTextAttachment?
-    var onUpdate: ((AztecTextAttachment.Alignment, AztecTextAttachment.Size) -> Void)?
+    var attachment: TextAttachment?
+    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size) -> Void)?
 
 
     override func viewDidLoad() {
@@ -65,11 +65,11 @@ private extension AttachmentDetailsViewController
 {
     /// Aliases
     ///
-    typealias AttachmentAlignment = AztecTextAttachment.Alignment
-    typealias AttachmentSize = AztecTextAttachment.Size
+    typealias AttachmentAlignment = TextAttachment.Alignment
+    typealias AttachmentSize = TextAttachment.Size
 
 
-    /// Maps an AztecTextAttachment.Alignment into a Integer based Enum, to aid in the mapping between
+    /// Maps an TextAttachment.Alignment into a Integer based Enum, to aid in the mapping between
     /// the Attachment's data and the Segmented Control.
     ///
     enum Alignment: Int {
@@ -98,7 +98,7 @@ private extension AttachmentDetailsViewController
     }
 
 
-    /// Maps an AztecTextAttachment.Size into a Integer based Enum, to aid in the mapping between
+    /// Maps an TextAttachment.Size into a Integer based Enum, to aid in the mapping between
     /// the Attachment's data and the Segmented Control.
     ///
     enum Size: Int {

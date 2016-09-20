@@ -3,7 +3,7 @@ import UIKit
 
 /// Custom text attachment.
 ///
-public class AztecTextAttachment: NSTextAttachment
+public class TextAttachment: NSTextAttachment
 {
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
@@ -115,7 +115,7 @@ public class AztecTextAttachment: NSTextAttachment
 
 /// Nested Types
 ///
-extension AztecTextAttachment
+extension TextAttachment
 {
     /// Alignment
     ///
