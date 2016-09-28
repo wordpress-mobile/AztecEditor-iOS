@@ -87,13 +87,13 @@ public class TextStorage: NSTextStorage {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
 
-    override public func replaceCharactersInRange(range: NSRange, withString str: String) {
+    override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         beginEditing()
-        textStore.replaceCharactersInRange(range, withString: str)
-        rootNode.replaceCharacters(inRange: range, withString: str)
+        textStore.replaceCharactersInRange(range, withAttributedString: attrString)
+        rootNode.replaceCharacters(inRange: range, withString: attrString.string)
         endEditing()
 
-        edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
     }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
