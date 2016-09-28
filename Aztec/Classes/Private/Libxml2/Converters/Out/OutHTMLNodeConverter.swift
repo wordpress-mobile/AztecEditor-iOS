@@ -68,7 +68,7 @@ extension Libxml2.Out {
         /// - Returns: the libxml2 xmlNode
         ///
         private func createTextNode(rawNode: TextNode) -> UnsafeMutablePointer<xmlNode> {
-            let value = rawNode.text
+            let value = rawNode.text()
             let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
             
@@ -83,7 +83,7 @@ extension Libxml2.Out {
         /// - Returns: the libxml2 xmlNode
         ///
         private func createCommentNode(rawNode: CommentNode) -> UnsafeMutablePointer<xmlNode> {
-            let value = rawNode.text
+            let value = rawNode.comment
             let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
             let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
 

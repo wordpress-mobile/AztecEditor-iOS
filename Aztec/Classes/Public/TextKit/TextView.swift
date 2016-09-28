@@ -391,6 +391,7 @@ public class TextView: UITextView {
         let index = range.location
         let length = title.characters.count
         let insertionRange = NSMakeRange(index, length)
+        
         storage.replaceCharactersInRange(range, withString: title)
         storage.setLink(url, forRange: insertionRange)
     }

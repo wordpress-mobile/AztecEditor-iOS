@@ -445,19 +445,19 @@ extension Libxml2 {
             return self
         }
 
-        /// Calls this method to obtain all the text nodes containing a specified range.
+        /// Calls this method to obtain all the leaf nodes containing a specified range.
         ///
         /// - Parameters:
         ///     - range: the range that the text nodes must cover.
         ///
-        /// - Returns: an array of text nodes and a range specifying how much of the text node
+        /// - Returns: an array of leaf nodes and a range specifying how much of the node contents
         ///         makes part of the input range.  The returned range's location is an offset
         ///         from the node's location.
-        ///         The array of text nodes is ordered by order of appearance (0 being the first).
+        ///         The array of leaf nodes is ordered by order of appearance (0 being the first).
         ///
-        func textNodesWrapping(range: NSRange) -> [(node: TextNode, range: NSRange)] {
+        func leafNodesWrapping(range: NSRange) -> [(node: LeafNode, range: NSRange)] {
 
-            var results = [(node: TextNode, range: NSRange)]()
+            var results = [(node: LeafNode, range: NSRange)]()
             var offset = 0
 
             for child in children {
@@ -474,10 +474,15 @@ extension Libxml2 {
                         intersection.location = intersection.location - offset
 
                         results.append((node: textNode, range: intersection))
+                    } else if let commentNode = child as? CommentNode {
+                        var intersection = NSIntersectionRange(range, childRange)
+                        intersection.location = intersection.location - offset
+                        
+                        results.append((node: commentNode, range: intersection))
                     } else if let elementNode = child as? ElementNode {
                         let offsetRange = NSRange(location: range.location - offset, length: range.length)
 
-                        results.appendContentsOf(elementNode.textNodesWrapping(offsetRange))
+                        results.appendContentsOf(elementNode.leafNodesWrapping(offsetRange))
                     } else {
                         assertionFailure("This case should not be possible. Review the logic triggering this.")
                     }
@@ -493,6 +498,35 @@ extension Libxml2 {
             }
 
             return results
+        }
+        
+        override func text() -> String {
+            var text = ""
+            
+            for child in children {
+                text = text + child.text()
+            }
+            
+            return text
+        }
+        
+        /// Returns the plain visible text for a specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the text inside this node that we want to retrieve.
+        ///
+        func text(forRange range: NSRange) -> String {
+            let textNodesAndRanges = leafNodesWrapping(range)
+            var text = ""
+            
+            for textNodeAndRange in textNodesAndRanges {
+                let nodeText = textNodeAndRange.node.text()
+                let range = nodeText.rangeFromNSRange(textNodeAndRange.range)!
+                
+                text = text + nodeText.substringWithRange(range)
+            }
+            
+            return text
         }
 
         // MARK: - DOM modification
@@ -712,14 +746,14 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                if intersection.location == 0 && intersection.length == child.length() {
-                    remove(child)
-                } else if let childEditableNode = child as? EditableNode {
+                if let childEditableNode = child as? EditableNode {
                     if index == 0 && string.characters.count > 0 {
                         childEditableNode.replaceCharacters(inRange: intersection, withString: string)
                     } else {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }
+                } else {
+                    remove(child)
                 }
             }
         }
@@ -985,27 +1019,6 @@ extension Libxml2 {
                 })
 
                 wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
-            }
-        }
-
-        /// Wraps the specified range inside a node with the specified name.
-        ///
-        /// - Parameters:
-        ///     - newNodeRange: the range that must be wrapped.
-        ///     - newNodeName: the name of the new node the range must be wrapped in.
-        ///
-        func wrap(range newNodeRange: NSRange, inNodeNamed newNodeName: String) {
-
-            let textNodes = textNodesWrapping(newNodeRange)
-
-            for (node, range) in textNodes {
-                let nodeLength = node.length()
-
-                if range.length != nodeLength {
-                    node.split(forRange: range)
-                }
-
-                node.wrap(inNodeNamed: newNodeName)
             }
         }
 
