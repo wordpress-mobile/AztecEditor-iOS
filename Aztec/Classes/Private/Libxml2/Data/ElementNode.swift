@@ -712,14 +712,14 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                if intersection.location == 0 && intersection.length == child.length() {
-                    remove(child)
-                } else if let childEditableNode = child as? EditableNode {
+                if let childEditableNode = child as? EditableNode {
                     if index == 0 && string.characters.count > 0 {
                         childEditableNode.replaceCharacters(inRange: intersection, withString: string)
                     } else {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }
+                } else {
+                    remove(child)
                 }
             }
         }

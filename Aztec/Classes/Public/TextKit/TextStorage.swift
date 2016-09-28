@@ -166,7 +166,7 @@ public class TextStorage: NSTextStorage {
             intersectingRange: effectiveRange,
             inNodeNamed: "a",
             withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-            equivalentElementNames: [])
+            equivalentElementNames: ["a"])
     }
 
     func removeLink(inRange range: NSRange){
