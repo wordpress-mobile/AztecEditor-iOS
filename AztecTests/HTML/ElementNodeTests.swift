@@ -669,6 +669,37 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(underline.children.count, 1)
         XCTAssertEqual(underline.children[0].length(), 4)
     }
+    
+    /// Tests that wrapping a range in a node already present in that range works.
+    ///
+    /// HTML String: <div><b>Hello there</b></div>
+    /// Wrap range: (0...11)
+    ///
+    /// Expected results:
+    ///     - The output should match the input.
+    ///
+    func testWrapChildrenIntersectingRangeWithEquivalentNodeNames1() {
+        let textNode = TextNode(text: "Hello there")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode])
+        let divNode = ElementNode(name: "div", attributes: [], children: [boldNode])
+        
+        let range = NSRange(location: 0, length: 11)
+        
+        divNode.wrapChildren(intersectingRange: range, inNodeNamed: "b", withAttributes: [], equivalentElementNames: [])
+        
+        XCTAssertEqual(divNode.children.count, 1)
+        
+        guard let newBoldNode = divNode.children[0] as? ElementNode
+            where newBoldNode.name == "b" else {
+                
+                XCTFail("Expected a bold node")
+                return
+        }
+        
+        XCTAssertEqual(newBoldNode.children.count, 1)
+        XCTAssertNotNil(newBoldNode.children[0] as? TextNode)
+        XCTAssertEqual(boldNode.text(), newBoldNode.text())
+    }
 
     /// Tests `childNodes(intersectingRange:)` with a zero-length range.
     ///

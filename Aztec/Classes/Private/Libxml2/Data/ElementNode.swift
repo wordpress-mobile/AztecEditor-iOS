@@ -928,12 +928,17 @@ extension Libxml2 {
         ///             lowest block-level element nodes before doing the wrapping.
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
-
-            // Before wrapping a range in a node, we remove all equivalent nodes from the range.
+            
+            // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
+            // removed.
             //
-            if equivalentElementNames.count > 0 {
-                unwrap(range: targetRange, fromElementsNamed: equivalentElementNames)
+            var elementNamesToRemove = equivalentElementNames
+            
+            if !equivalentElementNames.contains(nodeName) {
+                elementNamesToRemove.append(nodeName)
             }
+            
+            unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
             let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
 
