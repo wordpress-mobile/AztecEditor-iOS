@@ -86,13 +86,16 @@ public class TextStorage: NSTextStorage {
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
-
+ 
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
         rootNode.replaceCharacters(inRange: range, withString: attrString.string)
+        
+        let finalRange = NSRange(location: range.location, length: attrString.length)
+        copyStylesToDOM(spanning: finalRange)
         endEditing()
-
+        
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
     }
 
@@ -104,7 +107,86 @@ public class TextStorage: NSTextStorage {
         edited(.EditedAttributes, range: range, changeInLength: 0)
     }
 
-    // MARK: - Styles
+    // MARK: - Styles: Synchronization with DOM
+
+    /// Copies all styles in the specified range to the DOM.
+    ///
+    /// - Parameters:
+    ///     - range: the range from which to take the styles to copy.
+    ///
+    private func copyStylesToDOM(spanning range: NSRange) {
+
+        let options = NSAttributedStringEnumerationOptions(rawValue: 0)
+
+        textStore.enumerateAttributesInRange(range, options: options) { (attributes, range, stop) in
+            // Edit attributes
+
+            for (key, value) in attributes {
+                switch (key) {
+                case NSStrikethroughStyleAttributeName:
+                    copyStrikethroughStyleToDOM(spanning: range, attributeValue: value)
+                case NSUnderlineStyleAttributeName:
+                    copyUnderlineStyleToDOM(spanning: range, attributeValue: value)
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    private func copyStrikethroughStyleToDOM(spanning range: NSRange, attributeValue value: AnyObject) {
+        
+        guard let intValue = value as? Int else {
+            assertionFailure("The underline style is always expected to be an Int.")
+            return
+        }
+        
+        guard let style = NSUnderlineStyle(rawValue: intValue) else {
+            assertionFailure("The underline style value is not-known.")
+            return
+        }
+        
+        copyStrikethroughStyleToDOM(spanning: range, style: style)
+    }
+    
+    private func copyStrikethroughStyleToDOM(spanning range: NSRange, style: NSUnderlineStyle) {
+        
+        switch (style) {
+        case .StyleSingle:
+            enableStrikethroughInDOM(range)
+        default:
+            // We don't support anything more than single-line underline for now
+            break
+        }
+    }
+    
+    private func copyUnderlineStyleToDOM(spanning range: NSRange, attributeValue value: AnyObject) {
+        
+        guard let intValue = value as? Int else {
+            assertionFailure("The underline style is always expected to be an Int.")
+            return
+        }
+        
+        guard let style = NSUnderlineStyle(rawValue: intValue) else {
+            assertionFailure("The underline style value is not-known.")
+            return
+        }
+        
+        copyUnderlineStyleToDOM(spanning: range, style: style)
+    }
+    
+    private func copyUnderlineStyleToDOM(spanning range: NSRange, style: NSUnderlineStyle) {
+        
+        switch (style) {
+        case .StyleSingle:
+            enableUnderlineInDOM(range)
+        default:
+            // We don't support anything more than single-line underline for now
+            break
+        }
+    }
+    
+    // MARK: - Styles: Toggling
 
     func toggleBold(range: NSRange) {
 
@@ -274,7 +356,7 @@ public class TextStorage: NSTextStorage {
 
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: output.attributedString)
-        edited([.EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)        
         rootNode = output.rootNode
 
         enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
@@ -437,8 +519,10 @@ public extension TextStorage
                             let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(newTraits)
                             let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
+                            self.beginEditing()
                             self.removeAttribute(NSFontAttributeName, range: range)
                             self.addAttribute(NSFontAttributeName, value: newFont, range: range)
+                            self.endEditing()
         })
     }
 
