@@ -55,7 +55,8 @@ public class TextView: UITextView {
         container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
-
+        
+        allowsEditingTextAttributes = true
         storage.imageProvider = self
     }
 
@@ -65,6 +66,8 @@ public class TextView: UITextView {
         defaultMissingImage = Gridicon.iconOfType(.Image)
 
         super.init(coder: aDecoder)
+        
+        allowsEditingTextAttributes = true
     }
 
 
