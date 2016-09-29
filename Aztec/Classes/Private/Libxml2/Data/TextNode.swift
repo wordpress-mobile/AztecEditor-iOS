@@ -3,57 +3,66 @@ import Foundation
 extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    class TextNode: Node, EditableNode {
+    class TextNode: Node, EditableNode, LeafNode {
 
-        var text: String
+        private var contents: String
 
         init(text: String) {
-            self.text = text
+            contents = text
 
             super.init(name: "text")
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "text", "name": name, "text": contents, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.
         ///
         override func length() -> Int {
-            return text.characters.count
+            return contents.characters.count
         }
 
         // MARK: - EditableNode
         
         func append(string: String) {
-            text.appendContentsOf(string)
+            contents.appendContentsOf(string)
         }
 
         func deleteCharacters(inRange range: NSRange) {
 
-            guard let textRange = text.rangeFromNSRange(range) else {
+            guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
-            text.removeRange(textRange)
+            contents.removeRange(textRange)
         }
         
         func prepend(string: String) {
-            text = "\(string)\(text)"
+            contents = "\(string)\(contents)"
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String) {
 
-            guard let textRange = text.rangeFromNSRange(range) else {
+            guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
-            text.replaceRange(textRange, with: string)
+            contents.replaceRange(textRange, with: string)
         }
 
         func split(atLocation location: Int) {
             
-            let index = text.startIndex.advancedBy(location)
+            guard location != 0 && location != length() - 1 else {
+                // Nothing to split, move along...
+                return
+            }
+            
+            guard location > 0 && location < length() - 1 else {
+                fatalError("Out of bounds!")
+            }
+            
+            let index = text().startIndex.advancedBy(location)
             
             guard let parent = parent,
                 let nodeIndex = parent.children.indexOf(self) else {
@@ -61,20 +70,19 @@ extension Libxml2 {
                     fatalError("This scenario should not be possible. Review the logic.")
             }
             
-            let preRange = text.startIndex ..< index
-            let postRange = index ..< text.endIndex
+            let postRange = index ..< text().endIndex
             
-            if preRange.count > 0 && postRange.count > 0 {
-                let newNode = TextNode(text: text.substringWithRange(postRange))
+            if postRange.count > 0 {
+                let newNode = TextNode(text: text().substringWithRange(postRange))
                 
-                text.removeRange(postRange)
+                contents.removeRange(postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
         }
         
         func split(forRange range: NSRange) {
 
-            guard let swiftRange = text.rangeFromNSRange(range) else {
+            guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
             }
 
@@ -84,20 +92,20 @@ extension Libxml2 {
                 fatalError("This scenario should not be possible. Review the logic.")
             }
 
-            let preRange = text.startIndex ..< swiftRange.startIndex
-            let postRange = swiftRange.endIndex ..< text.endIndex
+            let preRange = contents.startIndex ..< swiftRange.startIndex
+            let postRange = swiftRange.endIndex ..< contents.endIndex
 
             if postRange.count > 0 {
-                let newNode = TextNode(text: text.substringWithRange(postRange))
+                let newNode = TextNode(text: contents.substringWithRange(postRange))
 
-                text.removeRange(postRange)
+                contents.removeRange(postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
 
             if preRange.count > 0 {
-                let newNode = TextNode(text: text.substringWithRange(preRange))
+                let newNode = TextNode(text: contents.substringWithRange(preRange))
 
-                text.removeRange(preRange)
+                contents.removeRange(preRange)
                 parent.insert(newNode, at: nodeIndex)
             }
         }
@@ -119,6 +127,12 @@ extension Libxml2 {
 
             split(forRange: targetRange)
             wrap(inNodeNamed: nodeName, withAttributes: attributes)
+        }
+        
+        // MARK: - LeadNode
+        
+        override func text() -> String {
+            return contents
         }
     }
 }

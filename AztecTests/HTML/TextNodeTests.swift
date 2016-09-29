@@ -29,13 +29,13 @@ class TextNodeTests: XCTestCase {
         XCTAssertEqual(paragraph.children.count, 2)
         
         guard let newTextNode1 = paragraph.children[0] as? TextNode
-            where newTextNode1.text == text1 else {
+            where newTextNode1.text() == text1 else {
                 XCTFail("Expected a text node here.")
                 return
         }
         
         guard let newTextNode2 = paragraph.children[1] as? TextNode
-            where newTextNode2.text == text2 else {
+            where newTextNode2.text() == text2 else {
                 XCTFail("Expected a text node here.")
                 return
         }
@@ -74,7 +74,7 @@ class TextNodeTests: XCTestCase {
         let textNode = TextNode(text: "Hello World!")
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
-        let splitLocation = textNode.length()
+        let splitLocation = textNode.length() - 1
         
         textNode.split(atLocation: splitLocation)
         

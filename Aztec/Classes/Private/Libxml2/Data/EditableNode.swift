@@ -3,7 +3,7 @@ import Foundation
 protocol EditableNode {
     func deleteCharacters(inRange range: NSRange)
     func replaceCharacters(inRange range: NSRange, withString string: String)
-    
+
     /// Should split the node at the specified text location.  The receiver will become the node before the specified
     /// location and a new node will be created to contain whatever comes after it.
     ///

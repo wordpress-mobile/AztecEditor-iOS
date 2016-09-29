@@ -267,7 +267,7 @@ public class TextStorage: NSTextStorage {
             //if a link was not there we are just going to add it to the provided range
             effectiveRange = range
         }
-
+        
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
         rootNode.wrapChildren(
             intersectingRange: effectiveRange,
