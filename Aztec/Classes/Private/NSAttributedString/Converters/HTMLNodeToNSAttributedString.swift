@@ -68,7 +68,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convertTextNode(node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
-        return NSAttributedString(string: node.text, attributes: inheritedAttributes)
+        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -80,7 +80,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convertCommentNode(node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
-        return NSAttributedString(string: "\n", attributes: inheritedAttributes)
+        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
     /// Converts an `ElementNode` to `NSAttributedString`.

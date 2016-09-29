@@ -29,6 +29,13 @@ extension Libxml2 {
             assertionFailure("This method should always be overridden.")
             return 0
         }
+        
+        /// Override.
+        ///
+        func text() -> String {
+            assertionFailure("This method should always be overridden.")
+            return ""
+        }
 
         // MARK: - DOM Queries
 

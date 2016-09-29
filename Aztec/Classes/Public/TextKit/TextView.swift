@@ -390,7 +390,7 @@ public class TextView: UITextView {
     public func setLink(url: NSURL, title: String, inRange range: NSRange) {
         let index = range.location
         let length = title.characters.count
-        let insertionRange = NSMakeRange(index, length)        
+        let insertionRange = NSMakeRange(index, length)
         storage.replaceCharactersInRange(range, withString: title)
         storage.setLink(url, forRange: insertionRange)
     }

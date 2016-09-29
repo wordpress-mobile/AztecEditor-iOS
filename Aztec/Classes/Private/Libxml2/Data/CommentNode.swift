@@ -3,24 +3,30 @@ import Foundation
 extension Libxml2 {
     /// Comment nodes use to hold HTML comments like this: <!-- This is a comment -->
     ///
-    class CommentNode: Node {
+    class CommentNode: Node, LeafNode {
 
-        var text: String
+        var comment: String
 
         init(text: String) {
-            self.text = text
+            comment = text
 
-            super.init(name: "text")
+            super.init(name: "comment")
         }
 
         override func customMirror() -> Mirror {
-            return Mirror(self, children: ["type": "text", "name": name, "text": text, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
+            return Mirror(self, children: ["type": "comment", "name": name, "comment": comment, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.
         ///
         override func length() -> Int {
-            return 1
+            return text().characters.count
+        }
+        
+        // MARK: - LeafNode
+        
+        override func text() -> String {
+            return "\n"
         }
     }
 }

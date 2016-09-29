@@ -42,7 +42,7 @@ class InHTMLConverterTests: XCTestCase {
                 return
             }
 
-            XCTAssertEqual(textNode.text, "Hello!")
+            XCTAssertEqual(textNode.text(), "Hello!")
         } catch {
             XCTFail("Unexpected conversion failure.")
         }
