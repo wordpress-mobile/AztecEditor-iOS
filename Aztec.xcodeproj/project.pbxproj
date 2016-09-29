@@ -55,6 +55,7 @@
 		59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0661D8BDFA700D138DF /* NodeTests.swift */; };
 		59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06A1D8BDFA700D138DF /* HTMLToAttributedStringTests.swift */; };
 		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
+		F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,6 +135,7 @@
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
+		F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNodeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -417,6 +419,7 @@
 			children = (
 				59FEA0651D8BDFA700D138DF /* ElementNodeTests.swift */,
 				59FEA0661D8BDFA700D138DF /* NodeTests.swift */,
+				F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -586,6 +589,7 @@
 				59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */,
 				59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
+				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */,
 				599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */,

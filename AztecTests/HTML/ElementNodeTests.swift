@@ -230,6 +230,47 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: text1.length() - 1, length: 0)))
     }
+    
+    /// Tests that splitting an element node at a specified text location works fine.
+    ///
+    /// HTML string: <div><p>Hello World!</p></div>
+    /// Split target: the paragraph tag
+    /// Split Location: 5
+    ///
+    /// The results should be:
+    ///     - The output should be: <div><p>Hello</p><p> World!</p></div>
+    ///     - The original paragraph object should point to the first child paragraph.
+    ///
+    func testSplitAtLocation1() {
+        let text1 = "Hello"
+        let text2 = " World!"
+        
+        let textNode = TextNode(text: "\(text1)\(text2)")
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        
+        let splitLocation = text1.characters.count
+        
+        paragraph.split(atLocation: splitLocation)
+        
+        XCTAssertEqual(div.children.count, 2)
+        
+        guard let newParagraph1 = div.children[0] as? ElementNode
+            where newParagraph1 == paragraph else {
+                XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
+                return
+        }
+        
+        guard let newParagraph2 = div.children[1] as? ElementNode
+            where newParagraph2.text() == text2 else {
+                XCTFail("Expected the first new paragraph to exist.")
+                return
+        }
+        
+        XCTAssertEqual(newParagraph1.children.count, 1)
+        
+        newParagraph1
+    }
 
     func testSplitWithFullRange() {
 
@@ -765,7 +806,6 @@ class ElementNodeTests: XCTestCase {
         XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
     }
 
-
     /// Tests `childNodes(intersectingRange:)` with a zero-length range.
     ///
     /// Input HTML: <p><b>Hello</b><b>Hello again!</b></p>
@@ -800,5 +840,246 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(childrenAndRanges[0].child, bold2)
         XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, NSRange(location: 0, length: 0)))
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p><b>Hello1</b><b>Hello2</b></p>
+    /// String: "---"
+    /// Index: 0
+    ///
+    /// Expected results:
+    ///     - Output should be: <p>---<b>Hello1</b><b>Hello2</b></p>
+    ///
+    func testInsertStringAt1() {
+        let textNode1 = TextNode(text: "Hello1")
+        let textNode2 = TextNode(text: "Hello2")
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 0)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let newTextNode = paragraph.children[0] as? TextNode
+            where newTextNode.text == textToInsert else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[1], boldNode1)
+        XCTAssertEqual(paragraph.children[2], boldNode2)
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p><b>Hello1</b><b>Hello2</b></p>
+    /// String: "---"
+    /// Index: 1
+    ///
+    /// Expected results:
+    ///     - Output should be: <p><b>Hello1</b>---<b>Hello2</b></p>
+    ///
+    func testInsertStringAt2() {
+        let textNode1 = TextNode(text: "Hello1")
+        let textNode2 = TextNode(text: "Hello2")
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 1)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let newTextNode = paragraph.children[1] as? TextNode
+            where newTextNode.text == textToInsert else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[0], boldNode1)
+        XCTAssertEqual(paragraph.children[2], boldNode2)
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p><b>Hello1</b><b>Hello2</b></p>
+    /// String: "---"
+    /// Index: 2
+    ///
+    /// Expected results:
+    ///     - Output should be: <p><b>Hello1</b><b>Hello2</b>---</p>
+    ///
+    func testInsertStringAt3() {
+        let textNode1 = TextNode(text: "Hello1")
+        let textNode2 = TextNode(text: "Hello2")
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 2)
+
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let newTextNode = paragraph.children[2] as? TextNode
+            where newTextNode.text == textToInsert else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[0], boldNode1)
+        XCTAssertEqual(paragraph.children[1], boldNode2)
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p>Hello1<b>Hello2</b>Hello3</p>
+    /// String: "---"
+    /// Index: 0
+    ///
+    /// Expected results:
+    ///     - Output should be: <p>---Hello1<b>Hello2</b>Hello3</p>
+    ///     - The string should be attached to the adjacent TextNode.
+    ///
+    func testInsertStringAt4() {
+        
+        let adjacentText = "Hello1"
+        
+        let textNode1 = TextNode(text: adjacentText)
+        let textNode2 = TextNode(text: "Hello2")
+        let textNode3 = TextNode(text: "Hello3")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 0)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let textNode = paragraph.children[0] as? TextNode
+            where textNode.text == "\(textToInsert)\(adjacentText)" else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[1], boldNode)
+        XCTAssertEqual(paragraph.children[2], textNode3)
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p>Hello1<b>Hello2</b>Hello3</p>
+    /// String: "---"
+    /// Index: 1
+    ///
+    /// Expected results:
+    ///     - Output should be: <p>Hello1---<b>Hello2</b>Hello3</p>
+    ///     - The string should be attached to the adjacent TextNode.
+    ///
+    func testInsertStringAt5() {
+        
+        let adjacentText = "Hello1"
+        
+        let textNode1 = TextNode(text: adjacentText)
+        let textNode2 = TextNode(text: "Hello2")
+        let textNode3 = TextNode(text: "Hello3")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 1)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let textNode = paragraph.children[0] as? TextNode
+            where textNode.text == "\(adjacentText)\(textToInsert)" else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[1], boldNode)
+        XCTAssertEqual(paragraph.children[2], textNode3)
+    }
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p>Hello1<b>Hello2</b>Hello3</p>
+    /// String: "---"
+    /// Index: 2
+    ///
+    /// Expected results:
+    ///     - Output should be: <p>Hello1<b>Hello2</b>---Hello3</p>
+    ///     - The string should be attached to the adjacent TextNode.
+    ///
+    func testInsertStringAt6() {
+        
+        let adjacentText = "Hello3"
+        
+        let textNode1 = TextNode(text: "Hello1")
+        let textNode2 = TextNode(text: "Hello2")
+        let textNode3 = TextNode(text: adjacentText)
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 2)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let textNode = paragraph.children[2] as? TextNode
+            where textNode.text == "\(textToInsert)\(adjacentText)" else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[0], textNode1)
+        XCTAssertEqual(paragraph.children[1], boldNode)
+    }
+    
+    
+    /// Tests `insert(string: String, at index: Int)`.
+    ///
+    /// Input HTML: <p>Hello1<b>Hello2</b>Hello3</p>
+    /// String: "---"
+    /// Index: 3
+    ///
+    /// Expected results:
+    ///     - Output should be: <p>Hello1<b>Hello2</b>Hello3---</p>
+    ///     - The string should be attached to the adjacent TextNode.
+    ///
+    func testInsertStringAt7() {
+        
+        let adjacentText = "Hello3"
+        
+        let textNode1 = TextNode(text: "Hello1")
+        let textNode2 = TextNode(text: "Hello2")
+        let textNode3 = TextNode(text: adjacentText)
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        
+        let textToInsert = "---"
+        
+        paragraph.insert(textToInsert, at: 3)
+        
+        XCTAssertEqual(paragraph.children.count, 3)
+        
+        guard let textNode = paragraph.children[2] as? TextNode
+            where textNode.text == "\(adjacentText)\(textToInsert)" else {
+                XCTFail("Expected a text node here with the inserted text.")
+                return
+        }
+        
+        XCTAssertEqual(paragraph.children[0], textNode1)
+        XCTAssertEqual(paragraph.children[1], boldNode)
     }
 }

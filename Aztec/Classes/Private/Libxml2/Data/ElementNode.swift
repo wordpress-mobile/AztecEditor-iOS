@@ -102,6 +102,21 @@ extension Libxml2 {
         override func customMirror() -> Mirror {
             return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .Suppressed)
         }
+        
+        // MARK: - Node Overrides
+        
+        /// Node length.  Calculated by adding the length of all child nodes.
+        ///
+        override func length() -> Int {
+            
+            var length = 0
+            
+            for child in children {
+                length += child.length()
+            }
+            
+            return length
+        }
 
         // MARK: - Node Queries
 
@@ -114,19 +129,6 @@ extension Libxml2 {
             }
 
             return nil
-        }
-
-        /// Node length.  Calculated by adding the length of all child nodes.
-        ///
-        override func length() -> Int {
-
-            var length = 0
-
-            for child in children {
-                length += child.length()
-            }
-
-            return length
         }
 
         /// Find out if this is a block-level element.
@@ -146,31 +148,37 @@ extension Libxml2 {
         }
 
         // MARK: - DOM Queries
-
-        /// Returns the child node at the specified location.
+        
+        /// Returns the index of the child node intersecting the specified location.
         ///
-        func childNode(atLocation location: Int, defaultToLeftNode: Bool = true) -> Node {
-
-            let defaultToRightNode = !defaultToLeftNode
-            let offset = Int(0)
-
-            for (index, child) in children.enumerate() {
-
-                // On the last element, we need to force-default to the left node.
-                //
-                let bypassedDefaultToLeftNode = (defaultToLeftNode || index == children.count)
-
-                let finalLocation = offset + child.length()
-                let returnThisNode =
-                    (location == offset && defaultToRightNode)
-                    || location < finalLocation
-                    || (location == offset + child.length() && bypassedDefaultToLeftNode)
-
-                if returnThisNode {
-                    return child
-                }
+        /// - Parameters:
+        ///     - location: the text location that the child node must intersect.
+        ///
+        /// - Returns: The index of the child node intersecting the specified text location.  If the text location is
+        ///         exactly between two nodes, the left hand node will always be returned.  The only exception to this
+        ///         rule is for text location zero, which will always result in index zero being returned.
+        ///
+        func indexOfChildNode(intersecting location: Int) -> (index: Int, intersection: Int)  {
+            
+            guard children.count > 0 else {
+                fatalError("An element node without children should never happen.")
             }
-
+            
+            guard location != 0 else {
+                return (0, 0)
+            }
+            
+            var adjustedLocation = location
+            
+            for (index, child) in children.enumerate() {
+                
+                if (adjustedLocation <= child.length()) {
+                    return (index, adjustedLocation)
+                }
+                
+                adjustedLocation = adjustedLocation - child.length()
+            }
+            
             fatalError("The specified location is out of bounds.")
         }
 
@@ -256,16 +264,16 @@ extension Libxml2 {
         }
 
         /// Returns the lowest block-level child elements intersecting the specified range.
-        /// Whenever a range doesn't intersect a block-level node, `self` (the receiver) is returned
-        /// as the owner of that range.
         ///
         /// - Parameters:
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
         ///
-        /// - Returns: an array of child nodes and their intersection.  The intersection range is in
+        /// - Returns: An array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
+        ///         Whenever a range doesn't intersect a block-level node, `self` (the receiver) is returned
+        ///         as the owner of that range.
         ///
         func lowestBlockLevelElements(intersectingRange targetRange: NSRange) -> [(element: ElementNode, intersection: NSRange)] {
             var results = [(element: ElementNode, intersection: NSRange)]()
@@ -527,6 +535,16 @@ extension Libxml2 {
             children.insert(child, atIndex: index)
             child.parent = self
         }
+        
+        /// Inserts a node into the list of children for this element, at the specified text location.
+        ///
+        /// - Parameters:
+        ///     - child: the node to insert.
+        ///     - location: the location where to insert the node.
+        ///
+        func insert(child: Node, atLocation location: Int) {
+            
+        }
 
         /// Replaces the specified node with several new nodes.
         ///
@@ -702,16 +720,91 @@ extension Libxml2 {
                 }
             }
         }
+        
+        /// Inserts the specified text in a new `TextNode` at the specified index.  If any of the siblings are
+        /// of class `TextNode`, this method will append or prepend the text to them instead.
+        ///
+        /// Outside classes should call `insert(string:, atLocation:)` instead.
+        ///
+        /// This method is just a handler for some specific scenarios handled by that method.
+        ///
+        /// - Parameters:
+        ///     - string: the string to insert in a new `TextNode`.
+        ///     - index: the index where the next `TextNode` will be inserted.
+        ///
+        func insert(string: String, at index: Int) {
+
+            guard index <= children.count else {
+                fatalError("The specified index is outside the range of possible indexes for insertion.")
+            }
+            
+            let previousIndex = index - 1
+            
+            if previousIndex >= 0, let previousTextNode = children[previousIndex] as? TextNode {
+                previousTextNode.append(string)
+            } else if index < children.count, let nextTextNode = children[index] as? TextNode {
+                nextTextNode.prepend(string)
+            } else {
+                insert(TextNode(text: string), at: index)
+            }
+        }
+        
+        /// Inserts the specified string at the specified location.
+        ///
+        func insert(string: String, atLocation location: Int) {
+            let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
+
+            guard blockLevelElementsAndIntersections.count == 1 else {
+                fatalError("We should have exactly one block-level element here.")
+            }
+
+            let element = blockLevelElementsAndIntersections[0].element
+            let intersection = blockLevelElementsAndIntersections[0].intersection
+            
+            let indexAndIntersection = element.indexOfChildNode(intersecting: intersection.location)
+            
+            let childIndex = indexAndIntersection.index
+            let childIntersection = indexAndIntersection.intersection
+            
+            let child = element.children[childIndex]
+            var insertionIndex: Int
+            
+            if childIntersection == 0 {
+                insertionIndex = childIndex
+            } else {
+                
+                if childIntersection <= child.length() {
+                    
+                    guard let editableNode = child as? EditableNode else {
+                        fatalError("We should never have a non-editable node with a representation that can be split.")
+                    }
+                    
+                    editableNode.split(atLocation: childIntersection)
+                }
+                
+                insertionIndex = childIndex + 1
+            }
+            
+            insert(string, at: insertionIndex)
+        }
 
         func replaceCharacters(inRange range: NSRange, withString string: String) {
 
             let childrenAndIntersections = childNodes(intersectingRange: range)
 
-            for (index, childAndIntersection) in childrenAndIntersections.enumerate() {
+            for childAndIntersection in childrenAndIntersections {
 
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
-
+                
+                if intersection.location == 0 && intersection.length == child.length() {
+                    remove(child)
+                } else if let childEditableNode = child as? EditableNode {
+                    childEditableNode.deleteCharacters(inRange: intersection)
+                } else {
+                    fatalError("This should never be possible.  Review the logic.")
+                }
+                /*
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 && string.characters.count > 0 {
                         childEditableNode.replaceCharacters(inRange: intersection, withString: string)
@@ -721,10 +814,41 @@ extension Libxml2 {
                 } else {
                     remove(child)
                 }
+ */
+            }
+            
+            insert(string, atLocation: range.location)
+        }
+        
+        func split(atLocation location: Int) {
+            
+            guard location >= 0 && location < length() else {
+                assertionFailure("Specified range is out-of-bounds.")
+                return
+            }
+            
+            guard let parent = parent,
+                let nodeIndex = parent.children.indexOf(self) else {
+                    assertionFailure("Can't split a node without a parent.")
+                    return
+            }
+            
+            let postNodes = children(after: location, splitEdge: true)
+            
+            if postNodes.count > 0 {
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
+                
+                parent.insert(newElement, at: nodeIndex + 1)
+                remove(postNodes, updateParent: false)
             }
         }
 
-        /// Splits this node following the specified range.
+
+        /// Splits this node according to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to use for splitting this node.  All nodes before and after the specified range will
+        ///         be inserted in clones of this node.  All child nodes inside the range will be kept inside this node.
         ///
         func split(forRange range: NSRange) {
 

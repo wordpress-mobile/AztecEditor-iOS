@@ -24,6 +24,10 @@ extension Libxml2 {
         }
 
         // MARK: - EditableNode
+        
+        func append(string: String) {
+            text.appendContentsOf(string)
+        }
 
         func deleteCharacters(inRange range: NSRange) {
 
@@ -32,6 +36,10 @@ extension Libxml2 {
             }
 
             text.removeRange(textRange)
+        }
+        
+        func prepend(string: String) {
+            text = "\(string)\(text)"
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String) {
@@ -43,6 +51,27 @@ extension Libxml2 {
             text.replaceRange(textRange, with: string)
         }
 
+        func split(atLocation location: Int) {
+            
+            let index = text.startIndex.advancedBy(location)
+            
+            guard let parent = parent,
+                let nodeIndex = parent.children.indexOf(self) else {
+                    
+                    fatalError("This scenario should not be possible. Review the logic.")
+            }
+            
+            let preRange = text.startIndex ..< index
+            let postRange = index ..< text.endIndex
+            
+            if preRange.count > 0 && postRange.count > 0 {
+                let newNode = TextNode(text: text.substringWithRange(postRange))
+                
+                text.removeRange(postRange)
+                parent.insert(newNode, at: nodeIndex + 1)
+            }
+        }
+        
         func split(forRange range: NSRange) {
 
             guard let swiftRange = text.rangeFromNSRange(range) else {
