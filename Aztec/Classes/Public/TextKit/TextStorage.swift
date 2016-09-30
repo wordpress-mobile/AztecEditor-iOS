@@ -80,13 +80,21 @@ public class TextStorage: NSTextStorage {
         return range
     }
 
-
     // MARK: - Overriden Methods
 
     override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
         return textStore.attributesAtIndex(location, effectiveRange: range)
     }
- 
+
+    override public func replaceCharactersInRange(range: NSRange, withString str: String) {
+        beginEditing()
+        textStore.replaceCharactersInRange(range, withString: str)
+        rootNode.replaceCharacters(inRange: range, withString: str)
+        endEditing()
+        
+        edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
+    }
+    
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
