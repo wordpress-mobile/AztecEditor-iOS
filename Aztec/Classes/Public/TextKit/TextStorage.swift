@@ -14,6 +14,7 @@ public class TextStorage: NSTextStorage {
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
 
+    // Represents the possible HTML types that the TextStorage element can handle
     enum ElementTypes: String {
         case bold = "b"
         case italic = "em"
@@ -21,6 +22,7 @@ public class TextStorage: NSTextStorage {
         case underline = "u"
         case link = "a"
 
+        // Some HTML elements can have more than one valid representation so we list all possible variations here.
         var equivalentNames: [String] {
             get {
                 switch self {
@@ -28,7 +30,7 @@ public class TextStorage: NSTextStorage {
                 case .italic: return [self.rawValue, "em"]
                 case .striketrough: return [self.rawValue, "strike"]
                 case .underline: return [self.rawValue, "u"]
-                case .link: return [self.rawValue, "a"]
+                case .link: return [self.rawValue]
                 }
             }
         }
