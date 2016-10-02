@@ -74,7 +74,7 @@ class TextNodeTests: XCTestCase {
         let textNode = TextNode(text: "Hello World!")
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
-        let splitLocation = textNode.length() - 1
+        let splitLocation = textNode.length()
         
         textNode.split(atLocation: splitLocation)
         

@@ -42,7 +42,7 @@ extension Libxml2 {
             contents = "\(string)\(contents)"
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -53,12 +53,13 @@ extension Libxml2 {
 
         func split(atLocation location: Int) {
             
-            guard location != 0 && location != length() - 1 else {
+            guard location != 0 && location != length() else {
                 // Nothing to split, move along...
+                
                 return
             }
             
-            guard location > 0 && location < length() - 1 else {
+            guard location > 0 && location < length() else {
                 fatalError("Out of bounds!")
             }
             

@@ -89,7 +89,7 @@ public class TextStorage: NSTextStorage {
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withString: str)
-        rootNode.replaceCharacters(inRange: range, withString: str)
+        rootNode.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
         endEditing()
         
         edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
@@ -98,7 +98,9 @@ public class TextStorage: NSTextStorage {
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
-        rootNode.replaceCharacters(inRange: range, withString: attrString.string)
+        rootNode.replaceCharacters(inRange: range, withString: attrString.string, inheritStyle: false)
+        
+        // remove all styles for the specified range here!
         
         let finalRange = NSRange(location: range.location, length: attrString.length)
         copyStylesToDOM(spanning: finalRange)
