@@ -14,29 +14,27 @@ public class TextStorage: NSTextStorage {
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
 
-    /// Element names for bold.
-    ///
-    /// - Note: The first element name is the preferred one.
-    ///
-    private static let elementNamesForBold = ["b", "strong"]
+    // Represents the possible HTML types that the TextStorage element can handle
+    enum ElementTypes: String {
+        case bold = "b"
+        case italic = "em"
+        case striketrough = "s"
+        case underline = "u"
+        case link = "a"
 
-    /// Element names for italic.
-    ///
-    /// - Note: The first element name is the preferred one.
-    ///
-    private static let elementNamesForItalic = ["em", "i"]
-
-    /// Element names for strikethrough.
-    ///
-    /// - Note: The first element name is the preferred one.
-    ///
-    private static let elementNamesForStrikethrough = ["s", "strike"]
-
-    /// Element names for underline.
-    ///
-    /// - Note: The first element name is the preferred one.
-    ///
-    private static let elementNamesForUnderline = ["u"]
+        // Some HTML elements can have more than one valid representation so we list all possible variations here.
+        var equivalentNames: [String] {
+            get {
+                switch self {
+                case .bold: return [self.rawValue, "strong"]
+                case .italic: return [self.rawValue, "em"]
+                case .striketrough: return [self.rawValue, "strike"]
+                case .underline: return [self.rawValue, "u"]
+                case .link: return [self.rawValue]
+                }
+            }
+        }
+    }
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -173,9 +171,9 @@ public class TextStorage: NSTextStorage {
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
         rootNode.wrapChildren(
             intersectingRange: effectiveRange,
-            inNodeNamed: "a",
+            inNodeNamed: ElementTypes.link.rawValue,
             withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-            equivalentElementNames: ["a"])
+            equivalentElementNames: ElementTypes.link.equivalentNames)
     }
 
     func removeLink(inRange range: NSRange){
@@ -206,27 +204,27 @@ public class TextStorage: NSTextStorage {
     // MARK: - DOM
 
     private func disableBoldInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForBold)
+        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
     }
 
     private func disableItalicInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForItalic)
+        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
     }
 
     private func disableStrikethroughInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForStrikethrough)
+        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
     }
 
     private func disableUnderlineInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: self.dynamicType.elementNamesForUnderline)
+        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
     }
 
     private func enableBoldInDOM(range: NSRange) {
 
         enableInDom(
-            self.dynamicType.elementNamesForBold[0],
+            ElementTypes.bold.rawValue,
             inRange: range,
-            equivalentElementNames: self.dynamicType.elementNamesForBold)
+            equivalentElementNames: ElementTypes.bold.equivalentNames)
     }
 
     private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
@@ -240,25 +238,25 @@ public class TextStorage: NSTextStorage {
     private func enableItalicInDOM(range: NSRange) {
 
         enableInDom(
-            self.dynamicType.elementNamesForItalic[0],
+            ElementTypes.italic.rawValue,
             inRange: range,
-            equivalentElementNames: self.dynamicType.elementNamesForItalic)
+            equivalentElementNames: ElementTypes.italic.equivalentNames)
     }
 
     private func enableStrikethroughInDOM(range: NSRange) {
 
         enableInDom(
-            self.dynamicType.elementNamesForStrikethrough[0],
+            ElementTypes.striketrough.rawValue,
             inRange: range,
-            equivalentElementNames: self.dynamicType.elementNamesForStrikethrough)
+            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
     }
 
     private func enableUnderlineInDOM(range: NSRange) {
 
         enableInDom(
-            self.dynamicType.elementNamesForUnderline[0],
+            ElementTypes.underline.rawValue,
             inRange: range,
-            equivalentElementNames: self.dynamicType.elementNamesForUnderline)
+            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
     }
 
     // MARK: - HTML Interaction
