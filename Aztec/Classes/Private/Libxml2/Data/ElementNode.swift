@@ -48,11 +48,12 @@ extension Libxml2 {
             case Tr = "tr"
             case U = "u"
             case Ul = "ul"
+            case Img = "img"
 
             /// Returns an array with all block-level elements.
             ///
             static func blockLevelNodeNames() -> [StandardName] {
-                return [.Address, .Blockquote, .Div, .Dl, .Fieldset, .Form, .H1, .H2, .H3, .H4, .H5, .H6, .Hr, .Noscript, .Ol, .P, .Pre, .Table, .Ul]
+                return [.Address, .Blockquote, .Div, .Dl, .Fieldset, .Form, .H1, .H2, .H3, .H4, .H5, .H6, .Hr, .Noscript, .Ol, .P, .Pre, .Table, .Ul, .Img]
             }
 
             static func isBlockLevelNodeName(name: String) -> Bool {

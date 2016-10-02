@@ -21,6 +21,7 @@ public class TextStorage: NSTextStorage {
         case striketrough = "s"
         case underline = "u"
         case link = "a"
+        case img = "img"
 
         // Some HTML elements can have more than one valid representation so we list all possible variations here.
         var equivalentNames: [String] {
@@ -31,6 +32,7 @@ public class TextStorage: NSTextStorage {
                 case .striketrough: return [self.rawValue, "strike"]
                 case .underline: return [self.rawValue, "u"]
                 case .link: return [self.rawValue]
+                case .img: return [self.rawValue]
                 }
             }
         }
@@ -185,6 +187,13 @@ public class TextStorage: NSTextStorage {
         }
     }
 
+    func insertImage(url: NSURL, forRange range: NSRange) {
+        rootNode.wrapChildren(
+            intersectingRange: range,
+            inNodeNamed: ElementTypes.img.rawValue,
+            withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)],
+            equivalentElementNames: ElementTypes.img.equivalentNames)
+    }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
 
