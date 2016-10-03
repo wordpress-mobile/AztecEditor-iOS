@@ -1,7 +1,7 @@
 import XCTest
 @testable import Aztec
 
-class NSRange_ComparisonTests: XCTestCase {
+class NSRangeComparisonTests: XCTestCase {
     
     /// Tests that `intersect(withRange:)` works.
     ///
