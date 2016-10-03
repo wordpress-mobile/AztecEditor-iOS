@@ -117,11 +117,11 @@ class NSRange_ComparisonTests: XCTestCase {
     /// Tests that `intersect(withRange:)` works.
     ///
     /// Set up:
-    /// - Receiver range: (loc: 0, len: 5)
-    /// - Target range: (loc: 1, len: 2)
+    /// - Receiver range: (loc: 1, len: 3)
+    /// - Target range: (loc: 0, len: 5)
     ///
     /// Expected result:
-    /// - (loc: 1, len: 2)
+    /// - (loc: 1, len: 3)
     ///
     func testIntersectWithRange6() {
         let receiver = NSRange(location: 1, length: 3)
