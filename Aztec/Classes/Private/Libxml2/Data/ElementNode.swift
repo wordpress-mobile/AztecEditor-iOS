@@ -504,6 +504,154 @@ extension Libxml2 {
             return results
         }
         
+        /// Conveniece method to call `find(leftAdjacentElementNamed:, relativeToChildAtIndex:, bailIfSiblingIsBlockLevel:) -> ElementNode? {`, without knowing the index of a child node beforehand.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///     - child: the reference child node.
+        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        func find(leftAdjacentElementNamed elementNames: [String], relativeToChild child: Node, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
+            
+            guard let childIndex = children.indexOf(child) else {
+                assertionFailure("The specified node is not a child of this node.")
+                return nil
+            }
+            
+            return find(leftAdjacentElementNamed: elementNames, relativeToChildAtIndex: childIndex, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
+        }
+        
+        /// Finds any adjacent element with any of the specified names.  The search starts at the left sibling, and
+        /// goes down to its right-most descendants.
+        ///
+        /// The main use of this method is during text-insertion as a mechanism to find equivalent nodes we can attach
+        /// to, instead of creating new, disconnected ones.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///     - index: the index of the reference child.
+        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        func find(leftAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
+            
+            guard index >= 0 && index < children.count else {
+                fatalError("Out of bounds!")
+            }
+            
+            guard index > 0,
+                let sibling = children[index - 1] as? ElementNode
+                where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
+                return nil
+            }
+            
+            if elementNames.contains(sibling.name) {
+                return sibling
+            } else {
+                return sibling.find(rightSideDescendantNamed: elementNames)
+            }
+        }
+        
+        /// Finds any left-side descendant with any of the specified names.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        private func find(leftSideDescendantNamed elementNames: [String]) -> ElementNode? {
+            
+            guard let child = children[0] as? ElementNode else {
+                return nil
+            }
+            
+            if elementNames.contains(child.name) {
+                return child
+            } else {
+                return child.find(leftSideDescendantNamed: elementNames)
+            }
+        }
+        
+        /// Conveniece method to call `find(leftAdjacentElementNamed:, relativeToChildAtIndex:, bailIfSiblingIsBlockLevel:) -> ElementNode? {`, without knowing the index of a child node beforehand.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///     - child: the reference child node.
+        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        func find(rightAdjacentElementNamed elementNames: [String], relativeToChild child: Node, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
+            
+            guard let childIndex = children.indexOf(child) else {
+                assertionFailure("The specified node is not a child of this node.")
+                return nil
+            }
+            
+            return find(rightAdjacentElementNamed: elementNames, relativeToChildAtIndex: childIndex, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
+        }
+        
+        /// Finds any adjacent element with any of the specified names.  The search starts at the left sibling, and
+        /// goes down to its right-most descendants.
+        ///
+        /// The main use of this method is during text-insertion as a mechanism to find equivalent nodes we can attach
+        /// to, instead of creating new, disconnected ones.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///     - index: the index of the reference child.
+        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        func find(rightAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
+            
+            guard index >= 0 && index < children.count else {
+                fatalError("Out of bounds!")
+            }
+            
+            guard index < children.count - 1,
+                let sibling = children[index + 1] as? ElementNode
+                where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
+                    return nil
+            }
+            
+            if elementNames.contains(sibling.name) {
+                return sibling
+            } else {
+                return sibling.find(rightSideDescendantNamed: elementNames)
+            }
+        }
+        
+        /// Finds any right-side descendant with any of the specified names.
+        ///
+        /// - Parameters:
+        ///     - elementNames: the name of the elements to look for.
+        ///
+        /// - Returns: the matching element, if any was found, or `nil`.
+        ///
+        @warn_unused_result
+        private func find(rightSideDescendantNamed elementNames: [String]) -> ElementNode? {
+            
+            guard let child = children[children.count - 1] as? ElementNode else {
+                return nil
+            }
+            
+            if elementNames.contains(child.name) {
+                return child
+            } else {
+                return child.find(rightSideDescendantNamed: elementNames)
+            }
+        }
+        
         override func text() -> String {
             var text = ""
             
@@ -933,7 +1081,7 @@ extension Libxml2 {
             }
         }
 
-        // MARK: - Unwrapping
+        // MARK: - Wrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
             unwrap(range: range(), fromElementsNamed: elementNames)
@@ -1070,16 +1218,29 @@ extension Libxml2 {
 
         /// Force-wraps the specified range inside a node with the specified properties.
         ///
+        /// - Important: When the target range matches the receiver's full range we can just wrap the receiver in the
+        ///         new node.  We do need to check, however, that either:
+        /// - The new node is block-level, or
+        /// - The receiver isn't a block-level node either.
+        ///
         /// - Parameters:
         ///     - targetRange: the range that must be wrapped.
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
         func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-
-            guard !NSEqualRanges(targetRange, range()) else {
-                wrap(inNodeNamed: nodeName, withAttributes: attributes)
-                return
+            
+            if NSEqualRanges(targetRange, range()) {
+                
+                let receiverIsBlockLevel = isBlockLevelElement()
+                let newNodeIsBlockLevel = StandardName(rawValue: nodeName)?.isBlockLevelNodeName() ?? false
+                
+                let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
+                
+                if canWrapReceiverInNewNode {
+                    wrap(inNodeNamed: nodeName, withAttributes: attributes)
+                    return
+                }
             }
 
             forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)

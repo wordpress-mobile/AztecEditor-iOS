@@ -231,6 +231,152 @@ class ElementNodeTests: XCTestCase {
         XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: text1.length() - 1, length: 0)))
     }
     
+    /// Tests finding a left-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><b>Hello</b><em> there!</em></p>
+    /// - Receiver: the em node
+    /// - Element names to search for: "b"
+    ///
+    /// Result:
+    /// - The bold node should be returned.
+    ///
+    func testLeftAdjacentElementNamed() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [boldNode, emNode])
+        
+        let resultNode = paragraphNode.find(leftAdjacentElementNamed: ["b"], relativeToChild: emNode)
+        
+        XCTAssertEqual(resultNode, boldNode)
+    }
+    
+    /// Tests finding a left-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><ul><li><b>Hello</b></li></ul><em> there!</em></p>
+    /// - Receiver: the em node
+    /// - Element names to search for: "b"
+    /// - Bail if sibling is block level node: true
+    ///
+    /// Result:
+    /// - Since UL is a block-level node, the result should be `nil`.
+    ///
+    func testLeftAdjacentElementNamed2() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let liNode = ElementNode(name: "li", attributes: [], children: [boldNode])
+        let ulNode = ElementNode(name: "ul", attributes: [], children: [liNode])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [ulNode, emNode])
+        
+        let resultNode = paragraphNode.find(leftAdjacentElementNamed: ["b"], relativeToChild: emNode, bailIfSiblingIsBlockLevel: true)
+        
+        XCTAssertNil(resultNode)
+    }
+    
+    /// Tests finding a left-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><ul><li><b>Hello</b></li></ul><em> there!</em></p>
+    /// - Receiver: the em node
+    /// - Element names to search for: "b"
+    /// - Bail if sibling is block level node: false
+    ///
+    /// Result:
+    /// - The bold node should be returned.
+    ///
+    func testLeftAdjacentElementNamed3() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let liNode = ElementNode(name: "li", attributes: [], children: [boldNode])
+        let ulNode = ElementNode(name: "ul", attributes: [], children: [liNode])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [ulNode, emNode])
+        
+        let resultNode = paragraphNode.find(leftAdjacentElementNamed: ["b"], relativeToChild: emNode, bailIfSiblingIsBlockLevel: false)
+        
+        XCTAssertEqual(resultNode, boldNode)
+    }
+    
+    /// Tests finding a right-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><b>Hello</b><em> there!</em></p>
+    /// - Receiver: the bold node
+    /// - Element names to search for: "em"
+    ///
+    /// Result:
+    /// - The bold node should be returned.
+    ///
+    func testRightAdjacentElementNamed() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [boldNode, emNode])
+        
+        let resultNode = paragraphNode.find(rightAdjacentElementNamed: ["em"], relativeToChild: boldNode)
+        
+        XCTAssertEqual(resultNode, emNode)
+    }
+    
+    /// Tests finding a right-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><b>Hello</b><ul><li><em> there!</em></li></ul></p>
+    /// - Receiver: the bold node
+    /// - Element names to search for: "em"
+    /// - Bail if sibling is block level node: true
+    ///
+    /// Result:
+    /// - Since UL is a block-level node, the result should be `nil`.
+    ///
+    func testRightAdjacentElementNamed2() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let liNode = ElementNode(name: "li", attributes: [], children: [emNode])
+        let ulNode = ElementNode(name: "ul", attributes: [], children: [liNode])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [boldNode, ulNode])
+        
+        let resultNode = paragraphNode.find(rightAdjacentElementNamed: ["em"], relativeToChild: boldNode, bailIfSiblingIsBlockLevel: true)
+        
+        XCTAssertNil(resultNode)
+    }
+    
+    
+    
+    /// Tests finding a right-adjacent element with the specified name.
+    ///
+    /// Setup:
+    /// - Input HTML string: <p><b>Hello</b><ul><li><em> there!</em></li></ul></p>
+    /// - Receiver: the bold node
+    /// - Element names to search for: "em"
+    /// - Bail if sibling is block level node: false
+    ///
+    /// Result:
+    /// - Since UL is a block-level node, the result should be `nil`.
+    ///
+    func testRightAdjacentElementNamed3() {
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: " there!")
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let emNode = ElementNode(name: "em", attributes: [], children: [textNode2])
+        let liNode = ElementNode(name: "li", attributes: [], children: [emNode])
+        let ulNode = ElementNode(name: "ul", attributes: [], children: [liNode])
+        let paragraphNode = ElementNode(name: "p", attributes: [], children: [boldNode, ulNode])
+        
+        let resultNode = paragraphNode.find(rightAdjacentElementNamed: ["em"], relativeToChild: boldNode, bailIfSiblingIsBlockLevel: false)
+        
+        XCTAssertEqual(resultNode, emNode)
+    }
+    
     /// Tests that splitting an element node at a specified text location works fine.
     ///
     /// HTML string: <div><p>Hello World!</p></div>
@@ -589,13 +735,109 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(results[1].intersection.location, 6)
         XCTAssertEqual(results[1].intersection.length, 6)
     }
+    
+    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
+    ///
+    /// HTML String: <div>Hello there!</div>
+    /// Wrap range: (0...5)
+    ///
+    /// The result should be: <p><b>Hello</b> there!</p>
+    ///
+    func testForceWrapChildren() {
+        let text1 = "Hello"
+        let text2 = " there!"
+        let fullText = "\(text1)\(text2)"
+        let textNode = TextNode(text: fullText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        
+        let wrapRange = NSRange(location: 0, length: text1.characters.count)
+        
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+        
+        XCTAssertEqual(paragraph.children.count, 2)
+        
+        guard let newBoldNode = paragraph.children[0] as? ElementNode
+            where newBoldNode.name == "b" else {
+                XCTFail("Expected a bold node.")
+                return
+        }
+        
+        XCTAssertEqual(newBoldNode.text(), text1)
+        
+        guard let newTextNode = paragraph.children[1] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(newTextNode.text(), text2)
+    }
+    
+    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
+    ///
+    /// HTML String: <div>Hello there!</div>
+    /// Wrap range: full text length
+    ///
+    /// The result should be: <p><b>Hello there!</b></p>
+    ///
+    func testForceWrapChildren2() {
+        let fullText = "Hello there!"
+        let textNode = TextNode(text: fullText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        
+        let wrapRange = NSRange(location: 0, length: fullText.characters.count)
+        
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+        
+        XCTAssertEqual(paragraph.children.count, 1)
+        
+        guard let newBoldNode = paragraph.children[0] as? ElementNode
+            where newBoldNode.name == "b" else {
+                XCTFail("Expected a bold node.")
+                return
+        }
+        
+        XCTAssertEqual(newBoldNode.text(), fullText)
+    }
+    
+/*
+    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
+    ///
+    /// HTML String: <div><b>Hello</b> there!</div>
+    /// Wrap range: (loc: 5, len: 7)
+    ///
+    /// The result should be: <p><b>Hello there!</b></p>
+    ///
+    func testForceWrapChildren3() {
+        let text1 = "Hello"
+        let text2 = " there!"
+        let textNode1 = TextNode(text: text1)
+        let textNode2 = TextNode(text: text2)
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode, textNode2])
 
+        let wrapRange = NSRange(location: text1.characters.count, length: text2.characters.count)
+
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+
+        XCTAssertEqual(paragraph.children.count, 1)
+
+        guard let newBoldNode = paragraph.children[0] as? ElementNode
+            where newBoldNode.name == "b" else {
+                XCTFail("Expected a bold node.")
+                return
+        }
+        
+        let fullText = "\(text1)\(text2)"
+        XCTAssertEqual(newBoldNode.text(), fullText)
+    }
+ */
+    
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
     /// HTML String: <div><em>Hello </em>there!</div>
     /// Wrap range: (0...6)
     ///
-    /// The result should be: <div><b><em>Hello </em></b>there!</div>
+    /// The result should be: <div><em><b>Hello </b></em>there!</div>
     ///
     func testWrapChildrenInNewBNode1() {
 
@@ -615,57 +857,23 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
+        
+        guard let newBoldNode = div.children[0] as? ElementNode
+            where newBoldNode.name == "b" else {
+                XCTFail("Expected a bold node here.")
+                return
+        }
+        
+        XCTAssertEqual(newBoldNode.children.count, 1)
 
-        guard let boldNode = div.children[0] as? ElementNode else {
-            XCTFail("Expected a bold node here.")
+        guard let newEmNode = newBoldNode.children[0] as? ElementNode
+            where newEmNode.name == em.name else {
+            XCTFail("Expected an em node here.")
             return
         }
 
-        XCTAssertEqual(boldNode.name, boldNodeName)
-        XCTAssertEqual(boldNode.children.count, 1)
-        XCTAssertEqual(boldNode.children[0], em)
-
-        XCTAssertEqual(em.children.count, 1)
-        XCTAssertEqual(em.children[0], textNode1)
-    }
-
-    /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
-    ///
-    /// HTML String: <div><em>Hello </em>there!</div>
-    /// Wrap range: (0...6)
-    ///
-    /// The result should be: <div><b><em>Hello </em></b>there!</div>
-    ///
-    func testWrapChildrenInNewBNode2() {
-
-        let boldNodeName = "b"
-        let range = NSRange(location: 0, length: 6)
-
-        let textPart1 = "Hello "
-        let textPart2 = "there!"
-
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
-
-        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
-        let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
-
-        div.wrapChildren(intersectingRange: range, inNodeNamed: boldNodeName, withAttributes: [], equivalentElementNames: [])
-
-        XCTAssertEqual(div.children.count, 2)
-        XCTAssertEqual(div.children[1], textNode2)
-
-        guard let boldNode = div.children[0] as? ElementNode else {
-            XCTFail("Expected a bold node here.")
-            return
-        }
-
-        XCTAssertEqual(boldNode.name, boldNodeName)
-        XCTAssertEqual(boldNode.children.count, 1)
-        XCTAssertEqual(boldNode.children[0], em)
-
-        XCTAssertEqual(em.children.count, 1)
-        XCTAssertEqual(em.children[0], textNode1)
+        XCTAssertEqual(newEmNode.children.count, 1)
+        XCTAssertEqual(newEmNode.children[0], textNode1)
     }
 
 
@@ -676,7 +884,7 @@ class ElementNodeTests: XCTestCase {
     ///
     /// The result should be: <div><b><em>Hello </em><u>there!</u></b></div>
     ///
-    func testWrapChildrenInNewBNode3() {
+    func testWrapChildrenInNewBNode2() {
 
         let boldNodeName = "b"
 
@@ -719,7 +927,7 @@ class ElementNodeTests: XCTestCase {
     ///
     /// The result should be: <div><em>He</em><b><em>llo </em><u>ther</u></b><u>e!</u></div>
     ///
-    func testWrapChildrenInNewBNode4() {
+    func testWrapChildrenInNewBNode3() {
 
         let boldNodeName = "b"
 

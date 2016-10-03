@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 
 class NSRange_ComparisonTests: XCTestCase {
-    
+
     /// Tests that `intersect(withRange:)` works.
     ///
     /// Set up:
@@ -15,16 +15,16 @@ class NSRange_ComparisonTests: XCTestCase {
     func testIntersectWithRange() {
         let receiver = NSRange(location: 0, length: 10)
         let target = NSRange(location: 0, length: 10)
-        
+
         guard let result = receiver.intersect(withRange: target) else {
             XCTFail("Expected a non nil result.")
             return
         }
-        
+
         XCTAssertEqual(result.location, 0)
         XCTAssertEqual(result.length, 10)
     }
-    
+
     /// Tests that `intersect(withRange:)` works.
     ///
     /// Set up:
@@ -37,12 +37,12 @@ class NSRange_ComparisonTests: XCTestCase {
     func testIntersectWithRange2() {
         let receiver = NSRange(location: 0, length: 5)
         let target = NSRange(location: 5, length: 5)
-        
+
         guard let result = receiver.intersect(withRange: target) else {
             XCTFail("Expected a non nil result.")
             return
         }
-        
+
         XCTAssertEqual(result.location, 5)
         XCTAssertEqual(result.length, 0)
     }
