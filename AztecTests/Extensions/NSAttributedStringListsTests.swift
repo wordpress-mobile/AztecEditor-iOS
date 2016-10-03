@@ -32,13 +32,10 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = sampleListString
         let expected = sampleListRange
 
-        let minimumIndex = expected.location
-        let maximumIndex = expected.location + expected.length
-
         for index in (0 ..< string.length) {
             let retrieved = string.rangeOfTextList(atIndex: index)
 
-            if index >= minimumIndex && index < maximumIndex {
+            if isIndexWithinListRange(index) {
                 XCTAssert(retrieved != nil)
                 XCTAssert(expected.location == retrieved!.location)
                 XCTAssert(expected.length == retrieved!.length)
@@ -110,20 +107,53 @@ class NSAttributedStringListsTests: XCTestCase {
         let expectedContents = sampleListContents
         let expectedRange = sampleListRange
 
-        // Verify!
-        let minimumIndex = expectedRange.location
-        let maximumIndex = expectedRange.location + expectedRange.length
-
         for index in (0 ..< string.length) {
             let retrievedContents = string.textListContents(followingIndex: index)
 
-            if index >= minimumIndex && index < maximumIndex {
+            if isIndexWithinListRange(index) {
                 XCTAssertNotNil(retrievedContents)
-                let delta = index - minimumIndex
+                let delta = index - expectedRange.location
                 let expectedSubstring = expectedContents.substringFromIndex(expectedContents.startIndex.advancedBy(delta))
                 XCTAssertEqual(retrievedContents!.string, expectedSubstring)
             } else {
                 XCTAssertNil(retrievedContents)
+            }
+        }
+    }
+
+    /// Tests that `textListAttribute` returns the expected TestList, when applicable.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with no TextList.
+    ///
+    /// Expected result:
+    /// - Nil. Always
+    ///
+    func testTextListAttributeReturnsNilWhenThereIsNoList() {
+        let string = samplePlainString
+
+        for index in (0 ..< string.length) {
+            XCTAssertNil(string.textListAttribute(atIndex: index))
+        }
+    }
+
+    /// Tests that `textListAttribute` returns the expected TestList, when applicable.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with a TextList.
+    ///
+    /// Expected result:
+    /// - The TextList, whenever we're within the expected range.
+    ///
+    func testTextListAttributeReturnsTheTextListAttributeWhenApplicable() {
+        let string = sampleListString
+
+        for index in (0 ..< string.length) {
+            let attribute = string.textListAttribute(atIndex: index)
+            if isIndexWithinListRange(index) {
+                XCTAssertNotNil(attribute)
+            } else {
+                XCTAssertNil(attribute)
             }
         }
     }
@@ -161,5 +191,13 @@ extension NSAttributedStringListsTests
 
     var sampleListRange: NSRange {
         return (sampleListString.string as NSString).rangeOfString(sampleListContents)
+    }
+
+    func isIndexWithinListRange(index: Int) -> Bool {
+        let expectedRange = sampleListRange
+        let minimumIndex = expectedRange.location
+        let maximumIndex = expectedRange.location + expectedRange.length
+
+        return index >= minimumIndex && index < maximumIndex
     }
 }
