@@ -188,7 +188,7 @@ public class TextStorage: NSTextStorage {
         case .StyleSingle:
             enableStrikethroughInDOM(range)
         default:
-            // We don't support anything more than single-line underline for now
+            // We don't support anything more than single-line strikethrough for now
             break
         }
     }
