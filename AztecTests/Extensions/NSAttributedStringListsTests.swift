@@ -157,6 +157,120 @@ class NSAttributedStringListsTests: XCTestCase {
             }
         }
     }
+
+    /// Tests that `paragraphRanges` returns an empty array, when dealing with an empty string.
+    ///
+    /// Set up:
+    /// - Sample (empty) NSAttributedString.
+    ///
+    /// Expected result:
+    /// - Empty array.
+    ///
+    func testParagraphRangesReturnEmptyArrayForEmptyStrings() {
+        let string = NSAttributedString()
+        let paragraphRanges = string.paragraphRanges(spanningRange: NSRange(location: 0, length: 0))
+
+        XCTAssert(paragraphRanges.count == 0)
+    }
+
+    /// Tests that `paragraphRanges` returns an empty array, when the spanning range is beyond the actual 
+    /// receiver's full range.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString.
+    ///
+    /// Expected result:
+    /// - Empty array.
+    ///
+    func testParagraphRangesReturnEmptyArrayWhenSpanningRangeIsBiggerThanReceiverString() {
+        let string = samplePlainString
+        let range = NSRange(location: string.length, length: string.length)
+
+        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        XCTAssert(paragraphRanges.count == 0)
+    }
+
+    /// Tests that `paragraphRanges` always returns the same paragraph ranges, wherever the "Range Location"
+    /// is, as long as it falls within the string's length.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, single paragraph.
+    ///
+    /// Expected result:
+    /// - Array with the single paragraph's range.
+    ///
+    func testParagraphRangesReturnSameRangeConsistentlyForSingleParagraphString() {
+        let string = samplePlainString
+        let expected = string.rangeOfEntireString
+
+        for index in (0..<string.length) {
+            let spanningRange = NSRange(location: index, length: 1)
+            let paragraphRanges = string.paragraphRanges(spanningRange: spanningRange)
+
+            XCTAssert(paragraphRanges.count == 1)
+            guard let retrieved = paragraphRanges.first else {
+                XCTFail()
+                return
+            }
+
+            XCTAssert(retrieved.location == expected.location && retrieved.length == expected.length)
+        }
+    }
+
+    /// Tests that `paragraphRanges` returns an array of Ranges, containing the locations and lengths of all
+    /// of the receiver's paragraphs.
+    ///
+    /// Set up:
+    /// - Attributed String with three paragraphs.
+    ///
+    /// Expected result:
+    /// - Array with three Ranges, matching each one of the paragraphs' location + length.
+    ///
+    func testParagraphRangesReturnsCorrectlyEachParagraphRange() {
+        let first = "I'm the first paragraph.\n"
+        let second = "I would be the second?\n"
+        let third = "I guess this is the third one!.\n"
+
+        let expected = [first, second, third]
+        let text = NSAttributedString(string: first + second + third)
+
+        let ranges = text.paragraphRanges(spanningRange: text.rangeOfEntireString)
+        XCTAssert(ranges.count == 3)
+
+        let paragraphs = ranges.map { text.attributedSubstringFromRange($0).string }
+        for (index, retrieved) in paragraphs.enumerate() {
+            let expected = expected[index]
+            XCTAssert(expected == retrieved)
+        }
+    }
+
+    /// Tests that `paragraphRanges` returns an array of Ranges that *ONLY* fall within the specified spanning range.
+    ///
+    /// Set up:
+    /// - Attributed String with two paragraphs.
+    /// - Spanning range matching the first paragraph's range.
+    ///
+    /// Expected result:
+    /// - Array with a single range, matching the first paragraph's length + location.
+    ///
+    func testParagraphRangesDisregardsAnythingBeyondTheSpecifiedSpanningRange() {
+        let first = "I'm the first paragraph.\n"
+        let second = "I would be the second?\n"
+
+        let text = NSAttributedString(string: first + second)
+        let rangeExpected = (text.string as NSString).rangeOfString(first)
+
+        let rangesForParagraphs = text.paragraphRanges(spanningRange: rangeExpected)
+        XCTAssert(rangesForParagraphs.count == 1)
+
+        guard let rangeRetrieved = rangesForParagraphs.first else {
+            XCTFail()
+            return
+        }
+
+        XCTAssert(rangeRetrieved.location == rangeExpected.location)
+        XCTAssert(rangeRetrieved.length == rangeExpected.length)
+    }
 }
 
 
@@ -194,10 +308,7 @@ extension NSAttributedStringListsTests
     }
 
     func isIndexWithinListRange(index: Int) -> Bool {
-        let expectedRange = sampleListRange
-        let minimumIndex = expectedRange.location
-        let maximumIndex = expectedRange.location + expectedRange.length
-
-        return index >= minimumIndex && index < maximumIndex
+        let range = sampleListRange
+        return index >= range.location && index < NSMaxRange(range)
     }
 }

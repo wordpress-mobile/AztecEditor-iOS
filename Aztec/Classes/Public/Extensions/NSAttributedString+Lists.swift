@@ -66,7 +66,7 @@ extension NSAttributedString
     ///
     func paragraphRanges(spanningRange range: NSRange) -> [NSRange] {
         var paragraphRanges = [NSRange]()
-        let targetRange = NSRange(location: 0, length: length)
+        let targetRange = rangeOfEntireString
 
         let foundationString = string as NSString
         foundationString.enumerateSubstringsInRange(targetRange, options: .ByParagraphs) { (substring, substringRange, enclosingRange, stop) in
