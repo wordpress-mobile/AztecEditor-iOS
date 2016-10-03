@@ -15,7 +15,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     // Confirm the composed textView is property configured.
-/*
+
     func testTextViewReferencesStorage() {
 
         let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
@@ -34,10 +34,10 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(textView.textStorage == textView.textContainer.layoutManager!.textStorage)
         XCTAssert(textView.textStorage.isKindOfClass(TextStorage))
     }
-*/
+
 
     // MARK: - Test Index Wrangling
-/*
+
     func testMaxIndex() {
         let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
 
@@ -67,8 +67,6 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(0 == textView.adjustedIndex(1))
         XCTAssert(1 == textView.adjustedIndex(2))
     }
- */
-
 
     // MARK: - Retrieve Format Identifiers
 
@@ -169,7 +167,7 @@ class AztecVisualEditorTests: XCTestCase {
 
         XCTAssert(editor.strikethroughFormattingSpansRange(range))
     }
-/*
+
     func testToggleBlockquote() {
         let editor = editorConfiguredWithParagraphs()
         let range = NSRange(location: 0, length: 1)
@@ -185,7 +183,6 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
         XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
     }
- */
 
     func testToggleOrderedList() {
         // TODO
@@ -244,7 +241,7 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.strikethroughFormattingSpansRange(NSRange(location: 2, length: 3)))
         XCTAssert(!editor.strikethroughFormattingSpansRange(NSRange(location: 4, length: 3)))
     }
-/*
+
     func testBlockquoteSpansRange() {
         let editor = editorConfiguredWithParagraphs()
         let range = NSRange(location: 0, length: 1)
@@ -256,7 +253,6 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length + 1)))
         XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 1, length: length)))
     }
- */
 
     func testBoldAtIndex() {
         let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
@@ -301,7 +297,7 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.formattingAtIndexContainsStrikethrough(2))
         XCTAssert(!editor.formattingAtIndexContainsStrikethrough(6))
     }
-/*
+
     func testBlockquoteAtIndex() {
         let editor = editorConfiguredWithParagraphs()
         let range = NSRange(location: 0, length: 1)
@@ -316,7 +312,6 @@ class AztecVisualEditorTests: XCTestCase {
 
         XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
     }
- */
 
     // MARK: - Helpers
 

@@ -17,7 +17,7 @@ class TextStorageTests: XCTestCase
     }
 
     // MARK: - Test Traits
-/*
+
     func testFontTraitExistsAtIndex() {
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
@@ -38,7 +38,7 @@ class TextStorageTests: XCTestCase
         XCTAssert(!storage.fontTrait(.TraitBold, existsAtIndex: 6))
         XCTAssert(!storage.fontTrait(.TraitBold, existsAtIndex: 8))
     }
-    
+
     func testFontTraitSpansRange() {
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(10)
@@ -79,5 +79,4 @@ class TextStorageTests: XCTestCase
         // Confirm the trait was restored
         XCTAssert(storage.fontTrait(.TraitBold, spansRange: range))
     }
-*/
 }
