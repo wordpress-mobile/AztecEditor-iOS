@@ -241,7 +241,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - The bold node should be returned.
     ///
-    func testLeftAdjacentElementNamed() {
+    func testFindLeftAdjacentElementNamed() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
@@ -264,7 +264,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - Since UL is a block-level node, the result should be `nil`.
     ///
-    func testLeftAdjacentElementNamed2() {
+    func testFindLeftAdjacentElementNamed2() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
@@ -289,7 +289,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - The bold node should be returned.
     ///
-    func testLeftAdjacentElementNamed3() {
+    func testFindLeftAdjacentElementNamed3() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
@@ -313,7 +313,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - The bold node should be returned.
     ///
-    func testRightAdjacentElementNamed() {
+    func testFindRightAdjacentElementNamed() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
@@ -336,7 +336,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - Since UL is a block-level node, the result should be `nil`.
     ///
-    func testRightAdjacentElementNamed2() {
+    func testFindRightAdjacentElementNamed2() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
@@ -363,7 +363,7 @@ class ElementNodeTests: XCTestCase {
     /// Result:
     /// - Since UL is a block-level node, the result should be `nil`.
     ///
-    func testRightAdjacentElementNamed3() {
+    func testFindRightAdjacentElementNamed3() {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: " there!")
         let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
