@@ -68,7 +68,6 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(1 == textView.adjustedIndex(2))
     }
 
-
     // MARK: - Retrieve Format Identifiers
 
     func testFormatIdentifiersSpanningRange() {

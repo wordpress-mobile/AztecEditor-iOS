@@ -24,6 +24,10 @@ extension Libxml2 {
         }
 
         // MARK: - EditableNode
+        
+        func append(string: String) {
+            contents.appendContentsOf(string)
+        }
 
         func deleteCharacters(inRange range: NSRange) {
 
@@ -33,8 +37,12 @@ extension Libxml2 {
 
             contents.removeRange(textRange)
         }
+        
+        func prepend(string: String) {
+            contents = "\(string)\(contents)"
+        }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -43,6 +51,36 @@ extension Libxml2 {
             contents.replaceRange(textRange, with: string)
         }
 
+        func split(atLocation location: Int) {
+            
+            guard location != 0 && location != length() else {
+                // Nothing to split, move along...
+                
+                return
+            }
+            
+            guard location > 0 && location < length() else {
+                fatalError("Out of bounds!")
+            }
+            
+            let index = text().startIndex.advancedBy(location)
+            
+            guard let parent = parent,
+                let nodeIndex = parent.children.indexOf(self) else {
+                    
+                    fatalError("This scenario should not be possible. Review the logic.")
+            }
+            
+            let postRange = index ..< text().endIndex
+            
+            if postRange.count > 0 {
+                let newNode = TextNode(text: text().substringWithRange(postRange))
+                
+                contents.removeRange(postRange)
+                parent.insert(newNode, at: nodeIndex + 1)
+            }
+        }
+        
         func split(forRange range: NSRange) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
