@@ -1,6 +1,9 @@
 import XCTest
 @testable import Aztec
 
+
+// MARK: - NSAttributedStringLists Tests
+//
 class NSAttributedStringListsTests: XCTestCase {
 
     /// Tests that `rangeOfTextList` works.
@@ -12,10 +15,8 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - nil for the whole String Length
     ///
     func testRangeOfTextListReturnsNilWhenStringDoesntContainTextLists() {
-        let string = NSAttributedString(string: "This is a sample Attributed String, with no list")
-
-        for index in (0 ... string.length) {
-            XCTAssertNil(string.rangeOfTextList(atIndex: index))
+        for index in (0 ... samplePlainString.length) {
+            XCTAssertNil(samplePlainString.rangeOfTextList(atIndex: index))
         }
     }
 
@@ -28,11 +29,8 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - The "Text List Substring" range, when applicable.
     ///
     func testRangeOfTextListReturnsTheExpectedRange() {
-        let string = NSMutableAttributedString(string: "Alala lala long long le long long long YEAH!")
-        let attributes = [TextList.attributeName: TextList(kind: .Ordered)]
-        let expected = (string.string as NSString).rangeOfString("long le long")
-
-        string.addAttributes(attributes, range: expected)
+        let string = sampleListString
+        let expected = sampleListRange
 
         let minimumIndex = expected.location
         let maximumIndex = expected.location + expected.length
@@ -75,7 +73,7 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - Range: (loc: 0 , length: Sample String Length)
     ///
     func testRangeOfEntireStringWorksAsExpectedWithNonEmptyStrings() {
-        let string = NSAttributedString(string: "Lord Yosemite should DEFINITELY be a Game of Thrones Character.")
+        let string = samplePlainString
         let range = string.rangeOfEntireString
 
         XCTAssert(range.location == 0)
@@ -91,7 +89,7 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - nil for the whole String Length.
     ///
     func testTextListContentsReturnsNilWheneverTheReceiverHasNoTextList() {
-        let string = NSAttributedString(string: "This is a sample string, with no Lists")
+        let string = samplePlainString
 
         for index in (0 ..< string.length) {
             let contents = string.textListContents(followingIndex: index)
@@ -108,18 +106,13 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - Text List Contents. YAY!.
     ///
     func testTextListContentsReturnsTheAssociatedTextListContents() {
-        let string = NSMutableAttributedString(string: "World Domination Plans:\n - Build Warp Drive\n - Rebuild Atlantis\n End!")
-        let expectedContents = "- Build Warp Drive\n - Rebuild Atlantis"
-
-        // Set Attribute
-        let range = (string.string as NSString).rangeOfString(expectedContents)
-        let attributes = [TextList.attributeName: TextList(kind: .Ordered)]
-
-        string.addAttributes(attributes, range: range)
+        let string = sampleListString
+        let expectedContents = sampleListContents
+        let expectedRange = sampleListRange
 
         // Verify!
-        let minimumIndex = range.location
-        let maximumIndex = range.location + range.length
+        let minimumIndex = expectedRange.location
+        let maximumIndex = expectedRange.location + expectedRange.length
 
         for index in (0 ..< string.length) {
             let retrievedContents = string.textListContents(followingIndex: index)
@@ -133,5 +126,40 @@ class NSAttributedStringListsTests: XCTestCase {
                 XCTAssertNil(retrievedContents)
             }
         }
+    }
+}
+
+
+
+// MARK: - Helpers
+//
+extension NSAttributedStringListsTests
+{
+    var samplePlainString: NSAttributedString {
+        return NSAttributedString(string: "Lord Yosemite should DEFINITELY be a Game of Thrones Character.")
+    }
+
+    var sampleListString: NSAttributedString {
+        let sample = NSMutableAttributedString(string: "World Domination Plans:\n" +
+            "- Build Warp Drive\n" +
+            "- Rebuild Atlantis\n" +
+            "- Free Internet for Everyone\n" +
+            "Yay!")
+
+        let range = (sample.string as NSString).rangeOfString(sampleListContents)
+        let attributes = [TextList.attributeName: TextList(kind: .Ordered)]
+        sample.addAttributes(attributes, range: range)
+
+        return sample
+    }
+
+    var sampleListContents: String {
+        return "- Build Warp Drive\n" +
+            "- Rebuild Atlantis\n" +
+            "- Free Internet for Everyone"
+    }
+
+    var sampleListRange: NSRange {
+        return (sampleListString.string as NSString).rangeOfString(sampleListContents)
     }
 }
