@@ -56,6 +56,7 @@
 		59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06A1D8BDFA700D138DF /* HTMLToAttributedStringTests.swift */; };
 		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Comparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Comparison.swift */; };
+		B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */; };
 		B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */; };
 		B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */; };
 		B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF51DA2D76600614582 /* TextList.swift */; };
@@ -141,6 +142,7 @@
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
+		B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatter.swift; sourceTree = "<group>"; };
 		B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Lists.swift"; sourceTree = "<group>"; };
 		B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringListsTests.swift; path = Extensions/NSAttributedStringListsTests.swift; sourceTree = "<group>"; };
 		B5BC4FF51DA2D76600614582 /* TextList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextList.swift; sourceTree = "<group>"; };
@@ -322,6 +324,7 @@
 				599F251F1D8BC9A1002871D6 /* Constants */,
 				599F25221D8BC9A1002871D6 /* Converters */,
 				599F25241D8BC9A1002871D6 /* Extensions */,
+				B5B86D3A1DA41A550083DB3F /* Formatters */,
 				599F25281D8BC9A1002871D6 /* GUI */,
 				599F252E1D8BC9A1002871D6 /* TextKit */,
 			);
@@ -450,6 +453,14 @@
 				59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */,
 			);
 			path = Importer;
+			sourceTree = "<group>";
+		};
+		B5B86D3A1DA41A550083DB3F /* Formatters */ = {
+			isa = PBXGroup;
+			children = (
+				B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */,
+			);
+			path = Formatters;
 			sourceTree = "<group>";
 		};
 		F18733C61DA0970E005AEB80 /* Extensions */ = {
@@ -581,6 +592,7 @@
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
 				599F253B1D8BC9A1002871D6 /* InNodesConverter.swift in Sources */,
 				F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */,
+				B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */,
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
