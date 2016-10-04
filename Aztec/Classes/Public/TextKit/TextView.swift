@@ -418,9 +418,10 @@ public class TextView: UITextView {
         attachment.image = image
 
         // Inject the Attachment and Layout
-        let insertionRange = NSMakeRange(position, 0)
+        let insertionRange = NSMakeRange(position, 1)
         let attachmentString = NSAttributedString(attachment: attachment)
         textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+
         storage.insertImage(url, forRange:insertionRange)
         // Move the cursor after the attachment
         let selectionRange = NSMakeRange(position + attachmentString.length + 1, 0)
