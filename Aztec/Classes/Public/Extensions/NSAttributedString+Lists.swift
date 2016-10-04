@@ -179,46 +179,32 @@ extension NSAttributedString
 
         // Remove any existing list marker.
         if output.length > 0 {
-            let strRange = output.rangeOfEntireString
             var markerRange = NSRange()
-            if let _ = output.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: strRange) {
+            if let _ = output.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: output.rangeOfEntireString) {
                 output.removeAttribute(TextListItemMarker.attributeName, range: markerRange)
-                output.replaceCharactersInRange(markerRange, withString: "")
+                output.replaceCharactersInRange(markerRange, withString: String())
             }
         }
 
         // TODO: Need to accomodate RTL languages too.
 
         // Add the correct list marker. (Tabs aren't really reliable for spacing. Need a better solution.)
-        let marker = style == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
+        let markerText = style == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
+        let markerAttributes = [TextListItemMarker.attributeName: TextListItemMarker()]
 
-        let listMarker = NSAttributedString(string: marker, attributes: [TextListItemMarker.attributeName: TextListItemMarker()])
-        output.insertAttributedString(listMarker, atIndex: 0)
+        let markerAttributedString = NSAttributedString(string: markerText, attributes: markerAttributes)
+        output.insertAttributedString(markerAttributedString, atIndex: 0)
 
         // Set the attributes for the list item style
-        // TODO: Need to be smarter about indents so we take into account nested lists. Need to figure out tabstops also.
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.firstLineHeadIndent = 0
-        paragraphStyle.headIndent = 16 // TODO: Need to get whatever the actual tab width is, and use that as a multiplier.  Maybe we can limit the tab width also?
+        let textListItem = TextListItem()
+        textListItem.number = number
 
-        // TODO: Quick and dirty just so we can have some control.  Need to clean this up and do it better.
-        paragraphStyle.tabStops = [
-            NSTextTab(textAlignment: .Natural, location: 8, options: [String : AnyObject]()),
-            NSTextTab(textAlignment: .Natural, location: 16, options: [String : AnyObject]()),
-            NSTextTab(textAlignment: .Natural, location: 24, options: [String : AnyObject]()),
-            NSTextTab(textAlignment: .Natural, location: 32, options: [String : AnyObject]()),
-            NSTextTab(textAlignment: .Natural, location: 64, options: [String : AnyObject]()),
+        let textListAttributes: [String: AnyObject] = [
+            TextListItem.attributeName: textListItem,
+            NSParagraphStyleAttributeName: NSParagraphStyle.aztecDefaultParagraphStyle()
         ]
 
-        let listItemAttr = TextListItem()
-        listItemAttr.number = number
-
-        let attributes: [String: AnyObject] = [
-            TextListItem.attributeName: listItemAttr,
-            NSParagraphStyleAttributeName: paragraphStyle
-        ]
-
-        output.addAttributes(attributes, range: output.rangeOfEntireString)
+        output.addAttributes(textListAttributes, range: output.rangeOfEntireString)
 
         return output
     }
