@@ -357,7 +357,7 @@ extension Libxml2 {
 
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
-                
+
                 if let intersection = targetRange.intersect(withRange: childRange) {
                     
                     let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)

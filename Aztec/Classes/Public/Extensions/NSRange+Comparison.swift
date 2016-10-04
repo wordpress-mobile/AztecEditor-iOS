@@ -1,7 +1,10 @@
 import Foundation
 
-extension NSRange {
-    
+
+// MARK: - NSRange Extensions
+//
+extension NSRange
+{
     /// Returns the intersection between the receiver and the specified range.
     ///
     /// - Important: the main difference with NSIntersectionRange is that this method considers any contact (even a

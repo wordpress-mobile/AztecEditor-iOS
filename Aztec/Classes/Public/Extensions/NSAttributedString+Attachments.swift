@@ -2,8 +2,8 @@ import Foundation
 import UIKit
 
 
-/// NSAttributedString Extension for Attachments
-///
+// MARK: - NSAttributedString Extension for Attachments
+//
 extension NSAttributedString
 {
     /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
