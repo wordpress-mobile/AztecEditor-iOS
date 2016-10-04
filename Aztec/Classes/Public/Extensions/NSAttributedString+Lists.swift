@@ -96,19 +96,20 @@ extension NSAttributedString
     ///
     /// - Return: A NSRange collection containing the paragraphs with the specified TextList Kind.
     ///
-    func paragraphRanges(atIndex index: Int, forListOfKind kind: TextList.Kind) -> [NSRange] {
+    func paragraphRanges(atIndex index: Int, ofListKind kind: TextList.Kind) -> [NSRange] {
         guard index >= 0 && index < length else {
             return []
         }
 
-        var listRange = NSRange()
-        let theAttribute = attribute(TextList.attributeName, atIndex: index, longestEffectiveRange: &listRange, inRange: rangeOfEntireString) as? TextList
-        guard let unwrappedAttribute = theAttribute where unwrappedAttribute.kind == kind else {
+        guard let range = rangeOfTextList(atIndex: index) else {
             return []
         }
 
-        // Get the paragraph ranges of the list
-        return paragraphRanges(spanningRange: listRange)
+        guard let list = textListAttribute(atIndex: index) where list.kind == kind else {
+            return []
+        }
+
+        return paragraphRanges(spanningRange: range)
     }
 
 
@@ -122,7 +123,7 @@ extension NSAttributedString
     ///
     /// - Returns: A collection of sorted NSRange's
     ///
-    func paragraphRanges(preceedingAndSucceding ranges: [NSRange], forListOfKind kind: TextList.Kind) -> [NSRange] {
+    func paragraphRanges(preceedingAndSucceding ranges: [NSRange], ofListKind kind: TextList.Kind) -> [NSRange] {
         guard let firstRange = ranges.first, lastRange = ranges.last else {
             return ranges
         }
@@ -134,7 +135,7 @@ extension NSAttributedString
         var adjustedRanges = ranges
 
         for index in [preceedingIndex, followingIndex] {
-            for range in paragraphRanges(atIndex: index, forListOfKind: kind) {
+            for range in paragraphRanges(atIndex: index, ofListKind: kind) {
                 guard adjustedRanges.contains({ NSEqualRanges($0, range)}) == false else {
                     continue
                 }

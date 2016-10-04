@@ -170,7 +170,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = NSAttributedString()
         let paragraphRanges = string.paragraphRanges(spanningRange: NSRange(location: 0, length: 0))
 
-        XCTAssert(paragraphRanges.count == 0)
+        XCTAssert(paragraphRanges.isEmpty)
     }
 
     /// Tests that `paragraphRanges` returns an empty array, when the spanning range is beyond the actual 
@@ -187,7 +187,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let range = NSRange(location: string.length, length: string.length)
 
         let paragraphRanges = string.paragraphRanges(spanningRange: range)
-        XCTAssert(paragraphRanges.count == 0)
+        XCTAssert(paragraphRanges.isEmpty)
     }
 
     /// Tests that `paragraphRanges` always returns the same paragraph ranges, wherever the "Range Location"
@@ -271,6 +271,66 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(rangeRetrieved.location == rangeExpected.location)
         XCTAssert(rangeRetrieved.length == rangeExpected.length)
     }
+
+
+    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns the pargraph ranges, whenever the list kind matches.
+    ///
+    /// Set up:
+    /// - Attributed String with three list-paragraphs
+    ///
+    /// Expected result:
+    /// - Array with three ranges, whenever the method is passed an index that lies within the list range.
+    ///
+    func testParagraphRangesOfListKindReturnsTheListRangeAtTheSpecifiedIndexWhenKindMatches() {
+        let string = sampleListString
+
+        for index in (0 ..< string.length) {
+            let ranges = string.paragraphRanges(atIndex: index, ofListKind: sampleListKind)
+            if isIndexWithinListRange(index) {
+                XCTAssert(ranges.count == 3)
+            } else {
+                XCTAssert(ranges.isEmpty)
+            }
+        }
+    }
+
+    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns an empty array, whenever the list kind doesn't match.
+    ///
+    /// Set up:
+    /// - Attributed String with three list-paragraphs
+    ///
+    /// Expected result:
+    /// - Array with zero entities.
+    ///
+    func testParagraphRangesOfListKindReturnsAnEmptyArrayWheneverKindWontMatch() {
+        let string = sampleListString
+
+        for index in (0 ..< string.length) {
+            for listKind in listKinds where listKind != sampleListKind {
+                let ranges = string.paragraphRanges(atIndex: index, ofListKind: listKind)
+                XCTAssert(ranges.isEmpty)
+            }
+        }
+    }
+
+    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns an empty array, whenever there is no textList.
+    ///
+    /// Set up:
+    /// - Attributed String with no text lists.
+    ///
+    /// Expected result:
+    /// - Array with zero entities.
+    ///
+    func testParagraphRangesOfListKindReturnsAnEmptyArrayWheneverThereIsNoList() {
+        let string = samplePlainString
+
+        for index in (0 ..< string.length) {
+            for listKind in listKinds {
+                let ranges = string.paragraphRanges(atIndex: index, ofListKind: listKind)
+                XCTAssert(ranges.isEmpty)
+            }
+        }
+    }
 }
 
 
@@ -291,10 +351,14 @@ extension NSAttributedStringListsTests
             "Yay!")
 
         let range = (sample.string as NSString).rangeOfString(sampleListContents)
-        let attributes = [TextList.attributeName: TextList(kind: .Ordered)]
+        let attributes = [TextList.attributeName: TextList(kind: sampleListKind)]
         sample.addAttributes(attributes, range: range)
 
         return sample
+    }
+
+    var sampleListKind: TextList.Kind {
+        return .Ordered
     }
 
     var sampleListContents: String {
@@ -305,6 +369,10 @@ extension NSAttributedStringListsTests
 
     var sampleListRange: NSRange {
         return (sampleListString.string as NSString).rangeOfString(sampleListContents)
+    }
+
+    var listKinds: [TextList.Kind] {
+        return [.Ordered, .Unordered]
     }
 
     func isIndexWithinListRange(index: Int) -> Bool {
