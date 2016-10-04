@@ -159,37 +159,45 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
-        var identifiers = [String]()
-
         if storage.length == 0 {
-            return identifiers
+            return []
         }
 
         if range.length == 0 {
             return formatIdentifiersAtIndex(range.location)
         }
 
+        var identifiers = [FormattingIdentifier]()
+
         if boldFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Bold.rawValue)
+            identifiers.append(.Bold)
         }
 
         if italicFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Italic.rawValue)
+            identifiers.append(.Italic)
         }
 
         if underlineFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Underline.rawValue)
+            identifiers.append(.Underline)
         }
 
         if strikethroughFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(.Strikethrough)
         }
 
         if linkFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Link.rawValue)
+            identifiers.append(.Link)
         }
 
-        return identifiers
+        if orderedListFormattingSpansRange(range) {
+            identifiers.append(.Orderedlist)
+        }
+
+        if unorderedListFormattingSpansRange(range) {
+            identifiers.append(.Unorderedlist)
+        }
+
+        return identifiers.map { $0.rawValue }
     }
 
 
@@ -201,39 +209,46 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersAtIndex(index: Int) -> [String] {
-        var identifiers = [String]()
-
         if storage.length == 0 {
-            return identifiers
+            return []
         }
 
         let index = adjustedIndex(index)
+        var identifiers = [FormattingIdentifier]()
 
         if formattingAtIndexContainsBold(index) {
-            identifiers.append(FormattingIdentifier.Bold.rawValue)
+            identifiers.append(.Bold)
         }
 
         if formattingAtIndexContainsItalic(index) {
-            identifiers.append(FormattingIdentifier.Italic.rawValue)
+            identifiers.append(.Italic)
         }
 
         if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(FormattingIdentifier.Underline.rawValue)
+            identifiers.append(.Underline)
         }
 
         if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(.Strikethrough)
         }
 
         if formattingAtIndexContainsBlockquote(index) {
-            identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+            identifiers.append(.Blockquote)
         }
 
         if formattingAtIndexContainsLink(index) {
-            identifiers.append(FormattingIdentifier.Link.rawValue)
+            identifiers.append(.Link)
         }
 
-        return identifiers
+        if formattingAtIndexContainsOrderedList(index) {
+            identifiers.append(.Orderedlist)
+        }
+
+        if formattingAtIndexContainsUnorderedList(index) {
+            identifiers.append(.Unorderedlist)
+        }
+
+        return identifiers.map { $0.rawValue }
     }
 
 
