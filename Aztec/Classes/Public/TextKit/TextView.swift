@@ -261,7 +261,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -276,7 +275,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -291,7 +289,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -306,7 +303,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -321,7 +317,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
-
         let formatter = TextListFormatter()
         let updatedSelectedRange = formatter.toggleStyle(ofKind: .Ordered, inString: storage, atRange: range)
 
@@ -337,7 +332,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
-
         let formatter = TextListFormatter()
         let updatedSelectedRange = formatter.toggleStyle(ofKind: .Unordered, inString: storage, atRange: range)
 
@@ -521,12 +515,11 @@ public class TextView: UITextView {
     public func underlineFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? Int {
-
-            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+            return false
         }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
 
@@ -540,12 +533,11 @@ public class TextView: UITextView {
     public func strikethroughFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? Int {
-
-            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+            return false
         }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
     /// Check if the link attribute spans the specified range.
@@ -627,12 +619,11 @@ public class TextView: UITextView {
     public func blockquoteFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? NSParagraphStyle {
-
-            return value.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
+            return false
         }
-        return false
+
+        return attribute.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
 
@@ -701,14 +692,11 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsUnderline(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) else {
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
             return false
         }
         // TODO: Figure out how to reconcile this with Link style.
-        if let value = attr as? Int {
-            return value == NSUnderlineStyle.StyleSingle.rawValue
-        }
-        return false
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue
     }
 
 
@@ -720,13 +708,11 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsStrikethrough(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) else {
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
             return false
         }
-        if let value = attr as? Int {
-            return value == NSUnderlineStyle.StyleSingle.rawValue
-        }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue
     }
 
     /// Check if the link attribute exists at the specified index.
