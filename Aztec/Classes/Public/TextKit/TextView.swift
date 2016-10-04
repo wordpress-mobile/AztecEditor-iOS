@@ -553,13 +553,36 @@ public class TextView: UITextView {
         return false
     }
 
-    /**
-     Returns an NSURL if the specified range as attached a link attribute
 
-     - parameter range: The NSRange to inspect
+    /// Check if an ordered list spans the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func orderedListFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.kind == .Ordered
+    }
 
-     - returns: the NSURL if available
-     */
+
+    /// Check if an unordered list spans the specified range.
+    ///
+    /// - Parameter range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func unorderedListFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.kind == .Unordered
+    }
+
+
+    /// Returns an NSURL if the specified range as attached a link attribute
+    ///
+    /// - Parameter range: The NSRange to inspect
+    ///
+    /// - returns: the NSURL if available
+    ///
     public func linkURL(forRange range: NSRange) -> NSURL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
@@ -725,6 +748,31 @@ public class TextView: UITextView {
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
+
+
+    /// Check if an ordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsOrderedList(index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.kind == .Ordered
+    }
+
+
+    /// Check if an unordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsUnorderedList(index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.kind == .Unordered
+    }
+
 
     // MARK: - Attachments
 
