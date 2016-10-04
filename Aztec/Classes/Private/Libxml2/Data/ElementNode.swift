@@ -1098,44 +1098,31 @@ extension Libxml2 {
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
         private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-
+                
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
             assert(childNodesAndRanges.count > 0)
-
-            if childNodesAndRanges.count == 1 {
-                let childData = childNodesAndRanges[0]
-                let childNode = childData.child
-                let intersection = childData.intersection
-
-                if let childElement = childNode as? ElementNode {
-                    childElement.forceWrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
-                } else if let childTextNode = childNode as? TextNode {
-                    childTextNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
-                } else {
-                    childNode.wrap(inNodeNamed: nodeName)
-                }
-            } else if childNodesAndRanges.count > 1 {
-
-                let firstChild = childNodesAndRanges[0].child
-                let firstChildIntersection = childNodesAndRanges[0].intersection
-
-                if let firstEditableChild = firstChild as? EditableNode where !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                    firstEditableChild.split(forRange: firstChildIntersection)
-                }
-
+            
+            let firstChild = childNodesAndRanges[0].child
+            let firstChildIntersection = childNodesAndRanges[0].intersection
+            
+            if let firstEditableChild = firstChild as? EditableNode where !NSEqualRanges(firstChild.range(), firstChildIntersection) {
+                firstEditableChild.split(forRange: firstChildIntersection)
+            }
+            
+            if childNodesAndRanges.count > 1 {
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
-
+                
                 if let lastEditableChild = lastChild as? EditableNode where !NSEqualRanges(lastChild.range(), lastChildIntersection) {
                     lastEditableChild.split(forRange: lastChildIntersection)
                 }
-
-                let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
-                    return child
-                })
-
-                wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
             }
+            
+            let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
+                return child
+            })
+            
+            wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
