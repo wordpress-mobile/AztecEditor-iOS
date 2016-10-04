@@ -8,9 +8,9 @@ class TextList
 {
     // MARK: - Nested Types
 
-    /// Kind of Lists
+    /// List Styles
     ///
-    enum Kind {
+    enum Style {
         case Ordered
         case Unordered
     }
@@ -19,13 +19,13 @@ class TextList
 
     /// Kind of List: Ordered / Unordered
     ///
-    let kind: Kind
+    let style: Style
 
 
     // MARK: Initializers
 
-    init(kind: Kind) {
-        self.kind = kind
+    init(style: Style) {
+        self.style = style
     }
 
     // MARK: - Constants
