@@ -318,7 +318,7 @@ public class TextView: UITextView {
     ///
     public func toggleOrderedList(range range: NSRange) {
         let formatter = TextListFormatter()
-        let updatedSelectedRange = formatter.toggleStyle(ofKind: .Ordered, inString: storage, atRange: range)
+        let updatedSelectedRange = formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: range)
 
         if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
             selectedRange = updatedSelectedRange
@@ -333,7 +333,7 @@ public class TextView: UITextView {
     ///
     public func toggleUnorderedList(range range: NSRange) {
         let formatter = TextListFormatter()
-        let updatedSelectedRange = formatter.toggleStyle(ofKind: .Unordered, inString: storage, atRange: range)
+        let updatedSelectedRange = formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: range)
 
         if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
             selectedRange = updatedSelectedRange
@@ -566,7 +566,7 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     public func orderedListFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.kind == .Ordered
+        return storage.textListAttribute(spanningRange: range)?.style == .Ordered
     }
 
 
@@ -577,7 +577,7 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     public func unorderedListFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.kind == .Unordered
+        return storage.textListAttribute(spanningRange: range)?.style == .Unordered
     }
 
 
@@ -756,7 +756,7 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsOrderedList(index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.kind == .Ordered
+        return storage.textListAttribute(atIndex: index)?.style == .Ordered
     }
 
 
@@ -768,7 +768,7 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsUnorderedList(index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.kind == .Unordered
+        return storage.textListAttribute(atIndex: index)?.style == .Unordered
     }
 
 

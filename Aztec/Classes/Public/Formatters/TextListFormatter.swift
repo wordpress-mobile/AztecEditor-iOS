@@ -14,29 +14,29 @@ struct TextListFormatter
     ///
     /// - Returns: An NSRange representing the change to the attributed string.
     ///
-    func toggleStyle(style: TextList.Style, inString storage: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
-        let ranges = storage.paragraphRanges(spanningRange: range)
+    func toggleList(ofStyle style: TextList.Style, inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
+        let ranges = string.paragraphRanges(spanningRange: range)
         guard let firstRange = ranges.first else {
             return nil
         }
 
         // Existing list: Same kind? > remove. Else > Apply!
-        if let list = storage.textListAttribute(atIndex: firstRange.location) {
+        if let list = string.textListAttribute(atIndex: firstRange.location) {
             switch list.style {
             case style:
-                return removeStyle(fromString: storage, atRanges: ranges)
+                return removeList(fromString: string, atRanges: ranges)
             default:
-                return updateStyle(style, inString: storage, atIndex: firstRange.location)
+                return updateList(ofStyle: style, atIndex: firstRange.location, inString: string)
             }
         }
 
         // Check the paragraphs at each range. If any have the opposite list style remove that range.
         let filtered = ranges.filter { range in
-            let paragraphListStyle = storage.textListAttribute(atIndex: range.location)?.style
+            let paragraphListStyle = string.textListAttribute(atIndex: range.location)?.style
             return paragraphListStyle == nil || paragraphListStyle == style
         }
 
-        return applyStyle(style, toString: storage, atRanges: filtered)
+        return applyList(ofStyle: style, atRanges: filtered, toString: string)
     }
 }
 
@@ -56,9 +56,9 @@ private extension TextListFormatter
     ///
     /// - Returns: The affected NSRange, or nil if no changes were made.
     ///
-    func applyStyle(style: TextList.Style, toString storage: NSMutableAttributedString, atRanges range: [NSRange], startingNumber: Int = 1) -> NSRange? {
+    func applyList(ofStyle style: TextList.Style, atRanges range: [NSRange], toString string: NSMutableAttributedString, startingAt number: Int = 1) -> NSRange? {
         // Adjust Ranges: Add preceeding + following ranges, if needed
-        let adjustedRanges = storage.paragraphRanges(preceedingAndSucceding: range, matchingListStyle: style)
+        let adjustedRanges = string.paragraphRanges(preceedingAndSucceding: range, matchingListStyle: style)
         guard let startingLocation = adjustedRanges.first?.location else {
             return nil
         }
@@ -66,25 +66,25 @@ private extension TextListFormatter
         //
         var length = 0
 
-        storage.beginEditing()
+        string.beginEditing()
         //- Filter out other elements (blockquote, p, h1, h2, h3, etc.) from each paragraph. Each “paragraph” should be vanilla
         // TODO:
 
 
         //- Iterate over affected paragraphs in reverse order.  Insert/replace list marker (attributes) into string and assign list item.
         for (index, range) in adjustedRanges.enumerate().reverse() {
-            let number = index + startingNumber
-            let unformatted = storage.attributedSubstringFromRange(range)
+            let number = index + number
+            let unformatted = string.attributedSubstringFromRange(range)
             let formatted = unformatted.attributedStringByAddingTextListItemAtributes(style, number: number)
             length += formatted.length
-            storage.replaceCharactersInRange(range, withAttributedString: formatted)
+            string.replaceCharactersInRange(range, withAttributedString: formatted)
         }
 
         let textList = TextList(style: style)
         let listRange = NSRange(location: startingLocation, length: length)
-        storage.addAttribute(TextList.attributeName, value: textList, range: listRange)
+        string.addAttribute(TextList.attributeName, value: textList, range: listRange)
 
-        storage.endEditing()
+        string.endEditing()
 
         return listRange
     }
@@ -98,7 +98,7 @@ private extension TextListFormatter
     ///
     /// - Returns: The NSRange of the changes.
     ///
-    func removeStyle(fromString storage: NSMutableAttributedString, atRanges ranges: [NSRange]) -> NSRange? {
+    func removeList(fromString string: NSMutableAttributedString, atRanges ranges: [NSRange]) -> NSRange? {
         guard let firstRange = ranges.first else {
             return nil
         }
@@ -109,8 +109,8 @@ private extension TextListFormatter
         }
         let fullRange = NSRange(location: firstRange.location, length: listRangeLength)
 
-        storage.removeAttribute(TextList.attributeName, range: fullRange)
-        storage.removeAttribute(TextListItem.attributeName, range: fullRange)
+        string.removeAttribute(TextList.attributeName, range: fullRange)
+        string.removeAttribute(TextListItem.attributeName, range: fullRange)
 
         // For the same type of list, we'll remove the list style. A bit tricky.  We need to remove the style
         // (and attributes) from the selected paragraph ranges, then if the following range was an ordered list,
@@ -119,19 +119,19 @@ private extension TextListFormatter
         var length = 0
         //- Iterate over affected paragraphs in reverse order.  Remove list marker and attributes
         for range in ranges.reverse() {
-            let clean = storage.attributedSubstringFromRange(range).attributedStringByRemovingTextListItemAtributes()
+            let clean = string.attributedSubstringFromRange(range).attributedStringByRemovingTextListItemAtributes()
             length += clean.length
-            storage.replaceCharactersInRange(range, withAttributedString: clean)
+            string.replaceCharactersInRange(range, withAttributedString: clean)
         }
 
         let adjustedRange = NSRange(location: firstRange.location, length: length)
-        storage.fixAttributesInRange(adjustedRange)
+        string.fixAttributesInRange(adjustedRange)
 
         // Update the following list if necessary.
         let followingIdx = NSMaxRange(adjustedRange) + 1 // Add two. if just one we're pointing at the newline character and we'll end up captureing the paragraph range we just edited.
-        if followingIdx < storage.length {
-            if let list = storage.textListAttribute(atIndex: followingIdx) {
-                updateStyle(list.style, inString: storage, atIndex: followingIdx)
+        if followingIdx < string.length {
+            if let list = string.textListAttribute(atIndex: followingIdx) {
+                updateList(ofStyle: list.style, atIndex: followingIdx, inString: string)
             }
         }
 
@@ -142,20 +142,20 @@ private extension TextListFormatter
     /// Updates the TextListTpe for a TextList at the specified index.
     ///
     /// - Parameters:
-    ///     - attrString: An NSMutableAttributedString to modify.
-    ///     - index: An index intersecting the TextList within `attrString`.
-    ///     - type: The type of list to become.
+    ///     - style: The type of list to become.
+    ///     - atIndex: An index intersecting the TextList within `attrString`.
+    ///     - inString: An NSMutableAttributedString to modify.
     ///
-    func updateStyle(style: TextList.Style, inString storage: NSMutableAttributedString, atIndex index: Int) -> NSRange? {
+    func updateList(ofStyle style: TextList.Style, atIndex index: Int, inString string: NSMutableAttributedString) -> NSRange? {
         // TODO: Confirm using longest effective range is actually safe. We don't want to consume neighboring
         // lists of a different type.
         // (NOTE: probably not an issue when searching for custom aztec markup attributes?)
         //
-        guard let listRange = storage.rangeOfTextList(atIndex: index) else {
+        guard let listRange = string.rangeOfTextList(atIndex: index) else {
             return nil
         }
 
-        let paragraphRanges = storage.paragraphRanges(spanningRange: listRange)
-        return applyStyle(style, toString: storage, atRanges: paragraphRanges)
+        let paragraphRanges = string.paragraphRanges(spanningRange: listRange)
+        return applyList(ofStyle: style, atRanges: paragraphRanges, toString: string)
     }
 }
