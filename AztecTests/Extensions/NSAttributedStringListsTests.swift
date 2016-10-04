@@ -158,6 +158,46 @@ class NSAttributedStringListsTests: XCTestCase {
         }
     }
 
+    /// Tests that `textListAttribute(spanningRange:)` returns nil, whenever there is no actual text list.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with no TextList.
+    ///
+    /// Expected result:
+    /// - nil
+    ///
+    func testTextListAttributeSpanningRangeReturnsNilWhenThereIsNoList() {
+        let string = samplePlainString
+
+        for index in (0 ..< string.length) {
+            let range = NSRange(location: index, length: 1)
+            XCTAssertNil(string.textListAttribute(spanningRange: range))
+        }
+    }
+
+    /// Tests that `textListAttribute(spanningRange:)` returns the expected TestList, when applicable.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with a TextList.
+    ///
+    /// Expected result:
+    /// - The TextList, whenever the range passed intersects the TextList range.
+    ///
+    func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenRangeInteresects() {
+        let string = sampleListString
+
+        for index in (0 ..< string.length) {
+            let range = NSRange(location: index, length: 1)
+            let attribute = string.textListAttribute(spanningRange: range)
+
+            if isIndexWithinListRange(index) {
+                XCTAssertNotNil(attribute)
+            } else {
+                XCTAssertNil(attribute)
+            }
+        }
+    }
+
     /// Tests that `paragraphRanges` returns an empty array, when dealing with an empty string.
     ///
     /// Set up:

@@ -65,7 +65,6 @@ extension NSAttributedString
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(spanningRange range: NSRange) -> TextList? {
-// TODO: Unit Test!
         var effectiveRange = NSRange()
         guard let list = attribute(TextList.attributeName, atIndex: range.location, effectiveRange: &effectiveRange) as? TextList else {
             return nil
