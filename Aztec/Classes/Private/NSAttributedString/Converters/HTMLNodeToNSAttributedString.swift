@@ -100,21 +100,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
     }
 
-    // MARK: - Unique Key Generation
-
-    /// Generates a unique ID for the specified node.
-    ///
-    private func keyForNode(node: Node) -> String {
-
-        if node.name == RootNode.name {
-            return node.name
-        } else {
-            let uuid = NSUUID().UUIDString
-
-            return "Aztec.HTMLTag.\(node.name).\(uuid)"
-        }
-    }
-
     // MARK: - Node Styling
 
     /// Returns an attributed string representing the specified non-empty node.  Non-empty means
