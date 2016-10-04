@@ -273,7 +273,8 @@ class NSAttributedStringListsTests: XCTestCase {
     }
 
 
-    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns the pargraph ranges, whenever the list kind matches.
+    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns the pargraph ranges, whenever the list
+    /// style matches.
     ///
     /// Set up:
     /// - Attributed String with three list-paragraphs
@@ -281,11 +282,11 @@ class NSAttributedStringListsTests: XCTestCase {
     /// Expected result:
     /// - Array with three ranges, whenever the method is passed an index that lies within the list range.
     ///
-    func testParagraphRangesOfListKindReturnsTheListRangeAtTheSpecifiedIndexWhenKindMatches() {
+    func testParagraphRangesOfListStyleReturnsTheListRangeAtTheSpecifiedIndexWhenStyleMatches() {
         let string = sampleListString
 
         for index in (0 ..< string.length) {
-            let ranges = string.paragraphRanges(atIndex: index, matchingListKind: sampleListKind)
+            let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: sampleListStyle)
             if isIndexWithinListRange(index) {
                 XCTAssert(ranges.count == 4)
             } else {
@@ -294,7 +295,8 @@ class NSAttributedStringListsTests: XCTestCase {
         }
     }
 
-    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns an empty array, whenever the list kind doesn't match.
+    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns an empty array, whenever the list
+    /// style doesn't match.
     ///
     /// Set up:
     /// - Attributed String with three list-paragraphs
@@ -302,18 +304,18 @@ class NSAttributedStringListsTests: XCTestCase {
     /// Expected result:
     /// - Array with zero entities.
     ///
-    func testParagraphRangesOfListKindReturnsAnEmptyArrayWheneverKindWontMatch() {
+    func testParagraphRangesOfListStyleReturnsAnEmptyArrayWheneverStyleWontMatch() {
         let string = sampleListString
 
         for index in (0 ..< string.length) {
-            for listKind in listKinds where listKind != sampleListKind {
-                let ranges = string.paragraphRanges(atIndex: index, matchingListKind: listKind)
+            for listStyle in listStyles where listStyle != sampleListStyle {
+                let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: listStyle)
                 XCTAssert(ranges.isEmpty)
             }
         }
     }
 
-    /// Tests that `paragraphRanges(atIndex: ofListKind)` returns an empty array, whenever there is no textList.
+    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns an empty array, whenever there is no textList.
     ///
     /// Set up:
     /// - Attributed String with no text lists.
@@ -321,18 +323,18 @@ class NSAttributedStringListsTests: XCTestCase {
     /// Expected result:
     /// - Array with zero entities.
     ///
-    func testParagraphRangesOfListKindReturnsAnEmptyArrayWheneverThereIsNoList() {
+    func testParagraphRangesOfListStyleReturnsAnEmptyArrayWheneverThereIsNoList() {
         let string = samplePlainString
 
         for index in (0 ..< string.length) {
-            for listKind in listKinds {
-                let ranges = string.paragraphRanges(atIndex: index, matchingListKind: listKind)
+            for listStyle in listStyles {
+                let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: listStyle)
                 XCTAssert(ranges.isEmpty)
             }
         }
     }
 
-    /// Tests that `paragraphRanges(preceedingAndSucceding: ofListKind)` the same ranges received, whenever there is no
+    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListStyle)` the same ranges received, whenever there is no
     /// surrounding list.
     ///
     /// Set up:
@@ -346,13 +348,13 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = samplePlainString
         let ranges = string.paragraphRanges(spanningRange: string.rangeOfEntireString)
 
-        for kind in listKinds {
-            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, matchingListKind: kind)
+        for style in listStyles {
+            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, matchingListStyle: style)
             XCTAssert(retrieved.count == ranges.count)
         }
     }
 
-    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListKind)` returns all of the list's paragraph ranges,
+    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListStyle)` returns all of the list's paragraph ranges,
     /// when a single paragraph is fed.
     ///
     /// Set up:
@@ -369,7 +371,7 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(listParagraphRanges.count == 4)
 
         for itemRange in listParagraphRanges {
-            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListKind: sampleListKind)
+            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListStyle: sampleListStyle)
             XCTAssert(retrievedRanges.count == listParagraphRanges.count)
             XCTAssertEqual(listParagraphRanges, retrievedRanges)
         }
@@ -403,13 +405,13 @@ extension NSAttributedStringListsTests
             "Yay!")
 
         let range = (sample.string as NSString).rangeOfString(sampleListContents)
-        let attributes = [TextList.attributeName: TextList(kind: sampleListKind)]
+        let attributes = [TextList.attributeName: TextList(style: sampleListStyle)]
         sample.addAttributes(attributes, range: range)
 
         return sample
     }
 
-    var sampleListKind: TextList.Kind {
+    var sampleListStyle: TextList.Style {
         return .Ordered
     }
 
@@ -424,7 +426,7 @@ extension NSAttributedStringListsTests
         return (sampleListString.string as NSString).rangeOfString(sampleListContents)
     }
 
-    var listKinds: [TextList.Kind] {
+    var listStyles: [TextList.Style] {
         return [.Ordered, .Unordered]
     }
 
