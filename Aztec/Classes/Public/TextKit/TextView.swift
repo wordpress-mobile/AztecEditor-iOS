@@ -159,7 +159,7 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
-        if storage.length == 0 {
+        guard storage.length != 0 else {
             return []
         }
 
@@ -209,7 +209,7 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersAtIndex(index: Int) -> [String] {
-        if storage.length == 0 {
+        guard storage.length != 0 else {
             return []
         }
 
