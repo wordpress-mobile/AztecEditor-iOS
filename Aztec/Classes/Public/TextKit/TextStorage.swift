@@ -296,11 +296,9 @@ public class TextStorage: NSTextStorage {
     }
 
     func insertImage(url: NSURL, forRange range: NSRange) {
-        rootNode.wrapChildren(
-            intersectingRange: range,
-            inNodeNamed: ElementTypes.img.rawValue,
-            withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)],
-            equivalentElementNames: ElementTypes.img.equivalentNames)
+        rootNode.wrap(range: range,
+                      inNodeNamed: ElementTypes.img.rawValue,
+                      withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
     }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {

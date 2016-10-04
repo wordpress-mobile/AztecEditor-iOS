@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension Libxml2 {
 
@@ -31,6 +32,7 @@ extension Libxml2 {
             case H6 = "h6"
             case Hr = "hr"
             case I = "i"
+            case Img = "img"
             case Li = "li"
             case Noscript = "noscript"
             case Ol = "ol"
@@ -48,7 +50,6 @@ extension Libxml2 {
             case Tr = "tr"
             case U = "u"
             case Ul = "ul"
-            case Img = "img"
 
             /// Returns an array with all block-level elements.
             ///
@@ -62,6 +63,16 @@ extension Libxml2 {
 
             func isBlockLevelNodeName() -> Bool {
                 return self.dynamicType.blockLevelNodeNames().contains(self)
+            }
+            
+            /// Some nodes have a default representation.
+            ///
+            func defaultVisualRepresentation() -> String? {
+                if self == .Img {
+                    return String(UnicodeScalar(NSAttachmentCharacter))
+                }
+                
+                return nil
             }
         }
 
@@ -84,9 +95,9 @@ extension Libxml2 {
             }
         }
 
-        init(name: String, attributes: [Attribute], children: [Node]) {
-            self.children = children
+        init(name: String, attributes: [Attribute], text: String? = nil, children: [Node]) {
             self.attributes.appendContentsOf(attributes)
+            self.children = children
 
             super.init(name: name)
 
@@ -109,14 +120,7 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            
-            var length = 0
-            
-            for child in children {
-                length += child.length()
-            }
-            
-            return length
+            return text().characters.count
         }
 
         // MARK: - Node Queries
@@ -508,6 +512,10 @@ extension Libxml2 {
         override func text() -> String {
             var text = ""
             
+            if let representation = standardName?.defaultVisualRepresentation() {
+                text = representation
+            }
+            
             for child in children {
                 text = text + child.text()
             }
@@ -774,8 +782,8 @@ extension Libxml2 {
         ///
         func insert(string: String, atLocation location: Int) {
             let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
-
-            guard blockLevelElementsAndIntersections.count == 1 else {
+            
+            guard blockLevelElementsAndIntersections.count > 0 else {
                 fatalError("We should have exactly one block-level element here.")
             }
 
@@ -832,7 +840,7 @@ extension Libxml2 {
                 }
             }
             
-            if !inheritStyle {
+            if !inheritStyle && string.characters.count > 0 {
                 insert(string, atLocation: range.location)
             }
         }
