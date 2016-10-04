@@ -132,11 +132,11 @@ public class TextStorage: NSTextStorage {
             for (key, value) in attributes {
                 switch (key) {
                 case NSFontAttributeName:
-                    copyFontAttributesToDOM(spanning: range, attributeValue: value)
+                    copyToDOM(fontAttributesSpanning: range, fromAttributeValue: value)
                 case NSStrikethroughStyleAttributeName:
-                    copyStrikethroughStyleToDOM(spanning: range, attributeValue: value)
+                    copyToDOM(strikethroughStyleSpanning: range, fromAttributeValue: value)
                 case NSUnderlineStyleAttributeName:
-                    copyUnderlineStyleToDOM(spanning: range, attributeValue: value)
+                    copyToDOM(underlineStyleSpanning: range, fromAttributeValue: value)
                 default:
                     break
                 }
@@ -144,17 +144,17 @@ public class TextStorage: NSTextStorage {
         }
     }
     
-    private func copyFontAttributesToDOM(spanning range: NSRange, attributeValue value: AnyObject) {
+    private func copyToDOM(fontAttributesSpanning range: NSRange, fromAttributeValue value: AnyObject) {
         
         guard let font = value as? UIFont else {
             assertionFailure("Was expecting a UIFont object as the value for the font attribute.")
             return
         }
         
-        copyFontAttributesToDOM(spanning: range, font: font)
+        copyToDOM(fontAttributesSpanning: range, fromFont: font)
     }
     
-    private func copyFontAttributesToDOM(spanning range: NSRange, font: UIFont) {
+    private func copyToDOM(fontAttributesSpanning range: NSRange, fromFont font: UIFont) {
         
         let fontTraits = font.fontDescriptor().symbolicTraits
         
@@ -167,7 +167,7 @@ public class TextStorage: NSTextStorage {
         }
     }
     
-    private func copyStrikethroughStyleToDOM(spanning range: NSRange, attributeValue value: AnyObject) {
+    private func copyToDOM(strikethroughStyleSpanning range: NSRange, fromAttributeValue value: AnyObject) {
         
         guard let intValue = value as? Int else {
             assertionFailure("The strikethrough style is always expected to be an Int.")
@@ -179,10 +179,10 @@ public class TextStorage: NSTextStorage {
             return
         }
         
-        copyStrikethroughStyleToDOM(spanning: range, style: style)
+        copyToDOM(strikethroughStyleSpanning: range, strikethroughStyle: style)
     }
     
-    private func copyStrikethroughStyleToDOM(spanning range: NSRange, style: NSUnderlineStyle) {
+    private func copyToDOM(strikethroughStyleSpanning range: NSRange, strikethroughStyle style: NSUnderlineStyle) {
         
         switch (style) {
         case .StyleSingle:
@@ -193,7 +193,7 @@ public class TextStorage: NSTextStorage {
         }
     }
     
-    private func copyUnderlineStyleToDOM(spanning range: NSRange, attributeValue value: AnyObject) {
+    private func copyToDOM(underlineStyleSpanning range: NSRange, fromAttributeValue value: AnyObject) {
         
         guard let intValue = value as? Int else {
             assertionFailure("The underline style is always expected to be an Int.")
@@ -205,10 +205,10 @@ public class TextStorage: NSTextStorage {
             return
         }
         
-        copyUnderlineStyleToDOM(spanning: range, style: style)
+        copyToDOM(underlineStyleSpanning: range, underlineStyle: style)
     }
     
-    private func copyUnderlineStyleToDOM(spanning range: NSRange, style: NSUnderlineStyle) {
+    private func copyToDOM(underlineStyleSpanning range: NSRange, underlineStyle style: NSUnderlineStyle) {
         
         switch (style) {
         case .StyleSingle:
