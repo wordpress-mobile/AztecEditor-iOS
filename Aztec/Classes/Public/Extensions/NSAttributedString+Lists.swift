@@ -169,12 +169,12 @@ extension NSAttributedString
     /// Returns a new NSAttributedString, with the required TextListItem attribute applied.
     ///
     /// - Parameters:
-    ///     - kind: The type of text list.
+    ///     - style: The type of text list.
     ///     - itemNumber: The index of the item. This is used to number a numeric list item.
     ///
     /// - Return: An NSAttributedString.
     ///
-    func attributedStringByAddingTextListItemAtributes(kind: TextList.Kind, number: Int) -> NSAttributedString {
+    func attributedStringByAddingTextListItemAtributes(style: TextList.Style, number: Int) -> NSAttributedString {
 // TODO: Unit Test!
         let output = NSMutableAttributedString(attributedString: self)
 
@@ -191,7 +191,7 @@ extension NSAttributedString
         // TODO: Need to accomodate RTL languages too.
 
         // Add the correct list marker. (Tabs aren't really reliable for spacing. Need a better solution.)
-        let marker = kind == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
+        let marker = style == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
 
         let listMarker = NSAttributedString(string: marker, attributes: [TextListItemMarker.attributeName: TextListItemMarker()])
         output.insertAttributedString(listMarker, atIndex: 0)
