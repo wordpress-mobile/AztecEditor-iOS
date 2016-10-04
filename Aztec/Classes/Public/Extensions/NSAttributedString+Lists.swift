@@ -58,6 +58,27 @@ extension NSAttributedString
     }
 
 
+    /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
+    ///
+    /// - Parameter range: Range to check for TextLists
+    ///
+    /// - Returns: A TextList optional.
+    ///
+    func textListAttribute(spanningRange range: NSRange) -> TextList? {
+// TODO: Unit Test!
+        var effectiveRange = NSRange()
+        guard let list = attribute(TextList.attributeName, atIndex: range.location, effectiveRange: &effectiveRange) as? TextList else {
+            return nil
+        }
+
+        guard NSEqualRanges(range, NSIntersectionRange(range, effectiveRange)) else {
+            return nil
+        }
+
+        return list
+    }
+
+
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
     ///
     /// - Parameters range: The range within the specified string to find paragraphs.
@@ -144,6 +165,7 @@ extension NSAttributedString
         }
     }
 
+
     /// Returns a new NSAttributedString, with the required TextListItem attribute applied.
     ///
     /// - Parameters:
@@ -153,6 +175,7 @@ extension NSAttributedString
     /// - Return: An NSAttributedString.
     ///
     func attributedStringByAddingTextListItemAtributes(kind: TextList.Kind, number: Int) -> NSAttributedString {
+// TODO: Unit Test!
         let output = NSMutableAttributedString(attributedString: self)
 
         // Remove any existing list marker.
@@ -205,6 +228,7 @@ extension NSAttributedString
     /// Returns a new Attributed String, with the TextListItem formatting removed.
     ///
     func attributedStringByRemovingTextListItemAtributes() -> NSAttributedString {
+// TODO: Unit Test!
         let clean = NSMutableAttributedString(attributedString: self)
 
         let range = clean.rangeOfEntireString
