@@ -321,17 +321,29 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
-        print("ordered")
+
+        let formatter = TextListFormatter()
+        let updatedSelectedRange = formatter.toggleStyle(ofKind: .Ordered, inString: storage, atRange: range)
+
+        if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
+            selectedRange = updatedSelectedRange
+        }
     }
 
 
     /// Adds or removes a unordered list style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
-        print("unordered")
+
+        let formatter = TextListFormatter()
+        let updatedSelectedRange = formatter.toggleStyle(ofKind: .Unordered, inString: storage, atRange: range)
+
+        if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
+            selectedRange = updatedSelectedRange
+        }
     }
 
 
