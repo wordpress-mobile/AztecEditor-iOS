@@ -96,16 +96,10 @@ extension NSAttributedString
     ///
     /// - Return: A NSRange collection containing the paragraphs with the specified TextList Kind.
     ///
-    func paragraphRanges(atIndex index: Int, ofListKind kind: TextList.Kind) -> [NSRange] {
-        guard index >= 0 && index < length else {
-            return []
-        }
-
-        guard let range = rangeOfTextList(atIndex: index) else {
-            return []
-        }
-
-        guard let list = textListAttribute(atIndex: index) where list.kind == kind else {
+    func paragraphRanges(atIndex index: Int, matchingListKind kind: TextList.Kind) -> [NSRange] {
+        guard index >= 0 && index < length, let range = rangeOfTextList(atIndex: index),
+            let list = textListAttribute(atIndex: index) where list.kind == kind else
+        {
             return []
         }
 
@@ -123,7 +117,7 @@ extension NSAttributedString
     ///
     /// - Returns: A collection of sorted NSRange's
     ///
-    func paragraphRanges(preceedingAndSucceding ranges: [NSRange], ofListKind kind: TextList.Kind) -> [NSRange] {
+    func paragraphRanges(preceedingAndSucceding ranges: [NSRange], matchingListKind kind: TextList.Kind) -> [NSRange] {
         guard let firstRange = ranges.first, lastRange = ranges.last else {
             return ranges
         }
@@ -135,7 +129,7 @@ extension NSAttributedString
         var adjustedRanges = ranges
 
         for index in [preceedingIndex, followingIndex] {
-            for range in paragraphRanges(atIndex: index, ofListKind: kind) {
+            for range in paragraphRanges(atIndex: index, matchingListKind: kind) {
                 guard adjustedRanges.contains({ NSEqualRanges($0, range)}) == false else {
                     continue
                 }

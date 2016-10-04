@@ -285,7 +285,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = sampleListString
 
         for index in (0 ..< string.length) {
-            let ranges = string.paragraphRanges(atIndex: index, ofListKind: sampleListKind)
+            let ranges = string.paragraphRanges(atIndex: index, matchingListKind: sampleListKind)
             if isIndexWithinListRange(index) {
                 XCTAssert(ranges.count == 4)
             } else {
@@ -307,7 +307,7 @@ class NSAttributedStringListsTests: XCTestCase {
 
         for index in (0 ..< string.length) {
             for listKind in listKinds where listKind != sampleListKind {
-                let ranges = string.paragraphRanges(atIndex: index, ofListKind: listKind)
+                let ranges = string.paragraphRanges(atIndex: index, matchingListKind: listKind)
                 XCTAssert(ranges.isEmpty)
             }
         }
@@ -326,7 +326,7 @@ class NSAttributedStringListsTests: XCTestCase {
 
         for index in (0 ..< string.length) {
             for listKind in listKinds {
-                let ranges = string.paragraphRanges(atIndex: index, ofListKind: listKind)
+                let ranges = string.paragraphRanges(atIndex: index, matchingListKind: listKind)
                 XCTAssert(ranges.isEmpty)
             }
         }
@@ -347,12 +347,12 @@ class NSAttributedStringListsTests: XCTestCase {
         let ranges = string.paragraphRanges(spanningRange: string.rangeOfEntireString)
 
         for kind in listKinds {
-            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, ofListKind: kind)
+            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, matchingListKind: kind)
             XCTAssert(retrieved.count == ranges.count)
         }
     }
 
-    /// Tests that `paragraphRanges(preceedingAndSucceding: ofListKind)` returns all of the list's paragraph ranges,
+    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListKind)` returns all of the list's paragraph ranges,
     /// when a single paragraph is fed.
     ///
     /// Set up:
@@ -369,7 +369,7 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(listParagraphRanges.count == 4)
 
         for itemRange in listParagraphRanges {
-            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], ofListKind: sampleListKind)
+            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListKind: sampleListKind)
             XCTAssert(retrievedRanges.count == listParagraphRanges.count)
             XCTAssertEqual(listParagraphRanges, retrievedRanges)
         }
