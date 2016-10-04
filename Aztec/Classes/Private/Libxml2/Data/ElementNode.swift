@@ -1027,16 +1027,11 @@ extension Libxml2 {
         /// Wraps child nodes intersecting the specified range inside new elements with the
         /// specified properties.
         ///
-        /// - Important: this method doesn't check if the child nodes are block-level elements or
-        ///         not.  If you need to check for block level elements, you must obtain them
-        ///         before calling this method.
-        ///
         /// - Parameters:
         ///     - targetRange: the range that must be wrapped.
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
-        ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
-        ///             lowest block-level element nodes before doing the wrapping.
+        ///     - equivalentElementNames: equivalent node names to check for collisions.
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
             
