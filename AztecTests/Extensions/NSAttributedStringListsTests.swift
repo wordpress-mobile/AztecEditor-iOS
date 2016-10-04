@@ -200,7 +200,7 @@ class NSAttributedStringListsTests: XCTestCase {
     /// - Array with the single paragraph's range.
     ///
     func testParagraphRangesReturnSameRangeConsistentlyForSingleParagraphString() {
-        let string = samplePlainString
+        let string = sampleSingleLine
         let expected = string.rangeOfEntireString
 
         for index in (0..<string.length) {
@@ -287,7 +287,7 @@ class NSAttributedStringListsTests: XCTestCase {
         for index in (0 ..< string.length) {
             let ranges = string.paragraphRanges(atIndex: index, ofListKind: sampleListKind)
             if isIndexWithinListRange(index) {
-                XCTAssert(ranges.count == 3)
+                XCTAssert(ranges.count == 4)
             } else {
                 XCTAssert(ranges.isEmpty)
             }
@@ -331,6 +331,49 @@ class NSAttributedStringListsTests: XCTestCase {
             }
         }
     }
+
+    /// Tests that `paragraphRanges(preceedingAndSucceding: ofListKind)` the same ranges received, whenever there is no
+    /// surrounding list.
+    ///
+    /// Set up:
+    /// - Attributed String with no text lists.
+    /// - Ranges of all of the string's paragraphs
+    ///
+    /// Expected result:
+    /// - Same Input Ranges
+    ///
+    func testParagraphRangesPreceedingAndSucceedingRangesReturnTheReceivedRangesIfThereIsNoSurroundingList() {
+        let string = samplePlainString
+        let ranges = string.paragraphRanges(spanningRange: string.rangeOfEntireString)
+
+        for kind in listKinds {
+            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, ofListKind: kind)
+            XCTAssert(retrieved.count == ranges.count)
+        }
+    }
+
+    /// Tests that `paragraphRanges(preceedingAndSucceding: ofListKind)` returns all of the list's paragraph ranges,
+    /// when a single paragraph is fed.
+    ///
+    /// Set up:
+    /// - Attributed String with a text list.
+    /// - Ranges of all of the string's paragraphs
+    ///
+    /// Expected result:
+    /// - Full List Ranges, whenever each one of the List Item Ranges is sent over
+    ///
+    func testParagraphRangesPreceedingAndSucceedingRangesEffectivelyInjectSurroundingListRanges() {
+        let listString = sampleListString
+        let listRange = sampleListRange
+        let listParagraphRanges = listString.paragraphRanges(spanningRange: listRange)
+        XCTAssert(listParagraphRanges.count == 4)
+
+        for itemRange in listParagraphRanges {
+            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], ofListKind: sampleListKind)
+            XCTAssert(retrievedRanges.count == listParagraphRanges.count)
+            XCTAssertEqual(listParagraphRanges, retrievedRanges)
+        }
+    }
 }
 
 
@@ -339,8 +382,16 @@ class NSAttributedStringListsTests: XCTestCase {
 //
 extension NSAttributedStringListsTests
 {
-    var samplePlainString: NSAttributedString {
+    var sampleSingleLine: NSAttributedString {
         return NSAttributedString(string: "Lord Yosemite should DEFINITELY be a Game of Thrones Character.")
+    }
+
+    var samplePlainString: NSAttributedString {
+        return NSAttributedString(string: "Shopping List:\n" +
+            "- Cookies with chocolate.\n" +
+            "- Red Red Wine.\n" +
+            "- More Red Wine.\n" +
+            "- Perhaps more cookies as well.\n")
     }
 
     var sampleListString: NSAttributedString {
@@ -348,6 +399,7 @@ extension NSAttributedStringListsTests
             "- Build Warp Drive\n" +
             "- Rebuild Atlantis\n" +
             "- Free Internet for Everyone\n" +
+            "- Buy Cookies\n" +
             "Yay!")
 
         let range = (sample.string as NSString).rangeOfString(sampleListContents)
@@ -364,7 +416,8 @@ extension NSAttributedStringListsTests
     var sampleListContents: String {
         return "- Build Warp Drive\n" +
             "- Rebuild Atlantis\n" +
-            "- Free Internet for Everyone"
+            "- Free Internet for Everyone\n" +
+            "- Buy Cookies"
     }
 
     var sampleListRange: NSRange {
