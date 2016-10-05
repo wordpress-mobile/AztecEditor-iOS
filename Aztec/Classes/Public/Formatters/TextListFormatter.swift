@@ -64,7 +64,6 @@ private extension TextListFormatter
             return nil
         }
 
-
         // TextListItem: Apply to each one of the paragraphs
         var length = 0
 

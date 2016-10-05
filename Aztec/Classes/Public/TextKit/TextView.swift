@@ -317,12 +317,9 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
+        let listRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        let updatedSelectedRange = formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: range)
-
-        if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
-            selectedRange = updatedSelectedRange
-        }
+        formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: listRange)
     }
 
 
@@ -332,12 +329,9 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
+        let listRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        let updatedSelectedRange = formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: range)
-
-        if let updatedSelectedRange = updatedSelectedRange where selectedRange.length > 0 {
-            selectedRange = updatedSelectedRange
-        }
+        formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: listRange)
     }
 
 
@@ -654,6 +648,25 @@ public class TextView: UITextView {
     func adjustedIndex(index: Int) -> Int {
         let index = maxIndex(index)
         return max(0, index - 1)
+    }
+
+
+    /// TextListFormatter was designed to be applied over a range of text. Whenever such range is
+    /// zero, we may have trouble determining where to apply the list. For that reason,
+    /// whenever the list range's length is zero, we'll attempt to infer the range of the line at
+    /// which the cursor is located.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange in which a TextList should be applied
+    ///
+    /// Returns: A corrected NSRange, if the original one had empty length.
+    ///
+    func rangeForTextList(range: NSRange) -> NSRange {
+        guard range.length == 0 else {
+            return range
+        }
+
+        return storage.rangeOfLine(atIndex: range.location) ?? range
     }
 
 
