@@ -1059,7 +1059,7 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
 
             let mustFindLowestBlockLevelElements = !StandardName.isBlockLevelNodeName(nodeName)
 
@@ -1074,10 +1074,11 @@ extension Libxml2 {
                     element.forceWrapChildren(
                         intersectingRange: intersection,
                         inNodeNamed: nodeName,
-                        withAttributes: attributes)
+                        withAttributes: attributes,
+                        equivalentElementNames: equivalentElementNames)
                 }
             } else {
-                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
             }
         }
 
@@ -1113,13 +1114,13 @@ extension Libxml2 {
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
 
-                    wrap(range: preRange, inNodeNamed: name, withAttributes: attributes)
+                    wrap(range: preRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
 
-                    wrap(range: postRange, inNodeNamed: name, withAttributes: attributes)
+                    wrap(range: postRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
                 }
 
                 unwrapChildren()
@@ -1204,10 +1205,11 @@ extension Libxml2 {
                     element.forceWrapChildren(
                         intersectingRange: intersection,
                         inNodeNamed: nodeName,
-                        withAttributes: attributes)
+                        withAttributes: attributes,
+                        equivalentElementNames: equivalentElementNames)
                 }
             } else {
-                forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+                forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
             }
         }
 
@@ -1223,7 +1225,7 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
             
             if NSEqualRanges(targetRange, range()) {
                 
@@ -1238,7 +1240,7 @@ extension Libxml2 {
                 }
             }
 
-            forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes)
+            forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
         }
 
         /// Force wraps child nodes intersecting the specified range inside new elements with the
@@ -1253,7 +1255,7 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
                 
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
             assert(childNodesAndRanges.count > 0)
@@ -1278,7 +1280,7 @@ extension Libxml2 {
                 return child
             })
             
-            wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
+            wrap(children, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -1291,24 +1293,42 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created `ElementNode`.
         ///
-        func wrap(children: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) -> ElementNode {
+        func wrap(newChildren: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) -> ElementNode {
 
-            guard children.count > 0 else {
+            guard newChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
                 return ElementNode(name: nodeName, attributes: attributes, children: [])
             }
 
-            guard let insertionIndexOfNewNode = self.children.indexOf(children[0]) else {
+            guard let firstNodeIndex = children.indexOf(newChildren[0]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
-
-            let newNode = ElementNode(name: nodeName, attributes: attributes, children: children)
-
-            self.children.insert(newNode, atIndex: insertionIndexOfNewNode)
+            
+            guard let lastNodeIndex = newChildren.indexOf(newChildren[newChildren.count - 1]) else {
+                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
+            }
+            
+            if let leftSibling = find(leftAdjacentElementNamed: equivalentElementNames, relativeToChildAtIndex: firstNodeIndex) {
+                // Use left sibling
+                leftSibling
+                
+                let i = 1
+                i
+            } else if let rightSibling = find(rightAdjacentElementNamed: equivalentElementNames, relativeToChildAtIndex: lastNodeIndex) {
+                // Use right sibling
+                rightSibling
+                
+                let i = 1
+                i
+            }
+            
+            let newNode = ElementNode(name: nodeName, attributes: attributes, children: newChildren)
+            
+            children.insert(newNode, atIndex: firstNodeIndex)
             newNode.parent = self
-
-            remove(children, updateParent: false)
-
+            
+            remove(newChildren, updateParent: false)
+            
             return newNode
         }
     }
