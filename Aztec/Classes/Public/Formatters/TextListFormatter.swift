@@ -10,8 +10,8 @@ struct TextListFormatter
     ///
     /// - Parameters
     ///     - ofStyle: The kind of List to apply
-    ///     - range: The range at which to apply the list style.
-    ///     - string: The NSMutableAttributed string to modify.
+    ///     - inString: The NSMutableAttributed string to modify.
+    ///     - atRange: The range at which to apply the list style.
     ///
     /// - Returns: An NSRange representing the change to the attributed string.
     ///
