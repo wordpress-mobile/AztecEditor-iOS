@@ -76,7 +76,7 @@ private extension TextListFormatter
         for (index, range) in adjustedRanges.enumerate().reverse() {
             let number = index + number
             let unformatted = string.attributedSubstringFromRange(range)
-            let formatted = unformatted.attributedStringByAddingTextListItemAtributes(style, number: number)
+            let formatted = unformatted.attributedStringByApplyingListItemAttributes(ofStyle: style, withNumber: number)
             length += formatted.length
             string.replaceCharactersInRange(range, withAttributedString: formatted)
         }
@@ -120,7 +120,7 @@ private extension TextListFormatter
         var length = 0
         //- Iterate over affected paragraphs in reverse order.  Remove list marker and attributes
         for range in ranges.reverse() {
-            let clean = string.attributedSubstringFromRange(range).attributedStringByRemovingTextListItemAtributes()
+            let clean = string.attributedSubstringFromRange(range).attributedStringByRemovingListItemAttributes()
             length += clean.length
             string.replaceCharactersInRange(range, withAttributedString: clean)
         }
