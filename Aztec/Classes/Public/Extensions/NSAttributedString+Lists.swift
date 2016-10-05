@@ -173,59 +173,49 @@ extension NSAttributedString
     ///
     /// - Return: An NSAttributedString.
     ///
-    func attributedStringByAddingTextListItemAtributes(style: TextList.Style, number: Int) -> NSAttributedString {
-// TODO: Unit Test!
-        let output = NSMutableAttributedString(attributedString: self)
-
-        // Remove any existing list marker.
-        if output.length > 0 {
-            var markerRange = NSRange()
-            if let _ = output.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: output.rangeOfEntireString) {
-                output.removeAttribute(TextListItemMarker.attributeName, range: markerRange)
-                output.replaceCharactersInRange(markerRange, withString: String())
-            }
+    func attributedStringByApplyingListItemAttributes(ofStyle style: TextList.Style, withNumber number: Int) -> NSAttributedString {
+        // Begin by removing any existing list marker.
+        guard let output = attributedStringByRemovingListItemAttributes().mutableCopy() as? NSMutableAttributedString else {
+            return self
         }
 
         // TODO: Need to accomodate RTL languages too.
-
-        // Add the correct list marker. (Tabs aren't really reliable for spacing. Need a better solution.)
-        let markerText = style == .Ordered ? "\(number).\t" : "\u{2022}\t\t"
+        let markerText = style.markerText(forItemNumber: number)
         let markerAttributes = [TextListItemMarker.attributeName: TextListItemMarker()]
 
-        let markerAttributedString = NSAttributedString(string: markerText, attributes: markerAttributes)
-        output.insertAttributedString(markerAttributedString, atIndex: 0)
+        let markerAttributedText = NSAttributedString(string: markerText, attributes: markerAttributes)
+        output.insertAttributedString(markerAttributedText, atIndex: 0)
 
         // Set the attributes for the list item style
-        let textListItem = TextListItem()
-        textListItem.number = number
+        let listItem = TextListItem(number: number)
 
-        let textListAttributes: [String: AnyObject] = [
-            TextListItem.attributeName: textListItem,
-            NSParagraphStyleAttributeName: NSParagraphStyle.aztecDefaultParagraphStyle()
+        let listItemAttributes: [String: AnyObject] = [
+            TextListItem.attributeName: listItem,
+            NSParagraphStyleAttributeName: NSParagraphStyle.Aztec.defaultParagraphStyle
         ]
 
-        output.addAttributes(textListAttributes, range: output.rangeOfEntireString)
+        output.addAttributes(listItemAttributes, range: output.rangeOfEntireString)
 
         return output
     }
 
-
     /// Returns a new Attributed String, with the TextListItem formatting removed.
     ///
-    func attributedStringByRemovingTextListItemAtributes() -> NSAttributedString {
-// TODO: Unit Test!
+    func attributedStringByRemovingListItemAttributes() -> NSAttributedString {
         let clean = NSMutableAttributedString(attributedString: self)
 
         let range = clean.rangeOfEntireString
-        let attributes = [TextList.attributeName, TextListItem.attributeName, NSParagraphStyleAttributeName]
+        let attributes = [TextList.attributeName, TextListItem.attributeName]
+
         for name in attributes {
             clean.removeAttribute(name, range: range)
         }
 
-        // TODO: Might need to account for other indentation.
+        // Fall back to TextKit's default Paragraph Style
         let paragraphStyle = NSParagraphStyle()
         clean.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
 
+        // Nuke the Marker
         var markerRange = NSRange()
         if let _ = clean.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: range) {
             clean.replaceCharactersInRange(markerRange, withString: String())
