@@ -70,6 +70,57 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(node, mainNode)
     }
 
+    /// Whenever there's a single element node, make sure method `lowestTextNodeWrapping(range:)`
+    /// returns the text node, as expected.
+    ///
+    func testThatLowestTextNodeWrappingRangeWorksWithASingleElementNode() {
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here")
+        let text3 = TextNode(text: "text3 goes here")
+
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let range = NSRange(location: text1.length(), length: text2.length())
+
+        let node = mainNode.lowestTextNodeWrapping(range)
+
+        XCTAssertEqual(node, text2)
+    }
+
+    /// Whenever the range is inside a child node, make sure that child node is returned.
+    ///
+    func testThatLowestTextNodeWrappingRangeWorksWithAChildNode1() {
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here")
+        let text3 = TextNode(text: "text3 goes here")
+
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let range = NSRange(location: text1.length(), length: text2.length())
+
+        let node = mainNode.lowestTextNodeWrapping(range)
+
+        XCTAssertEqual(node, text2)
+    }
+
+    /// Whenever the range is not strictly inside any child node, make sure the parent node is
+    /// returned instead.
+    ///
+    func testThatLowestTextNodeWrappingRangeWorksWithAChildNode2() {
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here")
+        let text3 = TextNode(text: "text3 goes here")
+
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let range = NSRange(location: text1.length() - 1, length: text2.length() + 2)
+
+        let node = mainNode.lowestTextNodeWrapping(range)
+        
+        XCTAssertEqual(node, nil)
+    }
+
     /// Tries to obtain the lowest block-level elements intersecting the specified range.
     ///
     /// HTML string: <p>Hello <b>world</b>!</p>
@@ -1274,5 +1325,53 @@ class ElementNodeTests: XCTestCase {
                 XCTFail("Expected a text node, with the full text.")
                 return
         }
+    }
+
+    /// Tests `replaceCharacters(inRange:withNodeName:withAttributes)`.
+    ///
+    /// Input HTML: `<p>Look at this photo:image.It's amazing</p>`
+    /// - Range: the range of the image string.
+    /// - New Node: <img>
+    /// - Attributes:
+    ///
+    /// Expected results:
+    /// - Output: `<p>Look at this photo:<img src="https://httpbin.org/image/jpeg.It's amazing" /></p>`
+    ///
+    func testReplaceCharactersInRangeWithNode() {
+        let startText = "Look at this photo:"
+        let middleText = "image"
+        let endText = ".It's amazing"
+        let paragraphText = TextNode(text: startText + middleText + endText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText])
+
+        let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
+        let imgNodeName = "img"
+        let imgSrc = "https://httpbin.org/image/jpeg"
+
+        paragraph.replaceCharacters(inRange: range, withNodeNamed: imgNodeName, withAttributes:[Libxml2.StringAttribute(name:"src", value: imgSrc)])
+
+        XCTAssertEqual(paragraph.children.count, 3)
+
+        guard let startNode = paragraph.children[0] as? TextNode
+            where startNode.text() == startText else {
+
+                XCTFail("Expected a text node")
+                return
+        }
+
+        guard let imgNode = paragraph.children[1] as? ElementNode
+            where imgNode.name == imgNodeName else {
+
+                XCTFail("Expected a img node")
+                return
+        }
+
+        guard let endNode = paragraph.children[2] as? TextNode
+            where endNode.text() == endText else {
+
+                XCTFail("Expected a text node")
+                return
+        }
+
     }
 }
