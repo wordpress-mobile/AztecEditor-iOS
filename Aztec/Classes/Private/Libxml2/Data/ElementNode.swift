@@ -455,7 +455,7 @@ extension Libxml2 {
         }
 
         /// Returns the lowest-level text node in this node's hierarchy that wraps the specified
-        /// range.  If no child element node wraps the specified range, this method returns nil.
+        /// range.  If no child text node wraps the specified range, this method returns nil.
         ///
         /// - Parameters:
         ///     - range: the range we want to find the wrapping node of.
@@ -881,7 +881,31 @@ extension Libxml2 {
                 insert(string, atLocation: range.location)
             }
         }
-        
+
+        /// Replace characters in targetRange by a node with the name in nodeName and attributes
+        ///
+        /// - parameter targetRange: the range to replace
+        /// - parameter nodeName:    the name of the new node to create
+        /// - parameter attributes:  the attributes for the new node.
+        func replaceCharacters(inRange targetRange: NSRange, withNodeNamed nodeName: String, withAttributes attributes:[Attribute]) {
+            guard let textNode = lowestTextNodeWrapping(targetRange) else {
+                return
+            }
+            let absoluteLocation = textNode.absoluteLocation()
+            let localRange = NSRange(location:targetRange.location - absoluteLocation, length: targetRange.length)
+            textNode.split(forRange: localRange)
+            let imgNode = ElementNode(name: nodeName, attributes: attributes, children: [])
+            guard let index = textNode.parent?.children.indexOf(textNode) else {
+                assertionFailure("Can't remove a node that's not a child.")
+                return
+            }
+            guard let textNodeParent = textNode.parent else {
+                return
+            }
+            textNodeParent.insert(imgNode, at:index)
+            textNodeParent.remove(textNode)
+        }
+
         func split(atLocation location: Int) {
             
             guard location != 0 && location != length() - 1 else {
@@ -947,22 +971,6 @@ extension Libxml2 {
                 parent.insert(newElement, at: nodeIndex)
                 remove(preNodes, updateParent: false)
             }
-        }
-
-        func replace(range targetRange: NSRange, withNodeNamed nodeName: String, withAttributes attributes:[Attribute]) {
-            guard let textNode = lowestTextNodeWrapping(targetRange) else {
-                return
-            }
-            let absoluteLocation = textNode.absoluteLocation()
-            let localRange = NSRange(location:targetRange.location - absoluteLocation, length: targetRange.length)
-            textNode.split(forRange: localRange)
-            let imgNode = ElementNode(name: nodeName, attributes: attributes, children: [])
-            guard let index = textNode.parent?.children.indexOf(textNode) else {
-                assertionFailure("Can't remove a node that's not a child.")
-                return
-            }
-            textNode.parent?.insert(imgNode, at:index)
-            textNode.parent?.remove(textNode)
         }
 
         /// Wraps the specified range inside a node with the specified properties.
