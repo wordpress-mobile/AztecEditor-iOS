@@ -6,25 +6,27 @@ import UIKit
 //
 extension NSParagraphStyle
 {
-    private struct AztecDefaultStyle {
-        static let tabStepInterval = 8
-        static let tabStepCount    = 12
-    }
+    /// Aztec Awesomeness!
+    ///
+    struct Aztec {
+        static let defaultParagraphStyle: NSParagraphStyle = {
+            let style = NSMutableParagraphStyle()
 
-    static func aztecDefaultParagraphStyle() -> NSParagraphStyle {
-        let style = NSMutableParagraphStyle()
+            var tabStops = [NSTextTab]()
 
-        var tabStops = [NSTextTab]()
+            for intervalNumber in (1 ..< tabStepCount) {
+                let location = intervalNumber * tabStepInterval
+                let textTab = NSTextTab(textAlignment: .Natural, location: CGFloat(location), options: [:])
 
-        for intervalNumber in (1 ..< AztecDefaultStyle.tabStepCount) {
-            let location = intervalNumber * AztecDefaultStyle.tabStepInterval
-            let textTab = NSTextTab(textAlignment: .Natural, location: CGFloat(location), options: [:])
+                tabStops.append(textTab)
+            }
+            
+            style.tabStops = tabStops
+            
+            return style
+        }()
 
-            tabStops.append(textTab)
-        }
-
-        style.tabStops = tabStops
-
-        return style
+        private static let tabStepInterval = 8
+        private static let tabStepCount    = 12
     }
 }
