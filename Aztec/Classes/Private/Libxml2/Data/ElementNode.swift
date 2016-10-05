@@ -54,7 +54,7 @@ extension Libxml2 {
             /// Returns an array with all block-level elements.
             ///
             static func blockLevelNodeNames() -> [StandardName] {
-                return [.Address, .Blockquote, .Div, .Dl, .Fieldset, .Form, .H1, .H2, .H3, .H4, .H5, .H6, .Hr, .Noscript, .Ol, .P, .Pre, .Table, .Ul, .Img]
+                return [.Address, .Blockquote, .Div, .Dl, .Fieldset, .Form, .H1, .H2, .H3, .H4, .H5, .H6, .Hr, .Noscript, .Ol, .P, .Pre, .Table, .Ul]
             }
 
             static func isBlockLevelNodeName(name: String) -> Bool {
