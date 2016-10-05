@@ -454,6 +454,43 @@ extension Libxml2 {
             return self
         }
 
+        /// Returns the lowest-level text node in this node's hierarchy that wraps the specified
+        /// range.  If no child element node wraps the specified range, this method returns nil.
+        ///
+        /// - Parameters:
+        ///     - range: the range we want to find the wrapping node of.
+        ///
+        /// - Returns: the lowest-level text node wrapping the specified range, or nil if
+        ///         no child node fulfills the condition.
+        ///
+        func lowestTextNodeWrapping(range: NSRange) -> TextNode? {
+
+            var offset = 0
+
+            for child in children {
+                let length = child.length()
+                let nodeRange = NSRange(location: offset, length: length)
+                let nodeWrapsRange = (NSUnionRange(nodeRange, range).length == nodeRange.length)
+
+                if nodeWrapsRange {
+                    if let textNode = child as? TextNode {
+                        return textNode
+                    } else if let elementNode = child as? ElementNode {
+
+                        let childRange = NSRange(location: range.location - offset, length: range.length)
+
+                        return elementNode.lowestTextNodeWrapping(childRange)
+                    } else {
+                        return nil
+                    }
+                }
+
+                offset = offset + length
+            }
+            
+            return nil
+        }
+
         /// Calls this method to obtain all the leaf nodes containing a specified range.
         ///
         /// - Parameters:
@@ -912,6 +949,21 @@ extension Libxml2 {
             }
         }
 
+        func replace(range targetRange: NSRange, withNodeNamed nodeName: String, withAttributes attributes:[Attribute]) {
+            guard let textNode = lowestTextNodeWrapping(targetRange) else {
+                return
+            }
+            let absoluteLocation = textNode.absoluteLocation()
+            let localRange = NSRange(location:targetRange.location - absoluteLocation, length: targetRange.length)
+            textNode.split(forRange: localRange)
+            let imgNode = ElementNode(name: nodeName, attributes: attributes, children: [])
+            guard let index = textNode.parent?.children.indexOf(textNode) else {
+                assertionFailure("Can't remove a node that's not a child.")
+                return
+            }
+            textNode.parent?.insert(imgNode, at:index)
+            textNode.parent?.remove(textNode)
+        }
 
         /// Wraps the specified range inside a node with the specified properties.
         ///
