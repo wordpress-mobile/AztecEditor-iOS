@@ -416,6 +416,51 @@ class NSAttributedStringListsTests: XCTestCase {
             XCTAssertEqual(listParagraphRanges, retrievedRanges)
         }
     }
+
+    /// Tests that `attributedStringByApplyingListItemAttributes` effectively applies a TextListItem and + Marker.
+    ///
+    /// Set up:
+    /// - Plain raw string
+    ///
+    /// Expected result:
+    /// - TextListItem Style + Marker
+    ///
+    func testAttributedStringByApplyingListItemAttributesEffectivelyAppliesListItemStyle() {
+        let original = sampleSingleLine
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Ordered, withNumber: 5)
+
+        for index in (0 ..< applied.length) {
+            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNotNil(item)
+        }
+
+        let marker = applied.attribute(TextListItemMarker.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItemMarker
+        XCTAssertNotNil(marker)
+    }
+
+    /// Tests that `attributedStringByApplyingListItemAttributes` effectively removes the TextListItem Attribute.
+    ///
+    /// Set up:
+    /// - Attributed String with a TextItem style
+    ///
+    /// Expected result:
+    /// - No style after running the clean method
+    ///
+    func testAttributedStringByRemovingListItemAttributesEffectivelyNukesListItemStyle() {
+        let original = sampleSingleLine
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Unordered, withNumber: 2)
+        let clean = applied.attributedStringByRemovingListItemAttributes()
+
+        for index in (0 ..< applied.length) {
+            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNotNil(item)
+        }
+
+        for index in (0 ..< clean.length) {
+            let nothing = clean.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNil(nothing)
+        }
+    }
 }
 
 
