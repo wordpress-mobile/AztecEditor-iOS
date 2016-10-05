@@ -88,7 +88,6 @@ extension NSAttributedString
         var paragraphRanges = [NSRange]()
         let targetRange = rangeOfEntireString
 
-        let foundationString = string as NSString
         foundationString.enumerateSubstringsInRange(targetRange, options: .ByParagraphs) { (substring, substringRange, enclosingRange, stop) in
             // Stop if necessary.
             if enclosingRange.location >= NSMaxRange(range) {
@@ -180,11 +179,18 @@ extension NSAttributedString
         }
 
         // TODO: Need to accomodate RTL languages too.
-        let markerText = style.markerText(forItemNumber: number)
-        let markerAttributes = [TextListItemMarker.attributeName: TextListItemMarker()]
 
-        let markerAttributedText = NSAttributedString(string: markerText, attributes: markerAttributes)
-        output.insertAttributedString(markerAttributedText, atIndex: 0)
+        // Insert the range at the beginning of the string. 
+        // NOTE: We insert this as a plain string, so that Paragraph + Font styles get inherited.
+        //
+        let markerText = style.markerText(forItemNumber: number)
+        output.replaceCharactersInRange(NSRange.zero, withString: markerText)
+
+        // Apply Item Marker
+        let markerAttribute = TextListItemMarker()
+        let markerRange = output.foundationString.rangeOfString(markerText)
+
+        output.addAttribute(TextListItemMarker.attributeName, value: markerAttribute, range: markerRange)
 
         // Set the attributes for the list item style
         let listItem = TextListItem(number: number)
@@ -222,5 +228,11 @@ extension NSAttributedString
         }
 
         return clean
+    }
+
+    /// Internal convenience helper. Returns the internal string as a NSString instance
+    ///
+    private var foundationString: NSString {
+        return string as NSString
     }
 }
