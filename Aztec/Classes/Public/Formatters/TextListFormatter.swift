@@ -9,6 +9,7 @@ struct TextListFormatter
     /// Creates a new text list, or modifies an existing text list.
     ///
     /// - Parameters
+    ///     - ofStyle: The kind of List to apply
     ///     - range: The range at which to apply the list style.
     ///     - string: The NSMutableAttributed string to modify.
     ///
@@ -26,7 +27,7 @@ struct TextListFormatter
             case style:
                 return removeList(fromString: string, atRanges: ranges)
             default:
-                return updateList(ofStyle: style, atIndex: firstRange.location, inString: string)
+                return updateList(inString: string, atIndex: firstRange.location, toStyle: style)
             }
         }
 
@@ -36,7 +37,7 @@ struct TextListFormatter
             return paragraphListStyle == nil || paragraphListStyle == style
         }
 
-        return applyList(ofStyle: style, atRanges: filtered, toString: string)
+        return applyList(ofStyle: style, toString: string, atRanges: filtered)
     }
 }
 
@@ -49,14 +50,14 @@ private extension TextListFormatter
     /// specified string. Each paragraph range is treated as a list item.
     ///
     /// - Parameters:
-    ///     - kind: The kind of List to apply
-    ///     - ranges: The paragraph ranges to operate upon. Each range becomes a list item.
-    ///     - string: The NSMutableAttributedString to manipulate.
-    ///     - startingNumber: The starting item number for an ordered list.
+    ///     - ofStyle: The kind of List to apply
+    ///     - toString: The NSMutableAttributedString to manipulate.
+    ///     - atRanges: The paragraph ranges to operate upon. Each range becomes a list item.
+    ///     - startingAt: The starting item number for an ordered list.
     ///
     /// - Returns: The affected NSRange, or nil if no changes were made.
     ///
-    func applyList(ofStyle style: TextList.Style, atRanges range: [NSRange], toString string: NSMutableAttributedString, startingAt number: Int = 1) -> NSRange? {
+    func applyList(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atRanges range: [NSRange], startingAt number: Int = 1) -> NSRange? {
         // Adjust Ranges: Add preceeding + following ranges, if needed
         let adjustedRanges = string.paragraphRanges(preceedingAndSucceding: range, matchingListStyle: style)
         guard let startingLocation = adjustedRanges.first?.location else {
@@ -93,8 +94,8 @@ private extension TextListFormatter
     /// Removes TextList attributes from the specified ranges in the specified string.
     ///
     /// - Parameters:
-    ///     - ranges: The ranges to modify.
-    ///     - attrString: The NSMutableAttributed string to modify.
+    ///     - froMString: The NSMutableAttributed string to modify.
+    ///     - atRanges: The ranges to modify.
     ///
     /// - Returns: The NSRange of the changes.
     ///
@@ -131,7 +132,7 @@ private extension TextListFormatter
         let followingIdx = NSMaxRange(adjustedRange) + 1 // Add two. if just one we're pointing at the newline character and we'll end up captureing the paragraph range we just edited.
         if followingIdx < string.length {
             if let list = string.textListAttribute(atIndex: followingIdx) {
-                updateList(ofStyle: list.style, atIndex: followingIdx, inString: string)
+                updateList(inString: string, atIndex: followingIdx, toStyle: list.style)
             }
         }
 
@@ -142,11 +143,11 @@ private extension TextListFormatter
     /// Updates the TextListTpe for a TextList at the specified index.
     ///
     /// - Parameters:
-    ///     - style: The type of list to become.
-    ///     - atIndex: An index intersecting the TextList within `attrString`.
     ///     - inString: An NSMutableAttributedString to modify.
+    ///     - atIndex: An index intersecting the TextList within `attrString`.
+    ///     - toStyle: The type of list to become.
     ///
-    func updateList(ofStyle style: TextList.Style, atIndex index: Int, inString string: NSMutableAttributedString) -> NSRange? {
+    func updateList(inString string: NSMutableAttributedString, atIndex index: Int, toStyle style: TextList.Style) -> NSRange? {
         // TODO: Confirm using longest effective range is actually safe. We don't want to consume neighboring
         // lists of a different type.
         // (NOTE: probably not an issue when searching for custom aztec markup attributes?)
@@ -156,6 +157,6 @@ private extension TextListFormatter
         }
 
         let paragraphRanges = string.paragraphRanges(spanningRange: listRange)
-        return applyList(ofStyle: style, atRanges: paragraphRanges, toString: string)
+        return applyList(ofStyle: style, toString: string, atRanges: paragraphRanges)
     }
 }
