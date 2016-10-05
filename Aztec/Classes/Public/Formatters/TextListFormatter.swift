@@ -64,27 +64,27 @@ private extension TextListFormatter
             return nil
         }
 
-        //
+
+        // TextListItem: Apply to each one of the paragraphs
         var length = 0
 
         string.beginEditing()
-        //- Filter out other elements (blockquote, p, h1, h2, h3, etc.) from each paragraph. Each “paragraph” should be vanilla
-        // TODO:
 
-
-        //- Iterate over affected paragraphs in reverse order.  Insert/replace list marker (attributes) into string and assign list item.
         for (index, range) in adjustedRanges.enumerate().reverse() {
             let number = index + number
             let unformatted = string.attributedSubstringFromRange(range)
             let formatted = unformatted.attributedStringByApplyingListItemAttributes(ofStyle: style, withNumber: number)
-            length += formatted.length
+
             string.replaceCharactersInRange(range, withAttributedString: formatted)
+            length += formatted.length
         }
 
+        // TextList: Apply Attribute
         let textList = TextList(style: style)
         let listRange = NSRange(location: startingLocation, length: length)
         string.addAttribute(TextList.attributeName, value: textList, range: listRange)
 
+        // Done!
         string.endEditing()
 
         return listRange
@@ -104,36 +104,32 @@ private extension TextListFormatter
             return nil
         }
 
-        var listRangeLength = 0
-        for range in ranges {
-            listRangeLength += range.length
-        }
-        let fullRange = NSRange(location: firstRange.location, length: listRangeLength)
+        // Nuke TextList Attribute
+        let listLength = ranges.reduce(0) { return $1.length }
+        let listRange = NSRange(location: firstRange.location, length: listLength)
 
-        string.removeAttribute(TextList.attributeName, range: fullRange)
-        string.removeAttribute(TextListItem.attributeName, range: fullRange)
+        string.removeAttribute(TextList.attributeName, range: listRange)
 
-        // For the same type of list, we'll remove the list style. A bit tricky.  We need to remove the style
-        // (and attributes) from the selected paragraph ranges, then if the following range was an ordered list,
-        // we need to update its markers. (Maybe some other attribute clean up?)
-
+        // Nuke TextListItem + TextListMarker Attributes
         var length = 0
-        //- Iterate over affected paragraphs in reverse order.  Remove list marker and attributes
+
         for range in ranges.reverse() {
-            let clean = string.attributedSubstringFromRange(range).attributedStringByRemovingListItemAttributes()
-            length += clean.length
+            let formatted = string.attributedSubstringFromRange(range)
+            let clean = formatted.attributedStringByRemovingListItemAttributes()
+
             string.replaceCharactersInRange(range, withAttributedString: clean)
+            length += clean.length
         }
 
+// TODO: Why is this needed?
         let adjustedRange = NSRange(location: firstRange.location, length: length)
         string.fixAttributesInRange(adjustedRange)
 
-        // Update the following list if necessary.
-        let followingIdx = NSMaxRange(adjustedRange) + 1 // Add two. if just one we're pointing at the newline character and we'll end up captureing the paragraph range we just edited.
-        if followingIdx < string.length {
-            if let list = string.textListAttribute(atIndex: followingIdx) {
-                updateList(inString: string, atIndex: followingIdx, toStyle: list.style)
-            }
+        // Update its markers if the following range was an ordered list
+        let followingIndex = NSMaxRange(adjustedRange) + 1 // Add two. if just one we're pointing at the newline character and we'll end up captureing the paragraph range we just edited.
+
+        if followingIndex < string.length, let list = string.textListAttribute(atIndex: followingIndex) {
+            updateList(inString: string, atIndex: followingIndex, toStyle: list.style)
         }
 
         return adjustedRange
