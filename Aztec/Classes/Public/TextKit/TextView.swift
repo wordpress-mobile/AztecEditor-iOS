@@ -424,7 +424,7 @@ public class TextView: UITextView {
         let wrappingRange = NSMakeRange(position, attachmentString.length)
         storage.insertImage(url, forRange:wrappingRange)
         // Move the cursor after the attachment
-        let selectionRange = NSMakeRange(position + attachmentString.length + 1, 0)
+        let selectionRange = NSMakeRange(position + attachmentString.length, 0)
         selectedRange = selectionRange
     }
 
