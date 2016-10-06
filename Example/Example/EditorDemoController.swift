@@ -592,7 +592,16 @@ private extension EditorDemoController
 {
     func insertImage(image: UIImage) {
         let index = richTextView.positionForCursor()
-        richTextView.insertImage(image, index: index)
+        let fileName = "\(NSProcessInfo.processInfo().globallyUniqueString)_file.jpg"
+        guard
+            let data = UIImageJPEGRepresentation(image, 0.9),
+            let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(fileName)
+            else {
+            return
+        }
+
+        data.writeToURL(fileURL, atomically:true)
+        richTextView.insert(image: image, withURL: fileURL, atPosition: index)
     }
 
     func displayDetailsForAttachment(attachment: TextAttachment) {

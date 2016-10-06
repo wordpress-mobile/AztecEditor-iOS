@@ -37,6 +37,26 @@ extension Libxml2 {
             return ""
         }
 
+        /// Finds the absolute location of a node inside a tree.
+        func absoluteLocation() -> Int {
+            var currentParent = self.parent
+            var currentNode = self
+            var absoluteLocation = 0
+            while currentParent != nil {
+                let certainParent = currentParent!
+                for child in certainParent.children {
+                    if child !== currentNode {
+                        absoluteLocation += child.length()
+                    } else {
+                        currentNode = certainParent
+                        currentParent = certainParent.parent
+                        break
+                    }
+                }
+            }
+            return absoluteLocation
+        }
+
         // MARK: - DOM Queries
 
         /// Retrieve all element nodes between the receiver and the root node.

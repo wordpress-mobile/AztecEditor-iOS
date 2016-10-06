@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension Libxml2 {
 
@@ -31,6 +32,7 @@ extension Libxml2 {
             case H6 = "h6"
             case Hr = "hr"
             case I = "i"
+            case Img = "img"
             case Li = "li"
             case Noscript = "noscript"
             case Ol = "ol"
@@ -62,6 +64,16 @@ extension Libxml2 {
             func isBlockLevelNodeName() -> Bool {
                 return self.dynamicType.blockLevelNodeNames().contains(self)
             }
+            
+            /// Some nodes have a default representation.
+            ///
+            func defaultVisualRepresentation() -> String? {
+                if self == .Img {
+                    return String(UnicodeScalar(NSAttachmentCharacter))
+                }
+                
+                return nil
+            }
         }
 
         class Equivalence {
@@ -83,9 +95,9 @@ extension Libxml2 {
             }
         }
 
-        init(name: String, attributes: [Attribute], children: [Node]) {
-            self.children = children
+        init(name: String, attributes: [Attribute], text: String? = nil, children: [Node]) {
             self.attributes.appendContentsOf(attributes)
+            self.children = children
 
             super.init(name: name)
 
@@ -108,14 +120,7 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            
-            var length = 0
-            
-            for child in children {
-                length += child.length()
-            }
-            
-            return length
+            return text().characters.count
         }
 
         // MARK: - Node Queries
@@ -449,6 +454,43 @@ extension Libxml2 {
             return self
         }
 
+        /// Returns the lowest-level text node in this node's hierarchy that wraps the specified
+        /// range.  If no child text node wraps the specified range, this method returns nil.
+        ///
+        /// - Parameters:
+        ///     - range: the range we want to find the wrapping node of.
+        ///
+        /// - Returns: the lowest-level text node wrapping the specified range, or nil if
+        ///         no child node fulfills the condition.
+        ///
+        func lowestTextNodeWrapping(range: NSRange) -> TextNode? {
+
+            var offset = 0
+
+            for child in children {
+                let length = child.length()
+                let nodeRange = NSRange(location: offset, length: length)
+                let nodeWrapsRange = (NSUnionRange(nodeRange, range).length == nodeRange.length)
+
+                if nodeWrapsRange {
+                    if let textNode = child as? TextNode {
+                        return textNode
+                    } else if let elementNode = child as? ElementNode {
+
+                        let childRange = NSRange(location: range.location - offset, length: range.length)
+
+                        return elementNode.lowestTextNodeWrapping(childRange)
+                    } else {
+                        return nil
+                    }
+                }
+
+                offset = offset + length
+            }
+            
+            return nil
+        }
+
         /// Calls this method to obtain all the leaf nodes containing a specified range.
         ///
         /// - Parameters:
@@ -506,6 +548,10 @@ extension Libxml2 {
         
         override func text() -> String {
             var text = ""
+            
+            if let representation = standardName?.defaultVisualRepresentation() {
+                text = representation
+            }
             
             for child in children {
                 text = text + child.text()
@@ -773,8 +819,8 @@ extension Libxml2 {
         ///
         func insert(string: String, atLocation location: Int) {
             let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
-
-            guard blockLevelElementsAndIntersections.count == 1 else {
+            
+            guard blockLevelElementsAndIntersections.count > 0 else {
                 fatalError("We should have exactly one block-level element here.")
             }
 
@@ -831,11 +877,35 @@ extension Libxml2 {
                 }
             }
             
-            if !inheritStyle {
+            if !inheritStyle && string.characters.count > 0 {
                 insert(string, atLocation: range.location)
             }
         }
-        
+
+        /// Replace characters in targetRange by a node with the name in nodeName and attributes
+        ///
+        /// - parameter targetRange: the range to replace
+        /// - parameter nodeName:    the name of the new node to create
+        /// - parameter attributes:  the attributes for the new node.
+        func replaceCharacters(inRange targetRange: NSRange, withNodeNamed nodeName: String, withAttributes attributes:[Attribute]) {
+            guard let textNode = lowestTextNodeWrapping(targetRange) else {
+                return
+            }
+            let absoluteLocation = textNode.absoluteLocation()
+            let localRange = NSRange(location:targetRange.location - absoluteLocation, length: targetRange.length)
+            textNode.split(forRange: localRange)
+            let imgNode = ElementNode(name: nodeName, attributes: attributes, children: [])
+            guard let index = textNode.parent?.children.indexOf(textNode) else {
+                assertionFailure("Can't remove a node that's not a child.")
+                return
+            }
+            guard let textNodeParent = textNode.parent else {
+                return
+            }
+            textNodeParent.insert(imgNode, at:index)
+            textNodeParent.remove(textNode)
+        }
+
         func split(atLocation location: Int) {
             
             guard location != 0 && location != length() - 1 else {
@@ -902,7 +972,6 @@ extension Libxml2 {
                 remove(preNodes, updateParent: false)
             }
         }
-
 
         /// Wraps the specified range inside a node with the specified properties.
         ///
@@ -1027,16 +1096,11 @@ extension Libxml2 {
         /// Wraps child nodes intersecting the specified range inside new elements with the
         /// specified properties.
         ///
-        /// - Important: this method doesn't check if the child nodes are block-level elements or
-        ///         not.  If you need to check for block level elements, you must obtain them
-        ///         before calling this method.
-        ///
         /// - Parameters:
         ///     - targetRange: the range that must be wrapped.
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
-        ///     - checkBlockLevel: if `true`, this method will check if its necessary to find the
-        ///             lowest block-level element nodes before doing the wrapping.
+        ///     - equivalentElementNames: equivalent node names to check for collisions.
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
             
@@ -1098,44 +1162,31 @@ extension Libxml2 {
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
         private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
-
+                
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
             assert(childNodesAndRanges.count > 0)
-
-            if childNodesAndRanges.count == 1 {
-                let childData = childNodesAndRanges[0]
-                let childNode = childData.child
-                let intersection = childData.intersection
-
-                if let childElement = childNode as? ElementNode {
-                    childElement.forceWrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
-                } else if let childTextNode = childNode as? TextNode {
-                    childTextNode.wrap(range: intersection, inNodeNamed: nodeName, withAttributes: attributes)
-                } else {
-                    childNode.wrap(inNodeNamed: nodeName)
-                }
-            } else if childNodesAndRanges.count > 1 {
-
-                let firstChild = childNodesAndRanges[0].child
-                let firstChildIntersection = childNodesAndRanges[0].intersection
-
-                if let firstEditableChild = firstChild as? EditableNode where !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                    firstEditableChild.split(forRange: firstChildIntersection)
-                }
-
+            
+            let firstChild = childNodesAndRanges[0].child
+            let firstChildIntersection = childNodesAndRanges[0].intersection
+            
+            if let firstEditableChild = firstChild as? EditableNode where !NSEqualRanges(firstChild.range(), firstChildIntersection) {
+                firstEditableChild.split(forRange: firstChildIntersection)
+            }
+            
+            if childNodesAndRanges.count > 1 {
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
-
+                
                 if let lastEditableChild = lastChild as? EditableNode where !NSEqualRanges(lastChild.range(), lastChildIntersection) {
                     lastEditableChild.split(forRange: lastChildIntersection)
                 }
-
-                let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
-                    return child
-                })
-
-                wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
             }
+            
+            let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
+                return child
+            })
+            
+            wrap(children, inNodeNamed: nodeName, withAttributes: attributes)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.

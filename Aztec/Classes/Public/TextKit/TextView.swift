@@ -419,26 +419,27 @@ public class TextView: UITextView {
 
     // MARK: - Embeds
 
-
     /// Inserts an image at the specified index
     ///
     /// - Parameters:
-    ///     - path: The path of the image to be inserted.
-    ///     - index: The character index at which to insert the image.
+    ///     - image: the image object to be inserted.
+    ///     - wihtUrl: The url of the image to be inserted.
+    ///     - atPosition: The character index at which to insert the image.
     ///
-    public func insertImage(image: UIImage, index: Int) {
+    public func insert(image image:UIImage, withURL url: NSURL, atPosition position: Int) {
         let identifier = NSUUID().UUIDString
         let attachment = TextAttachment(identifier: identifier)
-        attachment.kind = .Image
+        attachment.kind = .RemoteImageDownloaded(url: url, image:image)
         attachment.image = image
 
         // Inject the Attachment and Layout
-        let insertionRange = NSMakeRange(index, 0)
+        let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         textStorage.replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
-
+        let wrappingRange = NSMakeRange(position, attachmentString.length)
+        storage.insertImage(url, forRange:wrappingRange)
         // Move the cursor after the attachment
-        let selectionRange = NSMakeRange(index + attachmentString.length + 1, 0)
+        let selectionRange = NSMakeRange(position + attachmentString.length, 0)
         selectedRange = selectionRange
     }
 
