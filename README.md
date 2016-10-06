@@ -1,4 +1,8 @@
-# WordPress-Aztec-iOS
+# Aztec for iOS: Native HTML Editor
+
+<p align="center">
+<img width=200px height=200px src="RepoAssets/aztec.png" alt="Aztec's Logo'"/>
+</p>
 
 [![CI Status](http://img.shields.io/travis/Diego Rey Mendez/WordPress-Aztec-iOS.svg?style=flat)](https://travis-ci.org/Diego Rey Mendez/WordPress-Aztec-iOS)
 [![Version](https://img.shields.io/cocoapods/v/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
