@@ -113,11 +113,8 @@ private extension TextListFormatter
             length += clean.length
         }
 
-// TODO: Why is this needed?
-        let adjustedRange = NSRange(location: firstRange.location, length: length)
-        string.fixAttributesInRange(adjustedRange)
-
         // Update the (SUCCEDING) List, if needed.
+        let adjustedRange = NSRange(location: firstRange.location, length: length)
         updateList(inString: string, succeedingRange: adjustedRange)
 
         return adjustedRange

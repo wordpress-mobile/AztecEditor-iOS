@@ -320,6 +320,7 @@ public class TextView: UITextView {
         let listRange = rangeForTextList(range)
         let formatter = TextListFormatter()
         formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: listRange)
+// TODO: Update selected range
     }
 
 
@@ -332,6 +333,7 @@ public class TextView: UITextView {
         let listRange = rangeForTextList(range)
         let formatter = TextListFormatter()
         formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: listRange)
+// TODO: Update selected range
     }
 
 
