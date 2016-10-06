@@ -27,17 +27,12 @@ struct TextListFormatter
             case style:
                 return removeList(fromString: string, atRanges: ranges)
             default:
-                return updateList(inString: string, atIndex: firstRange.location, toStyle: style)
+                return applyList(ofStyle: style, toString: string, atRanges: ranges)
             }
         }
 
         // Check the paragraphs at each range. If any have the opposite list style remove that range.
-        let filtered = ranges.filter { range in
-            let paragraphListStyle = string.textListAttribute(atIndex: range.location)?.style
-            return paragraphListStyle == nil || paragraphListStyle == style
-        }
-
-        return applyList(ofStyle: style, toString: string, atRanges: filtered)
+        return applyList(ofStyle: style, toString: string, atRanges: ranges)
     }
 }
 
