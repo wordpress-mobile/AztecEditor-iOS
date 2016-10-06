@@ -1374,4 +1374,18 @@ class ElementNodeTests: XCTestCase {
         }
 
     }
+
+    // MARK: - Bug fixes
+    // https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90
+    func testInsertNewlineAfterDivShouldNotCrash() {
+        let text1 = "This is a paragraph in a div"
+        let text2 = "\nThis is some unwrapped text"
+        let divText = TextNode(text: text1)
+        let div = ElementNode(name: "div", attributes: [], children: [divText])
+        let unwrappedText = TextNode(text: text2)
+        let rootNode = RootNode(children: [div, unwrappedText])
+        let location = text1.characters.count
+
+        rootNode.insert("\n", atLocation: location)
+    }
 }
