@@ -22,13 +22,8 @@ struct TextListFormatter
         }
 
         // Existing list: Same kind? > remove. Else > Apply!
-        if let list = string.textListAttribute(atIndex: firstRange.location) {
-            switch list.style {
-            case style:
-                return removeList(fromString: string, atRanges: ranges)
-            default:
-                return applyList(ofStyle: style, toString: string, atRanges: ranges)
-            }
+        if let list = string.textListAttribute(atIndex: firstRange.location) where list.style == style {
+            return removeList(fromString: string, atRanges: ranges)
         }
 
         // Check the paragraphs at each range. If any have the opposite list style remove that range.
@@ -78,8 +73,11 @@ private extension TextListFormatter
         let listRange = NSRange(location: startingLocation, length: length)
         string.addAttribute(TextList.attributeName, value: textList, range: listRange)
 
-        // Done!
+        // Done Editing!
         string.endEditing()
+
+        // Update the (SUCCEDING) List, if needed.
+        updateList(inString: string, succeedingRange: listRange)
 
         return listRange
     }
@@ -119,12 +117,8 @@ private extension TextListFormatter
         let adjustedRange = NSRange(location: firstRange.location, length: length)
         string.fixAttributesInRange(adjustedRange)
 
-        // Update its markers if the following range was an ordered list
-        let followingIndex = NSMaxRange(adjustedRange) + 1 // Add two. if just one we're pointing at the newline character and we'll end up captureing the paragraph range we just edited.
-
-        if followingIndex < string.length, let list = string.textListAttribute(atIndex: followingIndex) {
-            updateList(inString: string, atIndex: followingIndex, toStyle: list.style)
-        }
+        // Update the (SUCCEDING) List, if needed.
+        updateList(inString: string, succeedingRange: adjustedRange)
 
         return adjustedRange
     }
@@ -137,16 +131,15 @@ private extension TextListFormatter
     ///     - atIndex: An index intersecting the TextList within `attrString`.
     ///     - toStyle: The type of list to become.
     ///
-    func updateList(inString string: NSMutableAttributedString, atIndex index: Int, toStyle style: TextList.Style) -> NSRange? {
-        // TODO: Confirm using longest effective range is actually safe. We don't want to consume neighboring
-        // lists of a different type.
-        // (NOTE: probably not an issue when searching for custom aztec markup attributes?)
-        //
-        guard let listRange = string.rangeOfTextList(atIndex: index) else {
-            return nil
+    func updateList(inString string: NSMutableAttributedString, succeedingRange range: NSRange) {
+        // Update its markers if the following range was an ordered list
+        let nextListIndex = NSMaxRange(range) + 1
+
+        guard let nextListAttribute = string.textListAttribute(atIndex: nextListIndex) where nextListAttribute.style != .Unordered else {
+            return
         }
 
-        let paragraphRanges = string.paragraphRanges(spanningRange: listRange)
-        return applyList(ofStyle: style, toString: string, atRanges: paragraphRanges)
+        let nextListParagraphs = string.paragraphRanges(atIndex: nextListIndex, matchingListStyle: nextListAttribute.style)
+        applyList(ofStyle: nextListAttribute.style, toString: string, atRanges: nextListParagraphs)
     }
 }

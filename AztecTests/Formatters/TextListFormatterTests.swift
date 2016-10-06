@@ -1,4 +1,5 @@
 import XCTest
+@testable import Aztec
 
 
 // MARK: - TextListFormatter Tests
@@ -240,6 +241,43 @@ class TextListFormatterTests: XCTestCase
         for (index, item) in items.enumerate() {
             XCTAssert(item.number == index + 1)
         }
+    }
+
+    // Scenario 6:
+    // ===========
+    //
+    //  Line 1:     1 [Text]            - [Text]
+    //  Line 2:     2 [Text]            1 [Text]
+    //  Line 3:     3 [Text]    > > >   2 [Text]
+    //  Line 4:     4 [Text]            3 [Text]
+    //  Line 5:     5 [Text]            4 [Text]
+    //
+    // Toggling "Unordered List" on Line 1 should update Lines 2-5, and toggle Line 1.
+    //
+    func testToggleUnorderedListOnFirstOrderedListItemUpdatesTheRemainingItemNumbers() {
+        let list = listWithOrderedStyle
+        let ranges = paragraphRanges(inString: list)
+
+        let formatter = TextListFormatter()
+        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: ranges[0])
+
+        let lists = textListAttributes(inString: list, atRanges: ranges)
+        let items = textListItemAttributes(inString: list, atRanges: ranges)
+
+        XCTAssert(lists.count == 5)
+        XCTAssert(items.count == 5)
+
+
+        XCTAssert(lists[0].style == .Unordered)
+        XCTAssert(lists[1].style == .Ordered)
+        XCTAssert(lists[2].style == .Ordered)
+        XCTAssert(lists[3].style == .Ordered)
+        XCTAssert(lists[4].style == .Ordered)
+
+        XCTAssert(items[1].number == 1)
+        XCTAssert(items[2].number == 2)
+        XCTAssert(items[3].number == 3)
+        XCTAssert(items[4].number == 4)
     }
 }
 
