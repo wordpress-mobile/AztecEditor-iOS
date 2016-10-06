@@ -803,7 +803,7 @@ class ElementNodeTests: XCTestCase {
         
         let wrapRange = NSRange(location: 0, length: text1.characters.count)
         
-        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [], equivalentElementNames: [])
         
         XCTAssertEqual(paragraph.children.count, 2)
         
@@ -837,7 +837,7 @@ class ElementNodeTests: XCTestCase {
         
         let wrapRange = NSRange(location: 0, length: fullText.characters.count)
         
-        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [], equivalentElementNames: [])
         
         XCTAssertEqual(paragraph.children.count, 1)
         
@@ -849,8 +849,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(newBoldNode.text(), fullText)
     }
-    
-/*
+
     /// Tests force-wrapping child nodes intersecting a certain range in a new node.
     ///
     /// HTML String: <div><b>Hello</b> there!</div>
@@ -868,7 +867,7 @@ class ElementNodeTests: XCTestCase {
 
         let wrapRange = NSRange(location: text1.characters.count, length: text2.characters.count)
 
-        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [])
+        paragraph.forceWrap(range: wrapRange, inNodeNamed: "b", withAttributes: [], equivalentElementNames: [])
 
         XCTAssertEqual(paragraph.children.count, 1)
 
@@ -881,8 +880,7 @@ class ElementNodeTests: XCTestCase {
         let fullText = "\(text1)\(text2)"
         XCTAssertEqual(newBoldNode.text(), fullText)
     }
- */
-    
+
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
     /// HTML String: <div><em>Hello </em>there!</div>
@@ -1580,7 +1578,156 @@ class ElementNodeTests: XCTestCase {
                 XCTFail("Expected a text node")
                 return
         }
-
+    }
+    
+    // MARK: - pushUp(rightSideDescendantEvaluatedBy:)
+    
+    
+    /// Tests that `pushUp(leftSideDescendantEvaluatedBy:)` works.
+    ///
+    /// Push the node named "b" up to the level of the "strike" node.
+    ///
+    /// Input HTML: `<p><strike><b>Hello </b>there!<strike></p>`
+    /// - Evaluation criteria: node.name == "b"
+    ///
+    /// Expected results:
+    /// - Output: `<p><b><strike>Hello </strike></b><strike>there!</strike></p>`
+    ///
+    func testPushUpLeftSideDescendant() {
+        
+        let text1 = TextNode(text: "Hello ")
+        let text2 = TextNode(text: "there!")
+        let bold = ElementNode(name: "b", attributes: [], children: [text1])
+        let strike = ElementNode(name: "strike", attributes: [], children: [bold, text2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        
+        let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
+            return node.name == "b"
+        })
+        
+        XCTAssertEqual(paragraph.children.count, 2)
+        
+        guard let outBold = paragraph.children[0] as? ElementNode
+            where outBold.name == "b" else {
+                XCTFail("Expected a bold node here.")
+                return
+        }
+        
+        XCTAssertEqual(result, outBold)
+        XCTAssertEqual(outBold.text(), text1.text())
+        XCTAssertEqual(outBold.children.count, 1)
+        
+        guard let outStrike2 = outBold.children[0] as? ElementNode
+            where outStrike2.name == "strike" else {
+                XCTFail("Expected a strike node.")
+                return
+        }
+        
+        guard let outStrike1 = paragraph.children[1] as? ElementNode
+            where outStrike1.name == "strike" else {
+                XCTFail("Expected a strike node.")
+                return
+        }
+        
+        XCTAssertEqual(outStrike1.children.count, 1)
+        XCTAssertEqual(outStrike1.children[0], text2)
+    }
+    
+    /// Tests that `pushUp(leftSideDescendantEvaluatedBy:)` works.
+    ///
+    /// Should find no node to push up.
+    ///
+    /// Input HTML: `<p><strike><b>Hello </b>there!<strike></p>`
+    /// - Evaluation criteria: node.name == "b"
+    ///
+    /// Expected results:
+    /// - No node should be returned.
+    ///
+    func testPushUpLeftSideDescendantWithNilResult() {
+        
+        let text = TextNode(text: "Hello there!")
+        let strike = ElementNode(name: "strike", attributes: [], children: [text])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        paragraph // Hack to silence the compiler since paragraph is not used. (we still need it)
+        
+        let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
+            return node.name == "b"
+        })
+        
+        XCTAssertNil(result)
+    }
+    
+    /// Tests that `pushUp(rightSideDescendantEvaluatedBy:)` works.
+    ///
+    /// Push the node named "b" up to the level of the "strike" node.
+    ///
+    /// Input HTML: `<p><strike>Hello <b>there!</b><strike></p>`
+    /// - Evaluation criteria: node.name == "b"
+    ///
+    /// Expected results:
+    /// - Output: `<p><strike>Hello </strike><b><strike>there!</strike></b></p>`
+    ///
+    func testPushUpRightSideDescendant() {
+        
+        let text1 = TextNode(text: "Hello ")
+        let text2 = TextNode(text: "there!")
+        let bold = ElementNode(name: "b", attributes: [], children: [text2])
+        let strike = ElementNode(name: "strike", attributes: [], children: [text1, bold])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        
+        strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
+            return node.name == "b"
+        })
+        
+        XCTAssertEqual(paragraph.children.count, 2)
+        
+        guard let outStrike1 = paragraph.children[0] as? ElementNode
+            where outStrike1.name == "strike" else {
+                XCTFail("Expected a strike node.")
+                return
+        }
+        
+        XCTAssertEqual(outStrike1.children.count, 1)
+        XCTAssertEqual(outStrike1.children[0], text1)
+        
+        guard let outBold = paragraph.children[1] as? ElementNode
+            where outBold.name == "b" else {
+                XCTFail("Expected a bold node here.")
+                return
+        }
+        
+        XCTAssertEqual(outBold.text(), text2.text())
+        XCTAssertEqual(outBold.children.count, 1)
+        
+        guard let outStrike2 = outBold.children[0] as? ElementNode
+            where outStrike2.name == "strike" else {
+                XCTFail("Expected a strike node.")
+                return
+        }
+    }
+    
+    /// Tests that `pushUp(rightSideDescendantEvaluatedBy:)` works.
+    ///
+    /// Should find no node to push up.
+    ///
+    /// Input HTML: `<p><strike>Hello there!<strike></p>`
+    /// - Evaluation criteria: node.name == "b"
+    ///
+    /// Expected results:
+    /// - No node should be returned.
+    ///
+    func testPushUpRightSideDescendantWithNilResult() {
+        
+        let text = TextNode(text: "Hello there!")
+        let strike = ElementNode(name: "strike", attributes: [], children: [text])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        paragraph // Hack to silence the compiler since paragraph is not used. (we still need it)
+        
+        let result = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
+            return node.name == "b"
+        })
+        
+        XCTAssertNil(result)
     }
 
     // MARK: - Bug fixes

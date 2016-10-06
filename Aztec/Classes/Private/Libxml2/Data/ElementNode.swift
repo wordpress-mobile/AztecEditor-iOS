@@ -546,6 +546,34 @@ extension Libxml2 {
             return results
         }
         
+        func sibling<T: Node>(atLeftSideOfChildIndex index: Int, bailIfSiblingIsBlockLevel: Bool) -> T? {
+            
+            guard index >= 0 && index < children.count else {
+                fatalError("Out of bounds!")
+            }
+            
+            guard index > 0,
+                let sibling = children[index - 1] as? T else {
+                    return nil
+            }
+            
+            return sibling
+        }
+        
+        func sibling<T: Node>(atRightSideOfChildIndex index: Int, bailIfSiblingIsBlockLevel: Bool) -> T? {
+            
+            guard index >= 0 && index < children.count else {
+                fatalError("Out of bounds!")
+            }
+            
+            guard index < children.count - 1,
+                let sibling = children[index + 1] as? T else {
+                    return nil
+            }
+            
+            return sibling
+        }
+        
         /// Conveniece method to call `find(leftAdjacentElementNamed:, relativeToChildAtIndex:, bailIfSiblingIsBlockLevel:) -> ElementNode? {`, without knowing the index of a child node beforehand.
         ///
         /// - Parameters:
@@ -582,41 +610,41 @@ extension Libxml2 {
         @warn_unused_result
         func find(leftAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
             
-            guard index >= 0 && index < children.count else {
-                fatalError("Out of bounds!")
-            }
-            
-            guard index > 0,
-                let sibling = children[index - 1] as? ElementNode
+            guard let sibling: ElementNode = sibling(atLeftSideOfChildIndex: index, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
                 where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
-                return nil
+                    return nil
             }
             
             if elementNames.contains(sibling.name) {
                 return sibling
             } else {
-                return sibling.find(rightSideDescendantNamed: elementNames)
+                return sibling.find(rightSideDescendantEvaluatedBy: { (node) -> Bool in
+                    return elementNames.contains(node.name)
+                })
             }
         }
         
         /// Finds any left-side descendant with any of the specified names.
         ///
         /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
+        ///     - evaluate: the closure to evaluate the candidate.  `true` means we have a good
+        ///             candidate.
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find(leftSideDescendantNamed elementNames: [String]) -> ElementNode? {
+        private func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: T -> Bool) -> T? {
             
-            guard let child = children[0] as? ElementNode else {
+            guard let child = children[0] as? T else {
                 return nil
             }
             
-            if elementNames.contains(child.name) {
+            if evaluate(child) {
                 return child
+            } else if let element = child as? ElementNode {
+                return element.find(leftSideDescendantEvaluatedBy: evaluate)
             } else {
-                return child.find(leftSideDescendantNamed: elementNames)
+                return nil
             }
         }
         
@@ -656,12 +684,7 @@ extension Libxml2 {
         @warn_unused_result
         func find(rightAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
             
-            guard index >= 0 && index < children.count else {
-                fatalError("Out of bounds!")
-            }
-            
-            guard index < children.count - 1,
-                let sibling = children[index + 1] as? ElementNode
+            guard let sibling: ElementNode = sibling(atRightSideOfChildIndex: index, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
                 where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
                     return nil
             }
@@ -669,28 +692,33 @@ extension Libxml2 {
             if elementNames.contains(sibling.name) {
                 return sibling
             } else {
-                return sibling.find(rightSideDescendantNamed: elementNames)
+                return sibling.find(rightSideDescendantEvaluatedBy: { (node) -> Bool in
+                    elementNames.contains(node.name)
+                })
             }
         }
         
         /// Finds any right-side descendant with any of the specified names.
         ///
         /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
+        ///     - evaluate: the closure to evaluate the candidate.  `true` means we have a good
+        ///             candidate.
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find(rightSideDescendantNamed elementNames: [String]) -> ElementNode? {
+        private func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: T -> Bool) -> T? {
             
-            guard let child = children[children.count - 1] as? ElementNode else {
+            guard let child = children[children.count - 1] as? T else {
                 return nil
             }
             
-            if elementNames.contains(child.name) {
+            if evaluate(child) {
                 return child
+            } else if let element = child as? ElementNode {
+                return element.find(rightSideDescendantEvaluatedBy: evaluate)
             } else {
-                return child.find(rightSideDescendantNamed: elementNames)
+                return nil
             }
         }
         
@@ -729,7 +757,7 @@ extension Libxml2 {
 
         // MARK: - DOM modification
 
-        /// Appends a node into the list of children for this element.
+        /// Appends a node to the list of children for this element.
         ///
         /// - Parameters:
         ///     - child: the node to append.
@@ -743,7 +771,46 @@ extension Libxml2 {
             children.append(child)
             child.parent = self
         }
+        
+        /// Appends a node to the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - child: the node to append.
+        ///
+        func append(children: [Node]) {
+            
+            for child in children {
+                append(child)
+            }
+        }
+        
+        /// Prepends a node to the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - child: the node to prepend.
+        ///
+        func prepend(child: Node) {
+            
+            if let parent = child.parent {
+                parent.remove([child])
+            }
+            
+            children.insert(child, atIndex: 0)
+            child.parent = self
+        }
 
+        /// Prepends children to the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - children: the nodes to prepend.
+        ///
+        func prepend(children: [Node]) {
+            
+            for index in (children.count - 1).stride(through: 0, by: -1) {
+                prepend(children[index])
+            }
+        }
+        
         /// Inserts a node into the list of children for this element.
         ///
         /// - Parameters:
@@ -914,6 +981,84 @@ extension Libxml2 {
             }
 
             return result
+        }
+        
+        ///  Pushes up to the level of the receiver and left-side descendant that evaluates
+        /// to `true`.
+        ///
+        /// - Parameters:
+        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
+        ///
+        /// - Returns: if any matching descendant is found, this method will return the requested
+        ///         node after being pushed all the way up, or `nil` if no matching descendant is
+        ///         found.
+        ///
+        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: (node: T) -> Bool) -> T? {
+            
+            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure) else {
+                return nil
+            }
+            
+            while let parent = node.parent,
+                let grandParent = parent.parent {
+                    
+                    let lastSwap = parent == self
+                    
+                    if let element = node as? ElementNode {
+                        element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                    }
+                    
+                    guard let parentIndex = grandParent.children.indexOf(parent) else {
+                        fatalError("The grandparent element should contain the parent element.")
+                    }
+                    
+                    grandParent.insert(node, at: parentIndex)
+                    
+                    if lastSwap {
+                        break
+                    }
+            }
+            
+            return node
+        }
+        
+        ///  Pushes up to the level of the receiver and right-side descendant that evaluates
+        /// to `true`.
+        ///
+        /// - Parameters:
+        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
+        ///
+        /// - Returns: if any matching descendant is found, this method will return the requested
+        ///         node after being pushed all the way up, or `nil` if no matching descendant is
+        ///         found.
+        ///
+        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: (node: T) -> Bool) -> T? {
+            
+            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure) else {
+                return nil
+            }
+            
+            while let parent = node.parent,
+                let grandParent = parent.parent {
+                
+                    let lastSwap = parent == self
+                    
+                    if let element = node as? ElementNode {
+                        element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                    }
+                    
+                    guard let parentIndex = grandParent.children.indexOf(parent) else {
+                        fatalError("The grandparent element should contain the parent element.")
+                    }
+                    
+                    grandParent.insert(node, at: parentIndex + 1)
+                    
+                    if lastSwap {
+                        break
+                    }
+            }
+            
+            return node
         }
 
         // MARK: - EditableNode
@@ -1349,7 +1494,7 @@ extension Libxml2 {
                 return child
             })
             
-            wrap(children, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+            wrap(children: children, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -1362,7 +1507,7 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created `ElementNode`.
         ///
-        func wrap(newChildren: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) -> ElementNode {
+        func wrap(children newChildren: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) -> ElementNode {
 
             guard newChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
@@ -1373,32 +1518,51 @@ extension Libxml2 {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
-            guard let lastNodeIndex = newChildren.indexOf(newChildren[newChildren.count - 1]) else {
+            guard let lastNodeIndex = children.indexOf(newChildren[newChildren.count - 1]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
-            if let leftSibling = find(leftAdjacentElementNamed: equivalentElementNames, relativeToChildAtIndex: firstNodeIndex) {
-                // Use left sibling
-                leftSibling
-                
-                let i = 1
-                i
-            } else if let rightSibling = find(rightAdjacentElementNamed: equivalentElementNames, relativeToChildAtIndex: lastNodeIndex) {
-                // Use right sibling
-                rightSibling
-                
-                let i = 1
-                i
+            let evaluation = { (node: ElementNode) -> Bool in
+                return node.name == nodeName
             }
             
-            let newNode = ElementNode(name: nodeName, attributes: attributes, children: newChildren)
+            // We need to cache these here, as the indexes may be affected with the below logic.
+            //
+            let originalLeftSibling: ElementNode? = sibling(atLeftSideOfChildIndex: firstNodeIndex, bailIfSiblingIsBlockLevel: true)
+            let originalRightSibling: ElementNode? = sibling(atRightSideOfChildIndex: lastNodeIndex, bailIfSiblingIsBlockLevel: true)
             
-            children.insert(newNode, atIndex: firstNodeIndex)
-            newNode.parent = self
+            var childrenToWrap = newChildren
+            var result: ElementNode?
             
-            remove(newChildren, updateParent: false)
+            if let originalSibling = originalLeftSibling,
+                let theSibling = evaluation(originalSibling) ? originalSibling : originalSibling.pushUp(rightSideDescendantEvaluatedBy: evaluation) {
+                    
+                theSibling.append(childrenToWrap)
+                childrenToWrap = theSibling.children
+                    
+                result = theSibling
+            }
             
-            return newNode
+            if let originalSibling = originalRightSibling,
+                let theSibling = evaluation(originalSibling) ? originalSibling : originalSibling.pushUp(leftSideDescendantEvaluatedBy: evaluation) {
+                
+                theSibling.prepend(childrenToWrap)
+                childrenToWrap = theSibling.children
+                
+                result = theSibling
+            }
+            
+            if let result = result {
+                return result
+            } else {
+                let newNode = ElementNode(name: nodeName, attributes: attributes, children: childrenToWrap)
+                
+                children.insert(newNode, atIndex: firstNodeIndex)
+                newNode.parent = self
+                
+                remove(newChildren, updateParent: false)
+                return newNode
+            }
         }
     }
 
