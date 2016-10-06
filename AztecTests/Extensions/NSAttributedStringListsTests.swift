@@ -77,6 +77,42 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(range.length == string.length)
     }
 
+    /// Tests that `rangeOfLine` returns, effectively, the range of the line that matches with the given index.
+    ///
+    /// Set up:
+    /// - Sample text with two lines
+    ///
+    /// Expected result:
+    /// - Range of the first (OR) second line, whenever the index parameter falls within the required values.
+    ///
+    func testRangeOfLineEffectivelyReturnsTheRangeOfTheCurrentLine() {
+        // Setup
+        let firstText = "this would be a line\n"
+        let secondText = "and this too\n"
+        let fullText = NSAttributedString(string: firstText + secondText)
+
+        // Expected Ranges
+        let foundationText = fullText.string as NSString
+        let firstRange = foundationText.rangeOfString(firstText)
+        let secondRange = foundationText.rangeOfString(secondText)
+
+
+        // Check
+        for index in (0 ..< fullText.length) {
+            guard let range = fullText.rangeOfLine(atIndex: index) else {
+                XCTFail()
+                return
+            }
+
+            var target = secondRange
+            if index >= firstRange.location && index < NSMaxRange(firstRange) {
+                target = firstRange
+            }
+
+            XCTAssert(range.location == target.location && range.length == target.length)
+        }
+    }
+
     /// Tests that `textListContents` returns nil, whenever there is no Text List.
     ///
     /// Set up:
