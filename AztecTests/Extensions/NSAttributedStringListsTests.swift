@@ -234,6 +234,22 @@ class NSAttributedStringListsTests: XCTestCase {
         }
     }
 
+    /// Tests that `textListAttribute(spanningRange:)` returns the expected TestList, when the full range
+    /// is received.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with a TextList.
+    ///
+    /// Expected result:
+    /// - The TextList Attribute.
+    ///
+    func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenPassedFullRange() {
+        let string = sampleListString
+        let attribute = string.textListAttribute(spanningRange: string.rangeOfEntireString)
+
+        XCTAssertNotNil(attribute)
+    }
+
     /// Tests that `paragraphRanges` returns an empty array, when dealing with an empty string.
     ///
     /// Set up:

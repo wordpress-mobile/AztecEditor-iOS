@@ -87,16 +87,37 @@ extension NSAttributedString
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(spanningRange range: NSRange) -> TextList? {
-        var effectiveRange = NSRange()
-        guard let list = attribute(TextList.attributeName, atIndex: range.location, effectiveRange: &effectiveRange) as? TextList else {
-            return nil
-        }
+        // NOTE:
+        // We're using this mechanism, instead of the old fashioned 'attribute:atIndex:effectiveRange:' because
+        // whenever the "next substring" has a different set of attributes, the effective range gets cut, even though
+        // the attribute is present in the neighbor!
+        //
+        var list: TextList?
 
-        guard NSEqualRanges(range, NSIntersectionRange(range, effectiveRange)) else {
-            return nil
+        enumerateAttribute(TextList.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+            list = attribute as? TextList
+            stop.memory = true
         }
 
         return list
+    }
+
+
+    /// Returns the TextListItem attribute, assuming that there is one, spanning the specified Range.
+    ///
+    /// - Parameter range: Range to check for TextLists
+    ///
+    /// - Returns: A TextListItem optional.
+    ///
+    func textListItemAttribute(spanningRange range: NSRange) -> TextListItem? {
+        var item: TextListItem?
+
+        enumerateAttribute(TextListItem.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+            item = attribute as? TextListItem
+            stop.memory = true
+        }
+
+        return item
     }
 
 
