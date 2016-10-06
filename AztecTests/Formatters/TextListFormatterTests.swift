@@ -9,6 +9,8 @@ class TextListFormatterTests: XCTestCase
     // Helpers #1:
     // ===========
     //
+    // Expected Output:
+    //
     //  Line 1:     - [Text]
     //  Line 2:     1 [Text]
     //  Line 3:     - [Text]
@@ -39,6 +41,8 @@ class TextListFormatterTests: XCTestCase
 
     // Helpers #2:
     // ===========
+    //
+    // Expected Output:
     //
     //  Line 1:     1 [Text]
     //  Line 2:     2 [Text]
