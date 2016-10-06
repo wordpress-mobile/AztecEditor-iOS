@@ -245,7 +245,7 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenPassedFullRange() {
         let string = sampleListString
-        let attribute = string.textListAttribute(spanningRange: string.rangeOfEntireString)
+        let attribute = string.textListAttribute(spanningRange: sampleListRange)
 
         XCTAssertNotNil(attribute)
     }

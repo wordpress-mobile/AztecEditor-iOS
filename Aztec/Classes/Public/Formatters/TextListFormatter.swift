@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - A helper for handling the formatting of ordered and unordered lists.
 //
-struct TextListFormatter
+class TextListFormatter
 {
     /// Creates a new text list, or modifies an existing text list.
     ///
@@ -134,6 +134,10 @@ private extension TextListFormatter
     func updateList(inString string: NSMutableAttributedString, succeedingRange range: NSRange) {
         // Update its markers if the following range was an ordered list
         let nextListIndex = NSMaxRange(range) + 1
+
+        guard nextListIndex < string.length else {
+            return
+        }
 
         guard let nextListAttribute = string.textListAttribute(atIndex: nextListIndex) where nextListAttribute.style != .Unordered else {
             return
