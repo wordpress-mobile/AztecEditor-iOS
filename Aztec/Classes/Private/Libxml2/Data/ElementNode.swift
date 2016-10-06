@@ -368,8 +368,9 @@ extension Libxml2 {
                     let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
 
                     if let childElement = child as? ElementNode {
-                        childElement.enumerateLowestBlockLevelElements(
+                        childElement.enumerateLowestElements(
                             intersectingRange: intersectionInChildCoordinates,
+                            fulfillingCondition: checkCondition,
                             onMatchNotFound: { (range) in
 
                                 if let previousRangeWithoutMatch = rangeWithoutMatch {
