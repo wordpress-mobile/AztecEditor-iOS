@@ -1,6 +1,10 @@
 # WordPress-Aztec-iOS
 
-![Aztec: Native HTML Editor](https://github.com/wordpress-mobile/WordPress-Aztec-iOS/blob/try/add-app-icons/RepoAssets/aztec.png)
+![Aztec: Native HTML Editor]()
+<p align="center">
+<img width=100px height=100px src="https://github.com/wordpress-mobile/WordPress-Aztec-iOS/blob/try/add-app-icons/RepoAssets/aztec.png" alt="Aztec's Logo'"/>
+</p>
+
 [![CI Status](http://img.shields.io/travis/Diego Rey Mendez/WordPress-Aztec-iOS.svg?style=flat)](https://travis-ci.org/Diego Rey Mendez/WordPress-Aztec-iOS)
 [![Version](https://img.shields.io/cocoapods/v/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![License](https://img.shields.io/cocoapods/l/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
