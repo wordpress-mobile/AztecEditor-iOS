@@ -36,12 +36,20 @@ extension Libxml2.In {
             let htmlPtr = UnsafePointer<Int8>(data.bytes)
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
+            
+            defer {
+                htmlFreeParserCtxt(parserContext)
+            }
 
             // We don't want <p> tags added automattically.
             //
             htmlHandleOmittedElem(0)
 
             let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(wrappedHTML.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
+            
+            defer {
+                xmlFreeDoc(document)
+            }
 
             let errorPtr = xmlGetLastError()
 
