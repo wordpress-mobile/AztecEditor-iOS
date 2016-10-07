@@ -43,7 +43,9 @@ public class TextStorage: NSTextStorage {
     private var rootNode: RootNode = {
         return RootNode(children: [TextNode(text: "")])
     }()
-
+    
+    let domQueue = dispatch_queue_create("com.wordpress.domQueue", DISPATCH_QUEUE_SERIAL)
+    
     // MARK: - NSTextStorage
 
     override public var string: String {
@@ -89,24 +91,30 @@ public class TextStorage: NSTextStorage {
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withString: str)
-        rootNode.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
         endEditing()
         
         edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        
+        dispatch_async(domQueue) {
+            self.rootNode.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+        }
     }
     
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
-        rootNode.replaceCharacters(inRange: range, withString: attrString.string, inheritStyle: false)
-        
-        // remove all styles for the specified range here!
-        
-        let finalRange = NSRange(location: range.location, length: attrString.length)
-        copyStylesToDOM(spanning: finalRange)
         endEditing()
         
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
+        
+        dispatch_async(domQueue) {
+            self.rootNode.replaceCharacters(inRange: range, withString: attrString.string, inheritStyle: false)
+            
+            // remove all styles for the specified range here!
+            
+            let finalRange = NSRange(location: range.location, length: attrString.length)
+            self.copyStylesToDOM(spanning: finalRange)
+        }
     }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
@@ -279,11 +287,14 @@ public class TextStorage: NSTextStorage {
         }
         
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-        rootNode.wrapChildren(
-            intersectingRange: effectiveRange,
-            inNodeNamed: ElementTypes.link.rawValue,
-            withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-            equivalentElementNames: ElementTypes.link.equivalentNames)
+        
+        dispatch_async(domQueue) {
+            self.rootNode.wrapChildren(
+                intersectingRange: effectiveRange,
+                inNodeNamed: ElementTypes.link.rawValue,
+                withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
+                equivalentElementNames: ElementTypes.link.equivalentNames)
+        }
     }
 
     func removeLink(inRange range: NSRange){
@@ -291,14 +302,19 @@ public class TextStorage: NSTextStorage {
         if attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
-            rootNode.unwrap(range: effectiveRange, fromElementsNamed: ["a"])
+            
+            dispatch_async(domQueue, {
+                self.rootNode.unwrap(range: effectiveRange, fromElementsNamed: ["a"])
+            })
         }
     }
 
     func insertImage(url: NSURL, forRange range: NSRange) {
-        rootNode.replaceCharacters(inRange: range,
-                                   withNodeNamed: ElementTypes.img.rawValue,
-                                   withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
+        dispatch_async(domQueue) {
+            self.rootNode.replaceCharacters(inRange: range,
+                                       withNodeNamed: ElementTypes.img.rawValue,
+                                       withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
+        }
     }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
@@ -319,19 +335,27 @@ public class TextStorage: NSTextStorage {
     // MARK: - DOM
 
     private func disableBoldInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
+        dispatch_async(domQueue) {
+            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
+        }
     }
 
     private func disableItalicInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
+        dispatch_async(domQueue) {
+            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
+        }
     }
 
     private func disableStrikethroughInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
+        dispatch_async(domQueue) {
+            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
+        }
     }
 
     private func disableUnderlineInDom(range: NSRange) {
-        rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
+        dispatch_async(domQueue) {
+            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
+        }
     }
 
     private func enableBoldInDOM(range: NSRange) {
@@ -343,11 +367,13 @@ public class TextStorage: NSTextStorage {
     }
 
     private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
-        rootNode.wrapChildren(
-            intersectingRange: range,
-            inNodeNamed: elementName,
-            withAttributes: [],
-            equivalentElementNames: equivalentElementNames)
+        dispatch_async(domQueue) {
+            self.rootNode.wrapChildren(
+                intersectingRange: range,
+                inNodeNamed: elementName,
+                withAttributes: [],
+                equivalentElementNames: equivalentElementNames)
+        }
     }
 
     private func enableItalicInDOM(range: NSRange) {
@@ -376,31 +402,44 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    public func getHTML() -> String {
-        let converter = Libxml2.Out.HTMLConverter()
-        let html = converter.convert(rootNode)
-
-        return html
+    public func getHTML(onComplete: String -> Void ) {
+        
+        dispatch_async(domQueue) {
+            let converter = Libxml2.Out.HTMLConverter()
+            let html = converter.convert(self.rootNode)
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                onComplete(html)
+            })
+        }
     }
 
-    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor, onComplete: () -> Void) {
+        dispatch_async(domQueue) {
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+            let output: (rootNode: RootNode, attributedString: NSAttributedString)
+            
+            do {
+                output = try converter.convert(html)
+            } catch {
+                fatalError("Could not convert the HTML.")
+            }
 
-        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
-        let output: (rootNode: RootNode, attributedString: NSAttributedString)
-
-        do {
-            output = try converter.convert(html)
-        } catch {
-            fatalError("Could not convert the HTML.")
-        }
-
-        let originalLength = textStore.length
-        textStore = NSMutableAttributedString(attributedString: output.attributedString)
-        edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)        
-        rootNode = output.rootNode
-
-        enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
-            self?.loadImageForAttachment(attachment, inRange: range)
+            self.rootNode = output.rootNode
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                let originalLength = self.textStore.length
+                self.textStore = NSMutableAttributedString(attributedString: output.attributedString)
+                
+                self.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
+                    self?.loadImageForAttachment(attachment, inRange: range)
+                }
+                
+                self.edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: self.textStore.length - originalLength)
+                
+                onComplete()
+            })
         }
     }
 
