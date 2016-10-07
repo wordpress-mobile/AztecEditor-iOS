@@ -303,9 +303,9 @@ public class TextStorage: NSTextStorage {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
             
-            dispatch_async(domQueue, {
+            dispatch_async(domQueue) {
                 self.rootNode.unwrap(range: effectiveRange, fromElementsNamed: ["a"])
-            })
+            }
         }
     }
 
@@ -401,20 +401,20 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    public func getHTML(onComplete: String -> Void ) {
+    public func getHTML() -> String {
         
-        dispatch_async(domQueue) {
+        var result: String = ""
+        
+        dispatch_sync(domQueue) {
             let converter = Libxml2.Out.HTMLConverter()
-            let html = converter.convert(self.rootNode)
-            
-            dispatch_async(dispatch_get_main_queue(), {
-                onComplete(html)
-            })
+            result = converter.convert(self.rootNode)
         }
+        
+        return result
     }
 
-    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor, onComplete: () -> Void) {
-        dispatch_async(domQueue) {
+    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor, onComplete: () -> Void = {}) {
+        dispatch_sync(domQueue) {
             let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
@@ -423,22 +423,17 @@ public class TextStorage: NSTextStorage {
             } catch {
                 fatalError("Could not convert the HTML.")
             }
-
+            
             self.rootNode = output.rootNode
             
-            dispatch_async(dispatch_get_main_queue(), {
-                
-                let originalLength = self.textStore.length
-                self.textStore = NSMutableAttributedString(attributedString: output.attributedString)
-                
-                self.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
-                    self?.loadImageForAttachment(attachment, inRange: range)
-                }
-                
-                self.edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: self.textStore.length - originalLength)
-                
-                onComplete()
-            })
+            let originalLength = self.textStore.length
+            self.textStore = NSMutableAttributedString(attributedString: output.attributedString)
+            
+            self.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
+                self?.loadImageForAttachment(attachment, inRange: range)
+            }
+            
+            self.edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: self.textStore.length - originalLength)
         }
     }
 

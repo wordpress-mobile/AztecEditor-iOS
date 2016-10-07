@@ -125,8 +125,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML(onComplete: String -> Void) {
-        return storage.getHTML(onComplete)
+    public func getHTML() -> String {
+        return storage.getHTML()
     }
 
 
@@ -135,7 +135,7 @@ public class TextView: UITextView {
     /// - Parameters:
     ///     - html: The raw HTML we'd be editing.
     ///
-    public func setHTML(html: String, onComplete: () -> Void = {}) {
+    public func setHTML(html: String) {
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
@@ -143,8 +143,8 @@ public class TextView: UITextView {
         //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
         //
         font = defaultFont
-
-        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor(), onComplete: onComplete)
+        
+        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
 
 

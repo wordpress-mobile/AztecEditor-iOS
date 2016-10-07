@@ -297,17 +297,11 @@ extension EditorDemoController
 
     private func switchToHTML() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
-
-        richTextView.getHTML() { [weak self] string in
-            guard let strongSelf = self else {
-                return
-            }
-            
-            strongSelf.htmlTextView.text = string
-            strongSelf.view.endEditing(true)
-            strongSelf.htmlTextView.hidden = false
-            strongSelf.richTextView.hidden = true
-        }
+        
+        htmlTextView.text = richTextView.getHTML()
+        view.endEditing(true)
+        htmlTextView.hidden = false
+        richTextView.hidden = true
     }
 
     private func switchToRichText() {
