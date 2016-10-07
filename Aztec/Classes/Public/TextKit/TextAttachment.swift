@@ -81,7 +81,6 @@ public class TextAttachment: NSTextAttachment
             return nil
         }
 
-
         let containerWidth = imageBounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
@@ -103,6 +102,10 @@ public class TextAttachment: NSTextAttachment
     /// Otherwise, we'll always take the whole container's width.
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
+
+        guard let image = image else {
+            return CGRectZero
+        }
 
         let padding = textContainer?.lineFragmentPadding ?? 0
         let width = lineFrag.width - padding * 2
