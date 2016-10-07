@@ -553,6 +553,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
+        @warn_unused_result
         func sibling<T: Node>(leftOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
@@ -574,6 +575,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
+        @warn_unused_result
         func sibling<T: Node>(rightOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
