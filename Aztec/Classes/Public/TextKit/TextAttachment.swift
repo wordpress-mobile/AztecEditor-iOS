@@ -103,7 +103,7 @@ public class TextAttachment: NSTextAttachment
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
 
-        guard let image = image else {
+        if image == nil {
             return CGRectZero
         }
 
