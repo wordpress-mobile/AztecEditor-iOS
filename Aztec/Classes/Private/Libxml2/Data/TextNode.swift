@@ -119,7 +119,7 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute]) {
+        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
                 wrap(inNodeNamed: nodeName, withAttributes: attributes)
