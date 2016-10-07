@@ -565,5 +565,4 @@ public extension TextStorage
                             self.endEditing()
         })
     }
-
 }

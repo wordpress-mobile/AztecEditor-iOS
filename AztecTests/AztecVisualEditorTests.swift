@@ -170,26 +170,50 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testToggleBlockquote() {
         let editor = editorConfiguredWithParagraphs()
-        let range = NSRange(location: 0, length: 1)
-        let length = "Lorem ipsum dolar sit amet.\n".length
+        let length = paragraph.characters.count
+        let range = NSRange(location: 0, length: length)
 
         editor.toggleBlockquote(range: range)
 
         XCTAssert(editor.formattingAtIndexContainsBlockquote(1))
-        XCTAssert(editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
+        XCTAssert(editor.blockquoteFormattingSpansRange(range))
 
         editor.toggleBlockquote(range: range)
 
         XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
-        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
+        XCTAssert(!editor.blockquoteFormattingSpansRange(range))
     }
 
     func testToggleOrderedList() {
-        // TODO
+        let editor = editorConfiguredWithParagraphs()
+        let length = paragraph.characters.count
+        let range = NSRange(location: 0, length: length)
+
+        editor.toggleOrderedList(range: range)
+
+        XCTAssert(editor.formattingAtIndexContainsOrderedList(0))
+        XCTAssert(editor.orderedListFormattingSpansRange(range))
+
+        editor.toggleOrderedList(range: range)
+
+        XCTAssert(!editor.formattingAtIndexContainsOrderedList(0))
+        XCTAssert(!editor.orderedListFormattingSpansRange(range))
     }
 
     func testToggleUnorderedList() {
-        // TODO
+        let editor = editorConfiguredWithParagraphs()
+        let length = paragraph.characters.count
+        let range = NSRange(location: 0, length: length)
+
+        editor.toggleUnorderedList(range: range)
+
+        XCTAssert(editor.formattingAtIndexContainsUnorderedList(0))
+        XCTAssert(editor.unorderedListFormattingSpansRange(range))
+
+        editor.toggleOrderedList(range: range)
+
+        XCTAssert(!editor.formattingAtIndexContainsUnorderedList(0))
+        XCTAssert(!editor.unorderedListFormattingSpansRange(range))
     }
 
     func testInsertLink() {
@@ -314,6 +338,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     // MARK: - Helpers
+    let paragraph = "Lorem ipsum dolar sit amet.\n"
 
     func editorConfiguredForTesting(withHTML html: String) -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
@@ -327,7 +352,6 @@ class AztecVisualEditorTests: XCTestCase {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
 
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
-        let paragraph = "Lorem ipsum dolar sit amet.\n"
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()

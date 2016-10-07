@@ -159,37 +159,45 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
-        var identifiers = [String]()
-
-        if storage.length == 0 {
-            return identifiers
+        guard storage.length != 0 else {
+            return []
         }
 
         if range.length == 0 {
             return formatIdentifiersAtIndex(range.location)
         }
 
+        var identifiers = [FormattingIdentifier]()
+
         if boldFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Bold.rawValue)
+            identifiers.append(.Bold)
         }
 
         if italicFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Italic.rawValue)
+            identifiers.append(.Italic)
         }
 
         if underlineFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Underline.rawValue)
+            identifiers.append(.Underline)
         }
 
         if strikethroughFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(.Strikethrough)
         }
 
         if linkFormattingSpansRange(range) {
-            identifiers.append(FormattingIdentifier.Link.rawValue)
+            identifiers.append(.Link)
         }
 
-        return identifiers
+        if orderedListFormattingSpansRange(range) {
+            identifiers.append(.Orderedlist)
+        }
+
+        if unorderedListFormattingSpansRange(range) {
+            identifiers.append(.Unorderedlist)
+        }
+
+        return identifiers.map { $0.rawValue }
     }
 
 
@@ -201,39 +209,46 @@ public class TextView: UITextView {
     /// - Returns: A list of identifiers.
     ///
     public func formatIdentifiersAtIndex(index: Int) -> [String] {
-        var identifiers = [String]()
-
-        if storage.length == 0 {
-            return identifiers
+        guard storage.length != 0 else {
+            return []
         }
 
         let index = adjustedIndex(index)
+        var identifiers = [FormattingIdentifier]()
 
         if formattingAtIndexContainsBold(index) {
-            identifiers.append(FormattingIdentifier.Bold.rawValue)
+            identifiers.append(.Bold)
         }
 
         if formattingAtIndexContainsItalic(index) {
-            identifiers.append(FormattingIdentifier.Italic.rawValue)
+            identifiers.append(.Italic)
         }
 
         if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(FormattingIdentifier.Underline.rawValue)
+            identifiers.append(.Underline)
         }
 
         if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(FormattingIdentifier.Strikethrough.rawValue)
+            identifiers.append(.Strikethrough)
         }
 
         if formattingAtIndexContainsBlockquote(index) {
-            identifiers.append(FormattingIdentifier.Blockquote.rawValue)
+            identifiers.append(.Blockquote)
         }
 
         if formattingAtIndexContainsLink(index) {
-            identifiers.append(FormattingIdentifier.Link.rawValue)
+            identifiers.append(.Link)
         }
 
-        return identifiers
+        if formattingAtIndexContainsOrderedList(index) {
+            identifiers.append(.Orderedlist)
+        }
+
+        if formattingAtIndexContainsUnorderedList(index) {
+            identifiers.append(.Unorderedlist)
+        }
+
+        return identifiers.map { $0.rawValue }
     }
 
 
@@ -246,7 +261,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -261,7 +275,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -276,7 +289,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -291,7 +303,6 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
-
         guard range.length > 0 else {
             return
         }
@@ -306,17 +317,23 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
-        print("ordered")
+        let listRange = rangeForTextList(range)
+        let formatter = TextListFormatter()
+        formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: listRange)
+// TODO: Update selected range
     }
 
 
     /// Adds or removes a unordered list style from the specified range.
     ///
-    /// - Paramters:
+    /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
-        print("unordered")
+        let listRange = rangeForTextList(range)
+        let formatter = TextListFormatter()
+        formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: listRange)
+// TODO: Update selected range
     }
 
 
@@ -495,12 +512,11 @@ public class TextView: UITextView {
     public func underlineFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? Int {
-
-            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+            return false
         }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
 
@@ -514,12 +530,11 @@ public class TextView: UITextView {
     public func strikethroughFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? Int {
-
-            return value == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+            return false
         }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
     /// Check if the link attribute spans the specified range.
@@ -539,13 +554,36 @@ public class TextView: UITextView {
         return false
     }
 
-    /**
-     Returns an NSURL if the specified range as attached a link attribute
 
-     - parameter range: The NSRange to inspect
+    /// Check if an ordered list spans the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func orderedListFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.style == .Ordered
+    }
 
-     - returns: the NSURL if available
-     */
+
+    /// Check if an unordered list spans the specified range.
+    ///
+    /// - Parameter range: The NSRange to inspect.
+    ///
+    /// - Returns: True if the attribute spans the entire range.
+    ///
+    public func unorderedListFormattingSpansRange(range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.style == .Unordered
+    }
+
+
+    /// Returns an NSURL if the specified range as attached a link attribute
+    ///
+    /// - Parameter range: The NSRange to inspect
+    ///
+    /// - returns: the NSURL if available
+    ///
     public func linkURL(forRange range: NSRange) -> NSURL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
@@ -578,12 +616,11 @@ public class TextView: UITextView {
     public func blockquoteFormattingSpansRange(range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange),
-            let value = attr as? NSParagraphStyle {
-
-            return value.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
+            return false
         }
-        return false
+
+        return attribute.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
 
@@ -614,6 +651,25 @@ public class TextView: UITextView {
     func adjustedIndex(index: Int) -> Int {
         let index = maxIndex(index)
         return max(0, index - 1)
+    }
+
+
+    /// TextListFormatter was designed to be applied over a range of text. Whenever such range is
+    /// zero, we may have trouble determining where to apply the list. For that reason,
+    /// whenever the list range's length is zero, we'll attempt to infer the range of the line at
+    /// which the cursor is located.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange in which a TextList should be applied
+    ///
+    /// Returns: A corrected NSRange, if the original one had empty length.
+    ///
+    func rangeForTextList(range: NSRange) -> NSRange {
+        guard range.length == 0 else {
+            return range
+        }
+
+        return storage.rangeOfLine(atIndex: range.location) ?? range
     }
 
 
@@ -652,14 +708,11 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsUnderline(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) else {
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
             return false
         }
         // TODO: Figure out how to reconcile this with Link style.
-        if let value = attr as? Int {
-            return value == NSUnderlineStyle.StyleSingle.rawValue
-        }
-        return false
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue
     }
 
 
@@ -671,13 +724,11 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsStrikethrough(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) else {
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
             return false
         }
-        if let value = attr as? Int {
-            return value == NSUnderlineStyle.StyleSingle.rawValue
-        }
-        return false
+
+        return attribute == NSUnderlineStyle.StyleSingle.rawValue
     }
 
     /// Check if the link attribute exists at the specified index.
@@ -711,6 +762,31 @@ public class TextView: UITextView {
         // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
         return attr.headIndent != 0
     }
+
+
+    /// Check if an ordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsOrderedList(index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.style == .Ordered
+    }
+
+
+    /// Check if an unordered list exists at the specified index.
+    ///
+    /// - Paramters:
+    ///     - index: The character index to inspect.
+    ///
+    /// - Returns: True if the attribute exists at the specified index.
+    ///
+    public func formattingAtIndexContainsUnorderedList(index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.style == .Unordered
+    }
+
 
     // MARK: - Attachments
 
