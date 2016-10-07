@@ -29,8 +29,14 @@ extension NSRange
             return NSRange(location: target.location, length: endLocation - target.location)
         } else if target.location < location && targetEndLocation > endLocation {
             return self
-        }else {
+        } else {
             return nil
         }
+    }
+
+    /// Returns a NSRange instance with location = 0 + length = 0
+    ///
+    static var zero: NSRange {
+        return NSRange(location: 0, length: 0)
     }
 }

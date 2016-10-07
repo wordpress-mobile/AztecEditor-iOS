@@ -77,6 +77,42 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(range.length == string.length)
     }
 
+    /// Tests that `rangeOfLine` returns, effectively, the range of the line that matches with the given index.
+    ///
+    /// Set up:
+    /// - Sample text with two lines
+    ///
+    /// Expected result:
+    /// - Range of the first (OR) second line, whenever the index parameter falls within the required values.
+    ///
+    func testRangeOfLineEffectivelyReturnsTheRangeOfTheCurrentLine() {
+        // Setup
+        let firstText = "this would be a line\n"
+        let secondText = "and this too\n"
+        let fullText = NSAttributedString(string: firstText + secondText)
+
+        // Expected Ranges
+        let foundationText = fullText.string as NSString
+        let firstRange = foundationText.rangeOfString(firstText)
+        let secondRange = foundationText.rangeOfString(secondText)
+
+
+        // Check
+        for index in (0 ..< fullText.length) {
+            guard let range = fullText.rangeOfLine(atIndex: index) else {
+                XCTFail()
+                return
+            }
+
+            var target = secondRange
+            if index >= firstRange.location && index < NSMaxRange(firstRange) {
+                target = firstRange
+            }
+
+            XCTAssert(range.location == target.location && range.length == target.length)
+        }
+    }
+
     /// Tests that `textListContents` returns nil, whenever there is no Text List.
     ///
     /// Set up:
@@ -156,6 +192,62 @@ class NSAttributedStringListsTests: XCTestCase {
                 XCTAssertNil(attribute)
             }
         }
+    }
+
+    /// Tests that `textListAttribute(spanningRange:)` returns nil, whenever there is no actual text list.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with no TextList.
+    ///
+    /// Expected result:
+    /// - nil
+    ///
+    func testTextListAttributeSpanningRangeReturnsNilWhenThereIsNoList() {
+        let string = samplePlainString
+
+        for index in (0 ..< string.length) {
+            let range = NSRange(location: index, length: 1)
+            XCTAssertNil(string.textListAttribute(spanningRange: range))
+        }
+    }
+
+    /// Tests that `textListAttribute(spanningRange:)` returns the expected TestList, when applicable.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with a TextList.
+    ///
+    /// Expected result:
+    /// - The TextList, whenever the range passed intersects the TextList range.
+    ///
+    func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenRangeInteresects() {
+        let string = sampleListString
+
+        for index in (0 ..< string.length) {
+            let range = NSRange(location: index, length: 1)
+            let attribute = string.textListAttribute(spanningRange: range)
+
+            if isIndexWithinListRange(index) {
+                XCTAssertNotNil(attribute)
+            } else {
+                XCTAssertNil(attribute)
+            }
+        }
+    }
+
+    /// Tests that `textListAttribute(spanningRange:)` returns the expected TestList, when the full range
+    /// is received.
+    ///
+    /// Set up:
+    /// - Sample (NON empty) NSAttributedString, with a TextList.
+    ///
+    /// Expected result:
+    /// - The TextList Attribute.
+    ///
+    func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenPassedFullRange() {
+        let string = sampleListString
+        let attribute = string.textListAttribute(spanningRange: sampleListRange)
+
+        XCTAssertNotNil(attribute)
     }
 
     /// Tests that `paragraphRanges` returns an empty array, when dealing with an empty string.
@@ -374,6 +466,51 @@ class NSAttributedStringListsTests: XCTestCase {
             let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListStyle: sampleListStyle)
             XCTAssert(retrievedRanges.count == listParagraphRanges.count)
             XCTAssertEqual(listParagraphRanges, retrievedRanges)
+        }
+    }
+
+    /// Tests that `attributedStringByApplyingListItemAttributes` effectively applies a TextListItem and + Marker.
+    ///
+    /// Set up:
+    /// - Plain raw string
+    ///
+    /// Expected result:
+    /// - TextListItem Style + Marker
+    ///
+    func testAttributedStringByApplyingListItemAttributesEffectivelyAppliesListItemStyle() {
+        let original = sampleSingleLine
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Ordered, withNumber: 5)
+
+        for index in (0 ..< applied.length) {
+            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNotNil(item)
+        }
+
+        let marker = applied.attribute(TextListItemMarker.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItemMarker
+        XCTAssertNotNil(marker)
+    }
+
+    /// Tests that `attributedStringByApplyingListItemAttributes` effectively removes the TextListItem Attribute.
+    ///
+    /// Set up:
+    /// - Attributed String with a TextItem style
+    ///
+    /// Expected result:
+    /// - No style after running the clean method
+    ///
+    func testAttributedStringByRemovingListItemAttributesEffectivelyNukesListItemStyle() {
+        let original = sampleSingleLine
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Unordered, withNumber: 2)
+        let clean = applied.attributedStringByRemovingListItemAttributes()
+
+        for index in (0 ..< applied.length) {
+            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNotNil(item)
+        }
+
+        for index in (0 ..< clean.length) {
+            let nothing = clean.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            XCTAssertNil(nothing)
         }
     }
 }

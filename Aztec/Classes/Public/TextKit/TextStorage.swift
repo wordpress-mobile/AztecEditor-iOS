@@ -482,25 +482,17 @@ public class TextStorage: NSTextStorage {
         invalidateLayoutForAttachment(attachment)
     }
 
-    /// Invalidates the full layout.
-    /// This is actually intended to invalidate the layout for a single attachment, but we've found
-    /// crashing bugs when trying to figure out the correct range for an attachment.
-    ///
-    /// I'm temporarily commenting out the breaking code, but leaving it in to see if we can fix it.
-    ///
+    /// Invalidates the layout for an attachment when some change happened to it.    
     func invalidateLayoutForAttachment(attachment: TextAttachment) {
 
-        guard layoutManagers.count > 0 else {
+        guard let layoutManager = layoutManagers.first else {
             fatalError("This storage should have at least one layout manager assigned.")
         }
 
-        let layoutManager = layoutManagers[0]
-
-        //if let range = range(forAttachment: attachment) {
-            //layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
-        layoutManager.invalidateLayoutForCharacterRange(NSRange(location: 0, length: textStore.length), actualCharacterRange: nil)
-        //layoutManager.ensureLayoutForTextContainer(layoutManager.textContainers[0])
-        //}
+        if let range = range(forAttachment: attachment) {
+            layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
+            layoutManager.invalidateDisplayForCharacterRange(range)
+        }
     }
 }
 
@@ -603,5 +595,4 @@ public extension TextStorage
                             self.endEditing()
         })
     }
-
 }

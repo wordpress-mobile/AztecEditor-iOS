@@ -29,6 +29,28 @@ extension NSAttributedString
     }
 
 
+    /// Returns the NSRange that contains a specified position.
+    ///
+    /// - Parameter atIndex: Text location for which we want the line range.
+    ///
+    /// - Returns: The text's line range, at the specified position, if possible.
+    ///
+    func rangeOfLine(atIndex index: Int) -> NSRange? {
+        var range: NSRange?
+
+        foundationString.enumerateSubstringsInRange(rangeOfEntireString, options: .ByLines) { (substring, substringRange, enclosingRange, stop) in
+            guard index >= enclosingRange.location && index < NSMaxRange(enclosingRange) else {
+                return
+            }
+
+            range = enclosingRange
+            stop.memory = true
+        }
+
+        return range
+    }
+
+
     /// Return the contents of a TextList following the specified index (inclusive).
     /// Used to retrieve list items that need to be renumbered.
     ///
@@ -58,6 +80,47 @@ extension NSAttributedString
     }
 
 
+    /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
+    ///
+    /// - Parameter range: Range to check for TextLists
+    ///
+    /// - Returns: A TextList optional.
+    ///
+    func textListAttribute(spanningRange range: NSRange) -> TextList? {
+        // NOTE:
+        // We're using this mechanism, instead of the old fashioned 'attribute:atIndex:effectiveRange:' because
+        // whenever the "next substring" has a different set of attributes, the effective range gets cut, even though
+        // the attribute is present in the neighbor!
+        //
+        var list: TextList?
+
+        enumerateAttribute(TextList.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+            list = attribute as? TextList
+            stop.memory = true
+        }
+
+        return list
+    }
+
+
+    /// Returns the TextListItem attribute, assuming that there is one, spanning the specified Range.
+    ///
+    /// - Parameter range: Range to check for TextLists
+    ///
+    /// - Returns: A TextListItem optional.
+    ///
+    func textListItemAttribute(spanningRange range: NSRange) -> TextListItem? {
+        var item: TextListItem?
+
+        enumerateAttribute(TextListItem.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+            item = attribute as? TextListItem
+            stop.memory = true
+        }
+
+        return item
+    }
+
+
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
     ///
     /// - Parameters range: The range within the specified string to find paragraphs.
@@ -68,7 +131,6 @@ extension NSAttributedString
         var paragraphRanges = [NSRange]()
         let targetRange = rangeOfEntireString
 
-        let foundationString = string as NSString
         foundationString.enumerateSubstringsInRange(targetRange, options: .ByParagraphs) { (substring, substringRange, enclosingRange, stop) in
             // Stop if necessary.
             if enclosingRange.location >= NSMaxRange(range) {
@@ -142,5 +204,78 @@ extension NSAttributedString
         return adjustedRanges.sort {
             $0.location < $1.location
         }
+    }
+
+
+    /// Returns a new NSAttributedString, with the required TextListItem attribute applied.
+    ///
+    /// - Parameters:
+    ///     - style: The type of text list.
+    ///     - itemNumber: The index of the item. This is used to number a numeric list item.
+    ///
+    /// - Return: An NSAttributedString.
+    ///
+    func attributedStringByApplyingListItemAttributes(ofStyle style: TextList.Style, withNumber number: Int) -> NSAttributedString {
+        // Begin by removing any existing list marker.
+        guard let output = attributedStringByRemovingListItemAttributes().mutableCopy() as? NSMutableAttributedString else {
+            return self
+        }
+
+        // TODO: Need to accomodate RTL languages too.
+
+        // Insert the range at the beginning of the string. 
+        // NOTE: We insert this as a plain string, so that Paragraph + Font styles get inherited.
+        //
+        let markerText = style.markerText(forItemNumber: number)
+        output.replaceCharactersInRange(NSRange.zero, withString: markerText)
+
+        // Apply Item Marker
+        let markerAttribute = TextListItemMarker()
+        let markerRange = output.foundationString.rangeOfString(markerText)
+
+        output.addAttribute(TextListItemMarker.attributeName, value: markerAttribute, range: markerRange)
+
+        // Set the attributes for the list item style
+        let listItem = TextListItem(number: number)
+
+        let listItemAttributes: [String: AnyObject] = [
+            TextListItem.attributeName: listItem,
+            NSParagraphStyleAttributeName: NSParagraphStyle.Aztec.defaultParagraphStyle
+        ]
+
+        output.addAttributes(listItemAttributes, range: output.rangeOfEntireString)
+
+        return output
+    }
+
+    /// Returns a new Attributed String, with the TextListItem formatting removed.
+    ///
+    func attributedStringByRemovingListItemAttributes() -> NSAttributedString {
+        let clean = NSMutableAttributedString(attributedString: self)
+
+        let range = clean.rangeOfEntireString
+        let attributes = [TextList.attributeName, TextListItem.attributeName]
+
+        for name in attributes {
+            clean.removeAttribute(name, range: range)
+        }
+
+        // Fall back to TextKit's default Paragraph Style
+        let paragraphStyle = NSParagraphStyle()
+        clean.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
+
+        // Nuke the Marker
+        var markerRange = NSRange()
+        if let _ = clean.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: range) {
+            clean.replaceCharactersInRange(markerRange, withString: String())
+        }
+
+        return clean
+    }
+
+    /// Internal convenience helper. Returns the internal string as a NSString instance
+    ///
+    private var foundationString: NSString {
+        return string as NSString
     }
 }
