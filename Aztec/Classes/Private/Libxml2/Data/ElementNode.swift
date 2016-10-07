@@ -595,11 +595,13 @@ extension Libxml2 {
         /// - Parameters:
         ///     - evaluate: the closure to evaluate the candidate.  `true` means we have a good
         ///             candidate.
+        ///     - bail: the closure that will be used to evaluate if the descendant search must
+        ///             bail.
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        private func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -607,10 +609,10 @@ extension Libxml2 {
             
             let child = children[0]
             
-            if let match = child as? T where !shouldBail(match) && evaluate(match) {
+            if let match = child as? T where !bail(match) && evaluate(match) {
                 return match
             } else if let element = child as? ElementNode {
-                return element.find(leftSideDescendantEvaluatedBy: evaluate, bailIf: shouldBail)
+                return element.find(leftSideDescendantEvaluatedBy: evaluate, bailIf: bail)
             } else {
                 return nil
             }
@@ -621,11 +623,13 @@ extension Libxml2 {
         /// - Parameters:
         ///     - evaluate: the closure to evaluate the candidate.  `true` means we have a good
         ///             candidate.
+        ///     - bail: the closure that will be used to evaluate if the descendant search must
+        ///             bail.
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        private func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -633,10 +637,10 @@ extension Libxml2 {
             
             let child = children[children.count - 1]
             
-            if let match = child as? T where !shouldBail(match) && evaluate(match) {
+            if let match = child as? T where !bail(match) && evaluate(match) {
                 return match
             } else if let element = child as? ElementNode {
-                return element.find(rightSideDescendantEvaluatedBy: evaluate, bailIf: shouldBail)
+                return element.find(rightSideDescendantEvaluatedBy: evaluate, bailIf: bail)
             } else {
                 return nil
             }
@@ -903,10 +907,26 @@ extension Libxml2 {
             return result
         }
         
-        private func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        /// Evaluates the left sibling for a certain condition.  If the condition is met, the
+        /// sibling is returned.  Otherwise this method looks amongst the sibling's right-side
+        /// descendants for any node returning `true` at the evaluation closure.
+        ///
+        /// The search bails if the bail closure returns `true` for either the sibling or its
+        /// descendants before a matching node is found.
+        ///
+        /// When a match is found, it's pushed up to the level of the receiver.
+        ///
+        /// - Parameters:
+        ///     - childIndex: the index of the child to find the sibling of.
+        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
+        ///     - bail: the closure to evaluate if the search must bail.
+        ///
+        /// - Returns: The requested node, if one is found, or `nil`.
+        ///
+        private func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(leftOf: childIndex)
-                where !shouldBail(theSibling) else {
+                where !bail(theSibling) else {
                 return nil
             }
             
@@ -914,22 +934,24 @@ extension Libxml2 {
                 return theSibling
             }
             
-            return pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: shouldBail)
+            return pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
-        ///  Pushes up to the level of the receiver and left-side descendant that evaluates
+        /// Pushes up to the level of the receiver any left-side descendant that evaluates
         /// to `true`.
         ///
         /// - Parameters:
         ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
+        ///     - bail: the closure that will be used to evaluate if the descendant search must
+        ///             bail.
         ///
         /// - Returns: if any matching descendant is found, this method will return the requested
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: shouldBail) else {
+            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
             }
             
@@ -956,13 +978,26 @@ extension Libxml2 {
             return node
         }
         
-        /// Pushes up the right-side sibling, or its descendants when the evaluation closure
-        /// returns `true`.  Bails
+        /// Evaluates the right sibling for a certain condition.  If the condition is met, the
+        /// sibling is returned.  Otherwise this method looks amongst the sibling's left-side
+        /// descendants for any node returning `true` at the evaluation closure.
         ///
-        private func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        /// The search bails if the bail closure returns `true` for either the sibling or its
+        /// descendants before a matching node is found.
+        ///
+        /// When a match is found, it's pushed up to the level of the receiver.
+        ///
+        /// - Parameters:
+        ///     - childIndex: the index of the child to find the sibling of.
+        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
+        ///     - bail: the closure to evaluate if the search must bail.
+        ///
+        /// - Returns: The requested node, if one is found, or `nil`.
+        ///
+        private func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(rightOf: childIndex)
-                where !shouldBail(theSibling) else {
+                where !bail(theSibling) else {
                     return nil
             }
             
@@ -970,22 +1005,24 @@ extension Libxml2 {
                 return theSibling
             }
             
-            return pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: shouldBail)
+            return pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
-        ///  Pushes up to the level of the receiver and right-side descendant that evaluates
+        /// Pushes up to the level of the receiver any right-side descendant that evaluates
         /// to `true`.
         ///
         /// - Parameters:
         ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
+        ///     - bail: the closure that will be used to evaluate if the descendant search must
+        ///             bail.
         ///
         /// - Returns: if any matching descendant is found, this method will return the requested
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf bail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: shouldBail) else {
+            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
             }
             
