@@ -393,7 +393,6 @@ public class TextStorage: NSTextStorage {
     }
 
     private func enableUnderlineInDOM(range: NSRange) {
-
         enableInDom(
             ElementTypes.underline.rawValue,
             inRange: range,
