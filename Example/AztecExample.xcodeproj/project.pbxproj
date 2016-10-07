@@ -531,7 +531,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Automattic, Inc. (PZYM8XX95Q)";
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -703,7 +703,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Automattic, Inc.";
 				DEVELOPMENT_TEAM = 99KV9Z6BKV;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
