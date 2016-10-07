@@ -546,82 +546,46 @@ extension Libxml2 {
             return results
         }
         
-        func sibling<T: Node>(atLeftSideOfChildIndex index: Int, bailIfSiblingIsBlockLevel: Bool) -> T? {
+        /// Retrieves the left-side sibling of the child at the specified index.
+        ///
+        /// - Parameters:
+        ///     - index: the index of the child to get the sibling of.
+        ///
+        /// - Returns: the requested sibling, or `nil` if there's none.
+        ///
+        func sibling<T: Node>(leftOf childIndex: Int) -> T? {
             
-            guard index >= 0 && index < children.count else {
+            guard childIndex >= 0 && childIndex < children.count else {
                 fatalError("Out of bounds!")
             }
             
-            guard index > 0,
-                let sibling = children[index - 1] as? T else {
+            guard childIndex > 0,
+                let sibling = children[childIndex - 1] as? T else {
                     return nil
             }
             
             return sibling
         }
         
-        func sibling<T: Node>(atRightSideOfChildIndex index: Int, bailIfSiblingIsBlockLevel: Bool) -> T? {
+        /// Retrieves the right-side sibling of the child at the specified index.
+        ///
+        /// - Parameters:
+        ///     - index: the index of the child to get the sibling of.
+        ///
+        /// - Returns: the requested sibling, or `nil` if there's none.
+        ///
+        func sibling<T: Node>(rightOf childIndex: Int) -> T? {
             
-            guard index >= 0 && index < children.count else {
+            guard childIndex >= 0 && childIndex < children.count else {
                 fatalError("Out of bounds!")
             }
             
-            guard index < children.count - 1,
-                let sibling = children[index + 1] as? T else {
+            guard childIndex < children.count - 1,
+                let sibling = children[childIndex + 1] as? T else {
                     return nil
             }
             
             return sibling
-        }
-        
-        /// Conveniece method to call `find(leftAdjacentElementNamed:, relativeToChildAtIndex:, bailIfSiblingIsBlockLevel:) -> ElementNode? {`, without knowing the index of a child node beforehand.
-        ///
-        /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
-        ///     - child: the reference child node.
-        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
-        ///
-        /// - Returns: the matching element, if any was found, or `nil`.
-        ///
-        @warn_unused_result
-        func find(leftAdjacentElementNamed elementNames: [String], relativeToChild child: Node, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
-            
-            guard let childIndex = children.indexOf(child) else {
-                assertionFailure("The specified node is not a child of this node.")
-                return nil
-            }
-            
-            return find(leftAdjacentElementNamed: elementNames, relativeToChildAtIndex: childIndex, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
-        }
-        
-        /// Finds any adjacent element with any of the specified names.  The search starts at the left sibling, and
-        /// goes down to its right-most descendants.
-        ///
-        /// The main use of this method is during text-insertion as a mechanism to find equivalent nodes we can attach
-        /// to, instead of creating new, disconnected ones.
-        ///
-        /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
-        ///     - index: the index of the reference child.
-        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
-        ///
-        /// - Returns: the matching element, if any was found, or `nil`.
-        ///
-        @warn_unused_result
-        func find(leftAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
-            
-            guard let sibling: ElementNode = sibling(atLeftSideOfChildIndex: index, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
-                where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
-                    return nil
-            }
-            
-            if elementNames.contains(sibling.name) {
-                return sibling
-            } else {
-                return sibling.find(rightSideDescendantEvaluatedBy: { (node) -> Bool in
-                    return elementNames.contains(node.name)
-                })
-            }
         }
         
         /// Finds any left-side descendant with any of the specified names.
@@ -633,68 +597,20 @@ extension Libxml2 {
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: T -> Bool) -> T? {
+        private func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let child = children[0] as? T else {
+            guard children.count > 0 else {
                 return nil
             }
             
-            if evaluate(child) {
-                return child
+            let child = children[0]
+            
+            if let match = child as? T where !shouldBail(match) && evaluate(match) {
+                return match
             } else if let element = child as? ElementNode {
-                return element.find(leftSideDescendantEvaluatedBy: evaluate)
+                return element.find(leftSideDescendantEvaluatedBy: evaluate, bailIf: shouldBail)
             } else {
                 return nil
-            }
-        }
-        
-        /// Conveniece method to call `find(leftAdjacentElementNamed:, relativeToChildAtIndex:, bailIfSiblingIsBlockLevel:) -> ElementNode? {`, without knowing the index of a child node beforehand.
-        ///
-        /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
-        ///     - child: the reference child node.
-        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
-        ///
-        /// - Returns: the matching element, if any was found, or `nil`.
-        ///
-        @warn_unused_result
-        func find(rightAdjacentElementNamed elementNames: [String], relativeToChild child: Node, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
-            
-            guard let childIndex = children.indexOf(child) else {
-                assertionFailure("The specified node is not a child of this node.")
-                return nil
-            }
-            
-            return find(rightAdjacentElementNamed: elementNames, relativeToChildAtIndex: childIndex, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
-        }
-        
-        /// Finds any adjacent element with any of the specified names.  The search starts at the left sibling, and
-        /// goes down to its right-most descendants.
-        ///
-        /// The main use of this method is during text-insertion as a mechanism to find equivalent nodes we can attach
-        /// to, instead of creating new, disconnected ones.
-        ///
-        /// - Parameters:
-        ///     - elementNames: the name of the elements to look for.
-        ///     - index: the index of the reference child.
-        ///     - bailIfSiblingIsBlockLevel: returns `nil` if the adjacent sibling is a block-level element.
-        ///
-        /// - Returns: the matching element, if any was found, or `nil`.
-        ///
-        @warn_unused_result
-        func find(rightAdjacentElementNamed elementNames: [String], relativeToChildAtIndex index: Int, bailIfSiblingIsBlockLevel: Bool = true) -> ElementNode? {
-            
-            guard let sibling: ElementNode = sibling(atRightSideOfChildIndex: index, bailIfSiblingIsBlockLevel: bailIfSiblingIsBlockLevel)
-                where !bailIfSiblingIsBlockLevel || !sibling.isBlockLevelElement() else {
-                    return nil
-            }
-            
-            if elementNames.contains(sibling.name) {
-                return sibling
-            } else {
-                return sibling.find(rightSideDescendantEvaluatedBy: { (node) -> Bool in
-                    elementNames.contains(node.name)
-                })
             }
         }
         
@@ -707,16 +623,18 @@ extension Libxml2 {
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
         @warn_unused_result
-        private func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: T -> Bool) -> T? {
+        private func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let child = children[children.count - 1] as? T else {
+            guard children.count > 0 else {
                 return nil
             }
             
-            if evaluate(child) {
-                return child
+            let child = children[children.count - 1]
+            
+            if let match = child as? T where !shouldBail(match) && evaluate(match) {
+                return match
             } else if let element = child as? ElementNode {
-                return element.find(rightSideDescendantEvaluatedBy: evaluate)
+                return element.find(rightSideDescendantEvaluatedBy: evaluate, bailIf: shouldBail)
             } else {
                 return nil
             }
@@ -983,6 +901,20 @@ extension Libxml2 {
             return result
         }
         
+        private func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+            
+            guard let theSibling: T = sibling(leftOf: childIndex)
+                where !shouldBail(theSibling) else {
+                return nil
+            }
+            
+            guard !evaluation(theSibling) else {
+                return theSibling
+            }
+            
+            return pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: shouldBail)
+        }
+        
         ///  Pushes up to the level of the receiver and left-side descendant that evaluates
         /// to `true`.
         ///
@@ -993,9 +925,9 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: (node: T) -> Bool) -> T? {
+        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure) else {
+            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: shouldBail) else {
                 return nil
             }
             
@@ -1022,6 +954,23 @@ extension Libxml2 {
             return node
         }
         
+        /// Pushes up the right-side sibling, or its descendants when the evaluation closure
+        /// returns `true`.  Bails
+        ///
+        private func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
+            
+            guard let theSibling: T = sibling(rightOf: childIndex)
+                where !shouldBail(theSibling) else {
+                    return nil
+            }
+            
+            guard !evaluation(theSibling) else {
+                return theSibling
+            }
+            
+            return pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: shouldBail)
+        }
+        
         ///  Pushes up to the level of the receiver and right-side descendant that evaluates
         /// to `true`.
         ///
@@ -1032,9 +981,9 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: (node: T) -> Bool) -> T? {
+        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: (T -> Bool), bailIf shouldBail: (T -> Bool) = { _ in return false }) -> T? {
             
-            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure) else {
+            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: shouldBail) else {
                 return nil
             }
             
@@ -1526,13 +1475,24 @@ extension Libxml2 {
                 return node.name == nodeName
             }
             
+            let bailEvaluation = { (node: ElementNode) -> Bool in
+                return node.isBlockLevelElement()
+            }
+            
+            // First get the right sibling because if we do it the other round, lastNodeIndex will
+            // be modified before we access it.
+            //
+            let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
+            let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
+            /*
             // We need to cache these here, as the indexes may be affected with the below logic.
             //
-            let originalLeftSibling: ElementNode? = sibling(atLeftSideOfChildIndex: firstNodeIndex, bailIfSiblingIsBlockLevel: true)
-            let originalRightSibling: ElementNode? = sibling(atRightSideOfChildIndex: lastNodeIndex, bailIfSiblingIsBlockLevel: true)
+            let originalLeftSibling: ElementNode? = sibling(leftOf: firstNodeIndex)
+            let originalRightSibling: ElementNode? = sibling(rightOf: lastNodeIndex)
             
             var childrenToWrap = newChildren
             var result: ElementNode?
+
             
             if let originalSibling = originalLeftSibling,
                 let theSibling = evaluation(originalSibling) ? originalSibling : originalSibling.pushUp(rightSideDescendantEvaluatedBy: evaluation) {
@@ -1550,6 +1510,23 @@ extension Libxml2 {
                 childrenToWrap = theSibling.children
                 
                 result = theSibling
+            }
+ */
+            var childrenToWrap = newChildren
+            var result: ElementNode?
+            
+            if let sibling = rightSibling {
+                sibling.prepend(childrenToWrap)
+                childrenToWrap = sibling.children
+                
+                result = sibling
+            }
+            
+            if let sibling = leftSibling {
+                sibling.append(childrenToWrap)
+                childrenToWrap = sibling.children
+                
+                result = sibling
             }
             
             if let result = result {
