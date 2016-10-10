@@ -314,6 +314,7 @@ public class TextStorage: NSTextStorage {
     ///
     /// - parameter url: the source URL of the image
     /// - parameter position: the position to insert the image
+    /// - placeHolderImage: an image to display while the image from sourceURL is being prepared
     ///
     /// - returns: the identifier of the image
     func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
