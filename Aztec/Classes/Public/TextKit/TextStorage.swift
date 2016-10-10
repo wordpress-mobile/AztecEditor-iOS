@@ -457,6 +457,7 @@ public class TextStorage: NSTextStorage {
         }
     }
 
+    // MARK: - Image Handling
     func loadImageForAttachment(attachment: TextAttachment, inRange range: NSRange) {
 
         guard let imageProvider = imageProvider else {
