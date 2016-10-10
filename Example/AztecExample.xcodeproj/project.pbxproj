@@ -524,6 +524,7 @@
 				PROVISIONING_PROFILE = "1aa23f94-9d95-4000-a0a6-8b0a49a2eb62";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Development";
 				SWIFT_VERSION = 2.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -545,6 +546,7 @@
 				PROVISIONING_PROFILE = "839aa3fc-0198-4ea8-bb9b-58c5e9b3e71c";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Ad Hoc";
 				SWIFT_VERSION = 2.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -636,6 +638,7 @@
 				PROVISIONING_PROFILE = "1aa23f94-9d95-4000-a0a6-8b0a49a2eb62";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Development";
 				SWIFT_VERSION = 2.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Profiling;
 		};
@@ -717,6 +720,7 @@
 				PROVISIONING_PROFILE = "3e277507-6579-4f06-95c1-93e8cd30fbe3";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Alpha Distribution";
 				SWIFT_VERSION = 2.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = "Release-Alpha";
 		};
