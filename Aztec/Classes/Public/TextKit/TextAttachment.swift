@@ -55,7 +55,7 @@ public class TextAttachment: NSTextAttachment
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
 
-            return image.size.height * scale
+            return floor(image.size.height * scale)
         } else {
             return 0
         }
@@ -65,9 +65,9 @@ public class TextAttachment: NSTextAttachment
         if let image = image {
             switch (size) {
             case .Maximum:
-                return min(image.size.width, containerWidth)
+                return floor(min(image.size.width, containerWidth))
             default:
-                return min(size.width, containerWidth)
+                return floor(min(size.width, containerWidth))
             }
         } else {
             return 0
