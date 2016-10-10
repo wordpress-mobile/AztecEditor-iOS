@@ -21,6 +21,8 @@ public class TextAttachment: NSTextAttachment
     ///
     public var size: Size = .Maximum
 
+    private var glyphImage: UIImage?
+
     /// Designed Initializer
     ///
     public init(identifier: String) {
@@ -81,11 +83,13 @@ public class TextAttachment: NSTextAttachment
             return nil
         }
 
+        if let cachedImage = glyphImage where CGSizeEqualToSize(imageBounds.size, cachedImage.size) {
+            return cachedImage
+        }
         let containerWidth = imageBounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
         let scale = UIScreen.mainScreen().scale
-        let glyphImage: UIImage?
 
         UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, scale)
 
