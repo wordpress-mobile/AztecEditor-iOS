@@ -1,6 +1,4 @@
 import Foundation
-import Alamofire
-import AlamofireImage
 import Aztec
 import Gridicons
 import Photos
