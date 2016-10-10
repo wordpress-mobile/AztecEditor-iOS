@@ -550,16 +550,21 @@ extension EditorDemoController: TextViewMediaDelegate
 {
     func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
 
-        Alamofire.request(.GET, url).responseImage { response in
-
-            if let image = response.result.value {
-                success(image)
-            } else {
-                failure()
-            }
-
+        let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
+            dispatch_async(
+                dispatch_get_main_queue(), {
+                    guard
+                        error == nil,
+                        let data = data,
+                        let image = UIImage(data: data, scale:UIScreen.mainScreen().scale)
+                    else {
+                        failure()
+                        return
+                    }
+                    success(image)
+            })
         }
-
+        task.resume()
         return Gridicon.iconOfType(.Attachment)
     }
 }
