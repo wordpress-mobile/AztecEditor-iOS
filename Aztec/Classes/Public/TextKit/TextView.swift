@@ -430,6 +430,8 @@ public class TextView: UITextView {
     ///
     public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) {
         storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
+        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        selectedRange = NSMakeRange(position+length, 0)
     }
 
 
