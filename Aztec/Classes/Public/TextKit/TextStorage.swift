@@ -309,12 +309,33 @@ public class TextStorage: NSTextStorage {
         }
     }
 
-    func insertImage(url: NSURL, forRange range: NSRange) {
+
+    /// Insert Image Element at the specified range using url as source
+    ///
+    /// - parameter url: the source URL of the image
+    /// - parameter position: the position to insert the image
+    /// - parameter placeHolderImage: an image to display while the image from sourceURL is being prepared
+    ///
+    /// - returns: the identifier of the image
+    ///
+    func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
+        let identifier = NSUUID().UUIDString
+        let attachment = TextAttachment(identifier: identifier)
+        attachment.kind = .RemoteImageDownloaded(url: url, image:placeHolderImage)
+        attachment.image = placeHolderImage
+
+        // Inject the Attachment and Layout
+        let insertionRange = NSMakeRange(position, 0)
+        let attachmentString = NSAttributedString(attachment: attachment)
+        replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+        let wrappingRange = NSMakeRange(position, attachmentString.length)
+
         dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: range,
+            self.rootNode.replaceCharacters(inRange: wrappingRange,
                                        withNodeNamed: ElementTypes.img.rawValue,
                                        withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
         }
+        return identifier
     }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
@@ -437,6 +458,7 @@ public class TextStorage: NSTextStorage {
         }
     }
 
+    // MARK: - Image Handling
     func loadImageForAttachment(attachment: TextAttachment, inRange range: NSRange) {
 
         guard let imageProvider = imageProvider else {
