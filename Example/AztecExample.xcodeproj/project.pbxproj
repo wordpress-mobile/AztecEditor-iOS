@@ -10,12 +10,8 @@
 		59280F2A1D47CAF40083FB59 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = 59280F281D47CAF40083FB59 /* content.html */; };
 		59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 59280F291D47CAF40083FB59 /* SampleText.rtf */; };
 		592D62C91D8DF5590013EFF7 /* Aztec.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 599F25771D8BD045002871D6 /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		5967193E1D8BC60D00F18F7F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5967193B1D8BC60D00F18F7F /* Alamofire.framework */; };
-		5967193F1D8BC60D00F18F7F /* AlamofireImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5967193C1D8BC60D00F18F7F /* AlamofireImage.framework */; };
 		596719401D8BC60D00F18F7F /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5967193D1D8BC60D00F18F7F /* Gridicons.framework */; };
 		599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F256F1D8BCF57002871D6 /* AppDelegate.swift */; };
-		599F25841D8BD998002871D6 /* Alamofire.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193B1D8BC60D00F18F7F /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		599F25851D8BD998002871D6 /* AlamofireImage.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193C1D8BC60D00F18F7F /* AlamofireImage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		599F25861D8BD998002871D6 /* Gridicons.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193D1D8BC60D00F18F7F /* Gridicons.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */; };
 		59D2873C1D8C599B00B99C80 /* AttachmentDetailsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2873A1D8C599B00B99C80 /* AttachmentDetailsViewController.xib */; };
@@ -77,8 +73,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				599F25841D8BD998002871D6 /* Alamofire.framework in CopyFiles */,
-				599F25851D8BD998002871D6 /* AlamofireImage.framework in CopyFiles */,
 				599F25861D8BD998002871D6 /* Gridicons.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -114,8 +108,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5967193E1D8BC60D00F18F7F /* Alamofire.framework in Frameworks */,
-				5967193F1D8BC60D00F18F7F /* AlamofireImage.framework in Frameworks */,
 				596719401D8BC60D00F18F7F /* Gridicons.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
