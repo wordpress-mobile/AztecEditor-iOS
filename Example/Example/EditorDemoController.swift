@@ -563,7 +563,8 @@ extension EditorDemoController: TextViewMediaDelegate
             })
         }
         task.resume()
-        return Gridicon.iconOfType(.Attachment)
+
+        return Gridicon.iconOfType(.Image)
     }
 }
 
@@ -603,7 +604,7 @@ private extension EditorDemoController
         }
 
         data.writeToURL(fileURL, atomically:true)
-        richTextView.insert(image: image, withURL: fileURL, atPosition: index)
+        richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
     }
 
     func displayDetailsForAttachment(attachment: TextAttachment) {
