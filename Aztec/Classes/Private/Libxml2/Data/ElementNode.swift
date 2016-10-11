@@ -367,7 +367,9 @@ extension Libxml2 {
                     
                     let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
 
-                    if let childElement = child as? ElementNode {
+                    if let childElement = child as? ElementNode
+                        where checkCondition(element: childElement) {
+                        
                         childElement.enumerateLowestElements(
                             intersectingRange: intersectionInChildCoordinates,
                             fulfillingCondition: checkCondition,
