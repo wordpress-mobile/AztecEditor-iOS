@@ -330,8 +330,8 @@ extension Libxml2 {
 
             enumerateLowestElements(
                 intersectingRange: targetRange,
-                fulfillingCondition: { (element) -> Bool in
-                    return element.isBlockLevelElement()
+                bailIf: { (element) -> Bool in
+                    return !element.isBlockLevelElement()
                 },
                 onMatchNotFound: matchNotFound,
                 onMatchFound: matchFound)
@@ -344,7 +344,7 @@ extension Libxml2 {
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
-        ///     - condition: a condition that blocks must fulfill to be considered valid results.
+        ///     - bailCondition: a condition that makes the search bail.
         ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
         ///             doesn't have a block-level node intersecting it.
         ///     - matchFound: the closure to execute for each child element intersecting
@@ -353,7 +353,7 @@ extension Libxml2 {
         /// - Returns: an array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
         ///
-        private func enumerateLowestElements(intersectingRange targetRange: NSRange, fulfillingCondition checkCondition: (element: ElementNode) -> Bool, onMatchNotFound matchNotFound: (range: NSRange) -> Void, onMatchFound matchFound: (element: ElementNode, intersection: NSRange) -> Void ) {
+        private func enumerateLowestElements(intersectingRange targetRange: NSRange, bailIf bailCondition: (element: ElementNode) -> Bool, onMatchNotFound matchNotFound: (range: NSRange) -> Void, onMatchFound matchFound: (element: ElementNode, intersection: NSRange) -> Void ) {
             
             var rangeWithoutMatch: NSRange?
             var offset = Int(0)
@@ -368,11 +368,11 @@ extension Libxml2 {
                     let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
 
                     if let childElement = child as? ElementNode
-                        where checkCondition(element: childElement) {
+                        where !bailCondition(element: childElement) {
                         
                         childElement.enumerateLowestElements(
                             intersectingRange: intersectionInChildCoordinates,
-                            fulfillingCondition: checkCondition,
+                            bailIf: bailCondition,
                             onMatchNotFound: { (range) in
 
                                 if let previousRangeWithoutMatch = rangeWithoutMatch {
@@ -388,7 +388,7 @@ extension Libxml2 {
                                 }
 
                                 if let previousRangeWithoutMatch = rangeWithoutMatch {
-                                    if checkCondition(element: strongSelf) {
+                                    if !bailCondition(element: strongSelf) {
                                         matchFound(element: strongSelf, intersection: previousRangeWithoutMatch)
                                         rangeWithoutMatch = nil
                                     } else {
@@ -412,7 +412,7 @@ extension Libxml2 {
             }
 
             if let previousRangeWithoutMatch = rangeWithoutMatch {
-                if checkCondition(element: self) {
+                if !bailCondition(element: self) {
                     matchFound(element: self, intersection: previousRangeWithoutMatch)
                     rangeWithoutMatch = nil
                 } else {
