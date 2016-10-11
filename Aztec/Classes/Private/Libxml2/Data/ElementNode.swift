@@ -286,7 +286,10 @@ extension Libxml2 {
             enumerateLowestBlockLevelElements(intersectingRange: targetRange) { result in
                 results.append(result)
             }
-
+            let intersectionRange = targetRange.intersect(withRange: NSMakeRange(0, length()))
+            if results.isEmpty && intersectionRange != nil{
+                results.append((self, intersectionRange!))
+            }
             return results
         }
 
