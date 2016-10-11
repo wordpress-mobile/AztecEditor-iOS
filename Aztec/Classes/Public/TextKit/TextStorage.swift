@@ -465,10 +465,6 @@ public class TextStorage: NSTextStorage {
         
         edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
-    
-    func setHTMLInDom(html: String,  withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
-        
-    }
 
     // MARK: - Image Handling
     func loadImageForAttachment(attachment: TextAttachment, inRange range: NSRange) {
