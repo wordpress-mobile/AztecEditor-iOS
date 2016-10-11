@@ -136,6 +136,7 @@ public class TextView: UITextView {
     ///     - html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
+        
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
