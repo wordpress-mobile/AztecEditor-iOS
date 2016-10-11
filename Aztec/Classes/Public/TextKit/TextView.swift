@@ -143,7 +143,7 @@ public class TextView: UITextView {
         //      More information about the bug here:
         //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
         //
-        //font = defaultFont
+        font = defaultFont
         
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
     }
