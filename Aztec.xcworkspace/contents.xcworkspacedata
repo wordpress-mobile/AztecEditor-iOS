@@ -5,6 +5,6 @@
       location = "group:Aztec.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:/Users/diego/Documents/Diego/Trabajo/Automattic/git/WordPress-Aztec-iOS/Example/AztecExample.xcodeproj">
+      location = "group:Example/AztecExample.xcodeproj">
    </FileRef>
 </Workspace>
