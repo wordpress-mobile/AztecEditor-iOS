@@ -89,21 +89,22 @@ public class TextStorage: NSTextStorage {
     }
 
     override public func replaceCharactersInRange(range: NSRange, withString str: String) {
+        
         beginEditing()
         textStore.replaceCharactersInRange(range, withString: str)
-        endEditing()
         
         edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
         dispatch_async(domQueue) {
             self.rootNode.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
         }
+        endEditing()
     }
     
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
+        
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
-        endEditing()
         
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         
@@ -115,16 +116,26 @@ public class TextStorage: NSTextStorage {
             let finalRange = NSRange(location: range.location, length: attrString.length)
             self.copyStylesToDOM(spanning: finalRange)
         }
+        endEditing()
     }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
         textStore.setAttributes(attrs, range: range)
-        endEditing()
-
         edited(.EditedAttributes, range: range, changeInLength: 0)
+        endEditing()
     }
-
+    
+    override public func edited(editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
+        super.edited(editedMask, range: editedRange, changeInLength: delta)
+        
+        if editedMask.contains(.EditedAttributes) {
+            textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
+                self?.loadImageForAttachment(attachment, inRange: range)
+            }
+        }
+    }
+    
     // MARK: - Styles: Synchronization with DOM
 
     /// Copies all styles in the specified range to the DOM.
@@ -434,28 +445,29 @@ public class TextStorage: NSTextStorage {
         return result
     }
 
-    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor, onComplete: () -> Void = {}) {
-        dispatch_sync(domQueue) {
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
-            let output: (rootNode: RootNode, attributedString: NSAttributedString)
-            
-            do {
-                output = try converter.convert(html)
-            } catch {
-                fatalError("Could not convert the HTML.")
-            }
-            
-            self.rootNode = output.rootNode
-            
-            let originalLength = self.textStore.length
-            self.textStore = NSMutableAttributedString(attributedString: output.attributedString)
-            
-            self.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
-                self?.loadImageForAttachment(attachment, inRange: range)
-            }
-            
-            self.edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: self.textStore.length - originalLength)
+    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+        
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+        let output: (rootNode: RootNode, attributedString: NSAttributedString)
+        
+        do {
+            output = try converter.convert(html)
+        } catch {
+            fatalError("Could not convert the HTML.")
         }
+        
+        dispatch_sync(domQueue) {
+            self.rootNode = output.rootNode
+        }
+        
+        let originalLength = textStore.length
+        textStore = NSMutableAttributedString(attributedString: output.attributedString)
+        
+        edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+    }
+    
+    func setHTMLInDom(html: String,  withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+        
     }
 
     // MARK: - Image Handling
@@ -478,8 +490,6 @@ public class TextStorage: NSTextStorage {
         default:
             attachment.image = imageProvider.storage(self, missingImageForAttachment: attachment)
         }
-
-        invalidateLayoutForAttachment(attachment)
     }
 
     private func downloadSuccess(attachment: TextAttachment, url: NSURL, image: UIImage) {
