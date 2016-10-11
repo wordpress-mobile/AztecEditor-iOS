@@ -344,7 +344,8 @@ extension Libxml2 {
         ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
         ///             this node's coordinates (the parent node's coordinates, from the children
         ///             PoV).
-        ///     - bailCondition: a condition that makes the search bail.
+        ///     - bailCondition: a condition that makes the search bail from a specific tree search 
+        ///             branch.
         ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
         ///             doesn't have a block-level node intersecting it.
         ///     - matchFound: the closure to execute for each child element intersecting
