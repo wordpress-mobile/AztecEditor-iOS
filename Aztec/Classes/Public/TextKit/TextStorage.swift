@@ -330,8 +330,7 @@ public class TextStorage: NSTextStorage {
     /// - returns: the identifier of the image
     ///
     func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
-        let identifier = NSUUID().UUIDString
-        let attachment = TextAttachment(identifier: identifier)
+        let attachment = TextAttachment()
         attachment.kind = .RemoteImageDownloaded(url: url, image:placeHolderImage)
         attachment.image = placeHolderImage
 
@@ -346,7 +345,7 @@ public class TextStorage: NSTextStorage {
                                        withNodeNamed: ElementTypes.img.rawValue,
                                        withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
         }
-        return identifier
+        return attachment.identifier
     }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {

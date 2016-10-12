@@ -23,9 +23,12 @@ public class TextAttachment: NSTextAttachment
 
     private var glyphImage: UIImage?
 
-    /// Designed Initializer
+    /// Creates a new attachment
     ///
-    public init(identifier: String) {
+    /// - parameter identifier: An unique identifier for the attachment
+    ///
+    /// - returns: self, initilized with the identifier a with kind = .MissingImage
+    required public init(identifier: String = NSUUID().UUIDString, kind: Kind = .MissingImage) {
         self.identifier = identifier
         super.init(data: nil, ofType: nil)
     }
