@@ -27,7 +27,7 @@ public class TextAttachment: NSTextAttachment
     private var glyphImage: UIImage?
 
     public var imageProvider: TextAttachmentImageProvider?
-    public var fetchingHappening: Bool = false
+    public var isFetchingImage: Bool = false
     private var textContainer: NSTextContainer?
 
     /// Creates a new attachment
@@ -90,12 +90,7 @@ public class TextAttachment: NSTextAttachment
 
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         self.textContainer = textContainer
-        switch kind {
-        case .RemoteImage:
-            startImageFetching()
-        default:
-            print("No action to do")
-        }
+        updateImage()
         guard let image = image else {
             return nil
         }
@@ -124,12 +119,7 @@ public class TextAttachment: NSTextAttachment
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         self.textContainer = textContainer
-        switch kind {
-        case .RemoteImage:
-            startImageFetching()
-        default:
-            print("No action to do")
-        }
+        updateImage()
         if image == nil {
             return CGRectZero
         }
@@ -140,30 +130,34 @@ public class TextAttachment: NSTextAttachment
         return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
     }
 
-    func startImageFetching() {
-        var remoteURL: NSURL?
+    func updateImage() {
+        switch kind {
+        case .RemoteImage:
+            break
+        default:
+            return
+        }
+        guard !isFetchingImage else {
+            return
+        }
+        isFetchingImage = true
+
+        let imageURL: NSURL
         switch kind {
         case .RemoteImage(let url):
-            remoteURL = url
+            imageURL = url
         default:
-            remoteURL = nil
+            return
         }
 
-        guard let imageURL = remoteURL else {
-            return
-        }
-        if fetchingHappening {
-            return
-        }
-        fetchingHappening = true
         image = imageProvider?.image(forURL: imageURL, inAttachment: self,
                                                 onSuccess: { [weak self](image) in
-                                                    self?.fetchingHappening = false
+                                                    self?.isFetchingImage = false
                                                     self?.image = image
                                                     self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
                                                     self?.triggerUpdate()
             }, onFailure: { [weak self]() in
-                self?.fetchingHappening = false
+                self?.isFetchingImage = false
                 self?.kind = .MissingImage
                 self?.triggerUpdate()
             })        
