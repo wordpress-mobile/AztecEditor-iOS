@@ -2,6 +2,17 @@ import Foundation
 import UIKit
 
 protocol TextStorageImageProvider {
+
+    /// Provides images for attachments that are part of the storage
+    ///
+    /// - parameter storage:    The storage that is requesting the image.
+    /// - parameter attachment: The attachment that is requesting the image.
+    /// - parameter url:        url for the image.
+    /// - parameter success:    a callback block to be invoked with the image fetched from the url.
+    /// - parameter failure:    a callback block to be invoked when an error occurs when fetching the image.
+    ///
+    /// - returns: returns a temporary UIImage to be used while the request is happening
+    ///
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
 }
@@ -125,17 +136,7 @@ public class TextStorage: NSTextStorage {
         edited(.EditedAttributes, range: range, changeInLength: 0)
         endEditing()
     }
-    
-    override public func edited(editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
-        super.edited(editedMask, range: editedRange, changeInLength: delta)
-        
-        if editedMask.contains(.EditedAttributes) {
-            textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
-                self?.loadImageForAttachment(attachment, inRange: range)
-            }
-        }
-    }
-    
+
     // MARK: - Styles: Synchronization with DOM
 
     /// Copies all styles in the specified range to the DOM.
@@ -461,63 +462,23 @@ public class TextStorage: NSTextStorage {
         
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: output.attributedString)
-        
+        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
+            attachment.imageProvider = self
+        }
         edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
-    }
-
-    // MARK: - Image Handling
-    func loadImageForAttachment(attachment: TextAttachment, inRange range: NSRange) {
-
-        guard let imageProvider = imageProvider else {
-            fatalError("The image provider should've been set at this point.")
-        }
-
-        switch (attachment.kind) {
-        case .RemoteImage(let url):
-            attachment.image = imageProvider.storage(self, attachment: attachment, imageForURL: url, onSuccess: { [weak self] image in
-                self?.downloadSuccess(attachment, url: url, image: image)
-                }, onFailure: { [weak self] in
-                    self?.downloadFailure(attachment)
-            })
-        case .RemoteImageDownloaded(_, let image):
-            attachment.image = image
-
-        default:
-            attachment.image = imageProvider.storage(self, missingImageForAttachment: attachment)
-        }
-    }
-
-    private func downloadSuccess(attachment: TextAttachment, url: NSURL, image: UIImage) {
-
-        attachment.kind = .RemoteImageDownloaded(url: url, image: image)
-
-        attachment.image = image
-        invalidateLayoutForAttachment(attachment)
-    }
-
-    private func downloadFailure(attachment: TextAttachment) {
-        guard let imageProvider = imageProvider else {
-            fatalError("The image provider should've been set at this point.")
-        }
-
-        attachment.image = imageProvider.storage(self, missingImageForAttachment: attachment)
-        invalidateLayoutForAttachment(attachment)
-    }
-
-    /// Invalidates the layout for an attachment when some change happened to it.    
-    func invalidateLayoutForAttachment(attachment: TextAttachment) {
-
-        guard let layoutManager = layoutManagers.first else {
-            fatalError("This storage should have at least one layout manager assigned.")
-        }
-
-        if let range = range(forAttachment: attachment) {
-            layoutManager.invalidateLayoutForCharacterRange(range, actualCharacterRange: nil)
-            layoutManager.invalidateDisplayForCharacterRange(range)
-        }
     }
 }
 
+extension TextStorage: TextAttachmentImageProvider {
+
+    public func image(forURL url: NSURL, inAttachment attachment: TextAttachment,
+                             onSuccess success: (UIImage) -> (),
+                                       onFailure failure: () -> ()) -> UIImage?
+    {
+        return imageProvider?.storage(self, attachment: attachment, imageForURL: url, onSuccess: success, onFailure: failure)
+    }
+
+}
 
 /// Convenience extension to group font trait related methods.
 ///

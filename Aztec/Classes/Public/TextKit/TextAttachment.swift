@@ -1,6 +1,9 @@
 import Foundation
 import UIKit
 
+public protocol TextAttachmentImageProvider {
+    func image(forURL url: NSURL, inAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
+}
 /// Custom text attachment.
 ///
 public class TextAttachment: NSTextAttachment
@@ -22,6 +25,10 @@ public class TextAttachment: NSTextAttachment
     public var size: Size = .Maximum
 
     private var glyphImage: UIImage?
+
+    public var imageProvider: TextAttachmentImageProvider?
+    public var fetchingHappening: Bool = false
+    private var textContainer: NSTextContainer?
 
     /// Creates a new attachment
     ///
@@ -82,6 +89,13 @@ public class TextAttachment: NSTextAttachment
     // MARK: - NSTextAttachmentContainer
 
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
+        self.textContainer = textContainer
+        switch kind {
+        case .RemoteImage:
+            startImageFetching()
+        default:
+            print("No action to do")
+        }
         guard let image = image else {
             return nil
         }
@@ -109,7 +123,13 @@ public class TextAttachment: NSTextAttachment
     /// Otherwise, we'll always take the whole container's width.
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-
+        self.textContainer = textContainer
+        switch kind {
+        case .RemoteImage:
+            startImageFetching()
+        default:
+            print("No action to do")
+        }
         if image == nil {
             return CGRectZero
         }
@@ -118,6 +138,39 @@ public class TextAttachment: NSTextAttachment
         let width = lineFrag.width - padding * 2
 
         return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
+    }
+
+    func startImageFetching() {
+        var remoteURL: NSURL?
+        switch kind {
+        case .RemoteImage(let url):
+            remoteURL = url
+        default:
+            remoteURL = nil
+        }
+
+        guard let imageURL = remoteURL else {
+            return
+        }
+        if fetchingHappening {
+            return
+        }
+        fetchingHappening = true
+        image = imageProvider?.image(forURL: imageURL, inAttachment: self,
+                                                onSuccess: { [weak self](image) in
+                                                    self?.fetchingHappening = false
+                                                    self?.image = image
+                                                    self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
+                                                    self?.triggerUpdate()
+            }, onFailure: { [weak self]() in
+                self?.fetchingHappening = false
+                self?.kind = .MissingImage
+                self?.triggerUpdate()
+            })        
+    }
+
+    func triggerUpdate(){
+        self.textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
     }
 }
 
