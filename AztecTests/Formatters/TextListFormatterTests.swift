@@ -283,6 +283,43 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(items[3].number == 3)
         XCTAssert(items[4].number == 4)
     }
+
+    // Scenario 7:
+    // ===========
+    //
+    //  Line 1:       [Text]            1 [Text]
+    //  Line 2:       [Text]            2 [Text]
+    //  Line 3:     1 [Text]    > > >   3 [Text]
+    //  Line 4:     2 [Text]            4 [Text]
+    //  Line 5:     3 [Text]            5 [Text]
+    //
+    // Toggling "Ordered List" on lines 1-5 converts the text into a single list.
+    //
+    func testToggleOrderedListOnPlainTextFollowedByOrderedListUpdatesAllOfTheItemNumbers() {
+        let string = NSMutableAttributedString(string: plainText)
+        let formatter = TextListFormatter()
+
+        // Apply the Ordered List style to the last three paragraphs
+        for (index, range) in paragraphRanges(inString: string).enumerate() where index >= 2 {
+            formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: range)
+        }
+
+        // Now... toggle an Ordered List on the full text
+        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: string.rangeOfEntireString)
+
+        // Verify
+        let paragraphs = paragraphRanges(inString: string)
+        for (index, range) in paragraphs.enumerate() {
+            let list = string.textListAttribute(spanningRange: range)
+            XCTAssertNotNil(list)
+            XCTAssert(list!.style == .Ordered)
+
+            let item = string.textListItemAttribute(spanningRange: range)
+            XCTAssertNotNil(item)
+
+            XCTAssert(item?.number == index + 1)
+        }
+    }
 }
 
 
