@@ -24,24 +24,22 @@ extension NSAttributedString
     }
 
     /// Determine the character ranges for an attachment
+    ///
+    /// - parameter attachment: the attachment to search for
+    ///
+    /// - returns: an array of ranges where the attachement can be found
+    ///
     public func ranges(forAttachment attachment: NSTextAttachment) -> [NSRange]
     {
-        // find character range for this attachment
         let range = NSRange(location: 0, length: length)
-
-        var refreshRanges = [NSRange]()
-
+        var attachmentRanges = [NSRange]()
         enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (value, effectiveRange, nil) in
-
-            guard let foundAttachment = value as? NSTextAttachment where foundAttachment == attachment else
-            {
+            guard let foundAttachment = value as? NSTextAttachment where foundAttachment == attachment else {
                 return
             }
-
-            // add this range to the refresh ranges
-            refreshRanges.append(effectiveRange)
+            attachmentRanges.append(effectiveRange)
         }
         
-        return refreshRanges
+        return attachmentRanges
     }
 }
