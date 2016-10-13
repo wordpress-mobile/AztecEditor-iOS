@@ -131,13 +131,8 @@ public class TextAttachment: NSTextAttachment
     }
 
     func updateImage() {
-        switch kind {
-        case .RemoteImage:
-            break
-        default:
-            return
-        }
-        guard !isFetchingImage else {
+
+        guard let imageProvider = imageProvider where !isFetchingImage else {
             return
         }
         isFetchingImage = true
@@ -150,7 +145,7 @@ public class TextAttachment: NSTextAttachment
             return
         }
 
-        image = imageProvider?.image(forURL: imageURL, inAttachment: self,
+        image = imageProvider.image(forURL: imageURL, inAttachment: self,
                                                 onSuccess: { [weak self](image) in
                                                     self?.isFetchingImage = false
                                                     self?.image = image
