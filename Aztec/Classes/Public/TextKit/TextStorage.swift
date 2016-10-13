@@ -472,7 +472,7 @@ public class TextStorage: NSTextStorage {
 extension TextStorage: TextAttachmentImageProvider {
 
     public func image(forURL url: NSURL,
-                      inAttachment attachment: TextAttachment,
+                      forAttachment attachment: TextAttachment,
                       onSuccess success: (UIImage) -> (),
                       onFailure failure: () -> ()) -> UIImage?
     {

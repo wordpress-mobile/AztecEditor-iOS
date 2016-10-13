@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 public protocol TextAttachmentImageProvider {
-    func image(forURL url: NSURL, inAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
+    func image(forURL url: NSURL, forAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
 }
 /// Custom text attachment.
 ///
@@ -145,17 +145,18 @@ public class TextAttachment: NSTextAttachment
             return
         }
 
-        image = imageProvider.image(forURL: imageURL, inAttachment: self,
-                                                onSuccess: { [weak self](image) in
-                                                    self?.isFetchingImage = false
-                                                    self?.image = image
-                                                    self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
-                                                    self?.triggerUpdate()
-            }, onFailure: { [weak self]() in
-                self?.isFetchingImage = false
-                self?.kind = .MissingImage
-                self?.triggerUpdate()
-            })        
+        image = imageProvider.image(forURL: imageURL,
+                                    forAttachment: self,
+                                    onSuccess: { [weak self](image) in
+                                        self?.isFetchingImage = false
+                                        self?.image = image
+                                        self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
+                                        self?.triggerUpdate()
+                                    }, onFailure: { [weak self]() in
+                                        self?.isFetchingImage = false
+                                        self?.kind = .MissingImage
+                                        self?.triggerUpdate()
+                                    })        
     }
 
     func triggerUpdate(){
