@@ -83,9 +83,6 @@ private extension TextListFormatter
         // Done Editing!
         string.endEditing()
 
-        // Update the (SUCCEDING) List, if needed.
-        updateList(inString: string, succeedingRange: listRange)
-
         return listRange
     }
 
