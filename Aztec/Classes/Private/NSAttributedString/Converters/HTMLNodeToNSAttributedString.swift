@@ -145,8 +145,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             return NSAttributedString(string: "\n")
         } else if elementName == "img" {
 
-            let identifier = NSUUID().UUIDString
-            let attachment = TextAttachment(identifier: identifier)
+            let attachment = TextAttachment()
 
             if let urlString = elementNode.valueForStringAttribute(named: "src"),
                 let url = NSURL(string: urlString) {

@@ -1,6 +1,9 @@
 import Foundation
 import UIKit
 
+public protocol TextAttachmentImageProvider {
+    func image(forURL url: NSURL, inAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
+}
 /// Custom text attachment.
 ///
 public class TextAttachment: NSTextAttachment
@@ -23,9 +26,16 @@ public class TextAttachment: NSTextAttachment
 
     private var glyphImage: UIImage?
 
-    /// Designed Initializer
+    public var imageProvider: TextAttachmentImageProvider?
+    public var isFetchingImage: Bool = false
+    private var textContainer: NSTextContainer?
+
+    /// Creates a new attachment
     ///
-    public init(identifier: String) {
+    /// - parameter identifier: An unique identifier for the attachment
+    ///
+    /// - returns: self, initilized with the identifier a with kind = .MissingImage
+    required public init(identifier: String = NSUUID().UUIDString, kind: Kind = .MissingImage) {
         self.identifier = identifier
         super.init(data: nil, ofType: nil)
     }
@@ -79,6 +89,8 @@ public class TextAttachment: NSTextAttachment
     // MARK: - NSTextAttachmentContainer
 
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
+        self.textContainer = textContainer
+        updateImage()
         guard let image = image else {
             return nil
         }
@@ -106,7 +118,8 @@ public class TextAttachment: NSTextAttachment
     /// Otherwise, we'll always take the whole container's width.
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-
+        self.textContainer = textContainer
+        updateImage()
         if image == nil {
             return CGRectZero
         }
@@ -115,6 +128,38 @@ public class TextAttachment: NSTextAttachment
         let width = lineFrag.width - padding * 2
 
         return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
+    }
+
+    func updateImage() {
+
+        guard let imageProvider = imageProvider where !isFetchingImage else {
+            return
+        }
+        isFetchingImage = true
+
+        let imageURL: NSURL
+        switch kind {
+        case .RemoteImage(let url):
+            imageURL = url
+        default:
+            return
+        }
+
+        image = imageProvider.image(forURL: imageURL, inAttachment: self,
+                                                onSuccess: { [weak self](image) in
+                                                    self?.isFetchingImage = false
+                                                    self?.image = image
+                                                    self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
+                                                    self?.triggerUpdate()
+            }, onFailure: { [weak self]() in
+                self?.isFetchingImage = false
+                self?.kind = .MissingImage
+                self?.triggerUpdate()
+            })        
+    }
+
+    func triggerUpdate(){
+        self.textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
     }
 }
 

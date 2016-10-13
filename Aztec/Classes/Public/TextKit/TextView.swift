@@ -783,13 +783,13 @@ public class TextView: UITextView {
     public func changeAlignment(forAttachment attachment: TextAttachment, to alignment: TextAttachment.Alignment) {
         attachment.alignment = alignment
 
-        storage.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayoutForAttachment(attachment)
     }
 
     public func changeSize(forAttachment attachment: TextAttachment, to size: TextAttachment.Size) {
         attachment.size = size
 
-        storage.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayoutForAttachment(attachment)
     }
 }
 
