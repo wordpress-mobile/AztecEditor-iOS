@@ -16,18 +16,25 @@ class TextListFormatter
     /// - Returns: An NSRange representing the change to the attributed string.
     ///
     func toggleList(ofStyle style: TextList.Style, inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
-        let ranges = string.paragraphRanges(spanningRange: range)
-        guard let firstRange = ranges.first else {
+        // Load Paragraph Ranges
+        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        guard paragraphRanges.isEmpty == false else {
             return nil
         }
 
-        // Existing list: Same kind? > remove. Else > Apply!
-        if let list = string.textListAttribute(atIndex: firstRange.location) where list.style == style {
-            return removeList(fromString: string, atRanges: ranges)
+        // 1st Paragraph: No List >> Apply
+        guard let listRange = string.rangeOfTextList(atIndex: paragraphRanges[0].location) else {
+            return applyList(ofStyle: style, toString: string, atRanges: paragraphRanges)
         }
 
-        // Check the paragraphs at each range. If any have the opposite list style remove that range.
-        return applyList(ofStyle: style, toString: string, atRanges: ranges)
+        // 1st Paragraph: Matching List Style >> Remove
+        guard let listAttribute = string.textListAttribute(spanningRange: listRange) where listAttribute.style != style else {
+            return removeList(fromString: string, atRanges: paragraphRanges)
+        }
+
+        // 1st Paragraph: Non Matching Style >> Update!
+        let listParagraphs = string.paragraphRanges(spanningRange: listRange)
+        return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
     }
 }
 
