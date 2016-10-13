@@ -150,13 +150,13 @@ class TextListFormatterTests: XCTestCase
     //
     //  Line 1:     - [Text]            1 [Text]
     //  Line 2:     1 [Text]            2 [Text]
-    //  Line 3:     - [Text]    > > >   3 [Text]
-    //  Line 4:     1 [Text]            4 [Text]
-    //  Line 5:     - [Text]            5 [Text]
+    //  Line 3:     - [Text]    > > >   - [Text]
+    //  Line 4:     1 [Text]            1 [Text]
+    //  Line 5:     - [Text]            - [Text]
     //
-    // Toggling "Ordered List" on Lines 1-5 should make all of the text a single Ordered List.
+    // Toggling "Ordered List" on Lines 1-5 should convert Line 1 into an Ordered List, and skip the rest.
     //
-    func testToggleListAppliesTheNewStyleConsistentlyWhenTheFirstRangeDoesntMatchTheNewRange() {
+    func testToggleListAppliesTheNewStyleOnTheFirstParagraphWhenTheFirstRangeContainsAnotherListOfDifferentStyle() {
         let list = listWithAlternatedStyle
 
         // Toggle Ordered List on the full string's range
@@ -165,26 +165,18 @@ class TextListFormatterTests: XCTestCase
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
-        let lists = textListAttributes(inString: list, atRanges: ranges)
-        let listItems = textListItemAttributes(inString: list, atRanges: ranges)
+        let lists = ranges.flatMap { list.textListAttribute(spanningRange: $0) }
+        let items = ranges.flatMap { list.textListItemAttribute(spanningRange: $0) }
 
-        XCTAssert(lists.count == 5)
-        XCTAssert(listItems.count == 5)
+        XCTAssert(lists[0].style == .Ordered)
+        XCTAssert(lists[1].style == .Ordered)
+        XCTAssert(lists[2].style == .Unordered)
+        XCTAssert(lists[3].style == .Ordered)
+        XCTAssert(lists[4].style == .Unordered)
 
-        for list in lists  {
-            XCTAssert(list.style == .Ordered)
-        }
-
-        for (index, item) in listItems.enumerate() {
-            XCTAssert(item.number == (index + 1))
-        }
-
-        guard let listRange = list.rangeOfTextList(atIndex: 0) else {
-            XCTFail()
-            return
-        }
-
-        XCTAssert(listRange.length == list.length)
+        XCTAssert(items[0].number == 1)
+        XCTAssert(items[1].number == 2)
+        XCTAssert(items[3].number == 1)
     }
 
     // Scenario 4:
@@ -251,12 +243,12 @@ class TextListFormatterTests: XCTestCase
     // ===========
     //
     //  Line 1:     1 [Text]            - [Text]
-    //  Line 2:     2 [Text]            1 [Text]
-    //  Line 3:     3 [Text]    > > >   2 [Text]
-    //  Line 4:     4 [Text]            3 [Text]
-    //  Line 5:     5 [Text]            4 [Text]
+    //  Line 2:     2 [Text]            - [Text]
+    //  Line 3:     3 [Text]    > > >   - [Text]
+    //  Line 4:     4 [Text]            - [Text]
+    //  Line 5:     5 [Text]            - [Text]
     //
-    // Toggling "Unordered List" on Line 1 should update Lines 2-5, and toggle Line 1.
+    // Toggling "Unordered List" on Line 1 should switch everything to an Unordered List
     //
     func testToggleUnorderedListOnFirstOrderedListItemUpdatesTheRemainingItemNumbers() {
         let list = listWithOrderedStyle
@@ -271,17 +263,11 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == 5)
         XCTAssert(items.count == 5)
 
-
         XCTAssert(lists[0].style == .Unordered)
-        XCTAssert(lists[1].style == .Ordered)
-        XCTAssert(lists[2].style == .Ordered)
-        XCTAssert(lists[3].style == .Ordered)
-        XCTAssert(lists[4].style == .Ordered)
-
-        XCTAssert(items[1].number == 1)
-        XCTAssert(items[2].number == 2)
-        XCTAssert(items[3].number == 3)
-        XCTAssert(items[4].number == 4)
+        XCTAssert(lists[1].style == .Unordered)
+        XCTAssert(lists[2].style == .Unordered)
+        XCTAssert(lists[3].style == .Unordered)
+        XCTAssert(lists[4].style == .Unordered)
     }
 
     // Scenario 7:
