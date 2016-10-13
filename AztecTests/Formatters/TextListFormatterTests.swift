@@ -419,6 +419,44 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == 0)
         XCTAssert(items.count == 0)
     }
+
+
+    // Scenario 7:
+    // ===========
+    //
+    //  Line 1:     - [Text]            1 [Text]
+    //  Line 2:     - [Text]            2 [Text]
+    //  Line 3:       [Text]    > > >     [Text]
+    //  Line 4:       [Text]              [Text]
+    //  Line 5:       [Text]              [Text]
+    //
+    // Toggling "Ordered List" on Lines 1-5 should only switch Lines 1 and 2 to Ordered Lists.
+    //
+    func testToggleListChangesTheStyleWhenTheFirstTwoSelectedParagraphsHaveDifferentStyles() {
+        let list = NSMutableAttributedString(string: plainText)
+        let plainRanges = plainTextParagraphRanges
+        let formatter = TextListFormatter()
+
+        // First TWO lines: Unordered List
+        let length = plainRanges[1].location + plainRanges[1].length
+        let range = NSRange(location: 0, length: length)
+
+        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: range)
+
+        // Verify
+        XCTAssert(textListItemAttributes(inString: list, atRanges: paragraphRanges(inString: list)).count == 2)
+
+        // Toggle
+        formatter.toggleList(ofStyle: .Ordered, inString: list, atRange: list.rangeOfEntireString)
+
+        // Verify
+        let items = textListItemAttributes(inString: list, atRanges: paragraphRanges(inString: list))
+
+        XCTAssert(items.count == 2)
+
+        XCTAssert(items[0].number == 1)
+        XCTAssert(items[1].number == 2)
+    }
 }
 
 
