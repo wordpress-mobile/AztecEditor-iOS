@@ -155,6 +155,8 @@ public class TextStorage: NSTextStorage {
                 switch (key) {
                 case NSFontAttributeName:
                     copyToDOM(fontAttributesSpanning: range, fromAttributeValue: value)
+                case NSLinkAttributeName:
+                    copyToDOM(linkAttributeSpanning: range, fromAttributeValue: value)
                 case NSStrikethroughStyleAttributeName:
                     copyToDOM(strikethroughStyleSpanning: range, fromAttributeValue: value)
                 case NSUnderlineStyleAttributeName:
@@ -174,6 +176,25 @@ public class TextStorage: NSTextStorage {
         }
         
         copyToDOM(fontAttributesSpanning: range, fromFont: font)
+    }
+    
+    private func copyToDOM(linkAttributeSpanning range: NSRange, fromAttributeValue value: AnyObject) {
+        
+        let linkURL: NSURL
+        
+        if let urlValue = value as? NSURL {
+            linkURL = urlValue
+        } else {
+            guard let stringValue = value as? String,
+                let stringValueURL = NSURL(string: stringValue) else {
+                    assertionFailure("Was expecting a NSString or NSURL object as the value for the link attribute.")
+                    return
+            }
+            
+            linkURL = stringValueURL
+        }
+        
+        setLinkInDOM(range, url: linkURL)
     }
     
     private func copyToDOM(fontAttributesSpanning range: NSRange, fromFont font: UIFont) {
@@ -299,14 +320,7 @@ public class TextStorage: NSTextStorage {
         }
         
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-        
-        dispatch_async(domQueue) {
-            self.rootNode.wrapChildren(
-                intersectingRange: effectiveRange,
-                inNodeNamed: ElementTypes.link.rawValue,
-                withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: ElementTypes.link.equivalentNames)
-        }
+        setLinkInDOM(effectiveRange, url: url)
     }
 
     func removeLink(inRange range: NSRange){
@@ -429,6 +443,16 @@ public class TextStorage: NSTextStorage {
             ElementTypes.underline.rawValue,
             inRange: range,
             equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
+    }
+    
+    private func setLinkInDOM(range: NSRange, url: NSURL) {
+        dispatch_async(domQueue) {
+            self.rootNode.wrapChildren(
+                intersectingRange: range,
+                inNodeNamed: ElementTypes.link.rawValue,
+                withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
+                equivalentElementNames: ElementTypes.link.equivalentNames)
+        }
     }
 
     // MARK: - HTML Interaction
