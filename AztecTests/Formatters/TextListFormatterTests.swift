@@ -318,7 +318,7 @@ class TextListFormatterTests: XCTestCase
     //  Line 4:     2 [Text]            4 [Text]
     //  Line 5:     3 [Text]            5 [Text]
     //
-    // Toggling "Ordered List" on lines 1-5 converts the text into a single list.
+    // Toggling "Ordered List" on lines 1-2 converts the text into a single list.
     //
     func testToggleOrderedListOnPlainTextFollowedByOrderedListUpdatesAllOfTheItemNumbers() {
         let string = NSMutableAttributedString(string: plainText)
