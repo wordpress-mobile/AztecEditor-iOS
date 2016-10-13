@@ -22,9 +22,10 @@ class TextListFormatter
             return nil
         }
 
-        // 1st Paragraph: No List >> Apply
+        // 1st Paragraph: No List >> Apply, skipping paragraphs that currently contain TextLists
         guard let listRange = string.rangeOfTextList(atIndex: paragraphRanges[0].location) else {
-            return applyList(ofStyle: style, toString: string, atRanges: paragraphRanges)
+            let filtered = filterListRanges(paragraphRanges, fromString: string, notMatchingStyle: style)
+            return applyLists(ofStyle: style, toString: string, atNonContiguousRanges: filtered)
         }
 
         // 1st Paragraph: Matching List Style >> Remove
@@ -43,6 +44,28 @@ class TextListFormatter
 //
 private extension TextListFormatter
 {
+    ///
+    ///
+    func applyLists(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atNonContiguousRanges ranges: [NSRange]) -> NSRange? {
+        guard let first = ranges.first else {
+            return nil
+        }
+
+        let grouped = groupContiguousRanges(ranges)
+        var length = 0
+
+        for group in grouped.reverse() {
+            guard let range = applyList(ofStyle: style, toString: string, atRanges: group) else {
+                continue
+            }
+
+            length += range.length
+        }
+
+        return NSRange(location: first.location, length: length)
+    }
+
+
     /// Applies a TextList attribute to the specified paragraph ranges in the
     /// specified string. Each paragraph range is treated as a list item.
     ///
@@ -146,5 +169,46 @@ private extension TextListFormatter
 
         let nextListParagraphs = string.paragraphRanges(atIndex: nextListIndex, matchingListStyle: nextListAttribute.style)
         applyList(ofStyle: nextListAttribute.style, toString: string, atRanges: nextListParagraphs)
+    }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension TextListFormatter
+{
+    ///
+    ///
+    func filterListRanges(ranges: [NSRange], fromString string: NSAttributedString, notMatchingStyle style: TextList.Style) -> [NSRange] {
+        return ranges.filter { range in
+            let list = string.textListAttribute(spanningRange: range)
+            return list == nil || list?.style == style
+        }
+    }
+
+
+    ///
+    ///
+    func groupContiguousRanges(ranges: [NSRange]) -> [[NSRange]] {
+        var grouped = [[NSRange]]()
+        var current = [NSRange]()
+        var last: NSRange?
+
+        for range in ranges {
+            if let lastLocation = last?.lastLocation where range.location != lastLocation {
+                grouped.append(current)
+                current.removeAll()
+                last = nil
+            }
+
+            current.append(range)
+            last = range
+        }
+
+        if !current.isEmpty {
+            grouped.append(current)
+        }
+        
+        return grouped
     }
 }
