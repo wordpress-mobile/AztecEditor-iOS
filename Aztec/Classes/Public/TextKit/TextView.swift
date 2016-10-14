@@ -791,6 +791,12 @@ public class TextView: UITextView {
 
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
+
+    public func changeURL(forAttachment attachment: TextAttachment, to url: NSURL) {
+        attachment.kind = .RemoteImage(url: url)
+
+        layoutManager.invalidateLayoutForAttachment(attachment)
+    }
 }
 
 // MARK: - TextStorageAttachmentsDelegate

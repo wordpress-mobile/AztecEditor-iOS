@@ -610,11 +610,12 @@ private extension EditorDemoController
     func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
 
             if let strongSelf = self {
                 strongSelf.richTextView.changeAlignment(forAttachment: attachment, to: alignment)
                 strongSelf.richTextView.changeSize(forAttachment: attachment, to: size)
+                strongSelf.richTextView.changeURL(forAttachment: attachment, to:url)
             }
         }
 

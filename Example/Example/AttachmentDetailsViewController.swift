@@ -9,7 +9,7 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var sourceURLTextField: UITextField!
 
     var attachment: TextAttachment?
-    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size) -> Void)?
+    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size, NSURL) -> Void)?
 
 
     override func viewDidLoad() {
@@ -57,13 +57,19 @@ class AttachmentDetailsViewController: UITableViewController
     }
 
     @IBAction func doneWasPressed() {
-        guard let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
-            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex) else
-        {
+        guard
+            let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
+            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex)
+            else {
             fatalError()
         }
+        var sourceURL = NSURL()
+        if let urlString = sourceURLTextField.text,
+           let url = NSURL(string:urlString) {
+            sourceURL = url
+        }
 
-        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize())
+        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize(), sourceURL)
         
         dismissViewControllerAnimated(true, completion: nil)
     }
