@@ -53,7 +53,7 @@ private extension TextListFormatter
     ///
     /// - Returns: The affected NSRange, or nil if no changes were made.
     ///
-    /// - Notes: The return NSRange, if any, will *INCLUDE* any String Ranges that lie between the non contiguous
+    /// - Notes: The returned NSRange, if any, will *INCLUDE* any String Ranges that lie between the non contiguous
     ///   groups. Specifically...
     ///
     ///     [Line 1]  Text                          [Line 1]  1. Text
