@@ -135,7 +135,6 @@ public class TextAttachment: NSTextAttachment
         guard let imageProvider = imageProvider where !isFetchingImage else {
             return
         }
-        isFetchingImage = true
 
         let imageURL: NSURL
         switch kind {
@@ -145,6 +144,8 @@ public class TextAttachment: NSTextAttachment
             return
         }
 
+        isFetchingImage = true
+        
         image = imageProvider.image(forURL: imageURL,
                                     forAttachment: self,
                                     onSuccess: { [weak self](image) in
