@@ -2,10 +2,12 @@ import Foundation
 import Aztec
 import UIKit
 
-class AttachmentDetailsViewController: UIViewController
+class AttachmentDetailsViewController: UITableViewController
 {
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
+    @IBOutlet var sourceURLTextField: UITextField!
+
     var attachment: TextAttachment?
     var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size) -> Void)?
 
@@ -39,6 +41,15 @@ class AttachmentDetailsViewController: UIViewController
         alignmentSegmentedControl.selectedSegmentIndex = alignment.rawValue
         sizeSegmentedControl.selectedSegmentIndex = size.rawValue
 
+        switch attachment.kind {
+        case .RemoteImageDownloaded(let url, _):
+            sourceURLTextField.text = url.absoluteString
+        case .RemoteImage(let url):
+            sourceURLTextField.text = url.absoluteString
+        default:
+            sourceURLTextField.text = nil
+        }
+
     }
 
     @IBAction func cancelWasPressed() {
@@ -56,6 +67,12 @@ class AttachmentDetailsViewController: UIViewController
         
         dismissViewControllerAnimated(true, completion: nil)
     }
+
+    class func controller() -> AttachmentDetailsViewController {
+        let storyboard = UIStoryboard(name: "AttachmentDetailsViewController", bundle: nil)
+        return storyboard.instantiateViewControllerWithIdentifier("AttachmentDetailsViewController") as! AttachmentDetailsViewController
+    }
+
 }
 
 

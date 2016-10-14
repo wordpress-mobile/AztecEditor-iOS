@@ -607,8 +607,8 @@ private extension EditorDemoController
         richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
     }
 
-    func displayDetailsForAttachment(attachment: TextAttachment) {
-        let detailsViewController = AttachmentDetailsViewController()
+    func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
+        let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size) in
 
@@ -618,7 +618,7 @@ private extension EditorDemoController
             }
         }
 
-        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        let navigationController = UINavigationController(rootViewController: detailsViewController)        
         presentViewController(navigationController, animated: true, completion: nil)
     }
 }
@@ -636,6 +636,6 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             return
         }
 
-        displayDetailsForAttachment(attachment)
+        displayDetailsForAttachment(attachment, position:locationInTextView)
     }
 }
