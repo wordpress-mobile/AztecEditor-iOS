@@ -92,8 +92,7 @@ public class TextView: UITextView {
 
     /// Get the ranges of paragraphs that encompase the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The specified NSRange.
+    /// - Parameter range: The specified NSRange.
     ///
     /// - Returns an array of NSRange objects.
     ///
@@ -132,8 +131,7 @@ public class TextView: UITextView {
 
     /// Loads the specified HTML into the editor.
     ///
-    /// - Parameters:
-    ///     - html: The raw HTML we'd be editing.
+    /// - Parameter html: The raw HTML we'd be editing.
     ///
     public func setHTML(html: String) {
         
@@ -154,8 +152,7 @@ public class TextView: UITextView {
 
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
-    /// - Parameters:
-    ///     - range: An NSRange to inspect.
+    /// - Parameter range: An NSRange to inspect.
     ///
     /// - Returns: A list of identifiers.
     ///
@@ -204,8 +201,7 @@ public class TextView: UITextView {
 
     /// Get a list of format identifiers at a specific index as a String array.
     ///
-    /// - Parameters:
-    ///     - range: The character index to inspect.
+    /// - Parameter range: The character index to inspect.
     ///
     /// - Returns: A list of identifiers.
     ///
@@ -258,8 +254,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a bold style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleBold(range range: NSRange) {
         guard range.length > 0 else {
@@ -272,8 +267,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a italic style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleItalic(range range: NSRange) {
         guard range.length > 0 else {
@@ -286,8 +280,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a underline style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleUnderline(range range: NSRange) {
         guard range.length > 0 else {
@@ -300,8 +293,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a strikethrough style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleStrikethrough(range range: NSRange) {
         guard range.length > 0 else {
@@ -314,8 +306,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a ordered list style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
         let listRange = rangeForTextList(range)
@@ -327,8 +318,7 @@ public class TextView: UITextView {
 
     /// Adds or removes a unordered list style from the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
+    /// - Parameter range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
         let listRange = rangeForTextList(range)
@@ -453,8 +443,7 @@ public class TextView: UITextView {
 
     /// Returns the associated TextAttachment, at a given point, if any.
     ///
-    /// - Parameters:
-    ///     - point: The point on screen to check for attachments.
+    /// - Parameter point: The point on screen to check for attachments.
     ///
     /// - Returns: The associated TextAttachment.
     ///
@@ -470,8 +459,7 @@ public class TextView: UITextView {
 
     /// Check if the bold attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -482,8 +470,7 @@ public class TextView: UITextView {
 
     /// Check if the italic attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -494,8 +481,7 @@ public class TextView: UITextView {
 
     /// Check if the underline attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -512,8 +498,7 @@ public class TextView: UITextView {
 
     /// Check if the strikethrough attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -529,8 +514,7 @@ public class TextView: UITextView {
 
     /// Check if the link attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -547,8 +531,7 @@ public class TextView: UITextView {
 
     /// Check if an ordered list spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -598,8 +581,7 @@ public class TextView: UITextView {
 
     /// Check if the blockquote attribute spans the specified range.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange to inspect.
+    /// - Parameter range: The NSRange to inspect.
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
@@ -617,8 +599,7 @@ public class TextView: UITextView {
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
     ///
-    /// - Parameters:
-    ///     - index: The candidate index. If the index is greater than the max allowed, the max is returned.
+    /// - Parameter index: The candidate index. If the index is greater than the max allowed, the max is returned.
     ///
     /// - Returns: If the index is greater than the max allowed, the max is returned, else the original value.
     ///
@@ -633,8 +614,7 @@ public class TextView: UITextView {
     /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
     ///
-    /// - Parameters:
-    ///     - index: The candidate index.
+    /// - Parameter index: The candidate index.
     ///
     /// - Returns: The specified or maximum index.
     ///
@@ -649,8 +629,7 @@ public class TextView: UITextView {
     /// whenever the list range's length is zero, we'll attempt to infer the range of the line at
     /// which the cursor is located.
     ///
-    /// - Parameters:
-    ///     - range: The NSRange in which a TextList should be applied
+    /// - Parameter range: The NSRange in which a TextList should be applied
     ///
     /// Returns: A corrected NSRange, if the original one had empty length.
     ///
@@ -668,8 +647,7 @@ public class TextView: UITextView {
 
     /// Check if the bold attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
@@ -680,8 +658,7 @@ public class TextView: UITextView {
 
     /// Check if the italic attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
@@ -692,8 +669,7 @@ public class TextView: UITextView {
 
     /// Check if the underline attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
@@ -708,8 +684,7 @@ public class TextView: UITextView {
 
     /// Check if the strikethrough attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
@@ -723,8 +698,7 @@ public class TextView: UITextView {
 
     /// Check if the link attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
@@ -739,8 +713,7 @@ public class TextView: UITextView {
     
     /// Check if the blockquote attribute exists at the specified index.
     ///
-    /// - Parameters:
-    ///     - index: The character index to inspect.
+    /// - Parameter index: The character index to inspect.
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
