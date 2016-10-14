@@ -34,6 +34,12 @@ extension NSRange
         }
     }
 
+    /// Returns the maximum Location.
+    ///
+    var endLocation: Int {
+        return location + length
+    }
+
     /// Returns a NSRange instance with location = 0 + length = 0
     ///
     static var zero: NSRange {
