@@ -659,14 +659,13 @@ public class TextView: UITextView {
     /// Note that "Effective Range" is the actual List Range (including Markers), whereas Applied Range is just
     /// the range at which the list was originally inserted.
     ///
-    ///
     /// - Parameters:
     ///     - effectiveRange: The actual range occupied by the List. Includes the String Markers!
     ///     - appliedRange: The (original) range at which the list was applied.
     ///
-    /// - Returns: If the current selection's length is empty, we'll return the selectedRange with it's location
-    ///   updated to consider the left padding applied by the list.
-    ///   Otherwise, we'll return the List's Effective range.
+    /// - Returns: If the current selection's length is zero, we'll return the selectedRange with it's location
+    ///   updated to consider the left padding applied by the list. Otherwise, we'll return the List's 
+    ///   Effective range.
     ///
     func rangeForSelectedTextList(withEffectiveRange effectiveRange: NSRange, andAppliedRange appliedRange: NSRange) -> NSRange {
         guard selectedRange.length == 0 else {
