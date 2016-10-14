@@ -6,6 +6,23 @@ import UIKit
 //
 extension NSAttributedString
 {
+    /// Given a collection of NSRange's, this method will filter all of those who contain a TextList, and
+    /// doesn't match the specified Style.
+    ///
+    /// - Parameters:
+    ///     - ranges: Ranges to be filtered
+    ///     - style: Style to be matched
+    ///
+    /// - Returns: A collection of NSRange's, guarranteed to either *NOT* contain TextLists, or contain TextLists
+    ///   with a style matching the one specified.
+    ///
+    func filterListRanges(ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
+        return ranges.filter { range in
+            let list = textListAttribute(spanningRange: range)
+            return list == nil || list?.style == style
+        }
+    }
+
     /// Get the range of a TextList containing the specified index.
     ///
     /// - Parameter index: An index intersecting a TextList.

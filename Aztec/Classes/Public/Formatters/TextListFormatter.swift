@@ -24,7 +24,7 @@ class TextListFormatter
 
         // 1st Paragraph: No List >> Apply, skipping paragraphs that currently contain TextLists
         guard let listRange = string.rangeOfTextList(atIndex: paragraphRanges[0].location) else {
-            let filtered = filterListRanges(paragraphRanges, fromString: string, notMatchingStyle: style)
+            let filtered = string.filterListRanges(paragraphRanges, notMatchingStyle: style)
             return applyLists(ofStyle: style, toString: string, atNonContiguousRanges: filtered)
         }
 
@@ -44,7 +44,12 @@ class TextListFormatter
 //
 private extension TextListFormatter
 {
+    /// Applies a TextList attribute to the specified non contiguous ranges.
     ///
+    /// - Parameters:
+    ///     - style: Style of TextList to be applied.
+    ///     - string: Target String.
+    ///     - ranges: Segments of the receiver string to be transformed into lists.
     ///
     func applyLists(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atNonContiguousRanges ranges: [NSRange]) -> NSRange? {
         guard let first = ranges.first else {
@@ -177,17 +182,11 @@ private extension TextListFormatter
 //
 private extension TextListFormatter
 {
+    /// This helper groups contiguous ranges, and returns each group inside their own array.
     ///
+    /// - Parameter ranges: The ranges to be grouped.
     ///
-    func filterListRanges(ranges: [NSRange], fromString string: NSAttributedString, notMatchingStyle style: TextList.Style) -> [NSRange] {
-        return ranges.filter { range in
-            let list = string.textListAttribute(spanningRange: range)
-            return list == nil || list?.style == style
-        }
-    }
-
-
-    ///
+    /// - Returns: An array of grouped contiguous-ranges.
     ///
     func groupContiguousRanges(ranges: [NSRange]) -> [[NSRange]] {
         var grouped = [[NSRange]]()
