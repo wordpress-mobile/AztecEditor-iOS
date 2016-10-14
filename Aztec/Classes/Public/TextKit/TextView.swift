@@ -309,10 +309,15 @@ public class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     public func toggleOrderedList(range range: NSRange) {
-        let listRange = rangeForTextList(range)
+        let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: listRange)
-// TODO: Update selected range
+        let selected = formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: appliedRange)
+
+        guard let effectiveRange = selected else {
+            return
+        }
+
+        selectedRange = rangeForSelectedTextList(withEffectiveRange: effectiveRange, andAppliedRange: appliedRange)
     }
 
 
@@ -321,10 +326,15 @@ public class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     public func toggleUnorderedList(range range: NSRange) {
-        let listRange = rangeForTextList(range)
+        let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: listRange)
-// TODO: Update selected range
+        let selected = formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: appliedRange)
+
+        guard let effectiveRange = selected else {
+            return
+        }
+
+        selectedRange = rangeForSelectedTextList(withEffectiveRange: effectiveRange, andAppliedRange: appliedRange)
     }
 
 
