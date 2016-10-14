@@ -13,7 +13,7 @@ extension NSAttributedString
     ///     - ranges: Ranges to be filtered
     ///     - style: Style to be matched
     ///
-    /// - Returns: Returns: A subset of the input ranges that don't contain TextLists matching the input style.
+    /// - Returns: A subset of the input ranges that don't contain TextLists matching the input style.
     ///
     func filterListRanges(ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
         return ranges.filter { range in
