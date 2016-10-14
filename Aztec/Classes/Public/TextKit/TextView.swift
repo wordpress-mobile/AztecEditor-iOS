@@ -406,8 +406,9 @@ public class TextView: UITextView {
     ///
     /// - Parameters:
     ///     - url: the NSURL to link to.
-    ///     - title: the text for the link
+    ///     - title: the text for the link.
     ///     - range: The NSRange to edit.
+    ///
     public func setLink(url: NSURL, title: String, inRange range: NSRange) {
         let index = range.location
         let length = title.characters.count
