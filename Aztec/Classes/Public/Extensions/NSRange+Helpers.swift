@@ -36,7 +36,7 @@ extension NSRange
 
     /// Returns the maximum Location.
     ///
-    var lastLocation: Int {
+    var endLocation: Int {
         return location + length
     }
 

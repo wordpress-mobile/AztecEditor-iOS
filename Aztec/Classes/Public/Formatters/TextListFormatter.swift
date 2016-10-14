@@ -194,7 +194,7 @@ private extension TextListFormatter
         var last: NSRange?
 
         for range in ranges {
-            if let lastLocation = last?.lastLocation where range.location != lastLocation {
+            if let endLocation = last?.endLocation where range.location != endLocation {
                 grouped.append(current)
                 current.removeAll()
                 last = nil
