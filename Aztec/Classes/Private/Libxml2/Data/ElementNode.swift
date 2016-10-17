@@ -15,6 +15,7 @@ extension Libxml2 {
             case A = "a"
             case Address = "address"
             case B = "b"
+            case Br = "br"
             case Blockquote = "blockquote"
             case Dd = "dd"
             case Del = "del"
@@ -65,14 +66,17 @@ extension Libxml2 {
                 return self.dynamicType.blockLevelNodeNames().contains(self)
             }
             
-            /// Some nodes have a default representation.
+            /// Some nodes have a default representation that needs to be taken in account when checking the length
             ///
             func defaultVisualRepresentation() -> String? {
-                if self == .Img {
-                    return String(UnicodeScalar(NSAttachmentCharacter))
+                switch self {
+                    case .Img:
+                        return String(UnicodeScalar(NSAttachmentCharacter))
+                    case .Br:
+                        return String("\n")
+                    default:
+                        return nil
                 }
-                
-                return nil
             }
         }
 
