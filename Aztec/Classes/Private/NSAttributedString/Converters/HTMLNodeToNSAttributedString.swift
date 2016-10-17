@@ -154,6 +154,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 attachment.kind = .MissingImage
             }
 
+            if let elementClass = elementNode.valueForStringAttribute(named: "class") {
+                let classAttributes = elementClass.componentsSeparatedByString(" ")
+                for classAttribute in classAttributes {
+                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attachment.alignment = alignment
+                    }
+                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                        attachment.size = size
+                    }
+                }
+            }
+
             return NSAttributedString(attachment: attachment)
         } else {
             return NSAttributedString(string: "")

@@ -2,12 +2,14 @@ import Foundation
 import Aztec
 import UIKit
 
-class AttachmentDetailsViewController: UIViewController
+class AttachmentDetailsViewController: UITableViewController
 {
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
+    @IBOutlet var sourceURLTextField: UITextField!
+
     var attachment: TextAttachment?
-    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size) -> Void)?
+    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size, NSURL) -> Void)?
 
 
     override func viewDidLoad() {
@@ -39,6 +41,15 @@ class AttachmentDetailsViewController: UIViewController
         alignmentSegmentedControl.selectedSegmentIndex = alignment.rawValue
         sizeSegmentedControl.selectedSegmentIndex = size.rawValue
 
+        switch attachment.kind {
+        case .RemoteImageDownloaded(let url, _):
+            sourceURLTextField.text = url.absoluteString
+        case .RemoteImage(let url):
+            sourceURLTextField.text = url.absoluteString
+        default:
+            sourceURLTextField.text = nil
+        }
+
     }
 
     @IBAction func cancelWasPressed() {
@@ -46,16 +57,28 @@ class AttachmentDetailsViewController: UIViewController
     }
 
     @IBAction func doneWasPressed() {
-        guard let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
-            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex) else
-        {
+        guard
+            let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
+            let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex)
+            else {
             fatalError()
         }
+        var sourceURL = NSURL()
+        if let urlString = sourceURLTextField.text,
+           let url = NSURL(string:urlString) {
+            sourceURL = url
+        }
 
-        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize())
+        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize(), sourceURL)
         
         dismissViewControllerAnimated(true, completion: nil)
     }
+
+    class func controller() -> AttachmentDetailsViewController {
+        let storyboard = UIStoryboard(name: "AttachmentDetailsViewController", bundle: nil)
+        return storyboard.instantiateViewControllerWithIdentifier("AttachmentDetailsViewController") as! AttachmentDetailsViewController
+    }
+
 }
 
 
@@ -112,7 +135,7 @@ private extension AttachmentDetailsViewController
             case .Thumbnail:    self = .Thumbnail
             case .Medium:       self = .Medium
             case .Large:        self = .Large
-            case .Maximum:      self = .Maximum
+            case .Full:      self = .Maximum
             }
         }
 
@@ -121,7 +144,7 @@ private extension AttachmentDetailsViewController
             case .Thumbnail:    return .Thumbnail
             case .Medium:       return .Medium
             case .Large:        return .Large
-            case .Maximum:      return .Maximum
+            case .Maximum:      return .Full
             }
         }
     }
