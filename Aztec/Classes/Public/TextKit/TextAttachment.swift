@@ -191,6 +191,17 @@ extension TextAttachment
                     return "alignnone"
             }
         }
+
+        static let mappedValues:[String:Alignment] = [
+            Alignment.None.htmlString():.None,
+            Alignment.Left.htmlString():.Left,
+            Alignment.Center.htmlString():.Center,
+            Alignment.Right.htmlString():.Right
+        ]
+
+        static func fromHTML(string value:String) -> Alignment? {
+            return mappedValues[value]
+        }
     }
 
     /// Supported Media
@@ -221,6 +232,17 @@ extension TextAttachment
             case .Full:
                 return "size-full"
             }
+        }
+
+        static let mappedValues:[String:Size] = [
+            Size.Thumbnail.htmlString():.Thumbnail,
+            Size.Medium.htmlString():.Medium,
+            Size.Large.htmlString():.Large,
+            Size.Full.htmlString():.Full
+        ]
+
+        static func fromHTML(string value:String) -> Size? {
+            return mappedValues[value]
         }
 
         var width: CGFloat {
