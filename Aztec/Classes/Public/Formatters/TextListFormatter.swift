@@ -16,18 +16,26 @@ class TextListFormatter
     /// - Returns: An NSRange representing the change to the attributed string.
     ///
     func toggleList(ofStyle style: TextList.Style, inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
-        let ranges = string.paragraphRanges(spanningRange: range)
-        guard let firstRange = ranges.first else {
+        // Load Paragraph Ranges
+        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        guard paragraphRanges.isEmpty == false else {
             return nil
         }
 
-        // Existing list: Same kind? > remove. Else > Apply!
-        if let list = string.textListAttribute(atIndex: firstRange.location) where list.style == style {
-            return removeList(fromString: string, atRanges: ranges)
+        // 1st Paragraph: No List >> Apply, skipping paragraphs that currently contain TextLists
+        guard let listRange = string.rangeOfTextList(atIndex: paragraphRanges[0].location) else {
+            let filtered = string.filterListRanges(paragraphRanges, notMatchingStyle: style)
+            return applyLists(ofStyle: style, toString: string, atNonContiguousRanges: filtered)
         }
 
-        // Check the paragraphs at each range. If any have the opposite list style remove that range.
-        return applyList(ofStyle: style, toString: string, atRanges: ranges)
+        // 1st Paragraph: Matching List Style >> Remove
+        guard let listAttribute = string.textListAttribute(spanningRange: listRange) where listAttribute.style != style else {
+            return removeList(fromString: string, atRanges: paragraphRanges)
+        }
+
+        // 1st Paragraph: Non Matching Style >> Update!
+        let listParagraphs = string.paragraphRanges(spanningRange: listRange)
+        return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
     }
 }
 
@@ -36,6 +44,33 @@ class TextListFormatter
 //
 private extension TextListFormatter
 {
+    /// Applies a TextList attribute to the specified non contiguous ranges.
+    ///
+    /// - Parameters:
+    ///     - style: Style of TextList to be applied.
+    ///     - string: Target String.
+    ///     - ranges: Segments of the receiver string to be transformed into lists.
+    ///
+    func applyLists(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atNonContiguousRanges ranges: [NSRange]) -> NSRange? {
+        guard let first = ranges.first else {
+            return nil
+        }
+
+        let grouped = groupContiguousRanges(ranges)
+        var length = 0
+
+        for group in grouped.reverse() {
+            guard let range = applyList(ofStyle: style, toString: string, atRanges: group) else {
+                continue
+            }
+
+            length += range.length
+        }
+
+        return NSRange(location: first.location, length: length)
+    }
+
+
     /// Applies a TextList attribute to the specified paragraph ranges in the
     /// specified string. Each paragraph range is treated as a list item.
     ///
@@ -75,9 +110,6 @@ private extension TextListFormatter
 
         // Done Editing!
         string.endEditing()
-
-        // Update the (SUCCEDING) List, if needed.
-        updateList(inString: string, succeedingRange: listRange)
 
         return listRange
     }
@@ -142,5 +174,40 @@ private extension TextListFormatter
 
         let nextListParagraphs = string.paragraphRanges(atIndex: nextListIndex, matchingListStyle: nextListAttribute.style)
         applyList(ofStyle: nextListAttribute.style, toString: string, atRanges: nextListParagraphs)
+    }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension TextListFormatter
+{
+    /// This helper groups contiguous ranges, and returns each group inside their own array.
+    ///
+    /// - Parameter ranges: The ranges to be grouped.
+    ///
+    /// - Returns: An array of grouped contiguous-ranges.
+    ///
+    func groupContiguousRanges(ranges: [NSRange]) -> [[NSRange]] {
+        var grouped = [[NSRange]]()
+        var current = [NSRange]()
+        var last: NSRange?
+
+        for range in ranges {
+            if let endLocation = last?.endLocation where range.location != endLocation {
+                grouped.append(current)
+                current.removeAll()
+                last = nil
+            }
+
+            current.append(range)
+            last = range
+        }
+
+        if !current.isEmpty {
+            grouped.append(current)
+        }
+        
+        return grouped
     }
 }
