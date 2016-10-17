@@ -363,6 +363,30 @@ public class TextStorage: NSTextStorage {
         return attachment.identifier
     }
 
+    // MARK: - Attachments
+
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        attachment.alignment = alignment
+        attachment.size = size
+        attachment.kind = .RemoteImage(url:url)
+        let rangesForAttachment = ranges(forAttachment:attachment)
+        dispatch_async(domQueue) {
+            for range in rangesForAttachment {
+                let element = self.rootNode.lowestElementNodeWrapping(range)
+                if element.name == "img" {
+                    let classAttributes = alignment.htmlString() + " " + size.htmlString()
+                    element.updateAttribute(named: "class", value: classAttributes)                    
+                    if let sourceURLString = url.absoluteString where element.name == "img" {
+                        element.updateAttribute(named: "src", value: sourceURLString)
+                    }
+                }
+            }
+        }
+    }
+
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
 
         var effectiveRange = NSRange()

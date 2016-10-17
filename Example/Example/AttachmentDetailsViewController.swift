@@ -135,7 +135,7 @@ private extension AttachmentDetailsViewController
             case .Thumbnail:    self = .Thumbnail
             case .Medium:       self = .Medium
             case .Large:        self = .Large
-            case .Maximum:      self = .Maximum
+            case .Full:      self = .Maximum
             }
         }
 
@@ -144,7 +144,7 @@ private extension AttachmentDetailsViewController
             case .Thumbnail:    return .Thumbnail
             case .Medium:       return .Medium
             case .Large:        return .Large
-            case .Maximum:      return .Maximum
+            case .Maximum:      return .Full
             }
         }
     }

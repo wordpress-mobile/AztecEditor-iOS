@@ -612,11 +612,13 @@ private extension EditorDemoController
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
 
-            if let strongSelf = self {
-                strongSelf.richTextView.changeAlignment(forAttachment: attachment, to: alignment)
-                strongSelf.richTextView.changeSize(forAttachment: attachment, to: size)
-                strongSelf.richTextView.changeURL(forAttachment: attachment, to:url)
+            guard let strongSelf = self else {
+                return
             }
+            strongSelf.richTextView.update(attachment: attachment,
+                                           alignment: alignment,
+                                           size: size,
+                                           url: url)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        

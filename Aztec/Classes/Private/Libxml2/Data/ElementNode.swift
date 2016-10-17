@@ -86,7 +86,7 @@ extension Libxml2 {
             }
         }
 
-        private(set) var attributes = [Attribute]()
+        private(set)var attributes = [Attribute]()
         private(set) var children: [Node]
 
         private var standardName: StandardName? {
@@ -134,6 +134,20 @@ extension Libxml2 {
             }
 
             return nil
+        }
+
+        /// Updates or adds an attribute with the specificed name with the corresponding value
+        ///
+        /// - parameter attributeName: the name of the attribute
+        /// - parameter value:         the value to mark the attribute
+        func updateAttribute(named attributeName:String, value: String) {
+            for attribute in attributes {
+                if let attribute = attribute as? StringAttribute where attribute.name == attributeName {
+                    attribute.value = value
+                    return
+                }
+            }
+            attributes.append(StringAttribute(name: attributeName, value: value))
         }
 
         /// Find out if this is a block-level element.

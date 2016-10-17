@@ -780,23 +780,13 @@ public class TextView: UITextView {
 
     // MARK: - Attachments
 
-    public func changeAlignment(forAttachment attachment: TextAttachment, to alignment: TextAttachment.Alignment) {
-        attachment.alignment = alignment
-
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }
-
-    public func changeSize(forAttachment attachment: TextAttachment, to size: TextAttachment.Size) {
-        attachment.size = size
-
-        layoutManager.invalidateLayoutForAttachment(attachment)
-    }
-
-    public func changeURL(forAttachment attachment: TextAttachment, to url: NSURL) {
-        attachment.kind = .RemoteImage(url: url)
-
-        layoutManager.invalidateLayoutForAttachment(attachment)
-    }
+    }    
 }
 
 // MARK: - TextStorageAttachmentsDelegate

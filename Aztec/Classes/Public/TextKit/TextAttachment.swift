@@ -22,7 +22,7 @@ public class TextAttachment: NSTextAttachment
 
     /// Attachment Size
     ///
-    public var size: Size = .Maximum
+    public var size: Size = .Full
 
     private var glyphImage: UIImage?
 
@@ -76,7 +76,7 @@ public class TextAttachment: NSTextAttachment
     func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {
-            case .Maximum:
+            case .Full:
                 return floor(min(image.size.width, containerWidth))
             default:
                 return floor(min(size.width, containerWidth))
@@ -178,6 +178,19 @@ extension TextAttachment
         case Left
         case Center
         case Right
+
+        func htmlString() -> String {
+            switch self {
+                case .Center:
+                    return "aligncenter"
+                case .Left:
+                    return "alignleft"
+                case .Right:
+                    return "alignright"
+                case .None:
+                    return "alignnone"
+            }
+        }
     }
 
     /// Supported Media
@@ -195,14 +208,27 @@ extension TextAttachment
         case Thumbnail
         case Medium
         case Large
-        case Maximum
+        case Full
+
+        func htmlString() -> String {
+            switch self {
+            case .Thumbnail:
+                return "size-thumbnail"
+            case .Medium:
+                return "size-medium"
+            case .Large:
+                return "size-large"
+            case .Full:
+                return "size-full"
+            }
+        }
 
         var width: CGFloat {
             switch self {
             case .Thumbnail: return Settings.thumbnail
             case .Medium: return Settings.medium
             case .Large: return Settings.large
-            case .Maximum: return Settings.maximum
+            case .Full: return Settings.maximum
             }
         }
 
