@@ -780,6 +780,13 @@ public class TextView: UITextView {
 
     // MARK: - Attachments
 
+    /// Updates the attachment properties to the new values
+    ///
+    /// - parameter attachment: the attachment to update
+    /// - parameter alignment:  the alignment value
+    /// - parameter size:       the size value
+    /// - parameter url:        the attachment url
+    ///
     public func update(attachment attachment: TextAttachment,
                                   alignment: TextAttachment.Alignment,
                                   size: TextAttachment.Size,
