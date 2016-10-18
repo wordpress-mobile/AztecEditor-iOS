@@ -546,7 +546,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
 extension EditorDemoController: TextViewMediaDelegate
 {
-    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
+    func textView(textView: TextView, imageAtUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
 
         let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
             dispatch_async(
@@ -565,6 +565,10 @@ extension EditorDemoController: TextViewMediaDelegate
         task.resume()
 
         return Gridicon.iconOfType(.Image)
+    }
+    
+    func textView(textView: TextView, urlForNewImage image: UIImage) -> NSURL {
+        return saveToDisk(image: image)
     }
 }
 
@@ -593,17 +597,24 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 
 private extension EditorDemoController
 {
-    func insertImage(image: UIImage) {
-        let index = richTextView.positionForCursor()
+    private func saveToDisk(image image: UIImage) -> NSURL {
         let fileName = "\(NSProcessInfo.processInfo().globallyUniqueString)_file.jpg"
         guard
             let data = UIImageJPEGRepresentation(image, 0.9),
             let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(fileName)
+            where data.writeToURL(fileURL, atomically:true)
             else {
-            return
+                fatalError("Could not save image to disk.")
         }
-
-        data.writeToURL(fileURL, atomically:true)
+        
+        return fileURL
+    }
+    
+    func insertImage(image: UIImage) {
+        
+        let index = richTextView.positionForCursor()
+        let fileURL = saveToDisk(image: image)
+        
         richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
     }
 

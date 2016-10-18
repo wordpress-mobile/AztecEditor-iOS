@@ -15,6 +15,19 @@ protocol TextStorageImageProvider {
     ///
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
+    
+    /// Called whenever an image is added to the storage.  The image provider is supposed to
+    /// return a URL that the storage can use to reference the image in HTML mode.
+    ///
+    /// IMPORTANT: we recommend always returning a local URL here.  If the provider needs to upload
+    ///     the image, it can do so asynchronously after returning a local image URL here.
+    ///
+    /// - Parameters:
+    ///     - storage:    The storage that is requesting the image.
+    ///
+    /// - Returns: the requested URL.
+    ///
+    func storage(storage: TextStorage, urlForNewImage image: UIImage) -> NSURL
 }
 
 /// Custom NSTextStorage
@@ -153,6 +166,8 @@ public class TextStorage: NSTextStorage {
 
             for (key, value) in attributes {
                 switch (key) {
+                case NSAttachmentAttributeName:
+                    copyToDOM(attachmentValue: value, spanningRange: range)
                 case NSFontAttributeName:
                     copyToDOM(fontAttributesSpanning: range, fromAttributeValue: value)
                 case NSLinkAttributeName:
@@ -166,6 +181,28 @@ public class TextStorage: NSTextStorage {
                 }
             }
         }
+    }
+    
+    private func copyToDOM(attachmentValue object: AnyObject, spanningRange range: NSRange) {
+        guard let attachment = object as? NSTextAttachment else {
+            assertionFailure("Expected an attachment object.")
+            return
+        }
+        
+        copyToDOM(attachment, spanningRange: range)
+    }
+    
+    private func copyToDOM(attachment: NSTextAttachment, spanningRange range: NSRange) {
+        guard let image = attachment.image else {
+            // We currently only support image attachments...
+            return
+        }
+        
+        copyToDOM(image, spanningRange: range)
+    }
+    
+    private func copyToDOM(image: UIImage, spanningRange range: NSRange) {
+        setImageInDOM(image, forRange: range)
     }
     
     private func copyToDOM(fontAttributesSpanning range: NSRange, fromAttributeValue value: AnyObject) {
@@ -353,13 +390,10 @@ public class TextStorage: NSTextStorage {
         let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
-        let wrappingRange = NSMakeRange(position, attachmentString.length)
+        let range = NSMakeRange(position, attachmentString.length)
 
-        dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: wrappingRange,
-                                       withNodeNamed: ElementTypes.img.rawValue,
-                                       withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
-        }
+        setImageInDOM(url, forRange: range)
+        
         return attachment.identifier
     }
 
@@ -452,6 +486,26 @@ public class TextStorage: NSTextStorage {
                 inNodeNamed: ElementTypes.link.rawValue,
                 withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
                 equivalentElementNames: ElementTypes.link.equivalentNames)
+        }
+    }
+    
+    private func setImageInDOM(image: UIImage, forRange range: NSRange) {
+        
+        guard let imageProvider = imageProvider else {
+            assertionFailure("The image provider should be set here.")
+            return
+        }
+        
+        let imageURL = imageProvider.storage(self, urlForNewImage: image)
+        
+        setImageInDOM(imageURL, forRange: range)
+    }
+    
+    private func setImageInDOM(imageURL: NSURL, forRange range: NSRange) {
+        dispatch_async(domQueue) {
+            self.rootNode.replaceCharacters(inRange: range,
+                                            withNodeNamed: ElementTypes.img.rawValue,
+                                            withAttributes: [Libxml2.StringAttribute(name:"src", value: imageURL.absoluteString!)])
         }
     }
 
