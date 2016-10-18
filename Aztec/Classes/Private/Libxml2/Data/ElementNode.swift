@@ -20,9 +20,9 @@ extension Libxml2 {
         private(set) var attributes = [Attribute]()
         private(set) var children: [Node]
 
-        private var standardName: HTMLElementType? {
+        private var standardName: StandardElementType? {
             get {
-                return HTMLElementType(rawValue: name)
+                return StandardElementType(rawValue: name)
             }
         }
 
@@ -1213,7 +1213,7 @@ extension Libxml2 {
         ///
         func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
 
-            let mustFindLowestBlockLevelElements = !HTMLElementType.isBlockLevelNodeName(nodeName)
+            let mustFindLowestBlockLevelElements = !StandardElementType.isBlockLevelNodeName(nodeName)
 
             if mustFindLowestBlockLevelElements {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
@@ -1347,7 +1347,7 @@ extension Libxml2 {
             
             unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
-            let mustFindLowestBlockLevelElements = !HTMLElementType.isBlockLevelNodeName(nodeName)
+            let mustFindLowestBlockLevelElements = !StandardElementType.isBlockLevelNodeName(nodeName)
 
             if mustFindLowestBlockLevelElements {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
@@ -1382,7 +1382,7 @@ extension Libxml2 {
             if NSEqualRanges(targetRange, range()) {
                 
                 let receiverIsBlockLevel = isBlockLevelElement()
-                let newNodeIsBlockLevel = HTMLElementType(rawValue: nodeName)?.isBlockLevelNodeName() ?? false
+                let newNodeIsBlockLevel = StandardElementType(rawValue: nodeName)?.isBlockLevelNodeName() ?? false
                 
                 let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
                 

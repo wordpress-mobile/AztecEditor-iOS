@@ -24,7 +24,7 @@ public class TextStorage: NSTextStorage {
     typealias ElementNode = Libxml2.ElementNode
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
-    typealias HTMLElementType = Libxml2.HTMLElementType
+    typealias StandardElementType = Libxml2.StandardElementType
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -334,7 +334,7 @@ public class TextStorage: NSTextStorage {
 
         dispatch_async(domQueue) {
             self.rootNode.replaceCharacters(inRange: wrappingRange,
-                                       withNodeNamed: HTMLElementType.Img.rawValue,
+                                       withNodeNamed: StandardElementType.Img.rawValue,
                                        withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
         }
         return attachment.identifier
@@ -383,34 +383,34 @@ public class TextStorage: NSTextStorage {
 
     private func disableBoldInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.B.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.B.equivalentNames)
         }
     }
 
     private func disableItalicInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.I.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.I.equivalentNames)
         }
     }
 
     private func disableStrikethroughInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.S.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.S.equivalentNames)
         }
     }
 
     private func disableUnderlineInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.U.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.U.equivalentNames)
         }
     }
 
     private func enableBoldInDOM(range: NSRange) {
 
         enableInDom(
-            HTMLElementType.B.rawValue,
+            StandardElementType.B.rawValue,
             inRange: range,
-            equivalentElementNames: HTMLElementType.B.equivalentNames)
+            equivalentElementNames: StandardElementType.B.equivalentNames)
     }
 
     private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
@@ -426,33 +426,33 @@ public class TextStorage: NSTextStorage {
     private func enableItalicInDOM(range: NSRange) {
 
         enableInDom(
-            HTMLElementType.I.rawValue,
+            StandardElementType.I.rawValue,
             inRange: range,
-            equivalentElementNames: HTMLElementType.I.equivalentNames)
+            equivalentElementNames: StandardElementType.I.equivalentNames)
     }
 
     private func enableStrikethroughInDOM(range: NSRange) {
 
         enableInDom(
-            HTMLElementType.S.rawValue,
+            StandardElementType.S.rawValue,
             inRange: range,
-            equivalentElementNames:  HTMLElementType.S.equivalentNames)
+            equivalentElementNames:  StandardElementType.S.equivalentNames)
     }
 
     private func enableUnderlineInDOM(range: NSRange) {
         enableInDom(
-            HTMLElementType.U.rawValue,
+            StandardElementType.U.rawValue,
             inRange: range,
-            equivalentElementNames:  HTMLElementType.U.equivalentNames)
+            equivalentElementNames:  StandardElementType.U.equivalentNames)
     }
     
     private func setLinkInDOM(range: NSRange, url: NSURL) {
         dispatch_async(domQueue) {
             self.rootNode.wrapChildren(
                 intersectingRange: range,
-                inNodeNamed: HTMLElementType.A.rawValue,
+                inNodeNamed: StandardElementType.A.rawValue,
                 withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: HTMLElementType.A.equivalentNames)
+                equivalentElementNames: StandardElementType.A.equivalentNames)
         }
     }
 
