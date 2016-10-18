@@ -24,30 +24,7 @@ public class TextStorage: NSTextStorage {
     typealias ElementNode = Libxml2.ElementNode
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
-
-    // Represents the possible HTML types that the TextStorage element can handle
-    enum ElementTypes: String {
-        case bold = "b"
-        case italic = "em"
-        case striketrough = "s"
-        case underline = "u"
-        case link = "a"
-        case img = "img"
-
-        // Some HTML elements can have more than one valid representation so we list all possible variations here.
-        var equivalentNames: [String] {
-            get {
-                switch self {
-                case .bold: return [self.rawValue, "strong"]
-                case .italic: return [self.rawValue, "em"]
-                case .striketrough: return [self.rawValue, "strike"]
-                case .underline: return [self.rawValue, "u"]
-                case .link: return [self.rawValue]
-                case .img: return [self.rawValue]
-                }
-            }
-        }
-    }
+    typealias HTMLElementType = Libxml2.HTMLElementType
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -357,7 +334,7 @@ public class TextStorage: NSTextStorage {
 
         dispatch_async(domQueue) {
             self.rootNode.replaceCharacters(inRange: wrappingRange,
-                                       withNodeNamed: ElementTypes.img.rawValue,
+                                       withNodeNamed: HTMLElementType.Img.rawValue,
                                        withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
         }
         return attachment.identifier
@@ -406,34 +383,34 @@ public class TextStorage: NSTextStorage {
 
     private func disableBoldInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.B.equivalentNames)
         }
     }
 
     private func disableItalicInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.I.equivalentNames)
         }
     }
 
     private func disableStrikethroughInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.S.equivalentNames)
         }
     }
 
     private func disableUnderlineInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: HTMLElementType.U.equivalentNames)
         }
     }
 
     private func enableBoldInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.bold.rawValue,
+            HTMLElementType.B.rawValue,
             inRange: range,
-            equivalentElementNames: ElementTypes.bold.equivalentNames)
+            equivalentElementNames: HTMLElementType.B.equivalentNames)
     }
 
     private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
@@ -449,33 +426,33 @@ public class TextStorage: NSTextStorage {
     private func enableItalicInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.italic.rawValue,
+            HTMLElementType.I.rawValue,
             inRange: range,
-            equivalentElementNames: ElementTypes.italic.equivalentNames)
+            equivalentElementNames: HTMLElementType.I.equivalentNames)
     }
 
     private func enableStrikethroughInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.striketrough.rawValue,
+            HTMLElementType.S.rawValue,
             inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
+            equivalentElementNames:  HTMLElementType.S.equivalentNames)
     }
 
     private func enableUnderlineInDOM(range: NSRange) {
         enableInDom(
-            ElementTypes.underline.rawValue,
+            HTMLElementType.U.rawValue,
             inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
+            equivalentElementNames:  HTMLElementType.U.equivalentNames)
     }
     
     private func setLinkInDOM(range: NSRange, url: NSURL) {
         dispatch_async(domQueue) {
             self.rootNode.wrapChildren(
                 intersectingRange: range,
-                inNodeNamed: ElementTypes.link.rawValue,
+                inNodeNamed: HTMLElementType.A.rawValue,
                 withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: ElementTypes.link.equivalentNames)
+                equivalentElementNames: HTMLElementType.A.equivalentNames)
         }
     }
 

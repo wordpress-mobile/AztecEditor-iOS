@@ -10,6 +10,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
     typealias CommentNode = Libxml2.CommentNode
+    typealias HTMLElementType = Libxml2.HTMLElementType
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
@@ -267,30 +268,26 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Node Style Checks
 
     private func isLink(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.A.rawValue
+        return node.name == HTMLElementType.A.rawValue
     }
 
     private func isBold(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.B.rawValue,
-            ElementNode.StandardName.Strong.rawValue].contains(node.name)
+        return HTMLElementType.B.equivalentNames.contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.Em.rawValue,
-            ElementNode.StandardName.I.rawValue].contains(node.name)
+        return HTMLElementType.I.equivalentNames.contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.Del.rawValue,
-            ElementNode.StandardName.S.rawValue,
-            ElementNode.StandardName.Strike.rawValue].contains(node.name)
+        return HTMLElementType.S.equivalentNames.contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.U.rawValue
+        return node.name == HTMLElementType.U.rawValue
     }
 
     private func isBlockquote(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.Blockquote.rawValue
+        return node.name == HTMLElementType.Blockquote.rawValue
     }
 }
