@@ -34,13 +34,12 @@ extension NSRange
         }
     }
 
+    /// Returns the union with the specified range.
+    ///
+    /// This is `NSUnionRange` wrapped as an instance method.
+    ///
     func union(withRange target: NSRange) -> NSRange {
-        return NSRange(location: min(location, target.location), endLocation: max(endLocation, target.endLocation))
-    }
-
-    init(location: Int, endLocation: Int) {
-        self.location = location
-        self.length = endLocation - location
+        return NSUnionRange(self, target)
     }
 
     /// Returns the maximum Location.

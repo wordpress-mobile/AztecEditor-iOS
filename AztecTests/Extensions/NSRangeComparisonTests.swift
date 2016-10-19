@@ -153,4 +153,40 @@ class NSRangeComparisonTests: XCTestCase {
         
         XCTAssertNil(result)
     }
+
+    func testUnionOfIntersectingRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 20)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 24)
+    }
+
+    func testUnionOfContiguousRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 11, length: 5)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 15)
+    }
+
+    func testUnionOfContaiedRange() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 2)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 10)
+    }
+
+    func testUnionOfNonContiguousRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 15, length: 5)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 19)
+    }
 }
