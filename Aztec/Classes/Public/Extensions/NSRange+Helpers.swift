@@ -54,3 +54,14 @@ extension NSRange
         return NSRange(location: 0, length: 0)
     }
 }
+
+extension SequenceType where Generator.Element == NSRange {
+    func union() -> NSRange? {
+        return reduce(nil) { (partialUnion, range) in
+            guard let partialUnion = partialUnion else {
+                return range
+            }
+            return partialUnion.union(withRange: range)
+        }
+    }
+}

@@ -12,12 +12,10 @@ struct BlockquoteFormatter {
 
     func toggleBlockquote(inString string: NSMutableAttributedString, atRange range: NSRange) {
         let paragraphRanges = string.paragraphRanges(spanningRange: range)
-        guard let firstParagraphRange = paragraphRanges.first else {
-            return
-        }
 
-        let unionRange = paragraphRanges.dropFirst().reduce(firstParagraphRange) { (blockquoteRange, range) in
-            return blockquoteRange.union(withRange: range)
+        guard let unionRange = paragraphRanges.union() else {
+            // paragraphRanges was empty, which should not happen
+            return
         }
 
         if isBlockquote(inString: string, at: range.location) {

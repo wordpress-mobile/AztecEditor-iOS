@@ -172,7 +172,7 @@ class NSRangeComparisonTests: XCTestCase {
         XCTAssertEqual(union.length, 15)
     }
 
-    func testUnionOfContaiedRange() {
+    func testUnionOfContainedRange() {
         let first = NSRange(location: 1, length: 10)
         let second = NSRange(location: 5, length: 2)
         let union = first.union(withRange: second)
@@ -188,5 +188,24 @@ class NSRangeComparisonTests: XCTestCase {
 
         XCTAssertEqual(union.location, 1)
         XCTAssertEqual(union.length, 19)
+    }
+
+    func testArrayUnionOfIntersectingRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 20)
+        let third = NSRange(location: 20, length: 10)
+        guard let union = [first, second, third].union() else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 29)
+    }
+
+    func testEmtpyArrayUnionReturnsNil() {
+        let ranges = [NSRange]()
+        let union = ranges.union()
+        XCTAssertNil(union)
     }
 }
