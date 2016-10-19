@@ -34,6 +34,15 @@ extension NSRange
         }
     }
 
+    func union(withRange target: NSRange) -> NSRange {
+        return NSRange(location: min(location, target.location), endLocation: max(endLocation, target.endLocation))
+    }
+
+    init(location: Int, endLocation: Int) {
+        self.location = location
+        self.length = endLocation - location
+    }
+
     /// Returns the maximum Location.
     ///
     var endLocation: Int {
