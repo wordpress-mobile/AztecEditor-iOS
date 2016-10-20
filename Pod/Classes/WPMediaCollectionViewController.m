@@ -254,7 +254,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     self.collectionView.scrollEnabled = NO;
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
-        __typeof__(self) strongSelf = weakSelf;        
+        __typeof__(self) strongSelf = weakSelf;
+        strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [strongSelf refreshSelection];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -266,7 +267,6 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 [strongSelf.refreshControl endRefreshing];
                 // Scroll to the correct position
                 if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
-                    strongSelf.refreshGroupFirstTime = NO;
                     NSInteger sectionToScroll = 0;
                     NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
                     [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
@@ -278,6 +278,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
+        strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
             [strongSelf showError:error];
         });
