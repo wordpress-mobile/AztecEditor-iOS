@@ -102,6 +102,13 @@ public class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, inRange: fullRange, options: []) { (object, range, stop) in
             
+            // For some weird reason object can be `nil` here in certain scenarios.
+            // We'll just bail out even though this method shouldn't have been called.
+            //
+            guard let object = object else {
+                return
+            }
+            
             guard let attachmentsDelegate = attachmentsDelegate else {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
