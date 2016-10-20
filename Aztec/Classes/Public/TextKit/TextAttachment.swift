@@ -24,7 +24,7 @@ public class TextAttachment: NSTextAttachment
 
     /// Attachment Size
     ///
-    public var size: Size = .Maximum
+    public var size: Size = .Full
 
     private var glyphImage: UIImage?
 
@@ -82,7 +82,7 @@ public class TextAttachment: NSTextAttachment
     private func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {
-            case .Maximum:
+            case .Full:
                 return floor(min(image.size.width, containerWidth))
             default:
                 return floor(min(size.width, containerWidth))
@@ -196,6 +196,30 @@ extension TextAttachment
         case Left
         case Center
         case Right
+
+        func htmlString() -> String {
+            switch self {
+                case .Center:
+                    return "aligncenter"
+                case .Left:
+                    return "alignleft"
+                case .Right:
+                    return "alignright"
+                case .None:
+                    return "alignnone"
+            }
+        }
+
+        static let mappedValues:[String:Alignment] = [
+            Alignment.None.htmlString():.None,
+            Alignment.Left.htmlString():.Left,
+            Alignment.Center.htmlString():.Center,
+            Alignment.Right.htmlString():.Right
+        ]
+
+        static func fromHTML(string value:String) -> Alignment? {
+            return mappedValues[value]
+        }
     }
 
     /// Size Onscreen!
@@ -204,14 +228,38 @@ extension TextAttachment
         case Thumbnail
         case Medium
         case Large
-        case Maximum
+        case Full
+
+        func htmlString() -> String {
+            switch self {
+            case .Thumbnail:
+                return "size-thumbnail"
+            case .Medium:
+                return "size-medium"
+            case .Large:
+                return "size-large"
+            case .Full:
+                return "size-full"
+            }
+        }
+
+        static let mappedValues:[String:Size] = [
+            Size.Thumbnail.htmlString():.Thumbnail,
+            Size.Medium.htmlString():.Medium,
+            Size.Large.htmlString():.Large,
+            Size.Full.htmlString():.Full
+        ]
+
+        static func fromHTML(string value:String) -> Size? {
+            return mappedValues[value]
+        }
 
         var width: CGFloat {
             switch self {
             case .Thumbnail: return Settings.thumbnail
             case .Medium: return Settings.medium
             case .Large: return Settings.large
-            case .Maximum: return Settings.maximum
+            case .Full: return Settings.maximum
             }
         }
 

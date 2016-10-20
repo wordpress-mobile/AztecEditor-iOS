@@ -621,18 +621,21 @@ private extension EditorDemoController
         richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
     }
 
-    func displayDetailsForAttachment(attachment: TextAttachment) {
-        let detailsViewController = AttachmentDetailsViewController()
+    func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
+        let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
 
-            if let strongSelf = self {
-                strongSelf.richTextView.changeAlignment(forAttachment: attachment, to: alignment)
-                strongSelf.richTextView.changeSize(forAttachment: attachment, to: size)
+            guard let strongSelf = self else {
+                return
             }
+            strongSelf.richTextView.update(attachment: attachment,
+                                           alignment: alignment,
+                                           size: size,
+                                           url: url)
         }
 
-        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        let navigationController = UINavigationController(rootViewController: detailsViewController)        
         presentViewController(navigationController, animated: true, completion: nil)
     }
 }
@@ -650,6 +653,6 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             return
         }
 
-        displayDetailsForAttachment(attachment)
+        displayDetailsForAttachment(attachment, position:locationInTextView)
     }
 }

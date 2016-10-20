@@ -37,30 +37,7 @@ public class TextStorage: NSTextStorage {
     typealias ElementNode = Libxml2.ElementNode
     typealias TextNode = Libxml2.TextNode
     typealias RootNode = Libxml2.RootNode
-
-    // Represents the possible HTML types that the TextStorage element can handle
-    enum ElementTypes: String {
-        case bold = "b"
-        case italic = "em"
-        case striketrough = "s"
-        case underline = "u"
-        case link = "a"
-        case img = "img"
-
-        // Some HTML elements can have more than one valid representation so we list all possible variations here.
-        var equivalentNames: [String] {
-            get {
-                switch self {
-                case .bold: return [self.rawValue, "strong"]
-                case .italic: return [self.rawValue, "em"]
-                case .striketrough: return [self.rawValue, "strike"]
-                case .underline: return [self.rawValue, "u"]
-                case .link: return [self.rawValue]
-                case .img: return [self.rawValue]
-                }
-            }
-        }
-    }
+    typealias StandardElementType = Libxml2.StandardElementType
 
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
@@ -439,8 +416,32 @@ public class TextStorage: NSTextStorage {
         let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
-        
+
         return attachment.identifier
+    }
+
+    // MARK: - Attachments
+
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        attachment.alignment = alignment
+        attachment.size = size
+        attachment.url = url
+        let rangesForAttachment = ranges(forAttachment:attachment)
+        dispatch_async(domQueue) {
+            for range in rangesForAttachment {
+                let element = self.rootNode.lowestElementNodeWrapping(range)
+                if element.name == "img" {
+                    let classAttributes = alignment.htmlString() + " " + size.htmlString()
+                    element.updateAttribute(named: "class", value: classAttributes)                    
+                    if let sourceURLString = url.absoluteString where element.name == "img" {
+                        element.updateAttribute(named: "src", value: sourceURLString)
+                    }
+                }
+            }
+        }
     }
 
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
@@ -462,34 +463,34 @@ public class TextStorage: NSTextStorage {
 
     private func disableBoldInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
         }
     }
 
     private func disableItalicInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
         }
     }
 
     private func disableStrikethroughInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
         }
     }
 
     private func disableUnderlineInDom(range: NSRange) {
         dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
+            self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
     }
 
     private func enableBoldInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.bold.rawValue,
+            StandardElementType.b.rawValue,
             inRange: range,
-            equivalentElementNames: ElementTypes.bold.equivalentNames)
+            equivalentElementNames: StandardElementType.b.equivalentNames)
     }
 
     private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
@@ -505,33 +506,33 @@ public class TextStorage: NSTextStorage {
     private func enableItalicInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.italic.rawValue,
+            StandardElementType.i.rawValue,
             inRange: range,
-            equivalentElementNames: ElementTypes.italic.equivalentNames)
+            equivalentElementNames: StandardElementType.i.equivalentNames)
     }
 
     private func enableStrikethroughInDOM(range: NSRange) {
 
         enableInDom(
-            ElementTypes.striketrough.rawValue,
+            StandardElementType.s.rawValue,
             inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
+            equivalentElementNames:  StandardElementType.s.equivalentNames)
     }
 
     private func enableUnderlineInDOM(range: NSRange) {
         enableInDom(
-            ElementTypes.underline.rawValue,
+            StandardElementType.u.rawValue,
             inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
+            equivalentElementNames:  StandardElementType.u.equivalentNames)
     }
     
     private func setLinkInDOM(range: NSRange, url: NSURL) {
         dispatch_async(domQueue) {
             self.rootNode.wrapChildren(
                 intersectingRange: range,
-                inNodeNamed: ElementTypes.link.rawValue,
+                inNodeNamed: StandardElementType.a.rawValue,
                 withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: ElementTypes.link.equivalentNames)
+                equivalentElementNames: StandardElementType.a.equivalentNames)
         }
     }
     
@@ -545,7 +546,7 @@ public class TextStorage: NSTextStorage {
     private func setImageURLStringInDOM(imageURLString: String, forRange range: NSRange) {
         dispatch_async(domQueue) {
             self.rootNode.replaceCharacters(inRange: range,
-                                            withNodeNamed: ElementTypes.img.rawValue,
+                                            withNodeNamed: StandardElementType.img.rawValue,
                                             withAttributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
         }
     }
@@ -590,7 +591,10 @@ public class TextStorage: NSTextStorage {
 
 extension TextStorage: TextAttachmentImageProvider {
 
-    func textAttachment(textAttachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func textAttachment(textAttachment: TextAttachment,
+                        imageForURL url: NSURL,
+                        onSuccess success: (UIImage) -> (),
+                        onFailure failure: () -> ()) -> UIImage
     {
         guard let attachmentsDelegate = attachmentsDelegate else {
             fatalError("This class doesn't really support not having an attachments delegate set.")
