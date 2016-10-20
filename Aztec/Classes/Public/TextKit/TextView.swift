@@ -16,7 +16,7 @@ public protocol TextViewMediaDelegate: class {
     ///
     func textView(textView: TextView, imageAtUrl imageURL: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
     
-    func textView(textView: TextView, urlForNewImage image: UIImage) -> NSURL
+    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL
 }
 
 public class TextView: UITextView {
@@ -59,9 +59,9 @@ public class TextView: UITextView {
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
-        storage.imageProvider = self
+        storage.attachmentsDelegate = self
     }
-
+    
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
@@ -797,7 +797,7 @@ public class TextView: UITextView {
 
 // MARK: - TextStorageImageProvider
 
-extension TextView: TextStorageImageProvider {
+extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
         
@@ -813,12 +813,12 @@ extension TextView: TextStorageImageProvider {
         return defaultMissingImage
     }
     
-    func storage(storage: TextStorage, urlForNewImage image: UIImage) -> NSURL {
+    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForNewImage: image)
+        return mediaDelegate.textView(self, urlForImage: image)
     }
 }

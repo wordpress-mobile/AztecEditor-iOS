@@ -550,7 +550,7 @@ extension EditorDemoController: TextViewMediaDelegate
 
         let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
             dispatch_async(
-                dispatch_get_main_queue(), {
+                dispatch_get_main_queue(), { [weak self] in                    
                     guard
                         error == nil,
                         let data = data,
@@ -567,7 +567,10 @@ extension EditorDemoController: TextViewMediaDelegate
         return Gridicon.iconOfType(.Image)
     }
     
-    func textView(textView: TextView, urlForNewImage image: UIImage) -> NSURL {
+    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL {
+        
+        // TODO: start fake upload process
+        
         return saveToDisk(image: image)
     }
 }
