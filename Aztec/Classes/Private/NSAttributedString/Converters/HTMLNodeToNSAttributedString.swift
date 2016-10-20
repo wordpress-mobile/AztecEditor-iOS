@@ -146,14 +146,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             return NSAttributedString(string: "\n")
         } else if elementName == "img" {
 
-            let attachment = TextAttachment()
+            let url: NSURL?
 
-            if let urlString = elementNode.valueForStringAttribute(named: "src"),
-                let url = NSURL(string: urlString) {
-                attachment.kind = .RemoteImage(url: url)
+            if let urlString = elementNode.valueForStringAttribute(named: "src") {
+                url = NSURL(string: urlString)
             } else {
-                attachment.kind = .MissingImage
+                url = nil
             }
+            
+            let attachment = TextAttachment(url: url)
 
             if let elementClass = elementNode.valueForStringAttribute(named: "class") {
                 let classAttributes = elementClass.componentsSeparatedByString(" ")

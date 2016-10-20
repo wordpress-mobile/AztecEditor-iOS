@@ -1,9 +1,10 @@
 import Foundation
 import UIKit
 
-public protocol TextAttachmentImageProvider {
-    func image(forURL url: NSURL, forAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
+protocol TextAttachmentImageProvider {
+    func textAttachment(textAttachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
 }
+
 /// Custom text attachment.
 ///
 public class TextAttachment: NSTextAttachment
@@ -11,10 +12,11 @@ public class TextAttachment: NSTextAttachment
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     private(set) public var identifier: String
-
-    /// Attachment Kind
+    
+    /// Attachment URL
     ///
-    public var kind: Kind = .MissingImage
+    public var url: NSURL?
+    private var lastRequestedURL: NSURL?
 
     /// Attachment Alignment
     ///
@@ -26,17 +28,20 @@ public class TextAttachment: NSTextAttachment
 
     private var glyphImage: UIImage?
 
-    public var imageProvider: TextAttachmentImageProvider?
-    public var isFetchingImage: Bool = false
-    private var textContainer: NSTextContainer?
+    var imageProvider: TextAttachmentImageProvider?
+    
+    var isFetchingImage: Bool = false
 
     /// Creates a new attachment
     ///
     /// - parameter identifier: An unique identifier for the attachment
     ///
     /// - returns: self, initilized with the identifier a with kind = .MissingImage
-    required public init(identifier: String = NSUUID().UUIDString, kind: Kind = .MissingImage) {
+    ///
+    required public init(identifier: String = NSUUID().UUIDString, url: NSURL? = nil) {
         self.identifier = identifier
+        self.url = url
+        
         super.init(data: nil, ofType: nil)
     }
 
@@ -44,12 +49,13 @@ public class TextAttachment: NSTextAttachment
     ///
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
+        url = nil
         super.init(coder: aDecoder)
     }
 
     // MARK: - Origin calculation
 
-    func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
+    private func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
         let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
@@ -62,7 +68,7 @@ public class TextAttachment: NSTextAttachment
         }
     }
 
-    func onScreenHeight(containerWidth: CGFloat) -> CGFloat {
+    private func onScreenHeight(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
@@ -73,7 +79,7 @@ public class TextAttachment: NSTextAttachment
         }
     }
 
-    func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
+    private func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {
             case .Full:
@@ -89,8 +95,9 @@ public class TextAttachment: NSTextAttachment
     // MARK: - NSTextAttachmentContainer
 
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
-        self.textContainer = textContainer
-        updateImage()
+        
+        updateImage(inTextContainer: textContainer)
+        
         guard let image = image else {
             return nil
         }
@@ -118,8 +125,9 @@ public class TextAttachment: NSTextAttachment
     /// Otherwise, we'll always take the whole container's width.
     ///
     override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-        self.textContainer = textContainer
-        updateImage()
+        
+        updateImage(inTextContainer: textContainer)
+        
         if image == nil {
             return CGRectZero
         }
@@ -130,38 +138,48 @@ public class TextAttachment: NSTextAttachment
         return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
     }
 
-    func updateImage() {
+    func updateImage(inTextContainer textContainer: NSTextContainer? = nil) {
 
-        guard let imageProvider = imageProvider where !isFetchingImage else {
+        guard let imageProvider = imageProvider else {
+            assertionFailure("This class doesn't really support not having an updater set.")
             return
         }
-
-        let imageURL: NSURL
-        switch kind {
-        case .RemoteImage(let url):
-            imageURL = url
-        default:
+        
+        guard let url = url where !isFetchingImage && url != lastRequestedURL else {
             return
         }
-
+        
         isFetchingImage = true
         
-        image = imageProvider.image(forURL: imageURL,
-                                    forAttachment: self,
-                                    onSuccess: { [weak self](image) in
-                                        self?.isFetchingImage = false
-                                        self?.image = image
-                                        self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
-                                        self?.triggerUpdate()
-                                    }, onFailure: { [weak self]() in
-                                        self?.isFetchingImage = false
-                                        self?.kind = .MissingImage
-                                        self?.triggerUpdate()
-                                    })        
-    }
+        let image = imageProvider.textAttachment(self,
+                                                 imageForURL: url,
+                                                 onSuccess: { [weak self] (image) in
+                                            
+                                                    guard let strongSelf = self else {
+                                                        return
+                                                    }
+                                                    
+                                                    strongSelf.lastRequestedURL = url
+                                                    strongSelf.isFetchingImage = false
+                                                    strongSelf.image = image
+                                                    strongSelf.invalidateLayout(inTextContainer: textContainer)
+            }, onFailure: { [weak self]() in
+                
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                strongSelf.isFetchingImage = false
+                strongSelf.invalidateLayout(inTextContainer: textContainer)
+            })
 
-    func triggerUpdate(){
-        self.textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
+        if self.image == nil {
+            self.image = image
+        }
+    }
+    
+    private func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
+        textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
     }
 }
 
@@ -202,15 +220,6 @@ extension TextAttachment
         static func fromHTML(string value:String) -> Alignment? {
             return mappedValues[value]
         }
-    }
-
-    /// Supported Media
-    ///
-    public enum Kind {
-        case MissingImage
-        case RemoteImage(url: NSURL)
-        case RemoteImageDownloaded(url: NSURL, image: UIImage)
-        case Image
     }
 
     /// Size Onscreen!
