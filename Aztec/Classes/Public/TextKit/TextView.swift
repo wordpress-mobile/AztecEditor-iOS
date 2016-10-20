@@ -726,17 +726,20 @@ public class TextView: UITextView {
 
     // MARK: - Attachments
 
-    public func changeAlignment(forAttachment attachment: TextAttachment, to alignment: TextAttachment.Alignment) {
-        attachment.alignment = alignment
-
+    /// Updates the attachment properties to the new values
+    ///
+    /// - parameter attachment: the attachment to update
+    /// - parameter alignment:  the alignment value
+    /// - parameter size:       the size value
+    /// - parameter url:        the attachment url
+    ///
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }
-
-    public func changeSize(forAttachment attachment: TextAttachment, to size: TextAttachment.Size) {
-        attachment.size = size
-
-        layoutManager.invalidateLayoutForAttachment(attachment)
-    }
+    }    
 }
 
 // MARK: - TextStorageAttachmentsDelegate

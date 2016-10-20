@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 public protocol TextAttachmentImageProvider {
-    func image(forURL url: NSURL, inAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
+    func image(forURL url: NSURL, forAttachment attachment: TextAttachment, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage?
 }
 /// Custom text attachment.
 ///
@@ -22,7 +22,7 @@ public class TextAttachment: NSTextAttachment
 
     /// Attachment Size
     ///
-    public var size: Size = .Maximum
+    public var size: Size = .Full
 
     private var glyphImage: UIImage?
 
@@ -76,7 +76,7 @@ public class TextAttachment: NSTextAttachment
     func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {
-            case .Maximum:
+            case .Full:
                 return floor(min(image.size.width, containerWidth))
             default:
                 return floor(min(size.width, containerWidth))
@@ -135,7 +135,6 @@ public class TextAttachment: NSTextAttachment
         guard let imageProvider = imageProvider where !isFetchingImage else {
             return
         }
-        isFetchingImage = true
 
         let imageURL: NSURL
         switch kind {
@@ -145,17 +144,20 @@ public class TextAttachment: NSTextAttachment
             return
         }
 
-        image = imageProvider.image(forURL: imageURL, inAttachment: self,
-                                                onSuccess: { [weak self](image) in
-                                                    self?.isFetchingImage = false
-                                                    self?.image = image
-                                                    self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
-                                                    self?.triggerUpdate()
-            }, onFailure: { [weak self]() in
-                self?.isFetchingImage = false
-                self?.kind = .MissingImage
-                self?.triggerUpdate()
-            })        
+        isFetchingImage = true
+        
+        image = imageProvider.image(forURL: imageURL,
+                                    forAttachment: self,
+                                    onSuccess: { [weak self](image) in
+                                        self?.isFetchingImage = false
+                                        self?.image = image
+                                        self?.kind = .RemoteImageDownloaded(url: imageURL, image: image)
+                                        self?.triggerUpdate()
+                                    }, onFailure: { [weak self]() in
+                                        self?.isFetchingImage = false
+                                        self?.kind = .MissingImage
+                                        self?.triggerUpdate()
+                                    })        
     }
 
     func triggerUpdate(){
@@ -176,6 +178,30 @@ extension TextAttachment
         case Left
         case Center
         case Right
+
+        func htmlString() -> String {
+            switch self {
+                case .Center:
+                    return "aligncenter"
+                case .Left:
+                    return "alignleft"
+                case .Right:
+                    return "alignright"
+                case .None:
+                    return "alignnone"
+            }
+        }
+
+        static let mappedValues:[String:Alignment] = [
+            Alignment.None.htmlString():.None,
+            Alignment.Left.htmlString():.Left,
+            Alignment.Center.htmlString():.Center,
+            Alignment.Right.htmlString():.Right
+        ]
+
+        static func fromHTML(string value:String) -> Alignment? {
+            return mappedValues[value]
+        }
     }
 
     /// Supported Media
@@ -193,14 +219,38 @@ extension TextAttachment
         case Thumbnail
         case Medium
         case Large
-        case Maximum
+        case Full
+
+        func htmlString() -> String {
+            switch self {
+            case .Thumbnail:
+                return "size-thumbnail"
+            case .Medium:
+                return "size-medium"
+            case .Large:
+                return "size-large"
+            case .Full:
+                return "size-full"
+            }
+        }
+
+        static let mappedValues:[String:Size] = [
+            Size.Thumbnail.htmlString():.Thumbnail,
+            Size.Medium.htmlString():.Medium,
+            Size.Large.htmlString():.Large,
+            Size.Full.htmlString():.Full
+        ]
+
+        static func fromHTML(string value:String) -> Size? {
+            return mappedValues[value]
+        }
 
         var width: CGFloat {
             switch self {
             case .Thumbnail: return Settings.thumbnail
             case .Medium: return Settings.medium
             case .Large: return Settings.large
-            case .Maximum: return Settings.maximum
+            case .Full: return Settings.maximum
             }
         }
 

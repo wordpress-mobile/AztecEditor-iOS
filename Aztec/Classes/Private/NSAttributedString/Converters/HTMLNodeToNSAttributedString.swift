@@ -10,6 +10,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
     typealias CommentNode = Libxml2.CommentNode
+    typealias StandardElementType = Libxml2.StandardElementType
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
@@ -154,6 +155,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 attachment.kind = .MissingImage
             }
 
+            if let elementClass = elementNode.valueForStringAttribute(named: "class") {
+                let classAttributes = elementClass.componentsSeparatedByString(" ")
+                for classAttribute in classAttributes {
+                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attachment.alignment = alignment
+                    }
+                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                        attachment.size = size
+                    }
+                }
+            }
+
             return NSAttributedString(attachment: attachment)
         } else {
             return NSAttributedString(string: "")
@@ -254,30 +267,26 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Node Style Checks
 
     private func isLink(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.A.rawValue
+        return node.name == StandardElementType.a.rawValue
     }
 
     private func isBold(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.B.rawValue,
-            ElementNode.StandardName.Strong.rawValue].contains(node.name)
+        return StandardElementType.b.equivalentNames.contains(node.name)
     }
 
     private func isItalic(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.Em.rawValue,
-            ElementNode.StandardName.I.rawValue].contains(node.name)
+        return StandardElementType.i.equivalentNames.contains(node.name)
     }
 
     private func isStrikedThrough(node: ElementNode) -> Bool {
-        return [ElementNode.StandardName.Del.rawValue,
-            ElementNode.StandardName.S.rawValue,
-            ElementNode.StandardName.Strike.rawValue].contains(node.name)
+        return StandardElementType.s.equivalentNames.contains(node.name)
     }
 
     private func isUnderlined(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.U.rawValue
+        return node.name == StandardElementType.u.rawValue
     }
 
     private func isBlockquote(node: ElementNode) -> Bool {
-        return node.name == ElementNode.StandardName.Blockquote.rawValue
+        return node.name == StandardElementType.blockquote.rawValue
     }
 }
