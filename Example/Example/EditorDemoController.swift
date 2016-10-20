@@ -550,7 +550,7 @@ extension EditorDemoController: TextViewMediaDelegate
 
         let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
             dispatch_async(
-                dispatch_get_main_queue(), { [weak self] in                    
+                dispatch_get_main_queue(), {
                     guard
                         error == nil,
                         let data = data,
