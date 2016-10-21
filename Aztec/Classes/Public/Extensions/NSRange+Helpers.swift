@@ -56,6 +56,8 @@ extension NSRange
 }
 
 extension SequenceType where Generator.Element == NSRange {
+    /// Returns the union of all the ranges in the sequence
+    ///
     func union() -> NSRange? {
         return reduce(nil) { (partialUnion, range) in
             guard let partialUnion = partialUnion else {
