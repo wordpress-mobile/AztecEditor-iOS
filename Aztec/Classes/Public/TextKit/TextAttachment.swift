@@ -93,11 +93,11 @@ public class TextAttachment: NSTextAttachment
 
     private func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
-            switch (size) {
+            switch (size) {	
             case .Full:
                 return floor(min(image.size.width, containerWidth))
             default:
-                return floor(min(size.width, containerWidth))
+                return floor(min(min(image.size.width,size.width), containerWidth))
             }
         } else {
             return 0
