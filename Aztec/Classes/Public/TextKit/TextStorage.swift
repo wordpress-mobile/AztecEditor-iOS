@@ -416,6 +416,7 @@ public class TextStorage: NSTextStorage {
     ///
     func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
         let attachment = TextAttachment()
+        attachment.imageProvider = self
         attachment.url = url
         attachment.image = placeHolderImage
 
