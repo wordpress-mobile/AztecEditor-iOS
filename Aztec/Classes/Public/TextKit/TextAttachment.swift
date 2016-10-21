@@ -20,11 +20,23 @@ public class TextAttachment: NSTextAttachment
 
     /// Attachment Alignment
     ///
-    internal(set) public var alignment: Alignment = .Center
+    internal(set) public var alignment: Alignment = .Center {
+        willSet {
+            if newValue != alignment {
+                glyphImage = nil
+            }
+        }
+    }
 
     /// Attachment Size
     ///
-    public var size: Size = .Full
+    public var size: Size = .Full {
+        willSet {
+            if newValue != size {
+                glyphImage = nil
+            }
+        }
+    }
 
     private var glyphImage: UIImage?
 
@@ -81,11 +93,11 @@ public class TextAttachment: NSTextAttachment
 
     private func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
         if let image = image {
-            switch (size) {
+            switch (size) {	
             case .Full:
                 return floor(min(image.size.width, containerWidth))
             default:
-                return floor(min(size.width, containerWidth))
+                return floor(min(min(image.size.width,size.width), containerWidth))
             }
         } else {
             return 0
