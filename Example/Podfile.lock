@@ -6,7 +6,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   WPMediaPicker:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   WPMediaPicker: 645ecc2435293cc898c76180f3994358a68cae20
