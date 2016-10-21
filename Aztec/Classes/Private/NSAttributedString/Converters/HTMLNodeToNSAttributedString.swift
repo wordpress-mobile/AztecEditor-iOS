@@ -226,7 +226,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         if isBlockquote(node) {
             let formatter = BlockquoteFormatter()
-            for (key, value) in formatter.attributesForBlockquote {
+            for (key, value) in formatter.attributes {
                 attributes[key] = value
             }
         }

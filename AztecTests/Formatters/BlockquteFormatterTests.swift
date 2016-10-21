@@ -7,7 +7,7 @@ class BlockquteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: string)
 
         let formatter = BlockquoteFormatter()
-        formatter.toggleBlockquote(inString: string, atRange: NSRange(location: 1, length: 1))
+        formatter.toggleAttribute(inString: string, atRange: NSRange(location: 1, length: 1))
 
         XCTAssertTrue(existsBlockquote(for: string, in: paragraphs[0]))
     }
@@ -17,8 +17,8 @@ class BlockquteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: string)
 
         let formatter = BlockquoteFormatter()
-        string.setAttributes(formatter.attributesForBlockquote, range: paragraphs[0])
-        formatter.toggleBlockquote(inString: string, atRange: NSRange(location: 1, length: 1))
+        string.setAttributes(formatter.attributes, range: paragraphs[0])
+        formatter.toggleAttribute(inString: string, atRange: NSRange(location: 1, length: 1))
 
         XCTAssertFalse(existsBlockquote(for: string, in: paragraphs[0]))
     }
@@ -28,8 +28,8 @@ class BlockquteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: string)
 
         let formatter = BlockquoteFormatter()
-        string.setAttributes(formatter.attributesForBlockquote, range: paragraphs[1])
-        formatter.toggleBlockquote(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        string.setAttributes(formatter.attributes, range: paragraphs[1])
+        formatter.toggleAttribute(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertTrue(existsBlockquote(for: string, in: paragraphs[0]))
         XCTAssertTrue(existsBlockquote(for: string, in: paragraphs[1]))
@@ -40,8 +40,8 @@ class BlockquteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: string)
 
         let formatter = BlockquoteFormatter()
-        string.setAttributes(formatter.attributesForBlockquote, range: paragraphs[0])
-        formatter.toggleBlockquote(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        string.setAttributes(formatter.attributes, range: paragraphs[0])
+        formatter.toggleAttribute(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertFalse(existsBlockquote(for: string, in: paragraphs[0]))
         XCTAssertFalse(existsBlockquote(for: string, in: paragraphs[1]))
@@ -53,8 +53,8 @@ class BlockquteFormatterTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
         let original = string.copy() as! NSAttributedString
-        formatter.toggleBlockquote(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
-        formatter.toggleBlockquote(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggleAttribute(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggleAttribute(inString: string, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertTrue(original.isEqualToAttributedString(string))
     }

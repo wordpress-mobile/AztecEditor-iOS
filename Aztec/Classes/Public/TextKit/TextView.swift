@@ -161,6 +161,7 @@ public class TextView: UITextView {
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
         guard storage.length != 0 else {
+            // FIXME: if empty string, check typingAttributes
             return []
         }
 
@@ -348,7 +349,7 @@ public class TextView: UITextView {
     ///
     public func toggleBlockquote(range range: NSRange) {
         let formatter = BlockquoteFormatter()
-        formatter.toggleBlockquote(inString: textStorage, atRange: range)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -696,7 +697,7 @@ public class TextView: UITextView {
     ///
     public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
         let formatter = BlockquoteFormatter()
-        return formatter.isBlockquote(inString: storage, at: index)
+        return formatter.attribute(inString: storage, at: index)
     }
 
 

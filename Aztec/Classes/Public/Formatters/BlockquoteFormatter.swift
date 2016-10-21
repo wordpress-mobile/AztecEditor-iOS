@@ -5,45 +5,8 @@ class Blockquote {
     static let attributeName = "AZBlockquote"
 }
 
-struct BlockquoteFormatter {
-    /// Returns `true` if the specified index has a blockquote attribute.
-    ///
-    /// - Parameters:
-    ///     - string: The NSMutableAttributedString to modify.
-    ///     - index: The index at which to check if there is a blockquote attribute.
-    ///
-    func isBlockquote(inString string: NSAttributedString, at index: Int) -> Bool {
-        return string.attribute(Blockquote.attributeName, atIndex: index, effectiveRange: nil) is Blockquote
-    }
-
-    /// Toggles blockquote attribute for the specified range.
-    ///
-    /// If the range includes multiple paragraphs, this will toggle the
-    /// blockquote attribute for all the paragraphs depending on whether the
-    /// first paragraph is a blockquote.
-    ///
-    /// - Parameters:
-    ///     - string: The NSMutableAttributedString to modify.
-    ///     - range: The index at which to toggle the blockquote attribute.
-    ///
-    func toggleBlockquote(inString string: NSMutableAttributedString, atRange range: NSRange) {
-        let paragraphRanges = string.paragraphRanges(spanningRange: range)
-
-        guard let unionRange = paragraphRanges.union() else {
-            // paragraphRanges was empty, which should not happen
-            return
-        }
-
-        if isBlockquote(inString: string, at: range.location) {
-            removeBlockquote(fromString: string, atRange: unionRange)
-        } else {
-            applyBlockquote(toString: string, atRange: unionRange)
-        }
-    }
-
-    /// Attributes that represent a blockquote in an attributed string.
-    ///
-    let attributesForBlockquote: [String: AnyObject] = {
+struct BlockquoteFormatter: ParagraphAttributeFormatter {
+    let attributes: [String: AnyObject] = {
         let style = NSMutableParagraphStyle()
         style.headIndent = Metrics.defaultIndentation
         style.firstLineHeadIndent = style.headIndent
@@ -59,16 +22,9 @@ struct BlockquoteFormatter {
             Blockquote.attributeName: Blockquote()
         ]
     }()
-}
 
-private extension BlockquoteFormatter {
-    func applyBlockquote(toString string: NSMutableAttributedString, atRange range: NSRange) {
-        string.addAttributes(attributesForBlockquote, range: range)
-    }
-
-    func removeBlockquote(fromString string: NSMutableAttributedString, atRange range: NSRange) {
-        for (attribute, _) in attributesForBlockquote {
-            string.removeAttribute(attribute, range: range)
-        }
+    func present(inAttributes attributes: [String : AnyObject]) -> Bool {
+        return attributes[Blockquote.attributeName] is Blockquote
     }
 }
+
