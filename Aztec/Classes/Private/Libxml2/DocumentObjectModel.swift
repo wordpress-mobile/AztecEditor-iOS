@@ -137,10 +137,12 @@ extension Libxml2 {
         private func applyStyles(from attributedString: NSAttributedString, spanning range: NSRange) {
             
             let options = NSAttributedStringEnumerationOptions(rawValue: 0)
-            let fullRange = NSRange(location: 0, length: attributedString.length)
+            let sourceRange = NSRange(location: 0, length: attributedString.length)
             
-            attributedString.enumerateAttributesInRange(fullRange, options: options) { (attributes, range, stop) in
-                applyStyles(from: attributes, spanning: range)
+            attributedString.enumerateAttributesInRange(sourceRange, options: options) { (attributes, sourceSubrange, stop) in
+                
+                let subrangeWithOffset = NSRange(location: range.location, length: sourceSubrange.length)
+                applyStyles(from: attributes, spanning: subrangeWithOffset)
             }
         }
         
