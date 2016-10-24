@@ -186,13 +186,6 @@ public class TextStorage: NSTextStorage {
         let enable = !fontTrait(.TraitBold, spansRange: range)
 
         modifyTrait(.TraitBold, range: range, enable: enable)
-/*
-        if enable {
-            enableBoldInDOM(range)
-        } else {
-            disableBoldInDom(range)
-        }
- */
     }
 
     func toggleItalic(range: NSRange) {
@@ -200,17 +193,10 @@ public class TextStorage: NSTextStorage {
         let enable = !fontTrait(.TraitItalic, spansRange: range)
 
         modifyTrait(.TraitItalic, range: range, enable: enable)
-/*
-        if enable {
-            enableItalicInDOM(range)
-        } else {
-            disableItalicInDom(range)
-        }
- */
     }
 
     func toggleStrikethrough(range: NSRange) {
-        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range /*, onEnable: enableStrikethroughInDOM, onDisable: disableStrikethroughInDom*/)
+        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
     }
 
     /// Toggles underline for the specified range.
@@ -225,7 +211,7 @@ public class TextStorage: NSTextStorage {
     ///     - range: the range to toggle the style of.
     ///
     func toggleUnderlineForRange(range: NSRange) {
-        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range/*, onEnable: enableUnderlineInDOM, onDisable: disableUnderlineInDom*/)
+        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
     }
 
     func setLink(url: NSURL, forRange range: NSRange) {
@@ -239,7 +225,6 @@ public class TextStorage: NSTextStorage {
         }
         
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-        //setLinkInDOM(effectiveRange, url: url)
     }
 
     func removeLink(inRange range: NSRange){
@@ -288,7 +273,7 @@ public class TextStorage: NSTextStorage {
         dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
     }
 
-    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange /*, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void*/) {
+    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange) {
 
         var effectiveRange = NSRange()
         let enable = attribute(attributeName, atIndex: range.location, effectiveRange: &effectiveRange) == nil
@@ -296,10 +281,8 @@ public class TextStorage: NSTextStorage {
 
         if enable {
             addAttribute(attributeName, value: value, range: range)
-            //onEnable(range)
         } else {
             removeAttribute(attributeName, range: range)
-            //onDisable(range)
         }
     }
 
