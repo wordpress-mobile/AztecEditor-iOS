@@ -18,7 +18,7 @@ extension AttributeFormatter {
         if attribute(inString: string, at: range.location) {
             removeAttributes(fromString: string, atRange: applicationRange)
         } else {
-            applyAttribute(toString: string, atRange: applicationRange)
+            applyAttributes(toString: string, atRange: applicationRange)
         }
     }
 }
@@ -44,7 +44,7 @@ private extension AttributeFormatter {
         }
     }
 
-    func applyAttribute(toString string: NSMutableAttributedString, atRange range: NSRange) {
+    func applyAttributes(toString string: NSMutableAttributedString, atRange range: NSRange) {
         string.addAttributes(attributes, range: range)
     }
 
