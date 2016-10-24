@@ -1,4 +1,4 @@
-import Foundation
+aimport Foundation
 import UIKit
 
 /// Implemented by a class taking care of handling attachments for the storage.
