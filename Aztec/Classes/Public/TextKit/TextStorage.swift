@@ -1,7 +1,9 @@
 import Foundation
 import UIKit
 
-protocol TextStorageImageProvider {
+/// Implemented by a class taking care of handling attachments for the storage.
+///
+protocol TextStorageAttachmentsDelegate {
 
     /// Provides images for attachments that are part of the storage
     ///
@@ -15,6 +17,17 @@ protocol TextStorageImageProvider {
     ///
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
+    
+    /// Called when an image is about to be added to the storage as an attachment, so that the
+    /// delegate can specify an URL where that image is available.
+    ///
+    /// - Parameters:
+    ///     - storage:      The storage that is requesting the image.
+    ///     - image:        The image that was added to the storage.
+    ///
+    /// - Returns: the requested `NSURL` where the image is stored.
+    ///
+    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL
 }
 
 /// Custom NSTextStorage
@@ -42,7 +55,7 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var imageProvider: TextStorageImageProvider?
+    var attachmentsDelegate: TextStorageAttachmentsDelegate?
 
     public func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
@@ -69,6 +82,67 @@ public class TextStorage: NSTextStorage {
 
         return range
     }
+    
+    // MARK: - NSAttributedString preprocessing
+
+    /// Preprocesses an attributed string's attachments for insertion in the storage.
+    ///
+    /// - Important: This method takes care of removing any non-image attachments too.  This may
+    ///         change in future versions.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the string we need to preprocess.
+    ///
+    /// - Returns: the preprocessed string.
+    ///
+    private func preprocessAttachments(forAttributedString attributedString: NSAttributedString) -> NSAttributedString {
+        
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+        let finalString = NSMutableAttributedString(attributedString: attributedString)
+        
+        attributedString.enumerateAttribute(NSAttachmentAttributeName, inRange: fullRange, options: []) { (object, range, stop) in
+            
+            // For some weird reason object can be `nil` here in certain scenarios.
+            // We'll just bail out even though this method shouldn't have been called.
+            //
+            guard let object = object else {
+                return
+            }
+            
+            guard let attachmentsDelegate = attachmentsDelegate else {
+                assertionFailure("This class can't really handle not having an image provider set.")
+                return
+            }
+            
+            guard let attachment = object as? NSTextAttachment else {
+                assertionFailure("We expected a text attachment object.")
+                return
+            }
+            
+            guard let image = attachment.image else {
+                // We only suppot image attachments for now.  All other attachment types are
+                // stripped for safety.
+                //
+                finalString.removeAttribute(NSAttachmentAttributeName, range: range)
+                return
+            }
+            
+            guard !(attachment is TextAttachment) else {
+                // Only replace plain NSTextAttachment objects.
+                //
+                return
+            }
+            
+            let replacementAttachment = TextAttachment()
+            replacementAttachment.imageProvider = self
+            replacementAttachment.image = image
+            replacementAttachment.url = attachmentsDelegate.storage(self, urlForImage: image)
+            
+            finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
+        }
+        
+        return finalString
+    }
 
     // MARK: - Overriden Methods
 
@@ -91,11 +165,16 @@ public class TextStorage: NSTextStorage {
     
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         
+        // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
+        //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
+        //
+        let attrString = preprocessAttachments(forAttributedString: attrString)
+        
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
         
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-        
+
         dispatch_async(domQueue) {
             self.rootNode.replaceCharacters(inRange: range, withString: attrString.string, inheritStyle: false)
             
@@ -130,6 +209,8 @@ public class TextStorage: NSTextStorage {
 
             for (key, value) in attributes {
                 switch (key) {
+                case NSAttachmentAttributeName:
+                    copyToDOM(attachmentValue: value, spanningRange: range)
                 case NSFontAttributeName:
                     copyToDOM(fontAttributesSpanning: range, fromAttributeValue: value)
                 case NSLinkAttributeName:
@@ -143,6 +224,19 @@ public class TextStorage: NSTextStorage {
                 }
             }
         }
+    }
+    
+    private func copyToDOM(attachmentValue object: AnyObject, spanningRange range: NSRange) {
+        guard let attachment = object as? TextAttachment else {
+            assertionFailure("We're expecting a TextAttachment object here.  preprocessStyles should've curated this.")
+            return
+        }
+        
+        copyToDOM(attachment, spanningRange: range)
+    }
+    
+    private func copyToDOM(attachment: TextAttachment, spanningRange range: NSRange) {
+        setImageURLInDOM(attachment.url, forRange: range)
     }
     
     private func copyToDOM(fontAttributesSpanning range: NSRange, fromAttributeValue value: AnyObject) {
@@ -312,7 +406,6 @@ public class TextStorage: NSTextStorage {
         }
     }
 
-
     /// Insert Image Element at the specified range using url as source
     ///
     /// - parameter url: the source URL of the image
@@ -323,20 +416,15 @@ public class TextStorage: NSTextStorage {
     ///
     func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
         let attachment = TextAttachment()
-        attachment.kind = .RemoteImageDownloaded(url: url, image:placeHolderImage)
+        attachment.imageProvider = self
+        attachment.url = url
         attachment.image = placeHolderImage
 
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
-        let wrappingRange = NSMakeRange(position, attachmentString.length)
 
-        dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: wrappingRange,
-                                       withNodeNamed: StandardElementType.img.rawValue,
-                                       withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
-        }
         return attachment.identifier
     }
 
@@ -348,7 +436,7 @@ public class TextStorage: NSTextStorage {
                                   url: NSURL) {
         attachment.alignment = alignment
         attachment.size = size
-        attachment.kind = .RemoteImage(url:url)
+        attachment.url = url
         let rangesForAttachment = ranges(forAttachment:attachment)
         dispatch_async(domQueue) {
             for range in rangesForAttachment {
@@ -455,6 +543,21 @@ public class TextStorage: NSTextStorage {
                 equivalentElementNames: StandardElementType.a.equivalentNames)
         }
     }
+    
+    private func setImageURLInDOM(imageURL: NSURL?, forRange range: NSRange) {
+        
+        let imageURLString = imageURL?.absoluteString ?? ""
+        
+        setImageURLStringInDOM(imageURLString, forRange: range)
+    }
+    
+    private func setImageURLStringInDOM(imageURLString: String, forRange range: NSRange) {
+        dispatch_async(domQueue) {
+            self.rootNode.replaceCharacters(inRange: range,
+                                            withNodeNamed: StandardElementType.img.rawValue,
+                                            withAttributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+        }
+    }
 
     // MARK: - HTML Interaction
 
@@ -496,12 +599,16 @@ public class TextStorage: NSTextStorage {
 
 extension TextStorage: TextAttachmentImageProvider {
 
-    public func image(forURL url: NSURL,
-                      forAttachment attachment: TextAttachment,
-                      onSuccess success: (UIImage) -> (),
-                      onFailure failure: () -> ()) -> UIImage?
+    func textAttachment(textAttachment: TextAttachment,
+                        imageForURL url: NSURL,
+                        onSuccess success: (UIImage) -> (),
+                        onFailure failure: () -> ()) -> UIImage
     {
-        return imageProvider?.storage(self, attachment: attachment, imageForURL: url, onSuccess: success, onFailure: failure)
+        guard let attachmentsDelegate = attachmentsDelegate else {
+            fatalError("This class doesn't really support not having an attachments delegate set.")
+        }
+        
+        return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
 }

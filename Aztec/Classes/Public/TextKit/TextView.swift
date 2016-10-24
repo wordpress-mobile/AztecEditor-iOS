@@ -7,14 +7,16 @@ public protocol TextViewMediaDelegate: class {
     ///
     /// - Parameters:
     ///     - textView: the `TextView` the call has been made from.
-    ///     - url: the url to download the image from.
+    ///     - imageURL: the url to download the image from.
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
     ///
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+    func textView(textView: TextView, imageAtUrl imageURL: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+    
+    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL
 }
 
 public class TextView: UITextView {
@@ -57,9 +59,9 @@ public class TextView: UITextView {
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
-        storage.imageProvider = self
+        storage.attachmentsDelegate = self
     }
-
+    
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
@@ -743,20 +745,30 @@ public class TextView: UITextView {
     }    
 }
 
-// MARK: - TextStorageAttachmentsDelegate
+// MARK: - TextStorageImageProvider
 
-extension TextView: TextStorageImageProvider {
+extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
-        if let mediaDelegate = mediaDelegate {
-            let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
-            return placeholderImage
-        } else {
-            return Gridicon.iconOfType(.Attachment)
+        
+        guard let mediaDelegate = mediaDelegate else {
+            fatalError("This class requires a media delegate to be set.")
         }
+        
+        let placeholderImage = mediaDelegate.textView(self, imageAtUrl: url, onSuccess: success, onFailure: failure)
+        return placeholderImage
     }
 
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
         return defaultMissingImage
+    }
+    
+    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL {
+        
+        guard let mediaDelegate = mediaDelegate else {
+            fatalError("This class requires a media delegate to be set.")
+        }
+        
+        return mediaDelegate.textView(self, urlForImage: image)
     }
 }
