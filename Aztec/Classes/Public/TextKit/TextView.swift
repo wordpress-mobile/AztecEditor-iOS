@@ -699,7 +699,7 @@ public class TextView: UITextView {
     ///
     public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
         let formatter = BlockquoteFormatter()
-        return formatter.attribute(inString: storage, at: index)
+        return formatter.attribute(inTextView: self, at: index)
     }
 
 

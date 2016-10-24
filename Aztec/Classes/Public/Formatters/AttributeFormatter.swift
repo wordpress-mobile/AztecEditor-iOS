@@ -38,40 +38,37 @@ protocol AttributeFormatter {
 }
 
 extension AttributeFormatter {
-    /// Checks if the attribute is present in a string at the specified index.
+    /// Checks if the attribute is present in a text view at the specified index.
     ///
-    func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
-        let attributes = string.attributesAtIndex(index, effectiveRange: nil)
+    func attribute(inTextView textView: UITextView, at index: Int) -> Bool {
+        let string = textView.textStorage
+        let range = applicationRange(forRange: NSRange(location: index, length: 0), inString: string)
+        let attributes = range.length > 0
+            ? string.attributesAtIndex(index, effectiveRange: nil)
+            : textView.typingAttributes
         return present(inAttributes: attributes)
     }
+}
 
-    /// Toggles an attribute in the specified range of the string.
-    ///
-    /// The application range might be different than the passed range, as
-    /// explained in `applicationRange(forRange:inString:)`
-    ///
-    func toggleAttribute(inString string: NSMutableAttributedString, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: string)
+// MARK: - Default implementations
 
-        if attribute(inString: string, at: range.location) {
-            removeAttributes(fromString: string, atRange: applicationRange)
-        } else {
-            applyAttributes(toString: string, atRange: applicationRange)
-        }
-    }
-
+extension AttributeFormatter {
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return range
     }
 
     func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        guard range.length > 0 else {
+        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
+
+        guard applicationRange.length > 0 else {
             toggleTypingAttribute(inTextView: textView)
             return
         }
-        toggleAttribute(inString: textView.textStorage, atRange: range)
+        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
     }
 }
+
+// MARK: - Private methods
 
 private extension AttributeFormatter {
     func toggleTypingAttribute(inTextView textView: UITextView) {
@@ -94,6 +91,14 @@ private extension AttributeFormatter {
         }
     }
 
+    func toggleAttribute(inString string: NSMutableAttributedString, atRange range: NSRange) {
+        if attribute(inString: string, at: range.location) {
+            removeAttributes(fromString: string, atRange: range)
+        } else {
+            applyAttributes(toString: string, atRange: range)
+        }
+    }
+
     func applyAttributes(toString string: NSMutableAttributedString, atRange range: NSRange) {
         string.addAttributes(attributes, range: range)
     }
@@ -103,7 +108,14 @@ private extension AttributeFormatter {
             string.removeAttribute(attribute, range: range)
         }
     }
+
+    func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
+        let attributes = string.attributesAtIndex(index, effectiveRange: nil)
+        return present(inAttributes: attributes)
+    }
 }
+
+// MARK: - Attribute Formater types
 
 protocol CharacterAttributeFormatter: AttributeFormatter {
 }
@@ -112,15 +124,6 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        guard textView.textStorage.length > 0 else {
-            toggleTypingAttribute(inTextView: textView)
-            return
-        }
-        toggleAttribute(inString: textView.textStorage, atRange: range)
-    }
-
-
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
     }
