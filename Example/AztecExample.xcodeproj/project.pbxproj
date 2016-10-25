@@ -82,8 +82,6 @@
 /* Begin PBXFileReference section */
 		59280F281D47CAF40083FB59 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
 		59280F291D47CAF40083FB59 /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
-		5967193B1D8BC60D00F18F7F /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
-		5967193C1D8BC60D00F18F7F /* AlamofireImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AlamofireImage.framework; path = Carthage/Build/iOS/AlamofireImage.framework; sourceTree = "<group>"; };
 		5967193D1D8BC60D00F18F7F /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		599F256F1D8BCF57002871D6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		599F25711D8BD044002871D6 /* Aztec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Aztec.xcodeproj; path = ../Aztec.xcodeproj; sourceTree = "<group>"; };
@@ -125,8 +123,6 @@
 		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5967193B1D8BC60D00F18F7F /* Alamofire.framework */,
-				5967193C1D8BC60D00F18F7F /* AlamofireImage.framework */,
 				5967193D1D8BC60D00F18F7F /* Gridicons.framework */,
 			);
 			name = Frameworks;

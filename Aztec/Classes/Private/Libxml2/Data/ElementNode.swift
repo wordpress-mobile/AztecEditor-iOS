@@ -1473,34 +1473,7 @@ extension Libxml2 {
             //
             let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
             let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
-            /*
-            // We need to cache these here, as the indexes may be affected with the below logic.
-            //
-            let originalLeftSibling: ElementNode? = sibling(leftOf: firstNodeIndex)
-            let originalRightSibling: ElementNode? = sibling(rightOf: lastNodeIndex)
-            
-            var childrenToWrap = newChildren
-            var result: ElementNode?
 
-            
-            if let originalSibling = originalLeftSibling,
-                let theSibling = evaluation(originalSibling) ? originalSibling : originalSibling.pushUp(rightSideDescendantEvaluatedBy: evaluation) {
-                    
-                theSibling.append(childrenToWrap)
-                childrenToWrap = theSibling.children
-                    
-                result = theSibling
-            }
-            
-            if let originalSibling = originalRightSibling,
-                let theSibling = evaluation(originalSibling) ? originalSibling : originalSibling.pushUp(leftSideDescendantEvaluatedBy: evaluation) {
-                
-                theSibling.prepend(childrenToWrap)
-                childrenToWrap = theSibling.children
-                
-                result = theSibling
-            }
- */
             var childrenToWrap = newChildren
             var result: ElementNode?
             
@@ -1516,6 +1489,10 @@ extension Libxml2 {
                 childrenToWrap = sibling.children
                 
                 result = sibling
+                
+                if let rightSibling = rightSibling where rightSibling.children.count == 0 {
+                    rightSibling.removeFromParent()
+                }
             }
             
             if let result = result {
