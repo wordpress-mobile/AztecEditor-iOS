@@ -56,16 +56,6 @@ extension AttributeFormatter {
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return range
     }
-
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
-
-        guard applicationRange.length > 0 else {
-            toggleTypingAttribute(inTextView: textView)
-            return
-        }
-        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
-    }
 }
 
 // MARK: - Private methods
@@ -113,11 +103,28 @@ private extension AttributeFormatter {
         let attributes = string.attributesAtIndex(index, effectiveRange: nil)
         return present(inAttributes: attributes)
     }
+
+    func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
+        let attributedSpace = NSAttributedString(string: "\u{200B}", attributes: attributes)
+        string.insertAttributedString(attributedSpace, atIndex: index)
+    }
 }
 
 // MARK: - Attribute Formater types
 
 protocol CharacterAttributeFormatter: AttributeFormatter {
+}
+
+extension CharacterAttributeFormatter {
+    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
+        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
+
+        guard applicationRange.length > 0 else {
+            toggleTypingAttribute(inTextView: textView)
+            return
+        }
+        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
+    }
 }
 
 protocol ParagraphAttributeFormatter: AttributeFormatter {
@@ -126,5 +133,16 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 extension ParagraphAttributeFormatter {
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
+    }
+
+    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
+        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
+
+        guard applicationRange.length > 0 else {
+            toggleTypingAttribute(inTextView: textView)
+            insertEmptyAttribute(inString: textView.textStorage, at: applicationRange.location)
+            return
+        }
+        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
     }
 }
