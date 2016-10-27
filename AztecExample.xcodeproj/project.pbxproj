@@ -7,53 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		59280F2A1D47CAF40083FB59 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = 59280F281D47CAF40083FB59 /* content.html */; };
-		59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 59280F291D47CAF40083FB59 /* SampleText.rtf */; };
-		592D62C91D8DF5590013EFF7 /* Aztec.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 599F25771D8BD045002871D6 /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		596719401D8BC60D00F18F7F /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5967193D1D8BC60D00F18F7F /* Gridicons.framework */; };
-		599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F256F1D8BCF57002871D6 /* AppDelegate.swift */; };
 		599F25861D8BD998002871D6 /* Gridicons.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5967193D1D8BC60D00F18F7F /* Gridicons.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */; };
-		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
-		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
-		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
-		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BE9861D304A970065FF75 /* FormattingDemoController.swift */; };
-		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
-		E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */; };
-		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
+		FF5B98CD1DC20CBB00571CA4 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98BB1DC20CBB00571CA4 /* AttachmentDetailsViewController.storyboard */; };
+		FF5B98CE1DC20CBB00571CA4 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98BC1DC20CBB00571CA4 /* LaunchScreen.xib */; };
+		FF5B98CF1DC20CBB00571CA4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98BE1DC20CBB00571CA4 /* Main.storyboard */; };
+		FF5B98D01DC20CBB00571CA4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98C01DC20CBB00571CA4 /* Images.xcassets */; };
+		FF5B98D11DC20CBB00571CA4 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98C21DC20CBB00571CA4 /* content.html */; };
+		FF5B98D21DC20CBB00571CA4 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = FF5B98C31DC20CBB00571CA4 /* SampleText.rtf */; };
+		FF5B98D31DC20CBB00571CA4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98C51DC20CBB00571CA4 /* AppDelegate.swift */; };
+		FF5B98D41DC20CBB00571CA4 /* AttachmentDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98C61DC20CBB00571CA4 /* AttachmentDetailsViewController.swift */; };
+		FF5B98D51DC20CBB00571CA4 /* CursorCalloutDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98C71DC20CBB00571CA4 /* CursorCalloutDemoController.swift */; };
+		FF5B98D71DC20CBB00571CA4 /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98C91DC20CBB00571CA4 /* EditorDemoController.swift */; };
+		FF5B98D81DC20CBB00571CA4 /* FormattingDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98CA1DC20CBB00571CA4 /* FormattingDemoController.swift */; };
+		FF5B98D91DC20CBB00571CA4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B98CB1DC20CBB00571CA4 /* ViewController.swift */; };
+		FF5B98DF1DC20EB800571CA4 /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF5B98DE1DC20EB800571CA4 /* Aztec.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		599F25761D8BD045002871D6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 599F25711D8BD044002871D6 /* Aztec.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 5951CB8E1D8BC93600E1866F;
-			remoteInfo = Aztec;
-		};
-		599F25781D8BD045002871D6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 599F25711D8BD044002871D6 /* Aztec.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 5951CB971D8BC93600E1866F;
-			remoteInfo = AztecTests;
-		};
-		599F257C1D8BD06E002871D6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 599F25711D8BD044002871D6 /* Aztec.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5951CB8D1D8BC93600E1866F;
-			remoteInfo = Aztec;
-		};
-		607FACE61AFB9204008FA782 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
-			remoteInfo = "WordPress-Aztec-iOS";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		592D62C71D8DF5500013EFF7 /* Copy Frameworks */ = {
@@ -62,7 +31,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				592D62C91D8DF5590013EFF7 /* Aztec.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,25 +48,22 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		59280F281D47CAF40083FB59 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
-		59280F291D47CAF40083FB59 /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
 		5967193D1D8BC60D00F18F7F /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
-		599F256F1D8BCF57002871D6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		599F25711D8BD044002871D6 /* Aztec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Aztec.xcodeproj; path = ../Aztec.xcodeproj; sourceTree = "<group>"; };
-		59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentDetailsViewController.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* AztecExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AztecExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		607FACD71AFB9204008FA782 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		607FACDA1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AztecExample-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E63BE9861D304A970065FF75 /* FormattingDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingDemoController.swift; sourceTree = "<group>"; };
-		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
-		E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
-		E66568F11D26DE9200E6913B /* DraggableDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableDemoController.swift; sourceTree = "<group>"; };
-		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
+		FF5B98BB1DC20CBB00571CA4 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
+		FF5B98BD1DC20CBB00571CA4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		FF5B98BF1DC20CBB00571CA4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		FF5B98C01DC20CBB00571CA4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		FF5B98C21DC20CBB00571CA4 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
+		FF5B98C31DC20CBB00571CA4 /* SampleText.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = SampleText.rtf; sourceTree = "<group>"; };
+		FF5B98C51DC20CBB00571CA4 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		FF5B98C61DC20CBB00571CA4 /* AttachmentDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentDetailsViewController.swift; sourceTree = "<group>"; };
+		FF5B98C71DC20CBB00571CA4 /* CursorCalloutDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CursorCalloutDemoController.swift; sourceTree = "<group>"; };
+		FF5B98C91DC20CBB00571CA4 /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
+		FF5B98CA1DC20CBB00571CA4 /* FormattingDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingDemoController.swift; sourceTree = "<group>"; };
+		FF5B98CB1DC20CBB00571CA4 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		FF5B98CC1DC20CBB00571CA4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Example/Info.plist; sourceTree = "<group>"; };
+		FF5B98DE1DC20EB800571CA4 /* Aztec.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Aztec.framework; path = "../../../Library/Developer/Xcode/DerivedData/Aztec-hjnhikiyxhzrvgbwqkbxkxleoars/Build/Products/Debug-iphonesimulator/Aztec.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,14 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF5B98DF1DC20EB800571CA4 /* Aztec.framework in Frameworks */,
 				596719401D8BC60D00F18F7F /* Gridicons.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		607FACE21AFB9204008FA782 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,33 +82,15 @@
 		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FF5B98DE1DC20EB800571CA4 /* Aztec.framework */,
 				5967193D1D8BC60D00F18F7F /* Gridicons.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		59280F271D47CAF40083FB59 /* SampleContent */ = {
-			isa = PBXGroup;
-			children = (
-				59280F281D47CAF40083FB59 /* content.html */,
-				59280F291D47CAF40083FB59 /* SampleText.rtf */,
-			);
-			path = SampleContent;
-			sourceTree = "<group>";
-		};
-		599F25721D8BD044002871D6 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				599F25771D8BD045002871D6 /* Aztec.framework */,
-				599F25791D8BD045002871D6 /* AztecTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		599F257B1D8BD058002871D6 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				599F25711D8BD044002871D6 /* Aztec.xcodeproj */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
@@ -157,8 +98,9 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
-				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
-				607FACE81AFB9204008FA782 /* Tests */,
+				FF5B98BA1DC20CBB00571CA4 /* Assets */,
+				FF5B98C41DC20CBB00571CA4 /* Classes */,
+				FF5B98CC1DC20CBB00571CA4 /* Info.plist */,
 				02ECB379638AE0CDEAB24BEC /* Frameworks */,
 				607FACD11AFB9204008FA782 /* Products */,
 				599F257B1D8BD058002871D6 /* Dependencies */,
@@ -169,54 +111,44 @@
 			isa = PBXGroup;
 			children = (
 				607FACD01AFB9204008FA782 /* AztecExample.app */,
-				607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */ = {
+		FF5B98BA1DC20CBB00571CA4 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				599F256F1D8BCF57002871D6 /* AppDelegate.swift */,
-				59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */,
-				FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */,
-				607FACD71AFB9204008FA782 /* ViewController.swift */,
-				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
-				E66568EF1D26DE6800E6913B /* CursorCalloutDemoController.swift */,
-				E66568F11D26DE9200E6913B /* DraggableDemoController.swift */,
-				E63BE9861D304A970065FF75 /* FormattingDemoController.swift */,
-				607FACD91AFB9204008FA782 /* Main.storyboard */,
-				607FACDC1AFB9204008FA782 /* Images.xcassets */,
-				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
-				59280F271D47CAF40083FB59 /* SampleContent */,
-				607FACD31AFB9204008FA782 /* Supporting Files */,
+				FF5B98BB1DC20CBB00571CA4 /* AttachmentDetailsViewController.storyboard */,
+				FF5B98BC1DC20CBB00571CA4 /* LaunchScreen.xib */,
+				FF5B98BE1DC20CBB00571CA4 /* Main.storyboard */,
+				FF5B98C01DC20CBB00571CA4 /* Images.xcassets */,
+				FF5B98C11DC20CBB00571CA4 /* SampleContent */,
 			);
-			name = "Example for WordPress-Aztec-iOS";
-			path = Example;
+			name = Assets;
+			path = Example/Assets;
 			sourceTree = "<group>";
 		};
-		607FACD31AFB9204008FA782 /* Supporting Files */ = {
+		FF5B98C11DC20CBB00571CA4 /* SampleContent */ = {
 			isa = PBXGroup;
 			children = (
-				607FACD41AFB9204008FA782 /* Info.plist */,
+				FF5B98C21DC20CBB00571CA4 /* content.html */,
+				FF5B98C31DC20CBB00571CA4 /* SampleText.rtf */,
 			);
-			name = "Supporting Files";
+			path = SampleContent;
 			sourceTree = "<group>";
 		};
-		607FACE81AFB9204008FA782 /* Tests */ = {
+		FF5B98C41DC20CBB00571CA4 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				607FACE91AFB9204008FA782 /* Supporting Files */,
+				FF5B98C51DC20CBB00571CA4 /* AppDelegate.swift */,
+				FF5B98C61DC20CBB00571CA4 /* AttachmentDetailsViewController.swift */,
+				FF5B98C71DC20CBB00571CA4 /* CursorCalloutDemoController.swift */,
+				FF5B98C91DC20CBB00571CA4 /* EditorDemoController.swift */,
+				FF5B98CA1DC20CBB00571CA4 /* FormattingDemoController.swift */,
+				FF5B98CB1DC20CBB00571CA4 /* ViewController.swift */,
 			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		607FACE91AFB9204008FA782 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				607FACEA1AFB9204008FA782 /* Info.plist */,
-			);
-			name = "Supporting Files";
+			name = Classes;
+			path = Example/Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,30 +167,11 @@
 			buildRules = (
 			);
 			dependencies = (
-				599F257D1D8BD06E002871D6 /* PBXTargetDependency */,
 			);
 			name = AztecExample;
 			productName = "WordPress-Aztec-iOS";
 			productReference = 607FACD01AFB9204008FA782 /* AztecExample.app */;
 			productType = "com.apple.product-type.application";
-		};
-		607FACE41AFB9204008FA782 /* AztecExample-Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AztecExample-Tests" */;
-			buildPhases = (
-				607FACE11AFB9204008FA782 /* Sources */,
-				607FACE21AFB9204008FA782 /* Frameworks */,
-				607FACE31AFB9204008FA782 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				607FACE71AFB9204008FA782 /* PBXTargetDependency */,
-			);
-			name = "AztecExample-Tests";
-			productName = Tests;
-			productReference = 607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -276,12 +189,6 @@
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Manual;
 					};
-					607FACE41AFB9204008FA782 = {
-						CreatedOnToolsVersion = 6.3.1;
-						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
-						TestTargetID = 607FACCF1AFB9204008FA782;
-					};
 				};
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "AztecExample" */;
@@ -295,55 +202,24 @@
 			mainGroup = 607FACC71AFB9204008FA782;
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 599F25721D8BD044002871D6 /* Products */;
-					ProjectRef = 599F25711D8BD044002871D6 /* Aztec.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				607FACCF1AFB9204008FA782 /* AztecExample */,
-				607FACE41AFB9204008FA782 /* AztecExample-Tests */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		599F25771D8BD045002871D6 /* Aztec.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Aztec.framework;
-			remoteRef = 599F25761D8BD045002871D6 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		599F25791D8BD045002871D6 /* AztecTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = AztecTests.xctest;
-			remoteRef = 599F25781D8BD045002871D6 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		607FACCE1AFB9204008FA782 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
-				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
-				59280F2A1D47CAF40083FB59 /* content.html in Resources */,
-				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
-				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
-				FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		607FACE31AFB9204008FA782 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				FF5B98CF1DC20CBB00571CA4 /* Main.storyboard in Resources */,
+				FF5B98D01DC20CBB00571CA4 /* Images.xcassets in Resources */,
+				FF5B98CE1DC20CBB00571CA4 /* LaunchScreen.xib in Resources */,
+				FF5B98CD1DC20CBB00571CA4 /* AttachmentDetailsViewController.storyboard in Resources */,
+				FF5B98D11DC20CBB00571CA4 /* content.html in Resources */,
+				FF5B98D21DC20CBB00571CA4 /* SampleText.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,52 +230,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
-				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
-				E66568F01D26DE6800E6913B /* CursorCalloutDemoController.swift in Sources */,
-				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
-				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
-				E63BE9871D304A970065FF75 /* FormattingDemoController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		607FACE11AFB9204008FA782 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				FF5B98D71DC20CBB00571CA4 /* EditorDemoController.swift in Sources */,
+				FF5B98D51DC20CBB00571CA4 /* CursorCalloutDemoController.swift in Sources */,
+				FF5B98D41DC20CBB00571CA4 /* AttachmentDetailsViewController.swift in Sources */,
+				FF5B98D81DC20CBB00571CA4 /* FormattingDemoController.swift in Sources */,
+				FF5B98D91DC20CBB00571CA4 /* ViewController.swift in Sources */,
+				FF5B98D31DC20CBB00571CA4 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		599F257D1D8BD06E002871D6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Aztec;
-			targetProxy = 599F257C1D8BD06E002871D6 /* PBXContainerItemProxy */;
-		};
-		607FACE71AFB9204008FA782 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 607FACCF1AFB9204008FA782 /* AztecExample */;
-			targetProxy = 607FACE61AFB9204008FA782 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
-		607FACD91AFB9204008FA782 /* Main.storyboard */ = {
+		FF5B98BC1DC20CBB00571CA4 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				607FACDA1AFB9204008FA782 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		607FACDE1AFB9204008FA782 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				607FACDF1AFB9204008FA782 /* Base */,
+				FF5B98BD1DC20CBB00571CA4 /* Base */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		FF5B98BE1DC20CBB00571CA4 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FF5B98BF1DC20CBB00571CA4 /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -538,34 +394,6 @@
 			};
 			name = Release;
 		};
-		607FACF31AFB9204008FA782 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
-			};
-			name = Debug;
-		};
-		607FACF41AFB9204008FA782 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
-			};
-			name = Release;
-		};
 		F111A10D1DA7E77500294FD3 /* Profiling */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -627,18 +455,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Development";
 				SWIFT_VERSION = 2.3;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Profiling;
-		};
-		F111A10F1DA7E77500294FD3 /* Profiling */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
 			};
 			name = Profiling;
 		};
@@ -712,22 +528,6 @@
 			};
 			name = "Release-Alpha";
 		};
-		F1882B681D9E0F55000B48D6 /* Release-Alpha */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEVELOPMENT_TEAM = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
-			};
-			name = "Release-Alpha";
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -749,17 +549,6 @@
 				F1882B671D9E0F55000B48D6 /* Release-Alpha */,
 				607FACF11AFB9204008FA782 /* Release */,
 				F111A10E1DA7E77500294FD3 /* Profiling */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AztecExample-Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				607FACF31AFB9204008FA782 /* Debug */,
-				F1882B681D9E0F55000B48D6 /* Release-Alpha */,
-				607FACF41AFB9204008FA782 /* Release */,
-				F111A10F1DA7E77500294FD3 /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

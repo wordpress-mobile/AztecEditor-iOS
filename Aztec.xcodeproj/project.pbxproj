@@ -7,14 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		594C9D6D1D8BE57600D74542 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
 		594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		594C9D701D8BE62500D74542 /* Gridicons.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA05E1D8BDFA700D138DF /* OutAttributeConverterTests.swift */; };
 		594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0601D8BDFA700D138DF /* OutNodeConverterTests.swift */; };
 		594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */; };
 		594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */; };
-		5951CB981D8BC93600E1866F /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; };
 		599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25041D8BC9A1002871D6 /* ArrayConverter.swift */; };
 		599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25051D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift */; };
 		599F25361D8BC9A1002871D6 /* Converter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25061D8BC9A1002871D6 /* Converter.swift */; };
@@ -47,7 +44,6 @@
 		599F25521D8BC9A1002871D6 /* TextAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* TextAttachment.swift */; };
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
-		599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
 		599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25921D8BDCFC002871D6 /* TextStorageTests.swift */; };
 		599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25931D8BDCFC002871D6 /* AztecVisualEditorTests.swift */; };
 		59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA05F1D8BDFA700D138DF /* OutHTMLConverterTests.swift */; };
@@ -66,6 +62,8 @@
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
 		F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
+		FF5B98DC1DC20DDC00571CA4 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */; };
+		FF5B98DD1DC20E8400571CA4 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
 		FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF585CE1DB6398E00299B93 /* StandardElementType.swift */; };
 /* End PBXBuildFile section */
@@ -87,7 +85,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				594C9D701D8BE62500D74542 /* Gridicons.framework in CopyFiles */,
 				594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -133,7 +130,6 @@
 		599F25321D8BC9A1002871D6 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		599F25571D8BCA01002871D6 /* libxml2-umbrella.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "libxml2-umbrella.h"; sourceTree = "<group>"; };
 		599F25581D8BCA01002871D6 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		599F255B1D8BCDB4002871D6 /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Example/Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		599F258F1D8BDCA9002871D6 /* EditingLogic.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = EditingLogic.rtf; path = ../Documentation/EditingLogic.rtf; sourceTree = "<group>"; };
 		599F25901D8BDCA9002871D6 /* UnsupportedTags.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = UnsupportedTags.rtf; path = ../Documentation/UnsupportedTags.rtf; sourceTree = "<group>"; };
 		599F25921D8BDCFC002871D6 /* TextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextStorageTests.swift; sourceTree = "<group>"; };
@@ -158,6 +154,7 @@
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
 		F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentObjectModel.swift; sourceTree = "<group>"; };
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
+		FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
 		FFF585CE1DB6398E00299B93 /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -167,7 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */,
+				FF5B98DC1DC20DDC00571CA4 /* Gridicons.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,8 +172,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5951CB981D8BC93600E1866F /* Aztec.framework in Frameworks */,
-				594C9D6D1D8BE57600D74542 /* Gridicons.framework in Frameworks */,
+				FF5B98DD1DC20E8400571CA4 /* Gridicons.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,7 +421,7 @@
 		599F255A1D8BCD97002871D6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				599F255B1D8BCDB4002871D6 /* Gridicons.framework */,
+				FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -798,6 +794,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = Aztec/Info.plist;
@@ -824,6 +821,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = Aztec/Info.plist;
@@ -845,7 +843,7 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -863,7 +861,7 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -933,6 +931,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = Aztec/Info.plist;
@@ -954,7 +953,7 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1030,6 +1029,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = Aztec/Info.plist;
@@ -1051,7 +1051,7 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
