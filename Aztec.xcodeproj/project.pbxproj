@@ -63,7 +63,7 @@
 		F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		FF5B98DC1DC20DDC00571CA4 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */; };
-		FF5B98DD1DC20E8400571CA4 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */; };
+		FF5B98E01DC217E400571CA4 /* Gridicons.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FF5B98DB1DC20DDC00571CA4 /* Gridicons.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
 		FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF585CE1DB6398E00299B93 /* StandardElementType.swift */; };
 /* End PBXBuildFile section */
@@ -85,6 +85,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				FF5B98E01DC217E400571CA4 /* Gridicons.framework in CopyFiles */,
 				594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,7 +173,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF5B98DD1DC20E8400571CA4 /* Gridicons.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
