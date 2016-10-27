@@ -56,6 +56,12 @@ extension AttributeFormatter {
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return range
     }
+
+    /// The string to be used when adding attributes to an empty line.
+    ///
+    var placeholderForAttributedEmptyLine: String {
+        return "\u{200B}"
+    }
 }
 
 // MARK: - Private methods
@@ -105,7 +111,7 @@ private extension AttributeFormatter {
     }
 
     func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
-        let attributedSpace = NSAttributedString(string: "\u{200B}", attributes: attributes)
+        let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
         string.insertAttributedString(attributedSpace, atIndex: index)
     }
 }
