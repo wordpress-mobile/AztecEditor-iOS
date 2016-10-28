@@ -34,6 +34,14 @@ extension NSRange
         }
     }
 
+    /// Returns the union with the specified range.
+    ///
+    /// This is `NSUnionRange` wrapped as an instance method.
+    ///
+    func union(withRange target: NSRange) -> NSRange {
+        return NSUnionRange(self, target)
+    }
+
     /// Returns the maximum Location.
     ///
     var endLocation: Int {
@@ -44,5 +52,18 @@ extension NSRange
     ///
     static var zero: NSRange {
         return NSRange(location: 0, length: 0)
+    }
+}
+
+extension SequenceType where Generator.Element == NSRange {
+    /// Returns the union of all the ranges in the sequence
+    ///
+    func union() -> NSRange? {
+        return reduce(nil) { (partialUnion, range) in
+            guard let partialUnion = partialUnion else {
+                return range
+            }
+            return partialUnion.union(withRange: range)
+        }
     }
 }

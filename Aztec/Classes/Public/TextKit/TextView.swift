@@ -163,6 +163,7 @@ public class TextView: UITextView {
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
         guard storage.length != 0 else {
+            // FIXME: if empty string, check typingAttributes
             return []
         }
 
@@ -349,58 +350,8 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        let storage = textStorage
-
-        // Check if the start of the selection is already in a blockquote.
-        let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
-
-        // Get the affected paragraphs
-        let paragraphRanges = rangesOfParagraphsEnclosingRange(range)
-        guard let firstRange = paragraphRanges.first else {
-            return
-        }
-
-        // Compose the range for the blockquote.
-        var length = 0
-        for range in paragraphRanges {
-            length += range.length
-        }
-        let blockquoteRange = NSRange(location: firstRange.location, length: length)
-
-        // TODO: Assign or remove the blockquote custom attribute.
-
-
-        // Add or remove indentation as needed.
-        // First get the list of pristine ranges to edit. We do this so
-        // a modification doesn't impact the next returned range as paragraph
-        // styles can be apparently merged to a single range in some cases.
-        var rangesToStyle = [NSRange]()
-        storage.enumerateAttribute(NSParagraphStyleAttributeName,
-                                   inRange: blockquoteRange,
-                                   options: [],
-                                   usingBlock: { (value, range, stop) in
-                                    rangesToStyle.append(range)
-        })
-        // Now loop over our pristine ranges knowing that any edits won't impact
-        // subsquent ranges.
-        for range in rangesToStyle {
-            let value = storage.attribute(NSParagraphStyleAttributeName, atIndex: range.location, effectiveRange: nil)
-            let style = value as? NSParagraphStyle ?? defaultParagraphStyle()
-
-            var tab: CGFloat = 0
-            if addingStyle {
-                tab = min(style.headIndent + Metrics.defaultIndentation, Metrics.maxIndentation)
-            } else {
-                tab = max(0, style.headIndent - Metrics.defaultIndentation)
-            }
-
-            let newStyle = NSMutableParagraphStyle()
-            newStyle.setParagraphStyle(style)
-            newStyle.headIndent = tab
-            newStyle.firstLineHeadIndent = tab
-
-            storage.addAttribute(NSParagraphStyleAttributeName, value: newStyle, range: range)
-        }
+        let formatter = BlockquoteFormatter()
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -747,12 +698,8 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
-            return false
-        }
-        
-        // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
-        return attr.headIndent != 0
+        let formatter = BlockquoteFormatter()
+        return formatter.attribute(inTextView: self, at: index)
     }
 
 
