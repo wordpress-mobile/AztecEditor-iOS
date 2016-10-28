@@ -159,6 +159,7 @@
 		F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentObjectModel.swift; sourceTree = "<group>"; };
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
 		FFF585CE1DB6398E00299B93 /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -187,6 +188,8 @@
 		5951CB841D8BC93600E1866F = {
 			isa = PBXGroup;
 			children = (
+				FF5B98E41DC355B400571CA4 /* LICENSE */,
+				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				5951CB901D8BC93600E1866F /* Aztec */,
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
@@ -434,7 +437,6 @@
 		599F25911D8BDCA9002871D6 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
-				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				599F258F1D8BDCA9002871D6 /* EditingLogic.rtf */,
 				599F25901D8BDCA9002871D6 /* UnsupportedTags.rtf */,
 			);
