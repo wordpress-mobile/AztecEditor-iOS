@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Aztec.xcodeproj">
+      location = "group:AztecExample.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Example/AztecExample.xcodeproj">
+      location = "group:Aztec.xcodeproj">
    </FileRef>
 </Workspace>
