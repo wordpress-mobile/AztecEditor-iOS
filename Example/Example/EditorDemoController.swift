@@ -618,9 +618,30 @@ private extension EditorDemoController
         let index = richTextView.positionForCursor()
         let fileURL = saveToDisk(image: image)
         
-        richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        let imageId = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        let progress = NSProgress(parent: nil, userInfo: ["imageID":imageId])
+        progress.totalUnitCount = 100
+        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true);
     }
 
+    @objc func timerFireMethod(timer: NSTimer) {
+        guard let progress = timer.userInfo as? NSProgress,
+              let imageId = progress.userInfo["imageID"] as? String
+        else {
+            return
+        }
+        progress.completedUnitCount += 1
+        if let attachment = richTextView.attachment(withId: imageId) {            
+            richTextView.update(attachment: attachment, progress: progress.fractionCompleted)
+            if progress.fractionCompleted >= 1 {
+                timer.invalidate()
+                richTextView.update(attachment: attachment, progress: nil)
+            }
+        } else {
+            timer.invalidate()
+        }
+
+    }
     func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment

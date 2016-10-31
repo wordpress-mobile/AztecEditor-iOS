@@ -261,6 +261,17 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
+    public func attachment(withId id: String) -> TextAttachment? {
+        var foundAttachment: TextAttachment? = nil
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
+            if attachment.identifier == id {
+                foundAttachment = attachment
+                stop.memory = true
+            }
+        }
+        return foundAttachment
+    }
+
     public func update(attachment attachment: TextAttachment,
                                   alignment: TextAttachment.Alignment,
                                   size: TextAttachment.Size,
