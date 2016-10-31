@@ -4,14 +4,14 @@
 <img width=200px height=200px src="RepoAssets/aztec.png" alt="Aztec's Logo'"/>
 </p>
 
-[![CI Status](http://img.shields.io/travis/Diego Rey Mendez/WordPress-Aztec-iOS.svg?style=flat)](https://travis-ci.org/Diego Rey Mendez/WordPress-Aztec-iOS)
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=57ee5274e349f601000457c7&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/57ee5274e349f601000457c7/build/latest)
 [![Version](https://img.shields.io/cocoapods/v/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![License](https://img.shields.io/cocoapods/l/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![Platform](https://img.shields.io/cocoapods/p/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+To run the example project, clone the repo, and run `carthage update` from the Example directory first.
 
 ## Requirements
 
