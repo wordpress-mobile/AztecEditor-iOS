@@ -759,6 +759,17 @@ public class TextView: UITextView {
         attachment.progressColor = progressColor
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
+
+    /// Updates the message being displayed on top of the image attachment
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment where the message will be overlay
+    ///   - message: the message to show
+    ///
+    public func update(attachment attachment: TextAttachment, message: NSAttributedString?) {
+        attachment.message = message
+        layoutManager.invalidateLayoutForAttachment(attachment)
+    }
 }
 
 // MARK: - TextStorageImageProvider

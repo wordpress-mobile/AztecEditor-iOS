@@ -9,6 +9,8 @@ class EditorDemoController: UIViewController {
     static let margin = CGFloat(20)
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
+    private var mediaErrorMode = true
+
     private(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.Image)
         let textView = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont, defaultMissingImage: defaultMissingImage)
@@ -633,6 +635,11 @@ private extension EditorDemoController
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {            
             richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blueColor())
+            if mediaErrorMode && progress.fractionCompleted >= 0.25 {
+                timer.invalidate()
+                let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
+                richTextView.update(attachment: attachment, message: message)
+            }
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
                 richTextView.update(attachment: attachment, progress: nil)
@@ -640,6 +647,13 @@ private extension EditorDemoController
         } else {
             timer.invalidate()
         }
+    }
+
+    var mediaMessageAttributes:[String:AnyObject] {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .Center
+        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleCaption1)
+        return [NSParagraphStyleAttributeName:paragraphStyle, NSFontAttributeName:font]
     }
     
     func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {

@@ -50,7 +50,12 @@ public class TextAttachment: NSTextAttachment
     }
 
     /// The color to use when drawing progress indicators
+    ///
     public var progressColor: UIColor = UIColor.blueColor()
+
+    /// A message to display overlaid on top of the image
+    ///
+    public var message: NSAttributedString?
 
     private var glyphImage: UIImage?
 
@@ -156,6 +161,13 @@ public class TextAttachment: NSTextAttachment
             path.lineWidth = 4.0
             progressColor.setStroke()
             path.stroke()
+        }
+
+        if let message = message {            
+            let textRect = message.boundingRectWithSize(size, options: [.UsesLineFragmentOrigin, .UsesFontLeading], context: nil)
+            let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
+            message.drawInRect(CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
+
         }
 
         glyphImage = UIGraphicsGetImageFromCurrentImageContext()
