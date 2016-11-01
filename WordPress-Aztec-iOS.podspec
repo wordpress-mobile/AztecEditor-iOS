@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.3.0'
-  s.summary          = 'TBD.  This will be modified as soon as we can publish more info.'
+  s.version          = '0.4.0'
+  s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,10 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
+                       The native HTML Editor by Automattic Inc.
                        DESC
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
@@ -34,13 +31,13 @@ TBD.  This will be modified as soon as we can publish more info.
 
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
-  
+
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Aztec/Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Aztec/Modulemaps/libxml2/**'}
   s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
-  s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'   
-  
-  s.dependency 'Gridicons', '0.2'
+  s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
+
+  s.dependency 'Gridicons', '0.3'
 
 end
