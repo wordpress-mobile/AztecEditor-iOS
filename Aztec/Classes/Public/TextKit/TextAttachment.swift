@@ -38,6 +38,25 @@ public class TextAttachment: NSTextAttachment
         }
     }
 
+    /// A progress value that indicates the progress of an attachment. It can be set between values 0 and 1
+    ///
+    public var progress: Double? = nil {
+        willSet {
+            assert(newValue == nil || (newValue >= 0 && newValue <= 1), "Progress must be value between 0 and 1 or nil")
+            if newValue != progress {
+                glyphImage = nil
+            }
+        }
+    }
+
+    /// The color to use when drawing progress indicators
+    ///
+    public var progressColor: UIColor = UIColor.blueColor()
+
+    /// A message to display overlaid on top of the image
+    ///
+    public var message: NSAttributedString?
+
     private var glyphImage: UIImage?
 
     var imageProvider: TextAttachmentImageProvider?
@@ -109,7 +128,7 @@ public class TextAttachment: NSTextAttachment
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
         updateImage(inTextContainer: textContainer)
-        
+
         guard let image = image else {
             return nil
         }
@@ -117,19 +136,51 @@ public class TextAttachment: NSTextAttachment
         if let cachedImage = glyphImage where CGSizeEqualToSize(imageBounds.size, cachedImage.size) {
             return cachedImage
         }
-        let containerWidth = imageBounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
-        let scale = UIScreen.mainScreen().scale
 
-        UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, scale)
-
-        image.drawInRect(CGRect(origin: origin, size: size))
-        glyphImage = UIGraphicsGetImageFromCurrentImageContext()
-
-        UIGraphicsEndImageContext()
+        glyphImage = glyph(basedOnImage:image, forBounds: imageBounds)
 
         return glyphImage
+    }
+
+    private func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
+
+        let containerWidth = bounds.size.width
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: 0)
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
+
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
+
+        image.drawInRect(CGRect(origin: origin, size: size))
+
+        if let progress = progress {
+            let box = UIBezierPath()
+            box.moveToPoint(CGPoint(x:origin.x, y:origin.y))
+            box.addLineToPoint(CGPoint(x: origin.x + size.width, y: origin.y))
+            box.addLineToPoint(CGPoint(x: origin.x + size.width, y: origin.y + size.height))
+            box.addLineToPoint(CGPoint(x: origin.x, y: origin.y + size.height))
+            box.addLineToPoint(CGPoint(x: origin.x, y: origin.y))
+            box.lineWidth = 2.0
+            UIColor(white: 1, alpha: 0.75).setFill()
+            box.fill()
+
+            let path = UIBezierPath()
+            path.moveToPoint(CGPoint(x:origin.x, y:origin.y))
+            path.addLineToPoint(CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
+            path.lineWidth = 4.0
+            progressColor.setStroke()
+            path.stroke()
+        }
+
+        if let message = message {
+            let textRect = message.boundingRectWithSize(size, options: [.UsesLineFragmentOrigin, .UsesFontLeading], context: nil)
+            let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
+            message.drawInRect(CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
+
+        }
+
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return result;
     }
 
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
@@ -166,15 +217,13 @@ public class TextAttachment: NSTextAttachment
         let image = imageProvider.textAttachment(self,
                                                  imageForURL: url,
                                                  onSuccess: { [weak self] (image) in
-                                            
-                                                    guard let strongSelf = self else {
-                                                        return
-                                                    }
-                                                    
-                                                    strongSelf.lastRequestedURL = url
-                                                    strongSelf.isFetchingImage = false
-                                                    strongSelf.image = image
-                                                    strongSelf.invalidateLayout(inTextContainer: textContainer)
+                guard let strongSelf = self else {
+                    return
+                }
+                strongSelf.lastRequestedURL = url
+                strongSelf.isFetchingImage = false
+                strongSelf.image = image
+                strongSelf.invalidateLayout(inTextContainer: textContainer)
             }, onFailure: { [weak self]() in
                 
                 guard let strongSelf = self else {

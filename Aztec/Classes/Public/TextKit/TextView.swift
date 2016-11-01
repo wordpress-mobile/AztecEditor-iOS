@@ -382,13 +382,17 @@ public class TextView: UITextView {
     ///     - sourceURL: The url of the image to be inserted.
     ///     - position: The character index at which to insert the image.
     ///
-    public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) {
-        storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
+    /// - Returns: an id of the attachment that can be used for further calls
+    public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
+        let imageId = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         selectedRange = NSMakeRange(position+length, 0)
+        return imageId
     }
 
-
+    public func attachment(withId id: String) -> TextAttachment? {
+        return storage.attachment(withId: id);
+    }
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
@@ -742,7 +746,30 @@ public class TextView: UITextView {
                                   url: NSURL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }    
+    }
+
+    /// Update the progress indicator of an attachment
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment to update
+    ///   - progress: the value of progress
+    ///
+    public func update(attachment attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blueColor()) {
+        attachment.progress = progress
+        attachment.progressColor = progressColor
+        layoutManager.invalidateLayoutForAttachment(attachment)
+    }
+
+    /// Updates the message being displayed on top of the image attachment
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment where the message will be overlay
+    ///   - message: the message to show
+    ///
+    public func update(attachment attachment: TextAttachment, message: NSAttributedString?) {
+        attachment.message = message
+        layoutManager.invalidateLayoutForAttachment(attachment)
+    }
 }
 
 // MARK: - TextStorageImageProvider
