@@ -753,8 +753,10 @@ public class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///   - progress: the value of progress
-    public func update(attachment attachment: TextAttachment, progress: Double?) {
+    ///
+    public func update(attachment attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blueColor()) {
         attachment.progress = progress
+        attachment.progressColor = progressColor
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 }

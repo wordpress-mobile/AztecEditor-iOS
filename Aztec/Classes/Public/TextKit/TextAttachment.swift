@@ -48,6 +48,10 @@ public class TextAttachment: NSTextAttachment
             }
         }
     }
+
+    /// The color to use when drawing progress indicators
+    public var progressColor: UIColor = UIColor.blueColor()
+
     private var glyphImage: UIImage?
 
     var imageProvider: TextAttachmentImageProvider?
@@ -150,7 +154,7 @@ public class TextAttachment: NSTextAttachment
             path.moveToPoint(CGPoint(x:origin.x, y:origin.y))
             path.addLineToPoint(CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
             path.lineWidth = 4.0
-            UIColor.blueColor().setStroke()
+            progressColor.setStroke()
             path.stroke()
         }
 

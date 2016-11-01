@@ -632,7 +632,7 @@ private extension EditorDemoController
         }
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {            
-            richTextView.update(attachment: attachment, progress: progress.fractionCompleted)
+            richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blueColor())
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
                 richTextView.update(attachment: attachment, progress: nil)
