@@ -261,6 +261,11 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
+
+    /// Return the attachment, if any, corresponding to the id provided
+    ///
+    /// - Parameter id: the unique id of the attachment
+    /// - Returns: the attachment object
     public func attachment(withId id: String) -> TextAttachment? {
         var foundAttachment: TextAttachment? = nil
         enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
@@ -272,6 +277,14 @@ public class TextStorage: NSTextStorage {
         return foundAttachment
     }
 
+
+    /// Updates the attachment attributes to the values provided.
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment to update
+    ///   - alignment: the alignment value
+    ///   - size: the size to use
+    ///   - url: the image URL for the image
     public func update(attachment attachment: TextAttachment,
                                   alignment: TextAttachment.Alignment,
                                   size: TextAttachment.Size,
