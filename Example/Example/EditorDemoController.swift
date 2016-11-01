@@ -640,8 +640,8 @@ private extension EditorDemoController
         } else {
             timer.invalidate()
         }
-
     }
+    
     func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
