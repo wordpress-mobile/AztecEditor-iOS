@@ -42,6 +42,7 @@ public class TextAttachment: NSTextAttachment
     ///
     public var progress: Double? = nil {
         willSet {
+            assert(newValue == nil || (newValue >= 0 && newValue <= 1), "Progress must be value between 0 and 1 or nil")
             if newValue != progress {
                 glyphImage = nil
             }
@@ -135,7 +136,6 @@ public class TextAttachment: NSTextAttachment
         image.drawInRect(CGRect(origin: origin, size: size))
 
         if let progress = progress {
-
             let box = UIBezierPath()
             box.moveToPoint(CGPoint(x:origin.x, y:origin.y))
             box.addLineToPoint(CGPoint(x: origin.x + size.width, y: origin.y))
@@ -148,11 +148,10 @@ public class TextAttachment: NSTextAttachment
 
             let path = UIBezierPath()
             path.moveToPoint(CGPoint(x:origin.x, y:origin.y))
-            path.addLineToPoint(CGPoint(x: origin.x + (size.width * CGFloat(progress)), y: origin.y))
+            path.addLineToPoint(CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
             path.lineWidth = 4.0
             UIColor.blueColor().setStroke()
             path.stroke()
-
         }
 
         glyphImage = UIGraphicsGetImageFromCurrentImageContext()
