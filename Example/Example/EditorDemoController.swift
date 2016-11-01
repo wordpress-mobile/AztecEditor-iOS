@@ -9,7 +9,7 @@ class EditorDemoController: UIViewController {
     static let margin = CGFloat(20)
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
-    private var mediaErrorMode = true
+    private var mediaErrorMode = false
 
     private(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.Image)
