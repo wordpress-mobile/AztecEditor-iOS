@@ -128,7 +128,7 @@ public class TextAttachment: NSTextAttachment
     override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
         updateImage(inTextContainer: textContainer)
-        
+
         guard let image = image else {
             return nil
         }
@@ -136,11 +136,19 @@ public class TextAttachment: NSTextAttachment
         if let cachedImage = glyphImage where CGSizeEqualToSize(imageBounds.size, cachedImage.size) {
             return cachedImage
         }
-        let containerWidth = imageBounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: imageBounds.size.width), y: 0)
+
+        glyphImage = glyph(basedOnImage:image, forBounds: imageBounds)
+
+        return glyphImage
+    }
+
+    private func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
+
+        let containerWidth = bounds.size.width
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: 0)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
 
-        UIGraphicsBeginImageContextWithOptions(imageBounds.size, false, 0)
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
         image.drawInRect(CGRect(origin: origin, size: size))
 
@@ -163,18 +171,16 @@ public class TextAttachment: NSTextAttachment
             path.stroke()
         }
 
-        if let message = message {            
+        if let message = message {
             let textRect = message.boundingRectWithSize(size, options: [.UsesLineFragmentOrigin, .UsesFontLeading], context: nil)
             let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
             message.drawInRect(CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
 
         }
 
-        glyphImage = UIGraphicsGetImageFromCurrentImageContext()
-
+        let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-
-        return glyphImage
+        return result;
     }
 
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
