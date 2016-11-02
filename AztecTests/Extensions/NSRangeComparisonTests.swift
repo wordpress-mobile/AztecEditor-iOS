@@ -153,4 +153,59 @@ class NSRangeComparisonTests: XCTestCase {
         
         XCTAssertNil(result)
     }
+
+    func testUnionOfIntersectingRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 20)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 24)
+    }
+
+    func testUnionOfContiguousRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 11, length: 5)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 15)
+    }
+
+    func testUnionOfContainedRange() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 2)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 10)
+    }
+
+    func testUnionOfNonContiguousRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 15, length: 5)
+        let union = first.union(withRange: second)
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 19)
+    }
+
+    func testArrayUnionOfIntersectingRanges() {
+        let first = NSRange(location: 1, length: 10)
+        let second = NSRange(location: 5, length: 20)
+        let third = NSRange(location: 20, length: 10)
+        guard let union = [first, second, third].union() else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(union.location, 1)
+        XCTAssertEqual(union.length, 29)
+    }
+
+    func testEmtpyArrayUnionReturnsNil() {
+        let ranges = [NSRange]()
+        let union = ranges.union()
+        XCTAssertNil(union)
+    }
 }

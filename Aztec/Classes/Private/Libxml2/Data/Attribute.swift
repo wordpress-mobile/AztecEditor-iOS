@@ -20,7 +20,7 @@ extension Libxml2 {
     /// to maintain the attribute's information.
     ///
     class StringAttribute: Attribute {
-        let value: String
+        var value: String
 
         init(name: String, value: String) {
             self.value = value

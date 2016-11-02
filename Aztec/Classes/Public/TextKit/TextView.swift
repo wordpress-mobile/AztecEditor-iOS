@@ -7,14 +7,16 @@ public protocol TextViewMediaDelegate: class {
     ///
     /// - Parameters:
     ///     - textView: the `TextView` the call has been made from.
-    ///     - url: the url to download the image from.
+    ///     - imageURL: the url to download the image from.
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
     ///
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+    func textView(textView: TextView, imageAtUrl imageURL: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+    
+    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL
 }
 
 public class TextView: UITextView {
@@ -57,9 +59,9 @@ public class TextView: UITextView {
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
-        storage.imageProvider = self
+        storage.attachmentsDelegate = self
     }
-
+    
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
@@ -158,6 +160,7 @@ public class TextView: UITextView {
     ///
     public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
         guard storage.length != 0 else {
+            // FIXME: if empty string, check typingAttributes
             return []
         }
 
@@ -347,58 +350,8 @@ public class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     public func toggleBlockquote(range range: NSRange) {
-        let storage = textStorage
-
-        // Check if the start of the selection is already in a blockquote.
-        let addingStyle = !formattingAtIndexContainsBlockquote(range.location)
-
-        // Get the affected paragraphs
-        let paragraphRanges = rangesOfParagraphsEnclosingRange(range)
-        guard let firstRange = paragraphRanges.first else {
-            return
-        }
-
-        // Compose the range for the blockquote.
-        var length = 0
-        for range in paragraphRanges {
-            length += range.length
-        }
-        let blockquoteRange = NSRange(location: firstRange.location, length: length)
-
-        // TODO: Assign or remove the blockquote custom attribute.
-
-
-        // Add or remove indentation as needed.
-        // First get the list of pristine ranges to edit. We do this so
-        // a modification doesn't impact the next returned range as paragraph
-        // styles can be apparently merged to a single range in some cases.
-        var rangesToStyle = [NSRange]()
-        storage.enumerateAttribute(NSParagraphStyleAttributeName,
-                                   inRange: blockquoteRange,
-                                   options: [],
-                                   usingBlock: { (value, range, stop) in
-                                    rangesToStyle.append(range)
-        })
-        // Now loop over our pristine ranges knowing that any edits won't impact
-        // subsquent ranges.
-        for range in rangesToStyle {
-            let value = storage.attribute(NSParagraphStyleAttributeName, atIndex: range.location, effectiveRange: nil)
-            let style = value as? NSParagraphStyle ?? defaultParagraphStyle()
-
-            var tab: CGFloat = 0
-            if addingStyle {
-                tab = min(style.headIndent + Metrics.defaultIndentation, Metrics.maxIndentation)
-            } else {
-                tab = max(0, style.headIndent - Metrics.defaultIndentation)
-            }
-
-            let newStyle = NSMutableParagraphStyle()
-            newStyle.setParagraphStyle(style)
-            newStyle.headIndent = tab
-            newStyle.firstLineHeadIndent = tab
-
-            storage.addAttribute(NSParagraphStyleAttributeName, value: newStyle, range: range)
-        }
+        let formatter = BlockquoteFormatter()
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -430,13 +383,17 @@ public class TextView: UITextView {
     ///     - sourceURL: The url of the image to be inserted.
     ///     - position: The character index at which to insert the image.
     ///
-    public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) {
-        storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
+    /// - Returns: an id of the attachment that can be used for further calls
+    public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
+        let imageId = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         selectedRange = NSMakeRange(position+length, 0)
+        return imageId
     }
 
-
+    public func attachment(withId id: String) -> TextAttachment? {
+        return storage.attachment(withId: id);
+    }
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
@@ -755,12 +712,8 @@ public class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
-        guard let attr = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: nil) as? NSParagraphStyle else {
-            return false
-        }
-        
-        // TODO: This is very basic. We'll want to check for our custom blockquote attribute eventually.
-        return attr.headIndent != 0
+        let formatter = BlockquoteFormatter()
+        return formatter.attribute(inTextView: self, at: index)
     }
 
 
@@ -790,33 +743,69 @@ public class TextView: UITextView {
 
     // MARK: - Attachments
 
-    public func changeAlignment(forAttachment attachment: TextAttachment, to alignment: TextAttachment.Alignment) {
-        attachment.alignment = alignment
-
+    /// Updates the attachment properties to the new values
+    ///
+    /// - parameter attachment: the attachment to update
+    /// - parameter alignment:  the alignment value
+    /// - parameter size:       the size value
+    /// - parameter url:        the attachment url
+    ///
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 
-    public func changeSize(forAttachment attachment: TextAttachment, to size: TextAttachment.Size) {
-        attachment.size = size
+    /// Update the progress indicator of an attachment
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment to update
+    ///   - progress: the value of progress
+    ///
+    public func update(attachment attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blueColor()) {
+        attachment.progress = progress
+        attachment.progressColor = progressColor
+        layoutManager.invalidateLayoutForAttachment(attachment)
+    }
 
+    /// Updates the message being displayed on top of the image attachment
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment where the message will be overlay
+    ///   - message: the message to show
+    ///
+    public func update(attachment attachment: TextAttachment, message: NSAttributedString?) {
+        attachment.message = message
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 }
 
-// MARK: - TextStorageAttachmentsDelegate
+// MARK: - TextStorageImageProvider
 
-extension TextView: TextStorageImageProvider {
+extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
-        if let mediaDelegate = mediaDelegate {
-            let placeholderImage = mediaDelegate.image(forTextView: self, atUrl: url, onSuccess: success, onFailure: failure)
-            return placeholderImage
-        } else {
-            return Gridicon.iconOfType(.Attachment)
+        
+        guard let mediaDelegate = mediaDelegate else {
+            fatalError("This class requires a media delegate to be set.")
         }
+        
+        let placeholderImage = mediaDelegate.textView(self, imageAtUrl: url, onSuccess: success, onFailure: failure)
+        return placeholderImage
     }
 
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
         return defaultMissingImage
+    }
+    
+    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL {
+        
+        guard let mediaDelegate = mediaDelegate else {
+            fatalError("This class requires a media delegate to be set.")
+        }
+        
+        return mediaDelegate.textView(self, urlForImage: image)
     }
 }

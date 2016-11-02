@@ -165,6 +165,14 @@ extension NSAttributedString
         return paragraphRanges
     }
 
+    /// Returns the range of characters representing the paragraph or paragraphs containing a given range.
+    ///
+    /// This is an attributed string wrapper for `NSString.paragraphRangeForRange()`
+    ///
+    func paragraphRange(`for` range: NSRange) -> NSRange {
+        return foundationString.paragraphRangeForRange(range)
+    }
+
 
     /// Returns all of the paragraphs, spanning at the specified index, with the given TextList Kind.
     ///

@@ -62,10 +62,15 @@
 		B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */; };
 		B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF51DA2D76600614582 /* TextList.swift */; };
 		B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */; };
+		E11B77601DBA14B40024E455 /* BlockquteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */; };
+		E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */; };
+		E1C163A51DB6056B00E66A83 /* BlockquoteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */; };
 		F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
+		F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
+		FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF585CE1DB6398E00299B93 /* StandardElementType.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,11 +156,18 @@
 		B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringListsTests.swift; path = Extensions/NSAttributedStringListsTests.swift; sourceTree = "<group>"; };
 		B5BC4FF51DA2D76600614582 /* TextList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextList.swift; sourceTree = "<group>"; };
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
+		E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquteFormatterTests.swift; sourceTree = "<group>"; };
+		E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
+		E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatter.swift; sourceTree = "<group>"; };
 		F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNodeTests.swift; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
+		F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentObjectModel.swift; sourceTree = "<group>"; };
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
+		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
+		FFF585CE1DB6398E00299B93 /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +194,8 @@
 		5951CB841D8BC93600E1866F = {
 			isa = PBXGroup;
 			children = (
+				FF5B98E41DC355B400571CA4 /* LICENSE */,
+				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				5951CB901D8BC93600E1866F /* Aztec */,
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
@@ -260,6 +274,7 @@
 				599F25081D8BC9A1002871D6 /* Converters */,
 				599F25131D8BC9A1002871D6 /* Data */,
 				599F251A1D8BC9A1002871D6 /* Libxml2.swift */,
+				F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */,
 			);
 			path = Libxml2;
 			sourceTree = "<group>";
@@ -305,6 +320,7 @@
 				F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */,
 				599F25181D8BC9A1002871D6 /* Node.swift */,
 				599F25191D8BC9A1002871D6 /* TextNode.swift */,
+				FFF585CE1DB6398E00299B93 /* StandardElementType.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -467,7 +483,9 @@
 		B5B86D3A1DA41A550083DB3F /* Formatters */ = {
 			isa = PBXGroup;
 			children = (
+				E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */,
 				B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */,
+				E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -476,6 +494,7 @@
 			isa = PBXGroup;
 			children = (
 				B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */,
+				E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -614,10 +633,13 @@
 				B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */,
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
+				E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
+				FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* TextAttachment.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
+				E1C163A51DB6056B00E66A83 /* BlockquoteFormatter.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
 				599F25451D8BC9A1002871D6 /* Libxml2.swift in Sources */,
@@ -635,6 +657,7 @@
 				599F25421D8BC9A1002871D6 /* ElementNode.swift in Sources */,
 				599F253A1D8BC9A1002871D6 /* InNodeConverter.swift in Sources */,
 				599F25491D8BC9A1002871D6 /* HTMLToAttributedString.swift in Sources */,
+				F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */,
 				B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
@@ -656,6 +679,7 @@
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */,
+				E11B77601DBA14B40024E455 /* BlockquteFormatterTests.swift in Sources */,
 				599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */,
 				594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */,
 				59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */,
@@ -694,6 +718,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -748,6 +773,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -781,7 +807,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -807,7 +833,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -882,6 +908,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -916,7 +943,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -973,6 +1000,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -1001,7 +1029,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 2.3;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1013,7 +1041,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 99KV9Z6BKV;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1049,7 +1077,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = "Release-Alpha";
 		};

@@ -9,6 +9,8 @@ class EditorDemoController: UIViewController {
     static let margin = CGFloat(20)
     static let defaultContentFont = UIFont.systemFontOfSize(14)
 
+    private var mediaErrorMode = false
+
     private(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.Image)
         let textView = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont, defaultMissingImage: defaultMissingImage)
@@ -546,7 +548,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
 extension EditorDemoController: TextViewMediaDelegate
 {
-    func image(forTextView textView: TextView, atUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
+    func textView(textView: TextView, imageAtUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
 
         let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
             dispatch_async(
@@ -565,6 +567,13 @@ extension EditorDemoController: TextViewMediaDelegate
         task.resume()
 
         return Gridicon.iconOfType(.Image)
+    }
+    
+    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL {
+        
+        // TODO: start fake upload process
+        
+        return saveToDisk(image: image)
     }
 }
 
@@ -593,32 +602,75 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 
 private extension EditorDemoController
 {
-    func insertImage(image: UIImage) {
-        let index = richTextView.positionForCursor()
+    private func saveToDisk(image image: UIImage) -> NSURL {
         let fileName = "\(NSProcessInfo.processInfo().globallyUniqueString)_file.jpg"
         guard
             let data = UIImageJPEGRepresentation(image, 0.9),
             let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(fileName)
+            where data.writeToURL(fileURL, atomically:true)
             else {
-            return
+                fatalError("Could not save image to disk.")
         }
-
-        data.writeToURL(fileURL, atomically:true)
-        richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        
+        return fileURL
+    }
+    
+    func insertImage(image: UIImage) {
+        
+        let index = richTextView.positionForCursor()
+        let fileURL = saveToDisk(image: image)
+        
+        let imageId = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        let progress = NSProgress(parent: nil, userInfo: ["imageID":imageId])
+        progress.totalUnitCount = 100
+        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true);
     }
 
-    func displayDetailsForAttachment(attachment: TextAttachment) {
-        let detailsViewController = AttachmentDetailsViewController()
-        detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size) in
-
-            if let strongSelf = self {
-                strongSelf.richTextView.changeAlignment(forAttachment: attachment, to: alignment)
-                strongSelf.richTextView.changeSize(forAttachment: attachment, to: size)
+    @objc func timerFireMethod(timer: NSTimer) {
+        guard let progress = timer.userInfo as? NSProgress,
+              let imageId = progress.userInfo["imageID"] as? String
+        else {
+            return
+        }
+        progress.completedUnitCount += 1
+        if let attachment = richTextView.attachment(withId: imageId) {            
+            richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blueColor())
+            if mediaErrorMode && progress.fractionCompleted >= 0.25 {
+                timer.invalidate()
+                let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
+                richTextView.update(attachment: attachment, message: message)
             }
+            if progress.fractionCompleted >= 1 {
+                timer.invalidate()
+                richTextView.update(attachment: attachment, progress: nil)
+            }
+        } else {
+            timer.invalidate()
+        }
+    }
+
+    var mediaMessageAttributes:[String:AnyObject] {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .Center
+        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleCaption1)
+        return [NSParagraphStyleAttributeName:paragraphStyle, NSFontAttributeName:font]
+    }
+    
+    func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
+        let detailsViewController = AttachmentDetailsViewController.controller()
+        detailsViewController.attachment = attachment
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
+
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.richTextView.update(attachment: attachment,
+                                           alignment: alignment,
+                                           size: size,
+                                           url: url)
         }
 
-        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        let navigationController = UINavigationController(rootViewController: detailsViewController)        
         presentViewController(navigationController, animated: true, completion: nil)
     }
 }
@@ -636,6 +688,6 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             return
         }
 
-        displayDetailsForAttachment(attachment)
+        displayDetailsForAttachment(attachment, position:locationInTextView)
     }
 }

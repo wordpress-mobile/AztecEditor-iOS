@@ -1,7 +1,9 @@
 import Foundation
 import UIKit
 
-protocol TextStorageImageProvider {
+/// Implemented by a class taking care of handling attachments for the storage.
+///
+protocol TextStorageAttachmentsDelegate {
 
     /// Provides images for attachments that are part of the storage
     ///
@@ -15,47 +17,25 @@ protocol TextStorageImageProvider {
     ///
     func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
     func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
+    
+    /// Called when an image is about to be added to the storage as an attachment, so that the
+    /// delegate can specify an URL where that image is available.
+    ///
+    /// - Parameters:
+    ///     - storage:      The storage that is requesting the image.
+    ///     - image:        The image that was added to the storage.
+    ///
+    /// - Returns: the requested `NSURL` where the image is stored.
+    ///
+    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL
 }
 
 /// Custom NSTextStorage
 ///
 public class TextStorage: NSTextStorage {
 
-    typealias ElementNode = Libxml2.ElementNode
-    typealias TextNode = Libxml2.TextNode
-    typealias RootNode = Libxml2.RootNode
-
-    // Represents the possible HTML types that the TextStorage element can handle
-    enum ElementTypes: String {
-        case bold = "b"
-        case italic = "em"
-        case striketrough = "s"
-        case underline = "u"
-        case link = "a"
-        case img = "img"
-
-        // Some HTML elements can have more than one valid representation so we list all possible variations here.
-        var equivalentNames: [String] {
-            get {
-                switch self {
-                case .bold: return [self.rawValue, "strong"]
-                case .italic: return [self.rawValue, "em"]
-                case .striketrough: return [self.rawValue, "strike"]
-                case .underline: return [self.rawValue, "u"]
-                case .link: return [self.rawValue]
-                case .img: return [self.rawValue]
-                }
-            }
-        }
-    }
-
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
-
-    private var rootNode: RootNode = {
-        return RootNode(children: [TextNode(text: "")])
-    }()
-    
-    let domQueue = dispatch_queue_create("com.wordpress.domQueue", DISPATCH_QUEUE_SERIAL)
+    private let dom = Libxml2.DocumentObjectModel()
     
     // MARK: - NSTextStorage
 
@@ -65,7 +45,7 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var imageProvider: TextStorageImageProvider?
+    var attachmentsDelegate: TextStorageAttachmentsDelegate?
 
     public func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
@@ -92,6 +72,67 @@ public class TextStorage: NSTextStorage {
 
         return range
     }
+    
+    // MARK: - NSAttributedString preprocessing
+
+    /// Preprocesses an attributed string's attachments for insertion in the storage.
+    ///
+    /// - Important: This method takes care of removing any non-image attachments too.  This may
+    ///         change in future versions.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the string we need to preprocess.
+    ///
+    /// - Returns: the preprocessed string.
+    ///
+    private func preprocessAttachments(forAttributedString attributedString: NSAttributedString) -> NSAttributedString {
+        
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+        let finalString = NSMutableAttributedString(attributedString: attributedString)
+        
+        attributedString.enumerateAttribute(NSAttachmentAttributeName, inRange: fullRange, options: []) { (object, range, stop) in
+            
+            // For some weird reason object can be `nil` here in certain scenarios.
+            // We'll just bail out even though this method shouldn't have been called.
+            //
+            guard let object = object else {
+                return
+            }
+            
+            guard let attachmentsDelegate = attachmentsDelegate else {
+                assertionFailure("This class can't really handle not having an image provider set.")
+                return
+            }
+            
+            guard let attachment = object as? NSTextAttachment else {
+                assertionFailure("We expected a text attachment object.")
+                return
+            }
+            
+            guard let image = attachment.image else {
+                // We only suppot image attachments for now.  All other attachment types are
+                // stripped for safety.
+                //
+                finalString.removeAttribute(NSAttachmentAttributeName, range: range)
+                return
+            }
+            
+            guard !(attachment is TextAttachment) else {
+                // Only replace plain NSTextAttachment objects.
+                //
+                return
+            }
+            
+            let replacementAttachment = TextAttachment()
+            replacementAttachment.imageProvider = self
+            replacementAttachment.image = image
+            replacementAttachment.url = attachmentsDelegate.storage(self, urlForImage: image)
+            
+            finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
+        }
+        
+        return finalString
+    }
 
     // MARK: - Overriden Methods
 
@@ -103,30 +144,28 @@ public class TextStorage: NSTextStorage {
         
         beginEditing()
         textStore.replaceCharactersInRange(range, withString: str)
-        
+
         edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
-        dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
-        }
+        dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+        
         endEditing()
     }
     
     override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
         
+        // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
+        //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
+        //
+        let attrString = preprocessAttachments(forAttributedString: attrString)
+        
         beginEditing()
         textStore.replaceCharactersInRange(range, withAttributedString: attrString)
         
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
+
+        dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
         
-        dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: range, withString: attrString.string, inheritStyle: false)
-            
-            // remove all styles for the specified range here!
-            
-            let finalRange = NSRange(location: range.location, length: attrString.length)
-            self.copyStylesToDOM(spanning: finalRange)
-        }
         endEditing()
     }
 
@@ -134,132 +173,10 @@ public class TextStorage: NSTextStorage {
         beginEditing()
         textStore.setAttributes(attrs, range: range)
         edited(.EditedAttributes, range: range, changeInLength: 0)
+        
+        dom.setAttributes(attrs, range: range)
+        
         endEditing()
-    }
-
-    // MARK: - Styles: Synchronization with DOM
-
-    /// Copies all styles in the specified range to the DOM.
-    ///
-    /// - Parameters:
-    ///     - range: the range from which to take the styles to copy.
-    ///
-    private func copyStylesToDOM(spanning range: NSRange) {
-
-        let options = NSAttributedStringEnumerationOptions(rawValue: 0)
-
-        textStore.enumerateAttributesInRange(range, options: options) { (attributes, range, stop) in
-            // Edit attributes
-
-            for (key, value) in attributes {
-                switch (key) {
-                case NSFontAttributeName:
-                    copyToDOM(fontAttributesSpanning: range, fromAttributeValue: value)
-                case NSLinkAttributeName:
-                    copyToDOM(linkAttributeSpanning: range, fromAttributeValue: value)
-                case NSStrikethroughStyleAttributeName:
-                    copyToDOM(strikethroughStyleSpanning: range, fromAttributeValue: value)
-                case NSUnderlineStyleAttributeName:
-                    copyToDOM(underlineStyleSpanning: range, fromAttributeValue: value)
-                default:
-                    break
-                }
-            }
-        }
-    }
-    
-    private func copyToDOM(fontAttributesSpanning range: NSRange, fromAttributeValue value: AnyObject) {
-        
-        guard let font = value as? UIFont else {
-            assertionFailure("Was expecting a UIFont object as the value for the font attribute.")
-            return
-        }
-        
-        copyToDOM(fontAttributesSpanning: range, fromFont: font)
-    }
-    
-    private func copyToDOM(linkAttributeSpanning range: NSRange, fromAttributeValue value: AnyObject) {
-        
-        let linkURL: NSURL
-        
-        if let urlValue = value as? NSURL {
-            linkURL = urlValue
-        } else {
-            guard let stringValue = value as? String,
-                let stringValueURL = NSURL(string: stringValue) else {
-                    assertionFailure("Was expecting a NSString or NSURL object as the value for the link attribute.")
-                    return
-            }
-            
-            linkURL = stringValueURL
-        }
-        
-        setLinkInDOM(range, url: linkURL)
-    }
-    
-    private func copyToDOM(fontAttributesSpanning range: NSRange, fromFont font: UIFont) {
-        
-        let fontTraits = font.fontDescriptor().symbolicTraits
-        
-        if fontTraits.contains(.TraitBold) {
-            enableBoldInDOM(range)
-        }
-        
-        if fontTraits.contains(.TraitItalic) {
-            enableItalicInDOM(range)
-        }
-    }
-    
-    private func copyToDOM(strikethroughStyleSpanning range: NSRange, fromAttributeValue value: AnyObject) {
-        
-        guard let intValue = value as? Int else {
-            assertionFailure("The strikethrough style is always expected to be an Int.")
-            return
-        }
-        
-        guard let style = NSUnderlineStyle(rawValue: intValue) else {
-            assertionFailure("The strikethrough style value is not-known.")
-            return
-        }
-        
-        copyToDOM(strikethroughStyleSpanning: range, strikethroughStyle: style)
-    }
-    
-    private func copyToDOM(strikethroughStyleSpanning range: NSRange, strikethroughStyle style: NSUnderlineStyle) {
-        
-        switch (style) {
-        case .StyleSingle:
-            enableStrikethroughInDOM(range)
-        default:
-            // We don't support anything more than single-line strikethrough for now
-            break
-        }
-    }
-    
-    private func copyToDOM(underlineStyleSpanning range: NSRange, fromAttributeValue value: AnyObject) {
-        
-        guard let intValue = value as? Int else {
-            assertionFailure("The underline style is always expected to be an Int.")
-            return
-        }
-        
-        guard let style = NSUnderlineStyle(rawValue: intValue) else {
-            assertionFailure("The underline style value is not-known.")
-            return
-        }
-        
-        copyToDOM(underlineStyleSpanning: range, underlineStyle: style)
-    }
-    
-    private func copyToDOM(underlineStyleSpanning range: NSRange, underlineStyle style: NSUnderlineStyle) {
-        
-        switch (style) {
-        case .StyleSingle:
-            enableUnderlineInDOM(range)
-        default:
-            // We don't support anything more than single-line underline for now
-            break
-        }
     }
     
     // MARK: - Styles: Toggling
@@ -269,12 +186,6 @@ public class TextStorage: NSTextStorage {
         let enable = !fontTrait(.TraitBold, spansRange: range)
 
         modifyTrait(.TraitBold, range: range, enable: enable)
-
-        if enable {
-            enableBoldInDOM(range)
-        } else {
-            disableBoldInDom(range)
-        }
     }
 
     func toggleItalic(range: NSRange) {
@@ -282,16 +193,10 @@ public class TextStorage: NSTextStorage {
         let enable = !fontTrait(.TraitItalic, spansRange: range)
 
         modifyTrait(.TraitItalic, range: range, enable: enable)
-
-        if enable {
-            enableItalicInDOM(range)
-        } else {
-            disableItalicInDom(range)
-        }
     }
 
     func toggleStrikethrough(range: NSRange) {
-        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range, onEnable: enableStrikethroughInDOM, onDisable: disableStrikethroughInDom)
+        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
     }
 
     /// Toggles underline for the specified range.
@@ -306,7 +211,7 @@ public class TextStorage: NSTextStorage {
     ///     - range: the range to toggle the style of.
     ///
     func toggleUnderlineForRange(range: NSRange) {
-        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range, onEnable: enableUnderlineInDOM, onDisable: disableUnderlineInDom)
+        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
     }
 
     func setLink(url: NSURL, forRange range: NSRange) {
@@ -320,7 +225,6 @@ public class TextStorage: NSTextStorage {
         }
         
         addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-        setLinkInDOM(effectiveRange, url: url)
     }
 
     func removeLink(inRange range: NSRange){
@@ -329,12 +233,9 @@ public class TextStorage: NSTextStorage {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
             
-            dispatch_async(domQueue) {
-                self.rootNode.unwrap(range: effectiveRange, fromElementsNamed: ["a"])
-            }
+            dom.removeLink(inRange: effectiveRange)
         }
     }
-
 
     /// Insert Image Element at the specified range using url as source
     ///
@@ -346,24 +247,59 @@ public class TextStorage: NSTextStorage {
     ///
     func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
         let attachment = TextAttachment()
-        attachment.kind = .RemoteImageDownloaded(url: url, image:placeHolderImage)
+        attachment.imageProvider = self
+        attachment.url = url
         attachment.image = placeHolderImage
 
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
         replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
-        let wrappingRange = NSMakeRange(position, attachmentString.length)
 
-        dispatch_async(domQueue) {
-            self.rootNode.replaceCharacters(inRange: wrappingRange,
-                                       withNodeNamed: ElementTypes.img.rawValue,
-                                       withAttributes: [Libxml2.StringAttribute(name:"src", value: url.absoluteString!)])
-        }
         return attachment.identifier
     }
 
-    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange, onEnable: (NSRange) -> Void, onDisable: (NSRange) -> Void) {
+    // MARK: - Attachments
+
+
+    /// Return the attachment, if any, corresponding to the id provided
+    ///
+    /// - Parameter id: the unique id of the attachment
+    /// - Returns: the attachment object
+    ///
+    public func attachment(withId id: String) -> TextAttachment? {
+        var foundAttachment: TextAttachment? = nil
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
+            if attachment.identifier == id {
+                foundAttachment = attachment
+                stop.memory = true
+            }
+        }
+        return foundAttachment
+    }
+
+
+    /// Updates the attachment attributes to the values provided.
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment to update
+    ///   - alignment: the alignment value
+    ///   - size: the size to use
+    ///   - url: the image URL for the image
+    ///
+    public func update(attachment attachment: TextAttachment,
+                                  alignment: TextAttachment.Alignment,
+                                  size: TextAttachment.Size,
+                                  url: NSURL) {
+        attachment.alignment = alignment
+        attachment.size = size
+        attachment.url = url
+        let rangesForAttachment = ranges(forAttachment:attachment)
+        
+        dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
+    }
+
+    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange) {
 
         var effectiveRange = NSRange()
         let enable = attribute(attributeName, atIndex: range.location, effectiveRange: &effectiveRange) == nil
@@ -371,121 +307,23 @@ public class TextStorage: NSTextStorage {
 
         if enable {
             addAttribute(attributeName, value: value, range: range)
-            onEnable(range)
         } else {
             removeAttribute(attributeName, range: range)
-            onDisable(range)
-        }
-    }
-
-    // MARK: - DOM
-
-    private func disableBoldInDom(range: NSRange) {
-        dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.bold.equivalentNames)
-        }
-    }
-
-    private func disableItalicInDom(range: NSRange) {
-        dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.italic.equivalentNames)
-        }
-    }
-
-    private func disableStrikethroughInDom(range: NSRange) {
-        dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.striketrough.equivalentNames)
-        }
-    }
-
-    private func disableUnderlineInDom(range: NSRange) {
-        dispatch_async(domQueue) {
-            self.rootNode.unwrap(range: range, fromElementsNamed: ElementTypes.underline.equivalentNames)
-        }
-    }
-
-    private func enableBoldInDOM(range: NSRange) {
-
-        enableInDom(
-            ElementTypes.bold.rawValue,
-            inRange: range,
-            equivalentElementNames: ElementTypes.bold.equivalentNames)
-    }
-
-    private func enableInDom(elementName: String, inRange range: NSRange, equivalentElementNames: [String]) {
-        dispatch_async(domQueue) {
-            self.rootNode.wrapChildren(
-                intersectingRange: range,
-                inNodeNamed: elementName,
-                withAttributes: [],
-                equivalentElementNames: equivalentElementNames)
-        }
-    }
-
-    private func enableItalicInDOM(range: NSRange) {
-
-        enableInDom(
-            ElementTypes.italic.rawValue,
-            inRange: range,
-            equivalentElementNames: ElementTypes.italic.equivalentNames)
-    }
-
-    private func enableStrikethroughInDOM(range: NSRange) {
-
-        enableInDom(
-            ElementTypes.striketrough.rawValue,
-            inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
-    }
-
-    private func enableUnderlineInDOM(range: NSRange) {
-        enableInDom(
-            ElementTypes.underline.rawValue,
-            inRange: range,
-            equivalentElementNames:  ElementTypes.striketrough.equivalentNames)
-    }
-    
-    private func setLinkInDOM(range: NSRange, url: NSURL) {
-        dispatch_async(domQueue) {
-            self.rootNode.wrapChildren(
-                intersectingRange: range,
-                inNodeNamed: ElementTypes.link.rawValue,
-                withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: ElementTypes.link.equivalentNames)
         }
     }
 
     // MARK: - HTML Interaction
 
     public func getHTML() -> String {
-        
-        var result: String = ""
-        
-        dispatch_sync(domQueue) {
-            let converter = Libxml2.Out.HTMLConverter()
-            result = converter.convert(self.rootNode)
-        }
-        
-        return result
+        return dom.getHTML()
     }
 
     func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         
-        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
-        let output: (rootNode: RootNode, attributedString: NSAttributedString)
-        
-        do {
-            output = try converter.convert(html)
-        } catch {
-            fatalError("Could not convert the HTML.")
-        }
-        
-        dispatch_sync(domQueue) {
-            self.rootNode = output.rootNode
-        }
+        let attributedString = dom.setHTML(html, withDefaultFontDescriptor: defaultFontDescriptor)
         
         let originalLength = textStore.length
-        textStore = NSMutableAttributedString(attributedString: output.attributedString)
+        textStore = NSMutableAttributedString(attributedString: attributedString)
         textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
             attachment.imageProvider = self
         }
@@ -495,12 +333,16 @@ public class TextStorage: NSTextStorage {
 
 extension TextStorage: TextAttachmentImageProvider {
 
-    public func image(forURL url: NSURL,
-                      inAttachment attachment: TextAttachment,
-                      onSuccess success: (UIImage) -> (),
-                      onFailure failure: () -> ()) -> UIImage?
+    func textAttachment(textAttachment: TextAttachment,
+                        imageForURL url: NSURL,
+                        onSuccess success: (UIImage) -> (),
+                        onFailure failure: () -> ()) -> UIImage
     {
-        return imageProvider?.storage(self, attachment: attachment, imageForURL: url, onSuccess: success, onFailure: failure)
+        guard let attachmentsDelegate = attachmentsDelegate else {
+            fatalError("This class doesn't really support not having an attachments delegate set.")
+        }
+        
+        return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
 }
