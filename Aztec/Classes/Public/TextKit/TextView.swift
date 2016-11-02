@@ -86,9 +86,10 @@ public class TextView: UITextView {
         let characterIndex = offsetFromPosition(beginningOfDocument, toPosition: position)
         let glyphIndex = layoutManager.glyphIndexForCharacterAtIndex(characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRectForGlyphAtIndex(glyphIndex, effectiveRange: nil)
-        let defaultRect = super.caretRectForPosition(position)
-        let caretSize = CGSize(width: defaultRect.size.width, height: usedLineFragment.size.height)
-        return defaultRect.resize(to: caretSize, verticalAnchor: .bottom)
+        var caretRect = super.caretRectForPosition(position)
+        caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
+        caretRect.size.height = usedLineFragment.size.height
+        return caretRect
     }
 
     // MARK: - Paragraphs
