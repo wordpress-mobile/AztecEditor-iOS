@@ -270,6 +270,7 @@ extension EditorDemoController : UITextViewDelegate
 {
     func textViewDidChangeSelection(textView: UITextView) {
         updateFormatBar()
+        richTextView.selectionChanged()
     }
 }
 

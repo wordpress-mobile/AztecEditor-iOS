@@ -60,6 +60,7 @@ public class TextView: UITextView {
         
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
+        previousSelectedRange = selectedRange
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -72,7 +73,41 @@ public class TextView: UITextView {
         allowsEditingTextAttributes = true
     }
 
+    var previousSelectedRange: NSRange?
 
+    public func selectionChanged() {
+        var movingForward = true
+        if let previousSelectedRange = previousSelectedRange {
+            if selectedRange.location < previousSelectedRange.location {
+                movingForward = false
+            }
+        }
+        var newRange = selectedRange
+        if newRange.length == 0 {
+            var fullRange: NSRange = NSRange.zero
+            if storage.attribute(TextListItemMarker.attributeName, atIndex:newRange.location, longestEffectiveRange: &fullRange, inRange: storage.rangeOfEntireString) != nil {
+                if movingForward {
+                    newRange.location = fullRange.endLocation
+                } else {
+                    newRange.location = max(fullRange.location-1, 0)
+                }
+            }
+        } else {
+            storage.enumerateAttribute(TextListItemMarker.attributeName,
+                                       inRange: newRange,
+                                       options: []) { (attribute, attributeRange, stop) in
+                                        if attribute != nil {
+                                            var fullRange: NSRange = NSRange.zero
+                                            if storage.attribute(TextListItemMarker.attributeName, atIndex:attributeRange.location, effectiveRange: &fullRange) != nil {
+                                                newRange = NSUnionRange(newRange, fullRange)
+                                            }
+                                        }
+            }
+        }
+        previousSelectedRange = newRange
+        selectedRange = newRange
+
+    }
     // MARK: - UIView Overrides
 
     public override func didMoveToWindow() {
