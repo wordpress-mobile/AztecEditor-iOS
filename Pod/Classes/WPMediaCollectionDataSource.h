@@ -250,7 +250,7 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Filter the assets acording to their media type.
  *
- *  @param filter the WMMediaType to filter objects to. The default value is WPMediaTypeVideoOrImage
+ *  @param filter the WPMediaType to filter objects to. The default value is WPMediaTypeVideoOrImage
  */
 - (void)setMediaTypeFilter:(WPMediaType)filter;
 
