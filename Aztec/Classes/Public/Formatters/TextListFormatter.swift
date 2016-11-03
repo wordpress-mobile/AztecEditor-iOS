@@ -51,22 +51,39 @@ private extension TextListFormatter
     ///     - string: Target String.
     ///     - ranges: Segments of the receiver string to be transformed into lists.
     ///
+    /// - Returns: The affected NSRange, or nil if no changes were made.
+    ///
+    /// - Notes: The returned NSRange, if any, will *INCLUDE* any String Ranges that lie between the non contiguous
+    ///   groups. Specifically...
+    ///
+    ///     [Line 1]  Text                          [Line 1]  1. Text
+    ///     [Line 2]  - Unordered List      >>      [Line 2]  - Unordered List
+    ///     [Line 3]  More Text                     [Line 3]  1. More Text
+    ///     [Line 4]  Something Else                [Line 4]  Something Else
+    ///
+    ///   Calling ApplyLists over Lines 1-3 should produce the results at the right hand, and lines 1-3 should
+    ///   remain selected. Capicci?
+    ///
     func applyLists(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atNonContiguousRanges ranges: [NSRange]) -> NSRange? {
-        guard let first = ranges.first else {
+        guard let first = ranges.first, let last = ranges.last else {
             return nil
         }
 
         let grouped = groupContiguousRanges(ranges)
-        var length = 0
+        var textLengthDelta = 0
 
         for group in grouped.reverse() {
-            guard let range = applyList(ofStyle: style, toString: string, atRanges: group) else {
+            // Apply List Style to the current group
+            guard let listRange = applyList(ofStyle: style, toString: string, atRanges: group) else {
                 continue
             }
 
-            length += range.length
+            // Calculate the Length Delta between SUM(group.range.length) and "EFFECTIVE List Length"
+            textLengthDelta += calculateLengthDelta(betweenContiguousRanges: group, andConsolidatedRange: listRange)
         }
 
+        // Simply calculate the "Effective List Range"
+        let length = last.endLocation - first.location + textLengthDelta
         return NSRange(location: first.location, length: length)
     }
 
@@ -209,5 +226,19 @@ private extension TextListFormatter
         }
         
         return grouped
+    }
+
+
+    /// Calculates the difference, in length, between a group of contiguous ranges, and another NSRange instance.
+    ///
+    /// - Parameters:
+    ///     - contiguous: Collection of contiguous NSRange instances.
+    ///     - consolidated: A single NSRange instance.
+    ///
+    /// - Returns: Delta between the SUM(contiguous.length) and consolidated.length
+    ///
+    func calculateLengthDelta(betweenContiguousRanges contiguous: [NSRange], andConsolidatedRange consolidated: NSRange) -> Int {
+        let contiguousLength = contiguous.reduce(0) { $0 + $1.length }
+        return consolidated.length - contiguousLength
     }
 }

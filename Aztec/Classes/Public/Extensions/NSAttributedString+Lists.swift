@@ -247,11 +247,16 @@ extension NSAttributedString
 
         // TODO: Need to accomodate RTL languages too.
 
-        // Insert the range at the beginning of the string. 
-        // NOTE: We insert this as a plain string, so that Paragraph + Font styles get inherited.
-        //
+        // Insert the range at the beginning of the string.
         let markerText = style.markerText(forItemNumber: number)
-        output.replaceCharactersInRange(NSRange.zero, withString: markerText)
+        var markerAttributes = [String: AnyObject]()
+        if let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, atIndex: 0, effectiveRange: nil) {
+            markerAttributes[NSParagraphStyleAttributeName] = paragraphStyle
+        }
+        if let fontStyle = output.attribute(NSFontAttributeName, atIndex: 0, effectiveRange: nil) {
+            markerAttributes[NSFontAttributeName] = fontStyle
+        }
+        output.replaceCharactersInRange(NSRange.zero, withAttributedString: NSAttributedString(string:markerText, attributes: markerAttributes))
 
         // Apply Item Marker
         let markerAttribute = TextListItemMarker()
