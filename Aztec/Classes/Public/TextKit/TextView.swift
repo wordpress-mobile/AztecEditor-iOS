@@ -307,6 +307,46 @@ public class TextView: UITextView {
     }
 
 
+    private enum SelectionMarker: String {
+        case start = "SelectionStart"
+        case end = "SelectionEnd"
+    }
+
+    private func markCurrentSelection() {
+        let range = selectedRange
+        // selection marking
+        if range.location + 1 < storage.length {
+            storage.addAttribute(SelectionMarker.start.rawValue, value: SelectionMarker.start.rawValue, range: NSRange(location:range.location, length: 1))
+        }
+        if range.endLocation + 1 < storage.length {
+            storage.addAttribute(SelectionMarker.end.rawValue, value: SelectionMarker.end.rawValue, range: NSRange(location:range.location + range.length, length: 1))
+        }
+    }
+
+    private func restoreMarkedSelection() {
+        var selectionStartRange: NSRange = NSRange(location: max(storage.length, 0), length: 0)
+        var selectionEndRange: NSRange = selectionStartRange
+        storage.enumerateAttribute(SelectionMarker.start.rawValue,
+                                   inRange: NSRange(location: 0, length: storage.length),
+                                   options: []) { (attribute, range, stop) in
+                                    if attribute != nil {
+                                        selectionStartRange = range
+                                    }
+        }
+
+        storage.enumerateAttribute(SelectionMarker.end.rawValue,
+                                   inRange: NSRange(location: 0, length: storage.length),
+                                   options: []) { (attribute, range, stop) in
+                                    if attribute != nil {
+                                        selectionEndRange = range
+                                    }
+        }
+
+        storage.removeAttribute(SelectionMarker.start.rawValue, range: selectionStartRange)
+        storage.removeAttribute(SelectionMarker.end.rawValue, range: selectionEndRange)
+        selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
+    }
+
     /// Adds or removes a ordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
@@ -314,13 +354,12 @@ public class TextView: UITextView {
     public func toggleOrderedList(range range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        let selected = formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: appliedRange)
 
-        guard let effectiveRange = selected else {
-            return
-        }
+        markCurrentSelection()
 
-        selectedRange = rangeForSelectedTextList(withEffectiveRange: effectiveRange, andAppliedRange: appliedRange)
+        formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: appliedRange)
+
+        restoreMarkedSelection()
     }
 
 
@@ -331,13 +370,12 @@ public class TextView: UITextView {
     public func toggleUnorderedList(range range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        let selected = formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: appliedRange)
 
-        guard let effectiveRange = selected else {
-            return
-        }
+        markCurrentSelection()
 
-        selectedRange = rangeForSelectedTextList(withEffectiveRange: effectiveRange, andAppliedRange: appliedRange)
+        formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: appliedRange)
+
+        restoreMarkedSelection()
     }
 
 
