@@ -96,10 +96,8 @@ public class TextView: UITextView {
 
         let newRange = rangeIgnoringListMarkersWhile(movingForward: movingForward, growing: growing)
 
-        if selectedRange.location != newRange.location || selectedRange.length != newRange.length {
-            previousSelectedRange = newRange
-            selectedRange = newRange
-        }
+        previousSelectedRange = newRange
+        selectedRange = newRange
     }
 
     private func rangeIgnoringListMarkersWhile(movingForward movingForward:Bool, growing:Bool) -> NSRange {
