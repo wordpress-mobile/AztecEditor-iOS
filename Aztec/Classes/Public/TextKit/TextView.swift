@@ -74,6 +74,8 @@ public class TextView: UITextView {
         previousSelectedRange = selectedRange
     }
 
+    //MARK: - Selection Logic
+
     public override var selectedTextRange: UITextRange? {
         didSet {
             selectionChanged()
