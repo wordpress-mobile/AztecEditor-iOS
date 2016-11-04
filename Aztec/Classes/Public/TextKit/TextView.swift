@@ -55,7 +55,7 @@ public class TextView: UITextView {
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
-
+        previousSelectedRange = NSRange.zero
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
@@ -67,21 +67,40 @@ public class TextView: UITextView {
 
         defaultFont = UIFont.systemFontOfSize(14)
         defaultMissingImage = Gridicon.iconOfType(.Image)
-
+        previousSelectedRange = NSRange.zero
         super.init(coder: aDecoder)
         
         allowsEditingTextAttributes = true
+        previousSelectedRange = selectedRange
     }
 
-    var previousSelectedRange: NSRange?
-
-    public func selectionChanged() {
-        var movingForward = true
-        if let previousSelectedRange = previousSelectedRange {
-            if selectedRange.location < previousSelectedRange.location {
-                movingForward = false
-            }
+    public override var selectedTextRange: UITextRange? {
+        didSet {
+            selectionChanged()
         }
+    }
+
+    private var previousSelectedRange: NSRange
+
+    private func selectionChanged() {
+        var movingForward = true
+        var growing = true
+        if selectedRange.location < previousSelectedRange.location {
+            movingForward = false
+        }
+        if selectedRange.length < previousSelectedRange.length {
+            growing = false
+        }
+
+        let newRange = rangeIgnoringListMarkersWhile(movingForward: movingForward, growing: growing)
+
+        if selectedRange.location != newRange.location || selectedRange.length != newRange.length {
+            previousSelectedRange = newRange
+            selectedRange = newRange
+        }
+    }
+
+    private func rangeIgnoringListMarkersWhile(movingForward movingForward:Bool, growing:Bool) -> NSRange {
         var newRange = selectedRange
         if newRange.length == 0 {
             var fullRange: NSRange = NSRange.zero
@@ -96,17 +115,28 @@ public class TextView: UITextView {
             storage.enumerateAttribute(TextListItemMarker.attributeName,
                                        inRange: newRange,
                                        options: []) { (attribute, attributeRange, stop) in
-                                        if attribute != nil {
-                                            var fullRange: NSRange = NSRange.zero
-                                            if storage.attribute(TextListItemMarker.attributeName, atIndex:attributeRange.location, effectiveRange: &fullRange) != nil {
-                                                newRange = NSUnionRange(newRange, fullRange)
+                                        if attribute == nil {
+                                            return
+                                        }
+                                        var fullRange: NSRange = NSRange.zero
+                                        if storage.attribute(TextListItemMarker.attributeName, atIndex:attributeRange.location, effectiveRange: &fullRange) == nil {
+                                            return
+                                        }
+                                        if growing {
+                                            newRange = NSUnionRange(newRange, fullRange)
+                                        } else {
+                                            if fullRange.location < newRange.location {
+                                                newRange.location = fullRange.endLocation
+                                                newRange.length -= fullRange.length-1
+                                            } else {
+                                                if ( !NSEqualRanges(NSIntersectionRange(fullRange, newRange), fullRange)){
+                                                    newRange.length -= fullRange.length
+                                                }
                                             }
                                         }
             }
         }
-        previousSelectedRange = newRange
-        selectedRange = newRange
-
+        return newRange
     }
     // MARK: - UIView Overrides
 
