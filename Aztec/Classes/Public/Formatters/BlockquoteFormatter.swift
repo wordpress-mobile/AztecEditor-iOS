@@ -11,13 +11,10 @@ struct BlockquoteFormatter: ParagraphAttributeFormatter {
         style.headIndent = Metrics.defaultIndentation
         style.firstLineHeadIndent = style.headIndent
         style.tailIndent = -Metrics.defaultIndentation
-
-        // We're going to need custom drawing to get the background that we want,
-        // but for now let's use a light grey background to aid debugging.
-        let backgroundColor = UIColor(white: 0.9, alpha: 1.0)
+        style.paragraphSpacing = Metrics.defaultIndentation
+        style.paragraphSpacingBefore = Metrics.defaultIndentation
 
         return [
-            NSBackgroundColorAttributeName: backgroundColor,
             NSParagraphStyleAttributeName: style,
             Blockquote.attributeName: Blockquote()
         ]

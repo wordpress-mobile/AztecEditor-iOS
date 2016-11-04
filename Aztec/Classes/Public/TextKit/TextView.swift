@@ -46,7 +46,7 @@ public class TextView: UITextView {
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
         let storage = TextStorage()
-        let layoutManager = NSLayoutManager()
+        let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
         self.defaultFont = defaultFont
@@ -78,6 +78,18 @@ public class TextView: UITextView {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         layoutIfNeeded()
+    }
+
+    // MARK: - UITextView Overrides
+
+    public override func caretRectForPosition(position: UITextPosition) -> CGRect {
+        let characterIndex = offsetFromPosition(beginningOfDocument, toPosition: position)
+        let glyphIndex = layoutManager.glyphIndexForCharacterAtIndex(characterIndex)
+        let usedLineFragment = layoutManager.lineFragmentUsedRectForGlyphAtIndex(glyphIndex, effectiveRange: nil)
+        var caretRect = super.caretRectForPosition(position)
+        caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
+        caretRect.size.height = usedLineFragment.size.height
+        return caretRect
     }
 
     // MARK: - Paragraphs
