@@ -82,6 +82,31 @@ public class TextView: UITextView {
         }
     }
 
+    public override func deleteBackward() {
+        var originalDeletionRange = selectedRange
+        originalDeletionRange.location = max(originalDeletionRange.location-1, 0)
+        originalDeletionRange.length = 1
+        var expandedRange = rangeIgnoringListMarkers(forProposedRange: originalDeletionRange, movingForward: false, growing: true)
+
+        super.deleteBackward()
+
+        if storage.length < 1 {
+            return
+        }
+
+        if !NSEqualRanges(expandedRange, originalDeletionRange) {
+            if expandedRange.location > 1 {
+                expandedRange.location = max(expandedRange.location-1, 0)
+            } else {
+                expandedRange.length -= 1
+            }
+            storage.replaceCharactersInRange(expandedRange, withAttributedString: NSMutableAttributedString())
+            var newSelectionRange = selectedRange
+            newSelectionRange.location = selectedRange.location - expandedRange.length
+            selectedRange = newSelectionRange
+        }
+    }
+
     private var previousSelectedRange: NSRange
 
     private func selectionChanged() {
@@ -94,14 +119,17 @@ public class TextView: UITextView {
             growing = false
         }
 
-        let newRange = rangeIgnoringListMarkersWhile(movingForward: movingForward, growing: growing)
+        let newRange = rangeIgnoringListMarkers(forProposedRange: selectedRange, movingForward: movingForward, growing: growing)
 
         previousSelectedRange = newRange
         selectedRange = newRange
     }
 
-    private func rangeIgnoringListMarkersWhile(movingForward movingForward:Bool, growing:Bool) -> NSRange {
-        var newRange = selectedRange
+    private func rangeIgnoringListMarkers(forProposedRange range: NSRange, movingForward:Bool, growing:Bool) -> NSRange {
+        if range.location >= storage.length {
+            return range
+        }
+        var newRange = range
         if newRange.length == 0 {
             var fullRange: NSRange = NSRange.zero
             if storage.attribute(TextListItemMarker.attributeName, atIndex:newRange.location, longestEffectiveRange: &fullRange, inRange: storage.rangeOfEntireString) != nil {
@@ -138,6 +166,7 @@ public class TextView: UITextView {
         }
         return newRange
     }
+
     // MARK: - UIView Overrides
 
     public override func didMoveToWindow() {
