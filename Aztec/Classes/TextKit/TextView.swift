@@ -456,8 +456,7 @@ public class TextView: UITextView {
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
     }
 
-    public func refreshList(range range: NSRange) {
-        let appliedRange = rangeForTextList(range)
+    public func refreshList(range range: NSRange) {        
         let formatter = TextListFormatter()
 
         markCurrentSelection()
