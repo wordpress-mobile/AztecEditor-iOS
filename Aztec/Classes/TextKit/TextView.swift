@@ -182,8 +182,10 @@ public class TextView: UITextView {
         let glyphIndex = layoutManager.glyphIndexForCharacterAtIndex(characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRectForGlyphAtIndex(glyphIndex, effectiveRange: nil)
         var caretRect = super.caretRectForPosition(position)
-        caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
-        caretRect.size.height = usedLineFragment.size.height
+        if !CGRectIsEmpty(usedLineFragment) {
+            caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
+            caretRect.size.height = usedLineFragment.size.height
+        }
         return caretRect
     }
 
