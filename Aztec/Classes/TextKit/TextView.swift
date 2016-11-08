@@ -104,6 +104,7 @@ public class TextView: UITextView {
             var newSelectionRange = selectedRange
             newSelectionRange.location = selectedRange.location - expandedRange.length
             selectedRange = newSelectionRange
+            refreshList(range:selectedRange)
         }
     }
 
@@ -453,6 +454,16 @@ public class TextView: UITextView {
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
     }
 
+    public func refreshList(range range: NSRange) {
+        let appliedRange = rangeForTextList(range)
+        let formatter = TextListFormatter()
+
+        markCurrentSelection()
+
+        formatter.refreshList(inString: storage, atRange: range)
+
+        restoreMarkedSelection()
+    }
     /// Adds or removes a ordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.

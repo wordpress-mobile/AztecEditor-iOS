@@ -37,6 +37,35 @@ class TextListFormatter
         let listParagraphs = string.paragraphRanges(spanningRange: listRange)
         return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
     }
+
+    func refreshList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
+
+        var styleOptional: TextList.Style?
+        // Load Paragraph Ranges
+
+        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        guard let firstParagraphRange = paragraphRanges.first else {
+            if let paragraphRange = string.rangeOfLine(atIndex: range.location) {
+                return removeList(fromString: string, atRanges: [paragraphRange])
+            }
+            return nil
+        }
+        if let textList = string.attribute(TextList.attributeName, atIndex: firstParagraphRange.location, effectiveRange: nil) as? TextList {
+            styleOptional = textList.style
+        }
+
+        guard let style = styleOptional else {
+            return removeList(fromString: string, atRanges: [firstParagraphRange])
+        }
+
+
+        guard let listRange = string.rangeOfTextList(atIndex: firstParagraphRange.location) else {
+            return nil
+        }
+
+        let listParagraphs = string.paragraphRanges(spanningRange: listRange)
+        return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
+    }
 }
 
 
