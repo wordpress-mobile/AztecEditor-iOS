@@ -295,8 +295,10 @@ extension NSAttributedString
 
         // Nuke the Marker
         var markerRange = NSRange()
-        if let _ = clean.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: range) {
-            clean.replaceCharactersInRange(markerRange, withString: String())
+        if clean.length > 0 {
+            if let _ = clean.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: range) {
+                clean.replaceCharactersInRange(markerRange, withString: String())
+            }
         }
 
         return clean
