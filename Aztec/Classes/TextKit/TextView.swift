@@ -55,23 +55,117 @@ public class TextView: UITextView {
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
-
+        previousSelectedRange = NSRange.zero
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
+        previousSelectedRange = selectedRange
     }
     
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
         defaultMissingImage = Gridicon.iconOfType(.Image)
-
+        previousSelectedRange = NSRange.zero
         super.init(coder: aDecoder)
         
         allowsEditingTextAttributes = true
+        previousSelectedRange = selectedRange
     }
 
+    //MARK: - Selection Logic
+
+    public override var selectedTextRange: UITextRange? {
+        didSet {
+            selectionChanged()
+        }
+    }
+
+    public override func deleteBackward() {
+        var originalDeletionRange = selectedRange
+        originalDeletionRange.location = max(originalDeletionRange.location-1, 0)
+        originalDeletionRange.length = 1
+        var expandedRange = rangeIgnoringListMarkers(forProposedRange: originalDeletionRange, movingForward: false, growing: true)
+
+        super.deleteBackward()
+
+        if storage.length < 1 {
+            return
+        }
+
+        if !NSEqualRanges(expandedRange, originalDeletionRange) {
+            if expandedRange.location > 1 {
+                expandedRange.location = max(expandedRange.location-1, 0)
+            } else {
+                expandedRange.length -= 1
+            }
+            storage.replaceCharactersInRange(expandedRange, withAttributedString: NSMutableAttributedString())
+            var newSelectionRange = selectedRange
+            newSelectionRange.location = selectedRange.location - expandedRange.length
+            selectedRange = newSelectionRange
+        }
+    }
+
+    private var previousSelectedRange: NSRange
+
+    private func selectionChanged() {
+        var movingForward = true
+        var growing = true
+        if selectedRange.location < previousSelectedRange.location {
+            movingForward = false
+        }
+        if selectedRange.length < previousSelectedRange.length {
+            growing = false
+        }
+
+        let newRange = rangeIgnoringListMarkers(forProposedRange: selectedRange, movingForward: movingForward, growing: growing)
+
+        previousSelectedRange = newRange
+        selectedRange = newRange
+    }
+
+    private func rangeIgnoringListMarkers(forProposedRange range: NSRange, movingForward:Bool, growing:Bool) -> NSRange {
+        if range.location >= storage.length {
+            return range
+        }
+        var newRange = range
+        if newRange.length == 0 {
+            var fullRange: NSRange = NSRange.zero
+            if storage.attribute(TextListItemMarker.attributeName, atIndex:newRange.location, longestEffectiveRange: &fullRange, inRange: storage.rangeOfEntireString) != nil {
+                if movingForward {
+                    newRange.location = fullRange.endLocation
+                } else {
+                    newRange.location = max(fullRange.location-1, 0)
+                }
+            }
+        } else {
+            storage.enumerateAttribute(TextListItemMarker.attributeName,
+                                       inRange: newRange,
+                                       options: []) { (attribute, attributeRange, stop) in
+                                        if attribute == nil {
+                                            return
+                                        }
+                                        var fullRange: NSRange = NSRange.zero
+                                        if storage.attribute(TextListItemMarker.attributeName, atIndex:attributeRange.location, effectiveRange: &fullRange) == nil {
+                                            return
+                                        }
+                                        if growing {
+                                            newRange = NSUnionRange(newRange, fullRange)
+                                        } else {
+                                            if fullRange.location < newRange.location {
+                                                newRange.location = fullRange.endLocation
+                                                newRange.length -= fullRange.length-1
+                                            } else {
+                                                if ( !NSEqualRanges(NSIntersectionRange(fullRange, newRange), fullRange)){
+                                                    newRange.length -= fullRange.length
+                                                }
+                                            }
+                                        }
+            }
+        }
+        return newRange
+    }
 
     // MARK: - UIView Overrides
 
@@ -87,8 +181,10 @@ public class TextView: UITextView {
         let glyphIndex = layoutManager.glyphIndexForCharacterAtIndex(characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRectForGlyphAtIndex(glyphIndex, effectiveRange: nil)
         var caretRect = super.caretRectForPosition(position)
-        caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
-        caretRect.size.height = usedLineFragment.size.height
+        if !CGRectIsEmpty(usedLineFragment) {
+            caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
+            caretRect.size.height = usedLineFragment.size.height
+        }
         return caretRect
     }
 
