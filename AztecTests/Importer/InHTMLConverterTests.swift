@@ -99,4 +99,25 @@ class InHTMLConverterTests: XCTestCase {
             XCTFail("Unexpected conversion failure.")
         }
     }
+
+    func testNonASCIIConversion() {
+        let parser = Libxml2.In.HTMLConverter()
+
+        let html = "Otro año más"
+
+        do {
+            let rootNode = try parser.convert(html)
+
+            XCTAssertEqual(rootNode.children.count, 1)
+
+            guard let textNode = rootNode.children.first as? TextNode else {
+                XCTFail("Expected some text")
+                return
+            }
+
+            XCTAssertEqual(textNode.text(), html)
+        } catch {
+            XCTFail("Unexpected conversion failure.")
+        }
+    }
 }

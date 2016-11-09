@@ -45,7 +45,7 @@ extension Libxml2.In {
             //
             htmlHandleOmittedElem(0)
 
-            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(wrappedHTML.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)), "", nil, Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
+            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(wrappedHTML.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)), "", "UTF-8", Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
             
             defer {
                 xmlFreeDoc(document)
