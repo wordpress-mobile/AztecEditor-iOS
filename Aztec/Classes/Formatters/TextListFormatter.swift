@@ -37,6 +37,55 @@ class TextListFormatter
         let listParagraphs = string.paragraphRanges(spanningRange: listRange)
         return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
     }
+
+    /// Updates the list attributes on the specified range
+    ///
+    /// - Parameters:
+    ///   - string: the string to update
+    ///   - range: the range where to check for list
+    /// - Returns: the total range that was affected by the method
+    ///
+    func updatesList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
+
+        var styleOptional: TextList.Style?
+        // Load Paragraph Ranges
+
+        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        guard let firstParagraphRange = paragraphRanges.first else {
+            if let paragraphRange = string.rangeOfLine(atIndex: range.location) {
+                return removeList(fromString: string, atRanges: [paragraphRange])
+            }
+            return nil
+        }
+        if let textList = string.attribute(TextList.attributeName, atIndex: firstParagraphRange.location, effectiveRange: nil) as? TextList {
+            styleOptional = textList.style
+        }
+
+        guard let style = styleOptional else {
+            return removeList(fromString: string, atRanges: [firstParagraphRange])
+        }
+
+
+        guard let listRange = string.rangeOfTextList(atIndex: firstParagraphRange.location) else {
+            return nil
+        }
+
+        let listParagraphs = string.paragraphRanges(spanningRange: listRange)
+        return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
+    }
+
+
+    /// Removes any list attributes on the provided string that exist on the specified range.
+    /// This method also updates any surrounding lists of the specified range
+    ///
+    /// - Parameters:
+    ///   - string: the string to update
+    ///   - range: the range to where remove the list attributes
+    /// - Returns: the total range that was affected by this method
+    ///
+    func removeList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
+        return removeList(fromString: string, atRanges: [range])
+    }
 }
 
 

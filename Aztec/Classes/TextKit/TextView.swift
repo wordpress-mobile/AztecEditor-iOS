@@ -1,3 +1,4 @@
+
 import UIKit
 import Gridicons
 
@@ -82,6 +83,28 @@ public class TextView: UITextView {
         }
     }
 
+    // MARK: - Intersect copy paste operations
+
+    public override func cut(sender: AnyObject?) {
+        let originalRange = selectedRange
+        super.cut(sender)
+        refreshListsOnlyIfListExists(atRange: originalRange)
+    }
+
+    public override func paste(sender: AnyObject?) {
+        let originalRange = selectedRange
+        super.paste(sender)
+        refreshListsOnlyIfListExists(atRange: originalRange)
+    }
+
+    // MARK: - Intersect keyboard operations
+
+    public override func insertText(text: String) {
+        let originalRange = selectedRange
+        super.insertText(text)
+        refreshListIfNewLinesOn(text: text, range: originalRange)
+    }
+
     public override func deleteBackward() {
         var originalDeletionRange = selectedRange
         originalDeletionRange.location = max(originalDeletionRange.location-1, 0)
@@ -104,6 +127,7 @@ public class TextView: UITextView {
             var newSelectionRange = selectedRange
             newSelectionRange.location = selectedRange.location - expandedRange.length
             selectedRange = newSelectionRange
+            refreshList(aroundRange:selectedRange)
         }
     }
 
@@ -453,6 +477,80 @@ public class TextView: UITextView {
         storage.removeAttribute(SelectionMarker.start.rawValue, range: selectionStartRange)
         storage.removeAttribute(SelectionMarker.end.rawValue, range: selectionEndRange)
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
+        self.delegate?.textViewDidChangeSelection?(self)
+    }
+
+    // MARK: - List Code
+
+
+    /// Refresh Lists attributes when insert new text in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
+        // check if are doing two empy list items in a row
+        if text != "\n" {
+            refreshListsOnlyIfListExists(atRange: range)
+            return
+        }
+        var afterRange = range
+        afterRange.length = 1
+        afterRange.location += 1
+        let afterString = storage.attributedSubstringFromRange(afterRange).string
+
+        var isBegginingOfListItem = false
+        var precedingListItemRange = NSRange.zero
+        if storage.length > 0 {
+
+            let positionToCheck = max(min(range.location - 1,storage.length - 1),0)
+            isBegginingOfListItem = storage.attribute(TextListItemMarker.attributeName,
+                                                      atIndex:positionToCheck,
+                                                      effectiveRange: &precedingListItemRange) != nil
+        }
+
+        if !(isBegginingOfListItem && afterString == "\n") {
+            refreshListsOnlyIfListExists(atRange: range)
+        } else {
+            var lineMovedRange = afterRange
+            lineMovedRange.location += 1
+            removeList(aroundRange: lineMovedRange)
+            removeList(aroundRange: precedingListItemRange)
+            deleteBackward()
+        }
+    }
+
+    /// Refresh the list attributes in the specified range but only if a list is already present on the line
+    ///
+    /// - Parameter range: the range to where to update the list attributes
+    ///
+    private func refreshListsOnlyIfListExists(atRange range:NSRange) {
+
+        if storage.attribute(TextListItem.attributeName,
+                             atIndex:max(range.location-1,0),
+                             effectiveRange: nil) != nil {
+            refreshList(aroundRange: range)
+        }
+    }
+
+    private func refreshList(aroundRange range: NSRange) {
+        let formatter = TextListFormatter()
+
+        markCurrentSelection()
+
+        formatter.updatesList(inString: storage, atRange: range)
+
+        restoreMarkedSelection()
+    }
+
+    private func removeList(aroundRange range: NSRange) {
+        let formatter = TextListFormatter()
+
+        markCurrentSelection()
+
+        formatter.removeList(inString: storage, atRange: range)
+
+        restoreMarkedSelection()
     }
 
     /// Adds or removes a ordered list style from the specified range.
