@@ -1,3 +1,4 @@
+
 import UIKit
 import Gridicons
 
@@ -82,6 +83,45 @@ public class TextView: UITextView {
         }
     }
 
+    // MARK: - Intersect copy paste operations
+
+    public override func cut(sender: AnyObject?) {
+        let originalRange = selectedRange
+        super.cut(sender)
+        refreshListsIfOnePrecedes(range: originalRange)
+    }
+
+    public override func paste(sender: AnyObject?) {
+        let originalRange = selectedRange
+        super.paste(sender)
+        refreshListsIfOnePrecedes(range: originalRange)
+    }
+
+    // MARK: - Intersect keyboard operations
+
+    public override func insertText(text: String) {
+        let originalRange = selectedRange
+        var afterRange = originalRange
+        afterRange.length = 1
+        let isBegginingOfListItem = storage.attribute(TextListItemMarker.attributeName,
+                                             atIndex:max(originalRange.location - 1,0),
+                                             effectiveRange: nil) != nil
+        let afterString = storage.attributedSubstringFromRange(afterRange).string
+
+        super.insertText(text)
+
+        // check if are doing two empy list items in a row
+        if text == "\n" {
+            if !(isBegginingOfListItem && afterString == "\n") {
+                refreshListsIfOnePrecedes(range: originalRange)
+            } else {
+                var lineMovedRange = afterRange
+                lineMovedRange.location += 1
+                removeList(aroundRange: lineMovedRange)
+            }
+        }
+    }
+
     public override func deleteBackward() {
         var originalDeletionRange = selectedRange
         originalDeletionRange.location = max(originalDeletionRange.location-1, 0)
@@ -104,7 +144,7 @@ public class TextView: UITextView {
             var newSelectionRange = selectedRange
             newSelectionRange.location = selectedRange.location - expandedRange.length
             selectedRange = newSelectionRange
-            refreshList(range:selectedRange)
+            refreshList(aroundRange:selectedRange)
         }
     }
 
@@ -456,7 +496,18 @@ public class TextView: UITextView {
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
     }
 
-    public func refreshList(range range: NSRange) {        
+    // MARK: - List Code
+
+    private func refreshListsIfOnePrecedes(range range:NSRange) {
+
+        if storage.attribute(TextListItem.attributeName,
+                             atIndex:max(range.location-1,0),
+                             effectiveRange: nil) != nil {
+            refreshList(aroundRange: range)
+        }
+    }
+
+    private func refreshList(aroundRange range: NSRange) {
         let formatter = TextListFormatter()
 
         markCurrentSelection()
@@ -465,6 +516,17 @@ public class TextView: UITextView {
 
         restoreMarkedSelection()
     }
+
+    private func removeList(aroundRange range: NSRange) {
+        let formatter = TextListFormatter()
+
+        markCurrentSelection()
+
+        formatter.removeList(inString: storage, atRange: range)
+
+        restoreMarkedSelection()
+    }
+
     /// Adds or removes a ordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.

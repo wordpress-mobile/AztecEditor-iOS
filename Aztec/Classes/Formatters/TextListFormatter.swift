@@ -66,6 +66,10 @@ class TextListFormatter
         let listParagraphs = string.paragraphRanges(spanningRange: listRange)
         return applyList(ofStyle: style, toString: string, atRanges: listParagraphs)
     }
+
+    func removeList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
+        return removeList(fromString: string, atRanges: [range])
+    }
 }
 
 

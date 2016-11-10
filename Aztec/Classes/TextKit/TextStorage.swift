@@ -157,11 +157,11 @@ public class TextStorage: NSTextStorage {
         // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
         //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
         //
-        let attrString = preprocessAttachments(forAttributedString: attrString)
-        
+        let processedString = NSMutableAttributedString(attributedString:preprocessAttachments(forAttributedString: attrString))
+
         beginEditing()
-        textStore.replaceCharactersInRange(range, withAttributedString: attrString)
-        
+
+        textStore.replaceCharactersInRange(range, withAttributedString: processedString)
         edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
 
         dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
