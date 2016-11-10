@@ -88,13 +88,13 @@ public class TextView: UITextView {
     public override func cut(sender: AnyObject?) {
         let originalRange = selectedRange
         super.cut(sender)
-        refreshListsIfOnePrecedes(range: originalRange)
+        refreshListsOnlyIfListExists(atRange: originalRange)
     }
 
     public override func paste(sender: AnyObject?) {
         let originalRange = selectedRange
         super.paste(sender)
-        refreshListsIfOnePrecedes(range: originalRange)
+        refreshListsOnlyIfListExists(atRange: originalRange)
     }
 
     // MARK: - Intersect keyboard operations
@@ -491,7 +491,7 @@ public class TextView: UITextView {
     private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
         // check if are doing two empy list items in a row
         if text != "\n" {
-            refreshListsIfOnePrecedes(range: range)
+            refreshListsOnlyIfListExists(atRange: range)
             return
         }
         var afterRange = range
@@ -510,7 +510,7 @@ public class TextView: UITextView {
         }
 
         if !(isBegginingOfListItem && afterString == "\n") {
-            refreshListsIfOnePrecedes(range: range)
+            refreshListsOnlyIfListExists(atRange: range)
         } else {
             var lineMovedRange = afterRange
             lineMovedRange.location += 1
@@ -523,7 +523,8 @@ public class TextView: UITextView {
     /// Refresh the list attributes in the specified range but only if a list is already present on the line
     ///
     /// - Parameter range: the range to where to update the list attributes
-    private func refreshListsIfOnePrecedes(range range:NSRange) {
+    ///
+    private func refreshListsOnlyIfListExists(atRange range:NSRange) {
 
         if storage.attribute(TextListItem.attributeName,
                              atIndex:max(range.location-1,0),
