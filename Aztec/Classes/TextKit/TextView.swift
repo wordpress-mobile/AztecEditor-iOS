@@ -101,25 +101,8 @@ public class TextView: UITextView {
 
     public override func insertText(text: String) {
         let originalRange = selectedRange
-        var afterRange = originalRange
-        afterRange.length = 1
-        let isBegginingOfListItem = storage.attribute(TextListItemMarker.attributeName,
-                                             atIndex:max(originalRange.location - 1,0),
-                                             effectiveRange: nil) != nil
-        let afterString = storage.attributedSubstringFromRange(afterRange).string
-
         super.insertText(text)
-
-        // check if are doing two empy list items in a row
-        if text == "\n" {
-            if !(isBegginingOfListItem && afterString == "\n") {
-                refreshListsIfOnePrecedes(range: originalRange)
-            } else {
-                var lineMovedRange = afterRange
-                lineMovedRange.location += 1
-                removeList(aroundRange: lineMovedRange)
-            }
-        }
+        refreshListIfNewLinesOn(text: text, range: originalRange)
     }
 
     public override func deleteBackward() {
@@ -494,10 +477,52 @@ public class TextView: UITextView {
         storage.removeAttribute(SelectionMarker.start.rawValue, range: selectionStartRange)
         storage.removeAttribute(SelectionMarker.end.rawValue, range: selectionEndRange)
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
+        self.delegate?.textViewDidChangeSelection?(self)
     }
 
     // MARK: - List Code
 
+
+    /// Refresh Lists attributes when insert new text in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
+        // check if are doing two empy list items in a row
+        if text != "\n" {
+            refreshListsIfOnePrecedes(range: range)
+            return
+        }
+        var afterRange = range
+        afterRange.length = 1
+        afterRange.location += 1
+        let afterString = storage.attributedSubstringFromRange(afterRange).string
+
+        var isBegginingOfListItem = false
+        var precedingListItemRange = NSRange.zero
+        if storage.length > 0 {
+
+            let positionToCheck = max(min(range.location - 1,storage.length - 1),0)
+            isBegginingOfListItem = storage.attribute(TextListItemMarker.attributeName,
+                                                      atIndex:positionToCheck,
+                                                      effectiveRange: &precedingListItemRange) != nil
+        }
+
+        if !(isBegginingOfListItem && afterString == "\n") {
+            refreshListsIfOnePrecedes(range: range)
+        } else {
+            var lineMovedRange = afterRange
+            lineMovedRange.location += 1
+            removeList(aroundRange: lineMovedRange)
+            removeList(aroundRange: precedingListItemRange)
+            deleteBackward()
+        }
+    }
+
+    /// Refresh the list attributes in the specified range but only if a list is already present on the line
+    ///
+    /// - Parameter range: the range to where to update the list attributes
     private func refreshListsIfOnePrecedes(range range:NSRange) {
 
         if storage.attribute(TextListItem.attributeName,
@@ -512,7 +537,7 @@ public class TextView: UITextView {
 
         markCurrentSelection()
 
-        formatter.refreshList(inString: storage, atRange: range)
+        formatter.updatesList(inString: storage, atRange: range)
 
         restoreMarkedSelection()
     }
