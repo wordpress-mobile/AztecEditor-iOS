@@ -337,14 +337,6 @@ extension Libxml2 {
         // MARK: - Links
         
         private func setLinkInDOM(range: NSRange, url: NSURL) {
-            /*
-            //REMOVE:
-            rootNode.wrapChildren(
-                intersectingRange: range,
-                inNodeNamed: StandardElementType.a.rawValue,
-                withAttributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                equivalentElementNames: StandardElementType.a.equivalentNames)
- */
             
             let elementDescriptor = ElementNodeDescriptor(name: StandardElementType.a.rawValue,
                                                           attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
@@ -455,17 +447,8 @@ extension Libxml2 {
         ///     - range: the range to apply the bold style to.
         ///
         private func applyElement(elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
-            /*
-             //REMOVE:
-             rootNode.wrapChildren(
-                intersectingRange: range,
-                inNodeNamed: elementName,
-                withAttributes: [],
-                equivalentElementNames: equivalentElementNames)
-            */
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
-            
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         

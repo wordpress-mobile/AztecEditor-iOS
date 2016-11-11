@@ -122,18 +122,15 @@ extension Libxml2 {
         /// the parent and child node references.
         ///
         /// - Parameters:
-        ///     - nodeName: the new node name.
-        ///     - attributes: the new node attributes.
+        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
         /// - Returns: the newly created element.
         ///
-        //REMOVE: func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
         func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.indexOf(self)
 
-            //REMOVE: let newNode = ElementNode(name: descriptor.name, attributes: descriptor.attributes, children: [self])
             let newNode = ElementNode(descriptor: elementDescriptor)
 
             if let parent = originalParent {
