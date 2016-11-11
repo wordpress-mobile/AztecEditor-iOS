@@ -16,6 +16,14 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     let defaultFontDescriptor: UIFontDescriptor
 
+    /// The current active list style
+    ///
+    var currentListStyle: TextList.Style?
+
+    /// The current active list number
+    ///
+    var currentListNumber: Int = 0
+
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
@@ -122,6 +130,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         for child in node.children {
             let childContent = convert(child, inheritingAttributes: childAttributes)
 
+            if childContent.length > 0 && node.name == StandardElementType.li.rawValue,
+               let listItemAttribute = childContent.attribute(TextListItem.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItem,
+               let currentStyle = currentListStyle {
+                var attributesForMarker = childAttributes
+                attributesForMarker[TextListItemMarker.attributeName] = TextListItemMarker()
+                attributesForMarker[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
+                let markerString = NSAttributedString(string:currentStyle.markerText(forItemNumber: listItemAttribute.number),
+                                                      attributes: attributesForMarker)
+                content.appendAttributedString(markerString)
+            }
+            
             content.appendAttributedString(childContent)
         }
 
@@ -232,6 +251,23 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             }
         }
 
+        if isNode(node, ofType: .ol) {
+            currentListNumber = 0
+            currentListStyle = .Ordered
+            attributes[TextList.attributeName] = TextList(style: .Ordered)
+        }
+
+        if isNode(node, ofType: .ul) {
+            currentListNumber = 0
+            currentListStyle = .Unordered
+            attributes[TextList.attributeName] = TextList(style: .Unordered)
+        }
+
+        if isNode(node, ofType: .li) {
+            attributes[TextListItem.attributeName] = TextListItem(number: currentListNumber)
+            currentListNumber += 1
+        }
+
         return attributes
     }
 
@@ -289,5 +325,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isBlockquote(node: ElementNode) -> Bool {
         return node.name == StandardElementType.blockquote.rawValue
+    }
+
+    private func isNode(node:ElementNode, ofType type:StandardElementType) -> Bool {
+        return type.equivalentNames.contains(node.name)
     }
 }
