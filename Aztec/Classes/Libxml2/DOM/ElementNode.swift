@@ -42,8 +42,8 @@ extension Libxml2 {
             }
         }
         
-        convenience init(descriptor: ElementNodeDescriptor) {
-            self.init(name: descriptor.name, attributes: [], children: [])
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
+            self.init(name: descriptor.name, attributes: [], children: children)
         }
 
         override func customMirror() -> Mirror {
@@ -1537,9 +1537,7 @@ extension Libxml2 {
                 return result
             } else {
                 //REMOVE: let newNode = ElementNode(name: nodeName, attributes: attributes, children: childrenToWrap)
-                let newNode = ElementNode(descriptor: elementDescriptor)
-                
-                newNode.children = childrenToWrap
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap)
                 
                 children.insert(newNode, atIndex: firstNodeIndex)
                 newNode.parent = self

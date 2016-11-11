@@ -13,7 +13,7 @@ extension Libxml2 {
         let attributes: [Attribute]
         let matchingNames: [String]
         
-        init(name: String, attributes: [Attribute], matchingNames: [String] = []) {
+        init(name: String, attributes: [Attribute] = [], matchingNames: [String] = []) {
             self.name = name
             self.attributes = attributes
             self.matchingNames = matchingNames
