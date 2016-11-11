@@ -122,7 +122,7 @@ extension Libxml2 {
         /// the parent and child node references.
         ///
         /// - Parameters:
-        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
+        ///     - elementDescriptor: the descriptor for the element to wrap the receiver in.
         ///
         /// - Returns: the newly created element.
         ///
