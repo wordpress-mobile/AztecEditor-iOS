@@ -22,7 +22,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     /// The current active list number
     ///
-    var currentListNumber: Int = 0
+    var currentListNumber: Int = 1
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
@@ -252,13 +252,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isNode(node, ofType: .ol) {
-            currentListNumber = 0
+            currentListNumber = 1
             currentListStyle = .Ordered
             attributes[TextList.attributeName] = TextList(style: .Ordered)
         }
 
         if isNode(node, ofType: .ul) {
-            currentListNumber = 0
+            currentListNumber = 1
             currentListStyle = .Unordered
             attributes[TextList.attributeName] = TextList(style: .Unordered)
         }
