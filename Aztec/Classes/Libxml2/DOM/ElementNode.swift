@@ -1333,11 +1333,8 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - targetRange: the range that must be wrapped.
-        ///     - nodeName: the name of the node to wrap the range in.
-        ///     - attributes: the attributes the wrapping node will have when created.
-        ///     - equivalentElementNames: equivalent node names to check for collisions.
+        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        //func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
         func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             
             // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
