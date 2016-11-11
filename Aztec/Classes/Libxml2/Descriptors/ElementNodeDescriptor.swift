@@ -18,6 +18,10 @@ extension Libxml2 {
             self.attributes = attributes
             self.matchingNames = matchingNames
         }
+
+        convenience init(elementType: StandardElementType, attributes: [Attribute] = [], matchingNames: [String] = []) {
+            self.init(name: elementType.rawValue, attributes: attributes, matchingNames: matchingNames)
+        }
         
         func isBlockLevel() -> Bool {
             return StandardElementType.isBlockLevelNodeName(name)

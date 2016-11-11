@@ -658,7 +658,8 @@ class ElementNodeTests: XCTestCase {
         
         let wrapRange = NSRange(location: 0, length: text1.characters.count)
         
-        paragraph.forceWrap(range: wrapRange, inElement: ElementNodeDescriptor(name: "b"))
+        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
+        paragraph.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
         
         XCTAssertEqual(paragraph.children.count, 2)
         
@@ -692,7 +693,8 @@ class ElementNodeTests: XCTestCase {
         
         let wrapRange = NSRange(location: 0, length: fullText.characters.count)
         
-        paragraph.forceWrap(range: wrapRange, inElement: ElementNodeDescriptor(name: "b"))
+        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
+        paragraph.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
         
         XCTAssertEqual(paragraph.children.count, 1)
         
@@ -721,8 +723,9 @@ class ElementNodeTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode, textNode2])
 
         let wrapRange = NSRange(location: text1.characters.count, length: text2.characters.count)
-
-        paragraph.forceWrap(range: wrapRange, inElement: ElementNodeDescriptor(name: "b"))
+        
+        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
+        paragraph.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
 
         XCTAssertEqual(paragraph.children.count, 1)
 
@@ -888,7 +891,8 @@ class ElementNodeTests: XCTestCase {
         
         let range = NSRange(location: 0, length: 11)
         
-        divNode.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(name: "b"))
+        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
+        divNode.wrapChildren(intersectingRange: range, inElement: boldElementDescriptor)
         
         XCTAssertEqual(divNode.children.count, 1)
         
