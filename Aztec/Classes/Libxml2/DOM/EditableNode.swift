@@ -20,8 +20,6 @@ protocol EditableNode {
     ///     - location: the text location to split the node at.
     ///
     func split(atLocation location: Int)
-    func split(forRange range: NSRange)
-    //func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Libxml2.Attribute], equivalentElementNames: [String])
-    
+    func split(forRange range: NSRange)    
     func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor)
 }
