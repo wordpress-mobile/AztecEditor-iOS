@@ -7,7 +7,7 @@ extension Libxml2 {
     /// - Searching for a matching element node, or
     /// - Creating it.
     ///
-    class ElementNodeDescriptor {
+    class ElementNodeDescriptor: CustomReflectable {
         
         let name: String
         let attributes: [Attribute]
@@ -22,6 +22,14 @@ extension Libxml2 {
         convenience init(elementType: StandardElementType, attributes: [Attribute] = [], matchingNames: [String] = []) {
             self.init(name: elementType.rawValue, attributes: attributes, matchingNames: matchingNames)
         }
+        
+        // MARK: - CustomReflectable
+        
+        func customMirror() -> Mirror {
+            return Mirror(self, children: ["name": name, "attributes": attributes, "matchingNames": matchingNames])
+        }
+        
+        // MARK: - Introspection
         
         func isBlockLevel() -> Bool {
             return StandardElementType.isBlockLevelNodeName(name)

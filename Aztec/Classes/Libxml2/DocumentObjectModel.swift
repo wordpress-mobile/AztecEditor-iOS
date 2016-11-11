@@ -329,9 +329,10 @@ extension Libxml2 {
         
         private func setImageURLStringInDOM(imageURLString: String, forRange range: NSRange) {
             
-            rootNode.replaceCharacters(inRange: range,
-                                       withNodeNamed: StandardElementType.img.rawValue,
-                                       withAttributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
+                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+            
+            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
         
         // MARK: - Links

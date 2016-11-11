@@ -43,7 +43,7 @@ extension Libxml2 {
         }
         
         convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
-            self.init(name: descriptor.name, attributes: [], children: children)
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
         }
 
         override func customMirror() -> Mirror {
@@ -1123,25 +1123,31 @@ extension Libxml2 {
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
         ///
-        /// - parameter targetRange: the range to replace
-        /// - parameter nodeName:    the name of the new node to create
-        /// - parameter attributes:  the attributes for the new node.
-        func replaceCharacters(inRange targetRange: NSRange, withNodeNamed nodeName: String, withAttributes attributes:[Attribute]) {
+        /// - parameter targetRange:        The range to replace
+        /// - parameter elementDescriptor:  The descriptor for the element to replace the text with.
+        ///
+        func replaceCharacters(inRange targetRange: NSRange, withElement elementDescriptor: ElementNodeDescriptor) {
+            
             guard let textNode = lowestTextNodeWrapping(targetRange) else {
                 return
             }
+            
             let absoluteLocation = textNode.absoluteLocation()
-            let localRange = NSRange(location:targetRange.location - absoluteLocation, length: targetRange.length)
+            let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
             textNode.split(forRange: localRange)
-            let imgNode = ElementNode(name: nodeName, attributes: attributes, children: [])
+            
+            let imgNode = ElementNode(descriptor: elementDescriptor)
+            
             guard let index = textNode.parent?.children.indexOf(textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
                 return
             }
+            
             guard let textNodeParent = textNode.parent else {
                 return
             }
-            textNodeParent.insert(imgNode, at:index)
+            
+            textNodeParent.insert(imgNode, at: index)
             textNodeParent.remove(textNode)
         }
 
