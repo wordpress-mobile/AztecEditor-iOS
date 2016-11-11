@@ -339,9 +339,8 @@ extension Libxml2 {
         
         private func setLinkInDOM(range: NSRange, url: NSURL) {
             
-            let elementDescriptor = ElementNodeDescriptor(name: StandardElementType.a.rawValue,
-                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)],
-                                                          matchingNames: StandardElementType.a.equivalentNames)
+            let elementDescriptor = ElementNodeDescriptor(elementType: .a,
+                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)])
             
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
@@ -398,10 +397,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         private func applyBold(spanning range: NSRange) {
-            applyElement(
-                StandardElementType.b.rawValue,
-                spanning: range,
-                equivalentElementNames: StandardElementType.b.equivalentNames)
+            applyElement(.b, spanning: range)
         }
         
         /// Applies italic to the specified range.
@@ -410,10 +406,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         private func applyItalic(spanning range: NSRange) {
-            applyElement(
-                StandardElementType.i.rawValue,
-                spanning: range,
-                equivalentElementNames: StandardElementType.i.equivalentNames)
+            applyElement(.i, spanning: range)
         }
         
         /// Applies strikethrough to the specified range.
@@ -422,10 +415,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         private func applyStrikethrough(spanning range: NSRange) {
-            applyElement(
-                StandardElementType.s.rawValue,
-                spanning: range,
-                equivalentElementNames:  StandardElementType.s.equivalentNames)
+            applyElement(.s, spanning: range)
         }
         
         /// Applies underline to the specified range.
@@ -434,18 +424,32 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         private func applyUnderline(spanning range: NSRange) {
-            applyElement(
-                StandardElementType.u.rawValue,
-                spanning: range,
-                equivalentElementNames:  StandardElementType.u.equivalentNames)
+            applyElement(.u, spanning: range)
         }
         
         // MARK: - Styles to HTML elements
         
-        /// Applies an HTML element to the specified range.
+        /// Applies a standard HTML element to the specified range.
+        ///
+        /// Whenever applying a standard element type, use this method.
         ///
         /// - Parameters:
+        ///     - elementType: the standard element type to apply.
         ///     - range: the range to apply the bold style to.
+        ///
+        private func applyElement(elementType: StandardElementType, spanning range: NSRange) {
+            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames)
+        }
+        
+        /// Applies an HTML element to the specified range.
+        ///
+        /// Use this method directly only when applying custom element types (non standard).
+        ///
+        /// - Parameters:
+        ///     - elementName: the element name to apply
+        ///     - range: the range to apply the bold style to.
+        ///     - equivalentElementNames: equivalent element names to look for before applying
+        ///             the specified one.
         ///
         private func applyElement(elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
             

@@ -19,8 +19,8 @@ extension Libxml2 {
             self.matchingNames = matchingNames
         }
 
-        convenience init(elementType: StandardElementType, attributes: [Attribute] = [], matchingNames: [String] = []) {
-            self.init(name: elementType.rawValue, attributes: attributes, matchingNames: matchingNames)
+        convenience init(elementType: StandardElementType, attributes: [Attribute] = []) {
+            self.init(name: elementType.rawValue, attributes: attributes, matchingNames: elementType.equivalentNames)
         }
         
         // MARK: - CustomReflectable

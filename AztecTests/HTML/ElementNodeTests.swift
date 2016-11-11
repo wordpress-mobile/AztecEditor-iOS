@@ -7,6 +7,7 @@ class ElementNodeTests: XCTestCase {
     typealias ElementNode = Libxml2.ElementNode
     typealias ElementNodeDescriptor = Libxml2.ElementNodeDescriptor
     typealias RootNode = Libxml2.RootNode
+    typealias StandardElementType = Libxml2.StandardElementType
     typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
 
@@ -748,7 +749,7 @@ class ElementNodeTests: XCTestCase {
     ///
     func testWrapChildrenInNewBNode1() {
 
-        let boldNodeName = "b"
+        let boldElementType = StandardElementType.b
         let range = NSRange(location: 0, length: 6)
 
         let textPart1 = "Hello "
@@ -760,13 +761,13 @@ class ElementNodeTests: XCTestCase {
         let em = ElementNode(name: "em", attributes: [], children: [textNode1])
         let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
 
-        div.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(name: boldNodeName))
+        div.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(elementType: boldElementType))
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
         
         guard let newBoldNode = div.children[0] as? ElementNode
-            where newBoldNode.name == "b" else {
+            where newBoldNode.name == boldElementType.rawValue else {
                 XCTFail("Expected a bold node here.")
                 return
         }
@@ -1410,10 +1411,13 @@ class ElementNodeTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText])
 
         let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
-        let imgNodeName = "img"
         let imgSrc = "https://httpbin.org/image/jpeg"
 
-        paragraph.replaceCharacters(inRange: range, withNodeNamed: imgNodeName, withAttributes:[Libxml2.StringAttribute(name:"src", value: imgSrc)])
+        let elementType = StandardElementType.img
+        let imgNodeName = elementType.rawValue
+        let elementDescriptor = ElementNodeDescriptor(elementType: elementType, attributes: [Libxml2.StringAttribute(name:"src", value: imgSrc)])
+        
+        paragraph.replaceCharacters(inRange: range, withElement: elementDescriptor)
 
         XCTAssertEqual(paragraph.children.count, 3)
 
