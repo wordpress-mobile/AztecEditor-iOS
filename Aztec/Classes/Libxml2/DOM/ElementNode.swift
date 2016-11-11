@@ -26,7 +26,7 @@ extension Libxml2 {
             }
         }
 
-        init(name: String, attributes: [Attribute], text: String? = nil, children: [Node]) {
+        init(name: String, attributes: [Attribute], children: [Node]) {
             self.attributes.appendContentsOf(attributes)
             self.children = children
 
@@ -40,6 +40,10 @@ extension Libxml2 {
 
                 child.parent = self
             }
+        }
+        
+        convenience init(descriptor: ElementNodeDescriptor) {
+            self.init(name: descriptor.name, attributes: [], children: [])
         }
 
         override func customMirror() -> Mirror {
@@ -911,7 +915,11 @@ extension Libxml2 {
                     let lastSwap = parent == self
                     
                     if let element = node as? ElementNode {
-                        element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                        //REMOVE: element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                        
+                        let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
+
+                        element.wrap(children: element.children, inElement: parentDescriptor)
                     }
                     
                     guard let parentIndex = grandParent.children.indexOf(parent) else {
@@ -982,7 +990,11 @@ extension Libxml2 {
                     let lastSwap = parent == self
                     
                     if let element = node as? ElementNode {
-                        element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                        //REMOVE: element.wrap(children: element.children, inNodeNamed: parent.name, withAttributes: parent.attributes, equivalentElementNames: [])
+                        
+                        let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
+                        
+                        element.wrap(children: element.children, inElement: parentDescriptor)
                     }
                     
                     guard let parentIndex = grandParent.children.indexOf(parent) else {
@@ -1211,9 +1223,10 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        //REMOVE: func wrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
 
-            let mustFindLowestBlockLevelElements = !StandardElementType.isBlockLevelNodeName(nodeName)
+            let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 
             if mustFindLowestBlockLevelElements {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
@@ -1222,15 +1235,21 @@ extension Libxml2 {
 
                     let element = elementAndIntersection.element
                     let intersection = elementAndIntersection.intersection
-
+                    
+                    /*
+                     //REMOVE:
                     element.forceWrapChildren(
                         intersectingRange: intersection,
                         inNodeNamed: nodeName,
                         withAttributes: attributes,
                         equivalentElementNames: equivalentElementNames)
+                    */
+                    
+                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
-                forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+                //REMOVE: forceWrap(range: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+                forceWrap(range: targetRange, inElement: elementDescriptor)
             }
         }
 
@@ -1262,17 +1281,21 @@ extension Libxml2 {
                 let myLength = length()
                 assert(range.location >= 0 && rangeEndLocation <= myLength,
                        "The specified range is out of bounds.")
+                
+                let elementDescriptor = ElementNodeDescriptor(name: name, attributes: attributes)
 
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
 
-                    wrap(range: preRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
+                    //REMOVE: wrap(range: preRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
+                    wrap(range: preRange, inElement: elementDescriptor)
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
 
-                    wrap(range: postRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
+                    //REMOVE: wrap(range: postRange, inNodeNamed: name, withAttributes: attributes, equivalentElementNames: [])
+                    wrap(range: postRange, inElement: elementDescriptor)
                 }
 
                 unwrapChildren()
@@ -1334,34 +1357,42 @@ extension Libxml2 {
         ///     - attributes: the attributes the wrapping node will have when created.
         ///     - equivalentElementNames: equivalent node names to check for collisions.
         ///
-        func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        //func wrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             
             // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
             // removed.
             //
-            var elementNamesToRemove = equivalentElementNames
+            var elementNamesToRemove = elementDescriptor.matchingNames
             
-            if !equivalentElementNames.contains(nodeName) {
-                elementNamesToRemove.append(nodeName)
+            if !elementNamesToRemove.contains(elementDescriptor.name) {
+                elementNamesToRemove.append(elementDescriptor.name)
             }
             
             unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
-            let mustFindLowestBlockLevelElements = !StandardElementType.isBlockLevelNodeName(nodeName)
+            let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel() //REMOVE: !StandardElementType.isBlockLevelNodeName(nodeName)
 
             if mustFindLowestBlockLevelElements {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
 
                 for (element, intersection) in elementsAndIntersections {
 
+                    /*
+                     //REMOVE:
                     element.forceWrapChildren(
                         intersectingRange: intersection,
                         inNodeNamed: nodeName,
                         withAttributes: attributes,
                         equivalentElementNames: equivalentElementNames)
+                    */
+                    
+                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
-                forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+                //forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+                
+                forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
             }
         }
 
@@ -1377,22 +1408,26 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        //func forceWrap(range targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             
             if NSEqualRanges(targetRange, range()) {
                 
                 let receiverIsBlockLevel = isBlockLevelElement()
-                let newNodeIsBlockLevel = StandardElementType(rawValue: nodeName)?.isBlockLevelNodeName() ?? false
+                let newNodeIsBlockLevel = elementDescriptor.isBlockLevel() //REMOVE: StandardElementType(rawValue: nodeName)?.isBlockLevelNodeName() ?? false
                 
                 let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
                 
                 if canWrapReceiverInNewNode {
-                    wrap(inNodeNamed: nodeName, withAttributes: attributes)
+                    //REMOVE: wrap(inNodeNamed: nodeName, withAttributes: attributes)
+                    wrap(inElement: elementDescriptor)
                     return
                 }
             }
 
-            forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+            //REMOVE: forceWrapChildren(intersectingRange: targetRange, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+            
+            forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
         }
 
         /// Force wraps child nodes intersecting the specified range inside new elements with the
@@ -1407,7 +1442,8 @@ extension Libxml2 {
         ///     - nodeName: the name of the node to wrap the range in.
         ///     - attributes: the attributes the wrapping node will have when created.
         ///
-        private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        //REMOVE: private func forceWrapChildren(intersectingRange targetRange: NSRange, inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) {
+        private func forceWrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
                 
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
             assert(childNodesAndRanges.count > 0)
@@ -1432,7 +1468,8 @@ extension Libxml2 {
                 return child
             })
             
-            wrap(children: children, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+            //REMOVE: wrap(children: children, inNodeNamed: nodeName, withAttributes: attributes, equivalentElementNames: equivalentElementNames)
+            wrap(children: children, inElement: elementDescriptor)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -1445,11 +1482,12 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created `ElementNode`.
         ///
-        func wrap(children newChildren: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) -> ElementNode {
+        //REMOVE: func wrap(children newChildren: [Node], inNodeNamed nodeName: String, withAttributes attributes: [Attribute], equivalentElementNames: [String]) -> ElementNode {
+        func wrap(children newChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             guard newChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(name: nodeName, attributes: attributes, children: [])
+                return ElementNode(descriptor: elementDescriptor)
             }
 
             guard let firstNodeIndex = children.indexOf(newChildren[0]) else {
@@ -1461,7 +1499,7 @@ extension Libxml2 {
             }
             
             let evaluation = { (node: ElementNode) -> Bool in
-                return node.name == nodeName
+                return node.name == elementDescriptor.name
             }
             
             let bailEvaluation = { (node: ElementNode) -> Bool in
@@ -1498,7 +1536,10 @@ extension Libxml2 {
             if let result = result {
                 return result
             } else {
-                let newNode = ElementNode(name: nodeName, attributes: attributes, children: childrenToWrap)
+                //REMOVE: let newNode = ElementNode(name: nodeName, attributes: attributes, children: childrenToWrap)
+                let newNode = ElementNode(descriptor: elementDescriptor)
+                
+                newNode.children = childrenToWrap
                 
                 children.insert(newNode, atIndex: firstNodeIndex)
                 newNode.parent = self

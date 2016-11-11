@@ -127,12 +127,14 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created element.
         ///
-        func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
+        //REMOVE: func wrap(inNodeNamed nodeName: String, withAttributes attributes: [Attribute] = []) -> ElementNode {
+        func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.indexOf(self)
 
-            let newNode = ElementNode(name: nodeName, attributes: attributes, children: [self])
+            //REMOVE: let newNode = ElementNode(name: descriptor.name, attributes: descriptor.attributes, children: [self])
+            let newNode = ElementNode(descriptor: elementDescriptor)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
