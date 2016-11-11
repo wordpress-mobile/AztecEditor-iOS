@@ -1386,7 +1386,7 @@ extension Libxml2 {
                     return
                 }
             }
-            
+
             forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
         }
 
