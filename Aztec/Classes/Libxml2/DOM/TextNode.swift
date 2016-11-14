@@ -25,11 +25,11 @@ extension Libxml2 {
 
         // MARK: - EditableNode
         
-        func append(string: String) {
+        func append(string: String, undoManager: NSUndoManager? = nil) {
             contents.appendContentsOf(string)
         }
 
-        func deleteCharacters(inRange range: NSRange) {
+        func deleteCharacters(inRange range: NSRange, undoManager: NSUndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -38,11 +38,11 @@ extension Libxml2 {
             contents.removeRange(textRange)
         }
         
-        func prepend(string: String) {
+        func prepend(string: String, undoManager: NSUndoManager? = nil) {
             contents = "\(string)\(contents)"
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: NSUndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -51,7 +51,7 @@ extension Libxml2 {
             contents.replaceRange(textRange, with: string)
         }
 
-        func split(atLocation location: Int) {
+        func split(atLocation location: Int, undoManager: NSUndoManager? = nil) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -81,7 +81,7 @@ extension Libxml2 {
             }
         }
         
-        func split(forRange range: NSRange) {
+        func split(forRange range: NSRange, undoManager: NSUndoManager? = nil) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -118,15 +118,15 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: NSUndoManager? = nil) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
-                wrap(inElement: elementDescriptor)
+                wrap(inElement: elementDescriptor, undoManager: undoManager)
                 return
             }
 
-            split(forRange: targetRange)
-            wrap(inElement: elementDescriptor)
+            split(forRange: targetRange, undoManager: undoManager)
+            wrap(inElement: elementDescriptor, undoManager: undoManager)
         }
         
         // MARK: - LeadNode

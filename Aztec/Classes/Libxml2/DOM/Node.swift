@@ -126,7 +126,7 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created element.
         ///
-        func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
+        func wrap(inElement elementDescriptor: ElementNodeDescriptor, undoManager: NSUndoManager? = nil) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.indexOf(self)

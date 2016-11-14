@@ -13,9 +13,17 @@ extension Libxml2 {
             return RootNode(children: [TextNode(text: "")])
         }()
         
+        private let undoManager: NSUndoManager
+        
         /// The queue that will be used for all DOM interaction operations.
         ///
         let domQueue = dispatch_queue_create("com.wordpress.domQueue", DISPATCH_QUEUE_SERIAL)
+        
+        // MARK: - Initializing
+        
+        init(undoManager: NSUndoManager) {
+            self.undoManager = undoManager
+        }
         
         // MARK: - Settings & Getting HTML
         
@@ -78,21 +86,13 @@ extension Libxml2 {
         ///
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
             dispatch_async(domQueue) { [weak self] in
-                self?.rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle)
+                self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
             }
         }
         
         func replaceCharacters(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
             dispatch_async(domQueue) { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
-                
-                strongSelf.rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle)
-                
-                // remove all styles for the specified range here!
-                
-                strongSelf.applyStyles(from: attributedString, to: range.location)
+                self?.replaceCharactersSynchronously(inRange: range, withAttributedString: attributedString, inheritStyle: inheritStyle)
             }
         }
         
@@ -104,6 +104,30 @@ extension Libxml2 {
                 
                 strongSelf.applyStyles(from: attrs, to: range)
             }
+        }
+        
+        // MARK: - Editing: Synchronously
+        
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - string: the new string to replace the original text with.
+        ///     - inheritStyle: If `true` the new string will inherit the style information from the
+        ///             first position in the specified range.  If `false`, the new sting will have
+        ///             no associated style.
+        ///
+        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
+        }
+        
+        func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
+                
+            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: undoManager)
+            
+            // remove all styles for the specified range here!
+            
+            applyStyles(from: attributedString, to: range.location)
         }
         
         // MARK: - Styles: Synchronization with DOM
@@ -342,10 +366,10 @@ extension Libxml2 {
             let elementDescriptor = ElementNodeDescriptor(elementType: .a,
                                                           attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)])
             
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
         }
         
-        // MARK: Font Styles
+        // MARK: Remove Styles
         
         /// Disables bold from the specified range.
         ///
@@ -353,8 +377,8 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         private func removeBold(spanning range: NSRange) {
-            dispatch_async(domQueue) {
-                self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
+            dispatch_async(domQueue) { [weak self] in
+                self?.removeBoldSynchronously(spanning: range)
             }
         }
         
@@ -364,8 +388,8 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         private func removeItalic(spanning range: NSRange) {
-            dispatch_async(domQueue) {
-                self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
+            dispatch_async(domQueue) { [weak self] in
+                self?.removeItalicSynchronously(spanning: range)
             }
         }
         
@@ -375,8 +399,8 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         private func removeStrikethrough(spanning range: NSRange) {
-            dispatch_async(domQueue) {
-                self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
+            dispatch_async(domQueue) { [weak self] in
+                self?.removeStrikethroughSynchronously(spanning: range)
             }
         }
         
@@ -386,10 +410,30 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         private func removeUnderline(spanning range: NSRange) {
-            dispatch_async(domQueue) {
-                self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
+            dispatch_async(domQueue) { [weak self] in
+                self?.removeUnderlineSynchronously(spanning: range)
             }
         }
+        
+        // MARK: - Remove Styles: Syncrhonous variants
+        
+        private func removeBoldSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames, undoManager: undoManager)
+        }
+        
+        private func removeItalicSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames, undoManager: undoManager)
+        }
+        
+        private func removeStrikethroughSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames, undoManager: undoManager)
+        }
+        
+        private func removeUnderlineSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames, undoManager: undoManager)
+        }
+        
+        // Apply Styles
         
         /// Applies bold to the specified range.
         ///
@@ -454,27 +498,36 @@ extension Libxml2 {
         private func applyElement(elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
         }
         
         // MARK: - Candidates for removal
         
-        func removeLink(inRange range: NSRange){
+        func removeLink(inRange range: NSRange) {
             dispatch_async(domQueue) { [weak self] in
-                self?.rootNode.unwrap(range: range, fromElementsNamed: ["a"])
+                self?.removeLinkSynchronously(inRange: range)
             }
         }
         
+        private func removeLinkSynchronously(inRange range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: ["a"], undoManager: undoManager)
+        }
+        
         func updateImage(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
-            dispatch_async(domQueue) {
-                for range in ranges {
-                    let element = self.rootNode.lowestElementNodeWrapping(range)
-                    if element.name == "img" {
-                        let classAttributes = alignment.htmlString() + " " + size.htmlString()
-                        element.updateAttribute(named: "class", value: classAttributes)
-                        if let sourceURLString = url.absoluteString where element.name == "img" {
-                            element.updateAttribute(named: "src", value: sourceURLString)
-                        }
+            dispatch_async(domQueue) { [weak self] in
+                self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
+            }
+        }
+        
+        private func updateImageSynchronously(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
+            
+            for range in ranges {
+                let element = self.rootNode.lowestElementNodeWrapping(range)
+                if element.name == "img" {
+                    let classAttributes = alignment.htmlString() + " " + size.htmlString()
+                    element.updateAttribute(named: "class", value: classAttributes, undoManager: undoManager)
+                    if let sourceURLString = url.absoluteString where element.name == "img" {
+                        element.updateAttribute(named: "src", value: sourceURLString, undoManager: undoManager)
                     }
                 }
             }
