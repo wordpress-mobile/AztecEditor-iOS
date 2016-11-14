@@ -170,7 +170,6 @@ public class TextStorage: NSTextStorage {
     }
     
     override public func removeAttribute(name: String, range: NSRange) {
-        // dom.removeAttribute(name, range: range)
         super.removeAttribute(name, range: range)
     }
 
