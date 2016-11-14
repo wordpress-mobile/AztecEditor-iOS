@@ -13,16 +13,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias StandardElementType = Libxml2.StandardElementType
 
     /// The default font descriptor that will be used as a base for conversions.
-    ///
+    /// 
     let defaultFontDescriptor: UIFontDescriptor
 
     /// The current active list style
     ///
-    var currentListStyle: TextList.Style?
 
-    /// The current active list number
-    ///
-    var currentListNumber: Int = 1
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
@@ -127,21 +123,37 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
-        for child in node.children {
-            let childContent = convert(child, inheritingAttributes: childAttributes)
+        let isCurrentNodeAList = (node.name == StandardElementType.ol.rawValue || node.name == StandardElementType.ul.rawValue)
 
-            if childContent.length > 0 && node.name == StandardElementType.li.rawValue,
+        for child in node.children {
+            var attributesToUse = childAttributes
+
+            let isChildNodeAListItem = (child.name == StandardElementType.li.rawValue)
+            if currentListStyle != nil && isCurrentNodeAList && !isChildNodeAListItem {
+                attributesToUse = inheritedAttributes
+            }
+
+            let childContent = NSMutableAttributedString(attributedString:convert(child, inheritingAttributes: attributesToUse))
+
+            if isChildNodeAListItem,
                let listItemAttribute = childContent.attribute(TextListItem.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItem,
-               let currentStyle = currentListStyle {
-                var attributesForMarker = childAttributes
+               let currentStyle = currentListStyle
+            {
+                var attributesForMarker = attributesToUse
                 attributesForMarker[TextListItemMarker.attributeName] = TextListItemMarker()
                 attributesForMarker[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
                 let markerString = NSAttributedString(string:currentStyle.markerText(forItemNumber: listItemAttribute.number),
                                                       attributes: attributesForMarker)
-                content.appendAttributedString(markerString)
+                childContent.insertAttributedString(markerString, atIndex: 0)
+                let newLineString = NSAttributedString(string: "\n", attributes: attributesToUse)
+                childContent.appendAttributedString(newLineString)
             }
-            
+
             content.appendAttributedString(childContent)
+        }
+        if currentListStyle != nil &&
+           (node.name == StandardElementType.ol.rawValue || node.name == StandardElementType.ul.rawValue) {
+            currentListStyle = nil
         }
 
         return content
@@ -264,8 +276,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isNode(node, ofType: .li) {
-            attributes[TextListItem.attributeName] = TextListItem(number: currentListNumber)
-            currentListNumber += 1
+            if let listStyle = currentListStyle {
+                attributes[TextListItem.attributeName] = TextListItem(number: currentListNumber)
+                currentListNumber += 1
+            }
         }
 
         return attributes
