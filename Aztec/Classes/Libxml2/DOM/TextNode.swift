@@ -100,14 +100,14 @@ extension Libxml2 {
                 let newNode = TextNode(text: contents.substringWithRange(postRange))
 
                 contents.removeRange(postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, undoManager: undoManager)
             }
 
             if preRange.count > 0 {
                 let newNode = TextNode(text: contents.substringWithRange(preRange))
 
                 contents.removeRange(preRange)
-                parent.insert(newNode, at: nodeIndex)
+                parent.insert(newNode, at: nodeIndex, undoManager: undoManager)
             }
         }
 
