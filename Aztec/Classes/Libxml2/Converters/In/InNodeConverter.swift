@@ -110,7 +110,7 @@ extension Libxml2.In {
         ///
         private func createTextNode(rawNode: xmlNode) -> TextNode {
             let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let cleanText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            let cleanText = text.stringByTrimmingCharactersInSet(NSCharacterSet.newlineCharacterSet())
             let node = TextNode(text: cleanText)
 
             return node
