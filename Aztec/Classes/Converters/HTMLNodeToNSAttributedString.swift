@@ -131,28 +131,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let resultString = NSMutableAttributedString(attributedString: childContent)
         switch nodeType {
         case .img:
-            let url: NSURL?
-
-            if let urlString = node.valueForStringAttribute(named: "src") {
-                url = NSURL(string: urlString)
-            } else {
-                url = nil
-            }
-
-            let attachment = TextAttachment(url: url)
-
-            if let elementClass = node.valueForStringAttribute(named: "class") {
-                let classAttributes = elementClass.componentsSeparatedByString(" ")
-                for classAttribute in classAttributes {
-                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
-                        attachment.alignment = alignment
-                    }
-                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
-                        attachment.size = size
-                    }
-                }
-            }
-            return NSAttributedString(attachment: attachment)
+            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
         case .br:
             return NSAttributedString(string: "\n", attributes: attributes)
         case .p:
@@ -216,12 +195,36 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
 
-
         if isBlockquote(node) {
             let formatter = BlockquoteFormatter()
             for (key, value) in formatter.attributes {
                 attributes[key] = value
             }
+        }
+
+        if isImage(node) {
+            let url: NSURL?
+
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                url = NSURL(string: urlString)
+            } else {
+                url = nil
+            }
+
+            let attachment = TextAttachment(url: url)
+
+            if let elementClass = node.valueForStringAttribute(named: "class") {
+                let classAttributes = elementClass.componentsSeparatedByString(" ")
+                for classAttribute in classAttributes {
+                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attachment.alignment = alignment
+                    }
+                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                        attachment.size = size
+                    }
+                }
+            }
+            attributes[NSAttachmentAttributeName] = attachment
         }
 
         return attributes
@@ -281,5 +284,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isBlockquote(node: ElementNode) -> Bool {
         return node.name == StandardElementType.blockquote.rawValue
+    }
+
+    private func isImage(node: ElementNode) -> Bool {
+        return node.name == StandardElementType.img.rawValue
     }
 }
