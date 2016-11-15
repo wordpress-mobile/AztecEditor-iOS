@@ -61,19 +61,6 @@ extension Libxml2 {
             return self.dynamicType.blockLevelNodeNames.contains(self)
         }
 
-        /// Some nodes have a default representation that needs to be taken in account when checking the length
-        ///
-        func defaultVisualRepresentation() -> String? {
-            switch self {
-            case .img:
-                return String(UnicodeScalar(NSAttachmentCharacter))
-            case .br:
-                return String("\n")
-            default:
-                return nil
-            }
-        }
-
         var equivalentNames: [String] {
             get {
                 switch self {

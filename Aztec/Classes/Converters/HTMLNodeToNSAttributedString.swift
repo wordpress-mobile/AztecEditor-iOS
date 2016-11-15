@@ -93,12 +93,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convertElementNode(node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
-
-        if node.children.count == 0 {
-            return stringForEmptyNode(node)
-        } else {
-            return stringForNode(node, inheritingAttributes: attributes)
-        }
+        return stringForNode(node, inheritingAttributes: attributes)
     }
 
     // MARK: - Node Styling
@@ -114,7 +109,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     ///
     private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
-        assert(node.children.count > 0)
 
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
@@ -125,38 +119,29 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             content.appendAttributedString(childContent)
         }
 
-        return content
+        return implicitRepresentation(forNode: node, childContent: content, attributes:childAttributes)
     }
 
-    /// Returns an attributed string representing the specified empty node.  Empty means the
-    /// received node has no children.
-    ///
-    /// - Parameters:
-    ///     - elementNode: the element node to generate a representation string of.
-    ///     - attributes: inherited attributes
-    ///
-    /// - Returns: the attributed string representing the specified element node.
-    ///
-    private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
-        assert(elementNode.children.count == 0)
+    private func implicitRepresentation(forNode node: ElementNode, childContent: NSAttributedString, attributes:[String:AnyObject]) -> NSAttributedString {
 
-        let elementName = elementNode.name.lowercaseString
+        guard let nodeType = StandardElementType(rawValue:node.name.lowercaseString) else {
+            return childContent
+        }
 
-        if elementName == "br" {
-            return NSAttributedString(string: "\n")
-        } else if elementName == "img" {
-
+        let resultString = NSMutableAttributedString(attributedString: childContent)
+        switch nodeType {
+        case .img:
             let url: NSURL?
 
-            if let urlString = elementNode.valueForStringAttribute(named: "src") {
+            if let urlString = node.valueForStringAttribute(named: "src") {
                 url = NSURL(string: urlString)
             } else {
                 url = nil
             }
-            
+
             let attachment = TextAttachment(url: url)
 
-            if let elementClass = elementNode.valueForStringAttribute(named: "class") {
+            if let elementClass = node.valueForStringAttribute(named: "class") {
                 let classAttributes = elementClass.componentsSeparatedByString(" ")
                 for classAttribute in classAttributes {
                     if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
@@ -167,11 +152,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                     }
                 }
             }
-
             return NSAttributedString(attachment: attachment)
-        } else {
-            return NSAttributedString(string: "")
+        case .br:
+            return NSAttributedString(string: "\n", attributes: attributes)
+        case .p:
+            resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
+        case .li:
+            resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
+        default:
+            return resultString
         }
+        return resultString
+
     }
 
     // MARK: - String attributes
