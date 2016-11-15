@@ -1246,7 +1246,9 @@ extension Libxml2 {
         // MARK: - Wrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
-            unwrap(range: range(), fromElementsNamed: elementNames)
+            if elementNames.contains(name) {
+                unwrapChildren()
+            }
         }
 
         /// Unwraps the specified range from nodes with the specified name.  If there are multiple
@@ -1261,7 +1263,11 @@ extension Libxml2 {
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
         func unwrap(range range: NSRange, fromElementsNamed elementNames: [String]) {
-
+            
+            guard children.count > 0 else {
+                return
+            }
+            
             unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames)
 
             if elementNames.contains(name) {
