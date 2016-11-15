@@ -607,34 +607,13 @@ extension Libxml2 {
                 text = text + child.text()
             }
 
-            text = implicitRepresentation(forNode:self, childContent: text)
+            if let nodeType = standardName {
+                text = nodeType.implicitRepresentation(forContent: text)
+            }
 
             return text
         }
 
-        private func implicitRepresentation(forNode node: ElementNode, childContent: String) -> String {
-
-            guard let nodeType = node.standardName else {
-                return childContent
-            }
-
-            var resultString = childContent
-            switch nodeType {
-            case .img:
-                return String(UnicodeScalar(NSAttachmentCharacter))
-            case .br:
-                return "\n"
-            case .p:
-                resultString = resultString + "\n"
-            case .li:
-                resultString = resultString + "\n"
-            default:
-                return resultString
-            }
-            return resultString
-        }
-
-        
         /// Returns the plain visible text for a specified range.
         ///
         /// - Parameters:

@@ -119,30 +119,11 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             content.appendAttributedString(childContent)
         }
 
-        return implicitRepresentation(forNode: node, childContent: content, attributes:childAttributes)
-    }
-
-    private func implicitRepresentation(forNode node: ElementNode, childContent: NSAttributedString, attributes:[String:AnyObject]) -> NSAttributedString {
-
-        guard let nodeType = StandardElementType(rawValue:node.name.lowercaseString) else {
-            return childContent
+        if let nodeType = node.standardName {
+            return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
         }
 
-        let resultString = NSMutableAttributedString(attributedString: childContent)
-        switch nodeType {
-        case .img:
-            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
-        case .br:
-            return NSAttributedString(string: "\n", attributes: attributes)
-        case .p:
-            resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
-        case .li:
-            resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
-        default:
-            return resultString
-        }
-        return resultString
-
+        return content
     }
 
     // MARK: - String attributes
