@@ -629,7 +629,7 @@ extension Libxml2 {
                 
                 text = text + nodeText.substringWithRange(range)
             }
-            
+
             return text
         }
 

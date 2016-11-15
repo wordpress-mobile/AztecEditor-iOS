@@ -98,11 +98,7 @@ extension Libxml2 {
         
         func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
             dispatch_async(domQueue) { [weak self] in
-                guard let strongSelf = self, attrs = attrs else {
-                    return
-                }
-                
-                strongSelf.applyStyles(from: attrs, to: range)
+                self?.setAttributesSynchronously()
             }
         }
         
@@ -118,18 +114,32 @@ extension Libxml2 {
         ///             no associated style.
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+            undoManager.beginUndoGrouping()
             rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
+            undoManager.endUndoGrouping()
         }
         
-        func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-                
+        private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
+            
+            undoManager.beginUndoGrouping()
             rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: undoManager)
             
             // remove all styles for the specified range here!
             
             applyStyles(from: attributedString, to: range.location)
+            undoManager.endUndoGrouping()
         }
         
+        private func setAttributesSynchronously(attrs: [String: AnyObject]?, range: NSRange) {
+            guard let attrs = attrs else {
+                return
+            }
+            
+            undoManager.beginUndoGrouping()
+            applyStyles(from: attrs, to: range)
+            undoManager.endUndoGrouping()
+        }
+
         // MARK: - Styles: Synchronization with DOM
         
         /// Applies all styles from the specified attributes to the specified range in the DOM.
