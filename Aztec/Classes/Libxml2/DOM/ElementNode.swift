@@ -1366,6 +1366,15 @@ extension Libxml2 {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
 
                 for (element, intersection) in elementsAndIntersections {
+                    
+                    // 0-length intersections are possible, but they make no sense in the context
+                    // of wrapping content inside new elements.  We should ignore zero-length
+                    // intersections.
+                    //
+                    guard intersection.length > 0 else {
+                        continue
+                    }
+                    
                     element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
@@ -1499,7 +1508,7 @@ extension Libxml2 {
                     rightSibling.removeFromParent()
                 }
             }
-            
+
             if let result = result {
                 return result
             } else {
@@ -1508,7 +1517,6 @@ extension Libxml2 {
                 children.insert(newNode, atIndex: firstNodeIndex)
                 newNode.parent = self
                 
-                remove(newChildren, updateParent: false)
                 return newNode
             }
         }
