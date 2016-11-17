@@ -608,11 +608,21 @@ extension Libxml2 {
             }
 
             if let nodeType = standardName {
+                if nodeType.isBlockLevelNodeName() {
+                    var isLastChildBlockLevelNode = false
+                    if let lastChild = children.last as? ElementNode {
+                        isLastChildBlockLevelNode = lastChild.isBlockLevelElement()
+                    }
+                    if !isLastChildBlockLevelNode {
+                        text += "\n"
+                    }
+                }
                 text = nodeType.implicitRepresentation(forContent: text)
             }
 
             return text
         }
+
 
         /// Returns the plain visible text for a specified range.
         ///
@@ -1143,13 +1153,17 @@ extension Libxml2 {
         }
 
         func split(atLocation location: Int) {
+            var trueLength = length()
+            if isBlockLevelElement() {
+                trueLength -= 1
+            }
             
-            guard location != 0 && location != length() - 1 else {
+            guard location != 0 && location != trueLength - 1 else {
                 // Nothing to split, move along...
                 return
             }
             
-            guard location > 0 && location < length() - 1 else {
+            guard location > 0 && location < trueLength - 1 else {
                 assertionFailure("Specified range is out-of-bounds.")
                 return
             }
@@ -1318,6 +1332,9 @@ extension Libxml2 {
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
         func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
+            if isBlockLevelElement() && (range.location == self.length() - 1) {
+                    return
+            }
 
             let childNodesAndRanges = childNodes(intersectingRange: range)
             assert(childNodesAndRanges.count > 0)

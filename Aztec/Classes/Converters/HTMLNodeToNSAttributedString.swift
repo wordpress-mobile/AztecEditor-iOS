@@ -120,6 +120,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if let nodeType = node.standardName {
+
+            if nodeType.isBlockLevelNodeName() {
+                var isLastChildBlockLevelNode = false
+                if let lastChild = node.children.last as? ElementNode {
+                    isLastChildBlockLevelNode = lastChild.isBlockLevelElement()
+                }
+                if !isLastChildBlockLevelNode {
+                    content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: childAttributes))
+                }
+            }
+
             return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
         }
 

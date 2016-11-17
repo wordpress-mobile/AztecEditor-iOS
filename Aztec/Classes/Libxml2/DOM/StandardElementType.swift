@@ -50,7 +50,7 @@ extension Libxml2 {
         /// Returns an array with all block-level elements.
         ///
         static var blockLevelNodeNames: [StandardElementType] {
-            return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .noscript, .ol, .p, .pre, .table, .ul]
+            return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .li, .noscript, .ol, .p, .pre, .table, .ul]
         }
 
         static func isBlockLevelNodeName(name: String) -> Bool {
@@ -85,15 +85,9 @@ extension Libxml2 {
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
             case .br:
                 return NSAttributedString(string: "\n", attributes: attributes)
-            case .p:
-                resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
-            case .li:
-                resultString.appendAttributedString(NSAttributedString(string: "\n", attributes: attributes))
             default:
                 return resultString
             }
-            return resultString
-            
         }
 
 
