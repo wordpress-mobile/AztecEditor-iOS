@@ -780,84 +780,67 @@ extension Libxml2 {
 
         /// Retrieves all child nodes positioned after a specified location.
         ///
-        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
-        ///         Please refer to the parameter's documentation for more information.
-        ///
         /// - Parameters:
-        ///     - location: marks the position after which nodes must be positioned.
-        ///     - splitEdge: if this is `true`, any node intersecting `location` will be split
-        ///             so that the part of it after `location` will be returned as a new node.
-        ///             If this is `false`, only nodes that are completely positioned after
-        ///             `location` will be returned and the DOM will be left unmodified.
+        ///     - splitLocation: marks the split location.
         ///
         /// - Returns: the requested nodes.
         ///
-        private func children(after location: Int, splitEdge: Bool = false) -> [Node] {
+        private func splitChildren(after splitLocation: Int) -> [Node] {
 
             var result = [Node]()
-            var offset = length()
+            var childOffset = Int(0)
 
-            for index in (children.count - 1).stride(through: 0, by: -1) {
+            for child in children {
+                let childLength = child.length()
+                let childEndLocation = childOffset + childLength
 
-                let child = children[index]
-
-                offset = offset - child.length()
-
-                let childEndPosition = offset + child.length()
-
-                if offset > location {
-                    result.insert(child, atIndex: 0)
-                } else if let childEditableNode = child as? EditableNode where splitEdge && childEndPosition > location {
-
-                    let splitRange = NSRange(location: location - offset, length: childEndPosition - location)
+                if childOffset >= splitLocation {
+                    result.append(child)
+                } else if let childEditableNode = child as? EditableNode where childOffset < splitLocation && childEndLocation > splitLocation {
+                    
+                    let splitLocationInChild = splitLocation - childOffset
+                    let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocationInChild)
+                    
                     childEditableNode.split(forRange: splitRange)
-
-                    result.insert(child, atIndex: 0)
-                    break
-                } else {
-                    break
+                    result.append(child)
                 }
+                
+                childOffset = childOffset + childLength
             }
             
             return result
         }
-
+        
         /// Retrieves all child nodes positioned before a specified location.
         ///
-        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
-        ///         Please refer to the parameter's documentation for more information.
-        ///
         /// - Parameters:
-        ///     - location: marks the position before which nodes must be positioned.
-        ///     - splitEdge: if this is `true`, any node intersecting `location` will be split
-        ///             so that the part of it after `location` will be returned as a new node.
-        ///             If this is `false`, only nodes that are completely positioned before
-        ///             `location` will be returned and the DOM will be left unmodified.
+        ///     - splitLocation: marks the split location.
         ///
         /// - Returns: the requested nodes.
         ///
-        private func children(before location: Int, splitEdge: Bool = false) -> [Node] {
-
+        private func splitChildren(before splitLocation: Int) -> [Node] {
+            
             var result = [Node]()
-            var offset = Int(0)
-
+            var childOffset = Int(0)
+            
             for child in children {
-                if offset + child.length() < location {
+                let childLength = child.length()
+                let childEndLocation = childOffset + childLength
+                
+                if childEndLocation <= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode where splitEdge && offset < location {
-
-                    let splitRange = NSRange(location: offset, length: location - offset)
+                } else if let childEditableNode = child as? EditableNode where childOffset < splitLocation && childEndLocation > splitLocation {
+                    
+                    let splitLocationInChild = splitLocation - childOffset
+                    let splitRange = NSRange(location: 0, length: splitLocationInChild)
+                    
                     childEditableNode.split(forRange: splitRange)
-
                     result.append(child)
-                    break
-                } else {
-                    break
                 }
-
-                offset = offset + child.length()
+                
+                childOffset = childOffset + childLength
             }
-
+            
             return result
         }
         
@@ -884,11 +867,15 @@ extension Libxml2 {
                 return nil
             }
             
-            guard !evaluation(theSibling) else {
+            if evaluation(theSibling) {
                 return theSibling
             }
             
-            return pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
+            guard let element = theSibling as? ElementNode else {
+                return nil
+            }
+            
+            return element.pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
         /// Pushes up to the level of the receiver any left-side descendant that evaluates
@@ -957,11 +944,15 @@ extension Libxml2 {
                     return nil
             }
             
-            guard !evaluation(theSibling) else {
+            if evaluation(theSibling) {
                 return theSibling
             }
             
-            return pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
+            guard let element = theSibling as? ElementNode else {
+                return nil
+            }
+            
+            return element.pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
         /// Pushes up to the level of the receiver any right-side descendant that evaluates
@@ -1169,7 +1160,7 @@ extension Libxml2 {
                     return
             }
             
-            let postNodes = children(after: location, splitEdge: true)
+            let postNodes = splitChildren(after: location)
             
             if postNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
@@ -1199,7 +1190,7 @@ extension Libxml2 {
                     return
             }
 
-            let postNodes = children(after: range.location + range.length, splitEdge: true)
+            let postNodes = splitChildren(after: range.location + range.length)
 
             if postNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
@@ -1208,7 +1199,7 @@ extension Libxml2 {
                 remove(postNodes, updateParent: false)
             }
 
-            let preNodes = children(before: range.location, splitEdge: true)
+            let preNodes = splitChildren(before: range.location)
 
             if preNodes.count > 0 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
