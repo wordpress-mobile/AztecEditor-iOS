@@ -621,27 +621,27 @@ class ElementNodeTests: XCTestCase {
     ///     - (node: p, range: (0...6))
     ///     - (node: div, range: (6...6))
     ///
-//    func testLowestBlockLevelElements3() {
-//
-//        let textPart1 = "Hello "
-//        let textPart2 = "there!"
-//
-//        let textNode1 = TextNode(text: textPart1)
-//        let textNode2 = TextNode(text: textPart2)
-//
-//        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1])
-//        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2])
-//
-//        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
-//
-//        XCTAssertEqual(results.count, 2)
-//        XCTAssertEqual(results[0].element.name, "p")
-//        XCTAssertEqual(results[0].intersection.location, 0)
-//        XCTAssertEqual(results[0].intersection.length, 6)
-//        XCTAssertEqual(results[1].element.name, "div")
-//        XCTAssertEqual(results[1].intersection.location, 6)
-//        XCTAssertEqual(results[1].intersection.length, 6)
-//    }
+    func testLowestBlockLevelElements3() {
+
+        let textPart1 = "Hello "
+        let textPart2 = "there!"
+
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1])
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2])
+
+        let results = div.lowestBlockLevelElements(intersectingRange: div.range())
+
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results[0].element.name, "p")
+        XCTAssertEqual(results[0].intersection.location, 0)
+        XCTAssertEqual(results[0].intersection.length, 6)
+        XCTAssertEqual(results[1].element.name, "div")
+        XCTAssertEqual(results[1].intersection.location, 7)
+        XCTAssertEqual(results[1].intersection.length, 6)
+    }
 
     /// Tests force-wrapping child nodes intersecting a certain range in a new node.
     ///

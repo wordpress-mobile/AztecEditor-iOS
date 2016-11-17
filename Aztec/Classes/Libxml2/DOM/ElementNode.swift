@@ -86,6 +86,17 @@ extension Libxml2 {
             attributes.append(StringAttribute(name: attributeName, value: value))
         }
 
+        /// Check if the last of this children element is a block level element
+        ///
+        /// - Returns: true if the last child of this element is a block level element, false otherwise
+        ///
+        func isLastChildBlockLevelElement() -> Bool {
+            if let lastChild = children.last as? ElementNode {
+               return lastChild.isBlockLevelElement()
+            }
+            return false
+        }
+
         /// Find out if this is a block-level element.
         ///
         /// - Returns: `true` if this is a block-level element.  `false` otherwise.
@@ -608,11 +619,7 @@ extension Libxml2 {
             }
 
             if isBlockLevelElement() {
-                var isLastChildBlockLevelNode = false
-                if let lastChild = children.last as? ElementNode {
-                    isLastChildBlockLevelNode = lastChild.isBlockLevelElement()
-                }
-                if !isLastChildBlockLevelNode {
+                if !isLastChildBlockLevelElement() {
                     text += "\n"
                 }
             }
