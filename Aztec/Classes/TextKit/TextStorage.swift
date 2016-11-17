@@ -322,7 +322,7 @@ public class TextStorage: NSTextStorage {
         var effectiveRange = NSRange()
         let enable: Bool
         
-        if attribute(attributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
+        if attribute(attributeName, atIndex: range.location, longestEffectiveRange: &effectiveRange, inRange: range) != nil {
             let intersection = range.intersect(withRange: effectiveRange)
             
             if let intersection = intersection {
