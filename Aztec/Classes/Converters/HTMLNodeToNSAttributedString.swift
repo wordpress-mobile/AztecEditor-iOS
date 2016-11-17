@@ -93,18 +93,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convertElementNode(node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
-
-        if node.children.count == 0 {
-            return stringForEmptyNode(node)
-        } else {
-            return stringForNode(node, inheritingAttributes: attributes)
-        }
+        return stringForNode(node, inheritingAttributes: attributes)
     }
 
     // MARK: - Node Styling
 
-    /// Returns an attributed string representing the specified non-empty node.  Non-empty means
-    /// the received node has children.
+    /// Returns an attributed string representing the specified node.
     ///
     /// - Parameters:
     ///     - node: the element node to generate a representation string of.
@@ -114,7 +108,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     ///
     private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
-        assert(node.children.count > 0)
 
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
@@ -125,53 +118,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             content.appendAttributedString(childContent)
         }
 
-        return content
-    }
-
-    /// Returns an attributed string representing the specified empty node.  Empty means the
-    /// received node has no children.
-    ///
-    /// - Parameters:
-    ///     - elementNode: the element node to generate a representation string of.
-    ///     - attributes: inherited attributes
-    ///
-    /// - Returns: the attributed string representing the specified element node.
-    ///
-    private func stringForEmptyNode(elementNode: ElementNode) -> NSAttributedString {
-        assert(elementNode.children.count == 0)
-
-        let elementName = elementNode.name.lowercaseString
-
-        if elementName == "br" {
-            return NSAttributedString(string: "\n")
-        } else if elementName == "img" {
-
-            let url: NSURL?
-
-            if let urlString = elementNode.valueForStringAttribute(named: "src") {
-                url = NSURL(string: urlString)
-            } else {
-                url = nil
-            }
-            
-            let attachment = TextAttachment(url: url)
-
-            if let elementClass = elementNode.valueForStringAttribute(named: "class") {
-                let classAttributes = elementClass.componentsSeparatedByString(" ")
-                for classAttribute in classAttributes {
-                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
-                        attachment.alignment = alignment
-                    }
-                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
-                        attachment.size = size
-                    }
-                }
-            }
-
-            return NSAttributedString(attachment: attachment)
-        } else {
-            return NSAttributedString(string: "")
+        if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
+            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: childAttributes))
         }
+
+        if let nodeType = node.standardName {
+            return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
+        }
+
+        return content
     }
 
     // MARK: - String attributes
@@ -224,12 +179,36 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
         }
 
-
         if isBlockquote(node) {
             let formatter = BlockquoteFormatter()
             for (key, value) in formatter.attributes {
                 attributes[key] = value
             }
+        }
+
+        if isImage(node) {
+            let url: NSURL?
+
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                url = NSURL(string: urlString)
+            } else {
+                url = nil
+            }
+
+            let attachment = TextAttachment(url: url)
+
+            if let elementClass = node.valueForStringAttribute(named: "class") {
+                let classAttributes = elementClass.componentsSeparatedByString(" ")
+                for classAttribute in classAttributes {
+                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attachment.alignment = alignment
+                    }
+                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                        attachment.size = size
+                    }
+                }
+            }
+            attributes[NSAttachmentAttributeName] = attachment
         }
 
         return attributes
@@ -289,5 +268,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isBlockquote(node: ElementNode) -> Bool {
         return node.name == StandardElementType.blockquote.rawValue
+    }
+
+    private func isImage(node: ElementNode) -> Bool {
+        return node.name == StandardElementType.img.rawValue
     }
 }

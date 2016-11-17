@@ -20,7 +20,7 @@ extension Libxml2 {
         private(set) var attributes = [Attribute]()
         private(set) var children: [Node]
 
-        private var standardName: StandardElementType? {
+        internal var standardName: StandardElementType? {
             get {
                 return StandardElementType(rawValue: name)
             }
@@ -84,6 +84,17 @@ extension Libxml2 {
                 }
             }
             attributes.append(StringAttribute(name: attributeName, value: value))
+        }
+
+        /// Check if the last of this children element is a block level element
+        ///
+        /// - Returns: true if the last child of this element is a block level element, false otherwise
+        ///
+        func isLastChildBlockLevelElement() -> Bool {
+            if let lastChild = children.last as? ElementNode {
+               return lastChild.isBlockLevelElement()
+            }
+            return false
         }
 
         /// Find out if this is a block-level element.
@@ -601,19 +612,24 @@ extension Libxml2 {
         }
         
         override func text() -> String {
+
             var text = ""
-            
-            if let representation = standardName?.defaultVisualRepresentation() {
-                text = representation
-            }
-            
             for child in children {
                 text = text + child.text()
             }
-            
+
+            if isBlockLevelElement() && !isLastChildBlockLevelElement() {
+                text += "\n"
+            }
+
+            if let nodeType = standardName {
+                text = nodeType.implicitRepresentation(forContent: text)
+            }
+
             return text
         }
-        
+
+
         /// Returns the plain visible text for a specified range.
         ///
         /// - Parameters:
@@ -1143,13 +1159,17 @@ extension Libxml2 {
         }
 
         func split(atLocation location: Int) {
+            var trueLength = length()
+            if isBlockLevelElement() {
+                trueLength -= 1
+            }
             
-            guard location != 0 && location != length() - 1 else {
+            guard location != 0 && location != trueLength - 1 else {
                 // Nothing to split, move along...
                 return
             }
             
-            guard location > 0 && location < length() - 1 else {
+            guard location > 0 && location < trueLength - 1 else {
                 assertionFailure("Specified range is out-of-bounds.")
                 return
             }
@@ -1318,6 +1338,9 @@ extension Libxml2 {
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
         func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
+            if isBlockLevelElement() && (range.location == self.length() - 1) {
+                    return
+            }
 
             let childNodesAndRanges = childNodes(intersectingRange: range)
             assert(childNodesAndRanges.count > 0)
