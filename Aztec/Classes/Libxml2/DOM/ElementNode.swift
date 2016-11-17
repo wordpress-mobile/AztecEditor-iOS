@@ -780,9 +780,6 @@ extension Libxml2 {
 
         /// Retrieves all child nodes positioned after a specified location.
         ///
-        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
-        ///         Please refer to the parameter's documentation for more information.
-        ///
         /// - Parameters:
         ///     - splitLocation: marks the split location.
         ///
@@ -815,9 +812,6 @@ extension Libxml2 {
         }
         
         /// Retrieves all child nodes positioned before a specified location.
-        ///
-        /// - IMPORTANT: This method can also modify the DOM depending on the value of `splitEdge`.
-        ///         Please refer to the parameter's documentation for more information.
         ///
         /// - Parameters:
         ///     - splitLocation: marks the split location.
