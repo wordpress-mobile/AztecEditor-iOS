@@ -1246,7 +1246,9 @@ extension Libxml2 {
         // MARK: - Wrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
-            unwrap(range: range(), fromElementsNamed: elementNames)
+            if elementNames.contains(name) {
+                unwrapChildren()
+            }
         }
 
         /// Unwraps the specified range from nodes with the specified name.  If there are multiple
@@ -1261,7 +1263,11 @@ extension Libxml2 {
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
         func unwrap(range range: NSRange, fromElementsNamed elementNames: [String]) {
-
+            
+            guard children.count > 0 else {
+                return
+            }
+            
             unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames)
 
             if elementNames.contains(name) {
@@ -1360,6 +1366,15 @@ extension Libxml2 {
                 let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
 
                 for (element, intersection) in elementsAndIntersections {
+                    
+                    // 0-length intersections are possible, but they make no sense in the context
+                    // of wrapping content inside new elements.  We should ignore zero-length
+                    // intersections.
+                    //
+                    guard intersection.length > 0 else {
+                        continue
+                    }
+                    
                     element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
@@ -1493,7 +1508,7 @@ extension Libxml2 {
                     rightSibling.removeFromParent()
                 }
             }
-            
+
             if let result = result {
                 return result
             } else {
@@ -1502,7 +1517,6 @@ extension Libxml2 {
                 children.insert(newNode, atIndex: firstNodeIndex)
                 newNode.parent = self
                 
-                remove(newChildren, updateParent: false)
                 return newNode
             }
         }

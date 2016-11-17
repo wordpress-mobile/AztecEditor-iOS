@@ -97,8 +97,16 @@ extension Libxml2 {
         }
         
         func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
+            guard let attrs = attrs else {
+                return
+            }
+            
+            setAttributes(attrs, range: range)
+        }
+        
+        func setAttributes(attrs: [String : AnyObject], range: NSRange) {
             dispatch_async(domQueue) { [weak self] in
-                guard let strongSelf = self, attrs = attrs else {
+                guard let strongSelf = self else {
                     return
                 }
                 
@@ -352,7 +360,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        private func removeBold(spanning range: NSRange) {
+        func removeBold(spanning range: NSRange) {
             dispatch_async(domQueue) {
                 self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
             }
@@ -363,7 +371,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        private func removeItalic(spanning range: NSRange) {
+        func removeItalic(spanning range: NSRange) {
             dispatch_async(domQueue) {
                 self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
             }
@@ -374,7 +382,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        private func removeStrikethrough(spanning range: NSRange) {
+        func removeStrikethrough(spanning range: NSRange) {
             dispatch_async(domQueue) {
                 self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
             }
@@ -385,7 +393,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        private func removeUnderline(spanning range: NSRange) {
+        func removeUnderline(spanning range: NSRange) {
             dispatch_async(domQueue) {
                 self.rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
             }
