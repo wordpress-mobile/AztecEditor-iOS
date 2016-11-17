@@ -607,16 +607,17 @@ extension Libxml2 {
                 text = text + child.text()
             }
 
-            if let nodeType = standardName {
-                if nodeType.isBlockLevelNodeName() {
-                    var isLastChildBlockLevelNode = false
-                    if let lastChild = children.last as? ElementNode {
-                        isLastChildBlockLevelNode = lastChild.isBlockLevelElement()
-                    }
-                    if !isLastChildBlockLevelNode {
-                        text += "\n"
-                    }
+            if isBlockLevelElement() {
+                var isLastChildBlockLevelNode = false
+                if let lastChild = children.last as? ElementNode {
+                    isLastChildBlockLevelNode = lastChild.isBlockLevelElement()
                 }
+                if !isLastChildBlockLevelNode {
+                    text += "\n"
+                }
+            }
+
+            if let nodeType = standardName {
                 text = nodeType.implicitRepresentation(forContent: text)
             }
 
