@@ -618,10 +618,8 @@ extension Libxml2 {
                 text = text + child.text()
             }
 
-            if isBlockLevelElement() {
-                if !isLastChildBlockLevelElement() {
-                    text += "\n"
-                }
+            if isBlockLevelElement() && !isLastChildBlockLevelElement() {
+                text += "\n"
             }
 
             if let nodeType = standardName {

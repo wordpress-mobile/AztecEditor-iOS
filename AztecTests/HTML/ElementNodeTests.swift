@@ -176,25 +176,25 @@ class ElementNodeTests: XCTestCase {
         XCTAssert(NSEqualRanges(nodesAndRanges[2].range, NSRange(location: 0, length: text3.length())))
     }
 
-//    func testLeafNodesWrappingRange2() {
-//        let text1 = TextNode(text: "text1 goes here")
-//        let text2 = TextNode(text: "text2 goes here.")
-//        let text3 = TextNode(text: "text3 goes here..")
-//
-//        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
-//        let range = NSRange(location: 0, length: mainNode.length() - 1)
-//
-//        let nodesAndRanges = mainNode.leafNodesWrapping(range)
-//
-//        XCTAssertEqual(nodesAndRanges.count, 3)
-//        XCTAssertEqual(nodesAndRanges[0].node as? TextNode, text1)
-//        XCTAssertEqual(nodesAndRanges[1].node as? TextNode, text2)
-//        XCTAssertEqual(nodesAndRanges[2].node as? TextNode, text3)
-//
-//        XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: 0, length: text1.length())))
-//        XCTAssert(NSEqualRanges(nodesAndRanges[1].range, NSRange(location: 0, length: text2.length())))
-//        XCTAssert(NSEqualRanges(nodesAndRanges[2].range, NSRange(location: 0, length: text3.length() - 1)))
-//    }
+    func testLeafNodesWrappingRange2() {
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
+        let text3 = TextNode(text: "text3 goes here..")
+
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let range = NSRange(location: 0, length: mainNode.length() - 2)
+
+        let nodesAndRanges = mainNode.leafNodesWrapping(range)
+
+        XCTAssertEqual(nodesAndRanges.count, 3)
+        XCTAssertEqual(nodesAndRanges[0].node as? TextNode, text1)
+        XCTAssertEqual(nodesAndRanges[1].node as? TextNode, text2)
+        XCTAssertEqual(nodesAndRanges[2].node as? TextNode, text3)
+
+        XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: 0, length: text1.length())))
+        XCTAssert(NSEqualRanges(nodesAndRanges[1].range, NSRange(location: 0, length: text2.length())))
+        XCTAssert(NSEqualRanges(nodesAndRanges[2].range, NSRange(location: 0, length: text3.length() - 1)))
+    }
 
     func testLeafNodesWrappingRange3() {
         let text1 = TextNode(text: "text1 goes here")
@@ -234,23 +234,23 @@ class ElementNodeTests: XCTestCase {
         XCTAssert(NSEqualRanges(nodesAndRanges[1].range, NSRange(location: 0, length: text3.length())))
     }
 
-//    func testLeafNodesWrappingRange5() {
-//        let text1 = TextNode(text: "text1 goes here")
-//        let text2 = TextNode(text: "text2 goes here.")
-//        let text3 = TextNode(text: "text3 goes here..")
-//
-//        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
-//        let range = NSRange(location: 0, length: mainNode.length() - text3.length())
-//
-//        let nodesAndRanges = mainNode.leafNodesWrapping(range)
-//
-//        XCTAssertEqual(nodesAndRanges.count, 2)
-//        XCTAssertEqual(nodesAndRanges[0].node as? TextNode, text1)
-//        XCTAssertEqual(nodesAndRanges[1].node as? TextNode, text2)
-//
-//        XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: 0, length: text1.length())))
-//        XCTAssert(NSEqualRanges(nodesAndRanges[1].range, NSRange(location: 0, length: text2.length())))
-//    }
+    func testLeafNodesWrappingRange5() {
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
+        let text3 = TextNode(text: "text3 goes here..")
+
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let range = NSRange(location: 0, length: (mainNode.length() - 1) - text3.length())
+
+        let nodesAndRanges = mainNode.leafNodesWrapping(range)
+
+        XCTAssertEqual(nodesAndRanges.count, 2)
+        XCTAssertEqual(nodesAndRanges[0].node as? TextNode, text1)
+        XCTAssertEqual(nodesAndRanges[1].node as? TextNode, text2)
+
+        XCTAssert(NSEqualRanges(nodesAndRanges[0].range, NSRange(location: 0, length: text1.length())))
+        XCTAssert(NSEqualRanges(nodesAndRanges[1].range, NSRange(location: 0, length: text2.length())))
+    }
 
     func testLeafNodesWrappingRange6() {
         let text1 = TextNode(text: "text1 goes here")
