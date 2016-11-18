@@ -168,6 +168,10 @@ public class TextStorage: NSTextStorage {
         
         endEditing()
     }
+    
+    override public func removeAttribute(name: String, range: NSRange) {
+        super.removeAttribute(name, range: range)
+    }
 
     override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
         beginEditing()
@@ -184,6 +188,13 @@ public class TextStorage: NSTextStorage {
     func toggleBold(range: NSRange) {
 
         let enable = !fontTrait(.TraitBold, spansRange: range)
+        
+        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
+        /// but since that may take a while to implement, we need this workaround until it's ready.
+        ///
+        if !enable {
+            dom.removeBold(spanning: range)
+        }
 
         modifyTrait(.TraitBold, range: range, enable: enable)
     }
@@ -192,6 +203,13 @@ public class TextStorage: NSTextStorage {
 
         let enable = !fontTrait(.TraitItalic, spansRange: range)
 
+        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
+        /// but since that may take a while to implement, we need this workaround until it's ready.
+        ///
+        if !enable {
+            dom.removeItalic(spanning: range)
+        }
+        
         modifyTrait(.TraitItalic, range: range, enable: enable)
     }
 
@@ -302,12 +320,36 @@ public class TextStorage: NSTextStorage {
     private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange) {
 
         var effectiveRange = NSRange()
-        let enable = attribute(attributeName, atIndex: range.location, effectiveRange: &effectiveRange) == nil
-            || !NSEqualRanges(range, effectiveRange)
-
+        let enable: Bool
+        
+        if attribute(attributeName, atIndex: range.location, longestEffectiveRange: &effectiveRange, inRange: range) != nil {
+            let intersection = range.intersect(withRange: effectiveRange)
+            
+            if let intersection = intersection {
+                enable = !NSEqualRanges(range, intersection)
+            } else {
+                enable = true
+            }
+        } else {
+            enable = true
+        }
+        
         if enable {
             addAttribute(attributeName, value: value, range: range)
         } else {
+            
+            /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
+            /// but since that may take a while to implement, we need this workaround until it's ready.
+            ///
+            switch attributeName {
+            case NSStrikethroughStyleAttributeName:
+                dom.removeStrikethrough(spanning: range)
+            case NSUnderlineStyleAttributeName:
+                dom.removeUnderline(spanning: range)
+            default:
+                break
+            }
+            
             removeAttribute(attributeName, range: range)
         }
     }
