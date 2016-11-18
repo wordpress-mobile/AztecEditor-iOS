@@ -1,27 +1,23 @@
 import Foundation
 import UIKit
 
-class Blockquote {
-    static let attributeName = "AZBlockquote"
-}
-
 struct BlockquoteFormatter: ParagraphAttributeFormatter {
     let attributes: [String: AnyObject] = {
         let style = NSMutableParagraphStyle()
-        style.headIndent = Metrics.defaultIndentation
+        style.headIndent = Metrics.blockquoteIndentation
         style.firstLineHeadIndent = style.headIndent
-        style.tailIndent = -Metrics.defaultIndentation
-        style.paragraphSpacing = Metrics.defaultIndentation
-        style.paragraphSpacingBefore = Metrics.defaultIndentation
+        style.tailIndent = -Metrics.blockquoteIndentation
 
         return [
-            NSParagraphStyleAttributeName: style,
-            Blockquote.attributeName: Blockquote()
+            NSParagraphStyleAttributeName: style
         ]
     }()
 
     func present(inAttributes attributes: [String : AnyObject]) -> Bool {
-        return attributes[Blockquote.attributeName] is Blockquote
+        guard let style = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle else {
+            return false
+        }
+        return style.tailIndent == -Metrics.blockquoteIndentation
     }
 }
 
