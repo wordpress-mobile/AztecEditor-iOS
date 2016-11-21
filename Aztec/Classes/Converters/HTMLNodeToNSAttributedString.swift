@@ -16,10 +16,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
-    /// The current active list style
-    ///
-
-
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
@@ -116,41 +112,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
-        let isCurrentNodeAList = (node.name == StandardElementType.ol.rawValue || node.name == StandardElementType.ul.rawValue)
-
         for child in node.children {
-            var attributesToUse = childAttributes
-
-            let isChildNodeAListItem = (child.name == StandardElementType.li.rawValue)
-            if currentListStyle != nil && isCurrentNodeAList && !isChildNodeAListItem {
-                attributesToUse = inheritedAttributes
-            }
-
-            let childContent = NSMutableAttributedString(attributedString:convert(child, inheritingAttributes: attributesToUse))
-
-            if isChildNodeAListItem,
-               let listItemAttribute = childContent.attribute(TextListItem.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItem,
-               let currentStyle = currentListStyle
-            {
-                var attributesForMarker = attributesToUse
-                attributesForMarker[TextListItemMarker.attributeName] = TextListItemMarker()
-                attributesForMarker[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
-                let markerString = NSAttributedString(string:currentStyle.markerText(forItemNumber: listItemAttribute.number),
-                                                      attributes: attributesForMarker)
-                childContent.insertAttributedString(markerString, atIndex: 0)
-                let newLineString = NSAttributedString(string: "\n", attributes: attributesToUse)
-                childContent.appendAttributedString(newLineString)
-            }
-
+            let childContent = NSMutableAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
             content.appendAttributedString(childContent)
-        }
-        if currentListStyle != nil &&
-           (node.name == StandardElementType.ol.rawValue || node.name == StandardElementType.ul.rawValue) {
-            currentListStyle = nil
         }
 
         if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: childAttributes))
+            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: inheritedAttributes))
         }
 
         if let nodeType = node.standardName {
@@ -243,21 +211,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isNode(node, ofType: .ol) {
-            currentListNumber = 1
-            currentListStyle = .Ordered
             attributes[TextList.attributeName] = TextList(style: .Ordered)
         }
 
         if isNode(node, ofType: .ul) {
-            currentListNumber = 1
-            currentListStyle = .Unordered
             attributes[TextList.attributeName] = TextList(style: .Unordered)
         }
 
         if isNode(node, ofType: .li) {
-            if let listStyle = currentListStyle {
-                attributes[TextListItem.attributeName] = TextListItem(number: currentListNumber)
-                currentListNumber += 1
+            if let listStyle = attributes[TextList.attributeName] as? TextList {
+                listStyle.currentListNumber += 1
+                attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
             }
         }
 

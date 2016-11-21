@@ -85,11 +85,22 @@ extension Libxml2 {
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
             case .br:
                 return NSAttributedString(string: "\n", attributes: attributes)
+            case .li:
+                if let listItemAttribute = content.attribute(TextListItem.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItem,
+                   let listAttribute = content.attribute(TextList.attributeName, atIndex: 0, effectiveRange: nil) as? TextList
+                {
+                    var attributesForMarker = attributes
+                    attributesForMarker[TextListItemMarker.attributeName] = TextListItemMarker()
+                    attributesForMarker[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
+                    let markerString = NSAttributedString(string:listAttribute.style.markerText(forItemNumber: listItemAttribute.number),
+                                                          attributes: attributesForMarker)
+                    resultString.insertAttributedString(markerString, atIndex: 0)
+                }
+                return resultString
             default:
                 return resultString
             }
         }
-
-
+        
     }
 }
