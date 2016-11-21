@@ -91,7 +91,13 @@ extension Libxml2 {
         /// - Returns: true if the last child of this element is a block level element, false otherwise
         ///
         func isLastChildBlockLevelElement() -> Bool {
-            if let lastChild = children.last as? ElementNode {
+            let childrenFiltered = children.filter { (node) -> Bool in
+                if let textNode = node as? TextNode {
+                    return !textNode.text().isEmpty
+                }
+                return true
+            }
+            if let lastChild = childrenFiltered.last as? ElementNode {
                return lastChild.isBlockLevelElement()
             }
             return false
