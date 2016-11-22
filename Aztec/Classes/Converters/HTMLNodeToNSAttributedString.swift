@@ -113,12 +113,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
         for child in node.children {
-            let childContent = NSMutableAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
+            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
             content.appendAttributedString(childContent)
         }
 
         if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: inheritedAttributes))
+            content.appendAttributedString(NSAttributedString(string: "\n", attributes: inheritedAttributes))
         }
 
         if let nodeType = node.standardName {
@@ -210,15 +210,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSAttachmentAttributeName] = attachment
         }
 
-        if isNode(node, ofType: .ol) {
+        if node.isNodeType(.ol) {
             attributes[TextList.attributeName] = TextList(style: .Ordered)
         }
 
-        if isNode(node, ofType: .ul) {
+        if node.isNodeType(.ul) {
             attributes[TextList.attributeName] = TextList(style: .Unordered)
         }
 
-        if isNode(node, ofType: .li) {
+        if node.isNodeType(.li) {
             if let listStyle = attributes[TextList.attributeName] as? TextList {
                 listStyle.currentListNumber += 1
                 attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
@@ -286,9 +286,5 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isImage(node: ElementNode) -> Bool {
         return node.name == StandardElementType.img.rawValue
-    }
-
-    private func isNode(node:ElementNode, ofType type:StandardElementType) -> Bool {
-        return type.equivalentNames.contains(node.name)
-    }
+    }    
 }

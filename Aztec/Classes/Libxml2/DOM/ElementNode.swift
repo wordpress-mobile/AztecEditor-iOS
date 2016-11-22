@@ -91,13 +91,13 @@ extension Libxml2 {
         /// - Returns: true if the last child of this element is a block level element, false otherwise
         ///
         func isLastChildBlockLevelElement() -> Bool {
-            let childrenFiltered = children.filter { (node) -> Bool in
+            let childrenIgnoringEmptyTextNodes = children.filter { (node) -> Bool in
                 if let textNode = node as? TextNode {
                     return !textNode.text().isEmpty
                 }
                 return true
             }
-            if let lastChild = childrenFiltered.last as? ElementNode {
+            if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
                return lastChild.isBlockLevelElement()
             }
             return false
@@ -117,6 +117,10 @@ extension Libxml2 {
             }
 
             return standardName.isBlockLevelNodeName()
+        }
+
+        func isNodeType(type:StandardElementType) -> Bool {
+            return type.equivalentNames.contains(name.lowercaseString)
         }
 
         // MARK: - DOM Queries
