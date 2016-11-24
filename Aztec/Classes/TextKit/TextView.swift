@@ -489,8 +489,9 @@ public class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
-        // check if are doing two empy list items in a row
-        if text != "\n" {
+        guard text == "\n"
+            && range.location + 1 < storage.length
+            else {
             refreshListsOnlyIfListExists(atRange: range)
             return
         }

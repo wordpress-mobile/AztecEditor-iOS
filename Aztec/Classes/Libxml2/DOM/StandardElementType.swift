@@ -50,7 +50,7 @@ extension Libxml2 {
         /// Returns an array with all block-level elements.
         ///
         static var blockLevelNodeNames: [StandardElementType] {
-            return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .noscript, .ol, .p, .pre, .table, .ul]
+            return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .li, .noscript, .ol, .p, .pre, .table, .ul]
         }
 
         static func isBlockLevelNodeName(name: String) -> Bool {
@@ -59,19 +59,6 @@ extension Libxml2 {
 
         func isBlockLevelNodeName() -> Bool {
             return self.dynamicType.blockLevelNodeNames.contains(self)
-        }
-
-        /// Some nodes have a default representation that needs to be taken in account when checking the length
-        ///
-        func defaultVisualRepresentation() -> String? {
-            switch self {
-            case .img:
-                return String(UnicodeScalar(NSAttachmentCharacter))
-            case .br:
-                return String("\n")
-            default:
-                return nil
-            }
         }
 
         var equivalentNames: [String] {
@@ -83,6 +70,23 @@ extension Libxml2 {
                 default:
                     return [self.rawValue]
                 }
+            }
+        }
+
+        func implicitRepresentation(forContent content: String) -> String {
+            return implicitRepresentation(forContent: NSAttributedString(string:content), attributes: [:] ).string
+        }
+
+        func implicitRepresentation(forContent content: NSAttributedString, attributes:[String:AnyObject]) -> NSAttributedString {
+
+            let resultString = NSMutableAttributedString(attributedString: content)
+            switch self {
+            case .img:
+                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
+            case .br:
+                return NSAttributedString(string: "\n", attributes: attributes)
+            default:
+                return resultString
             }
         }
 
