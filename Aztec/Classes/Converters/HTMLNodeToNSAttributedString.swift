@@ -13,7 +13,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias StandardElementType = Libxml2.StandardElementType
 
     /// The default font descriptor that will be used as a base for conversions.
-    ///
+    /// 
     let defaultFontDescriptor: UIFontDescriptor
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -113,13 +113,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
         for child in node.children {
-            let childContent = convert(child, inheritingAttributes: childAttributes)
-
+            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
             content.appendAttributedString(childContent)
         }
 
         if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: childAttributes))
+            content.appendAttributedString(NSAttributedString(string: "\n", attributes: inheritedAttributes))
         }
 
         if let nodeType = node.standardName {
@@ -211,6 +210,21 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSAttachmentAttributeName] = attachment
         }
 
+        if node.isNodeType(.ol) {
+            attributes[TextList.attributeName] = TextList(style: .Ordered)
+        }
+
+        if node.isNodeType(.ul) {
+            attributes[TextList.attributeName] = TextList(style: .Unordered)
+        }
+
+        if node.isNodeType(.li) {
+            if let listStyle = attributes[TextList.attributeName] as? TextList {
+                listStyle.currentListNumber += 1
+                attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
+            }
+        }
+
         return attributes
     }
 
@@ -272,5 +286,5 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func isImage(node: ElementNode) -> Bool {
         return node.name == StandardElementType.img.rawValue
-    }
+    }    
 }

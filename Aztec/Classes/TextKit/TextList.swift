@@ -28,7 +28,7 @@ class TextList
     ///
     let style: Style
 
-
+    var currentListNumber: Int = 0
     // MARK: Initializers
 
     init(style: Style) {
