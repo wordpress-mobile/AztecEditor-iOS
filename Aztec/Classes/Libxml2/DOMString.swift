@@ -2,10 +2,13 @@ import UIKit
 
 extension Libxml2 {
     
-    /// This class takes care of providing an interface for all DOM interaction.
-    /// It also takes care of queueing all mutating requests made to the DOM.
+    /// This class takes care of providing an interface for interacting with the DOM as if it Was
+    /// a string.
     ///
-    class DocumentObjectModel {
+    /// Any requests made to this class are performed in its own queue (sometimes synchronously,
+    /// sometimes asynchronously).
+    ///
+    class DOMString {
         
         typealias RootNode = Libxml2.RootNode
         
