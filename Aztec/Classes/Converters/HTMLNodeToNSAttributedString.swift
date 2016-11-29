@@ -222,6 +222,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             if let listStyle = attributes[TextList.attributeName] as? TextList {
                 listStyle.currentListNumber += 1
                 attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
+                attributes[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultListParagraphStyle
             }
         }
 
