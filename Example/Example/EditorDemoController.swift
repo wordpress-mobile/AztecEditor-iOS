@@ -624,7 +624,7 @@ private extension EditorDemoController
         let fileURL = saveToDisk(image: image)
         
         let imageId = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
-        let progress = Progress(parent: nil, userInfo: ["imageID":imageId])
+        let progress = Progress(parent: nil, userInfo: ["imageID": imageId])
         progress.totalUnitCount = 100
         
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -632,14 +632,14 @@ private extension EditorDemoController
 
     @objc func timerFireMethod(_ timer: Timer) {
         guard let progress = timer.userInfo as? Progress,
-            let imageId = progress.userInfo["imageID"] as? String else {
+            let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String else {
                 
             return
         }
         
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {            
-            richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blueColor())
+            richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blue)
             if mediaErrorMode && progress.fractionCompleted >= 0.25 {
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)

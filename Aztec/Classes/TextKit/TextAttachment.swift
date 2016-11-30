@@ -37,7 +37,11 @@ fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 
 protocol TextAttachmentImageProvider {
-    func textAttachment(_ textAttachment: TextAttachment, imageForURL url: URL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func textAttachment(
+        _ textAttachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
 }
 
 /// Custom text attachment.

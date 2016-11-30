@@ -15,7 +15,13 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - returns: returns a temporary UIImage to be used while the request is happening
     ///
-    func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func storage(
+        _ storage: TextStorage,
+        attachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
+    
     func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
@@ -375,10 +381,11 @@ open class TextStorage: NSTextStorage {
 
 extension TextStorage: TextAttachmentImageProvider {
 
-    func textAttachment(_ textAttachment: TextAttachment,
-                        imageForURL url: URL,
-                        onSuccess success: (UIImage) -> (),
-                        onFailure failure: () -> ()) -> UIImage
+    func textAttachment(
+        _ textAttachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
     {
         guard let attachmentsDelegate = attachmentsDelegate else {
             fatalError("This class doesn't really support not having an attachments delegate set.")

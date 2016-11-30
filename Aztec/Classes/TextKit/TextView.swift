@@ -15,9 +15,15 @@ public protocol TextViewMediaDelegate: class {
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func textView(_ textView: TextView, imageAtUrl imageURL: URL, onSuccess success: (UIImage) -> Void, onFailure failure: (Void) -> Void) -> UIImage
+    func textView(
+        _ textView: TextView,
+        imageAtUrl imageURL: URL,
+        onSuccess success: @escaping (UIImage) -> Void,
+        onFailure failure: @escaping (Void) -> Void) -> UIImage
     
-    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL
+    func textView(
+        _ textView: TextView,
+        urlForImage image: UIImage) -> URL
 }
 
 open class TextView: UITextView {
@@ -1031,7 +1037,12 @@ open class TextView: UITextView {
 
 extension TextView: TextStorageAttachmentsDelegate {
 
-    func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
+    func storage(
+        _ storage: TextStorage,
+        attachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
