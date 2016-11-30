@@ -3,6 +3,7 @@ import UIKit
 import QuartzCore
 
 class LayoutManager: NSLayoutManager {
+
     override func drawBackgroundForGlyphRange(glyphsToShow: NSRange, atPoint origin: CGPoint) {
         super.drawBackgroundForGlyphRange(glyphsToShow, atPoint: origin)
         guard let textStorage = textStorage else {
@@ -41,18 +42,10 @@ class LayoutManager: NSLayoutManager {
                 return
             }
 
-//            let borderColor = UIColor(red: 0.5294117647, green: 0.650980392156863, blue: 0.737254902, alpha: 1.0)//
-//            let backgroundColor = UIColor.redColor()
-            let blockquoteGlyphRange = glyphRangeForCharacterRange(range, actualCharacterRange: nil)
+            let listGlyphRange = glyphRangeForCharacterRange(range, actualCharacterRange: nil)
 
-            enumerateLineFragmentsForGlyphRange(blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+            enumerateLineFragmentsForGlyphRange(listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-//                backgroundColor.setFill()
-//                CGContextFillRect(context, lineRect)
-//                let borderRect = CGRect(origin: lineRect.origin, size: CGSize(width: 2, height: lineRect.height))
-//                borderColor.setFill()
-//                CGContextFillRect(context, borderRect)
-
                 let lineRange = self.characterRangeForGlyphRange(glyphRange, actualGlyphRange: nil)
                 let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
                 var attributes = textStorage.attributesAtIndex(lineRange.location, effectiveRange: nil)
