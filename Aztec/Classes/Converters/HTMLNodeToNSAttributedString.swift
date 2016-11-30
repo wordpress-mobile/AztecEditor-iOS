@@ -118,7 +118,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.appendAttributedString(NSAttributedString(string: "\n", attributes: inheritedAttributes))
+            content.appendAttributedString(NSAttributedString(string: "\n", attributes: childAttributes))
         }
 
         if let nodeType = node.standardName {
