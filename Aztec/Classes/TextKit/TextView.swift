@@ -88,9 +88,15 @@ public class TextView: UITextView {
     // MARK: - Intersect keyboard operations
 
     public override func insertText(text: String) {
-        let originalRange = selectedRange
+        var insertionRange = selectedRange
+        var attributes = listCustomAttributes(atIndex: selectedRange.location)
+        for (k,v) in typingAttributes {
+            attributes[k] = v
+        }
+        typingAttributes = attributes
         super.insertText(text)
-        refreshListIfNewLinesOn(text: text, range: originalRange)
+        insertionRange.length = 1
+        refreshListAfterInsertionOf(text: text, range: insertionRange)
     }
 
     public override func deleteBackward() {
@@ -413,31 +419,58 @@ public class TextView: UITextView {
 
     // MARK: - List Code
 
+    private func listCustomAttributes(atIndex index:Int) -> [String:AnyObject] {
+        var attributes = [String:AnyObject]()
+        if storage.length == 0 {
+            return attributes
+        }
+        let inBoundsIndex = max(0,min(index, storage.length-1))
+        if let textList = storage.textListAttribute(atIndex: inBoundsIndex),
+           let textListItem = storage.textListItemAttribute(atIndex: inBoundsIndex)
+        {
+            attributes[TextList.attributeName] = textList
+            attributes[TextListItem.attributeName] = textListItem
+        }
 
+        return attributes
+    }
     /// Refresh Lists attributes when insert new text in the specified range
     ///
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
-        guard text == "\n"
-            && range.location + 1 < storage.length
-            else {
-            refreshList(aroundRange: range)
+    private func refreshListAfterInsertionOf(text text:String, range:NSRange) {
+        //check if new text is part of a list
+        if storage.attribute(TextList.attributeName,
+                             atIndex:range.location,
+                             effectiveRange: nil) == nil {
             return
         }
-        var afterRange = range
-        afterRange.length = 1
-        afterRange.location += 1
-        let afterString = storage.attributedSubstringFromRange(afterRange).string
 
-        let isBegginingOfListItem = storage.isStartOfNewListItem(atLocation: range.location)
+        let afterRange = NSRange(location: range.location + 1, length: 1)
+        let beforeRange = NSRange(location: range.location - 1, length: 1)
 
-        if isBegginingOfListItem && afterString == "\n" {
-            removeList(aroundRange: afterRange)
-            deleteBackward()
+        var afterString = "\n"
+        var beforeString = "\n"
+        if beforeRange.location >= 0 {
+            beforeString = storage.attributedSubstringFromRange(beforeRange).string
+        }
+        if afterRange.endLocation < storage.length {
+            afterString = storage.attributedSubstringFromRange(afterRange).string
+        }
+
+        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
+
+        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
+            removeList(aroundRange: range)
+            if afterRange.endLocation < storage.length {
+                removeList(aroundRange: afterRange)
+                deleteBackward()
+            } else {
+                selectedRange = NSRange(location: range.location, length: 0)
+            }
         } else {
-            refreshListsOnlyIfListExists(atRange: range)
+            refreshList(aroundRange: range)
         }
     }
 

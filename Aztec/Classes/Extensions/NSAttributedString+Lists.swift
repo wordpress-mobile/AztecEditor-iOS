@@ -127,6 +127,16 @@ extension NSAttributedString
         return attribute(TextList.attributeName, atIndex: index, effectiveRange: nil) as? TextList
     }
 
+    /// Returns the TextListItem attribute at the specified NSRange, if any.
+    ///
+    /// - Parameter index: The index at which to inspect.
+    ///
+    /// - Returns: A TextListItem optional.
+    ///
+    func textListItemAttribute(atIndex index: Int) -> TextListItem? {
+        return attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+    }
+
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
     ///
