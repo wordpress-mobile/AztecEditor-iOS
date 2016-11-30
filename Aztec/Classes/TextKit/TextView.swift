@@ -86,14 +86,18 @@ public class TextView: UITextView {
     }
 
     // MARK: - Intersect keyboard operations
-
-    public override func insertText(text: String) {
-        var insertionRange = selectedRange
+    func updateTypingAttributes() {
         var attributes = listCustomAttributes(atIndex: selectedRange.location)
         for (k,v) in typingAttributes {
             attributes[k] = v
         }
         typingAttributes = attributes
+    }
+
+
+    public override func insertText(text: String) {
+        updateTypingAttributes()
+        var insertionRange = selectedRange
         super.insertText(text)
         insertionRange.length = 1
         refreshListAfterInsertionOf(text: text, range: insertionRange)
@@ -424,7 +428,7 @@ public class TextView: UITextView {
         if storage.length == 0 {
             return attributes
         }
-        let inBoundsIndex = max(0,min(index, storage.length-1))
+        let inBoundsIndex = max(0,min(index-1, storage.length-1))
         if let textList = storage.textListAttribute(atIndex: inBoundsIndex),
            let textListItem = storage.textListItemAttribute(atIndex: inBoundsIndex)
         {
