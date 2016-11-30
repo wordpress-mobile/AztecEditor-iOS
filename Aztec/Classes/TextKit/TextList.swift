@@ -67,14 +67,3 @@ class TextListItem
     ///
     static let attributeName = "TextListItemAttributeName"
 }
-
-
-// MARK: - Encompases the range of the bullet/number + tab.
-//
-class TextListItemMarker {
-    // MARK: - Constants
-
-    /// Attributed String's Attribute Name
-    ///
-    static let attributeName = "TextListItemMarkerAttributeName"
-}

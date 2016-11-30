@@ -56,31 +56,19 @@ public class TextView: UITextView {
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
-        previousSelectedRange = NSRange.zero
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
-        previousSelectedRange = selectedRange
     }
     
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFontOfSize(14)
         defaultMissingImage = Gridicon.iconOfType(.Image)
-        previousSelectedRange = NSRange.zero
         super.init(coder: aDecoder)
         
         allowsEditingTextAttributes = true
-        previousSelectedRange = selectedRange
-    }
-
-    //MARK: - Selection Logic
-
-    public override var selectedTextRange: UITextRange? {
-        didSet {
-            selectionChanged()
-        }
     }
 
     // MARK: - Intersect copy paste operations
@@ -98,97 +86,52 @@ public class TextView: UITextView {
     }
 
     // MARK: - Intersect keyboard operations
+    func updateTypingAttributes() {
+        var attributes = listCustomAttributes(atIndex: selectedRange.location)
+        for (k,v) in typingAttributes {
+            attributes[k] = v
+        }
+        typingAttributes = attributes
+    }
+
 
     public override func insertText(text: String) {
-        let originalRange = selectedRange
+        updateTypingAttributes()
+        var insertionRange = selectedRange
         super.insertText(text)
-        refreshListIfNewLinesOn(text: text, range: originalRange)
+        insertionRange.length = 1
+        refreshListAfterInsertionOf(text: text, range: insertionRange)
     }
 
     public override func deleteBackward() {
-        var originalDeletionRange = selectedRange
-        originalDeletionRange.location = max(originalDeletionRange.location-1, 0)
-        originalDeletionRange.length = 1
-        var expandedRange = rangeIgnoringListMarkers(forProposedRange: originalDeletionRange, movingForward: false, growing: true)
+        var deletionRange = selectedRange
+        var deletedString = NSAttributedString()
+        if deletionRange.length == 0 {
+            deletionRange.location = max(selectedRange.location - 1, 0)
+            deletionRange.length = 1
+        }
+        if storage.length > 0 {
+            deletedString = storage.attributedSubstringFromRange(deletionRange)
+        }
 
         super.deleteBackward()
 
-        if storage.length < 1 {
+        if storage.string.isEmpty {
             return
         }
-
-        if !NSEqualRanges(expandedRange, originalDeletionRange) {
-            if expandedRange.location > 1 {
-                expandedRange.location = max(expandedRange.location-1, 0)
+        if deletedString.string == "\n" || deletionRange.location == 0 {
+            var isPreviousLocationList = false
+            if (selectedRange.location > 0) {
+                isPreviousLocationList = storage.attribute(TextListItem.attributeName,
+                                                           atIndex:selectedRange.location - 1,
+                                                           effectiveRange: nil) != nil
+            }
+            if isPreviousLocationList {
+                refreshList(aroundRange: selectedRange)
             } else {
-                expandedRange.length -= 1
-            }
-            storage.replaceCharactersInRange(expandedRange, withAttributedString: NSMutableAttributedString())
-            var newSelectionRange = selectedRange
-            newSelectionRange.location = selectedRange.location - expandedRange.length
-            selectedRange = newSelectionRange
-            refreshList(aroundRange:selectedRange)
-        }
-    }
-
-    private var previousSelectedRange: NSRange
-
-    private func selectionChanged() {
-        var movingForward = true
-        var growing = true
-        if selectedRange.location < previousSelectedRange.location {
-            movingForward = false
-        }
-        if selectedRange.length < previousSelectedRange.length {
-            growing = false
-        }
-
-        let newRange = rangeIgnoringListMarkers(forProposedRange: selectedRange, movingForward: movingForward, growing: growing)
-
-        previousSelectedRange = newRange
-        selectedRange = newRange
-    }
-
-    private func rangeIgnoringListMarkers(forProposedRange range: NSRange, movingForward:Bool, growing:Bool) -> NSRange {
-        if range.location >= storage.length {
-            return range
-        }
-        var newRange = range
-        if newRange.length == 0 {
-            var fullRange: NSRange = NSRange.zero
-            if storage.attribute(TextListItemMarker.attributeName, atIndex:newRange.location, longestEffectiveRange: &fullRange, inRange: storage.rangeOfEntireString) != nil {
-                if movingForward {
-                    newRange.location = fullRange.endLocation
-                } else {
-                    newRange.location = max(fullRange.location-1, 0)
-                }
-            }
-        } else {
-            storage.enumerateAttribute(TextListItemMarker.attributeName,
-                                       inRange: newRange,
-                                       options: []) { (attribute, attributeRange, stop) in
-                                        if attribute == nil {
-                                            return
-                                        }
-                                        var fullRange: NSRange = NSRange.zero
-                                        if storage.attribute(TextListItemMarker.attributeName, atIndex:attributeRange.location, effectiveRange: &fullRange) == nil {
-                                            return
-                                        }
-                                        if growing {
-                                            newRange = NSUnionRange(newRange, fullRange)
-                                        } else {
-                                            if fullRange.location < newRange.location {
-                                                newRange.location = fullRange.endLocation
-                                                newRange.length -= fullRange.length-1
-                                            } else {
-                                                if ( !NSEqualRanges(NSIntersectionRange(fullRange, newRange), fullRange)){
-                                                    newRange.length -= fullRange.length
-                                                }
-                                            }
-                                        }
+                removeList(aroundRange: selectedRange)
             }
         }
-        return newRange
     }
 
     // MARK: - UIView Overrides
@@ -482,42 +425,58 @@ public class TextView: UITextView {
 
     // MARK: - List Code
 
+    private func listCustomAttributes(atIndex index:Int) -> [String:AnyObject] {
+        var attributes = [String:AnyObject]()
+        if storage.length == 0 {
+            return attributes
+        }
+        let inBoundsIndex = max(0,min(index, storage.length-1))
+        if let textList = storage.textListAttribute(atIndex: inBoundsIndex),
+           let textListItem = storage.textListItemAttribute(atIndex: inBoundsIndex)
+        {
+            attributes[TextList.attributeName] = textList
+            attributes[TextListItem.attributeName] = textListItem
+        }
 
+        return attributes
+    }
     /// Refresh Lists attributes when insert new text in the specified range
     ///
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshListIfNewLinesOn(text text:String, range:NSRange) {
-        guard text == "\n"
-            && range.location + 1 < storage.length
-            else {
-            refreshListsOnlyIfListExists(atRange: range)
+    private func refreshListAfterInsertionOf(text text:String, range:NSRange) {
+        //check if new text is part of a list
+        if storage.attribute(TextList.attributeName,
+                             atIndex:range.location,
+                             effectiveRange: nil) == nil {
             return
         }
-        var afterRange = range
-        afterRange.length = 1
-        afterRange.location += 1
-        let afterString = storage.attributedSubstringFromRange(afterRange).string
 
-        var isBegginingOfListItem = false
-        var precedingListItemRange = NSRange.zero
-        if storage.length > 0 {
+        let afterRange = NSRange(location: range.location + 1, length: 1)
+        let beforeRange = NSRange(location: range.location - 1, length: 1)
 
-            let positionToCheck = max(min(range.location - 1,storage.length - 1),0)
-            isBegginingOfListItem = storage.attribute(TextListItemMarker.attributeName,
-                                                      atIndex:positionToCheck,
-                                                      effectiveRange: &precedingListItemRange) != nil
+        var afterString = "\n"
+        var beforeString = "\n"
+        if beforeRange.location >= 0 {
+            beforeString = storage.attributedSubstringFromRange(beforeRange).string
+        }
+        if afterRange.endLocation < storage.length {
+            afterString = storage.attributedSubstringFromRange(afterRange).string
         }
 
-        if !(isBegginingOfListItem && afterString == "\n") {
-            refreshListsOnlyIfListExists(atRange: range)
+        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
+
+        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
+            removeList(aroundRange: range)
+            if afterRange.endLocation < storage.length {
+                removeList(aroundRange: afterRange)
+                deleteBackward()
+            } else {
+                selectedRange = NSRange(location: range.location, length: 0)
+            }
         } else {
-            var lineMovedRange = afterRange
-            lineMovedRange.location += 1
-            removeList(aroundRange: lineMovedRange)
-            removeList(aroundRange: precedingListItemRange)
-            deleteBackward()
+            refreshList(aroundRange: range)
         }
     }
 
@@ -536,22 +495,12 @@ public class TextView: UITextView {
 
     private func refreshList(aroundRange range: NSRange) {
         let formatter = TextListFormatter()
-
-        markCurrentSelection()
-
         formatter.updatesList(inString: storage, atRange: range)
-
-        restoreMarkedSelection()
     }
 
     private func removeList(aroundRange range: NSRange) {
         let formatter = TextListFormatter()
-
-        markCurrentSelection()
-
         formatter.removeList(inString: storage, atRange: range)
-
-        restoreMarkedSelection()
     }
 
     /// Adds or removes a ordered list style from the specified range.
@@ -561,12 +510,7 @@ public class TextView: UITextView {
     public func toggleOrderedList(range range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-
-        markCurrentSelection()
-
         formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: appliedRange)
-
-        restoreMarkedSelection()
     }
 
 
@@ -577,12 +521,7 @@ public class TextView: UITextView {
     public func toggleUnorderedList(range range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-
-        markCurrentSelection()
-
         formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: appliedRange)
-
-        restoreMarkedSelection()
     }
 
 
