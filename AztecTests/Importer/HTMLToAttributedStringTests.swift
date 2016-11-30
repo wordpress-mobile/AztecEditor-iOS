@@ -25,8 +25,8 @@ class HTMLToAttributedStringTests: XCTestCase {
 
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
-        for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        for (index, tagName) in tagNames.enumerated() {
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
 
             let nodeText = "Hello"
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"
@@ -44,7 +44,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssert(mainNode.parent == rootNode)
-                XCTAssert(mainNode.name == tagNames[index].lowercaseString)
+                XCTAssert(mainNode.name == tagNames[index].lowercased())
 
                 guard mainNode.children.count == 1,
                     let textNode = mainNode.children[0] as? TextNode else {
@@ -69,8 +69,8 @@ class HTMLToAttributedStringTests: XCTestCase {
 
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
-        for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        for (index, tagName) in tagNames.enumerated() {
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -92,7 +92,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
                 
                 XCTAssertEqual(firstTextNode.text(), firstText)
-                XCTAssertEqual(elementNode.name, tagNames[index].lowercaseString)
+                XCTAssertEqual(elementNode.name, tagNames[index].lowercased())
                 XCTAssertEqual(thirdTextNode.text(), thirdText)
 
                 guard elementNode.children.count == 1,
@@ -122,8 +122,8 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("p", "a"),
                         ("a", "bold")]
 
-        for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        for (index, tagName) in tagNames.enumerated() {
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
 
             let text = "Hello"
             let html = "<\(tagName.0)><\(tagName.1)>\(text)</\(tagName.1)></\(tagName.0)>"
@@ -142,7 +142,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(firstNode.parent, rootNode)
-                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercased())
                 XCTAssertEqual(firstNode.children.count, 1)
 
                 guard let secondNode = firstNode.children[0] as? ElementNode else {
@@ -151,7 +151,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(secondNode.parent, firstNode)
-                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercased())
                 XCTAssertEqual(secondNode.children.count, 1)
 
                 guard let textNode = secondNode.children[0] as? TextNode else {
@@ -180,8 +180,8 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("p", "a"),
                         ("a", "bold")]
 
-        for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        for (index, tagName) in tagNames.enumerated() {
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -202,7 +202,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(firstNode.parent, rootNode)
-                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercased())
                 XCTAssertEqual(firstNode.children.count, 3)
 
                 guard let firstTextNode = firstNode.children[0] as? TextNode else {
@@ -219,7 +219,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(secondNode.parent, firstNode)
-                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercased())
                 XCTAssertEqual(secondNode.children.count, 1)
 
                 guard let secondTextNode = secondNode.children[0] as? TextNode else {
@@ -259,8 +259,8 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("p", "a", "bold"),
                         ("a", "bold", "italic")]
 
-        for (index, tagName) in tagNames.enumerate() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFontOfSize(12).fontDescriptor())
+        for (index, tagName) in tagNames.enumerated() {
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -281,7 +281,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(firstNode.parent, rootNode)
-                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercaseString)
+                XCTAssertEqual(firstNode.name, tagNames[index].0.lowercased())
                 XCTAssertEqual(firstNode.children.count, 3)
 
                 guard let firstTextNode = firstNode.children[0] as? TextNode else {
@@ -298,7 +298,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(secondNode.parent, firstNode)
-                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercaseString)
+                XCTAssertEqual(secondNode.name, tagNames[index].1.lowercased())
                 XCTAssertEqual(secondNode.children.count, 1)
 
                 guard let thirdNode = secondNode.children[0] as? ElementNode else {
@@ -307,7 +307,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(thirdNode.parent, secondNode)
-                XCTAssertEqual(thirdNode.name, tagNames[index].2.lowercaseString)
+                XCTAssertEqual(thirdNode.name, tagNames[index].2.lowercased())
                 XCTAssertEqual(thirdNode.children.count, 1)
 
                 guard let secondTextNode = thirdNode.children[0] as? TextNode else {

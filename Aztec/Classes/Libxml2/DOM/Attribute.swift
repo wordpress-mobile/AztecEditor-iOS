@@ -5,13 +5,19 @@ extension Libxml2 {
     ///
     class Attribute: CustomReflectable {
         let name: String
-
+        
+        // MARK: - CustomReflectable
+        
+        public var customMirror: Mirror {
+            get {
+                return Mirror(self, children: ["name": name])
+            }
+        }
+        
+        // MARK: - Initializers
+        
         init(name: String) {
             self.name = name
-        }
-
-        func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name])
         }
     }
 
@@ -21,15 +27,21 @@ extension Libxml2 {
     ///
     class StringAttribute: Attribute {
         var value: String
-
+        
+        // MARK: - CustomReflectable
+        
+        override public var customMirror: Mirror {
+            get {
+                return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .suppressed)
+            }
+        }
+        
+        // MARK: - Initializers
+        
         init(name: String, value: String) {
             self.value = value
 
             super.init(name: name)
-        }
-
-        override func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .Suppressed)
         }
     }
 }

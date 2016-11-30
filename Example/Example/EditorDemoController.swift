@@ -7,13 +7,13 @@ import UIKit
 
 class EditorDemoController: UIViewController {
     static let margin = CGFloat(20)
-    static let defaultContentFont = UIFont.systemFontOfSize(14)
+    static let defaultContentFont = UIFont.systemFont(ofSize: 14)
 
-    private var mediaErrorMode = false
+    fileprivate var mediaErrorMode = false
 
-    private(set) lazy var richTextView: Aztec.TextView = {
-        let defaultMissingImage = Gridicon.iconOfType(.Image)
-        let textView = Aztec.TextView(defaultFont: self.dynamicType.defaultContentFont, defaultMissingImage: defaultMissingImage)
+    fileprivate(set) lazy var richTextView: Aztec.TextView = {
+        let defaultMissingImage = Gridicon.iconOfType(.image)
+        let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
 
         textView.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         textView.delegate = self
@@ -25,66 +25,66 @@ class EditorDemoController: UIViewController {
         toolbar.formatter = self
 
         textView.inputAccessoryView = toolbar
-        textView.textColor = UIColor.darkTextColor()
+        textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.addGestureRecognizer(self.tapGestureRecognizer)
 
         return textView
     }()
 
-    private(set) lazy var htmlTextView: UITextView = {
+    fileprivate(set) lazy var htmlTextView: UITextView = {
         let textView = UITextView()
 
         textView.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
         textView.font = defaultContentFont
-        textView.textColor = UIColor.darkTextColor()
+        textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.hidden = true
+        textView.isHidden = true
 
         return textView
     }()
 
-    private(set) lazy var titleTextField: UITextField = {
+    fileprivate(set) lazy var titleTextField: UITextField = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
         let textField = UITextField()
 
         textField.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
         textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
-                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGrayColor()])
+                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
-        textField.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
+        textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         let toolbar = self.createToolbar()
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
-        textField.returnKeyType = .Next
-        textField.textColor = UIColor.darkTextColor()
+        textField.returnKeyType = .next
+        textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
 
         return textField
     }()
 
-    private(set) lazy var separatorView: UIView = {
+    fileprivate(set) lazy var separatorView: UIView = {
         let separatorView = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
 
-        separatorView.backgroundColor = UIColor.darkTextColor()
+        separatorView.backgroundColor = UIColor.darkText
         separatorView.translatesAutoresizingMaskIntoConstraints = false
 
         return separatorView
     }()
 
-    private(set) var mode = EditionMode.RichText {
+    fileprivate(set) var mode = EditionMode.richText {
         didSet {
             switch mode {
-            case .HTML:
+            case .html:
                 switchToHTML()
-            case .RichText:
+            case .richText:
                 switchToRichText()
             }
         }
     }
 
-    private(set) lazy var tapGestureRecognizer: UILongPressGestureRecognizer = {
+    fileprivate(set) lazy var tapGestureRecognizer: UILongPressGestureRecognizer = {
         let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
         recognizer.cancelsTouchesInView = false
         recognizer.delegate = self
@@ -97,17 +97,17 @@ class EditorDemoController: UIViewController {
     // MARK: - Lifecycle Methods
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        edgesForExtendedLayout = .None
-        navigationController?.navigationBar.translucent = false
+        edgesForExtendedLayout = UIRectEdge()
+        navigationController?.navigationBar.isTranslucent = false
 
-        view.backgroundColor = UIColor.whiteColor()
+        view.backgroundColor = UIColor.white
         view.addSubview(titleTextField)
         view.addSubview(separatorView)
         view.addSubview(richTextView)
@@ -127,24 +127,24 @@ class EditorDemoController: UIViewController {
         richTextView.setHTML(html)
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dynamicType.keyboardWillShow(_:)), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dynamicType.keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
 
 
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
 
 
-    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         // TODO: Update toolbars
         //    [self.editorToolbar configureForHorizontalSizeClass:newCollection.horizontalSizeClass];
         //    [self.titleToolbar configureForHorizontalSizeClass:newCollection.horizontalSizeClass];
@@ -156,39 +156,39 @@ class EditorDemoController: UIViewController {
 
     func configureConstraints() {
 
-        NSLayoutConstraint.activateConstraints([
-            titleTextField.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
-            titleTextField.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
-            titleTextField.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: self.dynamicType.margin),
-            titleTextField.heightAnchor.constraintEqualToConstant(titleTextField.font!.lineHeight)
+        NSLayoutConstraint.activate([
+            titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
+            titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
+            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: type(of: self).margin),
+            titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
             ])
 
-        NSLayoutConstraint.activateConstraints([
-            separatorView.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
-            separatorView.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
-            separatorView.topAnchor.constraintEqualToAnchor(titleTextField.bottomAnchor, constant: self.dynamicType.margin),
-            separatorView.heightAnchor.constraintEqualToConstant(separatorView.frame.height)
+        NSLayoutConstraint.activate([
+            separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
+            separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
+            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: type(of: self).margin),
+            separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
-        NSLayoutConstraint.activateConstraints([
-            richTextView.leftAnchor.constraintEqualToAnchor(view.leftAnchor, constant: self.dynamicType.margin),
-            richTextView.rightAnchor.constraintEqualToAnchor(view.rightAnchor, constant: -self.dynamicType.margin),
-            richTextView.topAnchor.constraintEqualToAnchor(separatorView.bottomAnchor, constant: self.dynamicType.margin),
-            richTextView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -self.dynamicType.margin)
+        NSLayoutConstraint.activate([
+            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
+            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
+            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: type(of: self).margin),
+            richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -type(of: self).margin)
             ])
 
-        NSLayoutConstraint.activateConstraints([
-            htmlTextView.leftAnchor.constraintEqualToAnchor(richTextView.leftAnchor),
-            htmlTextView.rightAnchor.constraintEqualToAnchor(richTextView.rightAnchor),
-            htmlTextView.topAnchor.constraintEqualToAnchor(richTextView.topAnchor),
-            htmlTextView.bottomAnchor.constraintEqualToAnchor(richTextView.bottomAnchor),
+        NSLayoutConstraint.activate([
+            htmlTextView.leftAnchor.constraint(equalTo: richTextView.leftAnchor),
+            htmlTextView.rightAnchor.constraint(equalTo: richTextView.rightAnchor),
+            htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
+            htmlTextView.bottomAnchor.constraint(equalTo: richTextView.bottomAnchor),
             ])
     }
 
     func configureNavigationBar() {
         let title = NSLocalizedString("HTML", comment: "HTML!")
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: title,
-                                                            style: .Plain,
+                                                            style: .plain,
                                                             target: self,
                                                            action: #selector(switchEditionMode))
     }
@@ -203,10 +203,10 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Keyboard Handling
 
-    func keyboardWillShow(notification: NSNotification) {
+    func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             else {
                 return
         }
@@ -215,10 +215,10 @@ class EditorDemoController: UIViewController {
     }
 
 
-    func keyboardWillHide(notification: NSNotification) {
+    func keyboardWillHide(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             else {
                 return
         }
@@ -226,7 +226,7 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-    private func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
+    fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
         let scrollInsets = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
         let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
 
@@ -252,7 +252,7 @@ class EditorDemoController: UIViewController {
     // MARK: - Sample Content
 
     func getSampleHTML() -> String {
-        let htmlFilePath = NSBundle.mainBundle().pathForResource("content", ofType: "html")!
+        let htmlFilePath = Bundle.main.path(forResource: "content", ofType: "html")!
         let fileContents: String
 
         do {
@@ -268,7 +268,7 @@ class EditorDemoController: UIViewController {
 
 extension EditorDemoController : UITextViewDelegate
 {
-    func textViewDidChangeSelection(textView: UITextView) {
+    func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()        
     }
 }
@@ -282,65 +282,65 @@ extension EditorDemoController : UITextFieldDelegate
 extension EditorDemoController
 {
     enum EditionMode {
-        case RichText
-        case HTML
+        case richText
+        case html
 
         mutating func toggle() {
             switch self {
-            case .HTML:
-                self = .RichText
-            case .RichText:
-                self = .HTML
+            case .html:
+                self = .richText
+            case .richText:
+                self = .html
             }
         }
     }
 
-    private func switchToHTML() {
+    fileprivate func switchToHTML() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
         
         htmlTextView.text = richTextView.getHTML()
         view.endEditing(true)
-        htmlTextView.hidden = false
-        richTextView.hidden = true
+        htmlTextView.isHidden = false
+        richTextView.isHidden = true
     }
 
-    private func switchToRichText() {
+    fileprivate func switchToRichText() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
 
         richTextView.setHTML(htmlTextView.text)
 
         view.endEditing(true)
-        richTextView.hidden = false
-        htmlTextView.hidden = true
+        richTextView.isHidden = false
+        htmlTextView.isHidden = true
     }
 }
 
 
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
-    func handleActionForIdentifier(identifier: String) {
+    func handleActionForIdentifier(_ identifier: String) {
         guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
             return
         }
 
         switch identifier {
-        case .Bold:
+        case .bold:
             toggleBold()
-        case .Italic:
+        case .italic:
             toggleItalic()
-        case .Underline:
+        case .underline:
             toggleUnderline()
-        case .Strikethrough:
+        case .strikethrough:
             toggleStrikethrough()
-        case .Blockquote:
+        case .blockquote:
             toggleBlockquote()
-        case .Unorderedlist:
+        case .unorderedlist:
             toggleUnorderedList()
-        case .Orderedlist:
+        case .orderedlist:
             toggleOrderedList()
-        case .Link:
+        case .link:
             toggleLink()
-        case .Media:
+        case .media:
             showImagePicker()
         }
         updateFormatBar()
@@ -383,7 +383,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
     func toggleLink() {
         var linkTitle = ""
-        var linkURL: NSURL? = nil
+        var linkURL: URL? = nil
         var linkRange = richTextView.selectedRange
         // Let's check if the current range already has a link assigned to it.
         if let expandedRange = richTextView.linkFullRange(forRange: richTextView.selectedRange) {
@@ -391,11 +391,11 @@ extension EditorDemoController : Aztec.FormatBarDelegate
            linkURL = richTextView.linkURL(forRange: expandedRange)
         }
 
-        linkTitle = richTextView.attributedText.attributedSubstringFromRange(linkRange).string
+        linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
         showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
     }
 
-    func showLinkDialog(forURL url: NSURL?, title: String?, range: NSRange) {
+    func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
 
         let isInsertingNewLink = (url == nil)
         // TODO: grab link from pasteboard if available
@@ -406,33 +406,33 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
         let alertController = UIAlertController(title:insertButtonTitle,
                                                 message:nil,
-                                                preferredStyle:UIAlertControllerStyle.Alert)
+                                                preferredStyle:UIAlertControllerStyle.alert)
 
-        alertController.addTextFieldWithConfigurationHandler({ [weak self]textField in
-            textField.clearButtonMode = UITextFieldViewMode.Always;
+        alertController.addTextField(configurationHandler: { [weak self]textField in
+            textField.clearButtonMode = UITextFieldViewMode.always;
             textField.placeholder = NSLocalizedString("URL", comment:"URL text field placeholder");
 
             textField.text = url?.absoluteString
 
             textField.addTarget(self,
                 action:#selector(EditorDemoController.alertTextFieldDidChange),
-            forControlEvents:UIControlEvents.EditingChanged)
+            for:UIControlEvents.editingChanged)
             })
 
-        alertController.addTextFieldWithConfigurationHandler({ textField in
-            textField.clearButtonMode = UITextFieldViewMode.Always
+        alertController.addTextField(configurationHandler: { textField in
+            textField.clearButtonMode = UITextFieldViewMode.always
             textField.placeholder = NSLocalizedString("Link Name", comment:"Link name field placeholder")
-            textField.secureTextEntry = false
-            textField.autocapitalizationType = UITextAutocapitalizationType.Sentences
-            textField.autocorrectionType = UITextAutocorrectionType.Default
-            textField.spellCheckingType = UITextSpellCheckingType.Default
+            textField.isSecureTextEntry = false
+            textField.autocapitalizationType = UITextAutocapitalizationType.sentences
+            textField.autocorrectionType = UITextAutocorrectionType.default
+            textField.spellCheckingType = UITextSpellCheckingType.default
 
             textField.text = title;
 
             })
 
         let insertAction = UIAlertAction(title:insertButtonTitle,
-                                         style:UIAlertActionStyle.Default,
+                                         style:UIAlertActionStyle.default,
                                          handler:{ [weak self]action in
 
                                             self?.richTextView.becomeFirstResponder()
@@ -445,7 +445,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
                                             guard
                                                 let urlString = linkURLString,
-                                                let url = NSURL(string:urlString),
+                                                let url = URL(string:urlString),
                                                 let title = linkTitle
                                                 else {
                                                     return
@@ -454,14 +454,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate
                                             })
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
-                                         style:UIAlertActionStyle.Destructive,
+                                         style:UIAlertActionStyle.destructive,
                                          handler:{ [weak self] action in
                                             self?.richTextView.becomeFirstResponder()
                                             self?.richTextView.removeLink(inRange: range)
             })
 
         let cancelAction = UIAlertAction(title: cancelButtonTitle,
-                                         style:UIAlertActionStyle.Cancel,
+                                         style:UIAlertActionStyle.cancel,
                                          handler:{ [weak self]action in
                 self?.richTextView.becomeFirstResponder()
             })
@@ -474,13 +474,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate
 
         // Disabled until url is entered into field
         if let text = alertController.textFields?.first?.text {
-            insertAction.enabled = !text.isEmpty
+            insertAction.isEnabled = !text.isEmpty
         }
 
-        self.presentViewController(alertController, animated:true, completion:nil)
+        self.present(alertController, animated:true, completion:nil)
     }
 
-    func alertTextFieldDidChange(textField: UITextField) {
+    func alertTextFieldDidChange(_ textField: UITextField) {
         guard
             let alertController = presentedViewController as? UIAlertController,
             let urlFieldText = alertController.textFields?.first?.text,
@@ -489,87 +489,87 @@ extension EditorDemoController : Aztec.FormatBarDelegate
             return
         }
 
-        insertAction.enabled = !urlFieldText.isEmpty
+        insertAction.isEnabled = !urlFieldText.isEmpty
     }
 
 
     func showImagePicker() {
         let picker = UIImagePickerController()
-        picker.sourceType = .PhotoLibrary
-        picker.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(.PhotoLibrary) ?? []
+        picker.sourceType = .photoLibrary
+        picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary) ?? []
         picker.delegate = self
         picker.allowsEditing = false
-        picker.navigationBar.translucent = false
-        picker.modalPresentationStyle = .CurrentContext
+        picker.navigationBar.isTranslucent = false
+        picker.modalPresentationStyle = .currentContext
 
-        presentViewController(picker, animated: true, completion: nil)
+        present(picker, animated: true, completion: nil)
     }
 
     // MARK: -
 
     func createToolbar() -> Aztec.FormatBar {
-        let flex = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
+        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let items = [
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: Aztec.FormattingIdentifier.Media.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: Aztec.FormattingIdentifier.media.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: Aztec.FormattingIdentifier.Bold.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: Aztec.FormattingIdentifier.bold.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: Aztec.FormattingIdentifier.Italic.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: Aztec.FormattingIdentifier.italic.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: Aztec.FormattingIdentifier.Underline.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: Aztec.FormattingIdentifier.underline.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: Aztec.FormattingIdentifier.Strikethrough.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: Aztec.FormattingIdentifier.strikethrough.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: Aztec.FormattingIdentifier.Blockquote.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: Aztec.FormattingIdentifier.blockquote.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: Aztec.FormattingIdentifier.Unorderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: Aztec.FormattingIdentifier.unorderedlist.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: Aztec.FormattingIdentifier.Orderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: Aztec.FormattingIdentifier.orderedlist.rawValue),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: Aztec.FormattingIdentifier.Link.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: Aztec.FormattingIdentifier.link.rawValue),
             flex,
         ]
 
         let toolbar = Aztec.FormatBar()
-        toolbar.tintColor = UIColor.grayColor()
-        toolbar.highlightedTintColor = UIColor.blueColor()
-        toolbar.selectedTintColor = UIColor.darkGrayColor()
-        toolbar.disabledTintColor = UIColor.lightGrayColor()
+        
+        toolbar.tintColor = UIColor.gray
+        toolbar.highlightedTintColor = UIColor.blue
+        toolbar.selectedTintColor = UIColor.darkGray
+        toolbar.disabledTintColor = UIColor.lightGray
 
         toolbar.items = items
         return toolbar
     }
 
-    func templateImage(named named: String) -> UIImage {
-        return UIImage(named: named)!.imageWithRenderingMode(.AlwaysTemplate)
+    func templateImage(named: String) -> UIImage {
+        return UIImage(named: named)!.withRenderingMode(.alwaysTemplate)
     }
 }
 
 extension EditorDemoController: TextViewMediaDelegate
 {
-    func textView(textView: TextView, imageAtUrl url: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage {
+    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
-        let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, urlResponse, error) in
-            dispatch_async(
-                dispatch_get_main_queue(), {
+        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
+            DispatchQueue.main.async(execute: {
                     guard
                         error == nil,
                         let data = data,
-                        let image = UIImage(data: data, scale:UIScreen.mainScreen().scale)
+                        let image = UIImage(data: data, scale:UIScreen.main.scale)
                     else {
                         failure()
                         return
                     }
                     success(image)
             })
-        }
+        }) 
         task.resume()
 
-        return Gridicon.iconOfType(.Image)
+        return Gridicon.iconOfType(.image)
     }
     
-    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL {
+    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL {
         
         // TODO: start fake upload process
         
@@ -586,8 +586,8 @@ extension EditorDemoController: UINavigationControllerDelegate
 
 extension EditorDemoController: UIImagePickerControllerDelegate
 {
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-        dismissViewControllerAnimated(true, completion: nil)
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        dismiss(animated: true, completion: nil)
 
         guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             return
@@ -602,36 +602,41 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 
 private extension EditorDemoController
 {
-    private func saveToDisk(image image: UIImage) -> NSURL {
-        let fileName = "\(NSProcessInfo.processInfo().globallyUniqueString)_file.jpg"
-        guard
-            let data = UIImageJPEGRepresentation(image, 0.9),
-            let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(fileName)
-            where data.writeToURL(fileURL, atomically:true)
-            else {
-                fatalError("Could not save image to disk.")
+    func saveToDisk(image: UIImage) -> URL {
+        let fileName = "\(ProcessInfo.processInfo.globallyUniqueString)_file.jpg"
+
+        guard let data = UIImageJPEGRepresentation(image, 0.9) else {
+            fatalError("Could not conert image to JPEG.")
+        }
+
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
+
+        guard (try? data.write(to: fileURL, options: [.atomic])) != nil else {
+            fatalError("Could not write the image to disk.")
         }
         
         return fileURL
     }
     
-    func insertImage(image: UIImage) {
+    func insertImage(_ image: UIImage) {
         
         let index = richTextView.positionForCursor()
         let fileURL = saveToDisk(image: image)
         
         let imageId = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
-        let progress = NSProgress(parent: nil, userInfo: ["imageID":imageId])
+        let progress = Progress(parent: nil, userInfo: ["imageID":imageId])
         progress.totalUnitCount = 100
-        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true);
+        
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
     }
 
-    @objc func timerFireMethod(timer: NSTimer) {
-        guard let progress = timer.userInfo as? NSProgress,
-              let imageId = progress.userInfo["imageID"] as? String
-        else {
+    @objc func timerFireMethod(_ timer: Timer) {
+        guard let progress = timer.userInfo as? Progress,
+            let imageId = progress.userInfo["imageID"] as? String else {
+                
             return
         }
+        
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {            
             richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blueColor())
@@ -651,12 +656,12 @@ private extension EditorDemoController
 
     var mediaMessageAttributes:[String:AnyObject] {
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .Center
-        let font = UIFont.preferredFontForTextStyle(UIFontTextStyleCaption1)
+        paragraphStyle.alignment = .center
+        let font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
         return [NSParagraphStyleAttributeName:paragraphStyle, NSFontAttributeName:font]
     }
     
-    func displayDetailsForAttachment(attachment: TextAttachment, position:CGPoint) {
+    func displayDetailsForAttachment(_ attachment: TextAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
@@ -671,19 +676,19 @@ private extension EditorDemoController
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
-        presentViewController(navigationController, animated: true, completion: nil)
+        present(navigationController, animated: true, completion: nil)
     }
 }
 
 
 extension EditorDemoController: UIGestureRecognizerDelegate
 {
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 
-    func richTextViewWasPressed(recognizer: UIGestureRecognizer) {
-        let locationInTextView = recognizer.locationInView(richTextView)
+    func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
+        let locationInTextView = recognizer.location(in: richTextView)
         guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
             return
         }

@@ -28,14 +28,12 @@ class TextNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 2)
         
-        guard let newTextNode1 = paragraph.children[0] as? TextNode
-            where newTextNode1.text() == text1 else {
+        guard let newTextNode1 = paragraph.children[0] as? TextNode, newTextNode1.text() == text1 else {
                 XCTFail("Expected a text node here.")
                 return
         }
         
-        guard let newTextNode2 = paragraph.children[1] as? TextNode
-            where newTextNode2.text() == text2 else {
+        guard let newTextNode2 = paragraph.children[1] as? TextNode, newTextNode2.text() == text2 else {
                 XCTFail("Expected a text node here.")
                 return
         }

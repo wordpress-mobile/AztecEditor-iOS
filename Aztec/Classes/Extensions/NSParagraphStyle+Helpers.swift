@@ -16,7 +16,7 @@ extension NSParagraphStyle
 
             for intervalNumber in (1 ..< tabStepCount) {
                 let location = intervalNumber * tabStepInterval
-                let textTab = NSTextTab(textAlignment: .Natural, location: CGFloat(location), options: [:])
+                let textTab = NSTextTab(textAlignment: .natural, location: CGFloat(location), options: [:])
 
                 tabStops.append(textTab)
             }
@@ -26,7 +26,7 @@ extension NSParagraphStyle
             return style
         }()
 
-        private static let tabStepInterval = 8
-        private static let tabStepCount    = 12
+        fileprivate static let tabStepInterval = 8
+        fileprivate static let tabStepCount    = 12
     }
 }

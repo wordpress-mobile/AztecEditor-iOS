@@ -21,8 +21,8 @@ class InAttributesConverterTests: XCTestCase {
     func testNameConversion() {
 
         let name = "Attribute"
-        let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-        let namePtr = UnsafePointer<xmlChar>(nameCStr)
+        let nameCStr = name.cString(using: String.Encoding.utf8)!
+        let namePtr = UnsafePointer<xmlChar>(OpaquePointer(nameCStr))
 
         var xmlAttribute = xmlAttr()
         xmlAttribute.name = namePtr
@@ -39,24 +39,24 @@ class InAttributesConverterTests: XCTestCase {
     func testStringAttributeConversion() {
 
         let name = "StringAttribute"
-        let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-        let namePtr = UnsafePointer<xmlChar>(nameCStr)
+        let nameCStr = name.cString(using: String.Encoding.utf8)!
+        let namePtr = UnsafePointer<xmlChar>(OpaquePointer(nameCStr))
 
         let value = "Value"
-        let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
-        let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+        let valueCStr = value.cString(using: String.Encoding.utf8)!
+        let valuePtr = UnsafeMutablePointer<xmlChar>(OpaquePointer(valueCStr))
 
         var node = xmlNode()
         node.content = valuePtr
 
         var xmlAttribute = xmlAttr()
         xmlAttribute.name = namePtr
-        xmlAttribute.children = withUnsafeMutablePointer(&node) {UnsafeMutablePointer<xmlNode>($0)}
+        xmlAttribute.children = withUnsafeMutablePointer(to: &node) {UnsafeMutablePointer<xmlNode>($0)}
 
         let converter = Libxml2.In.AttributeConverter()
 
         let attribute = converter.convert(xmlAttribute)
 
-        XCTAssertEqual(String(attribute.dynamicType), String(HTML.StringAttribute.self))
+        XCTAssertTrue(attribute is HTML.StringAttribute)
     }
 }

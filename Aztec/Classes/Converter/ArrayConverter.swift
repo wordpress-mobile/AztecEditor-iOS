@@ -19,7 +19,7 @@ class ArrayConverter<ElementConverterType: Converter>: Converter {
         self.elementConverter = elementConverter
     }
 
-    func convert(input: [ElementConverterType.TypeIn]) throws -> [ElementConverterType.TypeOut] {
+    func convert(_ input: [ElementConverterType.TypeIn]) throws -> [ElementConverterType.TypeOut] {
 
         var output = TypeOut()
 
@@ -50,7 +50,7 @@ class SafeArrayConverter<ElementConverterType: SafeConverter>: SafeConverter {
         self.elementConverter = elementConverter
     }
 
-    func convert(input: [ElementConverterType.TypeIn]) -> [ElementConverterType.TypeOut] {
+    func convert(_ input: [ElementConverterType.TypeIn]) -> [ElementConverterType.TypeOut] {
 
         var output = TypeOut()
 

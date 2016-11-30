@@ -7,11 +7,17 @@ extension Libxml2 {
     class Node: Equatable, CustomReflectable {
 
         let name: String
-        weak var parent: ElementNode?
-
-        func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "parent": parent])
+        weak var parent: ElementNode? = nil
+        
+        // MARK: - CustomReflectable
+        
+        public var customMirror: Mirror {
+            get {
+                return Mirror(self, children: ["name": name, "parent": parent as Any])
+            }
         }
+        
+        // MARK: - Initializers
 
         init(name: String) {
             self.name = name
@@ -71,7 +77,7 @@ extension Libxml2 {
         ///         node, otherwise its the receiver's parent node.  The last element is the root
         ///         node.
         ///
-        func elementNodesToRoot(interruptAtBlockLevel interruptAtBlockLevel: Bool = false) -> [ElementNode] {
+        func elementNodesToRoot(interruptAtBlockLevel: Bool = false) -> [ElementNode] {
             var nodes = [ElementNode]()
             var currentNode = self.parent
 
@@ -126,10 +132,11 @@ extension Libxml2 {
         ///
         /// - Returns: the newly created element.
         ///
+        @discardableResult
         func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             let originalParent = parent
-            let originalIndex = parent?.children.indexOf(self)
+            let originalIndex = parent?.children.index(of: self)
 
             let newNode = ElementNode(descriptor: elementDescriptor)
 

@@ -15,7 +15,7 @@ extension NSAttributedString
     ///
     /// - Returns: A subset of the input ranges that don't contain TextLists matching the input style.
     ///
-    func filterListRanges(ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
+    func filterListRanges(_ ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
         return ranges.filter { range in
             let list = textListAttribute(spanningRange: range)
             return list == nil || list?.style == style
@@ -31,7 +31,7 @@ extension NSAttributedString
     func rangeOfTextList(atIndex index: Int) -> NSRange? {
         var effectiveRange = NSRange()
         let targetRange = rangeOfEntireString
-        guard let _ = attribute(TextList.attributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: targetRange) as? TextList else {
+        guard let _ = attribute(TextList.attributeName, at: index, longestEffectiveRange: &effectiveRange, in: targetRange) as? TextList else {
             return nil
         }
 
@@ -54,13 +54,13 @@ extension NSAttributedString
     func rangeOfLine(atIndex index: Int) -> NSRange? {
         var range: NSRange?
 
-        foundationString.enumerateSubstringsInRange(rangeOfEntireString, options: .ByLines) { (substring, substringRange, enclosingRange, stop) in
+        foundationString.enumerateSubstrings(in: rangeOfEntireString, options: NSString.EnumerationOptions()) { (substring, substringRange, enclosingRange, stop) in
             guard index >= enclosingRange.location && index < NSMaxRange(enclosingRange) else {
                 return
             }
 
             range = enclosingRange
-            stop.memory = true
+            stop.pointee = true
         }
 
         return range
@@ -81,7 +81,7 @@ extension NSAttributedString
 
         let diff = index - listRange.location
         let subRange = NSRange(location: index, length: listRange.length - diff)
-        return attributedSubstringFromRange(subRange)
+        return attributedSubstring(from: subRange)
     }
 
 
@@ -92,7 +92,7 @@ extension NSAttributedString
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return attribute(TextList.attributeName, atIndex: index, effectiveRange: nil) as? TextList
+        return attribute(TextList.attributeName, at: index, effectiveRange: nil) as? TextList
     }
 
 
@@ -110,9 +110,9 @@ extension NSAttributedString
         //
         var list: TextList?
 
-        enumerateAttribute(TextList.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+        enumerateAttribute(TextList.attributeName, in: range, options: []) { (attribute, range, stop) in
             list = attribute as? TextList
-            stop.memory = true
+            stop.pointee = true
         }
 
         return list
@@ -128,9 +128,9 @@ extension NSAttributedString
     func textListItemAttribute(spanningRange range: NSRange) -> TextListItem? {
         var item: TextListItem?
 
-        enumerateAttribute(TextListItem.attributeName, inRange: range, options: []) { (attribute, range, stop) in
+        enumerateAttribute(TextListItem.attributeName, in: range, options: []) { (attribute, range, stop) in
             item = attribute as? TextListItem
-            stop.memory = true
+            stop.pointee = true
         }
 
         return item
@@ -147,10 +147,10 @@ extension NSAttributedString
         var paragraphRanges = [NSRange]()
         let targetRange = rangeOfEntireString
 
-        foundationString.enumerateSubstringsInRange(targetRange, options: .ByParagraphs) { (substring, substringRange, enclosingRange, stop) in
+        foundationString.enumerateSubstrings(in: targetRange, options: .byParagraphs) { (substring, substringRange, enclosingRange, stop) in
             // Stop if necessary.
             if enclosingRange.location >= NSMaxRange(range) {
-                stop.memory = true
+                stop.pointee = true
                 return
             }
 
@@ -169,8 +169,8 @@ extension NSAttributedString
     ///
     /// This is an attributed string wrapper for `NSString.paragraphRangeForRange()`
     ///
-    func paragraphRange(`for` range: NSRange) -> NSRange {
-        return foundationString.paragraphRangeForRange(range)
+    func paragraphRange(for range: NSRange) -> NSRange {
+        return foundationString.paragraphRange(for: range)
     }
 
 
@@ -184,7 +184,7 @@ extension NSAttributedString
     ///
     func paragraphRanges(atIndex index: Int, matchingListStyle style: TextList.Style) -> [NSRange] {
         guard index >= 0 && index < length, let range = rangeOfTextList(atIndex: index),
-            let list = textListAttribute(atIndex: index) where list.style == style else
+            let list = textListAttribute(atIndex: index), list.style == style else
         {
             return []
         }
@@ -204,7 +204,7 @@ extension NSAttributedString
     /// - Returns: A collection of sorted NSRange's
     ///
     func paragraphRanges(preceedingAndSucceding ranges: [NSRange], matchingListStyle style: TextList.Style) -> [NSRange] {
-        guard let firstRange = ranges.first, lastRange = ranges.last else {
+        guard let firstRange = ranges.first, let lastRange = ranges.last else {
             return ranges
         }
 
@@ -216,7 +216,7 @@ extension NSAttributedString
 
         for index in [preceedingIndex, followingIndex] {
             for range in paragraphRanges(atIndex: index, matchingListStyle: style) {
-                guard adjustedRanges.contains({ NSEqualRanges($0, range)}) == false else {
+                guard adjustedRanges.contains(where: { NSEqualRanges($0, range)}) == false else {
                     continue
                 }
 
@@ -225,7 +225,7 @@ extension NSAttributedString
         }
 
         // Make sure the ranges are sorted in ascending order
-        return adjustedRanges.sort {
+        return adjustedRanges.sorted {
             $0.location < $1.location
         }
     }
@@ -250,17 +250,17 @@ extension NSAttributedString
         // Insert the range at the beginning of the string.
         let markerText = style.markerText(forItemNumber: number)
         var markerAttributes = [String: AnyObject]()
-        if let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, atIndex: 0, effectiveRange: nil) {
-            markerAttributes[NSParagraphStyleAttributeName] = paragraphStyle
+        if let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) {
+            markerAttributes[NSParagraphStyleAttributeName] = paragraphStyle as AnyObject?
         }
-        if let fontStyle = output.attribute(NSFontAttributeName, atIndex: 0, effectiveRange: nil) {
-            markerAttributes[NSFontAttributeName] = fontStyle
+        if let fontStyle = output.attribute(NSFontAttributeName, at: 0, effectiveRange: nil) {
+            markerAttributes[NSFontAttributeName] = fontStyle as AnyObject?
         }
-        output.replaceCharactersInRange(NSRange.zero, withAttributedString: NSAttributedString(string:markerText, attributes: markerAttributes))
+        output.replaceCharacters(in: NSRange.zero, with: NSAttributedString(string:markerText, attributes: markerAttributes))
 
         // Apply Item Marker
         let markerAttribute = TextListItemMarker()
-        let markerRange = output.foundationString.rangeOfString(markerText)
+        let markerRange = output.foundationString.range(of: markerText)
 
         output.addAttribute(TextListItemMarker.attributeName, value: markerAttribute, range: markerRange)
 
@@ -296,8 +296,8 @@ extension NSAttributedString
         // Nuke the Marker
         var markerRange = NSRange()
         if clean.length > 0 {
-            if let _ = clean.attribute(TextListItemMarker.attributeName, atIndex: 0, longestEffectiveRange: &markerRange, inRange: range) {
-                clean.replaceCharactersInRange(markerRange, withString: String())
+            if let _ = clean.attribute(TextListItemMarker.attributeName, at: 0, longestEffectiveRange: &markerRange, in: range) {
+                clean.replaceCharacters(in: markerRange, with: String())
             }
         }
 
@@ -306,7 +306,7 @@ extension NSAttributedString
 
     /// Internal convenience helper. Returns the internal string as a NSString instance
     ///
-    private var foundationString: NSString {
+    fileprivate var foundationString: NSString {
         return string as NSString
     }
 }

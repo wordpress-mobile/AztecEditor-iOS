@@ -53,12 +53,12 @@ extension Libxml2 {
             return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .li, .noscript, .ol, .p, .pre, .table, .ul]
         }
 
-        static func isBlockLevelNodeName(name: String) -> Bool {
+        static func isBlockLevelNodeName(_ name: String) -> Bool {
             return StandardElementType(rawValue: name)?.isBlockLevelNodeName() ?? false
         }
 
         func isBlockLevelNodeName() -> Bool {
-            return self.dynamicType.blockLevelNodeNames.contains(self)
+            return type(of: self).blockLevelNodeNames.contains(self)
         }
 
         var equivalentNames: [String] {
@@ -82,19 +82,19 @@ extension Libxml2 {
             let resultString = NSMutableAttributedString(attributedString: content)
             switch self {
             case .img:
-                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
+                return NSAttributedString(string:String(describing: UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
             case .br:
                 return NSAttributedString(string: "\n", attributes: attributes)
             case .li:
-                if let listItemAttribute = content.attribute(TextListItem.attributeName, atIndex: 0, effectiveRange: nil) as? TextListItem,
-                   let listAttribute = content.attribute(TextList.attributeName, atIndex: 0, effectiveRange: nil) as? TextList
+                if let listItemAttribute = content.attribute(TextListItem.attributeName, at: 0, effectiveRange: nil) as? TextListItem,
+                   let listAttribute = content.attribute(TextList.attributeName, at: 0, effectiveRange: nil) as? TextList
                 {
                     var attributesForMarker = attributes
                     attributesForMarker[TextListItemMarker.attributeName] = TextListItemMarker()
                     attributesForMarker[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
                     let markerString = NSAttributedString(string:listAttribute.style.markerText(forItemNumber: listItemAttribute.number),
                                                           attributes: attributesForMarker)
-                    resultString.insertAttributedString(markerString, atIndex: 0)
+                    resultString.insert(markerString, at: 0)
                 }
                 return resultString
             default:

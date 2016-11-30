@@ -17,8 +17,8 @@ extension Libxml2.Out {
         ///
         /// - Returns: a libxml2 node.
         ///
-        func convert(rawNode: Node) -> UnsafeMutablePointer<xmlNode> {
-            var node: UnsafeMutablePointer<xmlNode>!
+        func convert(_ rawNode: Node) -> xmlNodePtr {
+            var node: xmlNodePtr
             
             if let textNode = rawNode as? TextNode {
                 node = createTextNode(textNode)
@@ -26,6 +26,8 @@ extension Libxml2.Out {
                 node = createElementNode(elementNode)
             } else if let commentNode = rawNode as? CommentNode {
                 node = createCommentNode(commentNode)
+            } else {
+                fatalError("We're missing support for a node type.  This should not happen.")
             }
 
             return node
@@ -38,14 +40,14 @@ extension Libxml2.Out {
         ///
         /// - Returns: the the libxml2 xmlNode.
         ///
-        private func createElementNode(rawNode: ElementNode) -> UnsafeMutablePointer<xmlNode> {
+        fileprivate func createElementNode(_ rawNode: ElementNode) -> xmlNodePtr {
             let nodeConverter = NodeConverter()
             
             let name = rawNode.name
-            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let namePtr = UnsafeMutablePointer<xmlChar>(nameCStr)
+            let nameCStr = name.cString(using: String.Encoding.utf8)!
+            let namePtr = UnsafePointer<xmlChar>(OpaquePointer(nameCStr))
             
-            let node = xmlNewNode(nil, namePtr)
+            let node = xmlNewNode(nil, namePtr)!
             let attributeConverter = AttributeConverter(forNode: node)
 
             for rawAttribute in rawNode.attributes {
@@ -67,10 +69,10 @@ extension Libxml2.Out {
         ///
         /// - Returns: the libxml2 xmlNode
         ///
-        private func createTextNode(rawNode: TextNode) -> UnsafeMutablePointer<xmlNode> {
+        fileprivate func createTextNode(_ rawNode: TextNode) -> xmlNodePtr {
             let value = rawNode.text()
-            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+            let valueCStr = value.cString(using: String.Encoding.utf8)!
+            let valuePtr = UnsafePointer<xmlChar>(OpaquePointer(valueCStr))
             
             return xmlNewText(valuePtr)
         }
@@ -82,10 +84,10 @@ extension Libxml2.Out {
         ///
         /// - Returns: the libxml2 xmlNode
         ///
-        private func createCommentNode(rawNode: CommentNode) -> UnsafeMutablePointer<xmlNode> {
+        fileprivate func createCommentNode(_ rawNode: CommentNode) -> xmlNodePtr {
             let value = rawNode.comment
-            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
+            let valueCStr = value.cString(using: String.Encoding.utf8)!
+            let valuePtr = UnsafePointer<xmlChar>(OpaquePointer(valueCStr))
 
             return xmlNewComment(valuePtr)
         }

@@ -14,7 +14,7 @@ class HTMLToAttributedString: Converter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
-    func convert(html: String) throws -> (rootNode: RootNode, attributedString: NSAttributedString) {
+    func convert(_ html: String) throws -> (rootNode: RootNode, attributedString: NSAttributedString) {
         let htmlToNode = Libxml2.In.HTMLConverter()
         let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 

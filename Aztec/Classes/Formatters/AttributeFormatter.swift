@@ -44,9 +44,9 @@ extension AttributeFormatter {
         let string = textView.textStorage
         let range = applicationRange(forRange: NSRange(location: index, length: 0), inString: string)
         let attributes = range.length > 0
-            ? string.attributesAtIndex(index, effectiveRange: nil)
+            ? string.attributes(at: index, effectiveRange: nil)
             : textView.typingAttributes
-        return present(inAttributes: attributes)
+        return present(inAttributes: attributes as [String : AnyObject])
     }
 }
 
@@ -68,7 +68,7 @@ extension AttributeFormatter {
 
 private extension AttributeFormatter {
     func toggleTypingAttribute(inTextView textView: UITextView) {
-        if present(inAttributes: textView.typingAttributes) {
+        if present(inAttributes: textView.typingAttributes as [String : AnyObject]) {
             removeTypingAttribute(fromTextView: textView)
         } else {
             addTypingAttribute(toTextView: textView)
@@ -83,7 +83,7 @@ private extension AttributeFormatter {
 
     func removeTypingAttribute(fromTextView textView: UITextView) {
         for (key, _) in attributes  {
-            textView.typingAttributes.removeValueForKey(key)
+            textView.typingAttributes.removeValue(forKey: key)
         }
     }
 
@@ -106,13 +106,13 @@ private extension AttributeFormatter {
     }
 
     func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
-        let attributes = string.attributesAtIndex(index, effectiveRange: nil)
-        return present(inAttributes: attributes)
+        let attributes = string.attributes(at: index, effectiveRange: nil)
+        return present(inAttributes: attributes as [String : AnyObject])
     }
 
     func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
         let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
-        string.insertAttributedString(attributedSpace, atIndex: index)
+        string.insert(attributedSpace, at: index)
     }
 }
 

@@ -28,7 +28,7 @@ class ViewController: UITableViewController
     // MARK: Actions
 
 
-    func showEditorDemo(loadSampleHTML loadSampleHTML: Bool = true) {
+    func showEditorDemo(loadSampleHTML: Bool = true) {
         let controller = EditorDemoController()
         controller.loadSampleHTML = loadSampleHTML
         navigationController?.pushViewController(controller, animated: true)
@@ -55,19 +55,19 @@ class ViewController: UITableViewController
     // MARK: TableView Methods
 
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return rows.count
     }
 
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier)!
-        cell.accessoryType = .DisclosureIndicator
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)!
+        cell.accessoryType = .disclosureIndicator
 
         let row = rows[indexPath.row]
         cell.textLabel?.text = row.title
@@ -76,8 +76,8 @@ class ViewController: UITableViewController
     }
 
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         rows[indexPath.row].action()
     }
 

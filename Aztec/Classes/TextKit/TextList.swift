@@ -11,13 +11,13 @@ class TextList
     /// List Styles
     ///
     enum Style {
-        case Ordered
-        case Unordered
+        case ordered
+        case unordered
 
         func markerText(forItemNumber number: Int) -> String {
             switch self {
-            case .Ordered:      return "\(number).\t"
-            case .Unordered:    return "\u{2022}\t\t"
+            case .ordered:      return "\(number).\t"
+            case .unordered:    return "\u{2022}\t\t"
             }
         }
     }

@@ -51,15 +51,15 @@ class DraggableDemoController: UIViewController
 
         let attributes = [
             NSParagraphStyleAttributeName : NSParagraphStyle.defaultParagraphStyle(),
-            NSFontAttributeName: UIFont.systemFontOfSize(16)
+            NSFontAttributeName: UIFont.systemFont(ofSize: 16)
         ]
 
         let attrStr = NSMutableAttributedString()
-        attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
-        attrStr.appendAttributedString(NSAttributedString(attachment: attachment1))
-        attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
-        attrStr.appendAttributedString(NSAttributedString(attachment: attachment2))
-        attrStr.appendAttributedString(NSAttributedString(string: lipsum, attributes: attributes))
+        attrStr.append(NSAttributedString(string: lipsum, attributes: attributes))
+        attrStr.append(NSAttributedString(attachment: attachment1))
+        attrStr.append(NSAttributedString(string: lipsum, attributes: attributes))
+        attrStr.append(NSAttributedString(attachment: attachment2))
+        attrStr.append(NSAttributedString(string: lipsum, attributes: attributes))
 
         return NSAttributedString(attributedString: attrStr)
     }
@@ -169,7 +169,7 @@ extension DraggableDemoController : AztecAttachmentManagerDelegate
         label.text = "Example Attachment View"
         label.textAlignment = .Center
         label.backgroundColor = UIColor.lightGrayColor()
-        label.font = UIFont.systemFontOfSize(20)
+        label.font = UIFont.systemFont(ofSize: 20)
         label.userInteractionEnabled = true
 
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(DraggableDemoController.handleLongPressGesture))

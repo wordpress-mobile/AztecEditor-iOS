@@ -2,13 +2,13 @@ import Foundation
 
 public enum FormattingIdentifier: String
 {
-    case Bold = "bold"
-    case Italic = "italic"
-    case Underline = "underline"
-    case Strikethrough = "strikethrough"
-    case Orderedlist = "orderedlist"
-    case Unorderedlist = "unorderedlist"
-    case Blockquote = "blockquote"
-    case Link = "link"
-    case Media = "media"
+    case bold = "bold"
+    case italic = "italic"
+    case underline = "underline"
+    case strikethrough = "strikethrough"
+    case orderedlist = "orderedlist"
+    case unorderedlist = "unorderedlist"
+    case blockquote = "blockquote"
+    case link = "link"
+    case media = "media"
 }

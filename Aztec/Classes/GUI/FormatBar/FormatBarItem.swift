@@ -3,18 +3,18 @@ import UIKit
 
 
 
-public class FormatBarItem: UIBarButtonItem
+open class FormatBarItem: UIBarButtonItem
 {
 
-    public var identifier: String?
+    open var identifier: String?
 
 
-    private var button: AztecFormatBarButton? {
+    fileprivate var button: AztecFormatBarButton? {
         return customView as? AztecFormatBarButton
     }
 
 
-    override public var tintColor: UIColor? {
+    override open var tintColor: UIColor? {
         didSet {
             button?.normalTintColor = tintColor
             button?.tintColor = tintColor
@@ -22,7 +22,7 @@ public class FormatBarItem: UIBarButtonItem
     }
 
 
-    public var selectedTintColor: UIColor? {
+    open var selectedTintColor: UIColor? {
         get {
             return button?.selectedTintColor
         }
@@ -32,7 +32,7 @@ public class FormatBarItem: UIBarButtonItem
     }
 
 
-    public var highlightedTintColor: UIColor? {
+    open var highlightedTintColor: UIColor? {
         get {
             return button?.highlightedTintColor
         }
@@ -42,7 +42,7 @@ public class FormatBarItem: UIBarButtonItem
     }
 
 
-    public var disabledTintColor: UIColor? {
+    open var disabledTintColor: UIColor? {
         get {
             return button?.disabledTintColor
         }
@@ -52,19 +52,19 @@ public class FormatBarItem: UIBarButtonItem
     }
 
 
-    public override var enabled: Bool {
+    open override var isEnabled: Bool {
         didSet {
-            button?.enabled = enabled
+            button?.isEnabled = isEnabled
         }
     }
 
 
-    public var selected: Bool {
+    open var selected: Bool {
         get {
-            return button?.selected ?? false
+            return button?.isSelected ?? false
         }
         set {
-            button?.selected = newValue
+            button?.isSelected = newValue
         }
     }
 
@@ -78,20 +78,20 @@ public class FormatBarItem: UIBarButtonItem
     }
 
 
-    init(image: UIImage, frame: CGRect, target: AnyObject?, action: Selector) {
+    init(image: UIImage, frame: CGRect, target: AnyObject?, action: Selector?) {
         super.init()
 
         self.target = target
         self.action = action
 
-        let button = AztecFormatBarButton(type: .Custom)
+        let button = AztecFormatBarButton(type: .custom)
         button.frame = frame
-        button.setImage(image, forState: .Normal)
-        button.addTarget(self, action: #selector(self.dynamicType.handleButtonTapped(_:)), forControlEvents: .TouchUpInside)
+        button.setImage(image, for: UIControlState())
+        button.addTarget(self, action: #selector(type(of: self).handleButtonTapped(_:)), for: .touchUpInside)
         button.adjustsImageWhenDisabled = false
         button.adjustsImageWhenHighlighted = false
 
-        style = .Plain
+        style = .plain
         customView = button
     }
 
@@ -103,8 +103,13 @@ public class FormatBarItem: UIBarButtonItem
 
     // MARK: - Actions
 
-    func handleButtonTapped(sender: UIButton) {
-        target?.performSelector(action, withObject: self)
+    func handleButtonTapped(_ sender: UIButton) {
+        guard let target = target,
+            let action = action else {
+            return
+        }
+        
+        _ = target.perform(action, with: self)
     }
 
 }
@@ -119,21 +124,21 @@ class AztecFormatBarButton: UIButton
     var normalTintColor: UIColor?
 
 
-    override var selected: Bool {
+    override var isSelected: Bool {
         didSet {
             updateTintColor()
         }
     }
 
 
-    override var highlighted: Bool {
+    override var isHighlighted: Bool {
         didSet {
             updateTintColor()
         }
     }
 
 
-    override var enabled: Bool {
+    override var isEnabled: Bool {
         didSet {
             updateTintColor()
         }
@@ -141,17 +146,17 @@ class AztecFormatBarButton: UIButton
 
 
     func updateTintColor() {
-        if state.contains(.Disabled) {
+        if state.contains(.disabled) {
             tintColor = disabledTintColor
             return
         }
 
-        if state.contains(.Highlighted) {
+        if state.contains(.highlighted) {
             tintColor = highlightedTintColor
             return
         }
 
-        if state.contains(.Selected) {
+        if state.contains(.selected) {
             tintColor = selectedTintColor
             return
         }

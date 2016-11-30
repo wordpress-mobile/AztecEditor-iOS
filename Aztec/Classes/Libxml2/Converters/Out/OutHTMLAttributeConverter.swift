@@ -7,10 +7,10 @@ extension Libxml2.Out {
         typealias Attribute = Libxml2.Attribute
         typealias StringAttribute = Libxml2.StringAttribute
 
-        private let node: xmlNodePtr
+        fileprivate let node: xmlNodePtr
 
-        init(forNode node: xmlNodePtr = nil) {
-            self.node = node
+        init(forNode node: xmlNodePtr? = nil) {
+            self.node = node!
         }
         
         /// Converts a single HTML.Attribute into a single libxml2 attribute
@@ -20,8 +20,8 @@ extension Libxml2.Out {
         ///
         /// - Returns: an libxml2 attribute.
         ///
-        func convert(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
-            var attribute: UnsafeMutablePointer<xmlAttr>!
+        func convert(_ rawAttribute: Attribute) -> xmlAttrPtr {
+            var attribute: xmlAttrPtr
             
             if let stringAttribute = rawAttribute as? StringAttribute {
                 attribute = createStringAttribute(stringAttribute)
@@ -39,15 +39,15 @@ extension Libxml2.Out {
         ///
         /// - Returns: libxml2 string attribute
         ///
-        private func createStringAttribute(rawStringAttribute: StringAttribute) -> UnsafeMutablePointer<xmlAttr> {
+        fileprivate func createStringAttribute(_ rawStringAttribute: StringAttribute) -> xmlAttrPtr {
             let name = rawStringAttribute.name
-            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let namePtr = UnsafePointer<xmlChar>(nameCStr)
+            let nameCStr = name.cString(using: String.Encoding.utf8)!
+            let namePtr = UnsafePointer<xmlChar>(OpaquePointer(nameCStr))
             
             let value = rawStringAttribute.value
-            let valueCStr = value.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let valuePtr = UnsafeMutablePointer<xmlChar>(valueCStr)
-
+            let valueCStr = value.cString(using: String.Encoding.utf8)!
+            let valuePtr = UnsafePointer<xmlChar>(OpaquePointer(valueCStr))
+            
             return xmlNewProp(node, namePtr, valuePtr)
         }
         
@@ -58,10 +58,10 @@ extension Libxml2.Out {
         ///
         /// - Returns: libxml2 attribute
         ///
-        private func createAttribute(rawAttribute: Attribute) -> UnsafeMutablePointer<xmlAttr> {
+        fileprivate func createAttribute(_ rawAttribute: Attribute) -> xmlAttrPtr {
             let name = rawAttribute.name
-            let nameCStr = name.cStringUsingEncoding(NSUTF8StringEncoding)!
-            let namePtr = UnsafePointer<xmlChar>(nameCStr)
+            let nameCStr = name.cString(using: String.Encoding.utf8)!
+            let namePtr = UnsafePointer<xmlChar>(OpaquePointer(nameCStr))
             
             return xmlNewProp(node, namePtr, nil)
         }

@@ -18,7 +18,7 @@ class CLinkedListToArrayConverter<ElementConverterType: Converter>: Converter {
     /// - Returns: a pointer to the next element in the linked list.  Can be nil to signal the end
     ///         of the list is reached.
     ///
-    let next: (current: ElementConverterType.TypeIn) -> (UnsafeMutablePointer<ElementConverterType.TypeIn>)
+    let next: (_ current: ElementConverterType.TypeIn) -> (UnsafeMutablePointer<ElementConverterType.TypeIn>)
 
     /// Defines the TypeIn to fulfill the Converter contract.  Since this class converts from C
     /// linked lists to Swift arrays, it's going to be an UnsafeMutablePointer to whatever the
@@ -40,21 +40,21 @@ class CLinkedListToArrayConverter<ElementConverterType: Converter>: Converter {
     ///                     linked list into an element of the output array.
     ///     - next: the closure that will provide the next element in the list, given the current one.
     ///
-    init(elementConverter: ElementConverterType, next: (ElementConverterType.TypeIn) -> (TypeIn)) {
+    init(elementConverter: ElementConverterType, next: @escaping (ElementConverterType.TypeIn) -> (TypeIn)) {
         self.elementConverter = elementConverter
         self.next = next
     }
 
-    func convert(inputPtr: TypeIn) throws -> TypeOut {
+    func convert(_ inputPtr: TypeIn) throws -> TypeOut {
         var result = TypeOut()
-        var currentPtr = inputPtr
+        var nextPtr: UnsafeMutablePointer<ElementConverterType.TypeIn>? = inputPtr
 
-        while currentPtr != nil {
-            let element = currentPtr.memory
+        while let currentPtr = nextPtr {
+            let element = currentPtr.pointee
 
             result.append(try elementConverter.convert(element))
 
-            currentPtr = next(current: element)
+            nextPtr = next(element)
         }
 
         return result
@@ -79,7 +79,7 @@ class SafeCLinkedListToArrayConverter<ElementConverterType: SafeConverter>: Safe
     /// - Returns: a pointer to the next element in the linked list.  Can be nil to signal the end
     ///         of the list is reached.
     ///
-    let next: (current: ElementConverterType.TypeIn) -> (UnsafeMutablePointer<ElementConverterType.TypeIn>)
+    let next: (_ current: ElementConverterType.TypeIn) -> (UnsafeMutablePointer<ElementConverterType.TypeIn>)
 
     /// Defines the TypeIn to fulfill the Converter contract.  Since this class converts from C
     /// linked lists to Swift arrays, it's going to be an UnsafeMutablePointer to whatever the
@@ -101,21 +101,20 @@ class SafeCLinkedListToArrayConverter<ElementConverterType: SafeConverter>: Safe
     ///                     linked list into an element of the output array.
     ///     - next: the closure that will provide the next element in the list, given the current one.
     ///
-    init(elementConverter: ElementConverterType, next: (ElementConverterType.TypeIn) -> (TypeIn)) {
+    init(elementConverter: ElementConverterType, next: @escaping (ElementConverterType.TypeIn) -> (TypeIn)) {
         self.elementConverter = elementConverter
         self.next = next
     }
 
-    func convert(inputPtr: TypeIn) -> TypeOut {
+    func convert(_ inputPtr: TypeIn) -> TypeOut {
         var result = TypeOut()
-        var currentPtr = inputPtr
+        var nextPtr: UnsafeMutablePointer<ElementConverterType.TypeIn>? = inputPtr
 
-        while currentPtr != nil {
-            let element = currentPtr.memory
-
+        while let currentPtr = nextPtr {
+            let element = currentPtr.pointee
+            
             result.append(elementConverter.convert(element))
-
-            currentPtr = next(current: element)
+            nextPtr = next(element)
         }
         
         return result
