@@ -106,9 +106,11 @@ public class TextView: UITextView {
     public override func deleteBackward() {
         var deletionRange = selectedRange
         var deletedString = NSAttributedString()
-        if storage.length > 0 {
+        if deletionRange.length == 0 {
             deletionRange.location = max(selectedRange.location - 1, 0)
             deletionRange.length = 1
+        }
+        if storage.length > 0 {
             deletedString = storage.attributedSubstringFromRange(deletionRange)
         }
 
