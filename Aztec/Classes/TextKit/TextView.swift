@@ -428,7 +428,7 @@ public class TextView: UITextView {
         if storage.length == 0 {
             return attributes
         }
-        let inBoundsIndex = max(0,min(index-1, storage.length-1))
+        let inBoundsIndex = max(0,min(index, storage.length-1))
         if let textList = storage.textListAttribute(atIndex: inBoundsIndex),
            let textListItem = storage.textListItemAttribute(atIndex: inBoundsIndex)
         {
