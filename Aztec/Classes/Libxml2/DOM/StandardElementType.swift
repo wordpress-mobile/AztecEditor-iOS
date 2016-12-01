@@ -82,7 +82,7 @@ extension Libxml2 {
             let resultString = NSMutableAttributedString(attributedString: content)
             switch self {
             case .img:
-                return NSAttributedString(string:String(describing: UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
+                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
                 return NSAttributedString(string: "\n", attributes: attributes)            
             default:
