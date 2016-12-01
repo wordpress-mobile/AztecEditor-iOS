@@ -436,7 +436,7 @@ public extension TextStorage
         enumerateAttribute(NSFontAttributeName,
                            in: range,
                            options: [],
-                           using: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                           using: { (object: Any?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                             guard let font = object as? UIFont else {
                                 return
                             }
@@ -444,7 +444,7 @@ public extension TextStorage
                                 spansRange = false
                                 stop.pointee = true
                             }
-        } as! (Any?, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)
+        })
 
         return spansRange
     }
@@ -472,7 +472,7 @@ public extension TextStorage
         enumerateAttribute(NSFontAttributeName,
                            in: range,
                            options: [],
-                           using: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                           using: { (object: Any, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                             guard let font = object as? UIFont else {
                                 return
                             }
@@ -492,6 +492,6 @@ public extension TextStorage
                             self.removeAttribute(NSFontAttributeName, range: range)
                             self.addAttribute(NSFontAttributeName, value: newFont, range: range)
                             self.endEditing()
-        } as! (Any?, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)
+        })
     }
 }
