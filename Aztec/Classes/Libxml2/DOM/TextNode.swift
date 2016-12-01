@@ -102,14 +102,14 @@ extension Libxml2 {
             let preRange = contents.startIndex ..< swiftRange.lowerBound
             let postRange = swiftRange.upperBound ..< contents.endIndex
 
-            if postRange.lowerBound != postRange.upperBound {
+            if !postRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: postRange))
 
                 contents.removeSubrange(postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
             
-            if preRange.lowerBound != preRange.upperBound {
+            if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange))
 
                 contents.removeSubrange(preRange)

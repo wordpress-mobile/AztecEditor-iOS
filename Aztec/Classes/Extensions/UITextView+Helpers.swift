@@ -28,7 +28,7 @@ extension UITextView
             let lastPosition = position(from: beginningOfDocument, offset: range.location + range.length),
             let textRange = textRange(from: firstPosition, to: lastPosition) else
         {
-            return CGRect.zero
+            return .zero
         }
 
         return firstRect(for: textRange)

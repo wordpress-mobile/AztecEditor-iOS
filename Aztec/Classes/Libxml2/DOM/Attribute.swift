@@ -31,9 +31,7 @@ extension Libxml2 {
         // MARK: - CustomReflectable
         
         override public var customMirror: Mirror {
-            get {
-                return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .suppressed)
-            }
+            return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .suppressed)
         }
         
         // MARK: - Initializers
