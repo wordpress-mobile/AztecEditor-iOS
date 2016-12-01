@@ -53,12 +53,12 @@ extension Libxml2 {
             return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6,.hr, .li, .noscript, .ol, .p, .pre, .table, .ul]
         }
 
-        static func isBlockLevelNodeName(name: String) -> Bool {
+        static func isBlockLevelNodeName(_ name: String) -> Bool {
             return StandardElementType(rawValue: name)?.isBlockLevelNodeName() ?? false
         }
 
         func isBlockLevelNodeName() -> Bool {
-            return self.dynamicType.blockLevelNodeNames.contains(self)
+            return type(of: self).blockLevelNodeNames.contains(self)
         }
 
         var equivalentNames: [String] {
@@ -82,7 +82,7 @@ extension Libxml2 {
             let resultString = NSMutableAttributedString(attributedString: content)
             switch self {
             case .img:
-                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)), attributes: attributes)
+                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
                 return NSAttributedString(string: "\n", attributes: attributes)            
             default:

@@ -20,7 +20,7 @@ protocol Converter {
     ///
     /// - Returns: the converted object.
     ///
-    func convert(input: TypeIn) throws -> TypeOut
+    func convert(_ input: TypeIn) throws -> TypeOut
 }
 
 /// A protocol for classes that convert objects from an input type to an output type.
@@ -43,5 +43,5 @@ protocol SafeConverter {
     ///
     /// - Returns: the converted object.
     ///
-    func convert(input: TypeIn) -> TypeOut
+    func convert(_ input: TypeIn) -> TypeOut
 }

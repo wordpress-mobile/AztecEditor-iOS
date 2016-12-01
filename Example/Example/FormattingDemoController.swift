@@ -13,7 +13,7 @@ class FormattingDemoController: UIViewController
     ///
     class func controller() -> FormattingDemoController {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        return storyboard.instantiateViewControllerWithIdentifier("FormattingDemoController") as! FormattingDemoController
+        return storyboard.instantiateViewController(withIdentifier: "FormattingDemoController") as! FormattingDemoController
     }
 
 
@@ -25,8 +25,8 @@ class FormattingDemoController: UIViewController
 
 
     func configureTextView() {
-        if let filePath = NSBundle.mainBundle().URLForResource("SampleText", withExtension: "rtf"),
-            let attrStr = try? NSAttributedString(URL: filePath, options: [:], documentAttributes: nil) {
+        if let filePath = Bundle.main.url(forResource: "SampleText", withExtension: "rtf"),
+            let attrStr = try? NSAttributedString(url: filePath, options: [:], documentAttributes: nil) {
 
             textView.attributedText = attrStr
         }
@@ -48,12 +48,12 @@ class FormattingDemoController: UIViewController
         let selectedRange = textView.selectedRange
         var effectiveRange = NSRange()
         let index = max(0, selectedRange.location - 1)
-        let attr = storage.attribute(NSFontAttributeName, atIndex: index, longestEffectiveRange: &effectiveRange, inRange: selectedRange)
+        let attr = storage.attribute(NSFontAttributeName, at: index, longestEffectiveRange: &effectiveRange, in: selectedRange)
 
         print("------------------------------------")
         print("ATTRIBUTE : \(attr)")
         if let font = attr as? UIFont {
-            if font.fontDescriptor().symbolicTraits.contains(.TraitBold) {
+            if font.fontDescriptor.symbolicTraits.contains(.traitBold) {
                 print("TRAIT FOUND")
             }
         }
@@ -67,7 +67,7 @@ class FormattingDemoController: UIViewController
         let storage = textView.textStorage
         let selectedRange = textView.selectedRange
         var effectiveRange = NSRange()
-        let attr = storage.attribute(NSUnderlineStyleAttributeName, atIndex: selectedRange.location, longestEffectiveRange: &effectiveRange, inRange: selectedRange)
+        let attr = storage.attribute(NSUnderlineStyleAttributeName, at: selectedRange.location, longestEffectiveRange: &effectiveRange, in: selectedRange)
 
         print("------------------------------------")
         print("ATTRIBUTE : \(attr)")
@@ -89,34 +89,34 @@ class FormattingDemoController: UIViewController
 
         // Examine the first character. If it is not bold we'll assign bold to the selection.
         // If the first character is bold we'll remove bold from the selection
-        if let attr = textView.textStorage.attribute(NSFontAttributeName, atIndex: selectedRange.location, longestEffectiveRange: nil, inRange: selectedRange) {
+        if let attr = textView.textStorage.attribute(NSFontAttributeName, at: selectedRange.location, longestEffectiveRange: nil, in: selectedRange) {
             if let font = attr as? UIFont {
-                assigning = !font.fontDescriptor().symbolicTraits.contains(.TraitBold)
+                assigning = !font.fontDescriptor.symbolicTraits.contains(.traitBold)
             }
         }
 
         textView.textStorage.enumerateAttribute(NSFontAttributeName,
-                                                inRange: selectedRange,
+                                                in: selectedRange,
                                                 options: [],
-                                                usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                                                using: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                                                     guard let font = object as? UIFont else {
                                                         return
                                                     }
 
                                                     var traits: UInt32
                                                     if assigning {
-                                                        traits =  font.fontDescriptor().symbolicTraits.rawValue | UIFontDescriptorSymbolicTraits.TraitBold.rawValue
+                                                        traits =  font.fontDescriptor.symbolicTraits.rawValue | UIFontDescriptorSymbolicTraits.traitBold.rawValue
 
                                                     } else {
-                                                        traits =  font.fontDescriptor().symbolicTraits.rawValue & ~UIFontDescriptorSymbolicTraits.TraitBold.rawValue
+                                                        traits =  font.fontDescriptor.symbolicTraits.rawValue & ~UIFontDescriptorSymbolicTraits.traitBold.rawValue
                                                     }
 
-                                                    let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
+                                                    let descriptor = font.fontDescriptor.withSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
                                                     let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                                                     self.textView.textStorage.removeAttribute(NSFontAttributeName, range: range)
                                                     self.textView.textStorage.addAttribute(NSFontAttributeName, value: newFont, range: range)
-        })
+        } as! (Any?, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)
 
     }
 
@@ -131,34 +131,34 @@ class FormattingDemoController: UIViewController
 
         // Examine the first character. If it is not italic we'll assign bold to the selection.
         // If the first character is italic we'll remove italic from the selection
-        if let attr = textView.textStorage.attribute(NSFontAttributeName, atIndex: selectedRange.location, longestEffectiveRange: nil, inRange: selectedRange) {
+        if let attr = textView.textStorage.attribute(NSFontAttributeName, at: selectedRange.location, longestEffectiveRange: nil, in: selectedRange) {
             if let font = attr as? UIFont {
-                assigning = !font.fontDescriptor().symbolicTraits.contains(.TraitItalic)
+                assigning = !font.fontDescriptor.symbolicTraits.contains(.traitItalic)
             }
         }
 
         textView.textStorage.enumerateAttribute(NSFontAttributeName,
-                                                inRange: selectedRange,
+                                                in: selectedRange,
                                                 options: [],
-                                                usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                                                using: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                                                     guard let font = object as? UIFont else {
                                                         return
                                                     }
 
                                                     var traits: UInt32
                                                     if assigning {
-                                                        traits =  font.fontDescriptor().symbolicTraits.rawValue | UIFontDescriptorSymbolicTraits.TraitItalic.rawValue
+                                                        traits =  font.fontDescriptor.symbolicTraits.rawValue | UIFontDescriptorSymbolicTraits.traitItalic.rawValue
 
                                                     } else {
-                                                        traits =  font.fontDescriptor().symbolicTraits.rawValue & ~UIFontDescriptorSymbolicTraits.TraitItalic.rawValue
+                                                        traits =  font.fontDescriptor.symbolicTraits.rawValue & ~UIFontDescriptorSymbolicTraits.traitItalic.rawValue
                                                     }
 
-                                                    let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
+                                                    let descriptor = font.fontDescriptor.withSymbolicTraits(UIFontDescriptorSymbolicTraits(rawValue: traits))
                                                     let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                                                     self.textView.textStorage.removeAttribute(NSFontAttributeName, range: range)
                                                     self.textView.textStorage.addAttribute(NSFontAttributeName, value: newFont, range: range)
-        })
+        } as! (Any?, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)
     }
 
     @IBAction func underlineAction() {
@@ -169,10 +169,10 @@ class FormattingDemoController: UIViewController
         }
 
         // Assume we're adding an underline.
-        var newStyle = NSUnderlineStyle.StyleSingle.rawValue
-        if let _ = textView.textStorage.attribute(NSUnderlineStyleAttributeName, atIndex: selectedRange.location, effectiveRange: nil) {
+        var newStyle = NSUnderlineStyle.styleSingle.rawValue
+        if let _ = textView.textStorage.attribute(NSUnderlineStyleAttributeName, at: selectedRange.location, effectiveRange: nil) {
             // But if one already exists we'll remove it.
-            newStyle = NSUnderlineStyle.StyleNone.rawValue
+            newStyle = NSUnderlineStyle.styleNone.rawValue
         }
         self.textView.textStorage.removeAttribute(NSUnderlineStyleAttributeName, range: selectedRange)
         self.textView.textStorage.addAttribute(NSUnderlineStyleAttributeName, value: newStyle, range: selectedRange)
@@ -187,12 +187,12 @@ class FormattingDemoController: UIViewController
 
         let string = storage.string as NSString
         let range = NSRange(location: 0, length: string.length)
-        string.enumerateSubstringsInRange(range,
-                                          options: .ByParagraphs,
-                                          usingBlock: { (substring, substringRange, enclosingRange, stop) in
+        string.enumerateSubstrings(in: range,
+                                          options: .byParagraphs,
+                                          using: { (substring, substringRange, enclosingRange, stop) in
                                             // Stop if necessary.
                                             if substringRange.location > NSMaxRange(selectedRange) {
-                                                stop.memory = true
+                                                stop.pointee = true
                                                 return
                                             }
 
@@ -203,7 +203,7 @@ class FormattingDemoController: UIViewController
 
                                             var r = NSRange()
                                             let pStyle = storage.attribute(NSParagraphStyleAttributeName,
-                                                                           atIndex: substringRange.location,
+                                                                           at: substringRange.location,
                                                                            effectiveRange: &r)  as! NSParagraphStyle
 
                                             let tab:CGFloat = pStyle.headIndent == 0 ? 20 : 0
@@ -231,7 +231,7 @@ class FormattingDemoController: UIViewController
 
 extension FormattingDemoController : UITextViewDelegate
 {
-    func textViewDidChangeSelection(textView: UITextView) {
+    func textViewDidChangeSelection(_ textView: UITextView) {
         checkSelection()
     }
 }

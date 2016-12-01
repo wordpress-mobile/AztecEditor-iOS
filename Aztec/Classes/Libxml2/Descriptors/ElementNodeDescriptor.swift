@@ -13,6 +13,14 @@ extension Libxml2 {
         let attributes: [Attribute]
         let matchingNames: [String]
         
+        // MARK: - CustomReflectable
+        
+        public var customMirror: Mirror {
+            get {
+                return Mirror(self, children: ["name": name, "attributes": attributes, "matchingNames": matchingNames])
+            }
+        }
+        
         init(name: String, attributes: [Attribute] = [], matchingNames: [String] = []) {
             self.name = name
             self.attributes = attributes
@@ -21,12 +29,6 @@ extension Libxml2 {
 
         convenience init(elementType: StandardElementType, attributes: [Attribute] = []) {
             self.init(name: elementType.rawValue, attributes: attributes, matchingNames: elementType.equivalentNames)
-        }
-        
-        // MARK: - CustomReflectable
-        
-        func customMirror() -> Mirror {
-            return Mirror(self, children: ["name": name, "attributes": attributes, "matchingNames": matchingNames])
         }
         
         // MARK: - Introspection

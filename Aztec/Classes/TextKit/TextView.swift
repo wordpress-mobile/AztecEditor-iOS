@@ -15,12 +15,18 @@ public protocol TextViewMediaDelegate: class {
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func textView(textView: TextView, imageAtUrl imageURL: NSURL, onSuccess success: UIImage -> Void, onFailure failure: Void -> Void) -> UIImage
+    func textView(
+        _ textView: TextView,
+        imageAtUrl imageURL: URL,
+        onSuccess success: @escaping (UIImage) -> Void,
+        onFailure failure: @escaping (Void) -> Void) -> UIImage
     
-    func textView(textView: TextView, urlForImage image: UIImage) -> NSURL
+    func textView(
+        _ textView: TextView,
+        urlForImage image: UIImage) -> URL
 }
 
-public class TextView: UITextView {
+open class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
 
@@ -30,7 +36,7 @@ public class TextView: UITextView {
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
-    public weak var mediaDelegate: TextViewMediaDelegate? = nil
+    open weak var mediaDelegate: TextViewMediaDelegate? = nil
 
     // MARK: - Properties: GUI Defaults
 
@@ -64,8 +70,8 @@ public class TextView: UITextView {
     
     required public init?(coder aDecoder: NSCoder) {
 
-        defaultFont = UIFont.systemFontOfSize(14)
-        defaultMissingImage = Gridicon.iconOfType(.Image)
+        defaultFont = UIFont.systemFont(ofSize: 14)
+        defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
         
         allowsEditingTextAttributes = true
@@ -73,13 +79,13 @@ public class TextView: UITextView {
 
     // MARK: - Intersect copy paste operations
 
-    public override func cut(sender: AnyObject?) {
+    open override func cut(_ sender: Any?) {
         let originalRange = selectedRange
         super.cut(sender)
         refreshListsOnlyIfListExists(atRange: originalRange)
     }
 
-    public override func paste(sender: AnyObject?) {
+    open override func paste(_ sender: Any?) {
         let originalRange = selectedRange
         super.paste(sender)
         refreshListsOnlyIfListExists(atRange: originalRange)
@@ -95,7 +101,7 @@ public class TextView: UITextView {
     }
 
 
-    public override func insertText(text: String) {
+    open override func insertText(_ text: String) {
         updateTypingAttributes()
         var insertionRange = selectedRange
         super.insertText(text)
@@ -103,7 +109,7 @@ public class TextView: UITextView {
         refreshListAfterInsertionOf(text: text, range: insertionRange)
     }
 
-    public override func deleteBackward() {
+    open override func deleteBackward() {
         var deletionRange = selectedRange
         var deletedString = NSAttributedString()
         if deletionRange.length == 0 {
@@ -111,7 +117,7 @@ public class TextView: UITextView {
             deletionRange.length = 1
         }
         if storage.length > 0 {
-            deletedString = storage.attributedSubstringFromRange(deletionRange)
+            deletedString = storage.attributedSubstring(from: deletionRange)
         }
 
         super.deleteBackward()
@@ -123,7 +129,7 @@ public class TextView: UITextView {
             var isPreviousLocationList = false
             if (selectedRange.location > 0) {
                 isPreviousLocationList = storage.attribute(TextListItem.attributeName,
-                                                           atIndex:selectedRange.location - 1,
+                                                           at: selectedRange.location - 1,
                                                            effectiveRange: nil) != nil
             }
             if isPreviousLocationList {
@@ -136,19 +142,19 @@ public class TextView: UITextView {
 
     // MARK: - UIView Overrides
 
-    public override func didMoveToWindow() {
+    open override func didMoveToWindow() {
         super.didMoveToWindow()
         layoutIfNeeded()
     }
 
     // MARK: - UITextView Overrides
 
-    public override func caretRectForPosition(position: UITextPosition) -> CGRect {
-        let characterIndex = offsetFromPosition(beginningOfDocument, toPosition: position)
-        let glyphIndex = layoutManager.glyphIndexForCharacterAtIndex(characterIndex)
-        let usedLineFragment = layoutManager.lineFragmentUsedRectForGlyphAtIndex(glyphIndex, effectiveRange: nil)
-        var caretRect = super.caretRectForPosition(position)
-        if !CGRectIsEmpty(usedLineFragment) {
+    open override func caretRect(for position: UITextPosition) -> CGRect {
+        let characterIndex = offset(from: beginningOfDocument, to: position)
+        let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
+        let usedLineFragment = layoutManager.lineFragmentUsedRect(forGlyphAt: glyphIndex, effectiveRange: nil)
+        var caretRect = super.caretRect(for: position)
+        if !usedLineFragment.isEmpty {
             caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
             caretRect.size.height = usedLineFragment.size.height
         }
@@ -173,15 +179,15 @@ public class TextView: UITextView {
     ///
     /// - Returns an array of NSRange objects.
     ///
-    func rangesOfParagraphsEnclosingRange(range: NSRange) -> [NSRange] {
+    func rangesOfParagraphsEnclosingRange(_ range: NSRange) -> [NSRange] {
         var paragraphRanges = [NSRange]()
         let string = storage.string as NSString
-        string.enumerateSubstringsInRange(NSRange(location: 0, length: string.length),
-                                          options: .ByParagraphs,
-                                          usingBlock: { (substring, substringRange, enclosingRange, stop) in
+        string.enumerateSubstrings(in: NSRange(location: 0, length: string.length),
+                                          options: .byParagraphs,
+                                          using: { (substring, substringRange, enclosingRange, stop) in
                                             // Stop if necessary.
                                             if substringRange.location > NSMaxRange(range) {
-                                                stop.memory = true
+                                                stop.pointee = true
                                                 return
                                             }
 
@@ -201,7 +207,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML() -> String {
+    open func getHTML() -> String {
         return storage.getHTML()
     }
 
@@ -210,7 +216,7 @@ public class TextView: UITextView {
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    public func setHTML(html: String) {
+    open func setHTML(_ html: String) {
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
@@ -220,7 +226,7 @@ public class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor())
+        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor)
     }
 
 
@@ -233,7 +239,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    public func formatIdentifiersSpanningRange(range: NSRange) -> [String] {
+    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [String] {
         guard storage.length != 0 else {
             // FIXME: if empty string, check typingAttributes
             return []
@@ -246,31 +252,31 @@ public class TextView: UITextView {
         var identifiers = [FormattingIdentifier]()
 
         if boldFormattingSpansRange(range) {
-            identifiers.append(.Bold)
+            identifiers.append(.bold)
         }
 
         if italicFormattingSpansRange(range) {
-            identifiers.append(.Italic)
+            identifiers.append(.italic)
         }
 
         if underlineFormattingSpansRange(range) {
-            identifiers.append(.Underline)
+            identifiers.append(.underline)
         }
 
         if strikethroughFormattingSpansRange(range) {
-            identifiers.append(.Strikethrough)
+            identifiers.append(.strikethrough)
         }
 
         if linkFormattingSpansRange(range) {
-            identifiers.append(.Link)
+            identifiers.append(.link)
         }
 
         if orderedListFormattingSpansRange(range) {
-            identifiers.append(.Orderedlist)
+            identifiers.append(.orderedlist)
         }
 
         if unorderedListFormattingSpansRange(range) {
-            identifiers.append(.Unorderedlist)
+            identifiers.append(.unorderedlist)
         }
 
         return identifiers.map { $0.rawValue }
@@ -283,7 +289,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    public func formatIdentifiersAtIndex(index: Int) -> [String] {
+    open func formatIdentifiersAtIndex(_ index: Int) -> [String] {
         guard storage.length != 0 else {
             return []
         }
@@ -292,35 +298,35 @@ public class TextView: UITextView {
         var identifiers = [FormattingIdentifier]()
 
         if formattingAtIndexContainsBold(index) {
-            identifiers.append(.Bold)
+            identifiers.append(.bold)
         }
 
         if formattingAtIndexContainsItalic(index) {
-            identifiers.append(.Italic)
+            identifiers.append(.italic)
         }
 
         if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(.Underline)
+            identifiers.append(.underline)
         }
 
         if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(.Strikethrough)
+            identifiers.append(.strikethrough)
         }
 
         if formattingAtIndexContainsBlockquote(index) {
-            identifiers.append(.Blockquote)
+            identifiers.append(.blockquote)
         }
 
         if formattingAtIndexContainsLink(index) {
-            identifiers.append(.Link)
+            identifiers.append(.link)
         }
 
         if formattingAtIndexContainsOrderedList(index) {
-            identifiers.append(.Orderedlist)
+            identifiers.append(.orderedlist)
         }
 
         if formattingAtIndexContainsUnorderedList(index) {
-            identifiers.append(.Unorderedlist)
+            identifiers.append(.unorderedlist)
         }
 
         return identifiers.map { $0.rawValue }
@@ -334,7 +340,7 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleBold(range range: NSRange) {
+    open func toggleBold(range: NSRange) {
         guard range.length > 0 else {
             return
         }
@@ -347,7 +353,7 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleItalic(range range: NSRange) {
+    open func toggleItalic(range: NSRange) {
         guard range.length > 0 else {
             return
         }
@@ -360,7 +366,7 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleUnderline(range range: NSRange) {
+    open func toggleUnderline(range: NSRange) {
         guard range.length > 0 else {
             return
         }
@@ -373,7 +379,7 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleStrikethrough(range range: NSRange) {
+    open func toggleStrikethrough(range: NSRange) {
         guard range.length > 0 else {
             return
         }
@@ -382,12 +388,12 @@ public class TextView: UITextView {
     }
 
 
-    private enum SelectionMarker: String {
+    fileprivate enum SelectionMarker: String {
         case start = "SelectionStart"
         case end = "SelectionEnd"
     }
 
-    private func markCurrentSelection() {
+    fileprivate func markCurrentSelection() {
         let range = selectedRange
         // selection marking
         if range.location + 1 < storage.length {
@@ -398,11 +404,11 @@ public class TextView: UITextView {
         }
     }
 
-    private func restoreMarkedSelection() {
+    fileprivate func restoreMarkedSelection() {
         var selectionStartRange: NSRange = NSRange(location: max(storage.length, 0), length: 0)
         var selectionEndRange: NSRange = selectionStartRange
         storage.enumerateAttribute(SelectionMarker.start.rawValue,
-                                   inRange: NSRange(location: 0, length: storage.length),
+                                   in: NSRange(location: 0, length: storage.length),
                                    options: []) { (attribute, range, stop) in
                                     if attribute != nil {
                                         selectionStartRange = range
@@ -410,7 +416,7 @@ public class TextView: UITextView {
         }
 
         storage.enumerateAttribute(SelectionMarker.end.rawValue,
-                                   inRange: NSRange(location: 0, length: storage.length),
+                                   in: NSRange(location: 0, length: storage.length),
                                    options: []) { (attribute, range, stop) in
                                     if attribute != nil {
                                         selectionEndRange = range
@@ -425,8 +431,8 @@ public class TextView: UITextView {
 
     // MARK: - List Code
 
-    private func listCustomAttributes(atIndex index:Int) -> [String:AnyObject] {
-        var attributes = [String:AnyObject]()
+    private func listCustomAttributes(atIndex index:Int) -> [String:Any] {
+        var attributes = [String:Any]()
         if storage.length == 0 {
             return attributes
         }
@@ -445,10 +451,10 @@ public class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshListAfterInsertionOf(text text:String, range:NSRange) {
+    private func refreshListAfterInsertionOf(text:String, range:NSRange) {
         //check if new text is part of a list
         if storage.attribute(TextList.attributeName,
-                             atIndex:range.location,
+                             at:range.location,
                              effectiveRange: nil) == nil {
             return
         }
@@ -459,10 +465,10 @@ public class TextView: UITextView {
         var afterString = "\n"
         var beforeString = "\n"
         if beforeRange.location >= 0 {
-            beforeString = storage.attributedSubstringFromRange(beforeRange).string
+            beforeString = storage.attributedSubstring(from: beforeRange).string
         }
         if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstringFromRange(afterRange).string
+            afterString = storage.attributedSubstring(from: afterRange).string
         }
 
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
@@ -484,21 +490,21 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: the range to where to update the list attributes
     ///
-    private func refreshListsOnlyIfListExists(atRange range:NSRange) {
+    fileprivate func refreshListsOnlyIfListExists(atRange range:NSRange) {
 
         if storage.attribute(TextListItem.attributeName,
-                             atIndex:max(range.location-1,0),
+                             at:max(range.location-1,0),
                              effectiveRange: nil) != nil {
             refreshList(aroundRange: range)
         }
     }
 
-    private func refreshList(aroundRange range: NSRange) {
+    fileprivate func refreshList(aroundRange range: NSRange) {
         let formatter = TextListFormatter()
         formatter.updatesList(inString: storage, atRange: range)
     }
 
-    private func removeList(aroundRange range: NSRange) {
+    fileprivate func removeList(aroundRange range: NSRange) {
         let formatter = TextListFormatter()
         formatter.removeList(inString: storage, atRange: range)
     }
@@ -507,10 +513,10 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleOrderedList(range range: NSRange) {
+    open func toggleOrderedList(range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: storage, atRange: appliedRange)
+        formatter.toggleList(ofStyle: .ordered, inString: storage, atRange: appliedRange)
     }
 
 
@@ -518,10 +524,10 @@ public class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    public func toggleUnorderedList(range range: NSRange) {
+    open func toggleUnorderedList(range: NSRange) {
         let appliedRange = rangeForTextList(range)
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Unordered, inString: storage, atRange: appliedRange)
+        formatter.toggleList(ofStyle: .unordered, inString: storage, atRange: appliedRange)
     }
 
 
@@ -533,7 +539,7 @@ public class TextView: UITextView {
     /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
-    public func toggleBlockquote(range range: NSRange) {
+    open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
@@ -546,15 +552,15 @@ public class TextView: UITextView {
     ///     - title: the text for the link.
     ///     - range: The NSRange to edit.
     ///
-    public func setLink(url: NSURL, title: String, inRange range: NSRange) {
+    open func setLink(_ url: URL, title: String, inRange range: NSRange) {
         let index = range.location
         let length = title.characters.count
         let insertionRange = NSMakeRange(index, length)
-        storage.replaceCharactersInRange(range, withString: title)
+        storage.replaceCharacters(in: range, with: title)
         storage.setLink(url, forRange: insertionRange)
     }
 
-    public func removeLink(inRange range:NSRange) {
+    open func removeLink(inRange range:NSRange) {
         storage.removeLink(inRange: range)
     }
 
@@ -568,14 +574,14 @@ public class TextView: UITextView {
     ///     - position: The character index at which to insert the image.
     ///
     /// - Returns: an id of the attachment that can be used for further calls
-    public func insertImage(sourceURL url: NSURL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
+    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
         let imageId = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         selectedRange = NSMakeRange(position+length, 0)
         return imageId
     }
 
-    public func attachment(withId id: String) -> TextAttachment? {
+    open func attachment(withId id: String) -> TextAttachment? {
         return storage.attachment(withId: id);
     }
     /// Inserts a Video attachment at the specified index
@@ -584,7 +590,7 @@ public class TextView: UITextView {
     ///     - index: The character index at which to insert the image.
     ///     - params: TBD
     ///
-    public func insertVideo(index: Int, params: [String: AnyObject]) {
+    open func insertVideo(_ index: Int, params: [String: AnyObject]) {
         print("video")
     }
 
@@ -599,13 +605,13 @@ public class TextView: UITextView {
     ///
     /// - Returns: The associated TextAttachment.
     ///
-    public func attachmentAtPoint(point: CGPoint) -> TextAttachment? {
-        let index = layoutManager.characterIndexForPoint(point, inTextContainer: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+    open func attachmentAtPoint(_ point: CGPoint) -> TextAttachment? {
+        let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index <= textStorage.length else {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, atIndex: index, effectiveRange: nil) as? TextAttachment
+        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
     }
 
 
@@ -615,8 +621,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func boldFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.fontTrait(.TraitBold, spansRange: range)
+    open func boldFormattingSpansRange(_ range: NSRange) -> Bool {
+        return storage.fontTrait(.traitBold, spansRange: range)
     }
 
 
@@ -626,8 +632,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func italicFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.fontTrait(.TraitItalic, spansRange: range)
+    open func italicFormattingSpansRange(_ range: NSRange) -> Bool {
+        return storage.fontTrait(.traitItalic, spansRange: range)
     }
 
 
@@ -637,14 +643,14 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func underlineFormattingSpansRange(range: NSRange) -> Bool {
+    open func underlineFormattingSpansRange(_ range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
             return false
         }
 
-        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
 
@@ -654,14 +660,14 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func strikethroughFormattingSpansRange(range: NSRange) -> Bool {
+    open func strikethroughFormattingSpansRange(_ range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? Int else {
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
             return false
         }
 
-        return attribute == NSUnderlineStyle.StyleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
     }
 
     /// Check if the link attribute spans the specified range.
@@ -670,10 +676,10 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func linkFormattingSpansRange(range: NSRange) -> Bool {
+    open func linkFormattingSpansRange(_ range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) != nil {
+        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
 
            return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
         }
@@ -687,8 +693,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func orderedListFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .Ordered
+    open func orderedListFormattingSpansRange(_ range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.style == .ordered
     }
 
 
@@ -698,8 +704,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func unorderedListFormattingSpansRange(range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .Unordered
+    open func unorderedListFormattingSpansRange(_ range: NSRange) -> Bool {
+        return storage.textListAttribute(spanningRange: range)?.style == .unordered
     }
 
 
@@ -709,23 +715,23 @@ public class TextView: UITextView {
     ///
     /// - returns: the NSURL if available
     ///
-    public func linkURL(forRange range: NSRange) -> NSURL? {
+    open func linkURL(forRange range: NSRange) -> URL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) {
-            if let url = attr as? NSURL {
+        if let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) {
+            if let url = attr as? URL {
                 return url
             } else if let urlString = attr as? String {
-                return NSURL(string:urlString)
+                return URL(string:urlString)
             }
         }
         return nil
     }
 
-    public func linkFullRange(forRange range: NSRange) -> NSRange? {
+    open func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: &effectiveRange) != nil {
+        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
             return effectiveRange
         }
         return nil
@@ -737,10 +743,10 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute spans the entire range.
     ///
-    public func blockquoteFormattingSpansRange(range: NSRange) -> Bool {
+    open func blockquoteFormattingSpansRange(_ range: NSRange) -> Bool {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, atIndex: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
+        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
             return false
         }
 
@@ -755,7 +761,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: If the index is greater than the max allowed, the max is returned, else the original value.
     ///
-    func maxIndex(index: Int) -> Int {
+    func maxIndex(_ index: Int) -> Int {
         if index >= storage.length {
             return storage.length - 1
         }
@@ -770,7 +776,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: The specified or maximum index.
     ///
-    func adjustedIndex(index: Int) -> Int {
+    func adjustedIndex(_ index: Int) -> Int {
         let index = maxIndex(index)
         return max(0, index - 1)
     }
@@ -785,7 +791,7 @@ public class TextView: UITextView {
     ///
     /// Returns: A corrected NSRange, if the original one had empty length.
     ///
-    func rangeForTextList(range: NSRange) -> NSRange {
+    func rangeForTextList(_ range: NSRange) -> NSRange {
         guard range.length == 0 else {
             return range
         }
@@ -829,8 +835,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsBold(index: Int) -> Bool {
-        return storage.fontTrait(.TraitBold, existsAtIndex: index)
+    open func formattingAtIndexContainsBold(_ index: Int) -> Bool {
+        return storage.fontTrait(.traitBold, existsAtIndex: index)
     }
 
 
@@ -840,8 +846,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsItalic(index: Int) -> Bool {
-        return storage.fontTrait(.TraitItalic, existsAtIndex: index)
+    open func formattingAtIndexContainsItalic(_ index: Int) -> Bool {
+        return storage.fontTrait(.traitItalic, existsAtIndex: index)
     }
 
 
@@ -851,12 +857,12 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsUnderline(index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
+    open func formattingAtIndexContainsUnderline(_ index: Int) -> Bool {
+        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
             return false
         }
         // TODO: Figure out how to reconcile this with Link style.
-        return attribute == NSUnderlineStyle.StyleSingle.rawValue
+        return attribute == NSUnderlineStyle.styleSingle.rawValue
     }
 
 
@@ -866,12 +872,12 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsStrikethrough(index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, atIndex: index, effectiveRange: nil) as? Int else {
+    open func formattingAtIndexContainsStrikethrough(_ index: Int) -> Bool {
+        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
             return false
         }
 
-        return attribute == NSUnderlineStyle.StyleSingle.rawValue
+        return attribute == NSUnderlineStyle.styleSingle.rawValue
     }
 
     /// Check if the link attribute exists at the specified index.
@@ -880,8 +886,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsLink(index: Int) -> Bool {
-        guard storage.attribute(NSLinkAttributeName, atIndex: index, effectiveRange: nil) != nil else {
+    open func formattingAtIndexContainsLink(_ index: Int) -> Bool {
+        guard storage.attribute(NSLinkAttributeName, at: index, effectiveRange: nil) != nil else {
             return false
         }
 
@@ -895,7 +901,7 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsBlockquote(index: Int) -> Bool {
+    open func formattingAtIndexContainsBlockquote(_ index: Int) -> Bool {
         let formatter = BlockquoteFormatter()
         return formatter.attribute(inTextView: self, at: index)
     }
@@ -908,8 +914,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsOrderedList(index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .Ordered
+    open func formattingAtIndexContainsOrderedList(_ index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.style == .ordered
     }
 
 
@@ -920,8 +926,8 @@ public class TextView: UITextView {
     ///
     /// - Returns: True if the attribute exists at the specified index.
     ///
-    public func formattingAtIndexContainsUnorderedList(index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .Unordered
+    open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
+        return storage.textListAttribute(atIndex: index)?.style == .unordered
     }
 
 
@@ -934,10 +940,10 @@ public class TextView: UITextView {
     /// - parameter size:       the size value
     /// - parameter url:        the attachment url
     ///
-    public func update(attachment attachment: TextAttachment,
+    open func update(attachment: TextAttachment,
                                   alignment: TextAttachment.Alignment,
                                   size: TextAttachment.Size,
-                                  url: NSURL) {
+                                  url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
@@ -948,7 +954,7 @@ public class TextView: UITextView {
     ///   - attachment: the attachment to update
     ///   - progress: the value of progress
     ///
-    public func update(attachment attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blueColor()) {
+    open func update(attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blue) {
         attachment.progress = progress
         attachment.progressColor = progressColor
         layoutManager.invalidateLayoutForAttachment(attachment)
@@ -960,7 +966,7 @@ public class TextView: UITextView {
     ///   - attachment: the attachment where the message will be overlay
     ///   - message: the message to show
     ///
-    public func update(attachment attachment: TextAttachment, message: NSAttributedString?) {
+    open func update(attachment: TextAttachment, message: NSAttributedString?) {
         attachment.message = message
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
@@ -970,7 +976,12 @@ public class TextView: UITextView {
 
 extension TextView: TextStorageAttachmentsDelegate {
 
-    func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage {
+    func storage(
+        _ storage: TextStorage,
+        attachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
@@ -980,11 +991,11 @@ extension TextView: TextStorageAttachmentsDelegate {
         return placeholderImage
     }
 
-    func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
         return defaultMissingImage
     }
     
-    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL {
+    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")

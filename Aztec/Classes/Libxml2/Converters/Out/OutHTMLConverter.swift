@@ -15,22 +15,27 @@ extension Libxml2.Out {
         ///
         /// - Returns: a String object representing the specified HTML data.
         ///
-        func convert(rawNode: Node) -> String {
+        func convert(_ rawNode: Node) -> String {
             
-            let buf = xmlBufferCreate()
+            guard let buffer = xmlBufferCreate() else {
+                fatalError("This should not ever happen. Prevent the code from going further to avoid possible data loss.")
+            }
+            
             let xmlDocPtr = xmlNewDoc(nil)
+            
+            defer {
+                xmlFreeDoc(xmlDocPtr)
+                xmlBufferFree(buffer)
+            }
 
             let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
             
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
-            htmlNodeDump(buf, xmlDocPtr, xmlNodePtr)
+            htmlNodeDump(buffer, xmlDocPtr, xmlNodePtr)
             
-            let htmlDumpString = String(CString: UnsafePointer<Int8>(buf.memory.content), encoding: NSUTF8StringEncoding)!
-            
-            xmlFreeDoc(xmlDocPtr)
-            xmlBufferFree(buf)
+            let htmlDumpString = String(cString: buffer.pointee.content)
 
-            let finalString = htmlDumpString.stringByReplacingOccurrencesOfString("<\(RootNode.name)>", withString: "").stringByReplacingOccurrencesOfString("</\(RootNode.name)>", withString: "")
+            let finalString = htmlDumpString.replacingOccurrences(of: "<\(RootNode.name)>", with: "").replacingOccurrences(of: "</\(RootNode.name)>", with: "")
             
             return finalString
         }

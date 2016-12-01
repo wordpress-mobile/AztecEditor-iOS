@@ -141,7 +141,7 @@ class ElementNodeTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
 
         let range = NSRange(location: textNode1.length(), length: textNode2.length())
-        let atLeastOneElementFound = expectationWithDescription("At least one elements should be returned in the enumeration.")
+        let atLeastOneElementFound = expectation(description: "At least one elements should be returned in the enumeration.")
 
         paragraph.enumerateLowestBlockLevelElements(intersectingRange: range) { (element, intersection) in
             XCTAssertEqual(element, paragraph)
@@ -149,9 +149,9 @@ class ElementNodeTests: XCTestCase {
             XCTAssertEqual(intersection.length, range.length)
             atLeastOneElementFound.fulfill()
         }
-        waitForExpectationsWithTimeout(0) { (error) in
+        waitForExpectations(timeout: 0) { (error) in
             if let error = error {
-                XCTFail(error.description)
+                XCTFail(error.localizedDescription)
             }
         }
     }
@@ -308,14 +308,12 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(div.children.count, 2)
         
-        guard let newParagraph1 = div.children[0] as? ElementNode
-            where newParagraph1 == paragraph && newParagraph1.text() == text1 + "\n" else {
+        guard let newParagraph1 = div.children[0] as? ElementNode, newParagraph1 == paragraph && newParagraph1.text() == text1 + "\n" else {
                 XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
                 return
         }
         
-        guard let newParagraph2 = div.children[1] as? ElementNode
-            where newParagraph2.text() == text2 + "\n" else {
+        guard let newParagraph2 = div.children[1] as? ElementNode, newParagraph2.text() == text2 + "\n" else {
                 XCTFail("Expected the first new paragraph to exist.")
                 return
         }
@@ -664,8 +662,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 2)
         
-        guard let newBoldNode = paragraph.children[0] as? ElementNode
-            where newBoldNode.name == "b" else {
+        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
                 XCTFail("Expected a bold node.")
                 return
         }
@@ -699,8 +696,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 1)
         
-        guard let newBoldNode = paragraph.children[0] as? ElementNode
-            where newBoldNode.name == "b" else {
+        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
                 XCTFail("Expected a bold node.")
                 return
         }
@@ -730,8 +726,7 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(paragraph.children.count, 1)
 
-        guard let newBoldNode = paragraph.children[0] as? ElementNode
-            where newBoldNode.name == "b" else {
+        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
                 XCTFail("Expected a bold node.")
                 return
         }
@@ -766,16 +761,14 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
         
-        guard let newBoldNode = div.children[0] as? ElementNode
-            where newBoldNode.name == boldElementType.rawValue else {
+        guard let newBoldNode = div.children[0] as? ElementNode, newBoldNode.name == boldElementType.rawValue else {
                 XCTFail("Expected a bold node here.")
                 return
         }
         
         XCTAssertEqual(newBoldNode.children.count, 1)
 
-        guard let newEmNode = newBoldNode.children[0] as? ElementNode
-            where newEmNode.name == em.name else {
+        guard let newEmNode = newBoldNode.children[0] as? ElementNode, newEmNode.name == em.name else {
             XCTFail("Expected an em node here.")
             return
         }
@@ -897,8 +890,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(divNode.children.count, 1)
         
-        guard let newBoldNode = divNode.children[0] as? ElementNode
-            where newBoldNode.name == "b" else {
+        guard let newBoldNode = divNode.children[0] as? ElementNode, newBoldNode.name == "b" else {
                 
                 XCTFail("Expected a bold node")
                 return
@@ -1062,8 +1054,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let newTextNode = paragraph.children[0] as? TextNode
-            where newTextNode.text() == textToInsert else {
+        guard let newTextNode = paragraph.children[0] as? TextNode, newTextNode.text() == textToInsert else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1094,8 +1085,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let newTextNode = paragraph.children[1] as? TextNode
-            where newTextNode.text() == textToInsert else {
+        guard let newTextNode = paragraph.children[1] as? TextNode, newTextNode.text() == textToInsert else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1126,8 +1116,7 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let newTextNode = paragraph.children[2] as? TextNode
-            where newTextNode.text() == textToInsert else {
+        guard let newTextNode = paragraph.children[2] as? TextNode, newTextNode.text() == textToInsert else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1162,8 +1151,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let textNode = paragraph.children[0] as? TextNode
-            where textNode.text() == "\(textToInsert)\(adjacentText)" else {
+        guard let textNode = paragraph.children[0] as? TextNode, textNode.text() == "\(textToInsert)\(adjacentText)" else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1198,8 +1186,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let textNode = paragraph.children[0] as? TextNode
-            where textNode.text() == "\(adjacentText)\(textToInsert)" else {
+        guard let textNode = paragraph.children[0] as? TextNode, textNode.text() == "\(adjacentText)\(textToInsert)" else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1234,8 +1221,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let textNode = paragraph.children[2] as? TextNode
-            where textNode.text() == "\(textToInsert)\(adjacentText)" else {
+        guard let textNode = paragraph.children[2] as? TextNode, textNode.text() == "\(textToInsert)\(adjacentText)" else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1271,8 +1257,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 3)
         
-        guard let textNode = paragraph.children[2] as? TextNode
-            where textNode.text() == "\(adjacentText)\(textToInsert)" else {
+        guard let textNode = paragraph.children[2] as? TextNode, textNode.text() == "\(adjacentText)\(textToInsert)" else {
                 XCTFail("Expected a text node here with the inserted text.")
                 return
         }
@@ -1305,8 +1290,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(paragraph.children.count, 2)
         XCTAssertEqual(paragraph.children[0], preLinkText)
         
-        guard let link = paragraph.children[1] as? ElementNode
-            where link.name == "a" else {
+        guard let link = paragraph.children[1] as? ElementNode, link.name == "a" else {
                 
             XCTFail("Expected a link element node")
                 return
@@ -1342,8 +1326,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 1)
         
-        guard let textNode = paragraph.children[0] as? TextNode
-            where textNode.text() == finalText else {
+        guard let textNode = paragraph.children[0] as? TextNode, textNode.text() == finalText else {
                 
                 XCTFail("Expected a text node, with the full text.")
                 return
@@ -1377,16 +1360,14 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(div.children.count, 1)
         
-        guard let newParagraph = div.children[0] as? ElementNode
-            where newParagraph.name == "p" else {
+        guard let newParagraph = div.children[0] as? ElementNode, newParagraph.name == "p" else {
                 XCTFail("Expected a paragraph.")
                 return
         }
         
         XCTAssertEqual(newParagraph.children.count, 1)
         
-        guard let textNode = newParagraph.children[0] as? TextNode
-            where textNode.text() == finalText else {
+        guard let textNode = newParagraph.children[0] as? TextNode, textNode.text() == finalText else {
                 
                 XCTFail("Expected a text node, with the full text.")
                 return
@@ -1421,22 +1402,19 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(paragraph.children.count, 3)
 
-        guard let startNode = paragraph.children[0] as? TextNode
-            where startNode.text() == startText else {
+        guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
 
                 XCTFail("Expected a text node")
                 return
         }
 
-        guard let imgNode = paragraph.children[1] as? ElementNode
-            where imgNode.name == imgNodeName else {
+        guard let imgNode = paragraph.children[1] as? ElementNode, imgNode.name == imgNodeName else {
 
                 XCTFail("Expected a img node")
                 return
         }
 
-        guard let endNode = paragraph.children[2] as? TextNode
-            where endNode.text() == endText else {
+        guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
 
                 XCTFail("Expected a text node")
                 return
@@ -1470,8 +1448,7 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(paragraph.children.count, 2)
         
-        guard let outBold = paragraph.children[0] as? ElementNode
-            where outBold.name == "b" else {
+        guard let outBold = paragraph.children[0] as? ElementNode, outBold.name == "b" else {
                 XCTFail("Expected a bold node here.")
                 return
         }
@@ -1480,14 +1457,12 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(outBold.text(), text1.text())
         XCTAssertEqual(outBold.children.count, 1)
         
-        guard let outStrike2 = outBold.children[0] as? ElementNode
-            where outStrike2.name == "strike" else {
+        guard let outStrike2 = outBold.children[0] as? ElementNode, outStrike2.name == "strike" else {
                 XCTFail("Expected a strike node.")
                 return
         }
         
-        guard let outStrike1 = paragraph.children[1] as? ElementNode
-            where outStrike1.name == "strike" else {
+        guard let outStrike1 = paragraph.children[1] as? ElementNode, outStrike1.name == "strike" else {
                 XCTFail("Expected a strike node.")
                 return
         }
@@ -1510,8 +1485,7 @@ class ElementNodeTests: XCTestCase {
         
         let text = TextNode(text: "Hello there!")
         let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
-        paragraph // Hack to silence the compiler since paragraph is not used. (we still need it)
+        _ = ElementNode(name: "p", attributes: [], children: [strike])
         
         let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1538,14 +1512,13 @@ class ElementNodeTests: XCTestCase {
         let strike = ElementNode(name: "strike", attributes: [], children: [text1, bold])
         let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
         
-        strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
+        let _ = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
         })
         
         XCTAssertEqual(paragraph.children.count, 2)
         
-        guard let outStrike1 = paragraph.children[0] as? ElementNode
-            where outStrike1.name == "strike" else {
+        guard let outStrike1 = paragraph.children[0] as? ElementNode, outStrike1.name == "strike" else {
                 XCTFail("Expected a strike node.")
                 return
         }
@@ -1553,8 +1526,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(outStrike1.children.count, 1)
         XCTAssertEqual(outStrike1.children[0], text1)
         
-        guard let outBold = paragraph.children[1] as? ElementNode
-            where outBold.name == "b" else {
+        guard let outBold = paragraph.children[1] as? ElementNode, outBold.name == "b" else {
                 XCTFail("Expected a bold node here.")
                 return
         }
@@ -1562,8 +1534,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(outBold.text(), text2.text())
         XCTAssertEqual(outBold.children.count, 1)
         
-        guard let outStrike2 = outBold.children[0] as? ElementNode
-            where outStrike2.name == "strike" else {
+        guard let outStrike2 = outBold.children[0] as? ElementNode, outStrike2.name == "strike" else {
                 XCTFail("Expected a strike node.")
                 return
         }
@@ -1583,8 +1554,7 @@ class ElementNodeTests: XCTestCase {
         
         let text = TextNode(text: "Hello there!")
         let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
-        paragraph // Hack to silence the compiler since paragraph is not used. (we still need it)
+        let _ = ElementNode(name: "p", attributes: [], children: [strike])
         
         let result = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"

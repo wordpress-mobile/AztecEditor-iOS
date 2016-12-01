@@ -57,18 +57,18 @@ class BlockquteFormatterTests: XCTestCase {
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
-        XCTAssertTrue(original.isEqualToAttributedString(textView.storage))
+        XCTAssertTrue(original.isEqual(to: textView.storage))
     }
 }
 
 private extension BlockquteFormatterTests {
     var testTextView: TextView {
-        let view = TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Image))
+        let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.image))
         view.text = plainText
         return view
     }
     var plainText: String {
-        return plainTextParagraphLines.joinWithSeparator("")
+        return plainTextParagraphLines.joined(separator: "")
     }
 
     var plainTextParagraphLines: [String] {
@@ -79,9 +79,9 @@ private extension BlockquteFormatterTests {
         return string.paragraphRanges(spanningRange: string.rangeOfEntireString)
     }
 
-    func existsBlockquote(`for` string: NSMutableAttributedString, `in` range: NSRange) -> Bool {
+    func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
-        guard string.attribute(Blockquote.attributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil else {
+        guard string.attribute(Blockquote.attributeName, at: range.location, effectiveRange: &effectiveRange) != nil else {
             return false
         }
         // Blockquote attribute spans the whole range

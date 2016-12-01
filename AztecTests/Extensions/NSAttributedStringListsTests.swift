@@ -93,8 +93,8 @@ class NSAttributedStringListsTests: XCTestCase {
 
         // Expected Ranges
         let foundationText = fullText.string as NSString
-        let firstRange = foundationText.rangeOfString(firstText)
-        let secondRange = foundationText.rangeOfString(secondText)
+        let firstRange = foundationText.range(of: firstText)
+        let secondRange = foundationText.range(of: secondText)
 
 
         // Check
@@ -149,7 +149,7 @@ class NSAttributedStringListsTests: XCTestCase {
             if isIndexWithinListRange(index) {
                 XCTAssertNotNil(retrievedContents)
                 let delta = index - expectedRange.location
-                let expectedSubstring = expectedContents.substringFromIndex(expectedContents.startIndex.advancedBy(delta))
+                let expectedSubstring = expectedContents.substring(from: expectedContents.characters.index(expectedContents.startIndex, offsetBy: delta))
                 XCTAssertEqual(retrievedContents!.string, expectedSubstring)
             } else {
                 XCTAssertNil(retrievedContents)
@@ -329,8 +329,8 @@ class NSAttributedStringListsTests: XCTestCase {
         let ranges = text.paragraphRanges(spanningRange: text.rangeOfEntireString)
         XCTAssert(ranges.count == 3)
 
-        let paragraphs = ranges.map { text.attributedSubstringFromRange($0).string }
-        for (index, retrieved) in paragraphs.enumerate() {
+        let paragraphs = ranges.map { text.attributedSubstring(from: $0).string }
+        for (index, retrieved) in paragraphs.enumerated() {
             let expected = expected[index]
             XCTAssert(expected == retrieved)
         }
@@ -350,7 +350,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let second = "I would be the second?\n"
 
         let text = NSAttributedString(string: first + second)
-        let rangeExpected = (text.string as NSString).rangeOfString(first)
+        let rangeExpected = (text.string as NSString).range(of: first)
 
         let rangesForParagraphs = text.paragraphRanges(spanningRange: rangeExpected)
         XCTAssert(rangesForParagraphs.count == 1)
@@ -465,7 +465,12 @@ class NSAttributedStringListsTests: XCTestCase {
         for itemRange in listParagraphRanges {
             let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListStyle: sampleListStyle)
             XCTAssert(retrievedRanges.count == listParagraphRanges.count)
-            XCTAssertEqual(listParagraphRanges, retrievedRanges)
+            
+            for retrievedRange in retrievedRanges {
+                XCTAssertTrue(listParagraphRanges.contains(where: { (range) -> Bool in
+                    listParagraphRanges.contains(retrievedRange)
+                }))
+            }
         }
     }
 
@@ -479,10 +484,10 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testAttributedStringByApplyingListItemAttributesEffectivelyAppliesListItemStyle() {
         let original = sampleSingleLine
-        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Ordered, withNumber: 5)
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .ordered, withNumber: 5)
 
         for index in (0 ..< applied.length) {
-            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            let item = applied.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
             XCTAssertNotNil(item)
         }        
     }
@@ -497,16 +502,16 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testAttributedStringByRemovingListItemAttributesEffectivelyNukesListItemStyle() {
         let original = sampleSingleLine
-        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .Unordered, withNumber: 2)
+        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .unordered, withNumber: 2)
         let clean = applied.attributedStringByRemovingListItemAttributes()
 
         for index in (0 ..< applied.length) {
-            let item = applied.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            let item = applied.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
             XCTAssertNotNil(item)
         }
 
         for index in (0 ..< clean.length) {
-            let nothing = clean.attribute(TextListItem.attributeName, atIndex: index, effectiveRange: nil) as? TextListItem
+            let nothing = clean.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
             XCTAssertNil(nothing)
         }
     }
@@ -538,7 +543,7 @@ extension NSAttributedStringListsTests
             "- Buy Cookies\n" +
             "Yay!")
 
-        let range = (sample.string as NSString).rangeOfString(sampleListContents)
+        let range = (sample.string as NSString).range(of: sampleListContents)
         let attributes = [TextList.attributeName: TextList(style: sampleListStyle)]
         sample.addAttributes(attributes, range: range)
 
@@ -546,7 +551,7 @@ extension NSAttributedStringListsTests
     }
 
     var sampleListStyle: TextList.Style {
-        return .Ordered
+        return .ordered
     }
 
     var sampleListContents: String {
@@ -557,14 +562,14 @@ extension NSAttributedStringListsTests
     }
 
     var sampleListRange: NSRange {
-        return (sampleListString.string as NSString).rangeOfString(sampleListContents)
+        return (sampleListString.string as NSString).range(of: sampleListContents)
     }
 
     var listStyles: [TextList.Style] {
-        return [.Ordered, .Unordered]
+        return [.ordered, .unordered]
     }
 
-    func isIndexWithinListRange(index: Int) -> Bool {
+    func isIndexWithinListRange(_ index: Int) -> Bool {
         let range = sampleListRange
         return index >= range.location && index < NSMaxRange(range)
     }

@@ -14,9 +14,9 @@ extension NSAttributedString
     ///     - type: The kind of Attachment we're after
     ///     - block: Closure to be executed, for each one of the elements
     ///
-    func enumerateAttachmentsOfType<T : NSTextAttachment>(type: T.Type, range: NSRange? = nil, block: ((T, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
+    func enumerateAttachmentsOfType<T : NSTextAttachment>(_ type: T.Type, range: NSRange? = nil, block: ((T, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
         let range = range ?? NSMakeRange(0, length)
-        enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
             if let object = object as? T {
                 block(object, range, stop)
             }
@@ -33,8 +33,8 @@ extension NSAttributedString
     {
         let range = NSRange(location: 0, length: length)
         var attachmentRanges = [NSRange]()
-        enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (value, effectiveRange, nil) in
-            guard let foundAttachment = value as? NSTextAttachment where foundAttachment == attachment else {
+        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (value, effectiveRange, nil) in
+            guard let foundAttachment = value as? NSTextAttachment, foundAttachment == attachment else {
                 return
             }
             attachmentRanges.append(effectiveRange)

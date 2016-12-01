@@ -2,25 +2,29 @@ import Foundation
 import UIKit
 
 protocol TextAttachmentImageProvider {
-    func textAttachment(textAttachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
+    func textAttachment(
+        _ textAttachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
 }
 
 /// Custom text attachment.
 ///
-public class TextAttachment: NSTextAttachment
+open class TextAttachment: NSTextAttachment
 {
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
-    private(set) public var identifier: String
+    fileprivate(set) open var identifier: String
     
     /// Attachment URL
     ///
-    public var url: NSURL?
-    private var lastRequestedURL: NSURL?
+    open var url: URL?
+    fileprivate var lastRequestedURL: URL?
 
     /// Attachment Alignment
     ///
-    internal(set) public var alignment: Alignment = .Center {
+    internal(set) open var alignment: Alignment = .center {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
@@ -30,7 +34,7 @@ public class TextAttachment: NSTextAttachment
 
     /// Attachment Size
     ///
-    public var size: Size = .Full {
+    open var size: Size = .full {
         willSet {
             if newValue != size {
                 glyphImage = nil
@@ -40,9 +44,9 @@ public class TextAttachment: NSTextAttachment
 
     /// A progress value that indicates the progress of an attachment. It can be set between values 0 and 1
     ///
-    public var progress: Double? = nil {
+    open var progress: Double? = nil {
         willSet {
-            assert(newValue == nil || (newValue >= 0 && newValue <= 1), "Progress must be value between 0 and 1 or nil")
+            assert(newValue == nil || (newValue! >= 0 && newValue! <= 1), "Progress must be value between 0 and 1 or nil")
             if newValue != progress {
                 glyphImage = nil
             }
@@ -51,13 +55,13 @@ public class TextAttachment: NSTextAttachment
 
     /// The color to use when drawing progress indicators
     ///
-    public var progressColor: UIColor = UIColor.blueColor()
+    open var progressColor: UIColor = UIColor.blue
 
     /// A message to display overlaid on top of the image
     ///
-    public var message: NSAttributedString?
+    open var message: NSAttributedString?
 
-    private var glyphImage: UIImage?
+    fileprivate var glyphImage: UIImage?
 
     var imageProvider: TextAttachmentImageProvider?
     
@@ -69,7 +73,7 @@ public class TextAttachment: NSTextAttachment
     ///
     /// - returns: self, initilized with the identifier a with kind = .MissingImage
     ///
-    required public init(identifier: String = NSUUID().UUIDString, url: NSURL? = nil) {
+    required public init(identifier: String = UUID().uuidString, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
         
@@ -86,20 +90,20 @@ public class TextAttachment: NSTextAttachment
 
     // MARK: - Origin calculation
 
-    private func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
+    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
         let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
-        case .Center:
+        case .center:
             return Int(floor((containerWidth - imageWidth) / 2))
-        case .Right:
+        case .right:
             return Int(floor(containerWidth - imageWidth))
         default:
             return 0
         }
     }
 
-    private func onScreenHeight(containerWidth: CGFloat) -> CGFloat {
+    fileprivate func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
@@ -110,10 +114,10 @@ public class TextAttachment: NSTextAttachment
         }
     }
 
-    private func onScreenWidth(containerWidth: CGFloat) -> CGFloat {
+    fileprivate func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {	
-            case .Full:
+            case .full:
                 return floor(min(image.size.width, containerWidth))
             default:
                 return floor(min(min(image.size.width,size.width), containerWidth))
@@ -125,7 +129,7 @@ public class TextAttachment: NSTextAttachment
 
     // MARK: - NSTextAttachmentContainer
 
-    override public func imageForBounds(imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
+    override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
         updateImage(inTextContainer: textContainer)
 
@@ -133,7 +137,7 @@ public class TextAttachment: NSTextAttachment
             return nil
         }
 
-        if let cachedImage = glyphImage where CGSizeEqualToSize(imageBounds.size, cachedImage.size) {
+        if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
             return cachedImage
         }
 
@@ -142,7 +146,7 @@ public class TextAttachment: NSTextAttachment
         return glyphImage
     }
 
-    private func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
+    fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
 
         let containerWidth = bounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: 0)
@@ -150,31 +154,31 @@ public class TextAttachment: NSTextAttachment
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
-        image.drawInRect(CGRect(origin: origin, size: size))
+        image.draw(in: CGRect(origin: origin, size: size))
 
         if let progress = progress {
             let box = UIBezierPath()
-            box.moveToPoint(CGPoint(x:origin.x, y:origin.y))
-            box.addLineToPoint(CGPoint(x: origin.x + size.width, y: origin.y))
-            box.addLineToPoint(CGPoint(x: origin.x + size.width, y: origin.y + size.height))
-            box.addLineToPoint(CGPoint(x: origin.x, y: origin.y + size.height))
-            box.addLineToPoint(CGPoint(x: origin.x, y: origin.y))
+            box.move(to: CGPoint(x:origin.x, y:origin.y))
+            box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
+            box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y + size.height))
+            box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
+            box.addLine(to: CGPoint(x: origin.x, y: origin.y))
             box.lineWidth = 2.0
             UIColor(white: 1, alpha: 0.75).setFill()
             box.fill()
 
             let path = UIBezierPath()
-            path.moveToPoint(CGPoint(x:origin.x, y:origin.y))
-            path.addLineToPoint(CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
+            path.move(to: CGPoint(x:origin.x, y:origin.y))
+            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
             path.lineWidth = 4.0
             progressColor.setStroke()
             path.stroke()
         }
 
         if let message = message {
-            let textRect = message.boundingRectWithSize(size, options: [.UsesLineFragmentOrigin, .UsesFontLeading], context: nil)
+            let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
             let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
-            message.drawInRect(CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
+            message.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
 
         }
 
@@ -187,18 +191,18 @@ public class TextAttachment: NSTextAttachment
     /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
     /// Otherwise, we'll always take the whole container's width.
     ///
-    override public func attachmentBoundsForTextContainer(textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
+    override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         
         updateImage(inTextContainer: textContainer)
         
         if image == nil {
-            return CGRectZero
+            return CGRect.zero
         }
 
         let padding = textContainer?.lineFragmentPadding ?? 0
         let width = lineFrag.width - padding * 2
 
-        return CGRect(origin: CGPointZero, size: CGSize(width: width, height: onScreenHeight(width)))
+        return CGRect(origin: CGPoint.zero, size: CGSize(width: width, height: onScreenHeight(width)))
     }
 
     func updateImage(inTextContainer textContainer: NSTextContainer? = nil) {
@@ -208,7 +212,7 @@ public class TextAttachment: NSTextAttachment
             return
         }
         
-        guard let url = url where !isFetchingImage && url != lastRequestedURL else {
+        guard let url = url, !isFetchingImage && url != lastRequestedURL else {
             return
         }
         
@@ -239,7 +243,7 @@ public class TextAttachment: NSTextAttachment
         }
     }
     
-    private func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
+    fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
     }
 }
@@ -253,29 +257,29 @@ extension TextAttachment
     /// Alignment
     ///
     public enum Alignment {
-        case None
-        case Left
-        case Center
-        case Right
+        case none
+        case left
+        case center
+        case right
 
         func htmlString() -> String {
             switch self {
-                case .Center:
+                case .center:
                     return "aligncenter"
-                case .Left:
+                case .left:
                     return "alignleft"
-                case .Right:
+                case .right:
                     return "alignright"
-                case .None:
+                case .none:
                     return "alignnone"
             }
         }
 
         static let mappedValues:[String:Alignment] = [
-            Alignment.None.htmlString():.None,
-            Alignment.Left.htmlString():.Left,
-            Alignment.Center.htmlString():.Center,
-            Alignment.Right.htmlString():.Right
+            Alignment.none.htmlString():.none,
+            Alignment.left.htmlString():.left,
+            Alignment.center.htmlString():.center,
+            Alignment.right.htmlString():.right
         ]
 
         static func fromHTML(string value:String) -> Alignment? {
@@ -286,29 +290,29 @@ extension TextAttachment
     /// Size Onscreen!
     ///
     public enum Size {
-        case Thumbnail
-        case Medium
-        case Large
-        case Full
+        case thumbnail
+        case medium
+        case large
+        case full
 
         func htmlString() -> String {
             switch self {
-            case .Thumbnail:
+            case .thumbnail:
                 return "size-thumbnail"
-            case .Medium:
+            case .medium:
                 return "size-medium"
-            case .Large:
+            case .large:
                 return "size-large"
-            case .Full:
+            case .full:
                 return "size-full"
             }
         }
 
         static let mappedValues:[String:Size] = [
-            Size.Thumbnail.htmlString():.Thumbnail,
-            Size.Medium.htmlString():.Medium,
-            Size.Large.htmlString():.Large,
-            Size.Full.htmlString():.Full
+            Size.thumbnail.htmlString():.thumbnail,
+            Size.medium.htmlString():.medium,
+            Size.large.htmlString():.large,
+            Size.full.htmlString():.full
         ]
 
         static func fromHTML(string value:String) -> Size? {
@@ -317,18 +321,18 @@ extension TextAttachment
 
         var width: CGFloat {
             switch self {
-            case .Thumbnail: return Settings.thumbnail
-            case .Medium: return Settings.medium
-            case .Large: return Settings.large
-            case .Full: return Settings.maximum
+            case .thumbnail: return Settings.thumbnail
+            case .medium: return Settings.medium
+            case .large: return Settings.large
+            case .full: return Settings.maximum
             }
         }
 
-        private struct Settings {
+        fileprivate struct Settings {
             static let thumbnail = CGFloat(135)
             static let medium = CGFloat(270)
             static let large = CGFloat(360)
-            static let maximum = CGFloat.max
+            static let maximum = CGFloat.greatestFiniteMagnitude
         }
     }
 }

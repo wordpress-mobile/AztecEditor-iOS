@@ -9,26 +9,26 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var sourceURLTextField: UITextField!
 
     var attachment: TextAttachment?
-    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size, NSURL) -> Void)?
+    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size, URL) -> Void)?
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = NSLocalizedString("Properties", comment: "Attachment Properties Title")
-        edgesForExtendedLayout = .None
+        edgesForExtendedLayout = UIRectEdge()
 
-        navigationController?.navigationBar.translucent = false
+        navigationController?.navigationBar.isTranslucent = false
 
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel,
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel,
                                                             target: self,
                                                             action: #selector(cancelWasPressed))
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done,
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done,
                                                             target: self,
                                                             action: #selector(doneWasPressed))
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         guard let attachment = attachment else {
@@ -45,7 +45,7 @@ class AttachmentDetailsViewController: UITableViewController
     }
 
     @IBAction func cancelWasPressed() {
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 
     @IBAction func doneWasPressed() {
@@ -55,20 +55,22 @@ class AttachmentDetailsViewController: UITableViewController
             else {
             fatalError()
         }
-        var sourceURL = NSURL()
-        if let urlString = sourceURLTextField.text,
-           let url = NSURL(string:urlString) {
-            sourceURL = url
+        
+        guard let onUpdate = onUpdate,
+            let urlString = sourceURLTextField.text,
+            let url = URL(string:urlString) else {
+            
+            dismiss(animated: true, completion: nil)
+            return
         }
 
-        onUpdate?(alignment.toAttachmentAlignment(), size.toAttachmentSize(), sourceURL)
-        
-        dismissViewControllerAnimated(true, completion: nil)
+        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url)
+        dismiss(animated: true, completion: nil)
     }
 
     class func controller() -> AttachmentDetailsViewController {
         let storyboard = UIStoryboard(name: "AttachmentDetailsViewController", bundle: nil)
-        return storyboard.instantiateViewControllerWithIdentifier("AttachmentDetailsViewController") as! AttachmentDetailsViewController
+        return storyboard.instantiateViewController(withIdentifier: "AttachmentDetailsViewController") as! AttachmentDetailsViewController
     }
 
 }
@@ -88,26 +90,26 @@ private extension AttachmentDetailsViewController
     /// the Attachment's data and the Segmented Control.
     ///
     enum Alignment: Int {
-        case None
-        case Left
-        case Center
-        case Right
+        case none
+        case left
+        case center
+        case right
 
         init(attachmentAlignment: AttachmentAlignment) {
             switch attachmentAlignment {
-            case .None:     self = .None
-            case .Left:     self = .Left
-            case .Center:   self = .Center
-            case .Right:    self = .Right
+            case .none:     self = .none
+            case .left:     self = .left
+            case .center:   self = .center
+            case .right:    self = .right
             }
         }
 
         func toAttachmentAlignment() -> AttachmentAlignment {
             switch self {
-            case .None:     return .None
-            case .Left:     return .Left
-            case .Center:   return .Center
-            case .Right:    return .Right
+            case .none:     return .none
+            case .left:     return .left
+            case .center:   return .center
+            case .right:    return .right
             }
         }
     }
@@ -117,26 +119,26 @@ private extension AttachmentDetailsViewController
     /// the Attachment's data and the Segmented Control.
     ///
     enum Size: Int {
-        case Thumbnail
-        case Medium
-        case Large
-        case Maximum
+        case thumbnail
+        case medium
+        case large
+        case maximum
 
         init(attachmentSize: AttachmentSize) {
             switch attachmentSize {
-            case .Thumbnail:    self = .Thumbnail
-            case .Medium:       self = .Medium
-            case .Large:        self = .Large
-            case .Full:      self = .Maximum
+            case .thumbnail:    self = .thumbnail
+            case .medium:       self = .medium
+            case .large:        self = .large
+            case .full:         self = .maximum
             }
         }
 
         func toAttachmentSize() -> AttachmentSize {
             switch self {
-            case .Thumbnail:    return .Thumbnail
-            case .Medium:       return .Medium
-            case .Large:        return .Large
-            case .Maximum:      return .Full
+            case .thumbnail:    return .thumbnail
+            case .medium:       return .medium
+            case .large:        return .large
+            case .maximum:      return .full
             }
         }
     }

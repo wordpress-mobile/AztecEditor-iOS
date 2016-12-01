@@ -7,14 +7,20 @@ extension Libxml2 {
 
         var comment: String
 
+        // MARK: - CustomReflectable
+        
+        override public var customMirror: Mirror {
+            get {
+                return Mirror(self, children: ["type": "comment", "name": name, "comment": comment, "parent": parent.debugDescription], ancestorRepresentation: .suppressed)
+            }
+        }
+        
+        // MARK: - Initializers
+        
         init(text: String) {
             comment = text
 
             super.init(name: "comment")
-        }
-
-        override func customMirror() -> Mirror {
-            return Mirror(self, children: ["type": "comment", "name": name, "comment": comment, "parent": parent.debugDescription], ancestorRepresentation: .Suppressed)
         }
 
         /// Node length.

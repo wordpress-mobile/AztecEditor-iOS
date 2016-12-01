@@ -18,7 +18,7 @@ extension Libxml2.In {
         ///
         /// - Returns: an HTML.Node.
         ///
-        func convert(rawNode: xmlNode) -> Node {
+        func convert(_ rawNode: xmlNode) -> Node {
             var node: Node
 
             switch rawNode.type {
@@ -33,7 +33,7 @@ extension Libxml2.In {
             return node
         }
 
-        private func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
+        fileprivate func createAttributes(fromNode rawNode: xmlNode) -> [Attribute] {
             let attributesConverter = AttributesConverter()
             return attributesConverter.convert(rawNode.properties)
         }
@@ -45,11 +45,11 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.ElementNode
         ///
-        private func createElementNode(rawNode: xmlNode) -> ElementNode {
+        fileprivate func createElementNode(_ rawNode: xmlNode) -> ElementNode {
 
             let nodeName = getNodeName(rawNode)
 
-            switch nodeName.lowercaseString {
+            switch nodeName.lowercased() {
             case RootNode.name:
                 return createRootNode(rawNode)
             default:
@@ -60,7 +60,7 @@ extension Libxml2.In {
 
             if rawNode.children != nil {
                 let nodesConverter = NodesConverter()
-                children.appendContentsOf(nodesConverter.convert(rawNode.children))
+                children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
             let attributes = createAttributes(fromNode: rawNode)
@@ -82,12 +82,12 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.RootNode
         ///
-        private func createRootNode(rawNode: xmlNode) -> RootNode {
+        fileprivate func createRootNode(_ rawNode: xmlNode) -> RootNode {
             var children = [Node]()
 
             if rawNode.children != nil {
                 let nodesConverter = NodesConverter()
-                children.appendContentsOf(nodesConverter.convert(rawNode.children))
+                children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
             let node = RootNode(children: children)
@@ -108,9 +108,9 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.TextNode
         ///
-        private func createTextNode(rawNode: xmlNode) -> TextNode {
-            let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
-            let cleanText = text.stringByReplacingOccurrencesOfString("\n", withString: "")
+        fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
+            let text = String(cString: rawNode.content)
+            let cleanText = text.replacingOccurrences(of: "\n", with: "")
             let node = TextNode(text: cleanText)
 
             return node
@@ -123,15 +123,15 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML.CommentNode
         ///
-        private func createCommentNode(rawNode: xmlNode) -> CommentNode {
-            let text = String(CString: UnsafePointer<Int8>(rawNode.content), encoding: NSUTF8StringEncoding)!
+        fileprivate func createCommentNode(_ rawNode: xmlNode) -> CommentNode {
+            let text = String(cString: rawNode.content)
             let node = CommentNode(text: text)
 
             return node
         }
 
-        private func getNodeName(rawNode: xmlNode) -> String {
-            return String(CString: UnsafePointer<Int8>(rawNode.name), encoding: NSUTF8StringEncoding)!
+        fileprivate func getNodeName(_ rawNode: xmlNode) -> String {
+            return String(cString: rawNode.name)
         }
     }
 }
