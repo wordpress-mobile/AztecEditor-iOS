@@ -7,10 +7,10 @@ extension Libxml2.Out {
         typealias Attribute = Libxml2.Attribute
         typealias StringAttribute = Libxml2.StringAttribute
 
-        fileprivate let node: xmlNodePtr
+        fileprivate let node: xmlNodePtr?
 
         init(forNode node: xmlNodePtr? = nil) {
-            self.node = node!
+            self.node = node
         }
         
         /// Converts a single HTML.Attribute into a single libxml2 attribute
