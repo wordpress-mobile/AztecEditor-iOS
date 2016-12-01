@@ -1485,7 +1485,7 @@ class ElementNodeTests: XCTestCase {
         
         let text = TextNode(text: "Hello there!")
         let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        _ = ElementNode(name: "p", attributes: [], children: [strike])
         
         let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1512,7 +1512,7 @@ class ElementNodeTests: XCTestCase {
         let strike = ElementNode(name: "strike", attributes: [], children: [text1, bold])
         let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
         
-        strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
+        let _ = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
         })
         
@@ -1554,8 +1554,7 @@ class ElementNodeTests: XCTestCase {
         
         let text = TextNode(text: "Hello there!")
         let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
-        paragraph // Hack to silence the compiler since paragraph is not used. (we still need it)
+        let _ = ElementNode(name: "p", attributes: [], children: [strike])
         
         let result = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
