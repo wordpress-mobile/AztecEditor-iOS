@@ -79,13 +79,13 @@ class SafeCLinkedListToArrayConverter<ElementConverterType: SafeConverter>: Safe
     /// - Returns: a pointer to the next element in the linked list.  Can be nil to signal the end
     ///         of the list is reached.
     ///
-    let next: (_ current: ElementConverterType.TypeIn) -> (UnsafeMutablePointer<ElementConverterType.TypeIn>)
+    let next: (_ current: ElementConverterType.TypeIn) -> (TypeIn)
 
     /// Defines the TypeIn to fulfill the Converter contract.  Since this class converts from C
     /// linked lists to Swift arrays, it's going to be an UnsafeMutablePointer to whatever the
     /// element converter receives as input.
     ///
-    typealias TypeIn = UnsafeMutablePointer<ElementConverterType.TypeIn>
+    typealias TypeIn = UnsafeMutablePointer<ElementConverterType.TypeIn>?
 
 
     /// Defines the TypeOut to fulfill the Converter contract.  Since this class converts from C
