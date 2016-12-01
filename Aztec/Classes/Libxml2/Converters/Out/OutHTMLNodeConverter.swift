@@ -51,7 +51,7 @@ extension Libxml2.Out {
             let attributeConverter = AttributeConverter(forNode: node)
 
             for rawAttribute in rawNode.attributes {
-                attributeConverter.convert(rawAttribute)
+                let _ = attributeConverter.convert(rawAttribute)
             }
             
             for child in rawNode.children {
