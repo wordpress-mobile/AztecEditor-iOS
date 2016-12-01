@@ -6,6 +6,38 @@ import UIKit
 //
 extension NSAttributedString
 {
+    /// Check if the location passed is the beggining of a new line.
+    ///
+    /// - Parameter location: the position to check
+    /// - Returns: true if beggining of a new line false otherwise
+    ///
+    func isStartOfNewLine(atLocation location: Int) -> Bool {
+        var isStartOfLine = length == 0 || location == 0
+        if length > 0 && location > 0 {
+            let previousRange = NSRange(location: location - 1, length: 1)
+            let previousString = attributedSubstring(from: previousRange).string
+            isStartOfLine = previousString == "\n"
+        }
+        return isStartOfLine
+    }
+
+    /// Check if the location passed is the beggining of a new list line.
+    ///
+    /// - Parameter location: the position to check
+    /// - Returns: true if beggining of a new line false otherwise
+    ///
+    func isStartOfNewListItem(atLocation location: Int) -> Bool {
+        var isStartOfListItem = attribute(TextListItem.attributeName, at: location, effectiveRange: nil) != nil
+        var isStartOfLine = length == 0 || location == 0
+        if length > 0 && location > 0 {
+            let previousRange = NSRange(location: location - 1, length: 1)
+            let previousString = attributedSubstring(from: previousRange)
+            isStartOfLine = previousString.string == "\n"
+            isStartOfListItem = previousString.attribute(TextListItem.attributeName, at: 0, effectiveRange: nil) != nil
+        }
+        return isStartOfLine && isStartOfListItem
+    }
+
     /// Given a collection of NSRange's, this method will filter all of those that contain a TextList, and
     /// don't match the specified Style.
     ///
@@ -93,6 +125,16 @@ extension NSAttributedString
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
         return attribute(TextList.attributeName, at: index, effectiveRange: nil) as? TextList
+    }
+
+    /// Returns the TextListItem attribute at the specified NSRange, if any.
+    ///
+    /// - Parameter index: The index at which to inspect.
+    ///
+    /// - Returns: A TextListItem optional.
+    ///
+    func textListItemAttribute(atIndex index: Int) -> TextListItem? {
+        return attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
     }
 
 
@@ -247,29 +289,12 @@ extension NSAttributedString
 
         // TODO: Need to accomodate RTL languages too.
 
-        // Insert the range at the beginning of the string.
-        let markerText = style.markerText(forItemNumber: number)
-        var markerAttributes = [String: AnyObject]()
-        if let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) {
-            markerAttributes[NSParagraphStyleAttributeName] = paragraphStyle as AnyObject?
-        }
-        if let fontStyle = output.attribute(NSFontAttributeName, at: 0, effectiveRange: nil) {
-            markerAttributes[NSFontAttributeName] = fontStyle as AnyObject?
-        }
-        output.replaceCharacters(in: NSRange.zero, with: NSAttributedString(string:markerText, attributes: markerAttributes))
-
-        // Apply Item Marker
-        let markerAttribute = TextListItemMarker()
-        let markerRange = output.foundationString.range(of: markerText)
-
-        output.addAttribute(TextListItemMarker.attributeName, value: markerAttribute, range: markerRange)
-
         // Set the attributes for the list item style
         let listItem = TextListItem(number: number)
 
         let listItemAttributes: [String: AnyObject] = [
             TextListItem.attributeName: listItem,
-            NSParagraphStyleAttributeName: NSParagraphStyle.Aztec.defaultParagraphStyle
+            NSParagraphStyleAttributeName: NSParagraphStyle.Aztec.defaultListParagraphStyle
         ]
 
         output.addAttributes(listItemAttributes, range: output.rangeOfEntireString)
@@ -292,14 +317,6 @@ extension NSAttributedString
         // Fall back to TextKit's default Paragraph Style
         let paragraphStyle = NSParagraphStyle()
         clean.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
-
-        // Nuke the Marker
-        var markerRange = NSRange()
-        if clean.length > 0 {
-            if let _ = clean.attribute(TextListItemMarker.attributeName, at: 0, longestEffectiveRange: &markerRange, in: range) {
-                clean.replaceCharacters(in: markerRange, with: String())
-            }
-        }
 
         return clean
     }

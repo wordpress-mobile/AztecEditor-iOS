@@ -489,10 +489,7 @@ class NSAttributedStringListsTests: XCTestCase {
         for index in (0 ..< applied.length) {
             let item = applied.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
             XCTAssertNotNil(item)
-        }
-
-        let marker = applied.attribute(TextListItemMarker.attributeName, at: 0, effectiveRange: nil) as? TextListItemMarker
-        XCTAssertNotNil(marker)
+        }        
     }
 
     /// Tests that `attributedStringByApplyingListItemAttributes` effectively removes the TextListItem Attribute.

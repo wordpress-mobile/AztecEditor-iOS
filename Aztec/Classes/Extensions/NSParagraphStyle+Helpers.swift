@@ -26,7 +26,17 @@ extension NSParagraphStyle
             return style
         }()
 
-        fileprivate static let tabStepInterval = 8
-        fileprivate static let tabStepCount    = 12
+        static let defaultListParagraphStyle: NSParagraphStyle = {
+            let style = NSMutableParagraphStyle()
+            style.setParagraphStyle(defaultParagraphStyle)
+
+            style.headIndent = 12
+            style.firstLineHeadIndent = style.headIndent
+
+            return style
+        }()
+
+        private static let tabStepInterval = 8
+        private static let tabStepCount    = 12
     }
 }

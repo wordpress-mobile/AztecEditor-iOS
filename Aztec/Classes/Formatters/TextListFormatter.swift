@@ -52,11 +52,13 @@ class TextListFormatter
         var styleOptional: TextList.Style?
         // Load Paragraph Ranges
 
-        let paragraphRanges = string.paragraphRanges(spanningRange: range)
-        guard let firstParagraphRange = paragraphRanges.first else {
+        var paragraphRanges = string.paragraphRanges(spanningRange: range)
+        if paragraphRanges.count == 0 {
             if let paragraphRange = string.rangeOfLine(atIndex: range.location) {
-                return removeList(fromString: string, atRanges: [paragraphRange])
+                paragraphRanges.append(paragraphRange)
             }
+        }
+        guard let firstParagraphRange = paragraphRanges.first else {
             return nil
         }
         if let textList = string.attribute(TextList.attributeName, at: firstParagraphRange.location, effectiveRange: nil) as? TextList {
@@ -87,7 +89,8 @@ class TextListFormatter
     ///
     @discardableResult
     func removeList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
-        return removeList(fromString: string, atRanges: [range])
+        let paragraphRange = string.paragraphRange(for: range)
+        return removeList(fromString: string, atRanges: [paragraphRange])
     }
 }
 
