@@ -55,7 +55,7 @@ extension NSRange
     }
 }
 
-extension SequenceType where Generator.Element == NSRange {
+extension Sequence where Iterator.Element == NSRange {
     /// Returns the union of all the ranges in the sequence
     ///
     func union() -> NSRange? {
@@ -65,5 +65,11 @@ extension SequenceType where Generator.Element == NSRange {
             }
             return partialUnion.union(withRange: range)
         }
+    }
+}
+
+extension NSRange: Equatable {
+    public static func ==(lhs: NSRange, rhs: NSRange) -> Bool{
+        return lhs.location == rhs.location && lhs.length == rhs.length
     }
 }

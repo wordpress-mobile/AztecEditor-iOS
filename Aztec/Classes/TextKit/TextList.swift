@@ -11,13 +11,13 @@ class TextList
     /// List Styles
     ///
     enum Style {
-        case Ordered
-        case Unordered
+        case ordered
+        case unordered
 
         func markerText(forItemNumber number: Int) -> String {
             switch self {
-            case .Ordered:      return "\(number).\t"
-            case .Unordered:    return "\u{2022}\t\t"
+            case .ordered:      return "\(number).\t"
+            case .unordered:    return "\u{2022}\t\t"
             }
         }
     }
@@ -28,7 +28,7 @@ class TextList
     ///
     let style: Style
 
-
+    var currentListNumber: Int = 0
     // MARK: Initializers
 
     init(style: Style) {
@@ -66,15 +66,4 @@ class TextListItem
     /// Attributed String's Attribute Name
     ///
     static let attributeName = "TextListItemAttributeName"
-}
-
-
-// MARK: - Encompases the range of the bullet/number + tab.
-//
-class TextListItemMarker {
-    // MARK: - Constants
-
-    /// Attributed String's Attribute Name
-    ///
-    static let attributeName = "TextListItemMarkerAttributeName"
 }

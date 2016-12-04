@@ -6,7 +6,7 @@ extension Libxml2.In {
 
         typealias RootNode = Libxml2.RootNode
 
-        enum Error: String, ErrorType {
+        enum Error: String, Swift.Error {
             case NoRootNode = "No root node"
         }
 
@@ -22,18 +22,18 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML root node.
         ///
-        func convert(html: String) throws -> RootNode {
+        func convert(_ html: String) throws -> RootNode {
 
             // We wrap the HTML into a special root node, since it helps avoid conversion issues
             // with libxml2, where the library would add custom tags to "fix" the HTML code we
             // provide.
             //
             let wrappedHTML = "<\(RootNode.name)>\(html)</\(RootNode.name)>"
-            let data = wrappedHTML.dataUsingEncoding(NSUTF8StringEncoding)!
+            let data = wrappedHTML.data(using: String.Encoding.utf8)!
 
             let bufferSize = 1024
-            let buffer = Array<Int8>(count: bufferSize, repeatedValue: 0)
-            let htmlPtr = UnsafePointer<Int8>(data.bytes)
+            let buffer = Array<Int8>(repeating: 0, count: bufferSize)
+            let htmlPtr = (data as NSData).bytes.bindMemory(to: Int8.self, capacity: data.count)
 
             let parserContext = htmlCreateMemoryParserCtxt(buffer, 1024)
             
@@ -45,7 +45,12 @@ extension Libxml2.In {
             //
             htmlHandleOmittedElem(0)
 
-            let document = htmlCtxtReadMemory(parserContext, htmlPtr, Int32(wrappedHTML.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)), "", "UTF-8", Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue))
+            let document = htmlCtxtReadMemory(parserContext,
+                                              htmlPtr,
+                                              Int32(wrappedHTML.lengthOfBytes(using: String.Encoding.utf8)),
+                                              "",
+                                              "UTF-8",
+                                              Int32(HTML_PARSE_RECOVER.rawValue | HTML_PARSE_NODEFDTD.rawValue | HTML_PARSE_NOERROR.rawValue | HTML_PARSE_NOWARNING.rawValue | HTML_PARSE_NOIMPLIED.rawValue | HTML_PARSE_NOBLANKS.rawValue))
             
             defer {
                 xmlFreeDoc(document)
@@ -54,10 +59,8 @@ extension Libxml2.In {
             let errorPtr = xmlGetLastError()
 
             if errorPtr != nil {
-                let messagePtr = errorPtr.memory.message
-
-                if messagePtr != nil {
-                    let message = String(CString: messagePtr, encoding: NSUTF8StringEncoding)
+                if let messagePtr = errorPtr?.pointee.message {
+                    let message = String(cString: messagePtr)
 
                     NSLog("Message: \(message)")
                 }
@@ -70,8 +73,7 @@ extension Libxml2.In {
 
             let rootNodePtr = xmlDocGetRootElement(document)
 
-            if rootNodePtr != nil {
-                let rootNode = rootNodePtr.memory
+            if let rootNode = rootNodePtr?.pointee  {
 
                 // TODO: If the root node has siblings, they're loaded as children instead (by
                 // libxml2).  We need to test this a bit more, because saving the HTML back will

@@ -12,7 +12,7 @@ extension Libxml2 {
         
         typealias RootNode = Libxml2.RootNode
         
-        private var rootNode: RootNode = {
+        fileprivate var rootNode: RootNode = {
             return RootNode(children: [TextNode(text: "")])
         }()
         
@@ -20,7 +20,7 @@ extension Libxml2 {
         
         /// The queue that will be used for all DOM interaction operations.
         ///
-        let domQueue = dispatch_queue_create("com.wordpress.domQueue", DISPATCH_QUEUE_SERIAL)
+        let domQueue = DispatchQueue(label: "com.wordpress.domQueue", attributes: [])
         
         // MARK: - Initializing
         
@@ -36,7 +36,7 @@ extension Libxml2 {
             
             var result: String = ""
             
-            dispatch_sync(domQueue) { [weak self] in
+            domQueue.sync { [weak self] in
                 
                 guard let strongSelf = self else {
                     return
@@ -58,7 +58,7 @@ extension Libxml2 {
         ///
         /// - Returns: an attributed string representing the DOM contents.
         ///
-        func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
+        func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
             let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
@@ -69,7 +69,7 @@ extension Libxml2 {
                 fatalError("Could not convert the HTML.")
             }
             
-            dispatch_sync(domQueue) {
+            domQueue.sync {
                 self.rootNode = output.rootNode
             }
             
@@ -88,18 +88,18 @@ extension Libxml2 {
         ///             no associated style.
         ///
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
             }
         }
         
         func replaceCharacters(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.replaceCharactersSynchronously(inRange: range, withAttributedString: attributedString, inheritStyle: inheritStyle)
             }
         }
         
-        func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
+        func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
             guard let attrs = attrs else {
                 return
             }
@@ -107,8 +107,8 @@ extension Libxml2 {
             setAttributes(attrs, range: range)
         }
         
-        func setAttributes(attrs: [String : AnyObject], range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+        func setAttributes(attrs: [String : Any], range: NSRange) {
+            domQueue.async { [weak self] in
                 self?.setAttributesSynchronously(attrs, range: range)
             }
         }
@@ -129,7 +129,7 @@ extension Libxml2 {
             rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
             undoManager.endUndoGrouping()
         }
-        
+
         private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
             
             undoManager.beginUndoGrouping()
@@ -159,7 +159,7 @@ extension Libxml2 {
         ///     - attributes: the `NSAttributedString` attributes to apply.
         ///     - range: the range to apply those styles to.
         ///
-        private func applyStyles(from attributes: [String : AnyObject], to range: NSRange) {
+        fileprivate func applyStyles(from attributes: [String : Any], to range: NSRange) {
             for (key, value) in attributes {
                 switch (key) {
                 case NSAttachmentAttributeName:
@@ -185,15 +185,15 @@ extension Libxml2 {
         ///     - attributedString: the string to get the attributes form.
         ///     - location: the location where the attributes from the string must be applied.
         ///
-        private func applyStyles(from attributedString: NSAttributedString, to location: Int) {
+        fileprivate func applyStyles(from attributedString: NSAttributedString, to location: Int) {
             
-            let options = NSAttributedStringEnumerationOptions(rawValue: 0)
+            let options = NSAttributedString.EnumerationOptions(rawValue: 0)
             let sourceRange = NSRange(location: 0, length: attributedString.length)
             
-            attributedString.enumerateAttributesInRange(sourceRange, options: options) { (attributes, sourceSubrange, stop) in
+            attributedString.enumerateAttributes(in: sourceRange, options: options) { (attributes, sourceSubrange, stop) in
                 
                 let subrangeWithOffset = NSRange(location: location, length: sourceSubrange.length)
-                applyStyles(from: attributes, to: subrangeWithOffset)
+                applyStyles(from: attributes as [String : AnyObject], to: subrangeWithOffset)
             }
         }
         
@@ -203,7 +203,7 @@ extension Libxml2 {
         ///     - value: the value found in a `NSAttachmentAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(attachmentValue value: AnyObject, to range: NSRange) {
+        fileprivate func applyStyle(attachmentValue value: Any, to range: NSRange) {
             guard let attachment = value as? TextAttachment else {
                 assertionFailure("We're expecting a TextAttachment object here.  preprocessStyles should've curated this.")
                 return
@@ -218,8 +218,8 @@ extension Libxml2 {
         ///     - attachmentValue: the value found in a `NSAttachmentAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(attachment: TextAttachment, to range: NSRange) {
-            setImageURLInDOM(attachment.url, forRange: range)
+        fileprivate func applyStyle(_ attachment: TextAttachment, to range: NSRange) {
+            setImageURLInDOM(attachment.url as URL?, forRange: range)
         }
         
         /// Applies the font style spanning the specified range to the DOM.
@@ -228,7 +228,7 @@ extension Libxml2 {
         ///     - value: the value found in a `NSFontAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(fontValue value: AnyObject, to range: NSRange) {
+        fileprivate func applyStyle(fontValue value: Any, to range: NSRange) {
             
             guard let font = value as? UIFont else {
                 assertionFailure("Was expecting a UIFont object as the value for the font attribute.")
@@ -244,15 +244,15 @@ extension Libxml2 {
         ///     - font: the font to apply.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(font: UIFont, to range: NSRange) {
+        fileprivate func applyStyle(_ font: UIFont, to range: NSRange) {
             
-            let fontTraits = font.fontDescriptor().symbolicTraits
+            let fontTraits = font.fontDescriptor.symbolicTraits
             
-            if fontTraits.contains(.TraitBold) {
+            if fontTraits.contains(.traitBold) {
                 applyBold(spanning: range)
             }
             
-            if fontTraits.contains(.TraitItalic) {
+            if fontTraits.contains(.traitItalic) {
                 applyItalic(spanning: range)
             }
         }
@@ -263,12 +263,12 @@ extension Libxml2 {
         ///     - value: the value found in a `NSLinkAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(linkValue value: AnyObject, to range: NSRange) {
-            if let urlValue = value as? NSURL {
+        fileprivate func applyStyle(linkValue value: Any, to range: NSRange) {
+            if let urlValue = value as? URL {
                 applyStyle(urlValue, to: range)
             } else {
                 guard let stringValue = value as? String,
-                    let urlValue = NSURL(string: stringValue) else {
+                    let urlValue = URL(string: stringValue) else {
                         assertionFailure("Was expecting a NSString or NSURL object as the value for the link attribute.")
                         return
                 }
@@ -283,7 +283,7 @@ extension Libxml2 {
         ///     - linkURL: the URL to set for the link.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(linkURL: NSURL, to range: NSRange) {
+        fileprivate func applyStyle(_ linkURL: URL, to range: NSRange) {
             setLinkInDOM(range, url: linkURL)
         }
     
@@ -293,7 +293,7 @@ extension Libxml2 {
         ///     - value: the value found in a `NSStrikethroughStyleAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(strikethroughValue value: AnyObject, to range: NSRange) {
+        fileprivate func applyStyle(strikethroughValue value: Any, to range: NSRange) {
             
             guard let intValue = value as? Int else {
                 assertionFailure("The strikethrough style is always expected to be an Int.")
@@ -314,10 +314,10 @@ extension Libxml2 {
         ///     - style: the style of the strikethrough.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(strikethroughStyle style: NSUnderlineStyle, to range: NSRange) {
+        fileprivate func applyStyle(strikethroughStyle style: NSUnderlineStyle, to range: NSRange) {
             
             switch (style) {
-            case .StyleSingle:
+            case .styleSingle:
                 applyStrikethrough(spanning: range)
             default:
                 // We don't support anything more than single-line strikethrough for now
@@ -331,7 +331,7 @@ extension Libxml2 {
         ///     - value: the value found in a `NSUnderlineStyleAttributeName` attribute.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(underlineValue value: AnyObject, to range: NSRange) {
+        fileprivate func applyStyle(underlineValue value: Any, to range: NSRange) {
             
             guard let intValue = value as? Int else {
                 assertionFailure("The underline style is always expected to be an Int.")
@@ -352,10 +352,10 @@ extension Libxml2 {
         ///     - style: the style of the underline.
         ///     - range: the range the style will be applied to.
         ///
-        private func applyStyle(underlineStyle style: NSUnderlineStyle, to range: NSRange) {
+        fileprivate func applyStyle(underlineStyle style: NSUnderlineStyle, to range: NSRange) {
             
             switch (style) {
-            case .StyleSingle:
+            case .styleSingle:
                 applyUnderline(spanning: range)
             default:
                 // We don't support anything more than single-line underline for now
@@ -365,14 +365,14 @@ extension Libxml2 {
         
         // MARK: - Images
         
-        private func setImageURLInDOM(imageURL: NSURL?, forRange range: NSRange) {
+        fileprivate func setImageURLInDOM(_ imageURL: URL?, forRange range: NSRange) {
             
             let imageURLString = imageURL?.absoluteString ?? ""
             
             setImageURLStringInDOM(imageURLString, forRange: range)
         }
         
-        private func setImageURLStringInDOM(imageURLString: String, forRange range: NSRange) {
+        fileprivate func setImageURLStringInDOM(_ imageURLString: String, forRange range: NSRange) {
             
             let elementDescriptor = ElementNodeDescriptor(elementType: .img,
                                                           attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
@@ -382,10 +382,10 @@ extension Libxml2 {
         
         // MARK: - Links
         
-        private func setLinkInDOM(range: NSRange, url: NSURL) {
+        fileprivate func setLinkInDOM(_ range: NSRange, url: URL) {
             
             let elementDescriptor = ElementNodeDescriptor(elementType: .a,
-                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString!)])
+                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
             
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
         }
@@ -398,7 +398,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeBold(spanning range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.removeBoldSynchronously(spanning: range)
             }
         }
@@ -409,7 +409,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeItalic(spanning range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.removeItalicSynchronously(spanning: range)
             }
         }
@@ -420,7 +420,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeStrikethrough(spanning range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.removeStrikethroughSynchronously(spanning: range)
             }
         }
@@ -431,7 +431,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeUnderline(spanning range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.removeUnderlineSynchronously(spanning: range)
             }
         }
@@ -469,7 +469,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        private func applyBold(spanning range: NSRange) {
+        fileprivate func applyBold(spanning range: NSRange) {
             applyElement(.b, spanning: range)
         }
         
@@ -478,7 +478,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        private func applyItalic(spanning range: NSRange) {
+        fileprivate func applyItalic(spanning range: NSRange) {
             applyElement(.i, spanning: range)
         }
         
@@ -487,7 +487,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        private func applyStrikethrough(spanning range: NSRange) {
+        fileprivate func applyStrikethrough(spanning range: NSRange) {
             applyElement(.s, spanning: range)
         }
         
@@ -496,7 +496,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        private func applyUnderline(spanning range: NSRange) {
+        fileprivate func applyUnderline(spanning range: NSRange) {
             applyElement(.u, spanning: range)
         }
         
@@ -510,7 +510,7 @@ extension Libxml2 {
         ///     - elementType: the standard element type to apply.
         ///     - range: the range to apply the bold style to.
         ///
-        private func applyElement(elementType: StandardElementType, spanning range: NSRange) {
+        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange) {
             applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames)
         }
         
@@ -524,7 +524,7 @@ extension Libxml2 {
         ///     - equivalentElementNames: equivalent element names to look for before applying
         ///             the specified one.
         ///
-        private func applyElement(elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
+        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
@@ -533,13 +533,13 @@ extension Libxml2 {
         // MARK: - Candidates for removal
         
         func removeLink(inRange range: NSRange) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.removeLinkSynchronously(inRange: range)
             }
         }
         
         func updateImage(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
-            dispatch_async(domQueue) { [weak self] in
+            domQueue.async { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
         }
@@ -555,16 +555,20 @@ extension Libxml2 {
         private func updateImageSynchronously(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             
             undoManager.beginUndoGrouping()
+            
             for range in ranges {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
+                
                 if element.name == "img" {
                     let classAttributes = alignment.htmlString() + " " + size.htmlString()
-                    element.updateAttribute(named: "class", value: classAttributes, undoManager: undoManager)
-                    if let sourceURLString = url.absoluteString where element.name == "img" {
-                        element.updateAttribute(named: "src", value: sourceURLString, undoManager: undoManager)
+                    element.updateAttribute(named: "class", value: classAttributes)
+                    
+                    if element.name == "img" {
+                        element.updateAttribute(named: "src", value: url.absoluteString)
                     }
                 }
             }
+            
             undoManager.endUndoGrouping()
         }
     }

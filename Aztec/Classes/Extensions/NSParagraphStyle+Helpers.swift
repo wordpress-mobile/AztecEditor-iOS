@@ -16,13 +16,23 @@ extension NSParagraphStyle
 
             for intervalNumber in (1 ..< tabStepCount) {
                 let location = intervalNumber * tabStepInterval
-                let textTab = NSTextTab(textAlignment: .Natural, location: CGFloat(location), options: [:])
+                let textTab = NSTextTab(textAlignment: .natural, location: CGFloat(location), options: [:])
 
                 tabStops.append(textTab)
             }
             
             style.tabStops = tabStops
             
+            return style
+        }()
+
+        static let defaultListParagraphStyle: NSParagraphStyle = {
+            let style = NSMutableParagraphStyle()
+            style.setParagraphStyle(defaultParagraphStyle)
+
+            style.headIndent = 12
+            style.firstLineHeadIndent = style.headIndent
+
             return style
         }()
 

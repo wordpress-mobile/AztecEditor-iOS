@@ -18,7 +18,7 @@ class AztecVisualEditorTests: XCTestCase {
 
     func testTextViewReferencesStorage() {
 
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -32,14 +32,14 @@ class AztecVisualEditorTests: XCTestCase {
 
         XCTAssert(textView.textStorage == textView.layoutManager.textStorage)
         XCTAssert(textView.textStorage == textView.textContainer.layoutManager!.textStorage)
-        XCTAssert(textView.textStorage.isKindOfClass(TextStorage))
+        XCTAssert(textView.textStorage.isKind(of: TextStorage.self))
     }
 
 
     // MARK: - Test Index Wrangling
 
     func testMaxIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
         textView.text = "foo"
 
@@ -52,7 +52,7 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func testAdjustedIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
         textView.text = "foobarbaz"
 
@@ -269,7 +269,7 @@ class AztecVisualEditorTests: XCTestCase {
     func testBlockquoteSpansRange() {
         let editor = editorConfiguredWithParagraphs()
         let range = NSRange(location: 0, length: 1)
-        let length = "Lorem ipsum dolar sit amet.\n".length
+        let length = "Lorem ipsum dolar sit amet.\n".characters.count
 
         editor.toggleBlockquote(range: range)
 
@@ -341,7 +341,7 @@ class AztecVisualEditorTests: XCTestCase {
     let paragraph = "Lorem ipsum dolar sit amet.\n"
 
     func editorConfiguredForTesting(withHTML html: String) -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
         richTextView.setHTML(html)
 
@@ -349,15 +349,15 @@ class AztecVisualEditorTests: XCTestCase {
     }
 
     func editorConfiguredWithParagraphs() -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFontOfSize(14), defaultMissingImage: Gridicon.iconOfType(.Attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()
-        attrStr.appendAttributedString(templateString)
-        attrStr.appendAttributedString(templateString)
-        attrStr.appendAttributedString(templateString)
+        attrStr.append(templateString)
+        attrStr.append(templateString)
+        attrStr.append(templateString)
         richTextView.attributedText = attrStr
 
         return richTextView

@@ -25,7 +25,7 @@ class OutAttributeConverterTests: XCTestCase {
         let testAttribute = Attribute(name: name)
         let xmlAttribute = Libxml2.Out.AttributeConverter().convert(testAttribute)
         
-        let xmlAttributeNameText = String(CString: UnsafePointer<Int8>(xmlAttribute.memory.name), encoding: NSUTF8StringEncoding)
+        let xmlAttributeNameText = String(cString: xmlAttribute.pointee.name)
         XCTAssertEqual(name, xmlAttributeNameText)
         
         xmlFreeProp(xmlAttribute)
@@ -40,11 +40,11 @@ class OutAttributeConverterTests: XCTestCase {
         let testAttribute = StringAttribute(name: name, value: value)
         let xmlAttribute = Libxml2.Out.AttributeConverter().convert(testAttribute)
         
-        let xmlAttributeNameText = String(CString: UnsafePointer<Int8>(xmlAttribute.memory.name), encoding: NSUTF8StringEncoding)
+        let xmlAttributeNameText = String(cString: xmlAttribute.pointee.name)
         XCTAssertEqual(name, xmlAttributeNameText)
 
-        let xmlAttributeValueNode = xmlAttribute.memory.children.memory
-        let xmlNodeText = String(CString: UnsafeMutablePointer<Int8>(xmlAttributeValueNode.content), encoding: NSUTF8StringEncoding)
+        let xmlAttributeValueNode = xmlAttribute.pointee.children.pointee
+        let xmlNodeText = String(cString: xmlAttributeValueNode.content)
         XCTAssertEqual(value, xmlNodeText)
         
         xmlFreeProp(xmlAttribute)

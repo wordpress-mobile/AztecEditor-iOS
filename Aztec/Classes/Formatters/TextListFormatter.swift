@@ -15,6 +15,7 @@ class TextListFormatter
     ///
     /// - Returns: An NSRange representing the change to the attributed string.
     ///
+    @discardableResult
     func toggleList(ofStyle style: TextList.Style, inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
         // Load Paragraph Ranges
         let paragraphRanges = string.paragraphRanges(spanningRange: range)
@@ -29,7 +30,7 @@ class TextListFormatter
         }
 
         // 1st Paragraph: Matching List Style >> Remove
-        guard let listAttribute = string.textListAttribute(spanningRange: listRange) where listAttribute.style != style else {
+        guard let listAttribute = string.textListAttribute(spanningRange: listRange), listAttribute.style != style else {
             return removeList(fromString: string, atRanges: paragraphRanges)
         }
 
@@ -45,19 +46,22 @@ class TextListFormatter
     ///   - range: the range where to check for list
     /// - Returns: the total range that was affected by the method
     ///
+    @discardableResult
     func updatesList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
 
         var styleOptional: TextList.Style?
         // Load Paragraph Ranges
 
-        let paragraphRanges = string.paragraphRanges(spanningRange: range)
-        guard let firstParagraphRange = paragraphRanges.first else {
+        var paragraphRanges = string.paragraphRanges(spanningRange: range)
+        if paragraphRanges.count == 0 {
             if let paragraphRange = string.rangeOfLine(atIndex: range.location) {
-                return removeList(fromString: string, atRanges: [paragraphRange])
+                paragraphRanges.append(paragraphRange)
             }
+        }
+        guard let firstParagraphRange = paragraphRanges.first else {
             return nil
         }
-        if let textList = string.attribute(TextList.attributeName, atIndex: firstParagraphRange.location, effectiveRange: nil) as? TextList {
+        if let textList = string.attribute(TextList.attributeName, at: firstParagraphRange.location, effectiveRange: nil) as? TextList {
             styleOptional = textList.style
         }
 
@@ -83,8 +87,10 @@ class TextListFormatter
     ///   - range: the range to where remove the list attributes
     /// - Returns: the total range that was affected by this method
     ///
+    @discardableResult
     func removeList(inString string: NSMutableAttributedString, atRange range: NSRange) -> NSRange? {
-        return removeList(fromString: string, atRanges: [range])
+        let paragraphRange = string.paragraphRange(for: range)
+        return removeList(fromString: string, atRanges: [paragraphRange])
     }
 }
 
@@ -121,7 +127,7 @@ private extension TextListFormatter
         let grouped = groupContiguousRanges(ranges)
         var textLengthDelta = 0
 
-        for group in grouped.reverse() {
+        for group in grouped.reversed() {
             // Apply List Style to the current group
             guard let listRange = applyList(ofStyle: style, toString: string, atRanges: group) else {
                 continue
@@ -148,6 +154,7 @@ private extension TextListFormatter
     ///
     /// - Returns: The affected NSRange, or nil if no changes were made.
     ///
+    @discardableResult
     func applyList(ofStyle style: TextList.Style, toString string: NSMutableAttributedString, atRanges range: [NSRange], startingAt number: Int = 1) -> NSRange? {
         // Adjust Ranges: Add preceeding + following ranges, if needed
         let adjustedRanges = string.paragraphRanges(preceedingAndSucceding: range, matchingListStyle: style)
@@ -160,12 +167,12 @@ private extension TextListFormatter
 
         string.beginEditing()
 
-        for (index, range) in adjustedRanges.enumerate().reverse() {
+        for (index, range) in adjustedRanges.enumerated().reversed() {
             let number = index + number
-            let unformatted = string.attributedSubstringFromRange(range)
+            let unformatted = string.attributedSubstring(from: range)
             let formatted = unformatted.attributedStringByApplyingListItemAttributes(ofStyle: style, withNumber: number)
 
-            string.replaceCharactersInRange(range, withAttributedString: formatted)
+            string.replaceCharacters(in: range, with: formatted)
             length += formatted.length
         }
 
@@ -203,11 +210,11 @@ private extension TextListFormatter
         // Nuke TextListItem + TextListMarker Attributes
         var length = 0
 
-        for range in ranges.reverse() {
-            let formatted = string.attributedSubstringFromRange(range)
+        for range in ranges.reversed() {
+            let formatted = string.attributedSubstring(from: range)
             let clean = formatted.attributedStringByRemovingListItemAttributes()
 
-            string.replaceCharactersInRange(range, withAttributedString: clean)
+            string.replaceCharacters(in: range, with: clean)
             length += clean.length
         }
 
@@ -234,7 +241,7 @@ private extension TextListFormatter
             return
         }
 
-        guard let nextListAttribute = string.textListAttribute(atIndex: nextListIndex) where nextListAttribute.style != .Unordered else {
+        guard let nextListAttribute = string.textListAttribute(atIndex: nextListIndex), nextListAttribute.style != .unordered else {
             return
         }
 
@@ -254,13 +261,13 @@ private extension TextListFormatter
     ///
     /// - Returns: An array of grouped contiguous-ranges.
     ///
-    func groupContiguousRanges(ranges: [NSRange]) -> [[NSRange]] {
+    func groupContiguousRanges(_ ranges: [NSRange]) -> [[NSRange]] {
         var grouped = [[NSRange]]()
         var current = [NSRange]()
         var last: NSRange?
 
         for range in ranges {
-            if let endLocation = last?.endLocation where range.location != endLocation {
+            if let endLocation = last?.endLocation, range.location != endLocation {
                 grouped.append(current)
                 current.removeAll()
                 last = nil

@@ -17,7 +17,7 @@ class CursorCalloutDemoController: UIViewController
     ///
     class func controller() -> CursorCalloutDemoController {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        return storyboard.instantiateViewControllerWithIdentifier("CursorCalloutDemoController") as! CursorCalloutDemoController
+        return storyboard.instantiateViewController(withIdentifier: "CursorCalloutDemoController") as! CursorCalloutDemoController
     }
 
 
@@ -30,8 +30,8 @@ class CursorCalloutDemoController: UIViewController
 
 
     func configureTextView() {
-        if let filePath = NSBundle.mainBundle().URLForResource("SampleText", withExtension: "rtf"),
-            let attrStr = try? NSAttributedString(URL: filePath, options: [:], documentAttributes: nil) {
+        if let filePath = Bundle.main.url(forResource: "SampleText", withExtension: "rtf"),
+            let attrStr = try? NSAttributedString(url: filePath, options: [:], documentAttributes: nil) {
 
             textView.attributedText = attrStr
         }
@@ -40,7 +40,7 @@ class CursorCalloutDemoController: UIViewController
 
     func configureContextMenu() {
         let menuItem = UIMenuItem(title: "Popover", action: #selector(CursorCalloutDemoController.showPopover))
-        UIMenuController.sharedMenuController().menuItems = [menuItem]
+        UIMenuController.shared.menuItems = [menuItem]
     }
 
 
@@ -50,17 +50,17 @@ class CursorCalloutDemoController: UIViewController
         }
 
         let controller = UIViewController()
-        controller.view.backgroundColor = UIColor.lightGrayColor()
+        controller.view.backgroundColor = UIColor.lightGray
         controller.preferredContentSize = CGSize(width: 100, height: 44)
-        controller.modalPresentationStyle = .Popover
+        controller.modalPresentationStyle = .popover
 
         if let presentationController = controller.popoverPresentationController {
             presentationController.delegate = self
-            presentationController.permittedArrowDirections = .Any
+            presentationController.permittedArrowDirections = .any
             presentationController.sourceView = textView
             presentationController.sourceRect = textView.rectForCurrentSelection()
         }
-        presentViewController(controller, animated: true, completion: nil)
+        present(controller, animated: true, completion: nil)
         popover = controller
     }
 
@@ -69,13 +69,13 @@ class CursorCalloutDemoController: UIViewController
 
 extension CursorCalloutDemoController: UIPopoverPresentationControllerDelegate
 {
-    func popoverPresentationControllerDidDismissPopover(popoverPresentationController: UIPopoverPresentationController) {
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
         popover = nil
     }
 
 
-    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
-        return .None
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 
 }

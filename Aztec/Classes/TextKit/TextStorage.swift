@@ -15,8 +15,14 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - returns: returns a temporary UIImage to be used while the request is happening
     ///
-    func storage(storage: TextStorage, attachment: TextAttachment, imageForURL url: NSURL, onSuccess success: (UIImage) -> (), onFailure failure: () -> ()) -> UIImage
-    func storage(storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
+    func storage(
+        _ storage: TextStorage,
+        attachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
+    
+    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
     /// delegate can specify an URL where that image is available.
@@ -27,19 +33,19 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func storage(storage: TextStorage, urlForImage image: UIImage) -> NSURL
+    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL
 }
 
 /// Custom NSTextStorage
 ///
-public class TextStorage: NSTextStorage {
+open class TextStorage: NSTextStorage {
 
-    private var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    private let dom = Libxml2.DOMString(undoManager: NSUndoManager())
+    fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
+    fileprivate let dom = Libxml2.DocumentObjectModel(undoManager: NSUndoManager())
     
     // MARK: - NSTextStorage
 
-    override public var string: String {
+    override open var string: String {
         return textStore.string
     }
 
@@ -47,10 +53,10 @@ public class TextStorage: NSTextStorage {
 
     var attachmentsDelegate: TextStorageAttachmentsDelegate?
 
-    public func TextAttachments() -> [TextAttachment] {
+    open func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
         var attachments = [TextAttachment]()
-        enumerateAttribute(NSAttachmentAttributeName, inRange: range, options: []) { (object, range, stop) in
+        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
             if let attachment = object as? TextAttachment {
                 attachments.append(attachment)
             }
@@ -59,14 +65,14 @@ public class TextStorage: NSTextStorage {
         return attachments
     }
 
-    public func range(forAttachment attachment: TextAttachment) -> NSRange? {
+    open func range(forAttachment attachment: TextAttachment) -> NSRange? {
 
         var range: NSRange?
 
         textStore.enumerateAttachmentsOfType(TextAttachment.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
-                stop.memory = true
+                stop.pointee = true
             }
         }
 
@@ -85,12 +91,12 @@ public class TextStorage: NSTextStorage {
     ///
     /// - Returns: the preprocessed string.
     ///
-    private func preprocessAttachments(forAttributedString attributedString: NSAttributedString) -> NSAttributedString {
+    fileprivate func preprocessAttachments(forAttributedString attributedString: NSAttributedString) -> NSAttributedString {
         
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
-        attributedString.enumerateAttribute(NSAttachmentAttributeName, inRange: fullRange, options: []) { (object, range, stop) in
+        attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
             
             // For some weird reason object can be `nil` here in certain scenarios.
             // We'll just bail out even though this method shouldn't have been called.
@@ -136,23 +142,23 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - Overriden Methods
 
-    override public func attributesAtIndex(location: Int, effectiveRange range: NSRangePointer) -> [String : AnyObject] {
-        return textStore.attributesAtIndex(location, effectiveRange: range)
+    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
+        return textStore.attributes(at: location, effectiveRange: range)
     }
 
-    override public func replaceCharactersInRange(range: NSRange, withString str: String) {
+    override open func replaceCharacters(in range: NSRange, with str: String) {
         
         beginEditing()
-        textStore.replaceCharactersInRange(range, withString: str)
+        textStore.replaceCharacters(in: range, with: str)
 
-        edited(.EditedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
         dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
         
         endEditing()
     }
     
-    override public func replaceCharactersInRange(range: NSRange, withAttributedString attrString: NSAttributedString) {
+    override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
         
         // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
         //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
@@ -161,22 +167,22 @@ public class TextStorage: NSTextStorage {
 
         beginEditing()
 
-        textStore.replaceCharactersInRange(range, withAttributedString: processedString)
-        edited([.EditedAttributes, .EditedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
+        textStore.replaceCharacters(in: range, with: processedString)
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
 
         dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
         
         endEditing()
     }
     
-    override public func removeAttribute(name: String, range: NSRange) {
+    override open func removeAttribute(_ name: String, range: NSRange) {
         super.removeAttribute(name, range: range)
     }
 
-    override public func setAttributes(attrs: [String : AnyObject]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
         textStore.setAttributes(attrs, range: range)
-        edited(.EditedAttributes, range: range, changeInLength: 0)
+        edited(.editedAttributes, range: range, changeInLength: 0)
         
         dom.setAttributes(attrs, range: range)
         
@@ -185,9 +191,9 @@ public class TextStorage: NSTextStorage {
     
     // MARK: - Styles: Toggling
 
-    func toggleBold(range: NSRange) {
+    func toggleBold(_ range: NSRange) {
 
-        let enable = !fontTrait(.TraitBold, spansRange: range)
+        let enable = !fontTrait(.traitBold, spansRange: range)
         
         /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
         /// but since that may take a while to implement, we need this workaround until it's ready.
@@ -196,12 +202,12 @@ public class TextStorage: NSTextStorage {
             dom.removeBold(spanning: range)
         }
 
-        modifyTrait(.TraitBold, range: range, enable: enable)
+        modifyTrait(.traitBold, range: range, enable: enable)
     }
 
-    func toggleItalic(range: NSRange) {
+    func toggleItalic(_ range: NSRange) {
 
-        let enable = !fontTrait(.TraitItalic, spansRange: range)
+        let enable = !fontTrait(.traitItalic, spansRange: range)
 
         /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
         /// but since that may take a while to implement, we need this workaround until it's ready.
@@ -210,11 +216,11 @@ public class TextStorage: NSTextStorage {
             dom.removeItalic(spanning: range)
         }
         
-        modifyTrait(.TraitItalic, range: range, enable: enable)
+        modifyTrait(.traitItalic, range: range, enable: enable)
     }
 
-    func toggleStrikethrough(range: NSRange) {
-        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
+    func toggleStrikethrough(_ range: NSRange) {
+        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
     }
 
     /// Toggles underline for the specified range.
@@ -228,13 +234,13 @@ public class TextStorage: NSTextStorage {
     /// - Parameters:
     ///     - range: the range to toggle the style of.
     ///
-    func toggleUnderlineForRange(range: NSRange) {
-        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.StyleSingle.rawValue, range: range)
+    func toggleUnderlineForRange(_ range: NSRange) {
+        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
     }
 
-    func setLink(url: NSURL, forRange range: NSRange) {
+    func setLink(_ url: URL, forRange range: NSRange) {
         var effectiveRange = range
-        if attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
+        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
         } else {
@@ -247,7 +253,7 @@ public class TextStorage: NSTextStorage {
 
     func removeLink(inRange range: NSRange){
         var effectiveRange = range
-        if attribute(NSLinkAttributeName, atIndex: range.location, effectiveRange: &effectiveRange) != nil {
+        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
             //if there was a link there before let's remove it
             removeAttribute(NSLinkAttributeName, range: effectiveRange)
             
@@ -263,7 +269,7 @@ public class TextStorage: NSTextStorage {
     ///
     /// - returns: the identifier of the image
     ///
-    func insertImage(sourceURL url: NSURL, atPosition position:Int, placeHolderImage: UIImage) -> String {
+    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage) -> String {
         let attachment = TextAttachment()
         attachment.imageProvider = self
         attachment.url = url
@@ -272,7 +278,7 @@ public class TextStorage: NSTextStorage {
         // Inject the Attachment and Layout
         let insertionRange = NSMakeRange(position, 0)
         let attachmentString = NSAttributedString(attachment: attachment)
-        replaceCharactersInRange(insertionRange, withAttributedString: attachmentString)
+        replaceCharacters(in: insertionRange, with: attachmentString)
 
         return attachment.identifier
     }
@@ -285,12 +291,12 @@ public class TextStorage: NSTextStorage {
     /// - Parameter id: the unique id of the attachment
     /// - Returns: the attachment object
     ///
-    public func attachment(withId id: String) -> TextAttachment? {
+    open func attachment(withId id: String) -> TextAttachment? {
         var foundAttachment: TextAttachment? = nil
         enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
             if attachment.identifier == id {
                 foundAttachment = attachment
-                stop.memory = true
+                stop.pointee = true
             }
         }
         return foundAttachment
@@ -305,10 +311,10 @@ public class TextStorage: NSTextStorage {
     ///   - size: the size to use
     ///   - url: the image URL for the image
     ///
-    public func update(attachment attachment: TextAttachment,
+    open func update(attachment: TextAttachment,
                                   alignment: TextAttachment.Alignment,
                                   size: TextAttachment.Size,
-                                  url: NSURL) {
+                                  url: URL) {
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
@@ -317,12 +323,12 @@ public class TextStorage: NSTextStorage {
         dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
     }
 
-    private func toggleAttribute(attributeName: String, value: AnyObject, range: NSRange) {
+    fileprivate func toggleAttribute(_ attributeName: String, value: AnyObject, range: NSRange) {
 
         var effectiveRange = NSRange()
         let enable: Bool
         
-        if attribute(attributeName, atIndex: range.location, longestEffectiveRange: &effectiveRange, inRange: range) != nil {
+        if attribute(attributeName, at: range.location, longestEffectiveRange: &effectiveRange, in: range) != nil {
             let intersection = range.intersect(withRange: effectiveRange)
             
             if let intersection = intersection {
@@ -356,11 +362,11 @@ public class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    public func getHTML() -> String {
+    open func getHTML() -> String {
         return dom.getHTML()
     }
 
-    func setHTML(html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+    func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         
         let attributedString = dom.setHTML(html, withDefaultFontDescriptor: defaultFontDescriptor)
         
@@ -369,16 +375,17 @@ public class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
             attachment.imageProvider = self
         }
-        edited([.EditedAttributes, .EditedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
 }
 
 extension TextStorage: TextAttachmentImageProvider {
 
-    func textAttachment(textAttachment: TextAttachment,
-                        imageForURL url: NSURL,
-                        onSuccess success: (UIImage) -> (),
-                        onFailure failure: () -> ()) -> UIImage
+    func textAttachment(
+        _ textAttachment: TextAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
     {
         guard let attachmentsDelegate = attachmentsDelegate else {
             fatalError("This class doesn't really support not having an attachments delegate set.")
@@ -403,12 +410,12 @@ public extension TextStorage
     ///
     /// - Returns: True if found.
     ///
-    public func fontTrait(trait: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
-        guard let attr = attribute(NSFontAttributeName, atIndex: index, effectiveRange: nil) else {
+    public func fontTrait(_ trait: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
+        guard let attr = attribute(NSFontAttributeName, at: index, effectiveRange: nil) else {
             return false
         }
         if let font = attr as? UIFont {
-            return font.fontDescriptor().symbolicTraits.contains(trait)
+            return font.fontDescriptor.symbolicTraits.contains(trait)
         }
         return false
     }
@@ -422,20 +429,20 @@ public extension TextStorage
     ///
     /// - Returns: True if the trait spans the entire range.
     ///
-    public func fontTrait(trait: UIFontDescriptorSymbolicTraits, spansRange range: NSRange) -> Bool {
+    public func fontTrait(_ trait: UIFontDescriptorSymbolicTraits, spansRange range: NSRange) -> Bool {
         var spansRange = true
 
         // Assume we're removing the trait. If the trait is missing anywhere in the range assign it.
         enumerateAttribute(NSFontAttributeName,
-                           inRange: range,
+                           in: range,
                            options: [],
-                           usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                           using: { (object: Any?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                             guard let font = object as? UIFont else {
                                 return
                             }
-                            if !font.fontDescriptor().symbolicTraits.contains(trait) {
+                            if !font.fontDescriptor.symbolicTraits.contains(trait) {
                                 spansRange = false
-                                stop.memory = true
+                                stop.pointee = true
                             }
         })
 
@@ -449,7 +456,7 @@ public extension TextStorage
     ///     - trait: A font trait.
     ///     - range: The NSRange to inspect
     ///
-    public func toggleFontTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
+    public func toggleFontTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
             return
@@ -460,17 +467,17 @@ public extension TextStorage
         modifyTrait(trait, range: range, enable: enable)
     }
 
-    private func modifyTrait(trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+    fileprivate func modifyTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
 
         enumerateAttribute(NSFontAttributeName,
-                           inRange: range,
+                           in: range,
                            options: [],
-                           usingBlock: { (object: AnyObject?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
+                           using: { (object: Any, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
                             guard let font = object as? UIFont else {
                                 return
                             }
 
-                            var newTraits = font.fontDescriptor().symbolicTraits
+                            var newTraits = font.fontDescriptor.symbolicTraits
 
                             if enable {
                                 newTraits.insert(trait)
@@ -478,7 +485,7 @@ public extension TextStorage
                                 newTraits.remove(trait)
                             }
 
-                            let descriptor = font.fontDescriptor().fontDescriptorWithSymbolicTraits(newTraits)
+                            let descriptor = font.fontDescriptor.withSymbolicTraits(newTraits)
                             let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
 
                             self.beginEditing()

@@ -13,7 +13,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias StandardElementType = Libxml2.StandardElementType
 
     /// The default font descriptor that will be used as a base for conversions.
-    ///
+    /// 
     let defaultFontDescriptor: UIFontDescriptor
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -29,7 +29,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    func convert(node: Node) -> NSAttributedString {
+    func convert(_ node: Node) -> NSAttributedString {
 
         let defaultFont = UIFont(descriptor: defaultFontDescriptor, size: defaultFontDescriptor.pointSize)
 
@@ -45,7 +45,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convert(node: Node, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
             return convertTextNode(textNode, inheritingAttributes: attributes)
@@ -68,7 +68,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convertTextNode(node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -80,7 +80,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convertCommentNode(node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -92,7 +92,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convertElementNode(node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
         return stringForNode(node, inheritingAttributes: attributes)
     }
 
@@ -107,19 +107,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    private func stringForNode(node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
 
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
 
         for child in node.children {
-            let childContent = convert(child, inheritingAttributes: childAttributes)
-
-            content.appendAttributedString(childContent)
+            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
+            content.append(childContent)
         }
 
         if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.appendAttributedString(NSMutableAttributedString(string: "\n", attributes: childAttributes))
+            content.append(NSAttributedString(string: "\n", attributes: childAttributes))
         }
 
         if let nodeType = node.standardName {
@@ -139,7 +138,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> [String:AnyObject] {
+    fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> [String:AnyObject] {
 
         var attributes = inheritedAttributes
 
@@ -148,7 +147,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         //
         precondition(inheritedAttributes[NSFontAttributeName] is UIFont)
         let baseFont = inheritedAttributes[NSFontAttributeName] as! UIFont
-        let baseFontDescriptor = baseFont.fontDescriptor()
+        let baseFontDescriptor = baseFont.fontDescriptor
         let descriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
 
         if descriptor != baseFontDescriptor {
@@ -158,7 +157,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         if isLink(node) {
             let linkURL: String
 
-            if let attributeIndex = node.attributes.indexOf({ $0.name == HTMLLinkAttribute.Href.rawValue }),
+            if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
                 let attribute = node.attributes[attributeIndex] as? StringAttribute {
 
                 linkURL = attribute.value
@@ -168,15 +167,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 linkURL = ""
             }
 
-            attributes[NSLinkAttributeName] = linkURL
+            attributes[NSLinkAttributeName] = linkURL as AnyObject?
         }
 
         if isStrikedThrough(node) {
-            attributes[NSStrikethroughStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
+            attributes[NSStrikethroughStyleAttributeName] = NSUnderlineStyle.styleSingle.rawValue as AnyObject?
         }
 
         if isUnderlined(node) {
-            attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.StyleSingle.rawValue
+            attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.styleSingle.rawValue as AnyObject?
         }
 
         if isBlockquote(node) {
@@ -187,10 +186,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if isImage(node) {
-            let url: NSURL?
+            let url: URL?
 
             if let urlString = node.valueForStringAttribute(named: "src") {
-                url = NSURL(string: urlString)
+                url = URL(string: urlString)
             } else {
                 url = nil
             }
@@ -198,7 +197,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             let attachment = TextAttachment(url: url)
 
             if let elementClass = node.valueForStringAttribute(named: "class") {
-                let classAttributes = elementClass.componentsSeparatedByString(" ")
+                let classAttributes = elementClass.components(separatedBy: " ")
                 for classAttribute in classAttributes {
                     if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
                         attachment.alignment = alignment
@@ -211,15 +210,31 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributes[NSAttachmentAttributeName] = attachment
         }
 
+        if node.isNodeType(.ol) {
+            attributes[TextList.attributeName] = TextList(style: .ordered)
+        }
+
+        if node.isNodeType(.ul) {
+            attributes[TextList.attributeName] = TextList(style: .unordered)
+        }
+
+        if node.isNodeType(.li) {
+            if let listStyle = attributes[TextList.attributeName] as? TextList {
+                listStyle.currentListNumber += 1
+                attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
+                attributes[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultListParagraphStyle
+            }
+        }
+
         return attributes
     }
 
     // MARK: - Font
 
-    private func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
+    fileprivate func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
         let traits = symbolicTraits(forNode: node, withBaseSymbolicTraits: fontDescriptor.symbolicTraits)
 
-        return fontDescriptor.fontDescriptorWithSymbolicTraits(traits)!
+        return fontDescriptor.withSymbolicTraits(traits)!
     }
 
     /// Gets a list of symbolic traits representing the specified node.
@@ -229,16 +244,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the requested symbolic traits.
     ///
-    private func symbolicTraits(forNode node: ElementNode, withBaseSymbolicTraits baseTraits: UIFontDescriptorSymbolicTraits) -> UIFontDescriptorSymbolicTraits {
+    fileprivate func symbolicTraits(forNode node: ElementNode, withBaseSymbolicTraits baseTraits: UIFontDescriptorSymbolicTraits) -> UIFontDescriptorSymbolicTraits {
 
         var traits = baseTraits
 
         if isBold(node) {
-            traits.insert(.TraitBold)
+            traits.insert(.traitBold)
         }
 
         if isItalic(node) {
-            traits.insert(.TraitItalic)
+            traits.insert(.traitItalic)
         }
 
         return traits
@@ -246,31 +261,31 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Node Style Checks
 
-    private func isLink(node: ElementNode) -> Bool {
+    fileprivate func isLink(_ node: ElementNode) -> Bool {
         return node.name == StandardElementType.a.rawValue
     }
 
-    private func isBold(node: ElementNode) -> Bool {
+    fileprivate func isBold(_ node: ElementNode) -> Bool {
         return StandardElementType.b.equivalentNames.contains(node.name)
     }
 
-    private func isItalic(node: ElementNode) -> Bool {
+    fileprivate func isItalic(_ node: ElementNode) -> Bool {
         return StandardElementType.i.equivalentNames.contains(node.name)
     }
 
-    private func isStrikedThrough(node: ElementNode) -> Bool {
+    fileprivate func isStrikedThrough(_ node: ElementNode) -> Bool {
         return StandardElementType.s.equivalentNames.contains(node.name)
     }
 
-    private func isUnderlined(node: ElementNode) -> Bool {
+    fileprivate func isUnderlined(_ node: ElementNode) -> Bool {
         return node.name == StandardElementType.u.rawValue
     }
 
-    private func isBlockquote(node: ElementNode) -> Bool {
+    fileprivate func isBlockquote(_ node: ElementNode) -> Bool {
         return node.name == StandardElementType.blockquote.rawValue
     }
 
-    private func isImage(node: ElementNode) -> Bool {
+    fileprivate func isImage(_ node: ElementNode) -> Bool {
         return node.name == StandardElementType.img.rawValue
-    }
+    }    
 }

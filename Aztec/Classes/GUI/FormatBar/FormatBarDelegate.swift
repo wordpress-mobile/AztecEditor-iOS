@@ -4,5 +4,5 @@ import UIKit
 
 public protocol FormatBarDelegate : NSObjectProtocol
 {
-    func handleActionForIdentifier(identifier: String)
+    func handleActionForIdentifier(_ identifier: String)
 }

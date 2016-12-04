@@ -25,8 +25,13 @@ class InNodeConverterTests: XCTestCase {
     func testSimpleNodeConversion() {
 
         let nodeName = "DaNode!"
-        let node = xmlNewNode(nil, nodeName)
-        let outNode = Libxml2.In.NodeConverter().convert(node.memory)
+        
+        guard let node = xmlNewNode(nil, nodeName) else {
+            XCTFail("Failed to create the node.")
+            return
+        }
+        
+        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
         xmlFreeNode(node)
 
         guard let elementNode = outNode as? ElementNode else {
@@ -45,8 +50,13 @@ class InNodeConverterTests: XCTestCase {
     func testSimpleTextNodeConversion() {
 
         let text = "DaText!"
-        let node = xmlNewText(text)
-        let outNode = Libxml2.In.NodeConverter().convert(node.memory)
+        
+        guard let node = xmlNewText(text) else {
+            XCTFail("Failed to create the node.")
+            return
+        }
+        
+        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
         xmlFreeNode(node)
 
         guard let textNode = outNode as? TextNode else {
@@ -65,11 +75,15 @@ class InNodeConverterTests: XCTestCase {
         let childNode = xmlNewText(text)
 
         let parentNodeName = "DaNode!"
-        let parentNode = xmlNewNode(nil, parentNodeName)
+        
+        guard let parentNode = xmlNewNode(nil, parentNodeName) else {
+            XCTFail("Failed to create the node.")
+            return
+        }
 
         xmlAddChild(parentNode, childNode)
 
-        let outParentNode = Libxml2.In.NodeConverter().convert(parentNode.memory)
+        let outParentNode = Libxml2.In.NodeConverter().convert(parentNode.pointee)
 
         xmlFreeNode(parentNode) // frees all children
 

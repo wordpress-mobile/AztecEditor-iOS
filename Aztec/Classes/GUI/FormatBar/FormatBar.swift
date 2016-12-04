@@ -2,13 +2,13 @@ import Foundation
 import UIKit
 
 
-public class FormatBar: UIToolbar
+open class FormatBar: UIToolbar
 {
 
-    public var formatter: FormatBarDelegate?
+    open var formatter: FormatBarDelegate?
 
 
-    override public var items: [UIBarButtonItem]? {
+    override open var items: [UIBarButtonItem]? {
         didSet {
             for item in formatBarItems {
                 configureButtonStyle(item)
@@ -18,7 +18,7 @@ public class FormatBar: UIToolbar
     }
 
 
-    override public var tintColor: UIColor? {
+    override open var tintColor: UIColor? {
         didSet {
             for item in formatBarItems {
                 item.tintColor = tintColor
@@ -27,7 +27,7 @@ public class FormatBar: UIToolbar
     }
 
 
-    public var selectedTintColor: UIColor? {
+    open var selectedTintColor: UIColor? {
         didSet {
             for item in formatBarItems {
                 item.selectedTintColor = selectedTintColor
@@ -36,7 +36,7 @@ public class FormatBar: UIToolbar
     }
 
 
-    public var highlightedTintColor: UIColor? {
+    open var highlightedTintColor: UIColor? {
         didSet {
             for item in formatBarItems {
                 item.highlightedTintColor = highlightedTintColor
@@ -45,7 +45,7 @@ public class FormatBar: UIToolbar
     }
 
 
-    public var disabledTintColor: UIColor? {
+    open var disabledTintColor: UIColor? {
         didSet {
             for item in formatBarItems {
                 item.disabledTintColor = disabledTintColor
@@ -54,16 +54,16 @@ public class FormatBar: UIToolbar
     }
 
 
-    public var enabled = true {
+    open var enabled = true {
         didSet {
             for item in formatBarItems {
-                item.enabled = enabled
+                item.isEnabled = enabled
             }
         }
     }
 
 
-    public var formatBarItems: [FormatBarItem] {
+    open var formatBarItems: [FormatBarItem] {
         guard let items = items else {
             return [FormatBarItem]()
         }
@@ -79,7 +79,7 @@ public class FormatBar: UIToolbar
     // MARK: - Styles
 
 
-    func configureButtonStyle(button: FormatBarItem) {
+    func configureButtonStyle(_ button: FormatBarItem) {
         button.tintColor = tintColor
         button.selectedTintColor = selectedTintColor
         button.highlightedTintColor = highlightedTintColor
@@ -87,15 +87,15 @@ public class FormatBar: UIToolbar
     }
 
 
-    func configureButtonAction(button: FormatBarItem) {
+    func configureButtonAction(_ button: FormatBarItem) {
         button.target = self
-        button.action = #selector(self.dynamicType.handleButtonAction(_:))
+        button.action = #selector(type(of: self).handleButtonAction(_:))
     }
 
 
     ///
     ///
-    public func selectItemsMatchingIdentifiers(identifiers: [String]) {
+    open func selectItemsMatchingIdentifiers(_ identifiers: [String]) {
         for item in formatBarItems {
             if let identifier = item.identifier {
                 item.selected = identifiers.contains(identifier)
@@ -107,7 +107,7 @@ public class FormatBar: UIToolbar
     // MARK: - Actions
 
 
-    func handleButtonAction(sender: FormatBarItem) {
+    func handleButtonAction(_ sender: FormatBarItem) {
         formatter?.handleActionForIdentifier(sender.identifier!)
     }
 

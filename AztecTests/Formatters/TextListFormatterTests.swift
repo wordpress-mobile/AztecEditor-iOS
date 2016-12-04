@@ -30,10 +30,10 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == plainTextParagraphLines.count)
         XCTAssert(listItems.count == plainTextParagraphLines.count)
 
-        XCTAssert(lists[0].style == .Unordered)
-        XCTAssert(lists[1].style == .Ordered)
-        XCTAssert(lists[2].style == .Unordered)
-        XCTAssert(lists[3].style == .Ordered)
+        XCTAssert(lists[0].style == .unordered)
+        XCTAssert(lists[1].style == .ordered)
+        XCTAssert(lists[2].style == .unordered)
+        XCTAssert(lists[3].style == .ordered)
 
         XCTAssert(listItems[1].number == 1)
         XCTAssert(listItems[3].number == 1)
@@ -64,10 +64,10 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(items.count == plainTextParagraphLines.count)
 
         for list in lists {
-            XCTAssert(list.style == .Ordered)
+            XCTAssert(list.style == .ordered)
         }
 
-        for (index, item) in items.enumerate() {
+        for (index, item) in items.enumerated() {
             XCTAssert(item.number == index + 1)
         }
     }
@@ -88,7 +88,7 @@ class TextListFormatterTests: XCTestCase
         let string = NSMutableAttributedString(string: plainText)
 
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: NSRange(location: 0, length: 1))
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: NSRange(location: 0, length: 1))
 
         let ranges = paragraphRanges(inString: string)
         let lists = textListAttributes(inString: string, atRanges: ranges)
@@ -97,7 +97,7 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == 1)
         XCTAssert(items.count == 1)
 
-        XCTAssert(lists[0].style == .Ordered)
+        XCTAssert(lists[0].style == .ordered)
         XCTAssert(items[0].number == 1)
     }
 
@@ -119,10 +119,10 @@ class TextListFormatterTests: XCTestCase
         let formatter = TextListFormatter()
 
         // Toggle the 1st line as an Ordered List
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: NSRange(location: 0, length: 1))
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: NSRange(location: 0, length: 1))
 
         // And... undo?
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: NSRange(location: 0, length: 1))
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: NSRange(location: 0, length: 1))
 
         let ranges = paragraphRanges(inString: string)
         let lists = textListAttributes(inString: string, atRanges: ranges)
@@ -149,7 +149,7 @@ class TextListFormatterTests: XCTestCase
         let ranges = paragraphRanges(inString: list)
 
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: list, atRange: ranges[0])
+        formatter.toggleList(ofStyle: .ordered, inString: list, atRange: ranges[0])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
         let items = textListItemAttributes(inString: list, atRanges: ranges)
@@ -158,10 +158,10 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(items.count == 4)
 
         for list in lists {
-            XCTAssert(list.style == .Ordered)
+            XCTAssert(list.style == .ordered)
         }
 
-        for (index, item) in items.enumerate() {
+        for (index, item) in items.enumerated() {
             XCTAssert(item.number == index + 1)
         }
     }
@@ -184,7 +184,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the first line
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: ranges[2])
+        formatter.toggleList(ofStyle: .unordered, inString: list, atRange: ranges[2])
 
         //
         let lists = textListAttributes(inString: list, atRanges: ranges)
@@ -193,10 +193,10 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == 4)
         XCTAssert(listItems.count == 4)
 
-        XCTAssert(lists[0].style == .Unordered)
-        XCTAssert(lists[1].style == .Ordered)
-        XCTAssert(lists[2].style == .Ordered)
-        XCTAssert(lists[3].style == .Unordered)
+        XCTAssert(lists[0].style == .unordered)
+        XCTAssert(lists[1].style == .ordered)
+        XCTAssert(lists[2].style == .ordered)
+        XCTAssert(lists[3].style == .unordered)
 
         XCTAssert(listItems[1].number == 1)
         XCTAssert(listItems[2].number == 1)
@@ -219,7 +219,7 @@ class TextListFormatterTests: XCTestCase
         let ranges = paragraphRanges(inString: list)
 
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: ranges[0])
+        formatter.toggleList(ofStyle: .unordered, inString: list, atRange: ranges[0])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
         let items = textListItemAttributes(inString: list, atRanges: ranges)
@@ -227,11 +227,11 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == 5)
         XCTAssert(items.count == 5)
 
-        XCTAssert(lists[0].style == .Unordered)
-        XCTAssert(lists[1].style == .Unordered)
-        XCTAssert(lists[2].style == .Unordered)
-        XCTAssert(lists[3].style == .Unordered)
-        XCTAssert(lists[4].style == .Unordered)
+        XCTAssert(lists[0].style == .unordered)
+        XCTAssert(lists[1].style == .unordered)
+        XCTAssert(lists[2].style == .unordered)
+        XCTAssert(lists[3].style == .unordered)
+        XCTAssert(lists[4].style == .unordered)
     }
 
 
@@ -253,7 +253,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the first line
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: list, atRange: ranges[0])
+        formatter.toggleList(ofStyle: .ordered, inString: list, atRange: ranges[0])
 
         //
         let lists = textListAttributes(inString: list, atRanges: ranges)
@@ -263,10 +263,10 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(lists.count == plainTextParagraphLines.count)
         XCTAssert(listItems.count == plainTextParagraphLines.count)
 
-        XCTAssert(lists[0].style == .Ordered)
-        XCTAssert(lists[1].style == .Ordered)
-        XCTAssert(lists[2].style == .Unordered)
-        XCTAssert(lists[3].style == .Ordered)
+        XCTAssert(lists[0].style == .ordered)
+        XCTAssert(lists[1].style == .ordered)
+        XCTAssert(lists[2].style == .unordered)
+        XCTAssert(lists[3].style == .ordered)
 
         XCTAssert(listItems[0].number == 1)
         XCTAssert(listItems[1].number == 2)
@@ -290,18 +290,18 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the full string's range
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Ordered, inString: list, atRange: list.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .ordered, inString: list, atRange: list.rangeOfEntireString)
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
         let lists = ranges.flatMap { list.textListAttribute(spanningRange: $0) }
         let items = ranges.flatMap { list.textListItemAttribute(spanningRange: $0) }
 
-        XCTAssert(lists[0].style == .Ordered)
-        XCTAssert(lists[1].style == .Ordered)
-        XCTAssert(lists[2].style == .Unordered)
-        XCTAssert(lists[3].style == .Ordered)
-        XCTAssert(lists[4].style == .Unordered)
+        XCTAssert(lists[0].style == .ordered)
+        XCTAssert(lists[1].style == .ordered)
+        XCTAssert(lists[2].style == .unordered)
+        XCTAssert(lists[3].style == .ordered)
+        XCTAssert(lists[4].style == .unordered)
 
         XCTAssert(items[0].number == 1)
         XCTAssert(items[1].number == 2)
@@ -325,19 +325,19 @@ class TextListFormatterTests: XCTestCase
         let formatter = TextListFormatter()
 
         // Apply the Ordered List style to the last three paragraphs
-        for (index, range) in paragraphRanges(inString: string).enumerate() where index >= 2 {
-            formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: range)
+        for (index, range) in paragraphRanges(inString: string).enumerated() where index >= 2 {
+            formatter.toggleList(ofStyle: .ordered, inString: string, atRange: range)
         }
 
         // Now... toggle an Ordered List on the full text
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: string.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: string.rangeOfEntireString)
 
         // Verify
         let paragraphs = paragraphRanges(inString: string)
-        for (index, range) in paragraphs.enumerate() {
+        for (index, range) in paragraphs.enumerated() {
             let list = string.textListAttribute(spanningRange: range)
             XCTAssertNotNil(list)
-            XCTAssert(list!.style == .Ordered)
+            XCTAssert(list!.style == .ordered)
 
             let item = string.textListItemAttribute(spanningRange: range)
             XCTAssertNotNil(item)
@@ -365,14 +365,14 @@ class TextListFormatterTests: XCTestCase
 
         // Line 3 > Unordered List
         let ranges = paragraphRanges(inString: string)
-        formatter.toggleList(ofStyle: .Unordered, inString: string, atRange: ranges[2])
+        formatter.toggleList(ofStyle: .unordered, inString: string, atRange: ranges[2])
 
         // Entire Text > Ordered List
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: string.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: string.rangeOfEntireString)
 
         // Verify
         let paragraphs = paragraphRanges(inString: string)
-        for (index, range) in paragraphs.enumerate() {
+        for (index, range) in paragraphs.enumerated() {
             guard let list = string.textListAttribute(spanningRange: range),
                 let item = string.textListItemAttribute(spanningRange: range) else
             {
@@ -381,14 +381,14 @@ class TextListFormatterTests: XCTestCase
             }
 
             if index == 2 {
-                XCTAssert(list.style == .Unordered)
+                XCTAssert(list.style == .unordered)
                 continue
             }
 
             // Map (0, 1) > (1, 2) and (3, 4) > (1, 2)
             let number = (index < 2) ? (index + 1) : (index - 2)
             XCTAssert(item.number == number)
-            XCTAssert(list.style == .Ordered)
+            XCTAssert(list.style == .ordered)
         }
     }
 
@@ -409,7 +409,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the full string's range
         let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: list.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .unordered, inString: list, atRange: list.rangeOfEntireString)
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
@@ -441,13 +441,13 @@ class TextListFormatterTests: XCTestCase
         let length = plainRanges[1].location + plainRanges[1].length
         let range = NSRange(location: 0, length: length)
 
-        formatter.toggleList(ofStyle: .Unordered, inString: list, atRange: range)
+        formatter.toggleList(ofStyle: .unordered, inString: list, atRange: range)
 
         // Verify
         XCTAssert(textListItemAttributes(inString: list, atRanges: paragraphRanges(inString: list)).count == 2)
 
         // Toggle
-        formatter.toggleList(ofStyle: .Ordered, inString: list, atRange: list.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .ordered, inString: list, atRange: list.rangeOfEntireString)
 
         // Verify
         let items = textListItemAttributes(inString: list, atRanges: paragraphRanges(inString: list))
@@ -467,7 +467,7 @@ private extension TextListFormatterTests
     typealias Style = TextList.Style
 
     var plainText: String {
-        return plainTextParagraphLines.joinWithSeparator("")
+        return plainTextParagraphLines.joined(separator: "")
     }
 
     var plainTextParagraphLines: [String] {
@@ -478,7 +478,7 @@ private extension TextListFormatterTests
         let foundationString = plainText as NSString
 
         return plainTextParagraphLines.map {
-            foundationString.rangeOfString($0)
+            foundationString.range(of: $0)
         }
     }
 
@@ -486,7 +486,7 @@ private extension TextListFormatterTests
         let string = NSMutableAttributedString(string: plainText)
         let formatter = TextListFormatter()
 
-        formatter.toggleList(ofStyle: .Ordered, inString: string, atRange: string.rangeOfEntireString)
+        formatter.toggleList(ofStyle: .ordered, inString: string, atRange: string.rangeOfEntireString)
 
         return string
     }
@@ -494,12 +494,12 @@ private extension TextListFormatterTests
     var listWithAlternatedStyle: NSMutableAttributedString {
         let string = NSMutableAttributedString(string: plainText)
         let formatter = TextListFormatter()
-        var style = Style.Unordered
+        var style = Style.unordered
 
-        for range in plainTextParagraphRanges.reverse() {
+        for range in plainTextParagraphRanges.reversed() {
             formatter.toggleList(ofStyle: style, inString: string, atRange: range)
 
-            style = (style == .Unordered) ? .Ordered : .Unordered
+            style = (style == .unordered) ? .ordered : .unordered
         }
 
         return string

@@ -7,7 +7,7 @@ extension UITextView
     /// A convenience metod for getting the CGRect of the current text selection.
     ///
     public func rectForCurrentSelection() -> CGRect {
-        return layoutManager.boundingRectForGlyphRange(selectedRange, inTextContainer: textContainer)
+        return layoutManager.boundingRect(forGlyphRange: selectedRange, in: textContainer)
     }
 
 
@@ -18,19 +18,19 @@ extension UITextView
             return 0
         }
 
-        return offsetFromPosition(beginningOfDocument, toPosition: selectedRange.start)
+        return offset(from: beginningOfDocument, to: selectedRange.start)
     }
 
     /// Determines the frame occupied onscreen by a given range.
     ///
-    func frameForTextInRange(range: NSRange) -> CGRect {
-        guard let firstPosition = positionFromPosition(beginningOfDocument, offset: range.location),
-            let lastPosition = positionFromPosition(beginningOfDocument, offset: range.location + range.length),
-            let textRange = textRangeFromPosition(firstPosition, toPosition: lastPosition) else
+    func frameForTextInRange(_ range: NSRange) -> CGRect {
+        guard let firstPosition = position(from: beginningOfDocument, offset: range.location),
+            let lastPosition = position(from: beginningOfDocument, offset: range.location + range.length),
+            let textRange = textRange(from: firstPosition, to: lastPosition) else
         {
-            return CGRectZero
+            return .zero
         }
 
-        return firstRectForRange(textRange)
+        return firstRect(for: textRange)
     }
 }

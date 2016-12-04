@@ -26,10 +26,10 @@ class OutNodeConverterTests: XCTestCase {
         let nodeText = "This is the text."
         let textNode = TextNode(text: nodeText)
         let xmlNodePtr = Libxml2.Out.NodeConverter().convert(textNode)
-        let xmlNode = xmlNodePtr.memory
+        let xmlNode = xmlNodePtr.pointee
 
-        let xmlNodeName = String(CString: UnsafePointer<Int8>(xmlNode.name), encoding: NSUTF8StringEncoding)
-        let xmlNodeText = String(CString: UnsafePointer<Int8>(xmlNode.content), encoding: NSUTF8StringEncoding)
+        let xmlNodeName = String(cString: xmlNode.name)
+        let xmlNodeText = String(cString: xmlNode.content)
         
         XCTAssertEqual(xmlNodeName, nodeName)
         XCTAssertEqual(xmlNodeText, nodeText)
@@ -52,8 +52,8 @@ class OutNodeConverterTests: XCTestCase {
         let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])
         
         let xmlOuterNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
-        let xmlOuterNode = xmlOuterNodePtr.memory
-        let xmlOuterNodeName = String(CString: UnsafePointer<Int8>(xmlOuterNode.name), encoding: NSUTF8StringEncoding)
+        let xmlOuterNode = xmlOuterNodePtr.pointee
+        let xmlOuterNodeName = String(cString: xmlOuterNode.name)
 
         XCTAssertEqual(xmlOuterNodeName, outerNodeName)
 
@@ -63,8 +63,8 @@ class OutNodeConverterTests: XCTestCase {
         XCTAssert(xmlOuterNode.properties == nil)
         XCTAssert(xmlOuterNode.children != nil)
 
-        let xmlInnerNode = xmlOuterNode.children.memory
-        let xmlInnerNodeName = String(CString: UnsafePointer<Int8>(xmlInnerNode.name), encoding: NSUTF8StringEncoding)
+        let xmlInnerNode = xmlOuterNode.children.pointee
+        let xmlInnerNodeName = String(cString: xmlInnerNode.name)
 
         XCTAssertEqual(xmlInnerNodeName, innerNodeName)
 
@@ -86,8 +86,8 @@ class OutNodeConverterTests: XCTestCase {
         let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])
 
         let xmlOuterNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
-        let xmlOuterNode = xmlOuterNodePtr.memory
-        let xmlOuterNodeName = String(CString: UnsafePointer<Int8>(xmlOuterNode.name), encoding: NSUTF8StringEncoding)
+        let xmlOuterNode = xmlOuterNodePtr.pointee
+        let xmlOuterNodeName = String(cString: xmlOuterNode.name)
 
         XCTAssertEqual(xmlOuterNodeName, outerNodeName)
 
@@ -97,9 +97,9 @@ class OutNodeConverterTests: XCTestCase {
         XCTAssert(xmlOuterNode.properties == nil)
         XCTAssert(xmlOuterNode.children != nil)
 
-        let xmlInnerNode = xmlOuterNode.children.memory
-        let xmlInnerNodeName = String(CString: UnsafePointer<Int8>(xmlInnerNode.name), encoding: NSUTF8StringEncoding)
-        let xmlInnerNodeText = String(CString: UnsafePointer<Int8>(xmlInnerNode.content), encoding: NSUTF8StringEncoding)
+        let xmlInnerNode = xmlOuterNode.children.pointee
+        let xmlInnerNodeName = String(cString: xmlInnerNode.name)
+        let xmlInnerNodeText = String(cString: xmlInnerNode.content)
 
         XCTAssertEqual(xmlInnerNodeName, "text")
         XCTAssertEqual(xmlInnerNodeText, innerNodeText)
