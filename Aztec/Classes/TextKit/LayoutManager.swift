@@ -53,24 +53,30 @@ class LayoutManager: NSLayoutManager {
                 }
                 let number = textStorage.itemNumber(in: textList, at: lineRange.location)
                 let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
-                var attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
-                attributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
-                attributes.removeValue(forKey: NSUnderlineStyleAttributeName)
-                attributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
-                attributes.removeValue(forKey: NSLinkAttributeName)
-                if let font = attributes[NSFontAttributeName] as? UIFont {
-                    var traits = font.fontDescriptor.symbolicTraits
-                    traits.remove(.traitBold)
-                    traits.remove(.traitItalic)
-                    let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-                    let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
-                    attributes[NSFontAttributeName] = newFont
-                }
+                let attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
                 if isStartOfLine {
-                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:attributes)
+                    let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: attributes)
+                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:markerAttributes)
                     markerText.draw(in: lineRect)
                 }
             }
         }
+    }
+
+    private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
+        var resultAttributes = attributes
+        resultAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+        resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
+        resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
+        resultAttributes.removeValue(forKey: NSLinkAttributeName)
+        if let font = resultAttributes[NSFontAttributeName] as? UIFont {
+            var traits = font.fontDescriptor.symbolicTraits
+            traits.remove(.traitBold)
+            traits.remove(.traitItalic)
+            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+            resultAttributes[NSFontAttributeName] = newFont
+        }
+        return resultAttributes
     }
 }
