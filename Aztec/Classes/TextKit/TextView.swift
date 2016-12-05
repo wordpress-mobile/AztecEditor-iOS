@@ -63,9 +63,7 @@ open class TextView: UITextView {
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
-        
-        allowsEditingTextAttributes = true
-        storage.attachmentsDelegate = self
+        commonInit()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -73,36 +71,20 @@ open class TextView: UITextView {
         defaultFont = UIFont.systemFont(ofSize: 14)
         defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
-        
+        commonInit()
+    }
+
+    private func commonInit() {
         allowsEditingTextAttributes = true
+        storage.attachmentsDelegate = self
+        font = defaultFont
     }
 
     // MARK: - Intersect copy paste operations
 
-    open override func cut(_ sender: Any?) {
-        let originalRange = selectedRange
-        super.cut(sender)
-        refreshListsOnlyIfListExists(atRange: originalRange)
-    }
-
-    open override func paste(_ sender: Any?) {
-        let originalRange = selectedRange
-        super.paste(sender)
-        refreshListsOnlyIfListExists(atRange: originalRange)
-    }
-
     // MARK: - Intersect keyboard operations
-    func updateTypingAttributes() {
-        var attributes = listCustomAttributes(atIndex: selectedRange.location)
-        for (k,v) in typingAttributes {
-            attributes[k] = v
-        }
-        typingAttributes = attributes
-    }
-
 
     open override func insertText(_ text: String) {
-        updateTypingAttributes()
         var insertionRange = selectedRange
         super.insertText(text)
         insertionRange.length = 1
@@ -128,13 +110,9 @@ open class TextView: UITextView {
         if deletedString.string == "\n" || deletionRange.location == 0 {
             var isPreviousLocationList = false
             if (selectedRange.location > 0) {
-                isPreviousLocationList = storage.attribute(TextListItem.attributeName,
-                                                           at: selectedRange.location - 1,
-                                                           effectiveRange: nil) != nil
+                isPreviousLocationList = storage.textListAttribute(atIndex: selectedRange.location - 1) != nil
             }
-            if isPreviousLocationList {
-                refreshList(aroundRange: selectedRange)
-            } else {
+            if !isPreviousLocationList {
                 removeList(aroundRange: selectedRange)
             }
         }
@@ -162,16 +140,6 @@ open class TextView: UITextView {
     }
 
     // MARK: - Paragraphs
-
-    /// Get the default paragraph style for the editor.
-    ///
-    /// - Returns: The default paragraph style.
-    ///
-    func defaultParagraphStyle() -> NSParagraphStyle {
-        // TODO: We need to implement this properly, Just stubbed for now.
-        return NSParagraphStyle()
-    }
-
 
     /// Get the ranges of paragraphs that encompase the specified range.
     ///
@@ -429,23 +397,8 @@ open class TextView: UITextView {
         self.delegate?.textViewDidChangeSelection?(self)
     }
 
-    // MARK: - List Code
+    // MARK: - Lists
 
-    private func listCustomAttributes(atIndex index:Int) -> [String:Any] {
-        var attributes = [String:Any]()
-        if storage.length == 0 {
-            return attributes
-        }
-        let inBoundsIndex = max(0,min(index, storage.length-1))
-        if let textList = storage.textListAttribute(atIndex: inBoundsIndex),
-           let textListItem = storage.textListItemAttribute(atIndex: inBoundsIndex)
-        {
-            attributes[TextList.attributeName] = textList
-            attributes[TextListItem.attributeName] = textListItem
-        }
-
-        return attributes
-    }
     /// Refresh Lists attributes when insert new text in the specified range
     ///
     /// - Parameters:
@@ -453,9 +406,7 @@ open class TextView: UITextView {
     ///   - range: the range of the insertion of the new text
     private func refreshListAfterInsertionOf(text:String, range:NSRange) {
         //check if new text is part of a list
-        if storage.attribute(TextList.attributeName,
-                             at:range.location,
-                             effectiveRange: nil) == nil {
+        if storage.textListAttribute(atIndex: range.location) == nil {
             return
         }
 
@@ -481,27 +432,7 @@ open class TextView: UITextView {
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)
             }
-        } else {
-            refreshList(aroundRange: range)
         }
-    }
-
-    /// Refresh the list attributes in the specified range but only if a list is already present on the line
-    ///
-    /// - Parameter range: the range to where to update the list attributes
-    ///
-    fileprivate func refreshListsOnlyIfListExists(atRange range:NSRange) {
-
-        if storage.attribute(TextListItem.attributeName,
-                             at:max(range.location-1,0),
-                             effectiveRange: nil) != nil {
-            refreshList(aroundRange: range)
-        }
-    }
-
-    fileprivate func refreshList(aroundRange range: NSRange) {
-        let formatter = TextListFormatter()
-        formatter.updatesList(inString: storage, atRange: range)
     }
 
     fileprivate func removeList(aroundRange range: NSRange) {
@@ -530,6 +461,7 @@ open class TextView: UITextView {
         formatter.toggleList(ofStyle: .unordered, inString: storage, atRange: appliedRange)
     }
 
+    // MARK: - Blockquotes
 
     /// Adds or removes a blockquote style from the specified range.
     /// Blockquotes are applied to an entire paragrah regardless of the range.
@@ -544,6 +476,8 @@ open class TextView: UITextView {
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
+
+    // MARK: - Links
 
     /// Adds a link to the designated url on the specified range.
     ///
@@ -595,8 +529,8 @@ open class TextView: UITextView {
     }
 
 
-    // MARK - Inspectors
-    // MARK - Inspect Within Range
+    // MARK: - Inspectors
+    // MARK: - Inspect Within Range
 
 
     /// Returns the associated TextAttachment, at a given point, if any.

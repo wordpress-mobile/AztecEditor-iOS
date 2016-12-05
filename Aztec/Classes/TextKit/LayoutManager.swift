@@ -35,9 +35,9 @@ class LayoutManager: NSLayoutManager {
         }
 
         // draw list markers
-        textStorage.enumerateAttribute(TextListItem.attributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let textListItem = object as? TextListItem,
-                  let textList = textStorage.attribute(TextList.attributeName, at: range.location, effectiveRange: nil) as? TextList
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle,
+                  let _ = paragraphStyle.textList
                 else {
                 return
             }
@@ -47,14 +47,36 @@ class LayoutManager: NSLayoutManager {
             enumerateLineFragments(forGlyphRange:listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+                guard let textList = textStorage.textListAttribute(atIndex: lineRange.location)
+                    else {
+                        return
+                }
+                let number = textStorage.itemNumber(in: textList, at: lineRange.location)
                 let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
-                var attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
-                attributes[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
+                let attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
                 if isStartOfLine {
-                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: textListItem.number), attributes:attributes)
+                    let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: attributes)
+                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:markerAttributes)
                     markerText.draw(in: lineRect)
                 }
             }
         }
+    }
+
+    private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
+        var resultAttributes = attributes
+        resultAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+        resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
+        resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
+        resultAttributes.removeValue(forKey: NSLinkAttributeName)
+        if let font = resultAttributes[NSFontAttributeName] as? UIFont {
+            var traits = font.fontDescriptor.symbolicTraits
+            traits.remove(.traitBold)
+            traits.remove(.traitItalic)
+            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+            resultAttributes[NSFontAttributeName] = newFont
+        }
+        return resultAttributes
     }
 }
