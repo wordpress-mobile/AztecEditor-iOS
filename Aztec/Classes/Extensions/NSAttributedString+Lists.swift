@@ -61,16 +61,11 @@ extension NSAttributedString
     /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
     ///
     func rangeOfTextList(atIndex index: Int) -> NSRange? {
-        var effectiveRange = NSRange()
-        let targetRange = rangeOfEntireString
-        guard
-            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: index, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-            let _ = paragraphStyle.textList
-        else {
+        guard let textList = textListAttribute(atIndex: index) else {
             return nil
         }
 
-        return effectiveRange
+        return range(of: textList, at: index)
     }
 
     /// Returns the range of the given text list that contains the given location.
@@ -80,8 +75,7 @@ extension NSAttributedString
     ///
     /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
     ///
-    func range(of list: TextList,
-               at location: Int) -> NSRange? {
+    func range(of list: TextList, at location: Int) -> NSRange? {
 
         var effectiveRange = NSRange()
         let targetRange = rangeOfEntireString
@@ -93,6 +87,9 @@ extension NSAttributedString
             return nil
         }
         var resultRange = effectiveRange
+        //Note: The effective range will only return the range of the in location NSParagraphStyleAttributed 
+        // but this can be different on preceding or suceeding range but is the same TextList, 
+        // so we need to expand the range to grab all the TextList coverage.
         while resultRange.location > 0 {
             if
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
@@ -123,8 +120,7 @@ extension NSAttributedString
     ///   - list: The list.
     ///   - location: The location of the item.
     /// - Returns: Returns the index within the list.
-    func itemNumber(in list: TextList,
-                    at location: Int) -> Int {
+    func itemNumber(in list: TextList, at location: Int) -> Int {
         guard let rangeOfList = range(of:list, at: location) else {
             return NSNotFound
         }
