@@ -27,13 +27,13 @@ extension NSAttributedString
     /// - Returns: true if beggining of a new line false otherwise
     ///
     func isStartOfNewListItem(atLocation location: Int) -> Bool {
-        var isStartOfListItem = attribute(TextListItem.attributeName, at: location, effectiveRange: nil) != nil
+        var isStartOfListItem = attribute(NSParagraphStyleAttributeName, at: location, effectiveRange: nil) != nil
         var isStartOfLine = length == 0 || location == 0
         if length > 0 && location > 0 {
             let previousRange = NSRange(location: location - 1, length: 1)
             let previousString = attributedSubstring(from: previousRange)
             isStartOfLine = previousString.string == "\n"
-            isStartOfListItem = previousString.attribute(TextListItem.attributeName, at: 0, effectiveRange: nil) != nil
+            isStartOfListItem = previousString.textListAttribute(atIndex: 0) != nil
         }
         return isStartOfLine && isStartOfListItem
     }
@@ -63,11 +63,80 @@ extension NSAttributedString
     func rangeOfTextList(atIndex index: Int) -> NSRange? {
         var effectiveRange = NSRange()
         let targetRange = rangeOfEntireString
-        guard let _ = attribute(TextList.attributeName, at: index, longestEffectiveRange: &effectiveRange, in: targetRange) as? TextList else {
+        guard
+            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: index, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+            let _ = paragraphStyle.textList
+        else {
             return nil
         }
 
         return effectiveRange
+    }
+
+    /// Returns the range of the given text list that contains the given location.
+    ///
+    /// - Parameter list: The textList to search for.
+    /// - Parameter location: The location in the text list.
+    ///
+    /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
+    ///
+    func range(of list: TextList,
+               at location: Int) -> NSRange? {
+
+        var effectiveRange = NSRange()
+        let targetRange = rangeOfEntireString
+        guard
+            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+            let foundList = paragraphStyle.textList,
+            foundList == list
+        else {
+            return nil
+        }
+        var resultRange = effectiveRange
+        while resultRange.location > 0 {
+            if
+                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+                let foundList = paragraphStyle.textList,
+                foundList == list {
+                resultRange = resultRange.union(withRange: effectiveRange)
+            } else {
+                break;
+            }
+        }
+        while resultRange.endLocation < self.length {
+            if
+                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+                let foundList = paragraphStyle.textList,
+                foundList == list {
+                resultRange = resultRange.union(withRange: effectiveRange)
+            } else {
+                break;
+            }
+        }
+
+        return resultRange
+    }
+
+    /// Returns the index of the item at the given location within the list.
+    ///
+    /// - Parameters:
+    ///   - list: The list.
+    ///   - location: The location of the item.
+    /// - Returns: Returns the index within the list.
+    func itemNumber(in list: TextList,
+                    at location: Int) -> Int {
+        guard let rangeOfList = range(of:list, at: location) else {
+            return NSNotFound
+        }
+        var numberInList = 1
+        let paragraphRanges = self.paragraphRanges(spanningRange: rangeOfList)
+        for range in paragraphRanges {
+            if NSLocationInRange(location, range) {
+                return numberInList
+            }
+            numberInList += 1
+        }
+        return NSNotFound
     }
 
     /// Returns a NSRange instance that covers the entire string (Location = 0, Length = Full)
@@ -124,19 +193,8 @@ extension NSAttributedString
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return attribute(TextList.attributeName, at: index, effectiveRange: nil) as? TextList
+        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.textList
     }
-
-    /// Returns the TextListItem attribute at the specified NSRange, if any.
-    ///
-    /// - Parameter index: The index at which to inspect.
-    ///
-    /// - Returns: A TextListItem optional.
-    ///
-    func textListItemAttribute(atIndex index: Int) -> TextListItem? {
-        return attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
-    }
-
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
     ///
@@ -152,32 +210,15 @@ extension NSAttributedString
         //
         var list: TextList?
 
-        enumerateAttribute(TextList.attributeName, in: range, options: []) { (attribute, range, stop) in
-            list = attribute as? TextList
+        enumerateAttribute(NSParagraphStyleAttributeName, in: range, options: []) { (attribute, range, stop) in
+            if let paragraphStyle = attribute as? ParagraphStyle {
+                list = paragraphStyle.textList
+            }
             stop.pointee = true
         }
 
         return list
     }
-
-
-    /// Returns the TextListItem attribute, assuming that there is one, spanning the specified Range.
-    ///
-    /// - Parameter range: Range to check for TextLists
-    ///
-    /// - Returns: A TextListItem optional.
-    ///
-    func textListItemAttribute(spanningRange range: NSRange) -> TextListItem? {
-        var item: TextListItem?
-
-        enumerateAttribute(TextListItem.attributeName, in: range, options: []) { (attribute, range, stop) in
-            item = attribute as? TextListItem
-            stop.pointee = true
-        }
-
-        return item
-    }
-
 
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
     ///
@@ -290,11 +331,12 @@ extension NSAttributedString
         // TODO: Need to accomodate RTL languages too.
 
         // Set the attributes for the list item style
-        let listItem = TextListItem(number: number)
-
+        let listItem = TextList(style: style)
+        //listItem.number = number
+        let paragraphStyle = ParagraphStyle.defaultList
+        paragraphStyle.textList = listItem
         let listItemAttributes: [String: AnyObject] = [
-            TextListItem.attributeName: listItem,
-            NSParagraphStyleAttributeName: NSParagraphStyle.Aztec.defaultListParagraphStyle
+            NSParagraphStyleAttributeName: paragraphStyle
         ]
 
         output.addAttributes(listItemAttributes, range: output.rangeOfEntireString)
@@ -308,14 +350,9 @@ extension NSAttributedString
         let clean = NSMutableAttributedString(attributedString: self)
 
         let range = clean.rangeOfEntireString
-        let attributes = [TextList.attributeName, TextListItem.attributeName]
-
-        for name in attributes {
-            clean.removeAttribute(name, range: range)
-        }
 
         // Fall back to TextKit's default Paragraph Style
-        let paragraphStyle = NSParagraphStyle()
+        let paragraphStyle = ParagraphStyle.default
         clean.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
 
         return clean

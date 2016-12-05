@@ -474,7 +474,7 @@ class NSAttributedStringListsTests: XCTestCase {
         }
     }
 
-    /// Tests that `attributedStringByApplyingListItemAttributes` effectively applies a TextListItem and + Marker.
+    /// Tests that `attributedStringByApplyingListItemAttributes` effectively applies a ParagrahStyle.
     ///
     /// Set up:
     /// - Plain raw string
@@ -487,7 +487,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .ordered, withNumber: 5)
 
         for index in (0 ..< applied.length) {
-            let item = applied.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
+            let item = applied.textListAttribute(atIndex: index)
             XCTAssertNotNil(item)
         }        
     }
@@ -506,12 +506,12 @@ class NSAttributedStringListsTests: XCTestCase {
         let clean = applied.attributedStringByRemovingListItemAttributes()
 
         for index in (0 ..< applied.length) {
-            let item = applied.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
+            let item = applied.textListAttribute(atIndex: index)
             XCTAssertNotNil(item)
         }
 
         for index in (0 ..< clean.length) {
-            let nothing = clean.attribute(TextListItem.attributeName, at: index, effectiveRange: nil) as? TextListItem
+            let nothing = clean.textListAttribute(atIndex: index)
             XCTAssertNil(nothing)
         }
     }
@@ -544,7 +544,9 @@ extension NSAttributedStringListsTests
             "Yay!")
 
         let range = (sample.string as NSString).range(of: sampleListContents)
-        let attributes = [TextList.attributeName: TextList(style: sampleListStyle)]
+        let listParagraphStyle = ParagraphStyle.defaultList
+        listParagraphStyle.textList = TextList(style: .ordered)
+        let attributes = [NSParagraphStyleAttributeName: listParagraphStyle]
         sample.addAttributes(attributes, range: range)
 
         return sample

@@ -35,9 +35,9 @@ class LayoutManager: NSLayoutManager {
         }
 
         // draw list markers
-        textStorage.enumerateAttribute(TextListItem.attributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let textListItem = object as? TextListItem,
-                  let textList = textStorage.attribute(TextList.attributeName, at: range.location, effectiveRange: nil) as? TextList
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle,
+                  let _ = paragraphStyle.textList
                 else {
                 return
             }
@@ -47,11 +47,27 @@ class LayoutManager: NSLayoutManager {
             enumerateLineFragments(forGlyphRange:listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+                guard let textList = textStorage.textListAttribute(atIndex: lineRange.location)
+                    else {
+                        return
+                }
+                let number = textStorage.itemNumber(in: textList, at: lineRange.location)
                 let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
                 var attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
-                attributes[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultParagraphStyle
+                attributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+                attributes.removeValue(forKey: NSUnderlineStyleAttributeName)
+                attributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
+                attributes.removeValue(forKey: NSLinkAttributeName)
+                if let font = attributes[NSFontAttributeName] as? UIFont {
+                    var traits = font.fontDescriptor.symbolicTraits
+                    traits.remove(.traitBold)
+                    traits.remove(.traitItalic)
+                    let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+                    let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+                    attributes[NSFontAttributeName] = newFont
+                }
                 if isStartOfLine {
-                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: textListItem.number), attributes:attributes)
+                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:attributes)
                     markerText.draw(in: lineRect)
                 }
             }
