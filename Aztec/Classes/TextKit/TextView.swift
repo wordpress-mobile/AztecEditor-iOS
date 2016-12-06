@@ -310,6 +310,7 @@ open class TextView: UITextView {
     ///
     open func toggleBold(range: NSRange) {
         guard range.length > 0 else {
+            updateTypingFont(toggle: .traitBold)
             return
         }
 
@@ -323,6 +324,7 @@ open class TextView: UITextView {
     ///
     open func toggleItalic(range: NSRange) {
         guard range.length > 0 else {
+            updateTypingFont(toggle: .traitItalic)
             return
         }
 
@@ -336,6 +338,7 @@ open class TextView: UITextView {
     ///
     open func toggleUnderline(range: NSRange) {
         guard range.length > 0 else {
+            updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
             return
         }
 
@@ -349,12 +352,37 @@ open class TextView: UITextView {
     ///
     open func toggleStrikethrough(range: NSRange) {
         guard range.length > 0 else {
+            updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
             return
         }
 
         storage.toggleStrikethrough(range)
     }
 
+
+    // MARK: - Typing Attributes
+
+    private func updateTypingFont(toggle trait: UIFontDescriptorSymbolicTraits) {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return
+        }
+
+        let enabled = font.containsTrait(trait)
+        let newFont = font.modifyTrait(trait, enable: !enabled)
+        typingAttributes[NSFontAttributeName] = newFont
+    }
+
+    private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
+        if typingAttributes[attributeName] != nil {
+            typingAttributes.removeValue(forKey: attributeName)
+            return
+        }
+
+        typingAttributes[attributeName] = value
+    }
+
+
+    // MARK: - Selection Markers
 
     fileprivate enum SelectionMarker: String {
         case start = "SelectionStart"
