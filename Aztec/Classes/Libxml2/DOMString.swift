@@ -107,7 +107,7 @@ extension Libxml2 {
             setAttributes(attrs, range: range)
         }
         
-        func setAttributes(attrs: [String : Any], range: NSRange) {
+        func setAttributes(_ attrs: [String : Any], range: NSRange) {
             domQueue.async { [weak self] in
                 self?.setAttributesSynchronously(attrs: attrs, range: range)
             }
@@ -564,9 +564,7 @@ extension Libxml2 {
                     element.updateAttribute(named: "class", value: classAttributes, undoManager: undoManager)
                     
                     if element.name == "img" {
-                        let srcValue = url.absoluteString ?? ""
-                        
-                        element.updateAttribute(named: "src", value: srcValue, undoManager: undoManager)
+                        element.updateAttribute(named: "src", value: url.absoluteString, undoManager: undoManager)
                     }
                 }
             }
