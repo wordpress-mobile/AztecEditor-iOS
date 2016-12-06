@@ -28,4 +28,15 @@ extension UIFont {
 
         return newFont
     }
+
+
+    /// Returns a boolean indicating if the specified trait is present in the font's descriptor
+    ///
+    /// - Parameters trait: Trait to be checked.
+    ///
+    /// - Returns: True if the specified trait was found.
+    ///
+    func containsTrait(_ trait: UIFontDescriptorSymbolicTraits) -> Bool {
+        return fontDescriptor.symbolicTraits.contains(trait)
+    }
 }
