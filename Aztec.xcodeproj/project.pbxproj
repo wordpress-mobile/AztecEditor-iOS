@@ -71,6 +71,7 @@
 		F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
+		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Encoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Encoding.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
 		FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF585CE1DB6398E00299B93 /* StandardElementType.swift */; };
 /* End PBXBuildFile section */
@@ -170,6 +171,7 @@
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
+		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Encoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Encoding.swift"; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
 		FFF585CE1DB6398E00299B93 /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -340,6 +342,7 @@
 			children = (
 				599F25251D8BC9A1002871D6 /* NSAttributedString+Attachments.swift */,
 				B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */,
+				FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Encoding.swift */,
 				F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */,
 				599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */,
 				599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */,
@@ -631,6 +634,7 @@
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,
+				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Encoding.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
 				B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */,
