@@ -477,16 +477,7 @@ public extension TextStorage
                                 return
                             }
 
-                            var newTraits = font.fontDescriptor.symbolicTraits
-
-                            if enable {
-                                newTraits.insert(trait)
-                            } else {
-                                newTraits.remove(trait)
-                            }
-
-                            let descriptor = font.fontDescriptor.withSymbolicTraits(newTraits)
-                            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+                            let newFont = font.modifyTrait(trait, enable: enable)
 
                             self.beginEditing()
                             self.removeAttribute(NSFontAttributeName, range: range)
