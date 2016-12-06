@@ -211,19 +211,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if node.isNodeType(.ol) {
-            attributes[TextList.attributeName] = TextList(style: .ordered)
+            let listParagraph = ParagraphStyle.defaultList
+            let textList = TextList(style: .ordered)
+            listParagraph.textList = textList
+            attributes[NSParagraphStyleAttributeName] = listParagraph
         }
 
         if node.isNodeType(.ul) {
-            attributes[TextList.attributeName] = TextList(style: .unordered)
-        }
-
-        if node.isNodeType(.li) {
-            if let listStyle = attributes[TextList.attributeName] as? TextList {
-                listStyle.currentListNumber += 1
-                attributes[TextListItem.attributeName] = TextListItem(number: listStyle.currentListNumber)
-                attributes[NSParagraphStyleAttributeName] = NSParagraphStyle.Aztec.defaultListParagraphStyle
-            }
+            let listParagraph = ParagraphStyle.defaultList
+            let textList = TextList(style: .unordered)
+            listParagraph.textList = textList
+            attributes[NSParagraphStyleAttributeName] = listParagraph
         }
 
         return attributes

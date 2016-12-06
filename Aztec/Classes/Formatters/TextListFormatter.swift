@@ -61,7 +61,8 @@ class TextListFormatter
         guard let firstParagraphRange = paragraphRanges.first else {
             return nil
         }
-        if let textList = string.attribute(TextList.attributeName, at: firstParagraphRange.location, effectiveRange: nil) as? TextList {
+        if let paragraphAttribute = string.attribute(NSParagraphStyleAttributeName, at: firstParagraphRange.location, effectiveRange: nil) as? ParagraphStyle,
+           let textList = paragraphAttribute.textList {
             styleOptional = textList.style
         }
 
@@ -176,11 +177,7 @@ private extension TextListFormatter
             length += formatted.length
         }
 
-        // TextList: Apply Attribute
-        let textList = TextList(style: style)
         let listRange = NSRange(location: startingLocation, length: length)
-        string.addAttribute(TextList.attributeName, value: textList, range: listRange)
-
         // Done Editing!
         string.endEditing()
 
@@ -200,14 +197,7 @@ private extension TextListFormatter
         guard let firstRange = ranges.first else {
             return nil
         }
-
-        // Nuke TextList Attribute
-        let listLength = ranges.reduce(0) { return $1.length }
-        let listRange = NSRange(location: firstRange.location, length: listLength)
-
-        string.removeAttribute(TextList.attributeName, range: listRange)
-
-        // Nuke TextListItem + TextListMarker Attributes
+        
         var length = 0
 
         for range in ranges.reversed() {
