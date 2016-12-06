@@ -15,9 +15,13 @@ class LayoutManager: NSLayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        textStorage.enumerateAttribute(Blockquote.attributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard object is Blockquote else {
-                return
+
+        //draw blockquotes
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle,
+                let _ = paragraphStyle.blockquote
+                else {
+                    return
             }
 
             let borderColor = UIColor(red: 0.5294117647, green: 0.650980392156863, blue: 0.737254902, alpha: 1.0)
