@@ -123,9 +123,8 @@ open class TextStorage: NSTextStorage {
                 return
             }
             
-            guard !(attachment is TextAttachment) else {
-                // Only replace plain NSTextAttachment objects.
-                //
+            if let textAttachment = attachment as? TextAttachment {
+                textAttachment.imageProvider = self
                 return
             }
             
@@ -170,7 +169,7 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
 
-        dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
+        dom.replaceCharacters(inRange: range, withAttributedString: processedString, inheritStyle: false)
         
         endEditing()
     }
