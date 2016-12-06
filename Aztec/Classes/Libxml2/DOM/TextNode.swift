@@ -31,24 +31,38 @@ extension Libxml2 {
 
         // MARK: - EditableNode
         
-        func append(_ string: String, undoManager: NSUndoManager? = nil) {
+        func append(_ string: String, undoManager: UndoManager? = nil) {
             contents.append(string)
         }
 
-        func deleteCharacters(inRange range: NSRange, undoManager: NSUndoManager? = nil) {
+        func deleteCharacters(inRange range: NSRange, undoManager: UndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
+            if let undoManager = undoManager, let range = contents.rangeFromNSRange(range) {
+                recordUndoForDeleteCharacters(inRange: range, undoManager: undoManager)
+            }
+            
             contents.removeSubrange(textRange)
         }
+
+        private func recordUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>, undoManager: UndoManager) {
+            let text = contents.substring(with: range)
+            let index = range.lowerBound
+            let ignored = NSAttributedString()
+            
+            undoManager.registerUndo(withTarget: ignored, handler: { [weak self] (target: AnyObject) -> Void in
+                self?.contents.insert(contentsOf: text.characters, at: index)
+            })
+        }
         
-        func prepend(_ string: String, undoManager: NSUndoManager? = nil) {
+        func prepend(_ string: String, undoManager: UndoManager? = nil) {
             contents = "\(string)\(contents)"
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: NSUndoManager? = nil) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: UndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -57,7 +71,7 @@ extension Libxml2 {
             contents.replaceSubrange(textRange, with: string)
         }
 
-        func split(atLocation location: Int, undoManager: NSUndoManager? = nil) {
+        func split(atLocation location: Int, undoManager: UndoManager? = nil) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -87,7 +101,7 @@ extension Libxml2 {
             }
         }
         
-        func split(forRange range: NSRange, undoManager: NSUndoManager? = nil) {
+        func split(forRange range: NSRange, undoManager: UndoManager? = nil) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -124,7 +138,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: NSUndoManager? = nil) {
+        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
                 wrap(inElement: elementDescriptor, undoManager: undoManager)

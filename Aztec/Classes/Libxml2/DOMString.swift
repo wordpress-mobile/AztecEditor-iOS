@@ -16,7 +16,7 @@ extension Libxml2 {
             return RootNode(children: [TextNode(text: "")])
         }()
         
-        private let undoManager: NSUndoManager
+        private let undoManager: UndoManager
         
         /// The queue that will be used for all DOM interaction operations.
         ///
@@ -24,7 +24,7 @@ extension Libxml2 {
         
         // MARK: - Initializing
         
-        init(undoManager: NSUndoManager) {
+        init(undoManager: UndoManager) {
             self.undoManager = undoManager
         }
         
@@ -109,7 +109,7 @@ extension Libxml2 {
         
         func setAttributes(attrs: [String : Any], range: NSRange) {
             domQueue.async { [weak self] in
-                self?.setAttributesSynchronously(attrs, range: range)
+                self?.setAttributesSynchronously(attrs: attrs, range: range)
             }
         }
         
@@ -141,7 +141,7 @@ extension Libxml2 {
             undoManager.endUndoGrouping()
         }
         
-        private func setAttributesSynchronously(attrs: [String: AnyObject]?, range: NSRange) {
+        private func setAttributesSynchronously(attrs: [String: Any]?, range: NSRange) {
             guard let attrs = attrs else {
                 return
             }
@@ -538,7 +538,7 @@ extension Libxml2 {
             }
         }
         
-        func updateImage(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
+        func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             domQueue.async { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
@@ -552,7 +552,7 @@ extension Libxml2 {
             undoManager.endUndoGrouping()
         }
         
-        private func updateImageSynchronously(spanning ranges: [NSRange], url: NSURL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
+        private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             
             undoManager.beginUndoGrouping()
             
@@ -561,10 +561,12 @@ extension Libxml2 {
                 
                 if element.name == "img" {
                     let classAttributes = alignment.htmlString() + " " + size.htmlString()
-                    element.updateAttribute(named: "class", value: classAttributes)
+                    element.updateAttribute(named: "class", value: classAttributes, undoManager: undoManager)
                     
                     if element.name == "img" {
-                        element.updateAttribute(named: "src", value: url.absoluteString)
+                        let srcValue = url.absoluteString ?? ""
+                        
+                        element.updateAttribute(named: "src", value: srcValue, undoManager: undoManager)
                     }
                 }
             }

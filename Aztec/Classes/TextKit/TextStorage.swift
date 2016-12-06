@@ -41,7 +41,7 @@ protocol TextStorageAttachmentsDelegate {
 open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    fileprivate let dom = Libxml2.DocumentObjectModel(undoManager: NSUndoManager())
+    fileprivate let dom = Libxml2.DOMString(undoManager: UndoManager())
     
     // MARK: - NSTextStorage
 
