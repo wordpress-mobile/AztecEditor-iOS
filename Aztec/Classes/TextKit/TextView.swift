@@ -108,7 +108,7 @@ open class TextView: UITextView {
         super.insertText(text)
         insertionRange.length = 1
         refreshListAfterInsertionOf(text: text, range: insertionRange)
-        refreshBlockquotesAfterInsertionOf(text: text, range: insertionRange)
+        refreshBlockquoteAfterInsertionOf(text: text, range: insertionRange)
     }
 
     open override func deleteBackward() {
@@ -129,6 +129,7 @@ open class TextView: UITextView {
         }
 
         refreshListAfterDeletionOf(text: deletedString, atRange: deletionRange)
+        refreshBlockquoteAfterDeletionOf(text: deletedString, atRange: deletionRange)
     }
 
     // MARK: - UIView Overrides
@@ -459,11 +460,7 @@ open class TextView: UITextView {
             return
         }
 
-        var isPreviousLocationList = false
-        if (range.location > 0) {
-            isPreviousLocationList = storage.textListAttribute(atIndex: range.location - 1) != nil
-        }
-        if !isPreviousLocationList {
+        if (range.location == 0) {
             removeList(aroundRange: range)
         }
     }
@@ -509,12 +506,29 @@ open class TextView: UITextView {
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
+    /// Refresh Lists attributes when text is deleted in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    private func refreshBlockquoteAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+        let formatter = BlockquoteFormatter()
+        guard formatter.attribute(inTextView: self, at: range.location),
+            deletedText.string == "\n" || range.location == 0 else {
+                return
+        }
+
+        if (range.location == 0) {
+            formatter.toggleAttribute(inTextView: self, atRange: range)
+        }
+    }
+
     /// Refresh blockquotes attributes when inserting new text in the specified range
     ///
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshBlockquotesAfterInsertionOf(text:String, range:NSRange) {
+    private func refreshBlockquoteAfterInsertionOf(text:String, range:NSRange) {
         let formatter = BlockquoteFormatter()
         guard formatter.attribute(inTextView: self, at: range.location) else {
             return
