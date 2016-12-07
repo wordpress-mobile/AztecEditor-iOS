@@ -13,6 +13,10 @@ class Blockquote: NSObject, NSCoding {
     required public init?(coder aDecoder: NSCoder){
 
     }
+
+    static func ==(lhs: Blockquote, rhs: Blockquote) -> Bool {
+        return true
+    }
 }
 
 struct BlockquoteFormatter: ParagraphAttributeFormatter {

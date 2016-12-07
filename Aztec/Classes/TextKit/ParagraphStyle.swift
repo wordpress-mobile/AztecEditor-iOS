@@ -80,37 +80,14 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-        if textList == nil || otherParagraph.textList == nil {
-            return super.isEqual(object)
-        }
-
-        if textList == nil && otherParagraph.textList != nil {
+        if textList != otherParagraph.textList {
             return false
         }
 
-        if textList != nil && otherParagraph.textList == nil {
+        if blockquote != otherParagraph.blockquote {
             return false
         }
 
-        if textList! != otherParagraph.textList! {
-            return false
-        }
-
-        if blockquote == nil || otherParagraph.blockquote == nil {
-            return super.isEqual(object)
-        }
-
-        if blockquote == nil && otherParagraph.blockquote != nil {
-            return false
-        }
-
-        if blockquote != nil && otherParagraph.blockquote == nil {
-            return false
-        }
-
-        if blockquote! != otherParagraph.blockquote! {
-            return false
-        }
 
         return super.isEqual(object)
     }
