@@ -903,6 +903,45 @@ open class TextView: UITextView {
     }
 
 
+    // MARK: - Inspect Typing Attributes
+
+
+    /// Checks if the next character entered by the user will be in Bold, or not.
+    ///
+    open func typingFormattingContainsBold() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTrait(.traitBold)
+    }
+
+
+    /// Checks if the next character entered by the user will be in Italic, or not.
+    ///
+    open func typingFormattingContainsItalic() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTrait(.traitItalic)
+    }
+
+
+    /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
+    ///
+    open func typingFormattingContainsStrikethrough() -> Bool {
+        return typingAttributes[NSStrikethroughStyleAttributeName] != nil
+    }
+
+
+    /// Checks if the next character that the user types will be underlined, or not.
+    ///
+    open func typingFormattingContainsUnderline() -> Bool {
+        return typingAttributes[NSUnderlineStyleAttributeName] != nil
+    }
+
+
     // MARK: - Attachments
 
     /// Updates the attachment properties to the new values
