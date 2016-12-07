@@ -301,6 +301,33 @@ open class TextView: UITextView {
     }
 
 
+    /// Get a list of format identifiers of the Typing Attributes.
+    ///
+    /// - Returns: A list of identifiers.
+    ///
+    open func formatIdentifiersForTypingAttributes() -> [String] {
+        var identifiers = [FormattingIdentifier]()
+
+        if typingAttributesContainsBold() {
+            identifiers.append(.bold)
+        }
+
+        if typingAttributesContainsItalic() {
+            identifiers.append(.italic)
+        }
+
+        if typingAttributesContainsUnderline() {
+            identifiers.append(.underline)
+        }
+
+        if typingAttributesContainsStrikethrough() {
+            identifiers.append(.strikethrough)
+        }
+
+        return identifiers.map { $0.rawValue }
+    }
+
+
     // MARK: - Formatting
 
 
@@ -908,7 +935,7 @@ open class TextView: UITextView {
 
     /// Checks if the next character entered by the user will be in Bold, or not.
     ///
-    open func typingFormattingContainsBold() -> Bool {
+    open func typingAttributesContainsBold() -> Bool {
         guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return false
         }
@@ -919,7 +946,7 @@ open class TextView: UITextView {
 
     /// Checks if the next character entered by the user will be in Italic, or not.
     ///
-    open func typingFormattingContainsItalic() -> Bool {
+    open func typingAttributesContainsItalic() -> Bool {
         guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return false
         }
@@ -930,14 +957,14 @@ open class TextView: UITextView {
 
     /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
     ///
-    open func typingFormattingContainsStrikethrough() -> Bool {
+    open func typingAttributesContainsStrikethrough() -> Bool {
         return typingAttributes[NSStrikethroughStyleAttributeName] != nil
     }
 
 
     /// Checks if the next character that the user types will be underlined, or not.
     ///
-    open func typingFormattingContainsUnderline() -> Bool {
+    open func typingAttributesContainsUnderline() -> Bool {
         return typingAttributes[NSUnderlineStyleAttributeName] != nil
     }
 
