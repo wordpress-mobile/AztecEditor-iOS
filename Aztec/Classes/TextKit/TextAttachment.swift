@@ -84,10 +84,49 @@ open class TextAttachment: NSTextAttachment
     ///
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
-        url = nil
         super.init(coder: aDecoder)
+        if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
+            identifier = decodedIndentifier
+        }
+        if aDecoder.containsValue(forKey: EncodeKeys.url.rawValue) {
+            url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
+        }
+        if aDecoder.containsValue(forKey: EncodeKeys.alignment.rawValue) {
+            let alignmentRaw = aDecoder.decodeInteger(forKey: EncodeKeys.alignment.rawValue)
+            if let alignment = Alignment(rawValue:alignmentRaw) {
+                self.alignment = alignment
+            }
+        }
+        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue) {
+            let sizeRaw = aDecoder.decodeInteger(forKey: EncodeKeys.size.rawValue)
+            if let size = Size(rawValue:sizeRaw) {
+                self.size = size
+            }
+        }
     }
 
+    override init(data contentData: Data?, ofType uti: String?) {
+        identifier = ""
+        url = nil
+        super.init(data: contentData, ofType: uti)
+    }
+
+    override open func encode(with aCoder: NSCoder) {
+        super.encode(with: aCoder)
+        aCoder.encode(identifier, forKey: EncodeKeys.identifier.rawValue)
+        if let url = self.url {
+            aCoder.encode(url, forKey: EncodeKeys.url.rawValue)
+        }
+        aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
+        aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
+    }
+
+    fileprivate enum EncodeKeys: String {
+        case identifier
+        case url
+        case alignment
+        case size
+    }
     // MARK: - Origin calculation
 
     fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
@@ -256,7 +295,7 @@ extension TextAttachment
 {
     /// Alignment
     ///
-    public enum Alignment {
+    public enum Alignment: Int {
         case none
         case left
         case center
@@ -289,7 +328,7 @@ extension TextAttachment
 
     /// Size Onscreen!
     ///
-    public enum Size {
+    public enum Size: Int {
         case thumbnail
         case medium
         case large

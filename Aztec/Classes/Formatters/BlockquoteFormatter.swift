@@ -1,8 +1,20 @@
 import Foundation
 import UIKit
 
-class Blockquote {
+class Blockquote: NSObject, NSCoding {
     static let attributeName = "AZBlockquote"
+
+    public func encode(with aCoder: NSCoder) {
+
+    }
+
+    override public init() {
+
+    }
+
+    required public init?(coder aDecoder: NSCoder){
+
+    }
 }
 
 struct BlockquoteFormatter: ParagraphAttributeFormatter {

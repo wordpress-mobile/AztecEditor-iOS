@@ -82,6 +82,25 @@ open class TextView: UITextView {
 
     // MARK: - Intersect copy paste operations
 
+    open override func copy(_ sender: Any?) {
+        super.copy(sender)
+        let data = self.storage.attributedSubstring(from: selectedRange).archivedData()
+        let pasteboard  = UIPasteboard.general
+        var items = pasteboard.items
+        items[0][NSAttributedString.pastesboardUTI] = data
+        pasteboard.items = items
+    }
+
+    open override func paste(_ sender: Any?) {
+        let pasteboard  = UIPasteboard.general
+        if let data = pasteboard.value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
+           let aztecString = NSAttributedString.unarchive(with: data) {
+            storage.replaceCharacters(in: selectedRange, with: aztecString)
+        } else {
+            super.paste(sender)
+        }
+    }
+
     // MARK: - Intersect keyboard operations
 
     open override func insertText(_ text: String) {

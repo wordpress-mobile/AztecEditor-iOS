@@ -155,7 +155,7 @@ extension Libxml2 {
             
             attributedString.enumerateAttributes(in: sourceRange, options: options) { (attributes, sourceSubrange, stop) in
                 
-                let subrangeWithOffset = NSRange(location: location, length: sourceSubrange.length)
+                let subrangeWithOffset = NSRange(location: location + sourceSubrange.location, length: sourceSubrange.length)
                 applyStyles(from: attributes as [String : AnyObject], to: subrangeWithOffset)
             }
         }
