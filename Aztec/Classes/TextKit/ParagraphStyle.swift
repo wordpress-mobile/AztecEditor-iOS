@@ -15,8 +15,8 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     public required init?(coder aDecoder: NSCoder) {
         textList = nil
         blockquote = nil
-        if aDecoder.containsValue(forKey: String(describing:TextList.self)) {
-            let styleRaw = aDecoder.decodeInteger(forKey: String(describing:TextList.self))
+        if aDecoder.containsValue(forKey: String(describing: TextList.self)) {
+            let styleRaw = aDecoder.decodeInteger(forKey: String(describing: TextList.self))
             if let style = TextList.Style(rawValue:styleRaw) {
                 textList = TextList(style: style)
             }
@@ -30,7 +30,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
         if let textListSet = textList {
-            aCoder.encode(textListSet.style.rawValue, forKey: String(describing:TextList.self))
+            aCoder.encode(textListSet.style.rawValue, forKey: String(describing: TextList.self))
         }
 
         if let blockquote = self.blockquote {
