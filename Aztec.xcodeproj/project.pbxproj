@@ -60,7 +60,7 @@
 		B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF51DA2D76600614582 /* TextList.swift */; };
 		B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */; };
 		E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E109B51B1DC33F2C0099605E /* LayoutManager.swift */; };
-		E11B77601DBA14B40024E455 /* BlockquteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */; };
+		E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */; };
 		E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */; };
 		E1C163A51DB6056B00E66A83 /* BlockquoteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */; };
 		F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */; };
@@ -157,7 +157,7 @@
 		B5BC4FF51DA2D76600614582 /* TextList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextList.swift; sourceTree = "<group>"; };
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
 		E109B51B1DC33F2C0099605E /* LayoutManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutManager.swift; sourceTree = "<group>"; };
-		E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquteFormatterTests.swift; sourceTree = "<group>"; };
+		E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatterTests.swift; sourceTree = "<group>"; };
 		E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
 		E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatter.swift; sourceTree = "<group>"; };
 		F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNodeTests.swift; sourceTree = "<group>"; };
@@ -462,7 +462,7 @@
 			isa = PBXGroup;
 			children = (
 				B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */,
-				E11B775F1DBA14B40024E455 /* BlockquteFormatterTests.swift */,
+				E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -668,7 +668,7 @@
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */,
-				E11B77601DBA14B40024E455 /* BlockquteFormatterTests.swift in Sources */,
+				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				599F25951D8BDCFC002871D6 /* AztecVisualEditorTests.swift in Sources */,
 				594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */,
 				59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */,
