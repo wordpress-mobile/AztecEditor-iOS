@@ -362,6 +362,11 @@ open class TextView: UITextView {
 
     // MARK: - Typing Attributes
 
+
+    /// Toggles the specified Font Trait in the currently selected Typing Font.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
     private func updateTypingFont(toggle trait: UIFontDescriptorSymbolicTraits) {
         guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return
@@ -372,6 +377,11 @@ open class TextView: UITextView {
         typingAttributes[NSFontAttributeName] = newFont
     }
 
+
+    /// Toggles the specified Typing Attribute: If it's there, will be removed. If it's missing, will be added.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
     private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
         if typingAttributes[attributeName] != nil {
             typingAttributes.removeValue(forKey: attributeName)
