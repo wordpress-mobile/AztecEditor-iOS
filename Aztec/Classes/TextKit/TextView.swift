@@ -511,6 +511,7 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
+    ///
     private func refreshBlockquoteAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
         let formatter = BlockquoteFormatter()
         guard formatter.attribute(inTextView: self, at: range.location),
@@ -528,7 +529,8 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshBlockquoteAfterInsertionOf(text:String, range:NSRange) {
+    ///
+    private func refreshBlockquoteAfterInsertionOf(text: String, range:NSRange) {
         let formatter = BlockquoteFormatter()
         guard formatter.attribute(inTextView: self, at: range.location) else {
             return

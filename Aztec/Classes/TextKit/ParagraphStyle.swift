@@ -7,22 +7,18 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     var blockquote: Blockquote?
 
     override init() {
-        textList = nil
-        blockquote = nil
         super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        textList = nil
-        blockquote = nil
         if aDecoder.containsValue(forKey: String(describing: TextList.self)) {
             let styleRaw = aDecoder.decodeInteger(forKey: String(describing: TextList.self))
             if let style = TextList.Style(rawValue:styleRaw) {
                 textList = TextList(style: style)
             }
         }
-        if aDecoder.containsValue(forKey: String(describing:Blockquote.self)) {
-            blockquote = aDecoder.decodeObject(forKey: String(describing:Blockquote.self)) as? Blockquote            
+        if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
+            blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
         }
         super.init(coder: aDecoder)
     }
@@ -34,7 +30,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         }
 
         if let blockquote = self.blockquote {
-            aCoder.encode(blockquote, forKey: String(describing:Blockquote.self))
+            aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
         }
     }
 
