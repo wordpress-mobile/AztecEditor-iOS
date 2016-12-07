@@ -4,19 +4,21 @@ import UIKit
 open class ParagraphStyle: NSMutableParagraphStyle {
 
     var textList: TextList?
+    var blockquote: Blockquote?
 
     override init() {
-        textList = nil
         super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        textList = nil
         if aDecoder.containsValue(forKey: String(describing: TextList.self)) {
             let styleRaw = aDecoder.decodeInteger(forKey: String(describing: TextList.self))
             if let style = TextList.Style(rawValue:styleRaw) {
                 textList = TextList(style: style)
             }
+        }
+        if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
+            blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
         }
         super.init(coder: aDecoder)
     }
@@ -26,11 +28,16 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         if let textListSet = textList {
             aCoder.encode(textListSet.style.rawValue, forKey: String(describing: TextList.self))
         }
+
+        if let blockquote = self.blockquote {
+            aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
+        }
     }
 
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
         if let paragrahStyle = obj as? ParagraphStyle {
             textList = paragrahStyle.textList
+            blockquote = paragrahStyle.blockquote
         }
         super.setParagraphStyle(obj)
     }
@@ -69,21 +76,14 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-        if textList == nil || otherParagraph.textList == nil {
-            return super.isEqual(object)
-        }
-
-        if textList == nil && otherParagraph.textList != nil {
+        if textList != otherParagraph.textList {
             return false
         }
 
-        if textList != nil && otherParagraph.textList == nil {
+        if blockquote != otherParagraph.blockquote {
             return false
         }
 
-        if textList! != otherParagraph.textList! {
-            return false
-        }
 
         return super.isEqual(object)
     }
@@ -97,7 +97,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let thisResult = ParagraphStyle()
         thisResult.setParagraphStyle(result as! NSParagraphStyle)
         thisResult.textList = textList
-
+        thisResult.blockquote = blockquote
         return thisResult
     }
 
@@ -106,7 +106,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let thisResult = ParagraphStyle()
         thisResult.setParagraphStyle(result as! NSParagraphStyle)
         thisResult.textList = textList
-
+        thisResult.blockquote = blockquote
         return thisResult
     }
 
@@ -115,6 +115,6 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     open override var description:String {
-        return super.description + "\nTextList:\(textList?.style)"
+        return super.description + "\nTextList:\(textList?.style)\nBlockquote:\(blockquote)"
     }
 }
