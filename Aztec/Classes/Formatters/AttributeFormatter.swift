@@ -150,8 +150,12 @@ extension ParagraphAttributeFormatter {
         toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
     }
 
-    func applyAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
-        applyAttributes(toString: textView.textStorage, atRange: applicationRange)
+    func toggleAttribute(inText text: NSMutableAttributedString, atRange range: NSRange) {
+        let applicationRange = self.applicationRange(forRange: range, inString: text)
+
+        if applicationRange.length == 0 || text.length == 0 {
+            insertEmptyAttribute(inString: text, at: applicationRange.location)
+        }
+        toggleAttribute(inString: text, atRange: applicationRange)
     }
 }

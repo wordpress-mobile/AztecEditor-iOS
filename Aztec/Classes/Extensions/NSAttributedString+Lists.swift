@@ -309,51 +309,6 @@ extension NSAttributedString
         }
     }
 
-
-    /// Returns a new NSAttributedString, with the required TextListItem attribute applied.
-    ///
-    /// - Parameters:
-    ///     - style: The type of text list.
-    ///     - itemNumber: The index of the item. This is used to number a numeric list item.
-    ///
-    /// - Return: An NSAttributedString.
-    ///
-    func attributedStringByApplyingListItemAttributes(ofStyle style: TextList.Style, withNumber number: Int) -> NSAttributedString {
-        // Begin by removing any existing list marker.
-        guard let output = attributedStringByRemovingListItemAttributes().mutableCopy() as? NSMutableAttributedString else {
-            return self
-        }
-
-        // TODO: Need to accomodate RTL languages too.
-
-        // Set the attributes for the list item style
-        let listItem = TextList(style: style)
-        //listItem.number = number
-        let paragraphStyle = ParagraphStyle.defaultList
-        paragraphStyle.textList = listItem
-        let listItemAttributes: [String: AnyObject] = [
-            NSParagraphStyleAttributeName: paragraphStyle
-        ]
-
-        output.addAttributes(listItemAttributes, range: output.rangeOfEntireString)
-
-        return output
-    }
-
-    /// Returns a new Attributed String, with the TextListItem formatting removed.
-    ///
-    func attributedStringByRemovingListItemAttributes() -> NSAttributedString {
-        let clean = NSMutableAttributedString(attributedString: self)
-
-        let range = clean.rangeOfEntireString
-
-        // Fall back to TextKit's default Paragraph Style
-        let paragraphStyle = ParagraphStyle.default
-        clean.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
-
-        return clean
-    }
-
     /// Internal convenience helper. Returns the internal string as a NSString instance
     ///
     fileprivate var foundationString: NSString {

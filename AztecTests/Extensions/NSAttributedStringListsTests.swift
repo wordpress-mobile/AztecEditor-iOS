@@ -473,48 +473,6 @@ class NSAttributedStringListsTests: XCTestCase {
             }
         }
     }
-
-    /// Tests that `attributedStringByApplyingListItemAttributes` effectively applies a ParagrahStyle.
-    ///
-    /// Set up:
-    /// - Plain raw string
-    ///
-    /// Expected result:
-    /// - TextListItem Style + Marker
-    ///
-    func testAttributedStringByApplyingListItemAttributesEffectivelyAppliesListItemStyle() {
-        let original = sampleSingleLine
-        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .ordered, withNumber: 5)
-
-        for index in (0 ..< applied.length) {
-            let item = applied.textListAttribute(atIndex: index)
-            XCTAssertNotNil(item)
-        }        
-    }
-
-    /// Tests that `attributedStringByApplyingListItemAttributes` effectively removes the TextListItem Attribute.
-    ///
-    /// Set up:
-    /// - Attributed String with a TextItem style
-    ///
-    /// Expected result:
-    /// - No style after running the clean method
-    ///
-    func testAttributedStringByRemovingListItemAttributesEffectivelyNukesListItemStyle() {
-        let original = sampleSingleLine
-        let applied = original.attributedStringByApplyingListItemAttributes(ofStyle: .unordered, withNumber: 2)
-        let clean = applied.attributedStringByRemovingListItemAttributes()
-
-        for index in (0 ..< applied.length) {
-            let item = applied.textListAttribute(atIndex: index)
-            XCTAssertNotNil(item)
-        }
-
-        for index in (0 ..< clean.length) {
-            let nothing = clean.textListAttribute(atIndex: index)
-            XCTAssertNil(nothing)
-        }
-    }
 }
 
 
@@ -544,7 +502,7 @@ extension NSAttributedStringListsTests
             "Yay!")
 
         let range = (sample.string as NSString).range(of: sampleListContents)
-        let listParagraphStyle = ParagraphStyle.defaultList
+        let listParagraphStyle = ParagraphStyle()
         listParagraphStyle.textList = TextList(style: .ordered)
         let attributes = [NSParagraphStyleAttributeName: listParagraphStyle]
         sample.addAttributes(attributes, range: range)
