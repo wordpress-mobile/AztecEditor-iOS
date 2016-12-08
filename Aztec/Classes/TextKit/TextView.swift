@@ -476,11 +476,7 @@ open class TextView: UITextView {
     ///
     open func toggleOrderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .ordered)
-        var applyRange = range
-        if let fullRange = self.textStorage.rangeOfTextList(atIndex: range.location) {
-            applyRange = fullRange
-        }
-        formatter.toggleAttribute(inTextView: self, atRange: applyRange)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -490,11 +486,7 @@ open class TextView: UITextView {
     ///
     open func toggleUnorderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .unordered)
-        var applyRange = range
-        if let fullRange = self.textStorage.rangeOfTextList(atIndex: range.location) {
-            applyRange = fullRange
-        }
-        formatter.toggleAttribute(inTextView: self, atRange: applyRange)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     // MARK: - Blockquotes
