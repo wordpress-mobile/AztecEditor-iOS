@@ -84,6 +84,9 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let originalCopy = super.copy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
+        copy.textList = textList
+        copy.blockquote = blockquote
+
         return copy
     }
 
@@ -91,6 +94,9 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
+        copy.textList = textList
+        copy.blockquote = blockquote
+
         return copy
     }
 
