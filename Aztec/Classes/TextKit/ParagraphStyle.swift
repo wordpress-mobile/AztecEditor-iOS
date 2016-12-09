@@ -35,23 +35,20 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
+        super.setParagraphStyle(obj)
         if let paragrahStyle = obj as? ParagraphStyle {
             textList = paragrahStyle.textList
             blockquote = paragrahStyle.blockquote
         }
-        super.setParagraphStyle(obj)
     }
 
-    private static let tabStepInterval = 8
-    private static let tabStepCount    = 12
-    
     open override class var `default`: NSParagraphStyle {
         let style = ParagraphStyle()
 
         var tabStops = [NSTextTab]()
 
-        for intervalNumber in (1 ..< tabStepCount) {
-            let location = intervalNumber * tabStepInterval
+        for intervalNumber in (1 ..< Metrics.tabStepCount) {
+            let location = intervalNumber * Metrics.tabStepInterval
             let textTab = NSTextTab(textAlignment: .natural, location: CGFloat(location), options: [:])
 
             tabStops.append(textTab)
@@ -59,15 +56,6 @@ open class ParagraphStyle: NSMutableParagraphStyle {
 
         style.tabStops = tabStops
 
-        return style
-    }
-
-    class var defaultList : ParagraphStyle {
-        let style = ParagraphStyle()
-        style.setParagraphStyle(self.default)
-
-        style.headIndent = 12
-        style.firstLineHeadIndent = style.headIndent        
         return style
     }
 
@@ -93,21 +81,23 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     open override func copy(with zone: NSZone? = nil) -> Any {
-        let result = super.copy(with: zone)
-        let thisResult = ParagraphStyle()
-        thisResult.setParagraphStyle(result as! NSParagraphStyle)
-        thisResult.textList = textList
-        thisResult.blockquote = blockquote
-        return thisResult
+        let originalCopy = super.copy(with: zone) as! NSParagraphStyle
+        let copy = ParagraphStyle()
+        copy.setParagraphStyle(originalCopy)
+        copy.textList = textList
+        copy.blockquote = blockquote
+
+        return copy
     }
 
     open override func mutableCopy(with zone: NSZone? = nil) -> Any {
-        let result = super.mutableCopy(with: zone)
-        let thisResult = ParagraphStyle()
-        thisResult.setParagraphStyle(result as! NSParagraphStyle)
-        thisResult.textList = textList
-        thisResult.blockquote = blockquote
-        return thisResult
+        let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
+        let copy = ParagraphStyle()
+        copy.setParagraphStyle(originalCopy)
+        copy.textList = textList
+        copy.blockquote = blockquote
+
+        return copy
     }
 
     var debugString: String {

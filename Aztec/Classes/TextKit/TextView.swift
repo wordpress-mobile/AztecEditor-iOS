@@ -420,7 +420,7 @@ open class TextView: UITextView {
     ///   - range: the range of the insertion of the new text
     private func refreshListAfterInsertionOf(text:String, range:NSRange) {
         //check if new text is part of a list
-        if storage.textListAttribute(atIndex: range.location) == nil {
+        guard let textList = storage.textListAttribute(atIndex: range.location) else {
             return
         }
 
@@ -439,9 +439,9 @@ open class TextView: UITextView {
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
 
         if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
-            removeList(aroundRange: range)
+            remove(list:textList, at: range)
             if afterRange.endLocation < storage.length {
-                removeList(aroundRange: afterRange)
+                remove(list: textList, at: afterRange)
                 deleteBackward()
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)
@@ -455,19 +455,19 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     private func refreshListAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
-        guard deletedText.textListAttribute(atIndex: 0) != nil,
+        guard let textList = deletedText.textListAttribute(atIndex: 0),
               deletedText.string == "\n" || range.location == 0 else {
             return
         }
 
         if (range.location == 0) {
-            removeList(aroundRange: range)
+            remove(list: textList, at: range)
         }
     }
 
-    fileprivate func removeList(aroundRange range: NSRange) {
-        let formatter = TextListFormatter()
-        formatter.removeList(inString: storage, atRange: range)
+    fileprivate func remove(list: TextList, at range: NSRange) {
+        let formatter = TextListFormatter(style: list.style)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     /// Adds or removes a ordered list style from the specified range.
@@ -475,9 +475,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        let appliedRange = rangeForTextList(range)
-        let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .ordered, inString: storage, atRange: appliedRange)
+        let formatter = TextListFormatter(style: .ordered)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -486,9 +485,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        let appliedRange = rangeForTextList(range)
-        let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .unordered, inString: storage, atRange: appliedRange)
+        let formatter = TextListFormatter(style: .unordered)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     // MARK: - Blockquotes
