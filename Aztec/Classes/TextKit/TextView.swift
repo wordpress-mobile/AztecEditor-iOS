@@ -394,13 +394,13 @@ open class TextView: UITextView {
     ///
     /// - Parameter trait: The Font Property that should be toggled.
     ///
-    private func updateTypingFont(toggle trait: UIFontDescriptorSymbolicTraits) {
+    private func updateTypingFont(toggle traits: UIFontDescriptorSymbolicTraits) {
         guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return
         }
 
-        let enabled = font.containsTrait(trait)
-        let newFont = font.modifyTrait(trait, enable: !enabled)
+        let enabled = font.containsTraits(traits)
+        let newFont = font.modifyTraits(traits, enable: !enabled)
         typingAttributes[NSFontAttributeName] = newFont
     }
 
@@ -940,7 +940,7 @@ open class TextView: UITextView {
             return false
         }
 
-        return font.containsTrait(.traitBold)
+        return font.containsTraits(.traitBold)
     }
 
 
@@ -951,7 +951,7 @@ open class TextView: UITextView {
             return false
         }
 
-        return font.containsTrait(.traitItalic)
+        return font.containsTraits(.traitItalic)
     }
 
 
