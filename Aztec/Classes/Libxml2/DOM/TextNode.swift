@@ -52,10 +52,11 @@ extension Libxml2 {
             let text = contents.substring(with: range)
             let index = range.lowerBound
             let ignored = NSAttributedString()
-            
+            /*
             undoManager.registerUndo(withTarget: ignored, handler: { [weak self] (target: AnyObject) -> Void in
                 self?.contents.insert(contentsOf: text.characters, at: index)
             })
+ */
         }
         
         func prepend(_ string: String, undoManager: UndoManager? = nil) {

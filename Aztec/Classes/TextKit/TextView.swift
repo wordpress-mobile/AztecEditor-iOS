@@ -52,17 +52,21 @@ open class TextView: UITextView {
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
+        
+        self.defaultFont = defaultFont
+        self.defaultMissingImage = defaultMissingImage
+        
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
-        self.defaultFont = defaultFont
-        self.defaultMissingImage = defaultMissingImage
-
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
+        
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
+        
+        storage.undoManager = undoManager
         commonInit()
     }
     

@@ -41,7 +41,39 @@ protocol TextStorageAttachmentsDelegate {
 open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    fileprivate let dom = Libxml2.DOMString(undoManager: UndoManager())
+    fileprivate let dom = Libxml2.DOMString()
+    
+    // MARK: - Undo Support
+    
+    private var storedUndoManager: UndoManager?
+    
+    public var undoManager: UndoManager? {
+        
+        get {
+            return storedUndoManager
+        }
+        
+        set {
+            storedUndoManager = newValue
+            dom.undoManager = undoManager
+        }
+    }
+    
+    /// Call this method to know if the DOM should be updated, or if the undo manager will take care
+    /// of it.
+    ///
+    /// The undo manager will take care of updating the DOM whenever an undo or redo operation
+    /// is triggered.
+    ///
+    /// - Returns: `true` if the DOM must be updated, or `false` if the undo manager will take care.
+    ///
+    private func mustUpdateDOM() -> Bool {
+        guard let undoManager = undoManager else {
+            return true
+        }
+        
+        return !undoManager.isUndoing
+    }
     
     // MARK: - NSTextStorage
 
@@ -152,8 +184,10 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: str)
 
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
-        
-        dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+
+        if mustUpdateDOM() {
+            dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+        }
         
         endEditing()
     }
@@ -169,8 +203,10 @@ open class TextStorage: NSTextStorage {
 
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-
-        dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
+        
+        if mustUpdateDOM() {
+            dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
+        }
         
         endEditing()
     }
@@ -184,7 +220,9 @@ open class TextStorage: NSTextStorage {
         textStore.setAttributes(attrs, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
-        dom.setAttributes(attrs, range: range)
+        if mustUpdateDOM() {
+            dom.setAttributes(attrs, range: range)
+        }
         
         endEditing()
     }

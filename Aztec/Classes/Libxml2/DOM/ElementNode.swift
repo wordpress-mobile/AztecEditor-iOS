@@ -82,13 +82,14 @@ extension Libxml2 {
         /// - parameter attributeName: the name of the attribute
         /// - parameter value:         the value to mark the attribute
         ///
-        func updateAttribute(named attributeName:String, value: String, undoManager: UndoManager) {
+        func updateAttribute(named attributeName:String, value: String, undoManager: UndoManager?) {
             for attribute in attributes {
                 if let attribute = attribute as? StringAttribute, attribute.name == attributeName {
                     attribute.value = value
                     return
                 }
             }
+            
             attributes.append(StringAttribute(name: attributeName, value: value))
         }
 

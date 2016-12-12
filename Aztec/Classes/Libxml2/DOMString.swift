@@ -16,17 +16,11 @@ extension Libxml2 {
             return RootNode(children: [TextNode(text: "")])
         }()
         
-        private let undoManager: UndoManager
+        public var undoManager: UndoManager?
         
         /// The queue that will be used for all DOM interaction operations.
         ///
         let domQueue = DispatchQueue(label: "com.wordpress.domQueue", attributes: [])
-        
-        // MARK: - Initializing
-        
-        init(undoManager: UndoManager) {
-            self.undoManager = undoManager
-        }
         
         // MARK: - Settings & Getting HTML
         
@@ -125,20 +119,20 @@ extension Libxml2 {
         ///             no associated style.
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
 
         private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
             
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: undoManager)
             
             // remove all styles for the specified range here!
             
             applyStyles(from: attributedString, to: range.location)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         private func setAttributesSynchronously(attrs: [String: Any]?, range: NSRange) {
@@ -146,9 +140,9 @@ extension Libxml2 {
                 return
             }
             
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             applyStyles(from: attrs, to: range)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
 
         // MARK: - Styles: Synchronization with DOM
@@ -439,27 +433,27 @@ extension Libxml2 {
         // MARK: - Remove Styles: Synchronously
         
         private func removeBoldSynchronously(spanning range: NSRange) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames, undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames, undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         private func removeStrikethroughSynchronously(spanning range: NSRange) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames, undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames, undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         // Apply Styles
@@ -547,14 +541,14 @@ extension Libxml2 {
         // MARK: - Candidates for removal: Synchronously
         
         private func removeLinkSynchronously(inRange range: NSRange) {
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             rootNode.unwrap(range: range, fromElementsNamed: ["a"], undoManager: undoManager)
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             
-            undoManager.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             
             for range in ranges {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
@@ -569,7 +563,7 @@ extension Libxml2 {
                 }
             }
             
-            undoManager.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
     }
 }
