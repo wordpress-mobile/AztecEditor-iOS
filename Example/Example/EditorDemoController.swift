@@ -327,7 +327,7 @@ extension EditorDemoController
 
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
-    func handleActionForIdentifier(_ identifier: String) {
+    func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
         guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
             return
         }
