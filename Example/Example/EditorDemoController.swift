@@ -244,18 +244,8 @@ class EditorDemoController: UIViewController {
         }
 
         // Attributes already applied to the selected range
-        let range = richTextView.selectedRange
-        let rangeIdentifiers = richTextView.formatIdentifiersSpanningRange(range)
-
-        // Attributes to be applied to the next character that gets entered
-        let typingIdentifiers = richTextView.formatIdentifiersForTypingAttributes()
-
-        // Merge!
-        var mergedIdentifiers = Set(rangeIdentifiers)
-        mergedIdentifiers.formUnion(typingIdentifiers)
-
-        // Refresh UI!
-        toolbar.selectItemsMatchingIdentifiers(Array(mergedIdentifiers))
+        let identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
 
