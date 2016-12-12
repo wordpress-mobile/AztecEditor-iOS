@@ -243,7 +243,6 @@ class EditorDemoController: UIViewController {
             return
         }
 
-        // Attributes already applied to the selected range
         let identifiers = richTextView.formatIdentifiersForTypingAttributes()
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
