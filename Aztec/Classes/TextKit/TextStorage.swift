@@ -201,7 +201,7 @@ open class TextStorage: NSTextStorage {
             dom.removeBold(spanning: range)
         }
 
-        modifyTrait(.traitBold, range: range, enable: enable)
+        modifyTraits(.traitBold, range: range, enable: enable)
     }
 
     func toggleItalic(_ range: NSRange) {
@@ -215,7 +215,7 @@ open class TextStorage: NSTextStorage {
             dom.removeItalic(spanning: range)
         }
         
-        modifyTrait(.traitItalic, range: range, enable: enable)
+        modifyTraits(.traitItalic, range: range, enable: enable)
     }
 
     func toggleStrikethrough(_ range: NSRange) {
@@ -463,10 +463,10 @@ public extension TextStorage
 
         let enable = !fontTrait(trait, spansRange: range)
 
-        modifyTrait(trait, range: range, enable: enable)
+        modifyTraits(trait, range: range, enable: enable)
     }
 
-    fileprivate func modifyTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+    fileprivate func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
 
         enumerateAttribute(NSFontAttributeName,
                            in: range,
@@ -476,16 +476,7 @@ public extension TextStorage
                                 return
                             }
 
-                            var newTraits = font.fontDescriptor.symbolicTraits
-
-                            if enable {
-                                newTraits.insert(trait)
-                            } else {
-                                newTraits.remove(trait)
-                            }
-
-                            let descriptor = font.fontDescriptor.withSymbolicTraits(newTraits)
-                            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+                            let newFont = font.modifyTraits(traits, enable: enable)
 
                             self.beginEditing()
                             self.removeAttribute(NSFontAttributeName, range: range)

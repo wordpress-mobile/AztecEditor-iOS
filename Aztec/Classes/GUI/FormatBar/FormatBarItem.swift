@@ -6,7 +6,7 @@ import UIKit
 open class FormatBarItem: UIBarButtonItem
 {
 
-    open var identifier: String?
+    open var identifier: FormattingIdentifier?
 
 
     fileprivate var button: AztecFormatBarButton? {
@@ -71,7 +71,7 @@ open class FormatBarItem: UIBarButtonItem
 
     // MARK: - Lifecycle
 
-    public convenience init(image: UIImage, identifier: String) {
+    public convenience init(image: UIImage, identifier: FormattingIdentifier) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
         self.init(image: image, frame: defaultFrame, target: nil, action: nil)
         self.identifier = identifier

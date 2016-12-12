@@ -221,7 +221,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [String] {
+    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             // FIXME: if empty string, check typingAttributes
             return []
@@ -261,7 +261,7 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
     }
 
 
@@ -271,7 +271,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersAtIndex(_ index: Int) -> [String] {
+    open func formatIdentifiersAtIndex(_ index: Int) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             return []
         }
@@ -311,7 +311,34 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
+    }
+
+
+    /// Get a list of format identifiers of the Typing Attributes.
+    ///
+    /// - Returns: A list of Formatting Identifiers.
+    ///
+    open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
+        var identifiers = [FormattingIdentifier]()
+
+        if typingAttributesContainsBold() {
+            identifiers.append(.bold)
+        }
+
+        if typingAttributesContainsItalic() {
+            identifiers.append(.italic)
+        }
+
+        if typingAttributesContainsUnderline() {
+            identifiers.append(.underline)
+        }
+
+        if typingAttributesContainsStrikethrough() {
+            identifiers.append(.strikethrough)
+        }
+
+        return identifiers
     }
 
 
@@ -323,11 +350,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingFont(toggle: .traitBold)
 
-        storage.toggleBold(range)
+        if range.length > 0 {
+            storage.toggleBold(range)
+        }
     }
 
 
@@ -336,11 +363,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleItalic(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingFont(toggle: .traitItalic)
 
-        storage.toggleItalic(range)
+        if range.length > 0 {
+            storage.toggleItalic(range)
+        }
     }
 
 
@@ -349,11 +376,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
 
-        storage.toggleUnderlineForRange(range)
+        if range.length > 0 {
+            storage.toggleUnderlineForRange(range)
+        }
     }
 
 
@@ -362,13 +389,47 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleStrikethrough(range: NSRange) {
-        guard range.length > 0 else {
+        updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
+
+        if range.length > 0 {
+            storage.toggleStrikethrough(range)
+        }
+    }
+
+
+    // MARK: - Typing Attributes
+
+
+    /// Toggles the specified Font Trait in the currently selected Typing Font.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
+    private func updateTypingFont(toggle traits: UIFontDescriptorSymbolicTraits) {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return
         }
 
-        storage.toggleStrikethrough(range)
+        let enabled = font.containsTraits(traits)
+        let newFont = font.modifyTraits(traits, enable: !enabled)
+        typingAttributes[NSFontAttributeName] = newFont
     }
 
+
+    /// Toggles the specified Typing Attribute: If it's there, will be removed. If it's missing, will be added.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
+    private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
+        if typingAttributes[attributeName] != nil {
+            typingAttributes.removeValue(forKey: attributeName)
+            return
+        }
+
+        typingAttributes[attributeName] = value
+    }
+
+
+    // MARK: - Selection Markers
 
     fileprivate enum SelectionMarker: String {
         case start = "SelectionStart"
@@ -945,6 +1006,45 @@ open class TextView: UITextView {
     ///
     open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
         return storage.textListAttribute(atIndex: index)?.style == .unordered
+    }
+
+
+    // MARK: - Inspect Typing Attributes
+
+
+    /// Checks if the next character entered by the user will be in Bold, or not.
+    ///
+    open func typingAttributesContainsBold() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTraits(.traitBold)
+    }
+
+
+    /// Checks if the next character entered by the user will be in Italic, or not.
+    ///
+    open func typingAttributesContainsItalic() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTraits(.traitItalic)
+    }
+
+
+    /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
+    ///
+    open func typingAttributesContainsStrikethrough() -> Bool {
+        return typingAttributes[NSStrikethroughStyleAttributeName] != nil
+    }
+
+
+    /// Checks if the next character that the user types will be underlined, or not.
+    ///
+    open func typingAttributesContainsUnderline() -> Bool {
+        return typingAttributes[NSUnderlineStyleAttributeName] != nil
     }
 
 
