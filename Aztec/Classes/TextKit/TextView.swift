@@ -336,12 +336,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        guard range.length > 0 else {
-            updateTypingFont(toggle: .traitBold)
-            return
-        }
+        updateTypingFont(toggle: .traitBold)
 
-        storage.toggleBold(range)
+        if range.length > 0 {
+            storage.toggleBold(range)
+        }
     }
 
 
@@ -350,12 +349,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleItalic(range: NSRange) {
-        guard range.length > 0 else {
-            updateTypingFont(toggle: .traitItalic)
-            return
-        }
+        updateTypingFont(toggle: .traitItalic)
 
-        storage.toggleItalic(range)
+        if range.length > 0 {
+            storage.toggleItalic(range)
+        }
     }
 
 
@@ -364,12 +362,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        guard range.length > 0 else {
-            updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
-            return
-        }
+        updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
 
-        storage.toggleUnderlineForRange(range)
+        if range.length > 0 {
+            storage.toggleUnderlineForRange(range)
+        }
     }
 
 
@@ -378,12 +375,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleStrikethrough(range: NSRange) {
-        guard range.length > 0 else {
-            updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
-            return
-        }
+        updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
 
-        storage.toggleStrikethrough(range)
+        if range.length > 0 {
+            storage.toggleStrikethrough(range)
+        }
     }
 
 
