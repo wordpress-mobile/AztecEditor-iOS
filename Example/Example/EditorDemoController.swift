@@ -328,10 +328,6 @@ extension EditorDemoController
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
     func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
-        guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
-            return
-        }
-
         switch identifier {
         case .bold:
             toggleBold()
