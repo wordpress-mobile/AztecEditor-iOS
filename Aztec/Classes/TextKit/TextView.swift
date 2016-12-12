@@ -207,7 +207,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [String] {
+    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             // FIXME: if empty string, check typingAttributes
             return []
@@ -247,7 +247,7 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
     }
 
 
@@ -257,7 +257,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersAtIndex(_ index: Int) -> [String] {
+    open func formatIdentifiersAtIndex(_ index: Int) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             return []
         }
@@ -297,15 +297,15 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
     }
 
 
     /// Get a list of format identifiers of the Typing Attributes.
     ///
-    /// - Returns: A list of identifiers.
+    /// - Returns: A list of Formatting Identifiers.
     ///
-    open func formatIdentifiersForTypingAttributes() -> [String] {
+    open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
         var identifiers = [FormattingIdentifier]()
 
         if typingAttributesContainsBold() {
@@ -324,7 +324,7 @@ open class TextView: UITextView {
             identifiers.append(.strikethrough)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
     }
 
 

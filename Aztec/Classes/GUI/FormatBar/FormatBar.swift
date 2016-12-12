@@ -95,7 +95,7 @@ open class FormatBar: UIToolbar
 
     ///
     ///
-    open func selectItemsMatchingIdentifiers(_ identifiers: [String]) {
+    open func selectItemsMatchingIdentifiers(_ identifiers: [FormattingIdentifier]) {
         for item in formatBarItems {
             if let identifier = item.identifier {
                 item.selected = identifiers.contains(identifier)
