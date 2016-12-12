@@ -243,8 +243,7 @@ class EditorDemoController: UIViewController {
             return
         }
 
-        let range = richTextView.selectedRange
-        let identifiers = richTextView.formatIdentifiersSpanningRange(range)
+        let identifiers = richTextView.formatIdentifiersForTypingAttributes()
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -264,7 +263,6 @@ class EditorDemoController: UIViewController {
         return fileContents
     }
 }
-
 
 extension EditorDemoController : UITextViewDelegate
 {
@@ -318,11 +316,7 @@ extension EditorDemoController
 
 extension EditorDemoController : Aztec.FormatBarDelegate
 {
-    func handleActionForIdentifier(_ identifier: String) {
-        guard let identifier = Aztec.FormattingIdentifier(rawValue: identifier) else {
-            return
-        }
-
+    func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
         switch identifier {
         case .bold:
             toggleBold()
@@ -511,23 +505,23 @@ extension EditorDemoController : Aztec.FormatBarDelegate
         let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let items = [
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: Aztec.FormattingIdentifier.media.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: .media),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: Aztec.FormattingIdentifier.bold.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: .bold),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: Aztec.FormattingIdentifier.italic.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: .italic),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: Aztec.FormattingIdentifier.underline.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: .underline),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: Aztec.FormattingIdentifier.strikethrough.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: .strikethrough),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: Aztec.FormattingIdentifier.blockquote.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: .blockquote),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: Aztec.FormattingIdentifier.unorderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: .unorderedlist),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: Aztec.FormattingIdentifier.orderedlist.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: .orderedlist),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: Aztec.FormattingIdentifier.link.rawValue),
+            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: .link),
             flex,
         ]
 

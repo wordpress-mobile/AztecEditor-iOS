@@ -125,8 +125,7 @@ extension CharacterAttributeFormatter {
     func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
         let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
 
-        guard applicationRange.length > 0 else {
-            toggleTypingAttribute(inTextView: textView)
+        guard applicationRange.length > 0 || textView.textStorage.length > 0 else {
             return
         }
         toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
@@ -144,11 +143,19 @@ extension ParagraphAttributeFormatter {
     func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
         let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
 
-        guard applicationRange.length > 0 else {
-            toggleTypingAttribute(inTextView: textView)
+        if applicationRange.length == 0 || textView.textStorage.length == 0 {
             insertEmptyAttribute(inString: textView.textStorage, at: applicationRange.location)
-            return
+            textView.selectedRange = NSRange(location: applicationRange.location, length: 1)
         }
         toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
+    }
+
+    func toggleAttribute(inText text: NSMutableAttributedString, atRange range: NSRange) {
+        let applicationRange = self.applicationRange(forRange: range, inString: text)
+
+        if applicationRange.length == 0 || text.length == 0 {
+            insertEmptyAttribute(inString: text, at: applicationRange.location)
+        }
+        toggleAttribute(inString: text, atRange: applicationRange)
     }
 }

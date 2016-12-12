@@ -2,7 +2,7 @@ import XCTest
 import Gridicons
 @testable import Aztec
 
-class BlockquteFormatterTests: XCTestCase {
+class BlockquoteFormatterTests: XCTestCase {
     func testApplyingBlockquoteOnFirstParagraph() {
         let textView = testTextView
         let paragraphs = paragraphRanges(inString: textView.storage)
@@ -61,7 +61,7 @@ class BlockquteFormatterTests: XCTestCase {
     }
 }
 
-private extension BlockquteFormatterTests {
+private extension BlockquoteFormatterTests {
     var testTextView: TextView {
         let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.image))
         view.text = plainText
@@ -81,7 +81,8 @@ private extension BlockquteFormatterTests {
 
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
-        guard string.attribute(Blockquote.attributeName, at: range.location, effectiveRange: &effectiveRange) != nil else {
+        guard let paragraphStyle = string.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
+            let _ = paragraphStyle.blockquote else {
             return false
         }
         // Blockquote attribute spans the whole range

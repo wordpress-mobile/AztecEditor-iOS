@@ -86,6 +86,25 @@ open class TextView: UITextView {
 
     // MARK: - Intersect copy paste operations
 
+    open override func copy(_ sender: Any?) {
+        super.copy(sender)
+        let data = self.storage.attributedSubstring(from: selectedRange).archivedData()
+        let pasteboard  = UIPasteboard.general
+        var items = pasteboard.items
+        items[0][NSAttributedString.pastesboardUTI] = data
+        pasteboard.items = items
+    }
+
+    open override func paste(_ sender: Any?) {
+        let pasteboard  = UIPasteboard.general
+        if let data = pasteboard.value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
+           let aztecString = NSAttributedString.unarchive(with: data) {
+            storage.replaceCharacters(in: selectedRange, with: aztecString)
+        } else {
+            super.paste(sender)
+        }
+    }
+
     // MARK: - Intersect keyboard operations
 
     open override func insertText(_ text: String) {
@@ -93,6 +112,7 @@ open class TextView: UITextView {
         super.insertText(text)
         insertionRange.length = 1
         refreshListAfterInsertionOf(text: text, range: insertionRange)
+        refreshBlockquoteAfterInsertionOf(text: text, range: insertionRange)
     }
 
     open override func deleteBackward() {
@@ -111,15 +131,9 @@ open class TextView: UITextView {
         if storage.string.isEmpty {
             return
         }
-        if deletedString.string == "\n" || deletionRange.location == 0 {
-            var isPreviousLocationList = false
-            if (selectedRange.location > 0) {
-                isPreviousLocationList = storage.textListAttribute(atIndex: selectedRange.location - 1) != nil
-            }
-            if !isPreviousLocationList {
-                removeList(aroundRange: selectedRange)
-            }
-        }
+
+        refreshListAfterDeletionOf(text: deletedString, atRange: deletionRange)
+        refreshBlockquoteAfterDeletionOf(text: deletedString, atRange: deletionRange)
     }
 
     // MARK: - UIView Overrides
@@ -211,7 +225,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [String] {
+    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             // FIXME: if empty string, check typingAttributes
             return []
@@ -251,7 +265,7 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
     }
 
 
@@ -261,7 +275,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersAtIndex(_ index: Int) -> [String] {
+    open func formatIdentifiersAtIndex(_ index: Int) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
             return []
         }
@@ -301,7 +315,34 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
-        return identifiers.map { $0.rawValue }
+        return identifiers
+    }
+
+
+    /// Get a list of format identifiers of the Typing Attributes.
+    ///
+    /// - Returns: A list of Formatting Identifiers.
+    ///
+    open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
+        var identifiers = [FormattingIdentifier]()
+
+        if typingAttributesContainsBold() {
+            identifiers.append(.bold)
+        }
+
+        if typingAttributesContainsItalic() {
+            identifiers.append(.italic)
+        }
+
+        if typingAttributesContainsUnderline() {
+            identifiers.append(.underline)
+        }
+
+        if typingAttributesContainsStrikethrough() {
+            identifiers.append(.strikethrough)
+        }
+
+        return identifiers
     }
 
 
@@ -313,11 +354,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingFont(toggle: .traitBold)
 
-        storage.toggleBold(range)
+        if range.length > 0 {
+            storage.toggleBold(range)
+        }
     }
 
 
@@ -326,11 +367,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleItalic(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingFont(toggle: .traitItalic)
 
-        storage.toggleItalic(range)
+        if range.length > 0 {
+            storage.toggleItalic(range)
+        }
     }
 
 
@@ -339,11 +380,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        guard range.length > 0 else {
-            return
-        }
+        updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
 
-        storage.toggleUnderlineForRange(range)
+        if range.length > 0 {
+            storage.toggleUnderlineForRange(range)
+        }
     }
 
 
@@ -352,13 +393,47 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleStrikethrough(range: NSRange) {
-        guard range.length > 0 else {
+        updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
+
+        if range.length > 0 {
+            storage.toggleStrikethrough(range)
+        }
+    }
+
+
+    // MARK: - Typing Attributes
+
+
+    /// Toggles the specified Font Trait in the currently selected Typing Font.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
+    private func updateTypingFont(toggle traits: UIFontDescriptorSymbolicTraits) {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
             return
         }
 
-        storage.toggleStrikethrough(range)
+        let enabled = font.containsTraits(traits)
+        let newFont = font.modifyTraits(traits, enable: !enabled)
+        typingAttributes[NSFontAttributeName] = newFont
     }
 
+
+    /// Toggles the specified Typing Attribute: If it's there, will be removed. If it's missing, will be added.
+    ///
+    /// - Parameter trait: The Font Property that should be toggled.
+    ///
+    private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
+        if typingAttributes[attributeName] != nil {
+            typingAttributes.removeValue(forKey: attributeName)
+            return
+        }
+
+        typingAttributes[attributeName] = value
+    }
+
+
+    // MARK: - Selection Markers
 
     fileprivate enum SelectionMarker: String {
         case start = "SelectionStart"
@@ -410,7 +485,7 @@ open class TextView: UITextView {
     ///   - range: the range of the insertion of the new text
     private func refreshListAfterInsertionOf(text:String, range:NSRange) {
         //check if new text is part of a list
-        if storage.textListAttribute(atIndex: range.location) == nil {
+        guard let textList = storage.textListAttribute(atIndex: range.location) else {
             return
         }
 
@@ -429,9 +504,9 @@ open class TextView: UITextView {
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
 
         if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
-            removeList(aroundRange: range)
+            remove(list:textList, at: range)
             if afterRange.endLocation < storage.length {
-                removeList(aroundRange: afterRange)
+                remove(list: textList, at: afterRange)
                 deleteBackward()
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)
@@ -439,9 +514,25 @@ open class TextView: UITextView {
         }
     }
 
-    fileprivate func removeList(aroundRange range: NSRange) {
-        let formatter = TextListFormatter()
-        formatter.removeList(inString: storage, atRange: range)
+    /// Refresh Lists attributes when text is deleted in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    private func refreshListAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+        guard let textList = deletedText.textListAttribute(atIndex: 0),
+              deletedText.string == "\n" || range.location == 0 else {
+            return
+        }
+
+        if (range.location == 0) {
+            remove(list: textList, at: range)
+        }
+    }
+
+    fileprivate func remove(list: TextList, at range: NSRange) {
+        let formatter = TextListFormatter(style: list.style)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     /// Adds or removes a ordered list style from the specified range.
@@ -449,9 +540,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        let appliedRange = rangeForTextList(range)
-        let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .ordered, inString: storage, atRange: appliedRange)
+        let formatter = TextListFormatter(style: .ordered)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -460,9 +550,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        let appliedRange = rangeForTextList(range)
-        let formatter = TextListFormatter()
-        formatter.toggleList(ofStyle: .unordered, inString: storage, atRange: appliedRange)
+        let formatter = TextListFormatter(style: .unordered)
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     // MARK: - Blockquotes
@@ -478,6 +567,61 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
         formatter.toggleAttribute(inTextView: self, atRange: range)
+    }
+
+    /// Refresh Lists attributes when text is deleted in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    ///
+    private func refreshBlockquoteAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+        let formatter = BlockquoteFormatter()
+        guard formatter.attribute(inTextView: self, at: range.location),
+            deletedText.string == "\n" || range.location == 0 else {
+                return
+        }
+
+        if (range.location == 0) {
+            formatter.toggleAttribute(inTextView: self, atRange: range)
+        }
+    }
+
+    /// Refresh blockquotes attributes when inserting new text in the specified range
+    ///
+    /// - Parameters:
+    ///   - text: the text being added
+    ///   - range: the range of the insertion of the new text
+    ///
+    private func refreshBlockquoteAfterInsertionOf(text: String, range:NSRange) {
+        let formatter = BlockquoteFormatter()
+        guard formatter.attribute(inTextView: self, at: range.location) else {
+            return
+        }
+
+        let afterRange = NSRange(location: range.location + 1, length: 1)
+        let beforeRange = NSRange(location: range.location - 1, length: 1)
+
+        var afterString = "\n"
+        var beforeString = "\n"
+        if beforeRange.location >= 0 {
+            beforeString = storage.attributedSubstring(from: beforeRange).string
+        }
+        if afterRange.endLocation < storage.length {
+            afterString = storage.attributedSubstring(from: afterRange).string
+        }
+
+        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
+
+        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
+            formatter.toggleAttribute(inTextView: self, atRange: range)
+            if afterRange.endLocation < storage.length {
+                formatter.toggleAttribute(inTextView: self, atRange: afterRange)
+                deleteBackward()
+            } else {
+                selectedRange = NSRange(location: range.location, length: 0)
+            }
+        }
     }
 
 
@@ -866,6 +1010,45 @@ open class TextView: UITextView {
     ///
     open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
         return storage.textListAttribute(atIndex: index)?.style == .unordered
+    }
+
+
+    // MARK: - Inspect Typing Attributes
+
+
+    /// Checks if the next character entered by the user will be in Bold, or not.
+    ///
+    open func typingAttributesContainsBold() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTraits(.traitBold)
+    }
+
+
+    /// Checks if the next character entered by the user will be in Italic, or not.
+    ///
+    open func typingAttributesContainsItalic() -> Bool {
+        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
+            return false
+        }
+
+        return font.containsTraits(.traitItalic)
+    }
+
+
+    /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
+    ///
+    open func typingAttributesContainsStrikethrough() -> Bool {
+        return typingAttributes[NSStrikethroughStyleAttributeName] != nil
+    }
+
+
+    /// Checks if the next character that the user types will be underlined, or not.
+    ///
+    open func typingAttributesContainsUnderline() -> Bool {
+        return typingAttributes[NSUnderlineStyleAttributeName] != nil
     }
 
 

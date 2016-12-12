@@ -77,7 +77,7 @@ class AztecVisualEditorTests: XCTestCase {
         let identifiers = editor.formatIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == "bold")
+        XCTAssert(identifiers[0] == .bold)
     }
 
     func testFormatIdentifiersAtIndex() {
@@ -85,15 +85,15 @@ class AztecVisualEditorTests: XCTestCase {
 
         var identifiers = editor.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == "bold")
+        XCTAssert(identifiers[0] == .bold)
 
         identifiers = editor.formatIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == "bold")
+        XCTAssert(identifiers[0] == .bold)
 
         identifiers = editor.formatIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == "bold")
+        XCTAssert(identifiers[0] == .bold)
 
 
         identifiers = editor.formatIdentifiersAtIndex(0)

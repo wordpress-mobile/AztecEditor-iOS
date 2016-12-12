@@ -10,7 +10,7 @@ class TextList: Equatable
 
     /// List Styles
     ///
-    enum Style {
+    enum Style: Int {
         case ordered
         case unordered
 

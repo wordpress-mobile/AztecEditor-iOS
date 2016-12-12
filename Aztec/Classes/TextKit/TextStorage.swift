@@ -155,9 +155,8 @@ open class TextStorage: NSTextStorage {
                 return
             }
             
-            guard !(attachment is TextAttachment) else {
-                // Only replace plain NSTextAttachment objects.
-                //
+            if let textAttachment = attachment as? TextAttachment {
+                textAttachment.imageProvider = self
                 return
             }
             
@@ -197,7 +196,7 @@ open class TextStorage: NSTextStorage {
         // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
         //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
         //
-        let processedString = NSMutableAttributedString(attributedString:preprocessAttachments(forAttributedString: attrString))
+        let processedString = preprocessAttachments(forAttributedString: attrString)
 
         beginEditing()
 
@@ -205,7 +204,7 @@ open class TextStorage: NSTextStorage {
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         
         if mustUpdateDOM() {
-            dom.replaceCharacters(inRange: range, withAttributedString: attrString, inheritStyle: false)
+            dom.replaceCharacters(inRange: range, withAttributedString: processedString, inheritStyle: false)
         }
         
         endEditing()
@@ -240,7 +239,7 @@ open class TextStorage: NSTextStorage {
             dom.removeBold(spanning: range)
         }
 
-        modifyTrait(.traitBold, range: range, enable: enable)
+        modifyTraits(.traitBold, range: range, enable: enable)
     }
 
     func toggleItalic(_ range: NSRange) {
@@ -254,7 +253,7 @@ open class TextStorage: NSTextStorage {
             dom.removeItalic(spanning: range)
         }
         
-        modifyTrait(.traitItalic, range: range, enable: enable)
+        modifyTraits(.traitItalic, range: range, enable: enable)
     }
 
     func toggleStrikethrough(_ range: NSRange) {
@@ -502,10 +501,10 @@ public extension TextStorage
 
         let enable = !fontTrait(trait, spansRange: range)
 
-        modifyTrait(trait, range: range, enable: enable)
+        modifyTraits(trait, range: range, enable: enable)
     }
 
-    fileprivate func modifyTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+    fileprivate func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
 
         enumerateAttribute(NSFontAttributeName,
                            in: range,
@@ -515,16 +514,7 @@ public extension TextStorage
                                 return
                             }
 
-                            var newTraits = font.fontDescriptor.symbolicTraits
-
-                            if enable {
-                                newTraits.insert(trait)
-                            } else {
-                                newTraits.remove(trait)
-                            }
-
-                            let descriptor = font.fontDescriptor.withSymbolicTraits(newTraits)
-                            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
+                            let newFont = font.modifyTraits(traits, enable: enable)
 
                             self.beginEditing()
                             self.removeAttribute(NSFontAttributeName, range: range)

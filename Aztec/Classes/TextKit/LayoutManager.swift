@@ -4,8 +4,17 @@ import QuartzCore
 
 class LayoutManager: NSLayoutManager {
 
+    var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
+
     override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
+
+        drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
+        drawLists(forGlyphRange: glyphsToShow, at: origin)
+    }
+
+    private func drawBlockquotes(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         guard let textStorage = textStorage else {
             return
         }
@@ -15,31 +24,39 @@ class LayoutManager: NSLayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        textStorage.enumerateAttribute(Blockquote.attributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard object is Blockquote else {
-                return
+        //draw blockquotes
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle,
+                  paragraphStyle.blockquote != nil
+                else {
+                    return
             }
 
-            let borderColor = UIColor(red: 0.5294117647, green: 0.650980392156863, blue: 0.737254902, alpha: 1.0)
-            let backgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                backgroundColor.setFill()
+                self.blockquoteBackgroundColor.setFill()
                 context.fill(lineRect)
                 let borderRect = CGRect(origin: lineRect.origin, size: CGSize(width: 2, height: lineRect.height))
-                borderColor.setFill()
+                self.blockquoteBorderColor.setFill()
                 context.fill(borderRect)
             }
         }
+    }
 
+    private func drawLists(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+        guard let textStorage = textStorage else {
+            return
+        }
+
+        let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         // draw list markers
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle,
-                  let _ = paragraphStyle.textList
+                  paragraphStyle.textList != nil
                 else {
-                return
+                    return
             }
 
             let listGlyphRange = glyphRange(forCharacterRange:range, actualCharacterRange: nil)
