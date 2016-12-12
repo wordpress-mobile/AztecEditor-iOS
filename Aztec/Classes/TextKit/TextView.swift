@@ -143,9 +143,12 @@ open class TextView: UITextView {
 
     open override func caretRect(for position: UITextPosition) -> CGRect {
         let characterIndex = offset(from: beginningOfDocument, to: position)
+        var caretRect = super.caretRect(for: position)
+        guard layoutManager.isValidGlyphIndex(characterIndex) else {
+            return caretRect
+        }
         let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRect(forGlyphAt: glyphIndex, effectiveRange: nil)
-        var caretRect = super.caretRect(for: position)
         if !usedLineFragment.isEmpty {
             caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
             caretRect.size.height = usedLineFragment.size.height
