@@ -27,7 +27,7 @@ class LayoutManager: NSLayoutManager {
         //draw blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle,
-                let _ = paragraphStyle.blockquote
+                  paragraphStyle.blockquote != nil
                 else {
                     return
             }
@@ -54,7 +54,7 @@ class LayoutManager: NSLayoutManager {
         // draw list markers
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle,
-                let _ = paragraphStyle.textList
+                  paragraphStyle.textList != nil
                 else {
                     return
             }
