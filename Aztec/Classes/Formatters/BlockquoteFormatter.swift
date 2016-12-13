@@ -20,19 +20,41 @@ class Blockquote: NSObject, NSCoding {
 }
 
 struct BlockquoteFormatter: ParagraphAttributeFormatter {
-    let attributes: [String: AnyObject] = {
-        let style = ParagraphStyle()
-        style.headIndent = Metrics.defaultIndentation
-        style.firstLineHeadIndent = style.headIndent
-        style.tailIndent = -Metrics.defaultIndentation
-        style.paragraphSpacing = Metrics.defaultIndentation
-        style.paragraphSpacingBefore = Metrics.defaultIndentation
-        style.blockquote = Blockquote()
 
-        return [
-            NSParagraphStyleAttributeName: style            
-        ]
-    }()
+
+    func apply(toAttributes attributes: [String : Any]) -> [String: Any] {
+        var resultingAttributes = attributes
+        let newParagraphStyle = ParagraphStyle()
+        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+            newParagraphStyle.setParagraphStyle(paragraphStyle)
+        }
+        newParagraphStyle.headIndent += Metrics.defaultIndentation
+        newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
+        newParagraphStyle.tailIndent -= Metrics.defaultIndentation
+        newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
+        newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
+        newParagraphStyle.blockquote = Blockquote()
+        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        return resultingAttributes
+    }
+
+    func remove(fromAttributes attributes:[String: Any]) -> [String: Any] {
+        var resultingAttributes = attributes
+        let newParagraphStyle = ParagraphStyle()
+        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+            paragraphStyle.blockquote != nil else {
+            return resultingAttributes
+        }
+        newParagraphStyle.setParagraphStyle(paragraphStyle)
+        newParagraphStyle.headIndent -= Metrics.defaultIndentation
+        newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
+        newParagraphStyle.tailIndent += Metrics.defaultIndentation
+        newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
+        newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
+        newParagraphStyle.blockquote = nil
+        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        return resultingAttributes
+    }
 
     func present(inAttributes attributes: [String : AnyObject]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {

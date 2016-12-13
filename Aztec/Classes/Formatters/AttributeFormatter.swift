@@ -13,9 +13,13 @@ protocol AttributeFormatter {
     ///
     func present(inAttributes attributes: [String: AnyObject]) -> Bool
 
-    /// The list of attributes that the compound attribute represents.
+    /// Apply the compound attribute represents to the provided list.
     ///
-    var attributes: [String: AnyObject] { get }
+    func apply(toAttributes attributes:[String: Any]) -> [String: Any]
+
+    /// Remove attributes from the provided list.
+    ///
+    func remove(fromAttributes attributes:[String: Any]) -> [String: Any]
 
     /// The range to apply the attributes to.
     ///
@@ -76,15 +80,11 @@ private extension AttributeFormatter {
     }
 
     func addTypingAttribute(toTextView textView: UITextView) {
-        for (key, value) in attributes {
-            textView.typingAttributes[key] = value
-        }
+        textView.typingAttributes = apply(toAttributes: textView.typingAttributes)
     }
 
     func removeTypingAttribute(fromTextView textView: UITextView) {
-        for (key, _) in attributes  {
-            textView.typingAttributes.removeValue(forKey: key)
-        }
+        textView.typingAttributes = remove(fromAttributes: textView.typingAttributes)
     }
 
     func toggleAttribute(inString string: NSMutableAttributedString, atRange range: NSRange) {
@@ -96,13 +96,15 @@ private extension AttributeFormatter {
     }
 
     func applyAttributes(toString string: NSMutableAttributedString, atRange range: NSRange) {
+        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
+        let attributes = apply(toAttributes: currentAttributes)
         string.addAttributes(attributes, range: range)
     }
 
     func removeAttributes(fromString string: NSMutableAttributedString, atRange range: NSRange) {
-        for (attribute, _) in attributes {
-            string.removeAttribute(attribute, range: range)
-        }
+        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
+        let attributes = remove(fromAttributes: currentAttributes)
+        string.addAttributes(attributes, range: range)
     }
 
     func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
@@ -111,6 +113,7 @@ private extension AttributeFormatter {
     }
 
     func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
+        let attributes = apply(toAttributes: [:])
         let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
         string.insert(attributedSpace, at: index)
     }
