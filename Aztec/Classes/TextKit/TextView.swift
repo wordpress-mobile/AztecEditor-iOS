@@ -111,7 +111,7 @@ open class TextView: UITextView {
     }
 
     open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let plainString = UIPasteboard.general.string else {
+        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
             super.paste(sender)
             return
         }
