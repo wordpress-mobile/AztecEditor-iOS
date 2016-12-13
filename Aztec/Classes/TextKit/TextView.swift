@@ -342,6 +342,22 @@ open class TextView: UITextView {
             identifiers.append(.strikethrough)
         }
 
+        if typingAttributesContainsBlockquote() {
+            identifiers.append(.blockquote)
+        }
+
+        if typingAttributesContainsOrderedList() {
+            identifiers.append(.orderedlist)
+        }
+
+        if typingAttributesContainsUnorderedList() {
+            identifiers.append(.unorderedlist)
+        }
+
+        if typingAttributesContainsLink() {
+            identifiers.append(.link)
+        }
+
         return identifiers
     }
 
@@ -1049,6 +1065,36 @@ open class TextView: UITextView {
     ///
     open func typingAttributesContainsUnderline() -> Bool {
         return typingAttributes[NSUnderlineStyleAttributeName] != nil
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as Blockquote, or not.
+    ///
+    open func typingAttributesContainsBlockquote() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.blockquote != nil
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
+    ///
+    open func typingAttributesContainsOrderedList() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.textList?.style == .ordered
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
+    ///
+    open func typingAttributesContainsUnorderedList() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.textList?.style == .unordered
+    }
+
+    /// Checks if the next character that the user types will be part of a link anchor, or not.
+    ///
+    open func typingAttributesContainsLink() -> Bool {
+        return typingAttributes[NSLinkAttributeName] != nil
     }
 
 
