@@ -72,9 +72,10 @@ class LayoutManager: NSLayoutManager {
                 let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
                 let attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
                 if isStartOfLine {
+                    let markerRect = lineRect.offsetBy(dx: paragraphStyle.headIndent - Metrics.defaultIndentation, dy: paragraphStyle.paragraphSpacingBefore)
                     let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: attributes)
                     let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:markerAttributes)
-                    markerText.draw(in: lineRect)
+                    markerText.draw(in: markerRect)
                 }
             }
         }
