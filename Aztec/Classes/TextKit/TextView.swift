@@ -64,6 +64,7 @@ open class TextView: UITextView {
         container.widthTracksTextView = true
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         commonInit()
+        setupMenuController()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -72,6 +73,7 @@ open class TextView: UITextView {
         defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
         commonInit()
+        setupMenuController()
     }
 
     private func commonInit() {
@@ -79,6 +81,13 @@ open class TextView: UITextView {
         storage.attachmentsDelegate = self
         font = defaultFont
     }
+
+    private func setupMenuController() {
+        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        UIMenuController.shared.menuItems = [pasteAndMatchItem]
+    }
+
 
     // MARK: - Intersect copy paste operations
 
@@ -99,6 +108,15 @@ open class TextView: UITextView {
         } else {
             super.paste(sender)
         }
+    }
+
+    open func pasteAndMatchStyle(_ sender: Any?) {
+        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
+            super.paste(sender)
+            return
+        }
+
+        storage.replaceCharacters(in: selectedRange, with: plainString)
     }
 
     // MARK: - Intersect keyboard operations
