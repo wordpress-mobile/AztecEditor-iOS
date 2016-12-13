@@ -13,11 +13,17 @@ protocol AttributeFormatter {
     ///
     func present(inAttributes attributes: [String: AnyObject]) -> Bool
 
-    /// Apply the compound attribute represents to the provided list.
+    /// Apply the compound attributes to the provided attributes dictionary
+    ///
+    /// - Parameter attributes: the original attributes to apply to
+    /// - Returns: the resulting attributes dictionary
     ///
     func apply(toAttributes attributes:[String: Any]) -> [String: Any]
 
-    /// Remove attributes from the provided list.
+    /// Remove the compound attributes from the provided list.
+    ///
+    /// - Parameter attributes: the original attributes to remove from
+    /// - Returns: the resulting attributes dictionary
     ///
     func remove(fromAttributes attributes:[String: Any]) -> [String: Any]
 
