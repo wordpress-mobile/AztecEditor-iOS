@@ -51,12 +51,20 @@ extension Libxml2 {
         private func recordUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>, undoManager: UndoManager) {
             let text = contents.substring(with: range)
             let index = range.lowerBound
-            let ignored = NSAttributedString()
+            //let ignored = NSAttributedString()
+            
+            undoManager.registerUndo(withTarget: self, selector: #selector(undoDeleteCharacters(undoManager:)), object: undoManager)
+            
+            //undoManager.prepare(withInvocationTarget: self)
+            
             /*
-            undoManager.registerUndo(withTarget: ignored, handler: { [weak self] (target: AnyObject) -> Void in
+            undoManager.registerUndo(withTarget: ignored, handler: { [weak self] (target: NSAttributedString) -> Void in
                 self?.contents.insert(contentsOf: text.characters, at: index)
-            })
- */
+            }) */
+        }
+        
+        @objc private func undoDeleteCharacters(undoManager: UndoManager?) {
+            contents.insert(contentsOf: "ahoi".characters, at: contents.startIndex)
         }
         
         func prepend(_ string: String, undoManager: UndoManager? = nil) {

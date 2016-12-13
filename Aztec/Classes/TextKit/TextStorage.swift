@@ -45,17 +45,13 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - Undo Support
     
-    private var storedUndoManager: UndoManager?
-    
     public var undoManager: UndoManager? {
-        
         get {
-            return storedUndoManager
+            return dom.undoManager
         }
         
         set {
-            storedUndoManager = newValue
-            dom.undoManager = undoManager
+            dom.undoManager = newValue
         }
     }
     
