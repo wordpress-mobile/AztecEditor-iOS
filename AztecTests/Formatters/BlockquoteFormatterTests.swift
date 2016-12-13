@@ -18,7 +18,9 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: textView.storage)
 
         let formatter = BlockquoteFormatter()
-        textView.storage.setAttributes(formatter.attributes, range: paragraphs[0])
+        var attributes = [String:Any]()
+        attributes = formatter.apply(toAttributes: attributes)
+        textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggleAttribute(inTextView: textView, atRange: NSRange(location: 1, length: 1))
 
         XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[0]))
@@ -29,7 +31,9 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: textView.storage)
 
         let formatter = BlockquoteFormatter()
-        textView.storage.setAttributes(formatter.attributes, range: paragraphs[1])
+        var attributes = [String:Any]()
+        attributes = formatter.apply(toAttributes: attributes)
+        textView.storage.setAttributes(attributes, range: paragraphs[1])
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[0]))
@@ -41,7 +45,9 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: textView.storage)
 
         let formatter = BlockquoteFormatter()
-        textView.storage.setAttributes(formatter.attributes, range: paragraphs[0])
+        var attributes = [String:Any]()
+        attributes = formatter.apply(toAttributes: attributes)
+        textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[0]))
@@ -50,13 +56,13 @@ class BlockquoteFormatterTests: XCTestCase {
 
     func testToggleBlockquoteTwiceLeavesReturnsIdenticalString() {
         let textView = testTextView
+        textView.storage.setAttributes([NSParagraphStyleAttributeName: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
         let paragraphs = paragraphRanges(inString: textView.storage)
 
         let formatter = BlockquoteFormatter()
         let original = textView.storage.copy() as! NSAttributedString
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
-
         XCTAssertTrue(original.isEqual(to: textView.storage))
     }
 }
