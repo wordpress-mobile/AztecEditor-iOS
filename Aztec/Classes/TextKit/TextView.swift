@@ -64,6 +64,7 @@ open class TextView: UITextView {
         container.widthTracksTextView = true
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         commonInit()
+        setupMenuController()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -72,6 +73,7 @@ open class TextView: UITextView {
         defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
         commonInit()
+        setupMenuController()
     }
 
     private func commonInit() {
@@ -79,6 +81,13 @@ open class TextView: UITextView {
         storage.attachmentsDelegate = self
         font = defaultFont
     }
+
+    private func setupMenuController() {
+        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        UIMenuController.shared.menuItems = [pasteAndMatchItem]
+    }
+
 
     // MARK: - Intersect copy paste operations
 
@@ -99,6 +108,15 @@ open class TextView: UITextView {
         } else {
             super.paste(sender)
         }
+    }
+
+    open func pasteAndMatchStyle(_ sender: Any?) {
+        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
+            super.paste(sender)
+            return
+        }
+
+        storage.replaceCharacters(in: selectedRange, with: plainString)
     }
 
     // MARK: - Intersect keyboard operations
@@ -339,6 +357,22 @@ open class TextView: UITextView {
 
         if typingAttributesContainsStrikethrough() {
             identifiers.append(.strikethrough)
+        }
+
+        if typingAttributesContainsBlockquote() {
+            identifiers.append(.blockquote)
+        }
+
+        if typingAttributesContainsOrderedList() {
+            identifiers.append(.orderedlist)
+        }
+
+        if typingAttributesContainsUnorderedList() {
+            identifiers.append(.unorderedlist)
+        }
+
+        if typingAttributesContainsLink() {
+            identifiers.append(.link)
         }
 
         return identifiers
@@ -1048,6 +1082,36 @@ open class TextView: UITextView {
     ///
     open func typingAttributesContainsUnderline() -> Bool {
         return typingAttributes[NSUnderlineStyleAttributeName] != nil
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as Blockquote, or not.
+    ///
+    open func typingAttributesContainsBlockquote() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.blockquote != nil
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
+    ///
+    open func typingAttributesContainsOrderedList() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.textList?.style == .ordered
+    }
+
+
+    /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
+    ///
+    open func typingAttributesContainsUnorderedList() -> Bool {
+        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return paragraphStyle?.textList?.style == .unordered
+    }
+
+    /// Checks if the next character that the user types will be part of a link anchor, or not.
+    ///
+    open func typingAttributesContainsLink() -> Bool {
+        return typingAttributes[NSLinkAttributeName] != nil
     }
 
 
