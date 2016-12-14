@@ -3,11 +3,11 @@ import MobileCoreServices
 import UIKit
 
 
-///
-///
+// MARK: - Pasteboard Helpers
+//
 extension UIPasteboard
 {
-    ///
+    /// Removes all of the stored Rich String's Attributes
     ///
     func stripStringAttributes() {
         let plainOptions = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
@@ -31,7 +31,7 @@ extension UIPasteboard
         }
     }
 
-    ///
+    /// Removes all of the Aztec-Stored String's Attributes
     ///
     func stripAztecAttributes() {
         guard let data = value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
@@ -42,9 +42,5 @@ extension UIPasteboard
 
         let rearchived = NSAttributedString(string: original.string).archivedData()
         setValue(rearchived, forPasteboardType: NSAttributedString.pastesboardUTI)
-
-//        let reencoded = NSAttributedString(string: original.string, attributes: typingAttributes)
-//        let rearchived = reencoded.archivedData()
-//        setValue(rearchived, forPasteboardType: NSAttributedString.pastesboardUTI)
     }
 }
