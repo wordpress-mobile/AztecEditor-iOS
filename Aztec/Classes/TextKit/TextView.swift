@@ -67,6 +67,7 @@ open class TextView: UITextView {
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         storage.undoManager = undoManager
         commonInit()
+        setupMenuController()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -75,6 +76,7 @@ open class TextView: UITextView {
         defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
         commonInit()
+        setupMenuController()
     }
 
     private func commonInit() {
@@ -82,6 +84,13 @@ open class TextView: UITextView {
         storage.attachmentsDelegate = self
         font = defaultFont
     }
+
+    private func setupMenuController() {
+        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        UIMenuController.shared.menuItems = [pasteAndMatchItem]
+    }
+
 
     // MARK: - Intersect copy paste operations
 
@@ -102,6 +111,15 @@ open class TextView: UITextView {
         } else {
             super.paste(sender)
         }
+    }
+
+    open func pasteAndMatchStyle(_ sender: Any?) {
+        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
+            super.paste(sender)
+            return
+        }
+
+        storage.replaceCharacters(in: selectedRange, with: plainString)
     }
 
     // MARK: - Intersect keyboard operations
@@ -146,9 +164,12 @@ open class TextView: UITextView {
 
     open override func caretRect(for position: UITextPosition) -> CGRect {
         let characterIndex = offset(from: beginningOfDocument, to: position)
+        var caretRect = super.caretRect(for: position)
+        guard layoutManager.isValidGlyphIndex(characterIndex) else {
+            return caretRect
+        }
         let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRect(forGlyphAt: glyphIndex, effectiveRange: nil)
-        var caretRect = super.caretRect(for: position)
         if !usedLineFragment.isEmpty {
             caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
             caretRect.size.height = usedLineFragment.size.height
