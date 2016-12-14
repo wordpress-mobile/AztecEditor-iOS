@@ -112,13 +112,18 @@ open class TextView: UITextView {
     }
 
     open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
-            super.paste(sender)
-            return
-        }
+        let pasteboard = UIPasteboard.general
+        let pristineItems = pasteboard.items
 
-        storage.replaceCharacters(in: selectedRange, with: plainString)
+        pasteboard.stripStringAttributes()
+        pasteboard.stripAztecAttributes()
+
+        paste(sender)
+
+        // Fallback to the original Pasteboard state
+        pasteboard.items = pristineItems
     }
+
 
     // MARK: - Intersect keyboard operations
 
