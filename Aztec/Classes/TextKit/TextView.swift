@@ -101,13 +101,14 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        let pasteboard  = UIPasteboard.general
-        if let data = pasteboard.value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
-           let aztecString = NSAttributedString.unarchive(with: data) {
-            storage.replaceCharacters(in: selectedRange, with: aztecString)
-        } else {
+        guard let data = UIPasteboard.general.value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
+           let aztecString = NSAttributedString.unarchive(with: data) else
+        {
             super.paste(sender)
+            return
         }
+
+        storage.replaceCharacters(in: selectedRange, with: aztecString)
     }
 
     open func pasteAndMatchStyle(_ sender: Any?) {
