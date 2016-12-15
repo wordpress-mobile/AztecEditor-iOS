@@ -129,6 +129,7 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - elementDescriptor: the descriptor for the element to wrap the receiver in.
+        ///     - undoManager: the undo manager for the operation.
         ///
         /// - Returns: the newly created element.
         ///
