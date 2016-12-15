@@ -18,7 +18,6 @@ protocol EditableNode {
     ///
     /// - Parameters:
     ///     - location: the text location to split the node at.
-    ///     - undoManager: the undo manager for the operation.
     ///
     func split(atLocation location: Int)
     
@@ -27,7 +26,6 @@ protocol EditableNode {
     ///
     /// - Parameters:
     ///     - range: the range to use for splitting the node.
-    ///     - undoManager: the undo manager for the operation.
     ///
     func split(forRange range: NSRange)
     
@@ -36,7 +34,6 @@ protocol EditableNode {
     /// - Parameters:
     ///     - range: the range to wrap.
     ///     - elementDescriptor: the element to wrap the range in.
-    ///     - undoManager: the undo manager for the operation.
     ///
     ///
     func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor)

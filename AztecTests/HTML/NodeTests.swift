@@ -18,7 +18,7 @@ class NodeTests: XCTestCase {
     }
 
     func testElementNodesToRoot() {
-
+        
         let text = TextNode(text: "text1 goes here")
 
         let node1 = ElementNode(name: "p", attributes: [], children: [text])
