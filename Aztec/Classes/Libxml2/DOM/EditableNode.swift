@@ -31,5 +31,14 @@ protocol EditableNode {
     ///     - undoManager: the undo manager for the operation.
     ///
     func split(forRange range: NSRange, undoManager: UndoManager?)
+    
+    /// Wraps the specified range in the specified element.
+    ///
+    /// - Parameters:
+    ///     - range: the range to wrap.
+    ///     - elementDescriptor: the element to wrap the range in.
+    ///     - undoManager: the undo manager for the operation.
+    ///
+    ///
     func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor, undoManager: UndoManager?)
 }
