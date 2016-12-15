@@ -30,6 +30,9 @@ extension Libxml2 {
             }
         }
         
+        private var undoObserver: NSObjectProtocol?
+        private var beginGroupObserver: NSObjectProtocol?
+        
         /// The private undo manager for the DOM.  This needs to be separated from the public undo
         /// manager because it'll be running in a separate dispatch queue, and undo managers "break"
         /// undo groups by run loops.
@@ -199,7 +202,7 @@ extension Libxml2 {
         ///
         private func startObservingParentUndoManager() {
 
-            NotificationCenter.default.addObserver(forName: .NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
+            undoObserver = NotificationCenter.default.addObserver(forName: .NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
                 
                 guard let strongSelf = self else {
                     return
@@ -214,7 +217,7 @@ extension Libxml2 {
                 }
             }
             
-            NotificationCenter.default.addObserver(forName: .NSUndoManagerDidOpenUndoGroup, object: parentUndoManager, queue: nil) { [weak self] notification in
+            beginGroupObserver = NotificationCenter.default.addObserver(forName: .NSUndoManagerDidOpenUndoGroup, object: parentUndoManager, queue: nil) { [weak self] notification in
                 
                 guard let strongSelf = self else {
                     return
@@ -233,7 +236,14 @@ extension Libxml2 {
         /// Make our private undo manager stop observing the parent undo manager.
         ///
         private func stopObservingParentUndoManager() {
-            NotificationCenter.default.removeObserver(self)
+            
+            if let beginGroupObserver = beginGroupObserver {
+                NotificationCenter.default.removeObserver(beginGroupObserver)
+            }
+            
+            if let undoObserver = undoObserver {
+                NotificationCenter.default.removeObserver(undoObserver)
+            }
         }
 
         // MARK: - Styles: Synchronization with DOM
