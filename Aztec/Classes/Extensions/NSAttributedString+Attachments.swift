@@ -6,7 +6,7 @@ import UIKit
 //
 extension NSAttributedString
 {
-    ///
+    /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
     ///
     func loadLazyAttachments() {
         enumerateAttachmentsOfType(NSTextAttachment.self) { (attachment, _, _) in
