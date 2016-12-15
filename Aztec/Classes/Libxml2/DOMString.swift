@@ -253,10 +253,12 @@ extension Libxml2 {
             
             if let beginGroupObserver = beginGroupObserver {
                 NotificationCenter.default.removeObserver(beginGroupObserver)
+                self.beginGroupObserver = nil
             }
             
             if let undoObserver = undoObserver {
                 NotificationCenter.default.removeObserver(undoObserver)
+                self.undoObserver = nil
             }
         }
 
