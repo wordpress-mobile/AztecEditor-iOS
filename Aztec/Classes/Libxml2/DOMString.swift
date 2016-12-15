@@ -16,11 +16,38 @@ extension Libxml2 {
             return RootNode(children: [TextNode(text: "")])
         }()
         
-        public var undoManager: UndoManager?
+        private var parentUndoManager: UndoManager?
+        
+        public var undoManager: UndoManager? {
+            get {
+                return parentUndoManager
+            }
+            
+            set {
+                stopObservingParentUndoManager()
+                parentUndoManager = newValue
+                startObservingParentUndoManager()
+            }
+        }
+        
+        /// The private undo manager for the DOM.  This needs to be separated from the public undo
+        /// manager because it'll be running in a separate dispatch queue, and undo managers "break"
+        /// undo groups by run loops.
+        ///
+        /// Whenever necessary we'll just register an undo step in the public undo manager that
+        /// triggers a call to undo an operation in the private manager.
+        ///
+        private var domUndoManager = UndoManager()
         
         /// The queue that will be used for all DOM interaction operations.
         ///
         let domQueue = DispatchQueue(label: "com.wordpress.domQueue", attributes: [])
+        
+        // MARK: - Init & deinit
+        
+        deinit {
+            stopObservingParentUndoManager()
+        }
         
         // MARK: - Settings & Getting HTML
         
@@ -82,13 +109,15 @@ extension Libxml2 {
         ///             no associated style.
         ///
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            domQueue.async { [weak self] in
+            
+            performAsyncUndoable { [weak self] in
                 self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
             }
         }
         
         func replaceCharacters(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-            domQueue.async { [weak self] in
+            
+            performAsyncUndoable { [weak self] in
                 self?.replaceCharactersSynchronously(inRange: range, withAttributedString: attributedString, inheritStyle: inheritStyle)
             }
         }
@@ -102,7 +131,7 @@ extension Libxml2 {
         }
         
         func setAttributes(_ attrs: [String : Any], range: NSRange) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.setAttributesSynchronously(attrs: attrs, range: range)
             }
         }
@@ -119,20 +148,14 @@ extension Libxml2 {
         ///             no associated style.
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: domUndoManager)
         }
 
         private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
             
-            //undoManager?.beginUndoGrouping()
-            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: undoManager)
-            
-            // remove all styles for the specified range here!
+            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: domUndoManager)
             
             applyStyles(from: attributedString, to: range.location)
-            //undoManager?.endUndoGrouping()
         }
         
         private func setAttributesSynchronously(attrs: [String: Any]?, range: NSRange) {
@@ -140,9 +163,68 @@ extension Libxml2 {
                 return
             }
             
-            //undoManager?.beginUndoGrouping()
             applyStyles(from: attrs, to: range)
-            //undoManager?.endUndoGrouping()
+        }
+        
+        // MARK: - Undo Manager
+        
+
+        
+        /// We have some special setup we need to take care of before registering undo operations.
+        /// This method takes care of hooking up an undo operation in the client-provided undo
+        /// manager with an undo operation in the DOM undo manager.
+        ///
+        /// Parameters:
+        ///     - task: the task to execute that contains undo operations.
+        ///
+        private func performAsyncUndoable(task: @escaping () -> ()) {
+            domQueue.async { [weak self] in
+                
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                strongSelf.domUndoManager.beginUndoGrouping()
+                task()
+                strongSelf.domUndoManager.endUndoGrouping()
+            }
+        }
+        
+        private func startObservingParentUndoManager() {
+
+            NotificationCenter.default.addObserver(forName: NSNotification.Name.NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
+                
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                if let undoManager = notification.object as? UndoManager, undoManager === strongSelf.parentUndoManager {
+                    
+                    let domUndoManager = strongSelf.domUndoManager
+                    
+                    domUndoManager.closeAllUndoGroups()
+                    domUndoManager.undo()
+                }
+            }
+            
+            NotificationCenter.default.addObserver(forName: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: parentUndoManager, queue: nil) { [weak self] notification in
+                
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                if let undoManager = notification.object as? UndoManager, undoManager === strongSelf.parentUndoManager {
+                    
+                    let domUndoManager = strongSelf.domUndoManager
+                    
+                    domUndoManager.closeAllUndoGroups()
+                    domUndoManager.beginUndoGrouping()
+                }
+            }
+        }
+        
+        private func stopObservingParentUndoManager() {
+            NotificationCenter.default.removeObserver(self)
         }
 
         // MARK: - Styles: Synchronization with DOM
@@ -381,7 +463,7 @@ extension Libxml2 {
             let elementDescriptor = ElementNodeDescriptor(elementType: .a,
                                                           attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
             
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: domUndoManager)
         }
 
         // MARK: Remove Styles
@@ -392,7 +474,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeBold(spanning range: NSRange) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.removeBoldSynchronously(spanning: range)
             }
         }
@@ -403,7 +485,8 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeItalic(spanning range: NSRange) {
-            domQueue.async { [weak self] in
+            //domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.removeItalicSynchronously(spanning: range)
             }
         }
@@ -414,7 +497,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeStrikethrough(spanning range: NSRange) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.removeStrikethroughSynchronously(spanning: range)
             }
         }
@@ -425,7 +508,7 @@ extension Libxml2 {
         ///     - range: the range to remove the style from.
         ///
         func removeUnderline(spanning range: NSRange) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.removeUnderlineSynchronously(spanning: range)
             }
         }
@@ -433,27 +516,19 @@ extension Libxml2 {
         // MARK: - Remove Styles: Synchronously
         
         private func removeBoldSynchronously(spanning range: NSRange) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames, undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames, undoManager: domUndoManager)
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames, undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames, undoManager: domUndoManager)
         }
         
         private func removeStrikethroughSynchronously(spanning range: NSRange) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames, undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames, undoManager: domUndoManager)
         }
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames, undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames, undoManager: domUndoManager)
         }
         
         // Apply Styles
@@ -521,19 +596,19 @@ extension Libxml2 {
         fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: undoManager)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: domUndoManager)
         }
         
         // MARK: - Candidates for removal
         
         func removeLink(inRange range: NSRange) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.removeLinkSynchronously(inRange: range)
             }
         }
         
         func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
-            domQueue.async { [weak self] in
+            performAsyncUndoable { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
         }
@@ -541,29 +616,23 @@ extension Libxml2 {
         // MARK: - Candidates for removal: Synchronously
         
         private func removeLinkSynchronously(inRange range: NSRange) {
-            //undoManager?.beginUndoGrouping()
-            rootNode.unwrap(range: range, fromElementsNamed: ["a"], undoManager: undoManager)
-            //undoManager?.endUndoGrouping()
+            rootNode.unwrap(range: range, fromElementsNamed: ["a"], undoManager: domUndoManager)
         }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
-            
-            //undoManager?.beginUndoGrouping()
             
             for range in ranges {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
                 
                 if element.name == "img" {
                     let classAttributes = alignment.htmlString() + " " + size.htmlString()
-                    element.updateAttribute(named: "class", value: classAttributes, undoManager: undoManager)
+                    element.updateAttribute(named: "class", value: classAttributes, undoManager: domUndoManager)
                     
                     if element.name == "img" {
-                        element.updateAttribute(named: "src", value: url.absoluteString, undoManager: undoManager)
+                        element.updateAttribute(named: "src", value: url.absoluteString, undoManager: domUndoManager)
                     }
                 }
             }
-            
-            //undoManager?.endUndoGrouping()
         }
     }
 }

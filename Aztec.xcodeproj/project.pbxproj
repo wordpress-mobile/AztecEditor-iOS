@@ -69,6 +69,7 @@
 		F1288BB01DD0B1EF00E67ABC /* HTMLToAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1288BAE1DD0B1EF00E67ABC /* HTMLToAttributedString.swift */; };
 		F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
+		F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A218141E02D5B3000AF5EB /* UndoManager.swift */; };
 		F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DOMString.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
@@ -168,6 +169,7 @@
 		F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ElementNodeDescriptor.swift; path = Descriptors/ElementNodeDescriptor.swift; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
+		F1A218141E02D5B3000AF5EB /* UndoManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
 		F1CF27291DBA8CDB0001C61D /* DOMString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMString.swift; sourceTree = "<group>"; };
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -350,6 +352,7 @@
 				599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */,
 				FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */,
 				B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */,
+				F1A218141E02D5B3000AF5EB /* UndoManager.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -638,6 +641,7 @@
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,
+				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
