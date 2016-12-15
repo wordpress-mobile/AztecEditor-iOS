@@ -7,40 +7,85 @@ import UIKit
 //
 extension UIPasteboard
 {
-    /// Removes all of the stored Rich String's Attributes
     ///
-    func stripStringAttributes() {
-        let plainOptions = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
-        let richOptions = [NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType]
-
-        let supportedTypes = [
-            String(kUTTypeRTF):         richOptions,
-            String(kUTTypeText):        richOptions,
-            String(kUTTypePlainText):   plainOptions
-        ]
-
-        for (type, options) in supportedTypes {
-            guard let data = data(forPasteboardType: type),
-                let original = try? NSAttributedString(data: data, options: options, documentAttributes: nil),
-                let stripped = original.string.data(using: .utf8) else
-            {
-                continue
-            }
-
-            setData(stripped, forPasteboardType: type)
-        }
+    ///
+    private struct StringOptions {
+        static let RTFText = [NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType]
+        static let RTFDText = [NSDocumentTypeDocumentAttribute: NSRTFDTextDocumentType]
+        static let plainText = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
     }
 
-    /// Removes all of the Aztec-Stored String's Attributes
     ///
-    func stripAztecAttributes() {
-        guard let data = value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
-            let original = NSAttributedString.unarchive(with: data) else
-        {
-            return
+    ///
+    private func unarchiveAttributedString(fromPasteboardCFType type: CFString, with options: [String: Any]) -> NSAttributedString? {
+        guard let data = data(forPasteboardType: String(type)) else {
+            return nil
         }
 
-        let rearchived = NSAttributedString(string: original.string).archivedData()
-        setValue(rearchived, forPasteboardType: NSAttributedString.pastesboardUTI)
+        return try? NSAttributedString(data: data, options: options, documentAttributes: nil)
     }
+
+
+    ///
+    ///
+    func loadAttributedString() -> NSAttributedString? {
+        if let string = aztecAttributedString {
+            return string
+        }
+
+        if let string = RTFAttributedString {
+            return string
+        }
+
+        if let string = RTFDAttributedString {
+            return string
+        }
+
+        if let string = richTextAttributedString {
+            return string
+        }
+
+        return plainTextAttributedString
+    }
+
+    ///
+    ///
+    private var RTFAttributedString: NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypeRTF, with: StringOptions.RTFText)
+    }
+
+    ///
+    ///
+    private var RTFDAttributedString: NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypeFlatRTFD, with: StringOptions.RTFDText)
+    }
+
+    ///
+    ///
+    private var richTextAttributedString: NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypeText, with: StringOptions.RTFText)
+    }
+
+    ///
+    ///
+    private var plainTextAttributedString: NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypePlainText, with: StringOptions.plainText)
+    }
+
+
+    ///
+    ///
+    private var aztecAttributedString: NSAttributedString? {
+        guard let data = data(forPasteboardType: NSAttributedString.pastesboardUTI) else {
+            return nil
+        }
+
+        return NSAttributedString.unarchive(with: data)
+    }
+
+
+//        let fullRange = stripped.rangeOfEntireString
+//        stripped.removeAttribute(NSFontAttributeName, range: fullRange)
+//        stripped.removeAttribute(NSStrikethroughStyleAttributeName, range: fullRange)
+//        stripped.removeAttribute(NSUnderlineStyleAttributeName, range: fullRange)
 }

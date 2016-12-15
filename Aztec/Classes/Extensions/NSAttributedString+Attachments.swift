@@ -6,6 +6,20 @@ import UIKit
 //
 extension NSAttributedString
 {
+    ///
+    ///
+    func loadLazyAttachments() {
+        enumerateAttachmentsOfType(NSTextAttachment.self) { (attachment, _, _) in
+            guard let data = attachment.fileWrapper?.regularFileContents else {
+                return
+            }
+
+            let image = UIImage(data: data)
+            attachment.fileWrapper = nil
+            attachment.image = image
+        }
+    }
+
     /// Enumerates all of the available NSTextAttachment's of the specified kind, in a given range.
     /// For each one of those elements, the specified block will be called.
     ///
@@ -29,8 +43,7 @@ extension NSAttributedString
     ///
     /// - returns: an array of ranges where the attachement can be found
     ///
-    public func ranges(forAttachment attachment: NSTextAttachment) -> [NSRange]
-    {
+    public func ranges(forAttachment attachment: NSTextAttachment) -> [NSRange] {
         let range = NSRange(location: 0, length: length)
         var attachmentRanges = [NSRange]()
         enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (value, effectiveRange, nil) in
