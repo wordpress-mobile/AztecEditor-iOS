@@ -633,11 +633,11 @@ extension Libxml2 {
             for range in ranges {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
                 
-                if element.name == "img" {
+                if element.name == StandardElementType.img.rawValue {
                     let classAttributes = alignment.htmlString() + " " + size.htmlString()
                     element.updateAttribute(named: "class", value: classAttributes, undoManager: domUndoManager)
                     
-                    if element.name == "img" {
+                    if element.name == StandardElementType.img.rawValue {
                         element.updateAttribute(named: "src", value: url.absoluteString, undoManager: domUndoManager)
                     }
                 }
