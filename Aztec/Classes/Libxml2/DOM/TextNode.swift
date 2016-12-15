@@ -41,15 +41,15 @@ extension Libxml2 {
                 fatalError("The specified range is out of bounds.")
             }
 
-            if let undoManager = undoManager, let range = contents.rangeFromNSRange(range) {
-                recordUndoForDeleteCharacters(inRange: range, undoManager: undoManager)
+            if let undoManager = undoManager {
+                recordUndoForDeleteCharacters(inRange: textRange, undoManager: undoManager)
             }
             
             contents.removeSubrange(textRange)
         }
 
         private func recordUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>, undoManager: UndoManager) {
-            let originalText = self.contents.substring(with: range)
+            let originalText = contents.substring(with: range)
             let index = range.lowerBound
             
             undoManager.registerUndo(withTarget: self) { [weak self] target in
