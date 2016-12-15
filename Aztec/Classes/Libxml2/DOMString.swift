@@ -199,7 +199,7 @@ extension Libxml2 {
         ///
         private func startObservingParentUndoManager() {
 
-            NotificationCenter.default.addObserver(forName: NSNotification.Name.NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
+            NotificationCenter.default.addObserver(forName: .NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
                 
                 guard let strongSelf = self else {
                     return
@@ -214,7 +214,7 @@ extension Libxml2 {
                 }
             }
             
-            NotificationCenter.default.addObserver(forName: NSNotification.Name.NSUndoManagerDidOpenUndoGroup, object: parentUndoManager, queue: nil) { [weak self] notification in
+            NotificationCenter.default.addObserver(forName: .NSUndoManagerDidOpenUndoGroup, object: parentUndoManager, queue: nil) { [weak self] notification in
                 
                 guard let strongSelf = self else {
                     return
