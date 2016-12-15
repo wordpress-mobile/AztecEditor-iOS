@@ -10,6 +10,13 @@ extension Libxml2.In {
         typealias RootNode = Libxml2.RootNode
         typealias TextNode = Libxml2.TextNode
         typealias CommentNode = Libxml2.CommentNode
+        typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
+        
+        let registerUndo: UndoRegistrationClosure
+        
+        required init(registerUndo: @escaping UndoRegistrationClosure) {
+            self.registerUndo = registerUndo
+        }
         
         /// Converts a single node (from libxml2) into an HTML.Node.
         ///
@@ -59,12 +66,12 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter()
+                let nodesConverter = NodesConverter(registerUndo: registerUndo)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
             let attributes = createAttributes(fromNode: rawNode)
-            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
+            let node = ElementNode(name: nodeName, attributes: attributes, children: children, registerUndo: registerUndo)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -86,11 +93,11 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter()
+                let nodesConverter = NodesConverter(registerUndo: registerUndo)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
-            let node = RootNode(children: children)
+            let node = RootNode(children: children, registerUndo: registerUndo)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -111,7 +118,7 @@ extension Libxml2.In {
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
             let text = String(cString: rawNode.content)
             let cleanText = text.replacingOccurrences(of: "\n", with: "")
-            let node = TextNode(text: cleanText)
+            let node = TextNode(text: cleanText, registerUndo: registerUndo)
 
             return node
         }
@@ -125,7 +132,7 @@ extension Libxml2.In {
         ///
         fileprivate func createCommentNode(_ rawNode: xmlNode) -> CommentNode {
             let text = String(cString: rawNode.content)
-            let node = CommentNode(text: text)
+            let node = CommentNode(text: text, registerUndo: registerUndo)
 
             return node
         }

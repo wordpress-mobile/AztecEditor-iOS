@@ -7,8 +7,10 @@ extension Libxml2.In {
     ///
     class NodesConverter: SafeCLinkedListToArrayConverter<NodeConverter> {
 
-        required init() {
-            super.init(elementConverter: NodeConverter(), next: { return $0.next })
+        typealias UndoRegistrationClosure = Libxml2.Node.UndoRegistrationClosure
+        
+        required init(registerUndo: @escaping UndoRegistrationClosure) {
+            super.init(elementConverter: NodeConverter(registerUndo: registerUndo), next: { return $0.next })
         }
     }
 }

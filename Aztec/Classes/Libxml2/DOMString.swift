@@ -10,10 +10,19 @@ extension Libxml2 {
     ///
     class DOMString {
         
-        typealias RootNode = Libxml2.RootNode
+        typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
         
-        fileprivate var rootNode: RootNode = {
-            return RootNode(children: [TextNode(text: "")])
+        fileprivate lazy var registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping () -> ()) -> () in
+            self.domUndoManager.registerUndo(withTarget: self, handler: { target in
+                undoTask()
+            })
+        }
+        
+        fileprivate lazy var rootNode: RootNode = {
+            
+            let textNode = TextNode(text: "", registerUndo: self.registerUndo)
+            
+            return RootNode(children: [textNode], registerUndo: self.registerUndo)
         }()
         
         private var parentUndoManager: UndoManager?
@@ -30,9 +39,6 @@ extension Libxml2 {
             }
         }
         
-        private var undoObserver: NSObjectProtocol?
-        private var beginGroupObserver: NSObjectProtocol?
-        
         /// The private undo manager for the DOM.  This needs to be separated from the public undo
         /// manager because it'll be running in a separate dispatch queue, and undo managers "break"
         /// undo groups by run loops.
@@ -41,6 +47,14 @@ extension Libxml2 {
         /// an undo operation.
         ///
         private var domUndoManager = UndoManager()
+        
+        /// Parent undo manager observer for the undo event.
+        ///
+        private var undoObserver: NSObjectProtocol?
+        
+        /// Parent undo manager observer for the beginGroup event.
+        ///
+        private var beginGroupObserver: NSObjectProtocol?
         
         /// The queue that will be used for all DOM interaction operations.
         ///
@@ -66,7 +80,7 @@ extension Libxml2 {
                     return
                 }
                 
-                let converter = Libxml2.Out.HTMLConverter()
+                let converter = Libxml2.Out.HTMLConverter(registerUndo: strongSelf.registerUndo)
                 result = converter.convert(strongSelf.rootNode)
             }
             
@@ -84,7 +98,7 @@ extension Libxml2 {
         ///
         func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, registerUndo: registerUndo)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
             do {
@@ -151,12 +165,12 @@ extension Libxml2 {
         ///             no associated style.
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle, undoManager: domUndoManager)
+            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle)
         }
 
         private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
             
-            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle, undoManager: domUndoManager)
+            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle)
             
             applyStyles(from: attributedString, to: range.location)
         }
@@ -482,7 +496,7 @@ extension Libxml2 {
             let elementDescriptor = ElementNodeDescriptor(elementType: .a,
                                                           attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
             
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: domUndoManager)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
 
         // MARK: Remove Styles
@@ -535,19 +549,19 @@ extension Libxml2 {
         // MARK: - Remove Styles: Synchronously
         
         private func removeBoldSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames, undoManager: domUndoManager)
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames, undoManager: domUndoManager)
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
         }
         
         private func removeStrikethroughSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames, undoManager: domUndoManager)
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
         }
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames, undoManager: domUndoManager)
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
         
         // Apply Styles
@@ -615,7 +629,7 @@ extension Libxml2 {
         fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor, undoManager: domUndoManager)
+            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         
         // MARK: - Candidates for removal
@@ -635,7 +649,7 @@ extension Libxml2 {
         // MARK: - Candidates for removal: Synchronously
         
         private func removeLinkSynchronously(inRange range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: ["a"], undoManager: domUndoManager)
+            rootNode.unwrap(range: range, fromElementsNamed: ["a"])
         }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
@@ -645,10 +659,10 @@ extension Libxml2 {
                 
                 if element.name == StandardElementType.img.rawValue {
                     let classAttributes = alignment.htmlString() + " " + size.htmlString()
-                    element.updateAttribute(named: "class", value: classAttributes, undoManager: domUndoManager)
+                    element.updateAttribute(named: "class", value: classAttributes)
                     
                     if element.name == StandardElementType.img.rawValue {
-                        element.updateAttribute(named: "src", value: url.absoluteString, undoManager: domUndoManager)
+                        element.updateAttribute(named: "src", value: url.absoluteString)
                     }
                 }
             }
