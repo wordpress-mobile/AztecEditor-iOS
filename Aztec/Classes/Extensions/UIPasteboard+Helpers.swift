@@ -5,30 +5,12 @@ import UIKit
 
 // MARK: - Pasteboard Helpers
 //
-extension UIPasteboard
-{
-    ///
-    ///
-    private struct StringOptions {
-        static let RTFText = [NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType]
-        static let RTFDText = [NSDocumentTypeDocumentAttribute: NSRTFDTextDocumentType]
-        static let plainText = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
-    }
+extension UIPasteboard {
 
-    ///
-    ///
-    private func unarchiveAttributedString(fromPasteboardCFType type: CFString, with options: [String: Any]) -> NSAttributedString? {
-        guard let data = data(forPasteboardType: String(type)) else {
-            return nil
-        }
-
-        return try? NSAttributedString(data: data, options: options, documentAttributes: nil)
-    }
-
-
-    ///
+    /// Attempts to load the Pasteboard's contents into a NSAttributedString Instance, if possible.
     ///
     func loadAttributedString() -> NSAttributedString? {
+
         if let string = aztecAttributedString {
             return string
         }
@@ -47,35 +29,40 @@ extension UIPasteboard
 
         return plainTextAttributedString
     }
+}
 
+
+// MARK: - Pasteboard Private Helpers
+//
+private extension UIPasteboard {
+
+    /// Attempts to unarchive the Pasteboard's RTF contents into an Attributed String
     ///
-    ///
-    private var RTFAttributedString: NSAttributedString? {
+    var RTFAttributedString: NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeRTF, with: StringOptions.RTFText)
     }
 
+    /// Attempts to unarchive the Pasteboard's RTFD contents into an Attributed String
     ///
-    ///
-    private var RTFDAttributedString: NSAttributedString? {
+    var RTFDAttributedString: NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeFlatRTFD, with: StringOptions.RTFDText)
     }
 
+    /// Attempts to unarchive the Pasteboard's Text contents into an Attributed String
     ///
-    ///
-    private var richTextAttributedString: NSAttributedString? {
+    var richTextAttributedString: NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeText, with: StringOptions.RTFText)
     }
 
+    /// Attempts to unarchive the Pasteboard's Plain Text contents into an Attributed String
     ///
-    ///
-    private var plainTextAttributedString: NSAttributedString? {
+    var plainTextAttributedString: NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypePlainText, with: StringOptions.plainText)
     }
 
-
+    /// Attempts to unarchive the Pasteboard's Aztec-Archived String
     ///
-    ///
-    private var aztecAttributedString: NSAttributedString? {
+    var aztecAttributedString: NSAttributedString? {
         guard let data = data(forPasteboardType: NSAttributedString.pastesboardUTI) else {
             return nil
         }
@@ -83,9 +70,29 @@ extension UIPasteboard
         return NSAttributedString.unarchive(with: data)
     }
 
+    // MARK: - Helpers
 
-//        let fullRange = stripped.rangeOfEntireString
-//        stripped.removeAttribute(NSFontAttributeName, range: fullRange)
-//        stripped.removeAttribute(NSStrikethroughStyleAttributeName, range: fullRange)
-//        stripped.removeAttribute(NSUnderlineStyleAttributeName, range: fullRange)
+    /// String Initialization Options
+    ///
+    private struct StringOptions {
+        static let RTFText = [NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType]
+        static let RTFDText = [NSDocumentTypeDocumentAttribute: NSRTFDTextDocumentType]
+        static let plainText = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
+    }
+
+    /// Attempts to unarchive a Pasteboard's Entry into a NSAttributedString Instance.
+    ///
+    /// - Parameters:
+    ///     - type: Pasteboard's Attribute Key
+    ///     - options: Properties to be utilized during the NSAttributedString Initialization.
+    ///
+    /// - Returns: NSAttributed String with the contents of the specified Pasteboard entry, if any.
+    ///
+    private func unarchiveAttributedString(fromPasteboardCFType type: CFString, with options: [String: Any]) -> NSAttributedString? {
+        guard let data = data(forPasteboardType: String(type)) else {
+            return nil
+        }
+
+        return try? NSAttributedString(data: data, options: options, documentAttributes: nil)
+    }
 }
