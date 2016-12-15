@@ -190,6 +190,13 @@ extension Libxml2 {
             }
         }
         
+        /// Make our private undo manager start observing the parent undo manager.  This means
+        /// our private undo manager will basically be connected to the parent one to know when
+        /// to begin new undo groups, and perform undo operations.
+        ///
+        /// Redo operations don't need to be connected, as they can be executed completely through
+        /// the parent undo manager (and normal edits to the DOM).
+        ///
         private func startObservingParentUndoManager() {
 
             NotificationCenter.default.addObserver(forName: NSNotification.Name.NSUndoManagerDidUndoChange, object: parentUndoManager, queue: nil) { [weak self] notification in
@@ -223,6 +230,8 @@ extension Libxml2 {
             }
         }
         
+        /// Make our private undo manager stop observing the parent undo manager.
+        ///
         private func stopObservingParentUndoManager() {
             NotificationCenter.default.removeObserver(self)
         }
