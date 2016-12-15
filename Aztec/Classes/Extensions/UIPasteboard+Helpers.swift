@@ -15,11 +15,11 @@ extension UIPasteboard {
             return string
         }
 
-        if let string = RTFAttributedString {
+        if let string = RTFDAttributedString {
             return string
         }
 
-        if let string = RTFDAttributedString {
+        if let string = RTFAttributedString {
             return string
         }
 
