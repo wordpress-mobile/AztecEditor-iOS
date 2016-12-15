@@ -42,12 +42,11 @@ extension Libxml2 {
             }
 
             registerUndoForDeleteCharacters(inRange: textRange)
-            
             contents.removeSubrange(textRange)
         }
 
         private func registerUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>) {
-            let originalText = self.contents.substring(with: range)
+            let originalText = contents.substring(with: range)
             let index = range.lowerBound
             
             registerUndo { [weak self] in
