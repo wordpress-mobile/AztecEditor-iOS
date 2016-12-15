@@ -10,6 +10,7 @@ protocol EditableNode {
     ///     - string: the new string to replace the original text with.
     ///     - inheritStyle: If `true` the new string will inherit the style information from the first position in
     ///             the specified range.  If `false`, the new sting will have no associated style.
+    ///     - undoManager: the undo manager for the operation.
     ///
     func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: UndoManager?)
 
@@ -18,8 +19,17 @@ protocol EditableNode {
     ///
     /// - Parameters:
     ///     - location: the text location to split the node at.
+    ///     - undoManager: the undo manager for the operation.
     ///
     func split(atLocation location: Int, undoManager: UndoManager?)
+    
+    /// Should split the node for the specified text range.  The receiver will become the node
+    /// at the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range to use for splitting the node.
+    ///     - undoManager: the undo manager for the operation.
+    ///
     func split(forRange range: NSRange, undoManager: UndoManager?)
     func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor, undoManager: UndoManager?)
 }
