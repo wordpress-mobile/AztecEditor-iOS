@@ -26,7 +26,7 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: {})
 
             let nodeText = "Hello"
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"

@@ -19,7 +19,7 @@ class TextNodeTests: XCTestCase {
         let text1 = "Hello"
         let text2 = " World!"
 
-        let textNode = TextNode(text: "\(text1)\(text2)")
+        let textNode = TextNode(text: "\(text1)\(text2)", registerUndo: {})
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
         let splitLocation = text1.characters.count

@@ -11,7 +11,8 @@ extension Libxml2 {
         
         // MARK: - Properties: Undo Support
         
-        typealias UndoRegistrationClosure = (_ undoTask: @escaping () -> ()) -> ()
+        typealias UndoClosure = () -> ()
+        typealias UndoRegistrationClosure = (_ undoTask: @escaping UndoClosure) -> ()
         
         let registerUndo: UndoRegistrationClosure
         

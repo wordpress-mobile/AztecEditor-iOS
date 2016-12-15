@@ -20,7 +20,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testSimpleHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = Libxml2.In.HTMLConverter(registerUndo: {})
 
         let html = "<bold>Hello!</bold>"
 

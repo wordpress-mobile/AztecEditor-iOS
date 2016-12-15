@@ -25,9 +25,9 @@ class ElementNodeTests: XCTestCase {
     /// returns the element node, as expected.
     ///
     func testThatLowestElementNodeWrappingRangeWorksWithASingleElementNode() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: {})
+        let text2 = TextNode(text: "text2 goes here", registerUndo: {})
+        let text3 = TextNode(text: "text3 goes here", registerUndo: {})
 
         let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
         let range = NSRange(location: text1.length(), length: text2.length())
@@ -40,9 +40,9 @@ class ElementNodeTests: XCTestCase {
     /// Whenever the range is inside a child node, make sure that child node is returned.
     ///
     func testThatLowestElementNodeWrappingRangeWorksWithAChildNode1() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: {})
+        let text2 = TextNode(text: "text2 goes here", registerUndo: {})
+        let text3 = TextNode(text: "text3 goes here", registerUndo: {})
 
         let childNode = ElementNode(name: "em", attributes: [], children: [text2])
 

@@ -31,7 +31,7 @@ class InNodeConverterTests: XCTestCase {
             return
         }
         
-        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
+        let outNode = Libxml2.In.NodeConverter(registerUndo: {}).convert(node.pointee)
         xmlFreeNode(node)
 
         guard let elementNode = outNode as? ElementNode else {
