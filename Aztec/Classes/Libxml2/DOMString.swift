@@ -34,8 +34,8 @@ extension Libxml2 {
         /// manager because it'll be running in a separate dispatch queue, and undo managers "break"
         /// undo groups by run loops.
         ///
-        /// Whenever necessary we'll just register an undo step in the public undo manager that
-        /// triggers a call to undo an operation in the private manager.
+        /// This undo manager will respond to events in `parentUndoManager` to know when to execute
+        /// an undo operation.
         ///
         private var domUndoManager = UndoManager()
         
