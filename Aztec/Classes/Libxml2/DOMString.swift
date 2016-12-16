@@ -12,13 +12,13 @@ extension Libxml2 {
         
         typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
         
-        fileprivate lazy var registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping () -> ()) -> () in
+        private lazy var registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping () -> ()) -> () in
             self.domUndoManager.registerUndo(withTarget: self, handler: { target in
                 undoTask()
             })
         }
         
-        fileprivate lazy var rootNode: RootNode = {
+        private lazy var rootNode: RootNode = {
             
             let textNode = TextNode(text: "", registerUndo: self.registerUndo)
             
@@ -27,7 +27,7 @@ extension Libxml2 {
         
         private var parentUndoManager: UndoManager?
         
-        public var undoManager: UndoManager? {
+        var undoManager: UndoManager? {
             get {
                 return parentUndoManager
             }
@@ -80,7 +80,7 @@ extension Libxml2 {
                     return
                 }
                 
-                let converter = Libxml2.Out.HTMLConverter(registerUndo: strongSelf.registerUndo)
+                let converter = Libxml2.Out.HTMLConverter()
                 result = converter.convert(strongSelf.rootNode)
             }
             

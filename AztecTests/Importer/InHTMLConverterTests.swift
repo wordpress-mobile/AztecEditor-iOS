@@ -20,7 +20,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testSimpleHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter(registerUndo: {})
+        let parser = Libxml2.In.HTMLConverter(registerUndo: { _ in })
 
         let html = "<bold>Hello!</bold>"
 
@@ -49,7 +49,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testComplexHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = Libxml2.In.HTMLConverter(registerUndo: { _ in })
 
         let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
@@ -101,7 +101,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testNonASCIIConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = Libxml2.In.HTMLConverter(registerUndo: { _ in })
 
         let html = "Otro año más"
 

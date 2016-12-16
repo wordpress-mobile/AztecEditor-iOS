@@ -9,10 +9,7 @@ extension Libxml2.Out {
         typealias RootNode = Libxml2.RootNode
         typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
         
-        let registerUndo: UndoRegistrationClosure
-        
-        required init(registerUndo: @escaping UndoRegistrationClosure) {
-            self.registerUndo = registerUndo
+        required init() {
         }
 
         /// Converts the a Libxml2 Node into HTML representing the same data.

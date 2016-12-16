@@ -25,11 +25,11 @@ class ElementNodeTests: XCTestCase {
     /// returns the element node, as expected.
     ///
     func testThatLowestElementNodeWrappingRangeWorksWithASingleElementNode() {
-        let text1 = TextNode(text: "text1 goes here", registerUndo: {})
-        let text2 = TextNode(text: "text2 goes here", registerUndo: {})
-        let text3 = TextNode(text: "text3 goes here", registerUndo: {})
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: text2.length())
 
         let node = mainNode.lowestElementNodeWrapping(range)
@@ -40,13 +40,13 @@ class ElementNodeTests: XCTestCase {
     /// Whenever the range is inside a child node, make sure that child node is returned.
     ///
     func testThatLowestElementNodeWrappingRangeWorksWithAChildNode1() {
-        let text1 = TextNode(text: "text1 goes here", registerUndo: {})
-        let text2 = TextNode(text: "text2 goes here", registerUndo: {})
-        let text3 = TextNode(text: "text3 goes here", registerUndo: {})
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2], registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: text2.length())
 
         let node = mainNode.lowestElementNodeWrapping(range)
@@ -58,13 +58,13 @@ class ElementNodeTests: XCTestCase {
     /// returned instead.
     ///
     func testThatLowestElementNodeWrappingRangeWorksWithAChildNode2() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2], registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length() - 1, length: text2.length() + 2)
 
         let node = mainNode.lowestElementNodeWrapping(range)
@@ -76,11 +76,11 @@ class ElementNodeTests: XCTestCase {
     /// returns the text node, as expected.
     ///
     func testThatLowestTextNodeWrappingRangeWorksWithASingleElementNode() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: text2.length())
 
         let node = mainNode.lowestTextNodeWrapping(range)
@@ -91,13 +91,13 @@ class ElementNodeTests: XCTestCase {
     /// Whenever the range is inside a child node, make sure that child node is returned.
     ///
     func testThatLowestTextNodeWrappingRangeWorksWithAChildNode1() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2], registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: text2.length())
 
         let node = mainNode.lowestTextNodeWrapping(range)
@@ -109,13 +109,13 @@ class ElementNodeTests: XCTestCase {
     /// returned instead.
     ///
     func testThatLowestTextNodeWrappingRangeWorksWithAChildNode2() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let childNode = ElementNode(name: "em", attributes: [], children: [text2])
+        let childNode = ElementNode(name: "em", attributes: [], children: [text2], registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, childNode, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length() - 1, length: text2.length() + 2)
 
         let node = mainNode.lowestTextNodeWrapping(range)
@@ -134,11 +134,11 @@ class ElementNodeTests: XCTestCase {
     ///
     func testEnumerateBlockLowestElementsIntersectingRange() {
 
-        let textNode1 = TextNode(text: "Hello ")
-        let textNode2 = TextNode(text: "world")
-        let textNode3 = TextNode(text: "!")
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        let textNode1 = TextNode(text: "Hello ", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "world", registerUndo: { _ in })
+        let textNode3 = TextNode(text: "!", registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3], registerUndo: { _ in })
 
         let range = NSRange(location: textNode1.length(), length: textNode2.length())
         let atLeastOneElementFound = expectation(description: "At least one elements should be returned in the enumeration.")
@@ -157,11 +157,11 @@ class ElementNodeTests: XCTestCase {
     }
     
     func testLeafNodesWrappingRange1() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here")
-        let text3 = TextNode(text: "text3 goes here")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: 0, length: mainNode.length())
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -177,11 +177,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange2() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: 0, length: mainNode.length() - 2)
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -197,11 +197,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange3() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: 1, length: mainNode.length() - 1)
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -217,11 +217,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange4() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: mainNode.length() - text1.length())
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -235,11 +235,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange5() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: 0, length: (mainNode.length() - 1) - text3.length())
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -253,11 +253,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange6() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length(), length: 0)
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -269,11 +269,11 @@ class ElementNodeTests: XCTestCase {
     }
 
     func testLeafNodesWrappingRange7() {
-        let text1 = TextNode(text: "text1 goes here")
-        let text2 = TextNode(text: "text2 goes here.")
-        let text3 = TextNode(text: "text3 goes here..")
+        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
         let range = NSRange(location: text1.length() - 1, length: 0)
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
@@ -298,9 +298,9 @@ class ElementNodeTests: XCTestCase {
         let text1 = "Hello"
         let text2 = " World!"
         
-        let textNode = TextNode(text: "\(text1)\(text2)")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        let textNode = TextNode(text: "\(text1)\(text2)", registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph], registerUndo: { _ in })
         
         let splitLocation = text1.characters.count
         
@@ -331,9 +331,9 @@ class ElementNodeTests: XCTestCase {
     func testSplitAtLocation2() {
         
         let text = "Hello World!"
-        let textNode = TextNode(text: text)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        let textNode = TextNode(text: text, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph], registerUndo: { _ in })
         
         let splitLocation = 0
         
@@ -358,9 +358,9 @@ class ElementNodeTests: XCTestCase {
     func testSplitAtLocation3() {
         
         let text = "Hello World!"
-        let textNode = TextNode(text: text)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        let textNode = TextNode(text: text, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph], registerUndo: { _ in })
         
         let splitLocation = text.characters.count
         
@@ -375,9 +375,9 @@ class ElementNodeTests: XCTestCase {
 
     func testSplitWithFullRange() {
 
-        let textNode = TextNode(text: "Some text goes here")
-        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [elemNode])
+        let textNode = TextNode(text: "Some text goes here", registerUndo: { _ in })
+        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode], registerUndo: { _ in })
+        let rootNode = RootNode(children: [elemNode], registerUndo: { _ in })
 
         let splitRange = NSRange(location: 0, length: textNode.length())
 
@@ -397,9 +397,9 @@ class ElementNodeTests: XCTestCase {
         let textPart2 = " text goes here"
         let fullText = "\(textPart1)\(textPart2)"
 
-        let textNode = TextNode(text: fullText)
-        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [elemNode])
+        let textNode = TextNode(text: fullText, registerUndo: { _ in })
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode], registerUndo: { _ in })
+        let rootNode = RootNode(children: [elemNode], registerUndo: { _ in })
 
         let splitRange = NSRange(location: 0, length: textPart1.characters.count)
 
@@ -444,9 +444,9 @@ class ElementNodeTests: XCTestCase {
         let textPart2 = " text goes here"
         let fullText = "\(textPart1)\(textPart2)"
 
-        let textNode = TextNode(text: fullText)
-        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [elemNode])
+        let textNode = TextNode(text: fullText, registerUndo: { _ in })
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode], registerUndo: { _ in })
+        let rootNode = RootNode(children: [elemNode], registerUndo: { _ in })
 
         let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
 
@@ -493,9 +493,9 @@ class ElementNodeTests: XCTestCase {
         let textPart3 = "here"
         let fullText = "\(textPart1)\(textPart2)\(textPart3)"
 
-        let textNode = TextNode(text: fullText)
-        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [elemNode])
+        let textNode = TextNode(text: fullText, registerUndo: { _ in })
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode], registerUndo: { _ in })
+        let rootNode = RootNode(children: [elemNode], registerUndo: { _ in })
 
         let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
 
@@ -558,11 +558,11 @@ class ElementNodeTests: XCTestCase {
         let textPart1 = "Hello "
         let textPart2 = "there"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
 
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2])
-        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph], registerUndo: { _ in })
 
         let results = div.lowestBlockLevelElements(intersectingRange: div.range())
 
@@ -589,12 +589,12 @@ class ElementNodeTests: XCTestCase {
         let textPart2 = "there"
         let textPart3 = " man!"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
-        let textNode3 = TextNode(text: textPart3)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
+        let textNode3 = TextNode(text: textPart3, registerUndo: { _ in })
 
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2])
-        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph, textNode3])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [textNode1, paragraph, textNode3], registerUndo: { _ in })
 
         let results = div.lowestBlockLevelElements(intersectingRange: div.range())
 
@@ -624,11 +624,11 @@ class ElementNodeTests: XCTestCase {
         let textPart1 = "Hello "
         let textPart2 = "there!"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
 
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1])
-        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph, textNode2], registerUndo: { _ in })
 
         let results = div.lowestBlockLevelElements(intersectingRange: div.range())
 
@@ -652,8 +652,8 @@ class ElementNodeTests: XCTestCase {
         let text1 = "Hello"
         let text2 = " there!"
         let fullText = "\(text1)\(text2)"
-        let textNode = TextNode(text: fullText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let textNode = TextNode(text: fullText, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
         
         let wrapRange = NSRange(location: 0, length: text1.characters.count)
         
@@ -686,8 +686,8 @@ class ElementNodeTests: XCTestCase {
     ///
     func testForceWrapChildren2() {
         let fullText = "Hello there!"
-        let textNode = TextNode(text: fullText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let textNode = TextNode(text: fullText, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
         
         let wrapRange = NSRange(location: 0, length: fullText.characters.count)
         
@@ -714,10 +714,10 @@ class ElementNodeTests: XCTestCase {
     func testForceWrapChildren3() {
         let text1 = "Hello"
         let text2 = " there!"
-        let textNode1 = TextNode(text: text1)
-        let textNode2 = TextNode(text: text2)
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode, textNode2])
+        let textNode1 = TextNode(text: text1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: text2, registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode, textNode2], registerUndo: { _ in })
 
         let wrapRange = NSRange(location: text1.characters.count, length: text2.characters.count)
         
@@ -750,11 +750,11 @@ class ElementNodeTests: XCTestCase {
         let textPart1 = "Hello "
         let textPart2 = "there!"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
 
-        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
-        let div = ElementNode(name: "div", attributes: [], children: [em, textNode2])
+        let em = ElementNode(name: "em", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [em, textNode2], registerUndo: { _ in })
 
         div.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(elementType: boldElementType))
 
@@ -792,12 +792,12 @@ class ElementNodeTests: XCTestCase {
         let textPart1 = "Hello "
         let textPart2 = "there!"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
 
-        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
-        let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
-        let div = ElementNode(name: "div", attributes: [], children: [em, underline])
+        let em = ElementNode(name: "em", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let underline = ElementNode(name: "u", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [em, underline], registerUndo: { _ in })
 
         div.wrapChildren(intersectingRange: div.range(), inElement: ElementNodeDescriptor(name: boldNodeName))
 
@@ -835,12 +835,12 @@ class ElementNodeTests: XCTestCase {
         let textPart1 = "Hello "
         let textPart2 = "there!"
 
-        let textNode1 = TextNode(text: textPart1)
-        let textNode2 = TextNode(text: textPart2)
+        let textNode1 = TextNode(text: textPart1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: textPart2, registerUndo: { _ in })
 
-        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
-        let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
-        let div = ElementNode(name: "div", attributes: [], children: [em, underline])
+        let em = ElementNode(name: "em", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let underline = ElementNode(name: "u", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [em, underline], registerUndo: { _ in })
 
         let range = NSRange(location: 2, length: 8)
 
@@ -879,9 +879,9 @@ class ElementNodeTests: XCTestCase {
     ///     - The output should match the input.
     ///
     func testWrapChildrenIntersectingRangeWithEquivalentNodeNames1() {
-        let textNode = TextNode(text: "Hello there")
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode])
-        let divNode = ElementNode(name: "div", attributes: [], children: [boldNode])
+        let textNode = TextNode(text: "Hello there", registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode], registerUndo: { _ in })
+        let divNode = ElementNode(name: "div", attributes: [], children: [boldNode], registerUndo: { _ in })
         
         let range = NSRange(location: 0, length: 11)
         
@@ -911,13 +911,13 @@ class ElementNodeTests: XCTestCase {
     ///     - the range should be unchanged
     ///
     func testChildNodesIntersectingRange1() {
-        let textNode = TextNode(text: "This is a test string.")
+        let textNode = TextNode(text: "This is a test string.", registerUndo: { _ in })
         let rangeLocation = 5
         XCTAssert(rangeLocation < textNode.length(),
                   "For this text we need to make sure the range location is inside the test node.")
 
         let range = NSRange(location: rangeLocation, length: 0)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
 
         let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
 
@@ -941,13 +941,13 @@ class ElementNodeTests: XCTestCase {
     ///     - the range should be unchanged
     ///
     func testChildNodesIntersectingRange2() {
-        let textNode = TextNode(text: "This is a test string.")
+        let textNode = TextNode(text: "This is a test string.", registerUndo: { _ in })
         let rangeLocation = 0
         XCTAssert(rangeLocation < textNode.length(),
                   "For this text we need to make sure the range location is inside the test node.")
 
         let range = NSRange(location: rangeLocation, length: 0)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
 
         let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
 
@@ -972,8 +972,8 @@ class ElementNodeTests: XCTestCase {
     ///
     func testChildNodesIntersectingRange3() {
 
-        let textNode1 = TextNode(text: "Hello")
-        let textNode2 = TextNode(text: "Hello again!")
+        let textNode1 = TextNode(text: "Hello", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello again!", registerUndo: { _ in })
 
         let rangeLocation = 5
         XCTAssert(rangeLocation == textNode1.length(),
@@ -981,9 +981,9 @@ class ElementNodeTests: XCTestCase {
 
         let range = NSRange(location: rangeLocation, length: 0)
 
-        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
+        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2], registerUndo: { _ in })
 
         let childrenAndRanges = paragraph.childNodes(intersectingRange: range, preferLeftNode: true)
 
@@ -1008,8 +1008,8 @@ class ElementNodeTests: XCTestCase {
     ///
     func testChildNodesIntersectingRange4() {
 
-        let textNode1 = TextNode(text: "Hello")
-        let textNode2 = TextNode(text: "Hello again!")
+        let textNode1 = TextNode(text: "Hello", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello again!", registerUndo: { _ in })
 
         let rangeLocation = 5
         XCTAssert(rangeLocation == textNode1.length(),
@@ -1017,9 +1017,9 @@ class ElementNodeTests: XCTestCase {
 
         let range = NSRange(location: rangeLocation, length: 0)
 
-        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
+        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2], registerUndo: { _ in })
 
         let childrenAndRanges = paragraph.childNodes(intersectingRange: range, preferLeftNode: false)
 
@@ -1042,11 +1042,11 @@ class ElementNodeTests: XCTestCase {
     ///     - Output should be: <p>---<b>Hello1</b><b>Hello2</b></p>
     ///
     func testInsertStringAt1() {
-        let textNode1 = TextNode(text: "Hello1")
-        let textNode2 = TextNode(text: "Hello2")
-        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        let textNode1 = TextNode(text: "Hello1", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1073,11 +1073,11 @@ class ElementNodeTests: XCTestCase {
     ///     - Output should be: <p><b>Hello1</b>---<b>Hello2</b></p>
     ///
     func testInsertStringAt2() {
-        let textNode1 = TextNode(text: "Hello1")
-        let textNode2 = TextNode(text: "Hello2")
-        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        let textNode1 = TextNode(text: "Hello1", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1104,11 +1104,11 @@ class ElementNodeTests: XCTestCase {
     ///     - Output should be: <p><b>Hello1</b><b>Hello2</b>---</p>
     ///
     func testInsertStringAt3() {
-        let textNode1 = TextNode(text: "Hello1")
-        let textNode2 = TextNode(text: "Hello2")
-        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2])
+        let textNode1 = TextNode(text: "Hello1", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let boldNode1 = ElementNode(name: "b", attributes: [], children: [textNode1], registerUndo: { _ in })
+        let boldNode2 = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode1, boldNode2], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1139,11 +1139,11 @@ class ElementNodeTests: XCTestCase {
         
         let adjacentText = "Hello1"
         
-        let textNode1 = TextNode(text: adjacentText)
-        let textNode2 = TextNode(text: "Hello2")
-        let textNode3 = TextNode(text: "Hello3")
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        let textNode1 = TextNode(text: adjacentText, registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let textNode3 = TextNode(text: "Hello3", registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1174,11 +1174,11 @@ class ElementNodeTests: XCTestCase {
         
         let adjacentText = "Hello1"
         
-        let textNode1 = TextNode(text: adjacentText)
-        let textNode2 = TextNode(text: "Hello2")
-        let textNode3 = TextNode(text: "Hello3")
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        let textNode1 = TextNode(text: adjacentText, registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let textNode3 = TextNode(text: "Hello3", registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1209,11 +1209,11 @@ class ElementNodeTests: XCTestCase {
         
         let adjacentText = "Hello3"
         
-        let textNode1 = TextNode(text: "Hello1")
-        let textNode2 = TextNode(text: "Hello2")
-        let textNode3 = TextNode(text: adjacentText)
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        let textNode1 = TextNode(text: "Hello1", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let textNode3 = TextNode(text: adjacentText, registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1245,11 +1245,11 @@ class ElementNodeTests: XCTestCase {
         
         let adjacentText = "Hello3"
         
-        let textNode1 = TextNode(text: "Hello1")
-        let textNode2 = TextNode(text: "Hello2")
-        let textNode3 = TextNode(text: adjacentText)
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3])
+        let textNode1 = TextNode(text: "Hello1", registerUndo: { _ in })
+        let textNode2 = TextNode(text: "Hello2", registerUndo: { _ in })
+        let textNode3 = TextNode(text: adjacentText, registerUndo: { _ in })
+        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode1, boldNode, textNode3], registerUndo: { _ in })
         
         let textToInsert = "---"
         
@@ -1277,10 +1277,10 @@ class ElementNodeTests: XCTestCase {
     /// - Output: `<p>Click on this <a href="http://www.wordpress.com">link!</a></p>`
     ///
     func testReplaceCharactersInRangeWithString() {
-        let linkText = TextNode(text: "link")
-        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
-        let preLinkText = TextNode(text: "Click on this ")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
+        let linkText = TextNode(text: "link", registerUndo: { _ in })
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText], registerUndo: { _ in })
+        let preLinkText = TextNode(text: "Click on this ", registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement], registerUndo: { _ in })
         
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
@@ -1313,10 +1313,10 @@ class ElementNodeTests: XCTestCase {
     func testReplaceCharactersInRangeWithString2() {
         let text1 = "Click on this "
         let text2 = "link"
-        let linkText = TextNode(text: text2)
-        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
-        let preLinkText = TextNode(text: text1)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
+        let linkText = TextNode(text: text2, registerUndo: { _ in })
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText], registerUndo: { _ in })
+        let preLinkText = TextNode(text: text1, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement], registerUndo: { _ in })
         
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
@@ -1346,11 +1346,11 @@ class ElementNodeTests: XCTestCase {
     func testReplaceCharactersInRangeWithString3() {
         let text1 = "Click on this "
         let text2 = "link"
-        let linkText = TextNode(text: text2)
-        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
-        let preLinkText = TextNode(text: text1)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
-        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        let linkText = TextNode(text: text2, registerUndo: { _ in })
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText], registerUndo: { _ in })
+        let preLinkText = TextNode(text: text1, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement], registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph], registerUndo: { _ in })
         
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
@@ -1388,8 +1388,8 @@ class ElementNodeTests: XCTestCase {
         let startText = "Look at this photo:"
         let middleText = "image"
         let endText = ".It's amazing"
-        let paragraphText = TextNode(text: startText + middleText + endText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText])
+        let paragraphText = TextNode(text: startText + middleText + endText, registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText], registerUndo: { _ in })
 
         let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
         let imgSrc = "https://httpbin.org/image/jpeg"
@@ -1436,11 +1436,11 @@ class ElementNodeTests: XCTestCase {
     ///
     func testPushUpLeftSideDescendant() {
         
-        let text1 = TextNode(text: "Hello ")
-        let text2 = TextNode(text: "there!")
-        let bold = ElementNode(name: "b", attributes: [], children: [text1])
-        let strike = ElementNode(name: "strike", attributes: [], children: [bold, text2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        let text1 = TextNode(text: "Hello ", registerUndo: { _ in })
+        let text2 = TextNode(text: "there!", registerUndo: { _ in })
+        let bold = ElementNode(name: "b", attributes: [], children: [text1], registerUndo: { _ in })
+        let strike = ElementNode(name: "strike", attributes: [], children: [bold, text2], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike], registerUndo: { _ in })
         
         let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1483,9 +1483,9 @@ class ElementNodeTests: XCTestCase {
     ///
     func testPushUpLeftSideDescendantWithNilResult() {
         
-        let text = TextNode(text: "Hello there!")
-        let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        _ = ElementNode(name: "p", attributes: [], children: [strike])
+        let text = TextNode(text: "Hello there!", registerUndo: { _ in })
+        let strike = ElementNode(name: "strike", attributes: [], children: [text], registerUndo: { _ in })
+        _ = ElementNode(name: "p", attributes: [], children: [strike], registerUndo: { _ in })
         
         let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1506,11 +1506,11 @@ class ElementNodeTests: XCTestCase {
     ///
     func testPushUpRightSideDescendant() {
         
-        let text1 = TextNode(text: "Hello ")
-        let text2 = TextNode(text: "there!")
-        let bold = ElementNode(name: "b", attributes: [], children: [text2])
-        let strike = ElementNode(name: "strike", attributes: [], children: [text1, bold])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [strike])
+        let text1 = TextNode(text: "Hello ", registerUndo: { _ in })
+        let text2 = TextNode(text: "there!", registerUndo: { _ in })
+        let bold = ElementNode(name: "b", attributes: [], children: [text2], registerUndo: { _ in })
+        let strike = ElementNode(name: "strike", attributes: [], children: [text1, bold], registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [strike], registerUndo: { _ in })
         
         let _ = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1552,9 +1552,9 @@ class ElementNodeTests: XCTestCase {
     ///
     func testPushUpRightSideDescendantWithNilResult() {
         
-        let text = TextNode(text: "Hello there!")
-        let strike = ElementNode(name: "strike", attributes: [], children: [text])
-        let _ = ElementNode(name: "p", attributes: [], children: [strike])
+        let text = TextNode(text: "Hello there!", registerUndo: { _ in })
+        let strike = ElementNode(name: "strike", attributes: [], children: [text], registerUndo: { _ in })
+        let _ = ElementNode(name: "p", attributes: [], children: [strike], registerUndo: { _ in })
         
         let result = strike.pushUp(rightSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
@@ -1577,10 +1577,10 @@ class ElementNodeTests: XCTestCase {
     func testInsertNewlineAfterDivShouldNotCrash() {
         let text1 = "This is a paragraph in a div"
         let text2 = "\nThis is some unwrapped text"
-        let divText = TextNode(text: text1)
-        let div = ElementNode(name: "div", attributes: [], children: [divText])
-        let unwrappedText = TextNode(text: text2)
-        let rootNode = RootNode(children: [div, unwrappedText])
+        let divText = TextNode(text: text1, registerUndo: { _ in })
+        let div = ElementNode(name: "div", attributes: [], children: [divText], registerUndo: { _ in })
+        let unwrappedText = TextNode(text: text2, registerUndo: { _ in })
+        let rootNode = RootNode(children: [div, unwrappedText], registerUndo: { _ in })
         let location = text1.characters.count
 
         rootNode.insert("\n", atLocation: location)

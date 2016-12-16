@@ -24,7 +24,7 @@ class OutNodeConverterTests: XCTestCase {
 
         let nodeName = "text"
         let nodeText = "This is the text."
-        let textNode = TextNode(text: nodeText)
+        let textNode = TextNode(text: nodeText, registerUndo: { _ in })
         let xmlNodePtr = Libxml2.Out.NodeConverter().convert(textNode)
         let xmlNode = xmlNodePtr.pointee
 
@@ -46,10 +46,10 @@ class OutNodeConverterTests: XCTestCase {
     func testElementAndChildElementNodeConversion() {
         
         let innerNodeName = "innerNode"
-        let innerNode = ElementNode(name: innerNodeName, attributes: [], children: [])
+        let innerNode = ElementNode(name: innerNodeName, attributes: [], children: [], registerUndo: { _ in })
         
         let outerNodeName = "element"
-        let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])
+        let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode], registerUndo: { _ in })
         
         let xmlOuterNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
         let xmlOuterNode = xmlOuterNodePtr.pointee
@@ -80,10 +80,10 @@ class OutNodeConverterTests: XCTestCase {
     func testElementAndChildTextNodeConversion() {
 
         let innerNodeText = "some text"
-        let innerNode = TextNode(text: innerNodeText)
+        let innerNode = TextNode(text: innerNodeText, registerUndo: { _ in })
 
         let outerNodeName = "element"
-        let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode])
+        let testNode = ElementNode(name: outerNodeName, attributes: [], children: [innerNode], registerUndo: { _ in })
 
         let xmlOuterNodePtr = Libxml2.Out.NodeConverter().convert(testNode)
         let xmlOuterNode = xmlOuterNodePtr.pointee
