@@ -70,7 +70,8 @@
 		F1288BB01DD0B1EF00E67ABC /* HTMLToAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1288BAE1DD0B1EF00E67ABC /* HTMLToAttributedString.swift */; };
 		F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
-		F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */; };
+		F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A218141E02D5B3000AF5EB /* UndoManager.swift */; };
+		F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DOMString.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
@@ -170,7 +171,8 @@
 		F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ElementNodeDescriptor.swift; path = Descriptors/ElementNodeDescriptor.swift; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
-		F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentObjectModel.swift; sourceTree = "<group>"; };
+		F1A218141E02D5B3000AF5EB /* UndoManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
+		F1CF27291DBA8CDB0001C61D /* DOMString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMString.swift; sourceTree = "<group>"; };
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
@@ -281,7 +283,7 @@
 				F15C9B891DD58D8F00833C39 /* Descriptors */,
 				599F25131D8BC9A1002871D6 /* DOM */,
 				599F251A1D8BC9A1002871D6 /* Libxml2.swift */,
-				F1CF27291DBA8CDB0001C61D /* DocumentObjectModel.swift */,
+				F1CF27291DBA8CDB0001C61D /* DOMString.swift */,
 			);
 			path = Libxml2;
 			sourceTree = "<group>";
@@ -353,6 +355,7 @@
 				FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */,
 				B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */,
 				B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */,
+				F1A218141E02D5B3000AF5EB /* UndoManager.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -642,6 +645,7 @@
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,
+				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
@@ -654,7 +658,7 @@
 				599F25431D8BC9A1002871D6 /* Node.swift in Sources */,
 				599F25421D8BC9A1002871D6 /* ElementNode.swift in Sources */,
 				599F253A1D8BC9A1002871D6 /* InNodeConverter.swift in Sources */,
-				F1CF272A1DBA8CDB0001C61D /* DocumentObjectModel.swift in Sources */,
+				F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */,
 				B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,

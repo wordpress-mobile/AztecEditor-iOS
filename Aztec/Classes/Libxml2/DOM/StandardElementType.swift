@@ -77,7 +77,7 @@ extension Libxml2 {
             return implicitRepresentation(forContent: NSAttributedString(string:content), attributes: [:] ).string
         }
 
-        func implicitRepresentation(forContent content: NSAttributedString, attributes:[String:AnyObject]) -> NSAttributedString {
+        func implicitRepresentation(forContent content: NSAttributedString, attributes:[String:Any]) -> NSAttributedString {
 
             let resultString = NSMutableAttributedString(attributedString: content)
             switch self {

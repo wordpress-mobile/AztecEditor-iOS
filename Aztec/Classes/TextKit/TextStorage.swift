@@ -41,7 +41,35 @@ protocol TextStorageAttachmentsDelegate {
 open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    fileprivate let dom = Libxml2.DocumentObjectModel()
+    fileprivate let dom = Libxml2.DOMString()
+    
+    // MARK: - Undo Support
+    
+    public var undoManager: UndoManager? {
+        get {
+            return dom.undoManager
+        }
+        
+        set {
+            dom.undoManager = newValue
+        }
+    }
+    
+    /// Call this method to know if the DOM should be updated, or if the undo manager will take care
+    /// of it.
+    ///
+    /// The undo manager will take care of updating the DOM whenever an undo or redo operation
+    /// is triggered.
+    ///
+    /// - Returns: `true` if the DOM must be updated, or `false` if the undo manager will take care.
+    ///
+    private func mustUpdateDOM() -> Bool {
+        guard let undoManager = undoManager else {
+            return true
+        }
+        
+        return !undoManager.isUndoing
+    }
     
     // MARK: - NSTextStorage
 
@@ -151,8 +179,10 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: str)
 
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
-        
-        dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+
+        if mustUpdateDOM() {
+            dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+        }
         
         endEditing()
     }
@@ -162,14 +192,16 @@ open class TextStorage: NSTextStorage {
         // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
         //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
         //
-        let processedString = NSMutableAttributedString(attributedString:preprocessAttachments(forAttributedString: attrString))
+        let processedString = preprocessAttachments(forAttributedString: attrString)
 
         beginEditing()
 
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-
-        dom.replaceCharacters(inRange: range, withAttributedString: processedString, inheritStyle: false)
+        
+        if mustUpdateDOM() {
+            dom.replaceCharacters(inRange: range, withAttributedString: processedString, inheritStyle: false)
+        }
         
         endEditing()
     }
@@ -183,7 +215,9 @@ open class TextStorage: NSTextStorage {
         textStore.setAttributes(attrs, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
-        dom.setAttributes(attrs, range: range)
+        if mustUpdateDOM() {
+            dom.setAttributes(attrs, range: range)
+        }
         
         endEditing()
     }

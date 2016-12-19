@@ -52,17 +52,20 @@ open class TextView: UITextView {
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
+        
+        self.defaultFont = defaultFont
+        self.defaultMissingImage = defaultMissingImage
+        
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
-        self.defaultFont = defaultFont
-        self.defaultMissingImage = defaultMissingImage
-
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
+        
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
+        storage.undoManager = undoManager
         commonInit()
         setupMenuController()
     }
@@ -167,9 +170,12 @@ open class TextView: UITextView {
 
     open override func caretRect(for position: UITextPosition) -> CGRect {
         let characterIndex = offset(from: beginningOfDocument, to: position)
+        var caretRect = super.caretRect(for: position)
+        guard layoutManager.isValidGlyphIndex(characterIndex) else {
+            return caretRect
+        }
         let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRect(forGlyphAt: glyphIndex, effectiveRange: nil)
-        var caretRect = super.caretRect(for: position)
         if !usedLineFragment.isEmpty {
             caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
             caretRect.size.height = usedLineFragment.size.height

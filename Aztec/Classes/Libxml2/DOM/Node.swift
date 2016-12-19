@@ -129,11 +129,12 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - elementDescriptor: the descriptor for the element to wrap the receiver in.
+        ///     - undoManager: the undo manager for the operation.
         ///
         /// - Returns: the newly created element.
         ///
         @discardableResult
-        func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
+        func wrap(inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)

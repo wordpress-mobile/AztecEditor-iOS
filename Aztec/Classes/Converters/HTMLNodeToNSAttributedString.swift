@@ -45,7 +45,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
 
         if let textNode = node as? TextNode {
             return convertTextNode(textNode, inheritingAttributes: attributes)
@@ -68,7 +68,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -80,7 +80,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -92,7 +92,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
         return stringForNode(node, inheritingAttributes: attributes)
     }
 
@@ -107,7 +107,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> NSAttributedString {
+    fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
 
         let content = NSMutableAttributedString()
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
@@ -138,7 +138,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:AnyObject]) -> [String:AnyObject] {
+    fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> [String:Any] {
 
         var attributes = inheritedAttributes
 
@@ -180,9 +180,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         if isBlockquote(node) {
             let formatter = BlockquoteFormatter()
-            for (key, value) in formatter.attributes {
-                attributes[key] = value
-            }
+            attributes = formatter.apply(toAttributes:attributes)
         }
 
         if isImage(node) {
@@ -212,16 +210,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         if node.isNodeType(.ol) {
             let formatter = TextListFormatter(style: .ordered)
-            for (key, value) in formatter.attributes {
-                attributes[key] = value
-            }
+            attributes = formatter.apply(toAttributes: attributes)
         }
 
         if node.isNodeType(.ul) {
             let formatter = TextListFormatter(style: .unordered)
-            for (key, value) in formatter.attributes {
-                attributes[key] = value
-            }
+            attributes = formatter.apply(toAttributes: attributes)
         }
 
         return attributes

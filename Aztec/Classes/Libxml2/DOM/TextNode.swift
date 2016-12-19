@@ -31,24 +31,41 @@ extension Libxml2 {
 
         // MARK: - EditableNode
         
-        func append(_ string: String) {
+        func append(_ string: String, undoManager: UndoManager? = nil) {
             contents.append(string)
         }
 
-        func deleteCharacters(inRange range: NSRange) {
+        func deleteCharacters(inRange range: NSRange, undoManager: UndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
+            if let undoManager = undoManager {
+                recordUndoForDeleteCharacters(inRange: textRange, undoManager: undoManager)
+            }
+            
             contents.removeSubrange(textRange)
         }
+
+        private func recordUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>, undoManager: UndoManager) {
+            let originalText = contents.substring(with: range)
+            let index = range.lowerBound
+            
+            undoManager.registerUndo(withTarget: self) { [weak self] target in
+                self?.undoDeleteCharacters(atIndex: index, restoring: originalText)
+            }
+        }
         
-        func prepend(_ string: String) {
+        private func undoDeleteCharacters(atIndex index: String.CharacterView.Index, restoring originalText: String) {
+            contents.insert(contentsOf: originalText.characters, at: index)
+        }
+        
+        func prepend(_ string: String, undoManager: UndoManager? = nil) {
             contents = "\(string)\(contents)"
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: UndoManager? = nil) {
 
             guard let textRange = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -57,7 +74,7 @@ extension Libxml2 {
             contents.replaceSubrange(textRange, with: string)
         }
 
-        func split(atLocation location: Int) {
+        func split(atLocation location: Int, undoManager: UndoManager? = nil) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -87,7 +104,7 @@ extension Libxml2 {
             }
         }
         
-        func split(forRange range: NSRange) {
+        func split(forRange range: NSRange, undoManager: UndoManager? = nil) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -106,14 +123,14 @@ extension Libxml2 {
                 let newNode = TextNode(text: contents.substring(with: postRange))
 
                 contents.removeSubrange(postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, undoManager: undoManager)
             }
             
             if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange))
 
                 contents.removeSubrange(preRange)
-                parent.insert(newNode, at: nodeIndex)
+                parent.insert(newNode, at: nodeIndex, undoManager: undoManager)
             }
         }
 
@@ -124,15 +141,15 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
-                wrap(inElement: elementDescriptor)
+                wrap(inElement: elementDescriptor, undoManager: undoManager)
                 return
             }
 
-            split(forRange: targetRange)
-            wrap(inElement: elementDescriptor)
+            split(forRange: targetRange, undoManager: undoManager)
+            wrap(inElement: elementDescriptor, undoManager: undoManager)
         }
         
         // MARK: - LeadNode
