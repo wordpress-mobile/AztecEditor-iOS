@@ -19,8 +19,8 @@ class TextNodeTests: XCTestCase {
         let text1 = "Hello"
         let text2 = " World!"
 
-        let textNode = TextNode(text: "\(text1)\(text2)")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let textNode = TextNode(text: "\(text1)\(text2)", registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
         
         let splitLocation = text1.characters.count
         
@@ -49,8 +49,8 @@ class TextNodeTests: XCTestCase {
     ///     - No splitting should occur, the selected text node should match the whole string.
     ///
     func testSplitAtLocation2() {
-        let textNode = TextNode(text: "Hello World!")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let textNode = TextNode(text: "Hello World!", registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
         
         let splitLocation = 0
         
@@ -69,8 +69,8 @@ class TextNodeTests: XCTestCase {
     ///     - No splitting should occur, the selected text node should match the whole string.
     ///
     func testSplitAtLocation3() {
-        let textNode = TextNode(text: "Hello World!")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let textNode = TextNode(text: "Hello World!", registerUndo: { _ in })
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
         
         let splitLocation = textNode.length()
         

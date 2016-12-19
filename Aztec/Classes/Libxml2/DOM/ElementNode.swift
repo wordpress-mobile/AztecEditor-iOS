@@ -36,11 +36,11 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, attributes: [Attribute], children: [Node]) {
+        init(name: String, attributes: [Attribute], children: [Node], registerUndo: @escaping UndoRegistrationClosure) {
             self.attributes.append(contentsOf: attributes)
             self.children = children
 
-            super.init(name: name)
+            super.init(name: name, registerUndo: registerUndo)
 
             for child in children {
 
@@ -52,8 +52,8 @@ extension Libxml2 {
             }
         }
         
-        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
-            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], registerUndo: @escaping UndoRegistrationClosure) {
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, registerUndo: registerUndo)
         }
         
         // MARK: - Node Overrides
@@ -82,7 +82,7 @@ extension Libxml2 {
         /// - parameter attributeName: the name of the attribute
         /// - parameter value:         the value to mark the attribute
         ///
-        func updateAttribute(named attributeName:String, value: String, undoManager: UndoManager?) {
+        func updateAttribute(named attributeName:String, value: String) {
             for attribute in attributes {
                 if let attribute = attribute as? StringAttribute, attribute.name == attributeName {
                     attribute.value = value
@@ -672,7 +672,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ child: Node, undoManager: UndoManager? = nil) {
+        func append(_ child: Node) {
 
             if let parent = child.parent {
                 parent.remove([child])
@@ -687,10 +687,10 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ children: [Node], undoManager: UndoManager? = nil) {
+        func append(_ children: [Node]) {
             
             for child in children {
-                append(child, undoManager: undoManager)
+                append(child)
             }
         }
         
@@ -699,7 +699,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
-        func prepend(_ child: Node, undoManager: UndoManager? = nil) {
+        func prepend(_ child: Node) {
             
             if let parent = child.parent {
                 parent.remove([child])
@@ -714,7 +714,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - children: the nodes to prepend.
         ///
-        func prepend(_ children: [Node], undoManager: UndoManager? = nil) {
+        func prepend(_ children: [Node]) {
             
             for index in stride(from: (children.count - 1), through: 0, by: -1) {
                 prepend(children[index])
@@ -727,7 +727,7 @@ extension Libxml2 {
         ///     - child: the node to insert.
         ///     - index: the position where to insert the node.
         ///
-        func insert(_ child: Node, at index: Int, undoManager: UndoManager? = nil) {
+        func insert(_ child: Node, at index: Int) {
 
             if let parent = child.parent {
                 parent.remove([child])
@@ -743,7 +743,7 @@ extension Libxml2 {
         ///     - child: the node to remove.
         ///     - newChildren: the new child nodes to insert.
         ///
-        func replace(child: Node, with newChildren: [Node], undoManager: UndoManager? = nil) {
+        func replace(child: Node, with newChildren: [Node]) {
             guard let childIndex = children.index(of: child) else {
                 fatalError("This case should not be possible. Review the logic triggering this.")
             }
@@ -817,7 +817,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested nodes.
         ///
-        fileprivate func splitChildren(after splitLocation: Int, undoManager: UndoManager? = nil) -> [Node] {
+        fileprivate func splitChildren(after splitLocation: Int) -> [Node] {
 
             var result = [Node]()
             var childOffset = Int(0)
@@ -833,7 +833,7 @@ extension Libxml2 {
                     let splitLocationInChild = splitLocation - childOffset
                     let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocationInChild)
                     
-                    childEditableNode.split(forRange: splitRange, undoManager: undoManager)
+                    childEditableNode.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -850,7 +850,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested nodes.
         ///
-        fileprivate func splitChildren(before splitLocation: Int, undoManager: UndoManager? = nil) -> [Node] {
+        fileprivate func splitChildren(before splitLocation: Int) -> [Node] {
             
             var result = [Node]()
             var childOffset = Int(0)
@@ -866,7 +866,7 @@ extension Libxml2 {
                     let splitLocationInChild = splitLocation - childOffset
                     let splitRange = NSRange(location: 0, length: splitLocationInChild)
                     
-                    childEditableNode.split(forRange: splitRange, undoManager: undoManager)
+                    childEditableNode.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -892,7 +892,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }, undoManager: UndoManager? = nil) -> T? {
+        fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(leftOf: childIndex), !bail(theSibling) else {
                 return nil
@@ -906,7 +906,7 @@ extension Libxml2 {
                 return nil
             }
             
-            return element.pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail, undoManager: undoManager)
+            return element.pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
         /// Pushes up to the level of the receiver any left-side descendant that evaluates
@@ -921,7 +921,7 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }, undoManager: UndoManager? = nil) -> T? {
+        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
@@ -935,14 +935,14 @@ extension Libxml2 {
                     if let element = node as? ElementNode {
                         
                         let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-                        element.wrap(children: element.children, inElement: parentDescriptor, undoManager: undoManager)
+                        element.wrap(children: element.children, inElement: parentDescriptor)
                     }
                     
                     guard let parentIndex = grandParent.children.index(of: parent) else {
                         fatalError("The grandparent element should contain the parent element.")
                     }
                     
-                    grandParent.insert(node, at: parentIndex, undoManager: undoManager)
+                    grandParent.insert(node, at: parentIndex)
                     
                     if lastSwap {
                         break
@@ -968,7 +968,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }, undoManager: UndoManager? = nil) -> T? {
+        fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(rightOf: childIndex), !bail(theSibling) else {
                     return nil
@@ -982,7 +982,7 @@ extension Libxml2 {
                 return nil
             }
             
-            return element.pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail, undoManager: undoManager)
+            return element.pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
         }
         
         /// Pushes up to the level of the receiver any right-side descendant that evaluates
@@ -997,7 +997,7 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }, undoManager: UndoManager? = nil) -> T? {
+        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
@@ -1011,14 +1011,14 @@ extension Libxml2 {
                     if let element = node as? ElementNode {
                         
                         let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-                        element.wrap(children: element.children, inElement: parentDescriptor, undoManager: undoManager)
+                        element.wrap(children: element.children, inElement: parentDescriptor)
                     }
                     
                     guard let parentIndex = grandParent.children.index(of: parent) else {
                         fatalError("The grandparent element should contain the parent element.")
                     }
                     
-                    grandParent.insert(node, at: parentIndex + 1, undoManager: undoManager)
+                    grandParent.insert(node, at: parentIndex + 1)
                     
                     if lastSwap {
                         break
@@ -1030,7 +1030,7 @@ extension Libxml2 {
 
         // MARK: - EditableNode
 
-        func deleteCharacters(inRange range: NSRange, undoManager: UndoManager? = nil) {
+        func deleteCharacters(inRange range: NSRange) {
             if range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
@@ -1039,7 +1039,7 @@ extension Libxml2 {
                 for (child, intersection) in childrenAndIntersections {
 
                     if let childEditableNode = child as? EditableNode {
-                        childEditableNode.deleteCharacters(inRange: intersection, undoManager: undoManager)
+                        childEditableNode.deleteCharacters(inRange: intersection)
                     } else {
                         remove(child)
                     }
@@ -1058,7 +1058,7 @@ extension Libxml2 {
         ///     - string: the string to insert in a new `TextNode`.
         ///     - index: the index where the next `TextNode` will be inserted.
         ///
-        func insert(_ string: String, at index: Int, undoManager: UndoManager? = nil) {
+        func insert(_ string: String, at index: Int) {
 
             guard index <= children.count else {
                 fatalError("The specified index is outside the range of possible indexes for insertion.")
@@ -1071,13 +1071,13 @@ extension Libxml2 {
             } else if index < children.count, let nextTextNode = children[index] as? TextNode {
                 nextTextNode.prepend(string)
             } else {
-                insert(TextNode(text: string), at: index)
+                insert(TextNode(text: string, registerUndo: registerUndo), at: index)
             }
         }
 
         /// Inserts the specified string at the specified location.
         ///
-        func insert(_ string: String, atLocation location: Int, undoManager: UndoManager? = nil) {
+        func insert(_ string: String, atLocation location: Int) {
 
             let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
             
@@ -1106,7 +1106,7 @@ extension Libxml2 {
                         fatalError("We should never have a non-editable node with a representation that can be split.")
                     }
                     
-                    editableNode.split(atLocation: childIntersection, undoManager: undoManager)
+                    editableNode.split(atLocation: childIntersection)
                 }
                 
                 insertionIndex = childIndex + 1
@@ -1115,7 +1115,7 @@ extension Libxml2 {
             element.insert(string, at: insertionIndex)
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool, undoManager: UndoManager? = nil) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
             
             // When inheriting the style, we can just replace the text from the first child node with our new text.
             //
@@ -1129,9 +1129,9 @@ extension Libxml2 {
                 
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 && replaceTextFromFirstChild {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, inheritStyle: inheritStyle, undoManager: undoManager)
+                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, inheritStyle: inheritStyle)
                     } else {
-                        childEditableNode.deleteCharacters(inRange: intersection, undoManager: undoManager)
+                        childEditableNode.deleteCharacters(inRange: intersection)
                     }
                 } else {
                     remove(child)
@@ -1139,7 +1139,7 @@ extension Libxml2 {
             }
             
             if !inheritStyle && string.characters.count > 0 {
-                insert(string, atLocation: range.location, undoManager: undoManager)
+                insert(string, atLocation: range.location)
             }
         }
 
@@ -1158,7 +1158,7 @@ extension Libxml2 {
             let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
             textNode.split(forRange: localRange)
             
-            let imgNode = ElementNode(descriptor: elementDescriptor)
+            let imgNode = ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
             
             guard let index = textNode.parent?.children.index(of: textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
@@ -1173,7 +1173,7 @@ extension Libxml2 {
             textNodeParent.remove(textNode)
         }
 
-        func split(atLocation location: Int, undoManager: UndoManager? = nil) {
+        func split(atLocation location: Int) {
             var trueLength = length()
             if isBlockLevelElement() {
                 trueLength -= 1
@@ -1195,10 +1195,10 @@ extension Libxml2 {
                     return
             }
             
-            let postNodes = splitChildren(after: location, undoManager: undoManager)
+            let postNodes = splitChildren(after: location)
             
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, registerUndo: registerUndo)
                 
                 parent.insert(newElement, at: nodeIndex + 1)
                 remove(postNodes, updateParent: false)
@@ -1212,7 +1212,7 @@ extension Libxml2 {
         ///     - range: the range to use for splitting this node.  All nodes before and after the specified range will
         ///         be inserted in clones of this node.  All child nodes inside the range will be kept inside this node.
         ///
-        func split(forRange range: NSRange, undoManager: UndoManager? = nil) {
+        func split(forRange range: NSRange) {
 
             guard range.location >= 0 && range.location + range.length <= length() else {
                 assertionFailure("Specified range is out-of-bounds.")
@@ -1225,10 +1225,10 @@ extension Libxml2 {
                     return
             }
 
-            let postNodes = splitChildren(after: range.location + range.length, undoManager: undoManager)
+            let postNodes = splitChildren(after: range.location + range.length)
 
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, registerUndo: registerUndo)
 
                 parent.insert(newElement, at: nodeIndex + 1)
                 remove(postNodes, updateParent: false)
@@ -1237,7 +1237,7 @@ extension Libxml2 {
             let preNodes = splitChildren(before: range.location)
 
             if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
+                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, registerUndo: registerUndo)
 
                 parent.insert(newElement, at: nodeIndex)
                 remove(preNodes, updateParent: false)
@@ -1250,7 +1250,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor, undoManager: UndoManager? = nil) {
+        func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
 
             let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 
@@ -1262,18 +1262,18 @@ extension Libxml2 {
                     let element = elementAndIntersection.element
                     let intersection = elementAndIntersection.intersection
                     
-                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor, undoManager: undoManager)
+                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
-                forceWrap(range: targetRange, inElement: elementDescriptor, undoManager: undoManager)
+                forceWrap(range: targetRange, inElement: elementDescriptor)
             }
         }
 
         // MARK: - Wrapping
 
-        func unwrap(fromElementsNamed elementNames: [String], undoManager: UndoManager? = nil) {
+        func unwrap(fromElementsNamed elementNames: [String]) {
             if elementNames.contains(name) {
-                unwrapChildren(undoManager: undoManager)
+                unwrapChildren()
             }
         }
 
@@ -1288,13 +1288,13 @@ extension Libxml2 {
         ///         modify this to be able to do more complex lookups.  For instance we'll want
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
-        func unwrap(range: NSRange, fromElementsNamed elementNames: [String], undoManager: UndoManager? = nil) {
+        func unwrap(range: NSRange, fromElementsNamed elementNames: [String]) {
             
             guard children.count > 0 else {
                 return
             }
             
-            unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames, undoManager: undoManager)
+            unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames)
 
             if elementNames.contains(name) {
 
@@ -1308,15 +1308,15 @@ extension Libxml2 {
 
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
-                    wrap(range: preRange, inElement: elementDescriptor, undoManager: undoManager)
+                    wrap(range: preRange, inElement: elementDescriptor)
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    wrap(range: postRange, inElement: elementDescriptor, undoManager: undoManager)
+                    wrap(range: postRange, inElement: elementDescriptor)
                 }
 
-                unwrapChildren(undoManager: undoManager)
+                unwrapChildren()
             }
         }
 
@@ -1324,7 +1324,7 @@ extension Libxml2 {
         ///
         func unwrapChildren(undoManager: UndoManager? = nil) {
             if let parent = parent {
-                parent.replace(child: self, with: self.children, undoManager: undoManager)
+                parent.replace(child: self, with: self.children)
             } else {
                 for child in children {
                     child.parent = nil
@@ -1334,7 +1334,7 @@ extension Libxml2 {
             }
         }
 
-        func unwrapChildren(_ children: [Node], fromElementsNamed elementNames: [String], undoManager: UndoManager? = nil) {
+        func unwrapChildren(_ children: [Node], fromElementsNamed elementNames: [String]) {
 
             for child in children {
 
@@ -1342,7 +1342,7 @@ extension Libxml2 {
                     continue
                 }
 
-                childElement.unwrap(fromElementsNamed: elementNames, undoManager: undoManager)
+                childElement.unwrap(fromElementsNamed: elementNames)
             }
         }
 
@@ -1352,7 +1352,7 @@ extension Libxml2 {
         ///     - range: the range we want to unwrap.
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
-        func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String], undoManager: UndoManager? = nil) {
+        func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
             if isBlockLevelElement() && (range.location == self.length() - 1) {
                     return
             }
@@ -1365,7 +1365,7 @@ extension Libxml2 {
                     continue
                 }
 
-                childElement.unwrap(range: range, fromElementsNamed: elementNames, undoManager: undoManager)
+                childElement.unwrap(range: range, fromElementsNamed: elementNames)
             }
         }
 
@@ -1376,7 +1376,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) {
+        func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             
             // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
             // removed.
@@ -1387,7 +1387,7 @@ extension Libxml2 {
                 elementNamesToRemove.append(elementDescriptor.name)
             }
             
-            unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove, undoManager: undoManager)
+            unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
             let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 
@@ -1403,10 +1403,10 @@ extension Libxml2 {
                         continue
                     }
                     
-                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor, undoManager: undoManager)
+                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
                 }
             } else {
-                forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor, undoManager: undoManager)
+                forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
             }
         }
 
@@ -1421,7 +1421,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) {
+        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             
             if NSEqualRanges(targetRange, range()) {
                 
@@ -1431,12 +1431,12 @@ extension Libxml2 {
                 let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
                 
                 if canWrapReceiverInNewNode {
-                    wrap(inElement: elementDescriptor, undoManager: undoManager)
+                    wrap(inElement: elementDescriptor)
                     return
                 }
             }
 
-            forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor, undoManager: undoManager)
+            forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
         }
 
         /// Force wraps child nodes intersecting the specified range inside new elements with the
@@ -1450,7 +1450,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        fileprivate func forceWrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) {
+        fileprivate func forceWrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
                 
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
             assert(childNodesAndRanges.count > 0)
@@ -1459,7 +1459,7 @@ extension Libxml2 {
             let firstChildIntersection = childNodesAndRanges[0].intersection
             
             if let firstEditableChild = firstChild as? EditableNode, !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                firstEditableChild.split(forRange: firstChildIntersection, undoManager: undoManager)
+                firstEditableChild.split(forRange: firstChildIntersection)
             }
             
             if childNodesAndRanges.count > 1 {
@@ -1467,7 +1467,7 @@ extension Libxml2 {
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
                 
                 if let lastEditableChild = lastChild as? EditableNode, !NSEqualRanges(lastChild.range(), lastChildIntersection) {
-                    lastEditableChild.split(forRange: lastChildIntersection, undoManager: undoManager)
+                    lastEditableChild.split(forRange: lastChildIntersection)
                 }
             }
             
@@ -1475,7 +1475,7 @@ extension Libxml2 {
                 return child
             })
             
-            wrap(children: children, inElement: elementDescriptor, undoManager: undoManager)
+            wrap(children: children, inElement: elementDescriptor)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -1488,11 +1488,11 @@ extension Libxml2 {
         /// - Returns: the newly created `ElementNode`.
         ///
         @discardableResult
-        func wrap(children newChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) -> ElementNode {
+        func wrap(children newChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             guard newChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(descriptor: elementDescriptor)
+                return ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
             }
 
             guard let firstNodeIndex = children.index(of: newChildren[0]) else {
@@ -1528,7 +1528,7 @@ extension Libxml2 {
             }
             
             if let sibling = leftSibling {
-                sibling.append(childrenToWrap, undoManager: undoManager)
+                sibling.append(childrenToWrap)
                 childrenToWrap = sibling.children
                 
                 result = sibling
@@ -1541,7 +1541,7 @@ extension Libxml2 {
             if let result = result {
                 return result
             } else {
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap)
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, registerUndo: registerUndo)
                 
                 children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
@@ -1575,8 +1575,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(children: [Node]) {
-            super.init(name: type(of: self).name, attributes: [], children: children)
+        init(children: [Node], registerUndo: @escaping UndoRegistrationClosure) {
+            super.init(name: type(of: self).name, attributes: [], children: children, registerUndo: registerUndo)
         }
     }
 }

@@ -7,6 +7,10 @@ extension Libxml2.Out {
         typealias Node = Libxml2.Node
         typealias ElementNode = Libxml2.ElementNode
         typealias RootNode = Libxml2.RootNode
+        typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
+        
+        required init() {
+        }
 
         /// Converts the a Libxml2 Node into HTML representing the same data.
         ///

@@ -26,7 +26,7 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: { _ in })
 
             let nodeText = "Hello"
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"
@@ -70,7 +70,7 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: { _ in })
 
             let firstText = "Hello "
             let secondText = "world"
@@ -123,7 +123,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: { _ in })
 
             let text = "Hello"
             let html = "<\(tagName.0)><\(tagName.1)>\(text)</\(tagName.1)></\(tagName.0)>"
@@ -181,7 +181,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: { _ in })
 
             let firstText = "Hello "
             let secondText = "world"
@@ -260,7 +260,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold", "italic")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor, registerUndo: { _ in })
 
             let firstText = "Hello "
             let secondText = "world"

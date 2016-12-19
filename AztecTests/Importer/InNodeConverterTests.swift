@@ -31,7 +31,7 @@ class InNodeConverterTests: XCTestCase {
             return
         }
         
-        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
+        let outNode = Libxml2.In.NodeConverter(registerUndo: { _ in }).convert(node.pointee)
         xmlFreeNode(node)
 
         guard let elementNode = outNode as? ElementNode else {
@@ -56,7 +56,8 @@ class InNodeConverterTests: XCTestCase {
             return
         }
         
-        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
+        let converter = Libxml2.In.NodeConverter(registerUndo: { _ in })
+        let outNode = converter.convert(node.pointee)
         xmlFreeNode(node)
 
         guard let textNode = outNode as? TextNode else {
@@ -83,7 +84,8 @@ class InNodeConverterTests: XCTestCase {
 
         xmlAddChild(parentNode, childNode)
 
-        let outParentNode = Libxml2.In.NodeConverter().convert(parentNode.pointee)
+        let converter = Libxml2.In.NodeConverter(registerUndo: { _ in })
+        let outParentNode = converter.convert(parentNode.pointee)
 
         xmlFreeNode(parentNode) // frees all children
 

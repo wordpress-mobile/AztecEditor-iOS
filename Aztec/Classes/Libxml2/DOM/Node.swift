@@ -5,9 +5,16 @@ extension Libxml2 {
     /// Base class for all node types.
     ///
     class Node: Equatable, CustomReflectable {
-
+        
         let name: String
         weak var parent: ElementNode? = nil
+        
+        // MARK: - Properties: Undo Support
+        
+        typealias UndoClosure = () -> ()
+        typealias UndoRegistrationClosure = (_ undoTask: @escaping UndoClosure) -> ()
+        
+        let registerUndo: UndoRegistrationClosure
         
         // MARK: - CustomReflectable
         
@@ -19,13 +26,18 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String) {
+        init(name: String, registerUndo: @escaping UndoRegistrationClosure) {
             self.name = name
+            self.registerUndo = registerUndo
         }
 
         func range() -> NSRange {
             return NSRange(location: 0, length: length())
         }
+        
+        // MARK: - Undo support
+        
+        
 
         // MARK: - Override in Subclasses
 
@@ -129,17 +141,16 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - elementDescriptor: the descriptor for the element to wrap the receiver in.
-        ///     - undoManager: the undo manager for the operation.
         ///
         /// - Returns: the newly created element.
         ///
         @discardableResult
-        func wrap(inElement elementDescriptor: ElementNodeDescriptor, undoManager: UndoManager? = nil) -> ElementNode {
+        func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
 
-            let newNode = ElementNode(descriptor: elementDescriptor)
+            let newNode = ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
