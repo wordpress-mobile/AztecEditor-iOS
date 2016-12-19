@@ -104,23 +104,29 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        let pasteboard  = UIPasteboard.general
-        if let data = pasteboard.value(forPasteboardType: NSAttributedString.pastesboardUTI) as? Data,
-           let aztecString = NSAttributedString.unarchive(with: data) {
-            storage.replaceCharacters(in: selectedRange, with: aztecString)
-        } else {
-            super.paste(sender)
-        }
-    }
-
-    open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let plainString = UIPasteboard.general.string, plainString.isEmpty == false else {
+        guard let string = UIPasteboard.general.loadAttributedString() else {
             super.paste(sender)
             return
         }
 
-        storage.replaceCharacters(in: selectedRange, with: plainString)
+        string.loadLazyAttachments()
+        storage.replaceCharacters(in: selectedRange, with: string)
     }
+
+    open func pasteAndMatchStyle(_ sender: Any?) {
+        guard let string = UIPasteboard.general.loadAttributedString()?.mutableCopy() as? NSMutableAttributedString else {
+            super.paste(sender)
+            return
+        }
+
+
+        let range = string.rangeOfEntireString
+        string.addAttributes(typingAttributes, range: range)
+        string.loadLazyAttachments()
+
+        storage.replaceCharacters(in: selectedRange, with: string)
+    }
+
 
     // MARK: - Intersect keyboard operations
 
