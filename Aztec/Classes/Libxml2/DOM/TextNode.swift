@@ -91,7 +91,7 @@ extension Libxml2 {
             if postRange.lowerBound != postRange.upperBound {
                 let newNode = TextNode(text: text().substring(with: postRange), registerUndo: registerUndo)
                 
-                contents.removeSubrange(postRange)
+                deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
         }
@@ -114,14 +114,14 @@ extension Libxml2 {
             if !postRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: postRange), registerUndo: registerUndo)
 
-                contents.removeSubrange(postRange)
+                deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
             
             if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange), registerUndo: registerUndo)
 
-                contents.removeSubrange(preRange)
+                deleteCharacters(inRange: preRange)
                 parent.insert(newNode, at: nodeIndex)
             }
         }
