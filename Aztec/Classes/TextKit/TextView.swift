@@ -525,6 +525,7 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
+    ///
     private func refreshListAfterInsertionOf(text:String, range:NSRange) {
         //check if new text is part of a list
         guard let textList = storage.textListAttribute(atIndex: range.location) else {
@@ -561,6 +562,7 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
+    ///
     private func refreshListAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
               deletedText.string == "\n" || range.location == 0 else {
@@ -614,8 +616,9 @@ open class TextView: UITextView {
     }
 
 
-    /// Toggles the Blockquote Style, whenever the deleted text is at the Location 0, which is 
-    /// also known as the "Beginning of the text"
+    /// Refresh Lists attributes when text is deleted at the specified range.
+    ///
+    /// - Notes: Toggles the Blockquote Style, whenever the deleted text is at the beginning of the text.
     ///
     /// - Parameters:
     ///   - text: the text being deleted
