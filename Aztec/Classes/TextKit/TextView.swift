@@ -645,7 +645,6 @@ open class TextView: UITextView {
             return
         }
 
-        let formatter = BlockquoteFormatter()
         let afterRange = NSRange(location: range.location + 1, length: 1)
         let beforeRange = NSRange(location: range.location - 1, length: 1)
 
@@ -661,6 +660,7 @@ open class TextView: UITextView {
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
 
         if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
+            let formatter = BlockquoteFormatter()
             formatter.toggleAttribute(inTextView: self, atRange: range)
             if afterRange.endLocation < storage.length {
                 formatter.toggleAttribute(inTextView: self, atRange: afterRange)
