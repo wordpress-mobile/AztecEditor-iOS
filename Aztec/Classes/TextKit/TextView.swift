@@ -645,6 +645,7 @@ open class TextView: UITextView {
             return
         }
 
+        let formatter = BlockquoteFormatter()
         let afterRange = NSRange(location: range.location + 1, length: 1)
         let beforeRange = NSRange(location: range.location - 1, length: 1)
 
