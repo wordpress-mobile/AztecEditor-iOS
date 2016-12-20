@@ -134,8 +134,8 @@ open class TextView: UITextView {
         var insertionRange = selectedRange
         super.insertText(text)
         insertionRange.length = 1
-        refreshListAfterInsertionOf(text: text, range: insertionRange)
-        refreshBlockquoteAfterInsertionOf(text: text, range: insertionRange)
+        refreshListAfterInsertion(of: text, at: insertionRange)
+        refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
     }
 
     open override func deleteBackward() {
@@ -155,8 +155,8 @@ open class TextView: UITextView {
             return
         }
 
-        refreshListAfterDeletionOf(text: deletedString, atRange: deletionRange)
-        refreshBlockquoteAfterDeletionOf(text: deletedString, atRange: deletionRange)
+        refreshListAfterDeletion(of: deletedString, at: deletionRange)
+        refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
     }
 
     // MARK: - UIView Overrides
@@ -526,7 +526,7 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     ///
-    private func refreshListAfterInsertionOf(text:String, range:NSRange) {
+    private func refreshListAfterInsertion(of text: String, at range: NSRange) {
         //check if new text is part of a list
         guard let textList = storage.textListAttribute(atIndex: range.location) else {
             return
@@ -563,7 +563,7 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     ///
-    private func refreshListAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+    private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
               deletedText.string == "\n" || range.location == 0 else {
             return
@@ -624,16 +624,13 @@ open class TextView: UITextView {
     ///   - text: the text being deleted
     ///   - range: the deletion range
     ///
-    private func refreshBlockquoteAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+    private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
         let formatter = BlockquoteFormatter()
-        guard formatter.attribute(inTextView: self, at: range.location),
-            deletedText.string == "\n" || range.location == 0 else {
-                return
+        guard formatter.present(in: textStorage, at: range.location), range.location == 0 else {
+            return
         }
 
-        if (range.location == 0) {
-            formatter.toggleAttribute(inTextView: self, atRange: range)
-        }
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
 
@@ -643,9 +640,8 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     ///
-    private func refreshBlockquoteAfterInsertionOf(text: String, range:NSRange) {
-        let formatter = BlockquoteFormatter()
-        guard formatter.attribute(inTextView: self, at: range.location) else {
+    private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
+        guard formattingAtIndexContainsBlockquote(range.location) else {
             return
         }
 
@@ -664,6 +660,7 @@ open class TextView: UITextView {
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
 
         if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
+            let formatter = BlockquoteFormatter()
             formatter.toggleAttribute(inTextView: self, atRange: range)
             if afterRange.endLocation < storage.length {
                 formatter.toggleAttribute(inTextView: self, atRange: afterRange)
@@ -1052,7 +1049,7 @@ open class TextView: UITextView {
     ///
     open func formattingAtIndexContainsBlockquote(_ index: Int) -> Bool {
         let formatter = BlockquoteFormatter()
-        return formatter.attribute(inTextView: self, at: index)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
