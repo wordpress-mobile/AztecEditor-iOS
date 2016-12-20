@@ -598,7 +598,9 @@ open class TextView: UITextView {
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
+
     // MARK: - Blockquotes
+
 
     /// Adds or removes a blockquote style from the specified range.
     /// Blockquotes are applied to an entire paragrah regardless of the range.
@@ -613,11 +615,14 @@ open class TextView: UITextView {
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
-    /// Refresh Lists attributes when text is deleted in the specified range
+
+    /// Refresh Lists attributes when text is deleted at the specified range.
+    ///
+    /// - Notes: Toggles the Blockquote Style, whenever the deleted text is at the beginning of the text.
     ///
     /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
+    ///   - text: the text being deleted
+    ///   - range: the deletion range
     ///
     private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
         let formatter = BlockquoteFormatter()
@@ -628,7 +633,8 @@ open class TextView: UITextView {
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
-    /// Refresh blockquotes attributes when inserting new text in the specified range
+
+    /// Refresh blockquote attributes when inserting new text at the specified range
     ///
     /// - Parameters:
     ///   - text: the text being added
@@ -682,9 +688,15 @@ open class TextView: UITextView {
         storage.setLink(url, forRange: insertionRange)
     }
 
-    open func removeLink(inRange range:NSRange) {
+
+    /// Removes the link, if any, at the specified range
+    ///
+    /// - Parameter range: range that contains the link to be removed.
+    ///
+    open func removeLink(inRange range: NSRange) {
         storage.removeLink(inRange: range)
     }
+
 
     // MARK: - Embeds
 
@@ -696,6 +708,7 @@ open class TextView: UITextView {
     ///     - position: The character index at which to insert the image.
     ///
     /// - Returns: an id of the attachment that can be used for further calls
+    ///
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
         let imageId = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
@@ -703,9 +716,16 @@ open class TextView: UITextView {
         return imageId
     }
 
+
+    /// Returns the TextAttachment instance with the matching identifier
+    ///
+    /// - Parameter id: Identifier of the text attachment to be retrieved
+    ///
     open func attachment(withId id: String) -> TextAttachment? {
-        return storage.attachment(withId: id);
+        return storage.attachment(withId: id)
     }
+
+
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
@@ -835,7 +855,7 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to inspect
     ///
-    /// - returns: the NSURL if available
+    /// - Returns: the NSURL if available
     ///
     open func linkURL(forRange range: NSRange) -> URL? {
         let index = maxIndex(range.location)
@@ -850,6 +870,13 @@ open class TextView: UITextView {
         return nil
     }
 
+
+    /// Returns the entire range covered by the link to be found in the (potentially partial) specified range.
+    ///
+    /// - Parameter range: The NSRange to inspect
+    ///
+    /// - Returns: The full Range required by the link.
+    ///
     open func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
@@ -1009,11 +1036,7 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsLink(_ index: Int) -> Bool {
-        guard storage.attribute(NSLinkAttributeName, at: index, effectiveRange: nil) != nil else {
-            return false
-        }
-
-        return true
+        return storage.attribute(NSLinkAttributeName, at: index, effectiveRange: nil) != nil
     }
 
     
@@ -1162,6 +1185,7 @@ open class TextView: UITextView {
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 }
+
 
 // MARK: - TextStorageImageProvider
 
