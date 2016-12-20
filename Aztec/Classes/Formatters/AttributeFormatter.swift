@@ -50,13 +50,10 @@ protocol AttributeFormatter {
 extension AttributeFormatter {
     /// Checks if the attribute is present in a text view at the specified index.
     ///
-    func attribute(inTextView textView: UITextView, at index: Int) -> Bool {
-        let string = textView.textStorage
-        let range = applicationRange(forRange: NSRange(location: index, length: 0), inString: string)
-        let attributes = range.length > 0
-            ? string.attributes(at: index, effectiveRange: nil)
-            : textView.typingAttributes
-        return present(inAttributes: attributes as [String : AnyObject])
+    func present(in storage: NSTextStorage, at index: Int) -> Bool {
+        let safeIndex = min(max(index, storage.length - 1), 0)
+        let attributes = storage.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
+        return present(inAttributes: attributes)
     }
 }
 

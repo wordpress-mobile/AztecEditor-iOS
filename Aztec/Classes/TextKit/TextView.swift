@@ -621,14 +621,11 @@ open class TextView: UITextView {
     ///
     private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
         let formatter = BlockquoteFormatter()
-        guard formatter.attribute(inTextView: self, at: range.location),
-            deletedText.string == "\n" || range.location == 0 else {
-                return
+        guard formatter.present(in: textStorage, at: range.location), range.location == 0 else {
+            return
         }
 
-        if (range.location == 0) {
-            formatter.toggleAttribute(inTextView: self, atRange: range)
-        }
+        formatter.toggleAttribute(inTextView: self, atRange: range)
     }
 
     /// Refresh blockquotes attributes when inserting new text in the specified range
@@ -639,7 +636,7 @@ open class TextView: UITextView {
     ///
     private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
         let formatter = BlockquoteFormatter()
-        guard formatter.attribute(inTextView: self, at: range.location) else {
+        guard formatter.present(in: textStorage, at: range.location) else {
             return
         }
 
@@ -1029,7 +1026,7 @@ open class TextView: UITextView {
     ///
     open func formattingAtIndexContainsBlockquote(_ index: Int) -> Bool {
         let formatter = BlockquoteFormatter()
-        return formatter.attribute(inTextView: self, at: index)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
