@@ -18,14 +18,14 @@ protocol AttributeFormatter {
     /// - Parameter attributes: the original attributes to apply to
     /// - Returns: the resulting attributes dictionary
     ///
-    func apply(toAttributes attributes:[String: Any]) -> [String: Any]
+    func apply(toAttributes attributes: [String: Any]) -> [String: Any]
 
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
     /// - Returns: the resulting attributes dictionary
     ///
-    func remove(fromAttributes attributes:[String: Any]) -> [String: Any]
+    func remove(fromAttributes attributes: [String: Any]) -> [String: Any]
 
     /// The range to apply the attributes to.
     ///
