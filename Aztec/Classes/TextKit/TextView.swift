@@ -635,8 +635,7 @@ open class TextView: UITextView {
     ///   - range: the range of the insertion of the new text
     ///
     private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
-        let formatter = BlockquoteFormatter()
-        guard formatter.present(in: textStorage, at: range.location) else {
+        guard formattingAtIndexContainsBlockquote(range.location) else {
             return
         }
 
