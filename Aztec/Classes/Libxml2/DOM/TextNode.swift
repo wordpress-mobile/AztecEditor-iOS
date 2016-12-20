@@ -38,12 +38,17 @@ extension Libxml2 {
 
         func deleteCharacters(inRange range: NSRange) {
 
-            guard let textRange = contents.rangeFromNSRange(range) else {
+            guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
-
-            registerUndoForDeleteCharacters(inRange: textRange)
-            contents.removeSubrange(textRange)
+            
+            deleteCharacters(inRange: range)
+        }
+        
+        func deleteCharacters(inRange range: Range<String.Index>) {
+            
+            registerUndoForDeleteCharacters(inRange: range)
+            contents.removeSubrange(range)
         }
         
         func prepend(_ string: String) {
@@ -53,11 +58,12 @@ extension Libxml2 {
 
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
 
-            guard let textRange = contents.rangeFromNSRange(range) else {
+            guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
-            contents.replaceSubrange(textRange, with: string)
+            registerUndoForReplaceCharacters(in: range, withString: string)
+            contents.replaceSubrange(range, with: string)
         }
 
         func split(atLocation location: Int) {
@@ -159,12 +165,13 @@ extension Libxml2 {
             }
         }
         
-        private func registerUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>) {
-            let originalText = contents.substring(with: range)
-            let index = range.lowerBound
+        private func registerUndoForDeleteCharacters(inRange subrange: Range<String.Index>) {
+            
+            let index = subrange.lowerBound
+            let removedContent = contents.substring(with: subrange).characters
             
             registerUndo { [weak self] in
-                self?.contents.insert(contentsOf: originalText.characters, at: index)
+                self?.contents.insert(contentsOf: removedContent, at: index)
             }
         }
         
@@ -181,14 +188,17 @@ extension Libxml2 {
             }
         }
         
-        private func registerUndoForReplaceCharacters(at index: String.CharacterView.Index, originalString: String, newStringLength: String.IndexDistance) {
+        private func registerUndoForReplaceCharacters(in range: Range<String.Index>, withString string: String) {
+            
+            let index = range.lowerBound
+            let originalString = contents.substring(with: range)
             
             registerUndo { [weak self] in
                 guard let strongSelf = self else {
                     return
                 }
                 
-                let newStringRange = index..<strongSelf.contents.index(index, offsetBy: newStringLength)
+                let newStringRange = index..<strongSelf.contents.index(index, offsetBy: string.characters.count)
                 
                 strongSelf.contents.replaceSubrange(newStringRange, with: originalString)
             }
