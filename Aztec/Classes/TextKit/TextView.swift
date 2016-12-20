@@ -134,8 +134,8 @@ open class TextView: UITextView {
         var insertionRange = selectedRange
         super.insertText(text)
         insertionRange.length = 1
-        refreshListAfterInsertionOf(text: text, range: insertionRange)
-        refreshBlockquoteAfterInsertionOf(text: text, range: insertionRange)
+        refreshListAfterInsertion(of: text, at: insertionRange)
+        refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
     }
 
     open override func deleteBackward() {
@@ -155,8 +155,8 @@ open class TextView: UITextView {
             return
         }
 
-        refreshListAfterDeletionOf(text: deletedString, atRange: deletionRange)
-        refreshBlockquoteAfterDeletionOf(text: deletedString, atRange: deletionRange)
+        refreshListAfterDeletion(of: deletedString, at: deletionRange)
+        refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
     }
 
     // MARK: - UIView Overrides
@@ -525,7 +525,8 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshListAfterInsertionOf(text:String, range:NSRange) {
+    ///
+    private func refreshListAfterInsertion(of text: String, at range: NSRange) {
         //check if new text is part of a list
         guard let textList = storage.textListAttribute(atIndex: range.location) else {
             return
@@ -561,7 +562,8 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
-    private func refreshListAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+    ///
+    private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
               deletedText.string == "\n" || range.location == 0 else {
             return
@@ -617,7 +619,7 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     ///
-    private func refreshBlockquoteAfterDeletionOf(text deletedText: NSAttributedString, atRange range:NSRange) {
+    private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
         let formatter = BlockquoteFormatter()
         guard formatter.attribute(inTextView: self, at: range.location),
             deletedText.string == "\n" || range.location == 0 else {
@@ -635,7 +637,7 @@ open class TextView: UITextView {
     ///   - text: the text being added
     ///   - range: the range of the insertion of the new text
     ///
-    private func refreshBlockquoteAfterInsertionOf(text: String, range:NSRange) {
+    private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
         let formatter = BlockquoteFormatter()
         guard formatter.attribute(inTextView: self, at: range.location) else {
             return
