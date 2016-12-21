@@ -92,9 +92,9 @@ class TextNodeTests: XCTestCase {
     ///     - Text to append: "Hello there!"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello there!."
-    ///     - Make sure that the final text node content (after undoing) is: ""
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello there!."
+    ///     - Check that after undoing the text node edit, its content is: ""
     /// 
     func testThatAppendIsUndoable1() {
         
@@ -124,9 +124,9 @@ class TextNodeTests: XCTestCase {
     ///     - Text to append: " there!."
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello there!."
-    ///     - Make sure that the final text node content (after undoing) is: ""
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello there!."
+    ///     - Check that after undoing the text node edit, its content is: ""
     ///
     func testThatAppendIsUndoable2() {
         let text1 = "Hello"
@@ -158,9 +158,9 @@ class TextNodeTests: XCTestCase {
     ///     - Range: (loc: 0, len: 5)
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: " there!"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: " there!"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatDeleteCharactersIsUndoable1() {
         let text1 = "Hello"
@@ -193,9 +193,9 @@ class TextNodeTests: XCTestCase {
     ///     - Range: (loc: 5, len: 7)
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatDeleteCharactersIsUndoable2() {
         let text1 = "Hello"
@@ -228,9 +228,9 @@ class TextNodeTests: XCTestCase {
     ///     - Text to prepend: "Hello there!"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello there!."
-    ///     - Make sure that the final text node content (after undoing) is: ""
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello there!."
+    ///     - Check that after undoing the text node edit, its content is: ""
     ///
     func testThatPrependIsUndoable1() {
         
@@ -261,9 +261,9 @@ class TextNodeTests: XCTestCase {
     ///     - Text to prepend: "Hello"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello there!."
-    ///     - Make sure that the final text node content (after undoing) is: ""
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello there!."
+    ///     - Check that after undoing the text node edit, its content is: ""
     ///
     func testThatPrependIsUndoable2() {
         let text1 = " there!"
@@ -296,9 +296,9 @@ class TextNodeTests: XCTestCase {
     ///     - New string: "-"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello-there!"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello-there!"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatReplaceCharactersIsUndoable1() {
         let text1 = "Hello"
@@ -337,9 +337,9 @@ class TextNodeTests: XCTestCase {
     ///     - New string: "-"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "- there!"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "- there!"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatReplaceCharactersIsUndoable2() {
         let text1 = "Hello"
@@ -378,9 +378,9 @@ class TextNodeTests: XCTestCase {
     ///     - New string: "-"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "Hello -"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello -"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatReplaceCharactersIsUndoable3() {
         let text1 = "Hello"
@@ -419,9 +419,9 @@ class TextNodeTests: XCTestCase {
     ///     - New string: "-"
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "-"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "-"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatReplaceCharactersIsUndoable4() {
         let text1 = "Hello"
@@ -459,9 +459,9 @@ class TextNodeTests: XCTestCase {
     ///     - New string: ""
     ///
     /// Verifications:
-    ///     - Make sure that the undo event is properly registered.
-    ///     - Make sure that the intermediate text node content is: "-"
-    ///     - Make sure that the final text node content (after undoing) is: "Hello there!"
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: ""
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
     ///
     func testThatReplaceCharactersIsUndoable5() {
         let text1 = "Hello"

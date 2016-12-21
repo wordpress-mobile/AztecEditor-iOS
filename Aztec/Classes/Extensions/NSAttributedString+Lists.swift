@@ -303,7 +303,7 @@ extension NSAttributedString
             }
         }
 
-        // Make sure the ranges are sorted in ascending order
+        // Check the ranges are sorted in ascending order
         return adjustedRanges.sorted {
             $0.location < $1.location
         }
