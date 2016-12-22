@@ -26,23 +26,32 @@ class LayoutManager: NSLayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         //draw blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle,
-                  paragraphStyle.blockquote != nil
-                else {
-                    return
+            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.blockquote != nil else {
+                return
             }
 
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                self.blockquoteBackgroundColor.setFill()
-                context.fill(lineRect)
-                let borderRect = CGRect(origin: lineRect.origin, size: CGSize(width: 2, height: lineRect.height))
-                self.blockquoteBorderColor.setFill()
-                context.fill(borderRect)
+                self.drawBlockquote(in: lineRect, with: context)
+            }
+
+            if range.endLocation == textStorage.rangeOfEntireString.endLocation {
+                let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
+                drawBlockquote(in: extraLineRect, with: context)
             }
         }
+
+    }
+
+    private func drawBlockquote(in rect: CGRect, with context: CGContext) {
+        blockquoteBackgroundColor.setFill()
+        context.fill(rect)
+
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: 2, height: rect.height))
+        blockquoteBorderColor.setFill()
+        context.fill(borderRect)
     }
 
     private func drawLists(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
