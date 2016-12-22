@@ -762,7 +762,7 @@ open class TextView: UITextView {
     ///
     open func attachmentAtPoint(_ point: CGPoint) -> TextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-        guard index <= textStorage.length else {
+        guard index < textStorage.length else {
             return nil
         }
 
