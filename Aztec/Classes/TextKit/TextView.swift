@@ -63,7 +63,7 @@ open class TextView: UITextView {
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
         container.widthTracksTextView = true
-        
+
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         storage.undoManager = undoManager
         commonInit()
@@ -194,22 +194,24 @@ open class TextView: UITextView {
     func rangesOfParagraphsEnclosingRange(_ range: NSRange) -> [NSRange] {
         var paragraphRanges = [NSRange]()
         let string = storage.string as NSString
-        string.enumerateSubstrings(in: NSRange(location: 0, length: string.length),
-                                          options: .byParagraphs,
-                                          using: { (substring, substringRange, enclosingRange, stop) in
-                                            // Stop if necessary.
-                                            if substringRange.location > NSMaxRange(range) {
-                                                stop.pointee = true
-                                                return
-                                            }
 
-                                            // Bail early if the paragraph precedes the start of the selection
-                                            if NSMaxRange(substringRange) < range.location {
-                                                return
-                                            }
+        string.enumerateSubstrings(in: storage.rangeOfEntireString, options: .byParagraphs) {
+            (substring, substringRange, enclosingRange, stop) in
 
-                                            paragraphRanges.append(substringRange)
-        })
+            // Stop if necessary.
+            if substringRange.location > NSMaxRange(range) {
+                stop.pointee = true
+                return
+            }
+
+            // Bail early if the paragraph precedes the start of the selection
+            if NSMaxRange(substringRange) < range.location {
+                return
+            }
+
+            paragraphRanges.append(substringRange)
+        }
+
         return paragraphRanges
     }
 
@@ -494,8 +496,8 @@ open class TextView: UITextView {
     }
 
     fileprivate func restoreMarkedSelection() {
-        var selectionStartRange: NSRange = NSRange(location: max(storage.length, 0), length: 0)
-        var selectionEndRange: NSRange = selectionStartRange
+        var selectionStartRange = NSRange(location: max(storage.length, 0), length: 0)
+        var selectionEndRange = selectionStartRange
         storage.enumerateAttribute(SelectionMarker.start.rawValue,
                                    in: NSRange(location: 0, length: storage.length),
                                    options: []) { (attribute, range, stop) in
@@ -517,6 +519,7 @@ open class TextView: UITextView {
         selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
         self.delegate?.textViewDidChangeSelection?(self)
     }
+
 
     // MARK: - Lists
 
@@ -557,6 +560,7 @@ open class TextView: UITextView {
         }
     }
 
+
     /// Refresh Lists attributes when text is deleted in the specified range
     ///
     /// - Parameters:
@@ -574,10 +578,18 @@ open class TextView: UITextView {
         }
     }
 
+
+    /// Removes the TextList of the specified format, at a given range.
+    ///
+    /// - Parameters:
+    ///     - list: The list to be removed.
+    ///     - range: Range of the list to be removed.
+    ///
     fileprivate func remove(list: TextList, at range: NSRange) {
         let formatter = TextListFormatter(style: list.style)
         formatter.toggleAttribute(inTextView: self, atRange: range)
     }
+
 
     /// Adds or removes a ordered list style from the specified range.
     ///
@@ -823,9 +835,9 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
-
            return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
         }
+
         return false
     }
 
@@ -915,6 +927,7 @@ open class TextView: UITextView {
         if index >= storage.length {
             return storage.length - 1
         }
+
         return index
     }
 
