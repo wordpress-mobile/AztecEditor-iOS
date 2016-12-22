@@ -1130,7 +1130,7 @@ extension Libxml2 {
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 && replaceTextFromFirstChild {
                         childEditableNode.replaceCharacters(inRange: intersection, withString: string, inheritStyle: inheritStyle)
-                    } else {
+                    } else if intersection.length > 0 {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }
                 } else {

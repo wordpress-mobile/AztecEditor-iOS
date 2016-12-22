@@ -32,43 +32,38 @@ extension Libxml2 {
         // MARK: - EditableNode
         
         func append(_ string: String) {
+            registerUndoForAppend(appendedLength: string.characters.count)
             contents.append(string)
         }
 
         func deleteCharacters(inRange range: NSRange) {
 
-            guard let textRange = contents.rangeFromNSRange(range) else {
+            guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
-
-            registerUndoForDeleteCharacters(inRange: textRange)
-            contents.removeSubrange(textRange)
-        }
-
-        private func registerUndoForDeleteCharacters(inRange range: Range<String.CharacterView.Index>) {
-            let originalText = contents.substring(with: range)
-            let index = range.lowerBound
             
-            registerUndo { [weak self] in
-                self?.undoDeleteCharacters(atIndex: index, restoring: originalText)
-            }
+            deleteCharacters(inRange: range)
         }
         
-        private func undoDeleteCharacters(atIndex index: String.CharacterView.Index, restoring originalText: String) {
-            contents.insert(contentsOf: originalText.characters, at: index)
+        func deleteCharacters(inRange range: Range<String.Index>) {
+            
+            registerUndoForDeleteCharacters(inRange: range)
+            contents.removeSubrange(range)
         }
         
         func prepend(_ string: String) {
+            registerUndoForPrepend(prependedLength: string.characters.count)
             contents = "\(string)\(contents)"
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
 
-            guard let textRange = contents.rangeFromNSRange(range) else {
+            guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
             }
 
-            contents.replaceSubrange(textRange, with: string)
+            registerUndoForReplaceCharacters(in: range, withString: string)
+            contents.replaceSubrange(range, with: string)
         }
 
         func split(atLocation location: Int) {
@@ -96,7 +91,7 @@ extension Libxml2 {
             if postRange.lowerBound != postRange.upperBound {
                 let newNode = TextNode(text: text().substring(with: postRange), registerUndo: registerUndo)
                 
-                contents.removeSubrange(postRange)
+                deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
         }
@@ -119,14 +114,14 @@ extension Libxml2 {
             if !postRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: postRange), registerUndo: registerUndo)
 
-                contents.removeSubrange(postRange)
+                deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
             
             if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange), registerUndo: registerUndo)
 
-                contents.removeSubrange(preRange)
+                deleteCharacters(inRange: preRange)
                 parent.insert(newNode, at: nodeIndex)
             }
         }
@@ -153,6 +148,60 @@ extension Libxml2 {
         
         override func text() -> String {
             return contents
+        }
+        
+        // MARK: - Undo support
+        
+        private func registerUndoForAppend(appendedLength: Int) {
+            registerUndo { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                let endIndex = strongSelf.contents.endIndex
+                let range = strongSelf.contents.index(endIndex, offsetBy: -appendedLength)..<endIndex
+                
+                strongSelf.contents.removeSubrange(range)
+            }
+        }
+        
+        private func registerUndoForDeleteCharacters(inRange subrange: Range<String.Index>) {
+            
+            let index = subrange.lowerBound
+            let removedContent = contents.substring(with: subrange).characters
+            
+            registerUndo { [weak self] in
+                self?.contents.insert(contentsOf: removedContent, at: index)
+            }
+        }
+        
+        private func registerUndoForPrepend(prependedLength: Int) {
+            registerUndo { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                let startIndex = strongSelf.contents.startIndex
+                let range = startIndex..<strongSelf.contents.index(startIndex, offsetBy: prependedLength)
+                
+                strongSelf.contents.removeSubrange(range)
+            }
+        }
+        
+        private func registerUndoForReplaceCharacters(in range: Range<String.Index>, withString string: String) {
+            
+            let index = range.lowerBound
+            let originalString = contents.substring(with: range)
+            
+            registerUndo { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                let newStringRange = index..<strongSelf.contents.index(index, offsetBy: string.characters.count)
+                
+                strongSelf.contents.replaceSubrange(newStringRange, with: originalString)
+            }
         }
     }
 }
