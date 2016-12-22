@@ -151,8 +151,9 @@ extension ParagraphAttributeFormatter {
 
         if applicationRange.length == 0 || textView.textStorage.length == 0 {
             insertEmptyAttribute(inString: textView.textStorage, at: applicationRange.location)
-            textView.selectedRange = NSRange(location: applicationRange.location, length: 1)
+            textView.selectedRange = NSRange(location: textView.textStorage.length, length: 0)
         }
+
         toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
     }
 
