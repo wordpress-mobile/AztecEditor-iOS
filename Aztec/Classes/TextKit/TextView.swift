@@ -136,7 +136,7 @@ open class TextView: UITextView {
         insertionRange.length = 1
         refreshListAfterInsertion(of: text, at: insertionRange)
         refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
-        forceRedrawCursor()
+        forceRedrawCursorAfterDelay()
     }
 
     open override func deleteBackward() {
@@ -626,7 +626,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
         formatter.toggleAttribute(inTextView: self, atRange: range)
-        forceRedrawCursor()
+        forceRedrawCursorAfterDelay()
     }
 
 
@@ -682,14 +682,15 @@ open class TextView: UITextView {
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)
             }
+        }
+    }
 
 
-    /// Force the SDK to Redraw the cursor, after the specified delay. This method was meant as a workaround
+    /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
     /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
     ///
-    /// - Parameter delay: Timespan that must elapse before we'll force the Caret to be redrawn.
-    ///
-    private func forceRedrawCursor(after delay: TimeInterval = 0.1) {
+    func forceRedrawCursorAfterDelay() {
+        let delay = 0.1
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
             self.selectedRange = .zero
