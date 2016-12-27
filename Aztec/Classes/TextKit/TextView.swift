@@ -137,7 +137,7 @@ open class TextView: UITextView {
         insertionRange.length = 1
         refreshListAfterInsertion(of: text, at: insertionRange)
         refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
-        forceRedrawCursorIfNeeded(afterInserting: text)
+        forceRedrawCursorIfNeeded(afterEditing: text)
     }
 
     open override func deleteBackward() {
@@ -159,6 +159,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
+        forceRedrawCursorIfNeeded(afterEditing: deletedString.string)
     }
 
     // MARK: - UIView Overrides
@@ -687,10 +688,10 @@ open class TextView: UITextView {
     }
 
 
-    /// Force the SDK to Redraw the cursor, asynchronously, if the newly-inserted text requires it. 
+    /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
     ///
-    func forceRedrawCursorIfNeeded(afterInserting text: String) {
+    func forceRedrawCursorIfNeeded(afterEditing text: String) {
         guard text == "\n" else {
             return
         }
