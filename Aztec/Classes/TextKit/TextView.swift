@@ -707,7 +707,8 @@ open class TextView: UITextView {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
-            self.selectedRange = .zero
+            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            self.selectedRange = updated
             self.selectedRange = pristine
         }
     }
