@@ -1,5 +1,6 @@
 
 import UIKit
+import Foundation
 import Gridicons
 
 public protocol TextViewMediaDelegate: class {
@@ -136,7 +137,7 @@ open class TextView: UITextView {
         insertionRange.length = 1
         refreshListAfterInsertion(of: text, at: insertionRange)
         refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
-        forceRedrawCursorAfterDelay()
+        forceRedrawCursorIfNeeded(afterInserting: text)
     }
 
     open override func deleteBackward() {
@@ -683,6 +684,18 @@ open class TextView: UITextView {
                 selectedRange = NSRange(location: range.location, length: 0)
             }
         }
+    }
+
+
+    /// Force the SDK to Redraw the cursor, asynchronously, if the newly-inserted text requires it. 
+    /// This method was meant as a workaround for Issue #144.
+    ///
+    func forceRedrawCursorIfNeeded(afterInserting text: String) {
+        guard text == "\n" else {
+            return
+        }
+
+        forceRedrawCursorAfterDelay()
     }
 
 
