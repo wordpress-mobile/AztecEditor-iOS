@@ -690,7 +690,7 @@ open class TextView: UITextView {
     /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
     ///
     func forceRedrawCursorAfterDelay() {
-        let delay = 0.1
+        let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
             self.selectedRange = .zero
