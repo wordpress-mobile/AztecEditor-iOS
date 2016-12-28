@@ -119,13 +119,16 @@ extension NSAttributedString
     /// - Parameters:
     ///   - list: The list.
     ///   - location: The location of the item.
+    ///
     /// - Returns: Returns the index within the list.
+    ///
     func itemNumber(in list: TextList, at location: Int) -> Int {
         guard let rangeOfList = range(of:list, at: location) else {
             return NSNotFound
         }
         var numberInList = 1
         let paragraphRanges = self.paragraphRanges(spanningRange: rangeOfList)
+
         for range in paragraphRanges {
             if NSLocationInRange(location, range) {
                 return numberInList
