@@ -77,7 +77,7 @@ private extension LayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         // draw list markers
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.textList != nil else {
+            guard let paragraphStyle = object as? ParagraphStyle, let textList = paragraphStyle.textList else {
                 return
             }
 
@@ -87,9 +87,7 @@ private extension LayoutManager {
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
 
-                guard let textList = textStorage.textListAttribute(atIndex: lineRange.location),
-                    textStorage.isStartOfNewLine(atLocation: lineRange.location) else
-                {
+                guard textStorage.isStartOfNewLine(atLocation: lineRange.location) else {
                     return
                 }
 
