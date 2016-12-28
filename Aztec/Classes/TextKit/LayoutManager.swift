@@ -2,6 +2,9 @@ import Foundation
 import UIKit
 import QuartzCore
 
+
+// MARK: - Aztec Layout Manager
+//
 class LayoutManager: NSLayoutManager {
 
     var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
@@ -13,8 +16,14 @@ class LayoutManager: NSLayoutManager {
         drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
         drawLists(forGlyphRange: glyphsToShow, at: origin)
     }
+}
 
-    private func drawBlockquotes(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+
+// MARK: - Blockquote Helpers
+//
+private extension LayoutManager {
+
+    func drawBlockquotes(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         guard let textStorage = textStorage else {
             return
         }
@@ -53,39 +62,45 @@ class LayoutManager: NSLayoutManager {
         blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }
+}
 
-    private func drawLists(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+
+// MARK: - Lists Helpers
+//
+private extension LayoutManager {
+
+    func drawLists(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         guard let textStorage = textStorage else {
             return
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         // draw list markers
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle,
-                  paragraphStyle.textList != nil
-                else {
-                    return
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.textList != nil else {
+                return
             }
 
             let listGlyphRange = glyphRange(forCharacterRange:range, actualCharacterRange: nil)
 
-            enumerateLineFragments(forGlyphRange:listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+            enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-                guard let textList = textStorage.textListAttribute(atIndex: lineRange.location)
-                    else {
-                        return
+
+                guard let textList = textStorage.textListAttribute(atIndex: lineRange.location),
+                    textStorage.isStartOfNewLine(atLocation: lineRange.location) else
+                {
+                    return
                 }
-                let number = textStorage.itemNumber(in: textList, at: lineRange.location)
-                let isStartOfLine = textStorage.isStartOfNewLine(atLocation: lineRange.location)
-                let attributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
-                if isStartOfLine {
-                    let markerRect = lineRect.offsetBy(dx: paragraphStyle.headIndent - Metrics.defaultIndentation, dy: paragraphStyle.paragraphSpacingBefore)
-                    let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: attributes)
-                    let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: number), attributes:markerAttributes)
-                    markerText.draw(in: markerRect)
-                }
+
+                let paragraphAttributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
+                let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
+
+                let itemNumber = textStorage.itemNumber(in: textList, at: lineRange.location)
+                let markerRect = lineRect.offsetBy(dx: paragraphStyle.headIndent - Metrics.defaultIndentation, dy: paragraphStyle.paragraphSpacingBefore)
+                let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: itemNumber), attributes:markerAttributes)
+
+                markerText.draw(in: markerRect)
             }
         }
     }
