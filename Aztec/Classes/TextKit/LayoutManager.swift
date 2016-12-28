@@ -7,9 +7,17 @@ import QuartzCore
 //
 class LayoutManager: NSLayoutManager {
 
+    /// Blockquote's Left Border Color
+    ///
     var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+
+    /// Blockquote's Background Color
+    ///
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
+
+    /// Draws the background, associated to a given Text Range
+    ///
     override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
 
@@ -23,6 +31,8 @@ class LayoutManager: NSLayoutManager {
 //
 private extension LayoutManager {
 
+    /// Draws a Blockquote associated to a Range + Graphics Origin.
+    ///
     func drawBlockquotes(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         guard let textStorage = textStorage else {
             return
@@ -54,6 +64,8 @@ private extension LayoutManager {
 
     }
 
+    /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
+    ///
     private func drawBlockquote(in rect: CGRect, with context: CGContext) {
         blockquoteBackgroundColor.setFill()
         context.fill(rect)
@@ -69,40 +81,75 @@ private extension LayoutManager {
 //
 private extension LayoutManager {
 
+    /// Draws a TextList associated to a Range + Graphics Origin.
+    ///
     func drawLists(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         guard let textStorage = textStorage else {
             return
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        // draw list markers
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, let textList = paragraphStyle.textList else {
+            guard let paragraphStyle = object as? ParagraphStyle, let list = paragraphStyle.textList else {
                 return
             }
 
             let listGlyphRange = glyphRange(forCharacterRange:range, actualCharacterRange: nil)
 
+            // Draw Paragraph Markers
             enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-
-                guard textStorage.isStartOfNewLine(atLocation: lineRange.location) else {
+                let location = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil).location
+                guard textStorage.isStartOfNewLine(atLocation: location) else {
                     return
                 }
 
-                let paragraphAttributes = textStorage.attributes(at: lineRange.location, effectiveRange: nil)
-                let markerAttributes = self.markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
+                let markerNumber = textStorage.itemNumber(in: list, at: location)
+                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
 
-                let itemNumber = textStorage.itemNumber(in: textList, at: lineRange.location)
-                let markerRect = lineRect.offsetBy(dx: paragraphStyle.headIndent - Metrics.defaultIndentation, dy: paragraphStyle.paragraphSpacingBefore)
-                let markerText = NSAttributedString(string:textList.style.markerText(forItemNumber: itemNumber), attributes:markerAttributes)
-
-                markerText.draw(in: markerRect)
+                self.drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
             }
+
+            // Draw the Last Line's Item
+            guard range.endLocation == textStorage.rangeOfEntireString.endLocation, !extraLineFragmentRect.isEmpty else {
+                return
+            }
+
+            let location = range.endLocation - 1
+            let lineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
+            let markerNumber = textStorage.itemNumber(in: list, at: location) + 1
+
+            drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
         }
     }
 
+
+    /// Draws the specified List Item Number, at a given location.
+    ///
+    /// - Parameters:
+    ///     - number: Marker Number of the item to be drawn
+    ///     - rect: Visible Rect in which the Marker should be rendered
+    ///     - list: Associated TextList
+    ///     - style: ParagraphStyle associated to the list
+    ///     - location: Text Location that should get the marker rendered.
+    ///
+    private func drawItem(number: Int, in rect: CGRect, from list: TextList, using style: ParagraphStyle, at location: Int) {
+        guard let textStorage = textStorage else {
+            return
+        }
+
+        let paragraphAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+        let markerAttributes = markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
+
+        let markerRect = rect.offsetBy(dx: style.headIndent - Metrics.defaultIndentation, dy: style.paragraphSpacingBefore)
+        let markerPlain = list.style.markerText(forItemNumber: number)
+        let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
+
+        markerText.draw(in: markerRect)
+    }
+
+
+    /// Returns the Marker Text Attributes, based on a collection that defines Regular Text Attributes.
+    ///
     private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
         var resultAttributes = attributes
         resultAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
