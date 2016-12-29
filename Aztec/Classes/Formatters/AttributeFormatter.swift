@@ -51,7 +51,7 @@ extension AttributeFormatter {
     /// Checks if the attribute is present in a text view at the specified index.
     ///
     func present(in storage: NSTextStorage, at index: Int) -> Bool {
-        let safeIndex = min(max(index, storage.length - 1), 0)
+        let safeIndex = max(min(index, storage.length - 1), 0)
         let attributes = storage.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
         return present(inAttributes: attributes)
     }
