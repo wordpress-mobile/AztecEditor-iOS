@@ -429,7 +429,7 @@ class TextListFormatterTests: XCTestCase
     }
 
 
-    // Verifies that the `prsent(in: at:)` helper effectively returns true, as needed.
+    // Verifies that the `present(in: at:)` helper effectively returns true, as needed.
     //
     func testPresentInStorageAtIndexReturnsTrueWhenTextListIsEffectivelyThere() {
         let list = NSTextStorage(string: plainText)
