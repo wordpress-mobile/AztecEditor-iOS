@@ -24,6 +24,7 @@ class EditorDemoController: UIViewController {
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.formatter = self
 
+        textView.keyboardDismissMode = .interactive
         textView.inputAccessoryView = toolbar
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
