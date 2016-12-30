@@ -65,6 +65,26 @@ class BlockquoteFormatterTests: XCTestCase {
         formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
         XCTAssertTrue(original.isEqual(to: textView.storage))
     }
+
+    func testPresentInStorageAtIndexReturnsTrueWhenBlockquoteIsEffectivelyThere() {
+        let textView = testTextView
+        let storage = textView.storage
+        let paragraphs = paragraphRanges(inString: storage)
+
+        let formatter = BlockquoteFormatter()
+        let blockquoteRange = paragraphs[1]
+        formatter.toggleAttribute(inText: storage, atRange: blockquoteRange)
+
+        for i in 0..<storage.length {
+            let present = formatter.present(in: storage, at: i)
+
+            if NSLocationInRange(i, blockquoteRange) {
+                XCTAssertTrue(present)
+            } else {
+                XCTAssertFalse(present)
+            }
+        }
+    }
 }
 
 private extension BlockquoteFormatterTests {

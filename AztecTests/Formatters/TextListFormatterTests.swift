@@ -427,6 +427,28 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(list.itemNumber(in: items[0], at: 0) == 1)
         XCTAssert(list.itemNumber(in: items[0], at: 13)  == 2)
     }
+
+
+    // Verifies that the `present(in: at:)` helper effectively returns true, as needed.
+    //
+    func testPresentInStorageAtIndexReturnsTrueWhenTextListIsEffectivelyThere() {
+        let list = NSTextStorage(string: plainText)
+        let plainRanges = plainTextParagraphRanges
+        let unorderedListFormatter = TextListFormatter(style: .unordered)
+
+        let listRange = plainRanges[1]
+        unorderedListFormatter.toggleAttribute(inText: list, atRange: listRange)
+
+        for i in 0..<list.length {
+            let present = unorderedListFormatter.present(in: list, at: i)
+
+            if NSLocationInRange(i, listRange) {
+                XCTAssertTrue(present)
+            } else {
+                XCTAssertFalse(present)
+            }
+        }
+    }
 }
 
 
