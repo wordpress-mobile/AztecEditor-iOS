@@ -1,5 +1,6 @@
 
 import UIKit
+import Foundation
 import Gridicons
 
 public protocol TextViewMediaDelegate: class {
@@ -136,6 +137,7 @@ open class TextView: UITextView {
         insertionRange.length = 1
         refreshListAfterInsertion(of: text, at: insertionRange)
         refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
+        forceRedrawCursorIfNeeded(afterEditing: text)
     }
 
     open override func deleteBackward() {
@@ -157,6 +159,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
+        forceRedrawCursorIfNeeded(afterEditing: deletedString.string)
     }
 
     // MARK: - UIView Overrides
@@ -625,6 +628,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
         formatter.toggleAttribute(inTextView: self, atRange: range)
+        forceRedrawCursorAfterDelay()
     }
 
 
@@ -680,6 +684,32 @@ open class TextView: UITextView {
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)
             }
+        }
+    }
+
+
+    /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
+    /// This method was meant as a workaround for Issue #144.
+    ///
+    func forceRedrawCursorIfNeeded(afterEditing text: String) {
+        guard text == "\n" else {
+            return
+        }
+
+        forceRedrawCursorAfterDelay()
+    }
+
+
+    /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
+    /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
+    ///
+    func forceRedrawCursorAfterDelay() {
+        let delay = 0.05
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            let pristine = self.selectedRange
+            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            self.selectedRange = updated
+            self.selectedRange = pristine
         }
     }
 
