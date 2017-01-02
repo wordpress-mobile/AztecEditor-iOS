@@ -590,7 +590,7 @@ open class TextView: UITextView {
     ///
     fileprivate func remove(list: TextList, at range: NSRange) {
         let formatter = TextListFormatter(style: list.style)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        formatter.toggleAttribute(in: textStorage, at: range)
     }
 
 
@@ -600,7 +600,7 @@ open class TextView: UITextView {
     ///
     open func toggleOrderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        formatter.toggleAttribute(in: textStorage, at: range)
     }
 
 
@@ -610,7 +610,7 @@ open class TextView: UITextView {
     ///
     open func toggleUnorderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .unordered)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        formatter.toggleAttribute(in: textStorage, at: range)
     }
 
 
@@ -627,7 +627,7 @@ open class TextView: UITextView {
     ///
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        formatter.toggleAttribute(in: textStorage, at: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -646,7 +646,7 @@ open class TextView: UITextView {
             return
         }
 
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        formatter.toggleAttribute(in: textStorage, at: range)
     }
 
 
@@ -677,9 +677,9 @@ open class TextView: UITextView {
 
         if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
             let formatter = BlockquoteFormatter()
-            formatter.toggleAttribute(inTextView: self, atRange: range)
+            formatter.toggleAttribute(in: textStorage, at: range)
             if afterRange.endLocation < storage.length {
-                formatter.toggleAttribute(inTextView: self, atRange: afterRange)
+                formatter.toggleAttribute(in: textStorage, at: afterRange)
                 deleteBackward()
             } else {
                 selectedRange = NSRange(location: range.location, length: 0)

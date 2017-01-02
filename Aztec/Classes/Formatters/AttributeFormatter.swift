@@ -35,16 +35,12 @@ protocol AttributeFormatter {
     ///
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange
 
-    /// Toggles an attribute in the specified range of a text view.
-    ///
-    /// If there is existing text to apply the attribute to, the formatter will
-    /// do that. Otherwise, it will toggle the attributes in the text view's
-    /// `typingAttributes` property.
+    /// Toggles an attribute in the specified range of a text storage.
     ///
     /// The application range might be different than the passed range, as
-    /// explained in `applicationRange(forRange:inString:)`
+    /// explained in `applicationRange(for:in:)`
     ///
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange)
+    func toggleAttribute(in text: NSMutableAttributedString, at range: NSRange)
 }
 
 extension AttributeFormatter {
@@ -127,34 +123,12 @@ private extension AttributeFormatter {
 protocol CharacterAttributeFormatter: AttributeFormatter {
 }
 
-extension CharacterAttributeFormatter {
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
-
-        guard applicationRange.length > 0 || textView.textStorage.length > 0 else {
-            return
-        }
-        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
-    }
-}
-
 protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
     func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
-    }
-
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
-
-        if applicationRange.length == 0 || textView.textStorage.length == 0 {
-            insertEmptyAttribute(inString: textView.textStorage, at: applicationRange.location)
-            textView.selectedRange = NSRange(location: textView.textStorage.length, length: 0)
-        }
-
-        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
     }
 
     func toggleAttribute(inText text: NSMutableAttributedString, atRange range: NSRange) {
