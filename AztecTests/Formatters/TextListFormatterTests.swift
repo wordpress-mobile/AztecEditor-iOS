@@ -84,7 +84,7 @@ class TextListFormatterTests: XCTestCase
         let string = NSMutableAttributedString(string: plainText)
 
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(in: string, at: NSRange(location: 0, length: 1))
+        formatter.toggle(in: string, at: NSRange(location: 0, length: 1))
 
         let ranges = paragraphRanges(inString: string)
         let lists = textListAttributes(inString: string, atRanges: ranges)
@@ -113,10 +113,10 @@ class TextListFormatterTests: XCTestCase
         let formatter = TextListFormatter(style: .ordered)
 
         // Toggle the 1st line as an Ordered List
-        formatter.toggleAttribute(in: string, at: NSRange(location: 0, length: 1))
+        formatter.toggle(in: string, at: NSRange(location: 0, length: 1))
 
         // And... undo?
-        formatter.toggleAttribute(in: string, at: NSRange(location: 0, length: 1))
+        formatter.toggle(in: string, at: NSRange(location: 0, length: 1))
 
         let ranges = paragraphRanges(inString: string)
         let lists = textListAttributes(inString: string, atRanges: ranges)
@@ -141,7 +141,7 @@ class TextListFormatterTests: XCTestCase
         let ranges = paragraphRanges(inString: list)
 
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(in: list, at: ranges[0])
+        formatter.toggle(in: list, at: ranges[0])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
 
@@ -174,7 +174,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the first line
         let formatter = TextListFormatter(style: .unordered)
-        formatter.toggleAttribute(in: list, at: ranges[2])
+        formatter.toggle(in: list, at: ranges[2])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
 
@@ -206,7 +206,7 @@ class TextListFormatterTests: XCTestCase
         let ranges = paragraphRanges(inString: list)
 
         let formatter = TextListFormatter(style: .unordered)
-        formatter.toggleAttribute(in: list, at: ranges[0])
+        formatter.toggle(in: list, at: ranges[0])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
 
@@ -234,7 +234,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the first line
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(in: list, at: ranges[0])
+        formatter.toggle(in: list, at: ranges[0])
 
         let lists = textListAttributes(inString: list, atRanges: ranges)
 
@@ -268,7 +268,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the full string's range
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(in: list, at: list.rangeOfEntireString)
+        formatter.toggle(in: list, at: list.rangeOfEntireString)
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
@@ -304,11 +304,11 @@ class TextListFormatterTests: XCTestCase
 
         // Apply the Ordered List style to the last three paragraphs
         for (index, range) in paragraphRanges(inString: string).enumerated() where index >= 2 {
-            formatter.toggleAttribute(in: string, at: range)
+            formatter.toggle(in: string, at: range)
         }
 
         // Now... toggle an Ordered List on the full text
-        formatter.toggleAttribute(in: string, at: string.rangeOfEntireString)
+        formatter.toggle(in: string, at: string.rangeOfEntireString)
 
         // Verify
         let paragraphs = paragraphRanges(inString: string)
@@ -341,10 +341,10 @@ class TextListFormatterTests: XCTestCase
 
         // Line 3 > Unordered List
         let ranges = paragraphRanges(inString: string)
-        unorderedListFormatter.toggleAttribute(in: string, at: ranges[2])
+        unorderedListFormatter.toggle(in: string, at: ranges[2])
 
         // Entire Text > Ordered List
-        orderedListFormatter.toggleAttribute(in: string, at: string.rangeOfEntireString)
+        orderedListFormatter.toggle(in: string, at: string.rangeOfEntireString)
 
         // Verify
         let paragraphs = paragraphRanges(inString: string)
@@ -377,7 +377,7 @@ class TextListFormatterTests: XCTestCase
 
         // Toggle Ordered List on the full string's range
         let formatter = TextListFormatter(style: .unordered)
-        formatter.toggleAttribute(in: list, at: list.rangeOfEntireString)
+        formatter.toggle(in: list, at: list.rangeOfEntireString)
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
@@ -409,7 +409,7 @@ class TextListFormatterTests: XCTestCase
         let length = plainRanges[1].location + plainRanges[1].length
         let range = NSRange(location: 0, length: length)
 
-        unorderedListFormatter.toggleAttribute(in: list, at: range)
+        unorderedListFormatter.toggle(in: list, at: range)
 
         let textList = list.textListAttribute(atIndex: 0)
         XCTAssert(textList != nil)
@@ -417,7 +417,7 @@ class TextListFormatterTests: XCTestCase
         XCTAssert(NSEqualRanges(list.range(of: textList!, at: 0)!,range))
 
         // Toggle
-        orderedListFormatter.toggleAttribute(in: list, at: list.rangeOfEntireString)
+        orderedListFormatter.toggle(in: list, at: list.rangeOfEntireString)
 
         // Verify
         let items = textListAttributes(inString: list, atRanges: paragraphRanges(inString: list))
@@ -437,7 +437,7 @@ class TextListFormatterTests: XCTestCase
         let unorderedListFormatter = TextListFormatter(style: .unordered)
 
         let listRange = plainRanges[1]
-        unorderedListFormatter.toggleAttribute(in: list, at: listRange)
+        unorderedListFormatter.toggle(in: list, at: listRange)
 
         for i in 0..<list.length {
             let present = unorderedListFormatter.present(in: list, at: i)
@@ -478,7 +478,7 @@ private extension TextListFormatterTests
         let string = NSMutableAttributedString(string: plainText)
         let formatter = TextListFormatter(style: .ordered)
 
-        formatter.toggleAttribute(in: string, at: string.rangeOfEntireString)
+        formatter.toggle(in: string, at: string.rangeOfEntireString)
 
         return string
     }
@@ -490,7 +490,7 @@ private extension TextListFormatterTests
         var currentFormatter = unorderedListFormatter
 
         for range in plainTextParagraphRanges.reversed() {
-            currentFormatter.toggleAttribute(in: string, at: range)
+            currentFormatter.toggle(in: string, at: range)
 
             currentFormatter = (currentFormatter.listStyle == .unordered) ? orderedListFormatter : unorderedListFormatter
         }
