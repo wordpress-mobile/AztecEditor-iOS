@@ -152,7 +152,6 @@ extension ParagraphAttributeFormatter {
         if applicationRange.length == 0 || text.length == 0 {
             insertEmptyPlaceholderString(in: text, at: applicationRange.location)
             newSelectedRange = NSRange(location: text.length, length: 0)
-            NSLog("Returning New Selected Range \(text.length)")
         }
 
         toggleAttributes(in: text, at: applicationRange)
