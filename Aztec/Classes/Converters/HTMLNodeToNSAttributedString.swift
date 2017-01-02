@@ -180,7 +180,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         if isBlockquote(node) {
             let formatter = BlockquoteFormatter()
-            attributes = formatter.apply(to:attributes)
+            attributes = formatter.apply(to: attributes)
         }
 
         if isImage(node) {
