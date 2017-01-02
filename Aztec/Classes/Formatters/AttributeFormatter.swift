@@ -10,12 +10,14 @@ import UIKit
 ///
 protocol AttributeFormatter {
 
-    /// Toggles an attribute in the specified range of a text storage.
+    /// Toggles an attribute in the specified range of a text storage, and returns the new 
+    /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
+    /// just to get the style to render properly
     ///
     /// The application range might be different than the passed range, as
     /// explained in `applicationRange(for:in:)`
     ///
-    func toggle(in text: NSMutableAttributedString, at range: NSRange)
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
 
     /// Apply the compound attributes to the provided attributes dictionary
     ///
@@ -143,12 +145,18 @@ extension ParagraphAttributeFormatter {
         return string.paragraphRange(for: range)
     }
 
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
         let applicationRange = self.applicationRange(for: range, in: text)
+        var newSelectedRange: NSRange?
+
         if applicationRange.length == 0 || text.length == 0 {
             insertEmptyPlaceholderString(in: text, at: applicationRange.location)
+            newSelectedRange = NSRange(location: text.length, length: 0)
+            NSLog("Returning New Selected Range \(text.length)")
         }
 
         toggleAttributes(in: text, at: applicationRange)
+
+        return newSelectedRange
     }
 }
