@@ -76,12 +76,13 @@ private extension AttributeFormatter {
     /// The string to be used when adding attributes to an empty line.
     ///
     var placeholderForAttributedEmptyLine: String {
+        // "Zero Width Space" Character
         return "\u{200B}"
     }
 
     /// Inserts an empty placeholder, into a given string, at the specified index.
     ///
-    func insertEmptyAttribute(in string: NSMutableAttributedString, at index: Int) {
+    func insertEmptyPlaceholderString(in string: NSMutableAttributedString, at index: Int) {
         let attributes = apply(to: [:])
         let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
         string.insert(attributedSpace, at: index)
@@ -90,7 +91,7 @@ private extension AttributeFormatter {
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     func toggleAttributes(in string: NSMutableAttributedString, at range: NSRange) {
-        guard range.length > 0 || string.length > 0 else {
+        guard range.location < string.length else {
             return
         }
 
@@ -144,9 +145,8 @@ extension ParagraphAttributeFormatter {
 
     func toggle(in text: NSMutableAttributedString, at range: NSRange) {
         let applicationRange = self.applicationRange(for: range, in: text)
-
         if applicationRange.length == 0 || text.length == 0 {
-            insertEmptyAttribute(in: text, at: applicationRange.location)
+            insertEmptyPlaceholderString(in: text, at: applicationRange.location)
         }
 
         toggleAttributes(in: text, at: applicationRange)
