@@ -70,27 +70,12 @@ extension AttributeFormatter {
 // MARK: - Private methods
 
 private extension AttributeFormatter {
-    func toggleTypingAttribute(inTextView textView: UITextView) {
-        if present(inAttributes: textView.typingAttributes as [String : AnyObject]) {
-            removeTypingAttribute(fromTextView: textView)
-        } else {
-            addTypingAttribute(toTextView: textView)
-        }
-    }
 
-    func addTypingAttribute(toTextView textView: UITextView) {
-        textView.typingAttributes = apply(toAttributes: textView.typingAttributes)
-    }
-
-    func removeTypingAttribute(fromTextView textView: UITextView) {
-        textView.typingAttributes = remove(fromAttributes: textView.typingAttributes)
-    }
-
-    func toggleAttribute(inString string: NSMutableAttributedString, atRange range: NSRange) {
+    func toggleAttribute(in string: NSMutableAttributedString, at range: NSRange) {
         if attribute(inString: string, at: range.location) {
-            removeAttributes(fromString: string, atRange: range)
+            removeAttributes(fromString: string, at: range)
         } else {
-            applyAttributes(toString: string, atRange: range)
+            applyAttributes(toString: string, at: range)
         }
     }
 
@@ -131,12 +116,17 @@ extension ParagraphAttributeFormatter {
         return string.paragraphRange(for: range)
     }
 
-    func toggleAttribute(inText text: NSMutableAttributedString, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: text)
+    func toggleAttribute(in text: NSMutableAttributedString, at range: NSRange) {
+        let applicationRange = self.applicationRange(for: range, in: text)
 
         if applicationRange.length == 0 || text.length == 0 {
             insertEmptyAttribute(inString: text, at: applicationRange.location)
         }
-        toggleAttribute(inString: text, atRange: applicationRange)
+
+        if attribute(inString: text, at: range.location) {
+            removeAttributes(fromString: text, at: applicationRange)
+        } else {
+            applyAttributes(toString: text, at: applicationRange)
+        }
     }
 }
