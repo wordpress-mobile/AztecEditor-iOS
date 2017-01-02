@@ -11,21 +11,21 @@ import UIKit
 protocol AttributeFormatter {
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
-    func present(inAttributes attributes: [String: AnyObject]) -> Bool
+    func present(in attributes: [String: AnyObject]) -> Bool
 
     /// Apply the compound attributes to the provided attributes dictionary
     ///
     /// - Parameter attributes: the original attributes to apply to
     /// - Returns: the resulting attributes dictionary
     ///
-    func apply(toAttributes attributes: [String: Any]) -> [String: Any]
+    func apply(to attributes: [String: Any]) -> [String: Any]
 
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
     /// - Returns: the resulting attributes dictionary
     ///
-    func remove(fromAttributes attributes: [String: Any]) -> [String: Any]
+    func remove(from attributes: [String: Any]) -> [String: Any]
 
     /// The range to apply the attributes to.
     ///
@@ -33,7 +33,7 @@ protocol AttributeFormatter {
     /// protocol might want to extend the range to apply the attribute to a
     /// different range (e.g. a paragraph)
     ///
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange
 
     /// Toggles an attribute in the specified range of a text storage.
     ///
@@ -49,14 +49,14 @@ extension AttributeFormatter {
     func present(in storage: NSTextStorage, at index: Int) -> Bool {
         let safeIndex = max(min(index, storage.length - 1), 0)
         let attributes = storage.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
-        return present(inAttributes: attributes)
+        return present(in: attributes)
     }
 }
 
 // MARK: - Default implementations
 
 extension AttributeFormatter {
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
         return range
     }
 
@@ -79,25 +79,25 @@ private extension AttributeFormatter {
         }
     }
 
-    func applyAttributes(toString string: NSMutableAttributedString, atRange range: NSRange) {
+    func applyAttributes(toString string: NSMutableAttributedString, at range: NSRange) {
         let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = apply(toAttributes: currentAttributes)
+        let attributes = apply(to: currentAttributes)
         string.addAttributes(attributes, range: range)
     }
 
-    func removeAttributes(fromString string: NSMutableAttributedString, atRange range: NSRange) {
+    func removeAttributes(fromString string: NSMutableAttributedString, at range: NSRange) {
         let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = remove(fromAttributes: currentAttributes)
+        let attributes = remove(from: currentAttributes)
         string.addAttributes(attributes, range: range)
     }
 
     func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
         let attributes = string.attributes(at: index, effectiveRange: nil)
-        return present(inAttributes: attributes as [String : AnyObject])
+        return present(in: attributes as [String : AnyObject])
     }
 
     func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
-        let attributes = apply(toAttributes: [:])
+        let attributes = apply(to: [:])
         let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
         string.insert(attributedSpace, at: index)
     }
@@ -112,7 +112,7 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
     }
 

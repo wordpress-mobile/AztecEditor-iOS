@@ -22,7 +22,7 @@ class Blockquote: NSObject, NSCoding {
 struct BlockquoteFormatter: ParagraphAttributeFormatter {
 
 
-    func apply(toAttributes attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
@@ -38,7 +38,7 @@ struct BlockquoteFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(fromAttributes attributes:[String: Any]) -> [String: Any] {
+    func remove(from attributes:[String: Any]) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
@@ -56,7 +56,7 @@ struct BlockquoteFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(inAttributes attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : AnyObject]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
             return paragraphStyle.blockquote != nil
         }
