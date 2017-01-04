@@ -128,6 +128,8 @@ protocol CharacterAttributeFormatter: AttributeFormatter {
 }
 
 extension CharacterAttributeFormatter {
+
+    @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) {
         let applicationRange = self.applicationRange(for: range, in: text)
         toggleAttributes(in: text, at: applicationRange)
@@ -141,10 +143,12 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
+
     func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
     }
 
+    @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
         let applicationRange = self.applicationRange(for: range, in: text)
         var newSelectedRange: NSRange?
