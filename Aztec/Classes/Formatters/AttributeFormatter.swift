@@ -9,23 +9,37 @@ import UIKit
 /// defined style.
 ///
 protocol AttributeFormatter {
-    /// Checks if the attribute is present in a dictionary of attributes.
+
+    /// Toggles an attribute in the specified range of a text storage, and returns the new 
+    /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
+    /// just to get the style to render properly
     ///
-    func present(inAttributes attributes: [String: AnyObject]) -> Bool
+    /// The application range might be different than the passed range, as
+    /// explained in `applicationRange(for:in:)`
+    ///
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
 
     /// Apply the compound attributes to the provided attributes dictionary
     ///
     /// - Parameter attributes: the original attributes to apply to
     /// - Returns: the resulting attributes dictionary
     ///
-    func apply(toAttributes attributes: [String: Any]) -> [String: Any]
+    func apply(to attributes: [String: Any]) -> [String: Any]
 
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
     /// - Returns: the resulting attributes dictionary
     ///
-    func remove(fromAttributes attributes: [String: Any]) -> [String: Any]
+    func remove(from attributes: [String: Any]) -> [String: Any]
+
+    /// Checks if the attribute is present in a dictionary of attributes.
+    ///
+    func present(in attributes: [String: AnyObject]) -> Bool
+
+    /// Checks if the attribute is present in a given Attributed String at the specified index.
+    ///
+    func present(in text: NSAttributedString, at index: Int) -> Bool
 
     /// The range to apply the attributes to.
     ///
@@ -33,136 +47,119 @@ protocol AttributeFormatter {
     /// protocol might want to extend the range to apply the attribute to a
     /// different range (e.g. a paragraph)
     ///
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange
-
-    /// Toggles an attribute in the specified range of a text view.
-    ///
-    /// If there is existing text to apply the attribute to, the formatter will
-    /// do that. Otherwise, it will toggle the attributes in the text view's
-    /// `typingAttributes` property.
-    ///
-    /// The application range might be different than the passed range, as
-    /// explained in `applicationRange(forRange:inString:)`
-    ///
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange)
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange
 }
 
+
+// MARK: - Default Implementations
+//
 extension AttributeFormatter {
-    /// Checks if the attribute is present in a text view at the specified index.
+
+    /// Indicates whether the Formatter's Attributes are present in a given string, at a specified Index.
     ///
-    func present(in storage: NSTextStorage, at index: Int) -> Bool {
-        let safeIndex = max(min(index, storage.length - 1), 0)
-        let attributes = storage.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
-        return present(inAttributes: attributes)
+    func present(in text: NSAttributedString, at index: Int) -> Bool {
+        let safeIndex = max(min(index, text.length - 1), 0)
+        let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
+        return present(in: attributes)
     }
-}
 
-// MARK: - Default implementations
-
-extension AttributeFormatter {
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
+    /// The range to apply the attributes to.
+    ///
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
         return range
     }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension AttributeFormatter {
 
     /// The string to be used when adding attributes to an empty line.
     ///
     var placeholderForAttributedEmptyLine: String {
+        // "Zero Width Space" Character
         return "\u{200B}"
     }
-}
 
-// MARK: - Private methods
-
-private extension AttributeFormatter {
-    func toggleTypingAttribute(inTextView textView: UITextView) {
-        if present(inAttributes: textView.typingAttributes as [String : AnyObject]) {
-            removeTypingAttribute(fromTextView: textView)
-        } else {
-            addTypingAttribute(toTextView: textView)
-        }
-    }
-
-    func addTypingAttribute(toTextView textView: UITextView) {
-        textView.typingAttributes = apply(toAttributes: textView.typingAttributes)
-    }
-
-    func removeTypingAttribute(fromTextView textView: UITextView) {
-        textView.typingAttributes = remove(fromAttributes: textView.typingAttributes)
-    }
-
-    func toggleAttribute(inString string: NSMutableAttributedString, atRange range: NSRange) {
-        if attribute(inString: string, at: range.location) {
-            removeAttributes(fromString: string, atRange: range)
-        } else {
-            applyAttributes(toString: string, atRange: range)
-        }
-    }
-
-    func applyAttributes(toString string: NSMutableAttributedString, atRange range: NSRange) {
-        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = apply(toAttributes: currentAttributes)
-        string.addAttributes(attributes, range: range)
-    }
-
-    func removeAttributes(fromString string: NSMutableAttributedString, atRange range: NSRange) {
-        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = remove(fromAttributes: currentAttributes)
-        string.addAttributes(attributes, range: range)
-    }
-
-    func attribute(inString string: NSAttributedString, at index: Int) -> Bool {
-        let attributes = string.attributes(at: index, effectiveRange: nil)
-        return present(inAttributes: attributes as [String : AnyObject])
-    }
-
-    func insertEmptyAttribute(inString string: NSMutableAttributedString, at index: Int) {
-        let attributes = apply(toAttributes: [:])
+    /// Inserts an empty placeholder, into a given string, at the specified index.
+    ///
+    func insertEmptyPlaceholderString(in string: NSMutableAttributedString, at index: Int) {
+        let attributes = apply(to: [:])
         let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
         string.insert(attributedSpace, at: index)
     }
+
+    /// Toggles the Attribute Format, into a given string, at the specified range.
+    ///
+    func toggleAttributes(in string: NSMutableAttributedString, at range: NSRange) {
+        guard range.location < string.length else {
+            return
+        }
+
+        if present(in: string, at: range.location) {
+            removeAttributes(from: string, at: range)
+        } else {
+            applyAttributes(to: string, at: range)
+        }
+    }
+
+    /// Applies the Formatter's Attributes into a given string, at the specified range.
+    ///
+    func applyAttributes(to string: NSMutableAttributedString, at range: NSRange) {
+        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
+        let attributes = apply(to: currentAttributes)
+        string.addAttributes(attributes, range: range)
+    }
+
+    /// Removes the Formatter's Attributes from a given string, at the specified range.
+    ///
+    func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) {
+        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
+        let attributes = remove(from: currentAttributes)
+        string.addAttributes(attributes, range: range)
+    }
 }
 
-// MARK: - Attribute Formater types
 
+// MARK: - Character Attribute Formatter
+//
 protocol CharacterAttributeFormatter: AttributeFormatter {
 }
 
 extension CharacterAttributeFormatter {
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
 
-        guard applicationRange.length > 0 || textView.textStorage.length > 0 else {
-            return
-        }
-        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
+    @discardableResult
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) {
+        let applicationRange = self.applicationRange(for: range, in: text)
+        toggleAttributes(in: text, at: applicationRange)
     }
 }
 
+
+// MARK: - Paragraph Attribute Formatter
+//
 protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
-    func applicationRange(forRange range: NSRange, inString string: NSAttributedString) -> NSRange {
+
+    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
         return string.paragraphRange(for: range)
     }
 
-    func toggleAttribute(inTextView textView: UITextView, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: textView.textStorage)
-
-        if applicationRange.length == 0 || textView.textStorage.length == 0 {
-            insertEmptyAttribute(inString: textView.textStorage, at: applicationRange.location)
-            textView.selectedRange = NSRange(location: textView.textStorage.length, length: 0)
-        }
-
-        toggleAttribute(inString: textView.textStorage, atRange: applicationRange)
-    }
-
-    func toggleAttribute(inText text: NSMutableAttributedString, atRange range: NSRange) {
-        let applicationRange = self.applicationRange(forRange: range, inString: text)
+    @discardableResult
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
+        let applicationRange = self.applicationRange(for: range, in: text)
+        var newSelectedRange: NSRange?
 
         if applicationRange.length == 0 || text.length == 0 {
-            insertEmptyAttribute(inString: text, at: applicationRange.location)
+            insertEmptyPlaceholderString(in: text, at: applicationRange.location)
+            newSelectedRange = NSRange(location: text.length, length: 0)
         }
-        toggleAttribute(inString: text, atRange: applicationRange)
+
+        toggleAttributes(in: text, at: applicationRange)
+
+        return newSelectedRange
     }
 }

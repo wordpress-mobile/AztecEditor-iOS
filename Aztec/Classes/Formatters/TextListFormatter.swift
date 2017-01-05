@@ -9,7 +9,7 @@ struct TextListFormatter: ParagraphAttributeFormatter {
         self.listStyle = style
     }
 
-    func apply(toAttributes attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
@@ -24,7 +24,7 @@ struct TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(fromAttributes attributes:[String: Any]) -> [String: Any] {
+    func remove(from attributes:[String: Any]) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
@@ -40,7 +40,7 @@ struct TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(inAttributes attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : AnyObject]) -> Bool {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
               let textList = paragraphStyle.textList else {
             return false

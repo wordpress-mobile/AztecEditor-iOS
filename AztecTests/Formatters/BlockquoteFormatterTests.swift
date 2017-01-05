@@ -5,36 +5,39 @@ import Gridicons
 class BlockquoteFormatterTests: XCTestCase {
     func testApplyingBlockquoteOnFirstParagraph() {
         let textView = testTextView
-        let paragraphs = paragraphRanges(inString: textView.storage)
+        let storage = textView.storage
+        let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        formatter.toggleAttribute(inTextView: textView, atRange: NSRange(location: 1, length: 1))
+        formatter.toggle(in: storage, at: NSRange(location: 1, length: 1))
 
         XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[0]))
     }
 
     func testRemovingBlockQuoteOnFirstParagraph() {
         let textView = testTextView
-        let paragraphs = paragraphRanges(inString: textView.storage)
+        let storage = textView.storage
+        let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
         var attributes = [String:Any]()
-        attributes = formatter.apply(toAttributes: attributes)
+        attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
-        formatter.toggleAttribute(inTextView: textView, atRange: NSRange(location: 1, length: 1))
+        formatter.toggle(in: storage, at: NSRange(location: 1, length: 1))
 
         XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[0]))
     }
 
     func testApplyingBlockquoteOnFirstParagraphWhenSecondHasBlockquote() {
         let textView = testTextView
-        let paragraphs = paragraphRanges(inString: textView.storage)
+        let storage = textView.storage
+        let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
         var attributes = [String:Any]()
-        attributes = formatter.apply(toAttributes: attributes)
+        attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[1])
-        formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[0]))
         XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[1]))
@@ -42,13 +45,14 @@ class BlockquoteFormatterTests: XCTestCase {
 
     func testRemovingBlockQuoteOnFirstParagraphWhenSecondDoesNotHaveBlockquote() {
         let textView = testTextView
-        let paragraphs = paragraphRanges(inString: textView.storage)
+        let storage = textView.storage
+        let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
         var attributes = [String:Any]()
-        attributes = formatter.apply(toAttributes: attributes)
+        attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
-        formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
 
         XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[0]))
         XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[1]))
@@ -56,13 +60,14 @@ class BlockquoteFormatterTests: XCTestCase {
 
     func testToggleBlockquoteTwiceLeavesReturnsIdenticalString() {
         let textView = testTextView
+        let storage = textView.storage
         textView.storage.setAttributes([NSParagraphStyleAttributeName: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
-        let paragraphs = paragraphRanges(inString: textView.storage)
+        let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
         let original = textView.storage.copy() as! NSAttributedString
-        formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
-        formatter.toggleAttribute(inTextView: textView, atRange: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
+        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
         XCTAssertTrue(original.isEqual(to: textView.storage))
     }
 
@@ -73,7 +78,7 @@ class BlockquoteFormatterTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
         let blockquoteRange = paragraphs[1]
-        formatter.toggleAttribute(inText: storage, atRange: blockquoteRange)
+        formatter.toggle(in: storage, at: blockquoteRange)
 
         for i in 0..<storage.length {
             let present = formatter.present(in: storage, at: i)

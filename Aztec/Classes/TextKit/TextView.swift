@@ -590,7 +590,8 @@ open class TextView: UITextView {
     ///
     fileprivate func remove(list: TextList, at range: NSRange) {
         let formatter = TextListFormatter(style: list.style)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
@@ -600,7 +601,8 @@ open class TextView: UITextView {
     ///
     open func toggleOrderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .ordered)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
@@ -610,7 +612,8 @@ open class TextView: UITextView {
     ///
     open func toggleUnorderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .unordered)
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
@@ -627,7 +630,8 @@ open class TextView: UITextView {
     ///
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
         forceRedrawCursorAfterDelay()
     }
 
@@ -646,7 +650,8 @@ open class TextView: UITextView {
             return
         }
 
-        formatter.toggleAttribute(inTextView: self, atRange: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
@@ -674,17 +679,19 @@ open class TextView: UITextView {
         }
 
         let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
-
-        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
-            let formatter = BlockquoteFormatter()
-            formatter.toggleAttribute(inTextView: self, atRange: range)
-            if afterRange.endLocation < storage.length {
-                formatter.toggleAttribute(inTextView: self, atRange: afterRange)
-                deleteBackward()
-            } else {
-                selectedRange = NSRange(location: range.location, length: 0)
-            }
+        guard text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem else {
+            return
         }
+
+        let formatter = BlockquoteFormatter()
+        var newSelectedRange = formatter.toggle(in: textStorage, at: range)
+
+        if afterRange.endLocation < storage.length {
+            newSelectedRange = formatter.toggle(in: textStorage, at: afterRange) ?? newSelectedRange
+            deleteBackward()
+        }
+
+        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
