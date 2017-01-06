@@ -79,7 +79,7 @@
 
         if (!self.session){
             self.session = [[AVCaptureSession alloc] init];
-            self.session.sessionPreset = AVCaptureSessionPreset1280x720;
+            self.session.sessionPreset = AVCaptureSessionPresetHigh;
             
             AVCaptureDevice *device = [self captureDevice];
             
