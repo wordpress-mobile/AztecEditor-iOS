@@ -126,16 +126,14 @@ extension ParagraphAttributeFormatter {
 
     /// Toggles an attribute in the specified range of a text storage, and returns the new Selected Range.
     ///
-    /// - Note: Before anything, we'll determine if the attribute should be applied at the specified range, or not.
-    ///   Order is important. Why? because we *may need* to insert an empty string placeholder, and this operation may
-    ///   alter this result!.
+    /// - Note: Whenever either the application paragraph is empty, or the entire storage is empty,
+    ///   we'll need to insert a placeholder (Zero Width String). Reason why? Because some formatters
+    ///   (TextList / Blockquote) need to display a custom UI, even when there is no content to display.
+    ///   In those scenarios, TextView's TypingAttributes just don't do the trick.
     ///
-    /// - Note: We need a Zero Width Placeholder, whenever either the application paragraph is empty, or the entire
-    ///   storage is empty, because otherwise there just won't be anything to apply the attribute to.
-    ///
-    /// - Note: Again, why?. Because in the TextList / Blockquote Formatter scenario, we need to render format,
-    ///   even when there is no content to display. TextView's TypingAttributes just don't do the trick.
-    ///
+    /// - Note: For the reasons mentioned above, the first thing we'll do is to determine if the attribute should
+    ///   be applied or not. Order of events is important. 
+    ///   Why? because we *may need* to insert an empty string placeholder, and this operation may alter this result!
     ///
     @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
