@@ -13,7 +13,12 @@ protocol AttributeFormatter {
     /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
     /// just to get the style to render properly.
     ///
-    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]?) -> NSRange?
+    /// - Parameters:
+    ///     - text: Text that should be formatted.
+    ///     - range: Segment of text which format should be toggled.
+    ///     - attributes: Attributes to be used the Content Placeholder, when / if needed.
+    ///
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with placeholderAttributes: [String: Any]?) -> NSRange?
 
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
@@ -59,7 +64,7 @@ private extension AttributeFormatter {
 
     /// The string to be used when adding attributes to an empty line.
     ///
-    func placeholderForEmptyLine(with attributes: [String: Any]?) -> NSAttributedString {
+    func placeholderForEmptyLine(using attributes: [String: Any]?) -> NSAttributedString {
         return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: attributes)
     }
 
@@ -102,7 +107,7 @@ extension CharacterAttributeFormatter {
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]? = nil) {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with placeholderAttributes: [String: Any]? = nil) {
         guard range.location < text.length else {
             return
         }
@@ -135,13 +140,13 @@ extension ParagraphAttributeFormatter {
     ///   Why? because we *may need* to insert an empty string placeholder, and this operation may alter this result!
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]? = nil) -> NSRange? {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with placeholderAttributes: [String: Any]? = nil) -> NSRange? {
         let shouldApply = shouldApplyAttributes(to: text, at: range)
         var applicationRange = text.paragraphRange(for: range)
         var newSelectedRange: NSRange?
 
         if applicationRange.length == 0 || text.length == 0 {
-            let placeholder = placeholderForEmptyLine(with: attributes)
+            let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
             text.insert(placeholder, at: applicationRange.location)
             newSelectedRange = NSRange(location: text.length, length: 0)
             applicationRange = NSMakeRange(text.length - 1, 1)
