@@ -53,6 +53,7 @@
 		59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0661D8BDFA700D138DF /* NodeTests.swift */; };
 		59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06A1D8BDFA700D138DF /* HTMLToAttributedStringTests.swift */; };
 		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
+		B580A1EA1E2142EC00C393C6 /* StringConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B580A1E91E2142EC00C393C6 /* StringConstants.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */; };
 		B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */; };
@@ -155,6 +156,7 @@
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
+		B580A1E91E2142EC00C393C6 /* StringConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringConstants.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
 		B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatter.swift; sourceTree = "<group>"; };
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
@@ -340,8 +342,9 @@
 		599F251F1D8BC9A1002871D6 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
-				599F25201D8BC9A1002871D6 /* HTMLConstants.swift */,
 				599F25211D8BC9A1002871D6 /* Metrics.swift */,
+				599F25201D8BC9A1002871D6 /* HTMLConstants.swift */,
+				B580A1E91E2142EC00C393C6 /* StringConstants.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -649,6 +652,7 @@
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,
+				B580A1EA1E2142EC00C393C6 /* StringConstants.swift in Sources */,
 				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
