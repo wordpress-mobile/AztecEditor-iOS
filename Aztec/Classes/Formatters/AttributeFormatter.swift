@@ -123,10 +123,19 @@ protocol CharacterAttributeFormatter: AttributeFormatter {
 
 extension CharacterAttributeFormatter {
 
+    /// Toggles the Attribute Format, into a given string, at the specified range.
+    ///
     @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) {
-        let applicationRange = self.applicationRange(for: range, in: text)
-        toggleAttributes(in: text, at: applicationRange)
+        guard range.location < text.length else {
+            return
+        }
+
+        if shouldApplyAttributes(to: text, at: range) {
+            applyAttributes(to: text, at: range)
+        } else {
+            removeAttributes(from: text, at: range)
+        }
     }
 }
 
