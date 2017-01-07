@@ -1,25 +1,25 @@
 import UIKit
 
-/// A type that provides support for toggling compound attributes in an
-/// attributed string.
+
+/// A type that provides support for toggling compound attributes in an attributed string.
 ///
-/// When you want to represent an attribute that does not have a 1-1
-/// correspondence with a standard attribute, it is useful to have a virtual
-/// attribute. Toggling this attribute would also toggle the attributes for its
-/// defined style.
+/// When you want to represent an attribute that does not have a 1-1 correspondence with a standard
+/// attribute, it is useful to have a virtual attribute. 
+/// Toggling this attribute would also toggle the attributes for its defined style.
 ///
 protocol AttributeFormatter {
 
     /// Toggles an attribute in the specified range of a text storage, and returns the new 
     /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
-    /// just to get the style to render properly
-    ///
-    /// The application range might be different than the passed range, as
-    /// explained in `applicationRange(for:in:)`
+    /// just to get the style to render properly.
     ///
     func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
 
-    /// Apply the compound attributes to the provided attributes dictionary
+    /// Checks if the attribute is present in a given Attributed String at the specified index.
+    ///
+    func present(in text: NSAttributedString, at index: Int) -> Bool
+
+    /// Apply the compound attributes to the provided attributes dictionary.
     ///
     /// - Parameter attributes: the original attributes to apply to
     /// - Returns: the resulting attributes dictionary
@@ -36,10 +36,6 @@ protocol AttributeFormatter {
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
     func present(in attributes: [String: AnyObject]) -> Bool
-
-    /// Checks if the attribute is present in a given Attributed String at the specified index.
-    ///
-    func present(in text: NSAttributedString, at index: Int) -> Bool
 
     /// The range to apply the attributes to.
     ///
