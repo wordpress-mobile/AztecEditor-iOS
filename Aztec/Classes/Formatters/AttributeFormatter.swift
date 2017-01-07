@@ -36,14 +36,6 @@ protocol AttributeFormatter {
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
     func present(in attributes: [String: AnyObject]) -> Bool
-
-    /// The range to apply the attributes to.
-    ///
-    /// By default, this returns the passed `range`, but implementations of this
-    /// protocol might want to extend the range to apply the attribute to a
-    /// different range (e.g. a paragraph)
-    ///
-    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange
 }
 
 
@@ -57,12 +49,6 @@ extension AttributeFormatter {
         let safeIndex = max(min(index, text.length - 1), 0)
         let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
         return present(in: attributes)
-    }
-
-    /// The range to apply the attributes to.
-    ///
-    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
-        return range
     }
 }
 
@@ -146,10 +132,6 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
 extension ParagraphAttributeFormatter {
-
-    func applicationRange(for range: NSRange, in string: NSAttributedString) -> NSRange {
-        return string.paragraphRange(for: range)
-    }
 
     @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
