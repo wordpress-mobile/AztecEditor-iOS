@@ -64,12 +64,7 @@ private extension AttributeFormatter {
         return NSAttributedString(string: "\u{200B}")
     }
 
-    /// Inserts an empty placeholder, into a given string, at the specified index.
     ///
-    func insertEmptyPlaceholderString(in string: NSMutableAttributedString, at index: Int) {
-        string.insert(placeholderForAttributedEmptyLine, at: index)
-    }
-
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     func toggleAttributes(in string: NSMutableAttributedString, at range: NSRange) {
