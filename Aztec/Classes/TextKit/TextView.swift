@@ -590,7 +590,7 @@ open class TextView: UITextView {
     ///
     fileprivate func remove(list: TextList, at range: NSRange) {
         let formatter = TextListFormatter(style: list.style)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
         selectedRange = newSelectedRange ?? selectedRange
     }
 
@@ -601,7 +601,7 @@ open class TextView: UITextView {
     ///
     open func toggleOrderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .ordered)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
         selectedRange = newSelectedRange ?? selectedRange
     }
 
@@ -612,7 +612,7 @@ open class TextView: UITextView {
     ///
     open func toggleUnorderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .unordered)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
         selectedRange = newSelectedRange ?? selectedRange
     }
 
@@ -630,7 +630,7 @@ open class TextView: UITextView {
     ///
     open func toggleBlockquote(range: NSRange) {
         let formatter = BlockquoteFormatter()
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
         selectedRange = newSelectedRange ?? selectedRange
         forceRedrawCursorAfterDelay()
     }
@@ -650,7 +650,7 @@ open class TextView: UITextView {
             return
         }
 
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        let newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
         selectedRange = newSelectedRange ?? selectedRange
     }
 
@@ -684,10 +684,10 @@ open class TextView: UITextView {
         }
 
         let formatter = BlockquoteFormatter()
-        var newSelectedRange = formatter.toggle(in: textStorage, at: range)
+        var newSelectedRange = formatter.toggle(in: textStorage, at: range, with: typingAttributes)
 
         if afterRange.endLocation < storage.length {
-            newSelectedRange = formatter.toggle(in: textStorage, at: afterRange) ?? newSelectedRange
+            newSelectedRange = formatter.toggle(in: textStorage, at: afterRange, with: typingAttributes) ?? newSelectedRange
             deleteBackward()
         }
 
