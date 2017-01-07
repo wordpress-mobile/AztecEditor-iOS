@@ -64,19 +64,15 @@ private extension AttributeFormatter {
         return NSAttributedString(string: "\u{200B}")
     }
 
+    /// Helper that indicates whether if we should format the specified range, or not. 
+    /// -   Note: For convenience reasons, whenever the Text is empty, this helper will return *true*.
     ///
-    /// Toggles the Attribute Format, into a given string, at the specified range.
-    ///
-    func toggleAttributes(in string: NSMutableAttributedString, at range: NSRange) {
-        guard range.location < string.length else {
-            return
+    func shouldApplyAttributes(to text: NSAttributedString, at range: NSRange) -> Bool {
+        guard text.length > 0 else {
+            return true
         }
 
-        if present(in: string, at: range.location) {
-            removeAttributes(from: string, at: range)
-        } else {
-            applyAttributes(to: string, at: range)
-        }
+        return present(in: text, at: range.location) == false
     }
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
