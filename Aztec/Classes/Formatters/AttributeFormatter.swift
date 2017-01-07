@@ -13,7 +13,7 @@ protocol AttributeFormatter {
     /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
     /// just to get the style to render properly.
     ///
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]?) -> NSRange?
 
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
@@ -59,9 +59,8 @@ private extension AttributeFormatter {
 
     /// The string to be used when adding attributes to an empty line.
     ///
-    var placeholderForAttributedEmptyLine: NSAttributedString {
-        // "Zero Width Space" Character
-        return NSAttributedString(string: "\u{200B}")
+    func placeholderForEmptyLine(with attributes: [String: Any]?) -> NSAttributedString {
+        return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: attributes)
     }
 
     /// Helper that indicates whether if we should format the specified range, or not. 
@@ -103,7 +102,7 @@ extension CharacterAttributeFormatter {
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]? = nil) {
         guard range.location < text.length else {
             return
         }
@@ -136,13 +135,14 @@ extension ParagraphAttributeFormatter {
     ///   Why? because we *may need* to insert an empty string placeholder, and this operation may alter this result!
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange, with attributes: [String: Any]? = nil) -> NSRange? {
         let shouldApply = shouldApplyAttributes(to: text, at: range)
         var applicationRange = text.paragraphRange(for: range)
         var newSelectedRange: NSRange?
 
         if applicationRange.length == 0 || text.length == 0 {
-            text.insert(placeholderForAttributedEmptyLine, at: applicationRange.location)
+            let placeholder = placeholderForEmptyLine(with: attributes)
+            text.insert(placeholder, at: applicationRange.location)
             newSelectedRange = NSRange(location: text.length, length: 0)
             applicationRange = NSMakeRange(text.length - 1, 1)
         }
