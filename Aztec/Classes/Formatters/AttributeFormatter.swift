@@ -77,17 +77,15 @@ private extension AttributeFormatter {
 
     /// The string to be used when adding attributes to an empty line.
     ///
-    var placeholderForAttributedEmptyLine: String {
+    var placeholderForAttributedEmptyLine: NSAttributedString {
         // "Zero Width Space" Character
-        return "\u{200B}"
+        return NSAttributedString(string: "\u{200B}")
     }
 
     /// Inserts an empty placeholder, into a given string, at the specified index.
     ///
     func insertEmptyPlaceholderString(in string: NSMutableAttributedString, at index: Int) {
-        let attributes = apply(to: [:])
-        let attributedSpace = NSAttributedString(string: placeholderForAttributedEmptyLine, attributes: attributes)
-        string.insert(attributedSpace, at: index)
+        string.insert(placeholderForAttributedEmptyLine, at: index)
     }
 
     /// Toggles the Attribute Format, into a given string, at the specified range.
