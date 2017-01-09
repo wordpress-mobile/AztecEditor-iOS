@@ -20,6 +20,43 @@ class ElementNodeTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
+    
+    // MARK: - Prepend
+    
+    /// Tests that `prepend(_ child:)` works.
+    ///
+    /// Inputs:
+    ///     - Original node contents: "Hello there!"
+    ///     - Range: (loc: 6, len: 6)
+    ///     - New string: "-"
+    ///
+    /// Verifications:
+    ///     - Check that the undo event is properly registered.
+    ///     - Check that after editing the text node, its content is: "Hello -"
+    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
+    ///
+    func testPrepend() {
+        let text1 = "Hello"
+        let text2 = " world!"
+        let fullText = "\(text1)\(text2)"
+        
+        let textNode1 = TextNode(text: text1, registerUndo: { _ in })
+        let textNode2 = TextNode(text: text2, registerUndo: { _ in })
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2], registerUndo: { _ in })
+        
+        XCTAssertEqual(boldNode.children.count, 1)
+        XCTAssertEqual(boldNode.children[0], textNode2)
+        XCTAssertEqual(boldNode.text(), text2)
+        
+        boldNode.prepend(textNode1)
+        
+        XCTAssertEqual(boldNode.children.count, 2)
+        XCTAssertEqual(boldNode.children[0], textNode1)
+        XCTAssertEqual(boldNode.children[1], textNode2)
+        XCTAssertEqual(boldNode.text(), fullText)
+    }
+    
+    // MARK: - Misc / Unorganized
 
     /// Whenever there's a single element node, make sure method `lowestElementNodeWrapping(range:)`
     /// returns the element node, as expected.
@@ -1563,7 +1600,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertNil(result)
     }
 
-    // MARK: - Bug fixes
+    // MARK: - Composite testing
 
     /// Test that inserting a new line after a DIV tag doesn't crash
     /// See https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90

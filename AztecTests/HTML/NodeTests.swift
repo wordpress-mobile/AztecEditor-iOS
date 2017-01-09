@@ -7,6 +7,9 @@ class NodeTests: XCTestCase {
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
     typealias TextNode = Libxml2.TextNode
+    typealias StandardElementType = Libxml2.StandardElementType
+    typealias UndoClosure = Node.UndoClosure
+    typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
     
     override func setUp() {
         super.setUp()
@@ -82,4 +85,27 @@ class NodeTests: XCTestCase {
         XCTAssertEqual(text1.firstElementNodeInCommon(withNode: text2, interruptAtBlockLevel: true), nil)
     }
     
+    // MARK: - Undo support
+    
+    func testThatParentChangesAreUndoable() {
+        
+        let undoManager = UndoManager()
+        
+        let registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping UndoClosure) -> () in
+            undoManager.registerUndo(withTarget: self, handler: { target in
+                undoTask()
+            })
+        }
+        
+        let textNode = TextNode(text: "Hello", registerUndo: registerUndo)
+        let elementNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode], registerUndo: registerUndo)
+        
+        XCTAssertEqual(textNode.parent, elementNode)
+        
+        textNode.removeFromParent()
+        XCTAssertNil(textNode.parent)
+        
+        undoManager.undo()
+        XCTAssertEqual(textNode.parent, elementNode)
+    }
 }

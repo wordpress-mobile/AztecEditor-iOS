@@ -7,7 +7,25 @@ extension Libxml2 {
     class Node: Equatable, CustomReflectable {
         
         let name: String
-        weak var parent: ElementNode? = nil
+        
+        // MARK: - Properties: Parent reference
+        
+        /// A weak reference to the parent of this node.
+        ///
+        private weak var rawParent: ElementNode? = nil
+        
+        /// Parent-node-reference setter and getter, with undo support.
+        ///
+        var parent: ElementNode? {
+            get {
+                return rawParent
+            }
+            
+            set {
+                registerUndoForParentChange()
+                rawParent = newValue
+            }
+        }
         
         // MARK: - Properties: Undo Support
         
@@ -34,10 +52,6 @@ extension Libxml2 {
         func range() -> NSRange {
             return NSRange(location: 0, length: length())
         }
-        
-        // MARK: - Undo support
-        
-        
 
         // MARK: - Override in Subclasses
 
@@ -136,6 +150,15 @@ extension Libxml2 {
 
         // MARK: - DOM Modification
 
+        /// Removes this node from its parent, if it has one.
+        ///
+        func removeFromParent() {
+            if let theParent = parent {
+                theParent.remove(self)
+                parent = nil
+            }
+        }
+        
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.
         ///
@@ -161,6 +184,18 @@ extension Libxml2 {
             }
 
             return newNode
+        }
+        
+        // MARK: - Undo support
+        
+        /// Registers an undo operation for an upcoming parent property change.
+        ///
+        private func registerUndoForParentChange() {
+            let originalParent = rawParent
+            
+            registerUndo { [weak self] in
+                self?.parent = originalParent
+            }
         }
     }
 }

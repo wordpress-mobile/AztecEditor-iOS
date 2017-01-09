@@ -673,11 +673,7 @@ extension Libxml2 {
         ///     - child: the node to append.
         ///
         func append(_ child: Node) {
-
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-
+            child.removeFromParent()
             children.append(child)
             child.parent = self
         }
@@ -688,25 +684,18 @@ extension Libxml2 {
         ///     - child: the node to append.
         ///
         func append(_ children: [Node]) {
-            
             for child in children {
                 append(child)
             }
         }
-        
+
         /// Prepends a node to the list of children for this element.
         ///
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
         func prepend(_ child: Node) {
-            
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-            
-            children.insert(child, at: 0)
-            child.parent = self
+            insert(child, at: 0)
         }
 
         /// Prepends children to the list of children for this element.
@@ -715,7 +704,6 @@ extension Libxml2 {
         ///     - children: the nodes to prepend.
         ///
         func prepend(_ children: [Node]) {
-            
             for index in stride(from: (children.count - 1), through: 0, by: -1) {
                 prepend(children[index])
             }
@@ -728,11 +716,7 @@ extension Libxml2 {
         ///     - index: the position where to insert the node.
         ///
         func insert(_ child: Node, at index: Int) {
-
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-
+            child.removeFromParent()
             children.insert(child, at: index)
             child.parent = self
         }
