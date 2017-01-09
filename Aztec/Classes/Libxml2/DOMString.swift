@@ -10,19 +10,15 @@ extension Libxml2 {
     ///
     class DOMString {
         
-        typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
-        
-        private lazy var registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping () -> ()) -> () in
-            self.domUndoManager.registerUndo(withTarget: self, handler: { target in
-                undoTask()
-            })
-        }
+        private lazy var editContext: EditContext = {
+            return EditContext(undoManager: self.domUndoManager)
+        }()
         
         private lazy var rootNode: RootNode = {
             
-            let textNode = TextNode(text: "", registerUndo: self.registerUndo)
+            let textNode = TextNode(text: "", editContext: self.editContext)
             
-            return RootNode(children: [textNode], registerUndo: self.registerUndo)
+            return RootNode(children: [textNode], editContext: self.editContext)
         }()
         
         private var parentUndoManager: UndoManager?
@@ -98,7 +94,7 @@ extension Libxml2 {
         ///
         func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, registerUndo: registerUndo)
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, editContext: editContext)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
             do {

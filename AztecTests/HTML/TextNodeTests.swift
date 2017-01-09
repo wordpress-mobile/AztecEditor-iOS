@@ -3,9 +3,9 @@ import XCTest
 
 class TextNodeTests: XCTestCase {
     
+    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias TextNode = Libxml2.TextNode
-    typealias UndoClosure = Libxml2.Node.UndoClosure
     
     // MARK: - Editing text nodes
     
@@ -22,8 +22,8 @@ class TextNodeTests: XCTestCase {
         let text1 = "Hello"
         let text2 = " World!"
 
-        let textNode = TextNode(text: "\(text1)\(text2)", registerUndo: { _ in })
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let textNode = TextNode(text: "\(text1)\(text2)")
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
         let splitLocation = text1.characters.count
         
@@ -52,8 +52,8 @@ class TextNodeTests: XCTestCase {
     ///     - No splitting should occur, the selected text node should match the whole string.
     ///
     func testSplitAtLocation2() {
-        let textNode = TextNode(text: "Hello World!", registerUndo: { _ in })
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let textNode = TextNode(text: "Hello World!")
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
         let splitLocation = 0
         
@@ -72,8 +72,8 @@ class TextNodeTests: XCTestCase {
     ///     - No splitting should occur, the selected text node should match the whole string.
     ///
     func testSplitAtLocation3() {
-        let textNode = TextNode(text: "Hello World!", registerUndo: { _ in })
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode], registerUndo: { _ in })
+        let textNode = TextNode(text: "Hello World!")
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         
         let splitLocation = textNode.length()
         
@@ -99,21 +99,15 @@ class TextNodeTests: XCTestCase {
     func testThatAppendIsUndoable1() {
         
         let textToAppend = "Hello there!"
-        var undoClosure: UndoClosure? = nil
         
-        let textNode = TextNode(text: "") { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
+        let textNode = TextNode(text: "", editContext: editContext)
         
         textNode.append(textToAppend)
         XCTAssertEqual(textNode.text(), textToAppend)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), "")
     }
     
@@ -133,21 +127,15 @@ class TextNodeTests: XCTestCase {
         let text2 = " there!"
         let fullText = "\(text1)\(text2)"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: text1) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: text1, editContext: editContext)
         
         textNode.append(text2)
         XCTAssertEqual(textNode.text(), fullText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), text1)
     }
     
@@ -168,21 +156,15 @@ class TextNodeTests: XCTestCase {
         let fullText = "\(text1)\(text2)"
         let range = NSRange(location: 0, length: text1.characters.count)
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.deleteCharacters(inRange: range)
         XCTAssertEqual(textNode.text(), text2)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -203,21 +185,15 @@ class TextNodeTests: XCTestCase {
         let fullText = "\(text1)\(text2)"
         let range = NSRange(location: text1.characters.count, length: text2.characters.count)
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.deleteCharacters(inRange: range)
         XCTAssertEqual(textNode.text(), text1)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -235,21 +211,16 @@ class TextNodeTests: XCTestCase {
     func testThatPrependIsUndoable1() {
         
         let textToPrepend = "Hello there!"
-        var undoClosure: UndoClosure? = nil
         
-        let textNode = TextNode(text: "") { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
+        
+        let textNode = TextNode(text: "", editContext: editContext)
         
         textNode.prepend(textToPrepend)
         XCTAssertEqual(textNode.text(), textToPrepend)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), "")
     }
     
@@ -270,21 +241,15 @@ class TextNodeTests: XCTestCase {
         let text2 = "Hello"
         let fullText = "\(text2)\(text1)"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: text1) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: text1, editContext: editContext)
         
         textNode.prepend(text2)
         XCTAssertEqual(textNode.text(), fullText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), text1)
     }
     
@@ -311,21 +276,15 @@ class TextNodeTests: XCTestCase {
         let newText = "-"
         let newFullText = "\(text1)\(newText)\(text3)"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.replaceCharacters(inRange: range, withString: newText, inheritStyle: false)
         XCTAssertEqual(textNode.text(), newFullText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -352,21 +311,15 @@ class TextNodeTests: XCTestCase {
         let newText = "-"
         let newFullText = "\(newText)\(text2)\(text3)"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.replaceCharacters(inRange: range, withString: newText, inheritStyle: false)
         XCTAssertEqual(textNode.text(), newFullText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -393,21 +346,15 @@ class TextNodeTests: XCTestCase {
         let newText = "-"
         let newFullText = "\(text1)\(text2)\(newText)"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.replaceCharacters(inRange: range, withString: newText, inheritStyle: false)
         XCTAssertEqual(textNode.text(), newFullText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -433,21 +380,15 @@ class TextNodeTests: XCTestCase {
         
         let newText = "-"
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.replaceCharacters(inRange: range, withString: newText, inheritStyle: false)
         XCTAssertEqual(textNode.text(), newText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
     
@@ -473,21 +414,15 @@ class TextNodeTests: XCTestCase {
         
         let newText = ""
         
-        var undoClosure: UndoClosure? = nil
+        let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText) { anUndoClosure in
-            undoClosure = anUndoClosure
-        }
+        let textNode = TextNode(text: fullText, editContext: editContext)
         
         textNode.replaceCharacters(inRange: range, withString: newText, inheritStyle: false)
         XCTAssertEqual(textNode.text(), newText)
         
-        guard let theUndoClosure = undoClosure else {
-            XCTAssertNotNil(undoClosure)
-            return
-        }
-        
-        theUndoClosure()
+        undoManager.undo()
         XCTAssertEqual(textNode.text(), fullText)
     }
 }

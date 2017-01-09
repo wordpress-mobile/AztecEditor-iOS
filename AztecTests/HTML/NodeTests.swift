@@ -4,12 +4,11 @@ import XCTest
 class NodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
+    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
     typealias TextNode = Libxml2.TextNode
     typealias StandardElementType = Libxml2.StandardElementType
-    typealias UndoClosure = Node.UndoClosure
-    typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
     
     override func setUp() {
         super.setUp()
@@ -25,11 +24,11 @@ class NodeTests: XCTestCase {
 
     func testElementNodesToRoot() {
         
-        let text = TextNode(text: "text1 goes here", registerUndo: { _ in })
+        let text = TextNode(text: "text1 goes here")
 
-        let node1 = ElementNode(name: "p", attributes: [], children: [text], registerUndo: { _ in })
-        let node2 = ElementNode(name: "p", attributes: [], children: [node1], registerUndo: { _ in })
-        let node3 = ElementNode(name: "p", attributes: [], children: [node2], registerUndo: { _ in })
+        let node1 = ElementNode(name: "p", attributes: [], children: [text])
+        let node2 = ElementNode(name: "p", attributes: [], children: [node1])
+        let node3 = ElementNode(name: "p", attributes: [], children: [node2])
 
         let parentNodes = text.elementNodesToRoot()
 
@@ -40,11 +39,11 @@ class NodeTests: XCTestCase {
 
     func testFirstElementNodeInCommon1() {
 
-        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
-        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
-        let text3 = TextNode(text: "text3 goes here..", registerUndo: { _ in })
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
+        let text3 = TextNode(text: "text3 goes here..")
 
-        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3], registerUndo: { _ in })
+        let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
 
         XCTAssertEqual(mainNode, text1.firstElementNodeInCommon(withNode: text2))
         XCTAssertEqual(mainNode, text2.firstElementNodeInCommon(withNode: text3))
@@ -53,34 +52,34 @@ class NodeTests: XCTestCase {
 
     func testFirstElementNodeInCommon2() {
 
-        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
-        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
 
-        let element1 = ElementNode(name: "p", attributes: [], children: [text1], registerUndo: { _ in })
-        let element2 = ElementNode(name: "p", attributes: [], children: [text2], registerUndo: { _ in })
-        let element3 = ElementNode(name: "p", attributes: [], children: [element1, element2], registerUndo: { _ in })
+        let element1 = ElementNode(name: "p", attributes: [], children: [text1])
+        let element2 = ElementNode(name: "p", attributes: [], children: [text2])
+        let element3 = ElementNode(name: "p", attributes: [], children: [element1, element2])
 
         XCTAssertEqual(text1.firstElementNodeInCommon(withNode: text2), element3)
     }
 
     func testFirstElementNodeInCommonNotFound() {
 
-        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
-        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
 
-        let _ = ElementNode(name: "p", attributes: [], children: [text1], registerUndo: { _ in })
+        let _ = ElementNode(name: "p", attributes: [], children: [text1])
 
         XCTAssertEqual(text1.firstElementNodeInCommon(withNode: text2), nil)
     }
 
     func testFirstElementNodeInCommonWithUpToBlockLevel() {
 
-        let text1 = TextNode(text: "text1 goes here", registerUndo: { _ in })
-        let text2 = TextNode(text: "text2 goes here.", registerUndo: { _ in })
+        let text1 = TextNode(text: "text1 goes here")
+        let text2 = TextNode(text: "text2 goes here.")
 
-        let element1 = ElementNode(name: "p", attributes: [], children: [text1], registerUndo: { _ in })
-        let element2 = ElementNode(name: "p", attributes: [], children: [text2], registerUndo: { _ in })
-        let _ = ElementNode(name: "p", attributes: [], children: [element1, element2], registerUndo: { _ in })
+        let element1 = ElementNode(name: "p", attributes: [], children: [text1])
+        let element2 = ElementNode(name: "p", attributes: [], children: [text2])
+        let _ = ElementNode(name: "p", attributes: [], children: [element1, element2])
 
         XCTAssertEqual(text1.firstElementNodeInCommon(withNode: text2, interruptAtBlockLevel: true), nil)
     }
@@ -90,15 +89,14 @@ class NodeTests: XCTestCase {
     func testThatParentChangesAreUndoable() {
         
         let undoManager = UndoManager()
+        let editContext = EditContext(undoManager: undoManager)
         
-        let registerUndo: Node.UndoRegistrationClosure = { (undoTask: @escaping UndoClosure) -> () in
-            undoManager.registerUndo(withTarget: self, handler: { target in
-                undoTask()
-            })
-        }
+        undoManager.disableUndoRegistration()
         
-        let textNode = TextNode(text: "Hello", registerUndo: registerUndo)
-        let elementNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode], registerUndo: registerUndo)
+        let textNode = TextNode(text: "Hello", editContext: editContext)
+        let elementNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode], editContext: editContext)
+        
+        undoManager.enableUndoRegistration()
         
         XCTAssertEqual(textNode.parent, elementNode)
         

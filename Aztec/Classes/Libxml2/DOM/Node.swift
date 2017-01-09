@@ -27,12 +27,9 @@ extension Libxml2 {
             }
         }
         
-        // MARK: - Properties: Undo Support
+        // MARK: - Properties: Edit Context
         
-        typealias UndoClosure = () -> ()
-        typealias UndoRegistrationClosure = (_ undoTask: @escaping UndoClosure) -> ()
-        
-        let registerUndo: UndoRegistrationClosure
+        let editContext: EditContext?
         
         // MARK: - CustomReflectable
         
@@ -44,9 +41,9 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, registerUndo: @escaping UndoRegistrationClosure) {
+        init(name: String, editContext: EditContext? = nil) {
             self.name = name
-            self.registerUndo = registerUndo
+            self.editContext = editContext
         }
 
         func range() -> NSRange {
@@ -173,7 +170,7 @@ extension Libxml2 {
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
 
-            let newNode = ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
+            let newNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
@@ -191,10 +188,15 @@ extension Libxml2 {
         /// Registers an undo operation for an upcoming parent property change.
         ///
         private func registerUndoForParentChange() {
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
             let originalParent = rawParent
             
-            registerUndo { [weak self] in
-                self?.parent = originalParent
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                target.parent = originalParent
             }
         }
     }

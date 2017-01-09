@@ -4,19 +4,17 @@ import libxml2
 extension Libxml2.In {
     class HTMLConverter: Converter {
 
+        typealias EditContext = Libxml2.EditContext
         typealias RootNode = Libxml2.RootNode
-        typealias UndoRegistrationClosure = Libxml2.Node.UndoRegistrationClosure
         
         enum Error: String, Swift.Error {
             case NoRootNode = "No root node"
         }
         
-        let registerUndo: UndoRegistrationClosure
+        let editContext: EditContext?
 
-        /// Not sure why, but the compiler is requiring this initializer.
-        ///
-        required init(registerUndo: @escaping UndoRegistrationClosure) {
-            self.registerUndo = registerUndo
+        required init(editContext: EditContext? = nil) {
+            self.editContext = editContext
         }
 
         /// Converts HTML data into an HTML Node representing the same data.
@@ -88,7 +86,7 @@ extension Libxml2.In {
                 // It may be a good idea to wrap the HTML in a single fake root node before parsing
                 // it to bypass this behaviour.
                 //
-                let nodeConverter = NodeConverter(registerUndo: registerUndo)
+                let nodeConverter = NodeConverter(editContext: editContext)
 
                 guard let node = nodeConverter.convert(rootNode) as? RootNode else {
                     throw Error.NoRootNode

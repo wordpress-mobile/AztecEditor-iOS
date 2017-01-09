@@ -20,7 +20,7 @@ class OutHTMLConverterTests: XCTestCase {
     }
 
     func testSimpleNodeConversion() {
-        let inParser = Libxml2.In.HTMLConverter(registerUndo: { _ in })
+        let inParser = Libxml2.In.HTMLConverter()
         let outParser = Libxml2.Out.HTMLConverter()
 
         let html = "<bold><i>Hello!</i></bold>"
@@ -36,7 +36,7 @@ class OutHTMLConverterTests: XCTestCase {
     }
 
     func testCommentNodeConversion() {
-        let inParser = Libxml2.In.HTMLConverter(registerUndo: { _ in })
+        let inParser = Libxml2.In.HTMLConverter()
         let outParser = Libxml2.Out.HTMLConverter()
 
         let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
