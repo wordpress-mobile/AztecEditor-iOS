@@ -216,10 +216,6 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.unorderedListFormattingSpansRange(range))
     }
 
-    func testInsertLink() {
-        // TODO
-    }
-
     // MARK: - Test Attributes Exist
 
     func testBoldSpansRange() {

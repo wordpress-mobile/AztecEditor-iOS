@@ -5,17 +5,17 @@ extension Libxml2.In {
     class NodeConverter: SafeConverter {
 
         typealias Attribute = Libxml2.Attribute
+        typealias CommentNode = Libxml2.CommentNode
+        typealias EditContext = Libxml2.EditContext
         typealias ElementNode = Libxml2.ElementNode
         typealias Node = Libxml2.Node
         typealias RootNode = Libxml2.RootNode
         typealias TextNode = Libxml2.TextNode
-        typealias CommentNode = Libxml2.CommentNode
-        typealias UndoRegistrationClosure = Node.UndoRegistrationClosure
         
-        let registerUndo: UndoRegistrationClosure
+        let editContext: EditContext?
         
-        required init(registerUndo: @escaping UndoRegistrationClosure) {
-            self.registerUndo = registerUndo
+        required init(editContext: EditContext? = nil) {
+            self.editContext = editContext
         }
         
         /// Converts a single node (from libxml2) into an HTML.Node.
@@ -66,12 +66,12 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(registerUndo: registerUndo)
+                let nodesConverter = NodesConverter(editContext: editContext)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
             let attributes = createAttributes(fromNode: rawNode)
-            let node = ElementNode(name: nodeName, attributes: attributes, children: children, registerUndo: registerUndo)
+            let node = ElementNode(name: nodeName, attributes: attributes, children: children, editContext: editContext)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -93,11 +93,11 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(registerUndo: registerUndo)
+                let nodesConverter = NodesConverter(editContext: editContext)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
-            let node = RootNode(children: children, registerUndo: registerUndo)
+            let node = RootNode(children: children, editContext: editContext)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -118,7 +118,7 @@ extension Libxml2.In {
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
             let text = String(cString: rawNode.content)
             let cleanText = text.replacingOccurrences(of: "\n", with: "")
-            let node = TextNode(text: cleanText, registerUndo: registerUndo)
+            let node = TextNode(text: cleanText, editContext: editContext)
 
             return node
         }
@@ -132,7 +132,7 @@ extension Libxml2.In {
         ///
         fileprivate func createCommentNode(_ rawNode: xmlNode) -> CommentNode {
             let text = String(cString: rawNode.content)
-            let node = CommentNode(text: text, registerUndo: registerUndo)
+            let node = CommentNode(text: text, editContext: editContext)
 
             return node
         }

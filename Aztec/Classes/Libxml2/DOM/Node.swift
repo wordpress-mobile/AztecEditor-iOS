@@ -7,14 +7,29 @@ extension Libxml2 {
     class Node: Equatable, CustomReflectable {
         
         let name: String
-        weak var parent: ElementNode? = nil
         
-        // MARK: - Properties: Undo Support
+        // MARK: - Properties: Parent reference
         
-        typealias UndoClosure = () -> ()
-        typealias UndoRegistrationClosure = (_ undoTask: @escaping UndoClosure) -> ()
+        /// A weak reference to the parent of this node.
+        ///
+        private weak var rawParent: ElementNode? = nil
         
-        let registerUndo: UndoRegistrationClosure
+        /// Parent-node-reference setter and getter, with undo support.
+        ///
+        var parent: ElementNode? {
+            get {
+                return rawParent
+            }
+            
+            set {
+                registerUndoForParentChange()
+                rawParent = newValue
+            }
+        }
+        
+        // MARK: - Properties: Edit Context
+        
+        let editContext: EditContext?
         
         // MARK: - CustomReflectable
         
@@ -26,18 +41,14 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, registerUndo: @escaping UndoRegistrationClosure) {
+        init(name: String, editContext: EditContext? = nil) {
             self.name = name
-            self.registerUndo = registerUndo
+            self.editContext = editContext
         }
 
         func range() -> NSRange {
             return NSRange(location: 0, length: length())
         }
-        
-        // MARK: - Undo support
-        
-        
 
         // MARK: - Override in Subclasses
 
@@ -136,6 +147,15 @@ extension Libxml2 {
 
         // MARK: - DOM Modification
 
+        /// Removes this node from its parent, if it has one.
+        ///
+        func removeFromParent() {
+            if let theParent = parent {
+                theParent.remove(self)
+                parent = nil
+            }
+        }
+        
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.
         ///
@@ -150,7 +170,7 @@ extension Libxml2 {
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
 
-            let newNode = ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
+            let newNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
@@ -161,6 +181,23 @@ extension Libxml2 {
             }
 
             return newNode
+        }
+        
+        // MARK: - Undo support
+        
+        /// Registers an undo operation for an upcoming parent property change.
+        ///
+        private func registerUndoForParentChange() {
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
+            let originalParent = rawParent
+            
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                target.parent = originalParent
+            }
         }
     }
 }
