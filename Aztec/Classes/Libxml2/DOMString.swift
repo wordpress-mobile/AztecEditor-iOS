@@ -283,6 +283,8 @@ extension Libxml2 {
                     applyStyle(strikethroughValue: value, to: range)
                 case NSUnderlineStyleAttributeName:
                     applyStyle(underlineValue: value, to: range)
+                case NSParagraphStyleAttributeName:
+                    applyStyle(paragraphStyle: value, to:range)
                 default:
                     break
                 }
@@ -471,6 +473,20 @@ extension Libxml2 {
             default:
                 // We don't support anything more than single-line underline for now
                 break
+            }
+        }
+
+        fileprivate func applyStyle(paragraphStyle value: Any, to range: NSRange) {
+            guard let paragraphStyle = value as? ParagraphStyle else {
+                // if the value is not a Aztec ParagraphStyle we ignore it
+                return
+            }
+            applyStyle(paragraphStyle: paragraphStyle, to: range)
+        }
+
+        fileprivate func applyStyle(paragraphStyle: ParagraphStyle, to range: NSRange) {
+            if paragraphStyle.blockquote != nil {
+                applyElement(.blockquote, spanning: range)
             }
         }
         
