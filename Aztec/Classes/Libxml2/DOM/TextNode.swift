@@ -17,10 +17,10 @@ extension Libxml2 {
         
         // MARK: - Initializers
         
-        init(text: String, registerUndo: @escaping UndoRegistrationClosure) {
+        init(text: String, editContext: EditContext? = nil) {
             contents = text
 
-            super.init(name: "text", registerUndo: registerUndo)
+            super.init(name: "text", editContext: editContext)
         }
 
         /// Node length.
@@ -89,7 +89,7 @@ extension Libxml2 {
             let postRange = index ..< text().endIndex
             
             if postRange.lowerBound != postRange.upperBound {
-                let newNode = TextNode(text: text().substring(with: postRange), registerUndo: registerUndo)
+                let newNode = TextNode(text: text().substring(with: postRange), editContext: editContext)
                 
                 deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
@@ -112,14 +112,14 @@ extension Libxml2 {
             let postRange = swiftRange.upperBound ..< contents.endIndex
 
             if !postRange.isEmpty {
-                let newNode = TextNode(text: contents.substring(with: postRange), registerUndo: registerUndo)
+                let newNode = TextNode(text: contents.substring(with: postRange), editContext: editContext)
 
                 deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1)
             }
             
             if !preRange.isEmpty {
-                let newNode = TextNode(text: contents.substring(with: preRange), registerUndo: registerUndo)
+                let newNode = TextNode(text: contents.substring(with: preRange), editContext: editContext)
 
                 deleteCharacters(inRange: preRange)
                 parent.insert(newNode, at: nodeIndex)
@@ -153,54 +153,60 @@ extension Libxml2 {
         // MARK: - Undo support
         
         private func registerUndoForAppend(appendedLength: Int) {
-            registerUndo { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                let endIndex = target.contents.endIndex
+                let range = target.contents.index(endIndex, offsetBy: -appendedLength)..<endIndex
                 
-                let endIndex = strongSelf.contents.endIndex
-                let range = strongSelf.contents.index(endIndex, offsetBy: -appendedLength)..<endIndex
-                
-                strongSelf.contents.removeSubrange(range)
+                target.contents.removeSubrange(range)
             }
         }
         
         private func registerUndoForDeleteCharacters(inRange subrange: Range<String.Index>) {
             
+            guard let editContext = editContext else {
+                return
+            }
+            
             let index = subrange.lowerBound
             let removedContent = contents.substring(with: subrange).characters
             
-            registerUndo { [weak self] in
-                self?.contents.insert(contentsOf: removedContent, at: index)
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                target.contents.insert(contentsOf: removedContent, at: index)
             }
         }
         
         private func registerUndoForPrepend(prependedLength: Int) {
-            registerUndo { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                let startIndex = target.contents.startIndex
+                let range = startIndex ..< target.contents.index(startIndex, offsetBy: prependedLength)
                 
-                let startIndex = strongSelf.contents.startIndex
-                let range = startIndex..<strongSelf.contents.index(startIndex, offsetBy: prependedLength)
-                
-                strongSelf.contents.removeSubrange(range)
+                target.contents.removeSubrange(range)
             }
         }
         
         private func registerUndoForReplaceCharacters(in range: Range<String.Index>, withString string: String) {
             
+            guard let editContext = editContext else {
+                return
+            }
+            
             let index = range.lowerBound
             let originalString = contents.substring(with: range)
             
-            registerUndo { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
+            editContext.undoManager.registerUndo(withTarget: self) { target in
+                let newStringRange = index ..< target.contents.index(index, offsetBy: string.characters.count)
                 
-                let newStringRange = index..<strongSelf.contents.index(index, offsetBy: string.characters.count)
-                
-                strongSelf.contents.replaceSubrange(newStringRange, with: originalString)
+                target.contents.replaceSubrange(newStringRange, with: originalString)
             }
         }
     }

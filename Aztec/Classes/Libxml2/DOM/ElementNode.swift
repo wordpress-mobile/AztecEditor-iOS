@@ -36,11 +36,11 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, attributes: [Attribute], children: [Node], registerUndo: @escaping UndoRegistrationClosure) {
+        init(name: String, attributes: [Attribute], children: [Node], editContext: EditContext? = nil) {
             self.attributes.append(contentsOf: attributes)
             self.children = children
 
-            super.init(name: name, registerUndo: registerUndo)
+            super.init(name: name, editContext: editContext)
 
             for child in children {
 
@@ -52,8 +52,8 @@ extension Libxml2 {
             }
         }
         
-        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], registerUndo: @escaping UndoRegistrationClosure) {
-            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, registerUndo: registerUndo)
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], editContext: EditContext? = nil) {
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
         }
         
         // MARK: - Node Overrides
@@ -673,11 +673,7 @@ extension Libxml2 {
         ///     - child: the node to append.
         ///
         func append(_ child: Node) {
-
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-
+            child.removeFromParent()
             children.append(child)
             child.parent = self
         }
@@ -688,25 +684,18 @@ extension Libxml2 {
         ///     - child: the node to append.
         ///
         func append(_ children: [Node]) {
-            
             for child in children {
                 append(child)
             }
         }
-        
+
         /// Prepends a node to the list of children for this element.
         ///
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
         func prepend(_ child: Node) {
-            
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-            
-            children.insert(child, at: 0)
-            child.parent = self
+            insert(child, at: 0)
         }
 
         /// Prepends children to the list of children for this element.
@@ -715,7 +704,6 @@ extension Libxml2 {
         ///     - children: the nodes to prepend.
         ///
         func prepend(_ children: [Node]) {
-            
             for index in stride(from: (children.count - 1), through: 0, by: -1) {
                 prepend(children[index])
             }
@@ -728,11 +716,7 @@ extension Libxml2 {
         ///     - index: the position where to insert the node.
         ///
         func insert(_ child: Node, at index: Int) {
-
-            if let parent = child.parent {
-                parent.remove([child])
-            }
-
+            child.removeFromParent()
             children.insert(child, at: index)
             child.parent = self
         }
@@ -1071,7 +1055,7 @@ extension Libxml2 {
             } else if index < children.count, let nextTextNode = children[index] as? TextNode {
                 nextTextNode.prepend(string)
             } else {
-                insert(TextNode(text: string, registerUndo: registerUndo), at: index)
+                insert(TextNode(text: string, editContext: editContext), at: index)
             }
         }
 
@@ -1158,7 +1142,7 @@ extension Libxml2 {
             let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
             textNode.split(forRange: localRange)
             
-            let imgNode = ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
+            let imgNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
             
             guard let index = textNode.parent?.children.index(of: textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
@@ -1198,7 +1182,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: location)
             
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, registerUndo: registerUndo)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
                 
                 parent.insert(newElement, at: nodeIndex + 1)
                 remove(postNodes, updateParent: false)
@@ -1228,7 +1212,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: range.location + range.length)
 
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, registerUndo: registerUndo)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
 
                 parent.insert(newElement, at: nodeIndex + 1)
                 remove(postNodes, updateParent: false)
@@ -1237,7 +1221,7 @@ extension Libxml2 {
             let preNodes = splitChildren(before: range.location)
 
             if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, registerUndo: registerUndo)
+                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, editContext: editContext)
 
                 parent.insert(newElement, at: nodeIndex)
                 remove(preNodes, updateParent: false)
@@ -1492,7 +1476,7 @@ extension Libxml2 {
 
             guard newChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(descriptor: elementDescriptor, registerUndo: registerUndo)
+                return ElementNode(descriptor: elementDescriptor, editContext: editContext)
             }
 
             guard let firstNodeIndex = children.index(of: newChildren[0]) else {
@@ -1541,7 +1525,7 @@ extension Libxml2 {
             if let result = result {
                 return result
             } else {
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, registerUndo: registerUndo)
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
                 
                 children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
@@ -1575,8 +1559,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(children: [Node], registerUndo: @escaping UndoRegistrationClosure) {
-            super.init(name: type(of: self).name, attributes: [], children: children, registerUndo: registerUndo)
+        init(children: [Node], editContext: EditContext? = nil) {
+            super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
         }
     }
 }
