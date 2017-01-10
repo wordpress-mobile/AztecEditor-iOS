@@ -559,6 +559,17 @@ extension Libxml2 {
                 self?.removeUnderlineSynchronously(spanning: range)
             }
         }
+
+        /// Disables blockquote from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeBlockquote(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeBlockquoteSynchronously(spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         
@@ -576,6 +587,10 @@ extension Libxml2 {
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
+        }
+
+        private func removeBlockquoteSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
         
         // Apply Styles

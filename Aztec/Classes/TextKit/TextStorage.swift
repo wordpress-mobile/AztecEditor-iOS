@@ -271,6 +271,21 @@ open class TextStorage: NSTextStorage {
         toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
     }
 
+
+    /// Toggles blockquotes for the specified range.
+    ///
+    /// - Parameter range: the range to toggle the style of.
+    /// - Returns: the range that was applied to.
+    func toggleBlockquote(_ range: NSRange) -> NSRange? {
+        let formatter = BlockquoteFormatter()
+        let applicationRange = formatter.applicationRange(for: range, in: self)
+        let newSelectedRange = formatter.toggle(in: self, at: range)
+        if !formatter.present(in: self, at: range.location) {
+            dom.removeBlockquote(spanning: applicationRange)
+        }
+        return newSelectedRange
+    }
+
     func setLink(_ url: URL, forRange range: NSRange) {
         var effectiveRange = range
         if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
