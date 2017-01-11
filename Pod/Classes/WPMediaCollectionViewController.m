@@ -3,6 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
+#import "WPFullScreenAssetPreviewViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -24,6 +25,7 @@
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
+@property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 @end
 
@@ -45,6 +47,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
+        _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
     }
     return self;
 }
@@ -104,6 +107,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
         });
     }];
+    [self.view addGestureRecognizer:self.longPressGestureRecognizer];
     [self refreshData];
 }
 
@@ -727,6 +731,25 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Long Press Handling
+
+- (void)handleLongPressOnAsset:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        WPFullScreenAssetPreviewViewController *fullScreenImageVC = [[WPFullScreenAssetPreviewViewController alloc] init];
+        CGPoint pointTouched = [gestureRecognizer locationInView:self.collectionView];
+        NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointTouched];
+        if (!indexPath) {
+            return;
+        }
+        id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+        if (!asset) {
+            return;
+        }
+        fullScreenImageVC.asset = asset;
+        [self.navigationController pushViewController:fullScreenImageVC animated:YES];
+    }
 }
 
 @end

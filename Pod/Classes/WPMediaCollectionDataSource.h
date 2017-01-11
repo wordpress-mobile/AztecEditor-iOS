@@ -79,13 +79,11 @@ typedef int32_t WPMediaRequestID;
 @protocol WPMediaAsset <NSObject>
 
 /**
- *  Assynchronously fetches an image that represents the asset with the requested size
- *
- *  @param size, the target size for the image, this may not be respected if the requested size is not available
- *
- *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
- *
- *  @return an unique ID of the fecth operation that can be used to cancel it.
+ Assynchronously fetches an image that represents the asset with the requested size
+
+ @param size the target size for the image, this may not be respected if the requested size is not available. If the size request is zero the maximum available
+ @param completionHandler a block that is invoked when the image is available or when an error occurs.
+ @return an unique ID of the fecth operation that can be used to cancel it.
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 

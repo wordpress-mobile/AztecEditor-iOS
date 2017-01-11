@@ -330,8 +330,13 @@
     options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
     options.resizeMode = PHImageRequestOptionsResizeModeExact;
     options.networkAccessAllowed = YES;
+    CGSize requestSize = size;
+    if (CGSizeEqualToSize(requestSize, CGSizeZero)) {
+        requestSize.width = self.pixelWidth;
+        requestSize.height = self.pixelHeight;
+    }
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
-                                                        targetSize:size
+                                                        targetSize:requestSize
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
