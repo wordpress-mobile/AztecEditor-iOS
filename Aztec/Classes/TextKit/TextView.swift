@@ -1111,7 +1111,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsOrderedList(_ index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .ordered
+        let formatter = TextListFormatter(style: .ordered)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
@@ -1123,7 +1124,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .unordered
+        let formatter = TextListFormatter(style: .unordered)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
