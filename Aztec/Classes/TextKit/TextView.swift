@@ -699,7 +699,7 @@ open class TextView: UITextView {
     /// This method was meant as a workaround for Issue #144.
     ///
     func forceRedrawCursorIfNeeded(afterEditing text: String) {
-        guard text == "\n" else {
+        guard text == StringConstants.newline else {
             return
         }
 
