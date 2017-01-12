@@ -628,9 +628,8 @@ open class TextView: UITextView {
     /// - Parameters:
     ///     - range: The NSRange to edit.
     ///
-    open func toggleBlockquote(range: NSRange) {
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
+    open func toggleBlockquote(range: NSRange) {        
+        let newSelectedRange = storage.toggleBlockquote(range)
         selectedRange = newSelectedRange ?? selectedRange
         forceRedrawCursorAfterDelay()
     }

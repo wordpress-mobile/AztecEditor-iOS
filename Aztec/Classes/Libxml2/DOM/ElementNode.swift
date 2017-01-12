@@ -1425,9 +1425,18 @@ extension Libxml2 {
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
         fileprivate func forceWrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-                
+            
+            assert(range().contains(range: targetRange))
+            
             let childNodesAndRanges = childNodes(intersectingRange: targetRange)
-            assert(childNodesAndRanges.count > 0)
+            
+            guard childNodesAndRanges.count > 0 else {
+                // It's possible the range may not intersect any child node, if this node is adding
+                // any special characters for formatting purposes in visual mode.  For instance some
+                // nodes add a `\n` character at their end.
+                //
+                return
+            }
             
             let firstChild = childNodesAndRanges[0].child
             let firstChildIntersection = childNodesAndRanges[0].intersection

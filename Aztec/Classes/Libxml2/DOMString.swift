@@ -279,6 +279,8 @@ extension Libxml2 {
                     applyStyle(strikethroughValue: value, to: range)
                 case NSUnderlineStyleAttributeName:
                     applyStyle(underlineValue: value, to: range)
+                case NSParagraphStyleAttributeName:
+                    applyStyle(paragraphStyle: value, to:range)
                 default:
                     break
                 }
@@ -469,6 +471,20 @@ extension Libxml2 {
                 break
             }
         }
+
+        fileprivate func applyStyle(paragraphStyle value: Any, to range: NSRange) {
+            guard let paragraphStyle = value as? ParagraphStyle else {
+                // if the value is not a Aztec ParagraphStyle we ignore it
+                return
+            }
+            applyStyle(paragraphStyle: paragraphStyle, to: range)
+        }
+
+        fileprivate func applyStyle(paragraphStyle: ParagraphStyle, to range: NSRange) {
+            if paragraphStyle.blockquote != nil {
+                applyElement(.blockquote, spanning: range)
+            }
+        }
         
         // MARK: - Images
         
@@ -543,6 +559,17 @@ extension Libxml2 {
                 self?.removeUnderlineSynchronously(spanning: range)
             }
         }
+
+        /// Disables blockquote from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeBlockquote(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeBlockquoteSynchronously(spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         
@@ -560,6 +587,10 @@ extension Libxml2 {
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
+        }
+
+        private func removeBlockquoteSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
         
         // Apply Styles

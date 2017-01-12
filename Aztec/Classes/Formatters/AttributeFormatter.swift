@@ -44,6 +44,8 @@ protocol AttributeFormatter {
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
     func present(in attributes: [String: AnyObject]) -> Bool
+
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 }
 
 
@@ -58,6 +60,7 @@ extension AttributeFormatter {
         let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
         return present(in: attributes)
     }
+
 }
 
 
@@ -107,6 +110,10 @@ protocol CharacterAttributeFormatter: AttributeFormatter {
 
 extension CharacterAttributeFormatter {
 
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
+        return range
+    }
+
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
@@ -131,6 +138,10 @@ protocol ParagraphAttributeFormatter: AttributeFormatter {
 
 extension ParagraphAttributeFormatter {
 
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
+        return text.paragraphRange(for: range)
+    }
+
     /// Toggles an attribute in the specified range of a text storage, and returns the new Selected Range.
     ///
     /// - Note: Whenever either the application paragraph is empty, or the entire storage is empty,
@@ -145,20 +156,20 @@ extension ParagraphAttributeFormatter {
     @discardableResult
     func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
         let shouldApply = shouldApplyAttributes(to: text, at: range)
-        var applicationRange = text.paragraphRange(for: range)
+        var rangeToApply = applicationRange(for: range, in: text)
         var newSelectedRange: NSRange?
 
-        if applicationRange.length == 0 || text.length == 0 {
+        if rangeToApply.length == 0 || text.length == 0 {
             let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
-            text.insert(placeholder, at: applicationRange.location)
+            text.insert(placeholder, at: rangeToApply.location)
             newSelectedRange = NSRange(location: text.length, length: 0)
-            applicationRange = NSMakeRange(text.length - 1, 1)
+            rangeToApply = NSMakeRange(text.length - 1, 1)
         }
 
         if shouldApply {
-            applyAttributes(to: text, at: applicationRange)
+            applyAttributes(to: text, at: rangeToApply)
         } else {
-            removeAttributes(from: text, at: applicationRange)
+            removeAttributes(from: text, at: rangeToApply)
         }
 
         return newSelectedRange
