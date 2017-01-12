@@ -4,9 +4,11 @@ import UIKit
 struct TextListFormatter: ParagraphAttributeFormatter {
 
     let listStyle: TextList.Style
+    let placeholderAttributes: [String : Any]?
 
-    init(style: TextList.Style) {
+    init(style: TextList.Style, placeholderAttributes: [String : Any]? = nil) {
         self.listStyle = style
+        self.placeholderAttributes = placeholderAttributes
     }
 
     func apply(to attributes: [String : Any]) -> [String: Any] {

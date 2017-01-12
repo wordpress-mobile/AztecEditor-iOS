@@ -20,7 +20,11 @@ class Blockquote: NSObject, NSCoding {
 }
 
 struct BlockquoteFormatter: ParagraphAttributeFormatter {
+    let placeholderAttributes: [String : Any]?
 
+    init(placeholderAttributes: [String : Any]? = nil) {
+        self.placeholderAttributes = placeholderAttributes
+    }
 
     func apply(to attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
