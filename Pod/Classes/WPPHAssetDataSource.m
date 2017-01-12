@@ -59,18 +59,24 @@
         self.refreshGroups = YES;
     }
     BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
-    NSIndexSet *removedIndexes = assetsChangeDetails.removedIndexes;
-    NSIndexSet *insertedIndexes = assetsChangeDetails.insertedIndexes;
-    NSIndexSet *changedIndexes = assetsChangeDetails.changedIndexes;
+    // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
+    // The adjustedIndex depends on the *old* asset count.
+    NSIndexSet *removedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.removedIndexes];
+    NSIndexSet *changedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.changedIndexes];
     NSMutableArray *moves = [NSMutableArray array];
     if  (assetsChangeDetails.hasMoves) {
         [assetsChangeDetails enumerateMovesWithBlock:^(NSUInteger fromIndex, NSUInteger toIndex) {
-            [moves addObject:[[WPIndexMove alloc] init:fromIndex to:toIndex]];
+            NSInteger fromIdx = [self adjustedIndexForIndex:fromIndex];
+            NSInteger toIdx = [self adjustedIndexForIndex:toIndex];
+            [moves addObject:[[WPIndexMove alloc] init:fromIdx to:toIdx]];
         }];
     }
     if (incrementalChanges) {
         self.assets = assetsChangeDetails.fetchResultAfterChanges;
     }
+    // Capture inserted indexes *after* fetching results after changes.
+    // The adjustedIndex depends on the *new* asset count.
+    NSIndexSet *insertedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.insertedIndexes];
 
     [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
         block(incrementalChanges, removedIndexes, insertedIndexes, changedIndexes, moves);
@@ -189,7 +195,7 @@
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
     fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
-    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.ascendingOrdering]];
+    // NOTE: Omit specifying fetchOptions.sortDescriptors so the sort order will match the Photos app.
     self.assets = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
     if (successBlock) {
         successBlock();
@@ -226,7 +232,41 @@
 
 - (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index
 {
-    return self.assets[index];
+    NSInteger count = [self numberOfAssets];
+    if (count == 0) {
+        return nil;
+    }
+
+    NSInteger idx = [self adjustedIndexForIndex:index];
+    if (idx < 0 || idx >= count ) {
+        return nil;
+    }
+
+    return self.assets[idx];
+}
+
+- (NSInteger)adjustedIndexForIndex:(NSInteger)index
+{
+    if (self.ascendingOrdering) {
+        return index;
+    }
+
+    // Adjust the index so items are returned in reverse order.
+    // We do this, rather than specifying the sort order in PHFetchOptions,
+    // to preserve the sort order of assets in the Photos app (only in reverse).
+    NSInteger count = [self numberOfAssets];
+    return (count - 1) - index;
+}
+
+- (NSIndexSet *)adjustedIndexesForIndexSet:(NSIndexSet *)indexes
+{
+    NSMutableIndexSet *adjustedSet = [NSMutableIndexSet new];
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+        [adjustedSet addIndex:[self adjustedIndexForIndex:idx]];
+    }];
+
+    // Returns a non-mutable copy.
+    return [[NSIndexSet alloc] initWithIndexSet:adjustedSet];
 }
 
 - (id<WPMediaAsset>)mediaWithIdentifier:(NSString *)identifier
