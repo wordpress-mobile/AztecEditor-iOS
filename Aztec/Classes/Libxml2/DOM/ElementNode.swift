@@ -766,6 +766,7 @@ extension Libxml2 {
                 return
             }
 
+            registerUndoForRemove(child)
             children.remove(at: index)
 
             if updateParent {
@@ -1531,6 +1532,24 @@ extension Libxml2 {
                 newNode.parent = self
                 
                 return newNode
+            }
+        }
+        
+        // MARK: - Undo Support
+        
+        private func registerUndoForRemove(_ child: Node) {
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
+            guard let index = children.index(of: child) else {
+                assertionFailure("The specified node is not one of this node's children.")
+                return
+            }
+            
+            editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
+                self?.children.insert(child, at: index)
             }
         }
     }
