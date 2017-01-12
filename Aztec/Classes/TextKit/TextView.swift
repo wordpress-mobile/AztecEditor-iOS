@@ -589,7 +589,7 @@ open class TextView: UITextView {
     ///     - range: Range of the list to be removed.
     ///
     fileprivate func remove(list: TextList, at range: NSRange) {
-        let formatter = TextListFormatter(style: list.style)
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
     }
@@ -600,7 +600,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .ordered)
+        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
     }
@@ -611,7 +611,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .unordered)
+        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
     }
@@ -629,7 +629,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        let formatter = BlockquoteFormatter()
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
         forceRedrawCursorAfterDelay()
@@ -645,7 +645,7 @@ open class TextView: UITextView {
     ///   - range: the deletion range
     ///
     private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
-        let formatter = BlockquoteFormatter()
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         guard formatter.present(in: textStorage, at: range.location), range.location == 0 else {
             return
         }
@@ -683,7 +683,7 @@ open class TextView: UITextView {
             return
         }
 
-        let formatter = BlockquoteFormatter()
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         var newSelectedRange = formatter.toggle(in: textStorage, at: range)
 
         if afterRange.endLocation < storage.length {
