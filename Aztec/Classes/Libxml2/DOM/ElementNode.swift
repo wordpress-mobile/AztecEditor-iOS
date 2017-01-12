@@ -766,6 +766,7 @@ extension Libxml2 {
                 return
             }
 
+            registerUndoForRemove(child)
             children.remove(at: index)
 
             if updateParent {
@@ -781,17 +782,9 @@ extension Libxml2 {
         ///             If not specified, the parent is updated.
         ///
         func remove(_ children: [Node], updateParent: Bool = true) {
-
-            self.children = self.children.filter({ child -> Bool in
-
-                let removeChild = children.contains(child)
-
-                if removeChild && updateParent {
-                    child.parent = nil
-                }
-
-                return !removeChild
-            })
+            for child in children {
+                remove(child, updateParent: updateParent)
+            }
         }
 
         /// Retrieves all child nodes positioned after a specified location.
@@ -1185,7 +1178,6 @@ extension Libxml2 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
                 
                 parent.insert(newElement, at: nodeIndex + 1)
-                remove(postNodes, updateParent: false)
             }
         }
 
@@ -1215,7 +1207,6 @@ extension Libxml2 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
 
                 parent.insert(newElement, at: nodeIndex + 1)
-                remove(postNodes, updateParent: false)
             }
 
             let preNodes = splitChildren(before: range.location)
@@ -1224,7 +1215,6 @@ extension Libxml2 {
                 let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, editContext: editContext)
 
                 parent.insert(newElement, at: nodeIndex)
-                remove(preNodes, updateParent: false)
             }
         }
 
@@ -1531,6 +1521,24 @@ extension Libxml2 {
                 newNode.parent = self
                 
                 return newNode
+            }
+        }
+        
+        // MARK: - Undo Support
+        
+        private func registerUndoForRemove(_ child: Node) {
+            
+            guard let editContext = editContext else {
+                return
+            }
+            
+            guard let index = children.index(of: child) else {
+                assertionFailure("The specified node is not one of this node's children.")
+                return
+            }
+            
+            editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
+                self?.children.insert(child, at: index)
             }
         }
     }
