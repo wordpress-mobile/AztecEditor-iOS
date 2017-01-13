@@ -132,11 +132,15 @@ open class TextView: UITextView {
     // MARK: - Intersect keyboard operations
 
     open override func insertText(_ text: String) {
-        var insertionRange = selectedRange
+        // Note:
+        // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
+        // text insertion to happen. Thus, we won't call super.insertText, capicci?
+        //
+        if removeParagraphAttributesIfNeeded(insertedText: text, at: selectedRange) {
+            return
+        }
+
         super.insertText(text)
-        insertionRange.length = 1
-        refreshListAfterInsertion(of: text, at: insertionRange)
-        refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
         forceRedrawCursorIfNeeded(afterEditing: text)
     }
 
@@ -526,44 +530,6 @@ open class TextView: UITextView {
 
     // MARK: - Lists
 
-    /// Refresh Lists attributes when insert new text in the specified range
-    ///
-    /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
-    ///
-    private func refreshListAfterInsertion(of text: String, at range: NSRange) {
-        //check if new text is part of a list
-        guard let textList = storage.textListAttribute(atIndex: range.location) else {
-            return
-        }
-
-        let afterRange = NSRange(location: range.location + 1, length: 1)
-        let beforeRange = NSRange(location: range.location - 1, length: 1)
-
-        var afterString = "\n"
-        var beforeString = "\n"
-        if beforeRange.location >= 0 {
-            beforeString = storage.attributedSubstring(from: beforeRange).string
-        }
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
-
-        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
-            remove(list:textList, at: range)
-            if afterRange.endLocation < storage.length {
-                remove(list: textList, at: afterRange)
-                deleteBackward()
-            } else {
-                selectedRange = NSRange(location: range.location, length: 0)
-            }
-        }
-    }
-
-
     /// Refresh Lists attributes when text is deleted in the specified range
     ///
     /// - Parameters:
@@ -643,46 +609,53 @@ open class TextView: UITextView {
         toggleBlockquote(range: range)
     }
 
-
-    /// Refresh blockquote attributes when inserting new text at the specified range
     ///
-    /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
     ///
-    private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
-        guard formattingAtIndexContainsBlockquote(range.location) else {
-            return
+    private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
+        guard text == StringConstants.newline else {
+            return false
         }
 
-        let afterRange = NSRange(location: range.location + 1, length: 1)
-        let beforeRange = NSRange(location: range.location - 1, length: 1)
+        let afterRange = NSRange(location: location, length: 1)
+        let beforeRange = NSRange(location: location - 1, length: 1)
 
-        var afterString = "\n"
-        var beforeString = "\n"
+        var afterString = StringConstants.newline
+        var beforeString = StringConstants.newline
         if beforeRange.location >= 0 {
             beforeString = storage.attributedSubstring(from: beforeRange).string
         }
+
         if afterRange.endLocation < storage.length {
             afterString = storage.attributedSubstring(from: afterRange).string
         }
 
-        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
-        guard text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem else {
-            return
-        }
-
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        var newSelectedRange = formatter.toggle(in: textStorage, at: range)
-
-        if afterRange.endLocation < storage.length {
-            newSelectedRange = formatter.toggle(in: textStorage, at: afterRange) ?? newSelectedRange
-            deleteBackward()
-        }
-
-        selectedRange = newSelectedRange ?? selectedRange
+        return beforeString == StringConstants.newline && afterString == StringConstants.newline && storage.isStartOfNewLine(atLocation: location)
     }
 
+    ///
+    ///
+    func removeParagraphAttributesIfNeeded(insertedText text: String, at range: NSRange) -> Bool {
+        guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
+            return false
+        }
+
+        if formattingAtIndexContainsOrderedList(range.location) {
+            toggleOrderedList(range: range)
+            return true
+        }
+
+        if formattingAtIndexContainsUnorderedList(range.location) {
+            toggleUnorderedList(range: range)
+            return true
+        }
+
+        if formattingAtIndexContainsBlockquote(range.location) {
+            toggleBlockquote(range: range)
+            return true
+        }
+        
+        return false
+    }
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
