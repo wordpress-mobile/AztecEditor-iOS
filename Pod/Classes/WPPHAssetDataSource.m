@@ -399,6 +399,41 @@
     [[WPPHAssetDataSource sharedImageManager] cancelImageRequest:requestID];
 }
 
+/**
+ Returns an url that points for the video stream. This is only valid for a MediaAsset of the type.
+
+ @return the url for the video, or nil if the asset is not of video type.
+ */
+- (WPMediaRequestID)videoURLWithCompletionHandler:(WPMediaURLBlock)completionHandler
+{
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    options.networkAccessAllowed = YES;
+    return [[WPPHAssetDataSource sharedImageManager] requestAVAssetForVideo:self
+                                                                  options:options
+                                                            resultHandler:^(AVAsset *result, AVAudioMix *audioMix, NSDictionary *info) {
+                                                                NSError *error = info[PHImageErrorKey];
+                                                                NSNumber *canceled = info[PHImageCancelledKey];
+                                                                if (error || canceled){
+                                                                    if (completionHandler && ![canceled boolValue]){
+                                                                        completionHandler(nil, error);
+                                                                    }
+                                                                    return;
+                                                                }
+                                                                AVURLAsset *assetURL = nil;
+                                                                if (![result isKindOfClass:[AVURLAsset class]]){
+                                                                    if (completionHandler && ![canceled boolValue]){
+                                                                        completionHandler(nil, nil);
+                                                                    }
+                                                                }
+                                                                assetURL = (AVURLAsset *)result;
+                                                                if (completionHandler){
+                                                                    completionHandler(assetURL.URL, nil);
+                                                                }
+                                                            }];
+}
+
+
 - (WPMediaType)assetType
 {
     if ([self mediaType] == PHAssetMediaTypeVideo){

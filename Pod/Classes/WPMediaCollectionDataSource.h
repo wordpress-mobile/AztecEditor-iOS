@@ -25,6 +25,7 @@ typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef void (^WPMediaURLBlock)(NSURL *url, NSError *error);
 typedef int32_t WPMediaRequestID;
 
 
@@ -93,6 +94,13 @@ typedef int32_t WPMediaRequestID;
  *  @param requestID an identifier returned by the imageWithSize:completionHandler: method.
  */
 - (void)cancelImageRequest:(WPMediaRequestID)requestID;
+
+/**
+ Returns an url that points for the video stream. This is only valid for a MediaAsset of the type.
+
+ @return the url for the video, or nil if the asset is not of video type.
+ */
+- (WPMediaRequestID)videoURLWithCompletionHandler:(WPMediaURLBlock)completionHandler;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.
