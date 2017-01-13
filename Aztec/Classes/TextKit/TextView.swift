@@ -640,8 +640,7 @@ open class TextView: UITextView {
             return
         }
 
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
+        toggleBlockquote(range: range)
     }
 
 
