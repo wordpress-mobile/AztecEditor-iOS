@@ -127,7 +127,7 @@ static NSString *tracksKey = @"tracks";
                 // Player item failed. See error.
                 NSError *error = [self.playerItem error];
                 if (self.delegate) {
-                    [self.delegate videoPlayerView:self didFailedWithError: error];
+                    [self.delegate videoPlayerView:self didFailWithError: error];
                 }
             }
                 break;
