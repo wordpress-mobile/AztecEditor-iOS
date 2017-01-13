@@ -572,26 +572,16 @@ open class TextView: UITextView {
     ///
     private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
-              deletedText.string == "\n" || range.location == 0 else {
+              deletedText.string == StringConstants.newline && range.location == 0 else {
             return
         }
 
-        if (range.location == 0) {
-            remove(list: textList, at: range)
+        switch textList.style {
+        case .ordered:
+            toggleOrderedList(range: range)
+        case .unordered:
+            toggleUnorderedList(range: range)
         }
-    }
-
-
-    /// Removes the TextList of the specified format, at a given range.
-    ///
-    /// - Parameters:
-    ///     - list: The list to be removed.
-    ///     - range: Range of the list to be removed.
-    ///
-    fileprivate func remove(list: TextList, at range: NSRange) {
-        let formatter = TextListFormatter(style: list.style, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
