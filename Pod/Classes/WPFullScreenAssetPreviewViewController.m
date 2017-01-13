@@ -112,7 +112,7 @@
         }
         [strongSelf.activityIndicatorView stopAnimating];
         if (error) {
-            [self showError:error];
+            [strongSelf showError:error];
             return;
         }
         strongSelf.imageView.image = result;
@@ -131,10 +131,10 @@
         }
         [strongSelf.activityIndicatorView stopAnimating];
         if (error || url == nil) {
-            [self showError:error];
+            [strongSelf showError:error];
             return;
         }
-        self.videoView.videoURL = url;
+        strongSelf.videoView.videoURL = url;
     }];
 }
 

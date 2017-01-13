@@ -46,6 +46,7 @@ static NSString *tracksKey = @"tracks";
 - (void)dealloc {
     [self.playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver: self];
+    [self.player pause];
 }
 
 - (void)layoutSubviews {
