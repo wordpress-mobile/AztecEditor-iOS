@@ -10,7 +10,8 @@ static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
 
 typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
     WPMediaErrorCodePermissionsFailed,
-    WPMediaErrorCodePermissionsUnknow
+    WPMediaErrorCodePermissionsUnknow,
+    WPMediaErrorCodeVideoURLNotAvailable
 };
 
 @protocol WPMediaMove <NSObject>
