@@ -39,13 +39,13 @@ typedef int32_t WPMediaRequestID;
 - (NSString *)name;
 
 /**
- *  Assynchronously fetches an image that represents the group
+ *  Asynchronously fetches an image that represents the group
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
  *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
  *
- *  @return an unique ID of the fecth operation
+ *  @return an unique ID of the fetch operation
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
@@ -81,11 +81,11 @@ typedef int32_t WPMediaRequestID;
 @protocol WPMediaAsset <NSObject>
 
 /**
- Assynchronously fetches an image that represents the asset with the requested size
+ Asynchronously fetches an image that represents the asset with the requested size
 
  @param size the target size for the image, this may not be respected if the requested size is not available. If the size request is zero the maximum available
  @param completionHandler a block that is invoked when the image is available or when an error occurs.
- @return an unique ID of the fecth operation that can be used to cancel it.
+ @return an unique ID of the fetch operation that can be used to cancel it.
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 

@@ -5,7 +5,7 @@
 
 @protocol WPVideoPlayerViewDelegate
 
-- (void)videoPlayerView:(WPVideoPlayerView *)playerView didFailedWithError:(NSError *)error;
+- (void)videoPlayerView:(WPVideoPlayerView *)playerView didFailWithError:(NSError *)error;
  - (void)videoPlayerViewStarted:(WPVideoPlayerView *)playerView;
  - (void)videoPlayerViewFinish:(WPVideoPlayerView *)playerView;
 
