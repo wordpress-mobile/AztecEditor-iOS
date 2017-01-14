@@ -466,6 +466,11 @@
     return [self creationDate];
 }
 
+- (CGSize)pixelSize
+{
+    return CGSizeMake((CGFloat)self.pixelWidth, (CGFloat)self.pixelHeight);
+}
+
 @end
 
 #pragma mark - WPPHAssetCollection

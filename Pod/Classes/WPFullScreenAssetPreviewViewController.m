@@ -158,4 +158,16 @@
     }
 }
 
+- (CGSize)preferredContentSize
+{
+    CGSize size = self.view.bounds.size;
+
+    // Scale the preferred content size to be the same aspect
+    // ratio as the asset we're displaying.
+    CGSize pixelSize = [self.asset pixelSize];
+    CGFloat scaleFactor = pixelSize.height / pixelSize.width;
+
+    return CGSizeMake(size.width, size.width * scaleFactor);
+}
+
 @end
