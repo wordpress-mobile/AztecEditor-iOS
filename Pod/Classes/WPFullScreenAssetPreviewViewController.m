@@ -117,12 +117,14 @@
         if (!strongSelf) {
             return;
         }
-        [strongSelf.activityIndicatorView stopAnimating];
-        if (error) {
-            [strongSelf showError:error];
-            return;
-        }
-        strongSelf.imageView.image = result;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf.activityIndicatorView stopAnimating];
+            if (error) {
+                [strongSelf showError:error];
+                return;
+            }
+            strongSelf.imageView.image = result;
+        });
     }];
 }
 
@@ -136,26 +138,26 @@
         if (!strongSelf) {
             return;
         }
-        [strongSelf.activityIndicatorView stopAnimating];
-        if (error || url == nil) {
-            [strongSelf showError:error];
-            return;
-        }
-        strongSelf.videoView.videoURL = url;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf.activityIndicatorView stopAnimating];
+            if (error || url == nil) {
+                [strongSelf showError:error];
+                return;
+            }
+            strongSelf.videoView.videoURL = url;
+        });
     }];
 }
 
 - (void)showError:(NSError *)error {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
-                                                                                  message:error.localizedDescription
-                                                                           preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self.navigationController popViewControllerAnimated:YES];
-        }]];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
+                                                                              message:error.localizedDescription
+                                                                       preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }]];
 
-        [self presentViewController:alertController animated:YES completion:nil];
-    });
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
