@@ -28,6 +28,7 @@
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
+@property (nonatomic, strong) NSIndexPath *assetIndexInPreview;
 
 @end
 
@@ -216,6 +217,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
+    if ([removed containsIndex:self.assetIndexInPreview.item]){
+        self.assetIndexInPreview = nil;
+    }
     [self.collectionView performBatchUpdates:^{
         if (removed) {
             [self.collectionView deleteItemsAtIndexPaths:[self indexPathsFromIndexSet:removed section:0]];
@@ -231,6 +235,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             for (id<WPMediaMove> move in moves) {
                 [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
                                              toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
+                if (self.assetIndexInPreview.row == move.from) {
+                    self.assetIndexInPreview = [NSIndexPath indexPathForItem:move.to inSection:0];
+                }
             }
         } completion:^(BOOL finished) {
             [self refreshSelection];
@@ -467,11 +474,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (asset == nil) {
+        return;
+    }
     if (!self.allowMultipleSelection) {
         [self.selectedAssets removeAllObjects];
     }
     [self.selectedAssets addObject:asset];
-    
+
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     if (self.allowMultipleSelection) {
         [cell setPosition:self.selectedAssets.count];
@@ -503,6 +513,9 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
 
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (asset == nil){
+        return;
+    }
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
         [self.selectedAssets removeObjectAtIndex:deselectPosition];
@@ -768,6 +781,8 @@ referenceSizeForFooterInSection:(NSInteger)section
 
     WPFullScreenAssetPreviewViewController *fullScreenImageVC = [[WPFullScreenAssetPreviewViewController alloc] init];
     fullScreenImageVC.asset = asset;
+    fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
+    fullScreenImageVC.delegate = self;
     return fullScreenImageVC;
 }
 
@@ -776,9 +791,9 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
     CGPoint convertedLocation = [self.collectionView convertPoint:location fromView:self.view];
-    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:convertedLocation];
-    if (indexPath) {
-        UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
+    self.assetIndexInPreview = [self.collectionView indexPathForItemAtPoint:convertedLocation];
+    if (self.assetIndexInPreview) {
+        UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:self.assetIndexInPreview];
         CGRect rect = [self.view convertRect:attributes.frame fromView:self.collectionView];
         [previewingContext setSourceRect:rect];
     }
@@ -793,7 +808,19 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)fullScreenAssetPreviewViewController:(WPFullScreenAssetPreviewViewController *)assetPreviewVC selectionChange:(BOOL)selected
 {
+    if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 
+    }
+    if (self.assetIndexInPreview == nil) {
+        return;
+    }
+    if (selected) {
+        [self.collectionView selectItemAtIndexPath:self.assetIndexInPreview animated:YES scrollPosition:UICollectionViewScrollPositionNone];
+        [self collectionView:self.collectionView didSelectItemAtIndexPath:self.assetIndexInPreview];
+    } else {
+        [self.collectionView deselectItemAtIndexPath:self.assetIndexInPreview animated:YES];
+        [self collectionView:self.collectionView didDeselectItemAtIndexPath:self.assetIndexInPreview];
+    }
 }
 
 @end

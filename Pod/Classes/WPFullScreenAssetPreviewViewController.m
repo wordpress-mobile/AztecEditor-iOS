@@ -45,7 +45,7 @@
 
     NSString *actionTitle = NSLocalizedString(@"Add", @"Remove asset from media picker list");
     if (self.selected) {
-        NSString *actionTitle = NSLocalizedString(@"Remove", @"Add asset to media picker list");
+        actionTitle = NSLocalizedString(@"Remove", @"Add asset to media picker list");
     }
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:actionTitle style:UIBarButtonItemStylePlain target:self action:@selector(selectAction:)];
