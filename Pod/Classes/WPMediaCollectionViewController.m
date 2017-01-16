@@ -3,7 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPFullScreenAssetPreviewViewController.h"
+#import "WPAssetViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -15,7 +15,7 @@
  WPMediaGroupPickerViewControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
- WPFullScreenAssetPreviewViewControllerDelegate,
+ WPAssetViewControllerDelegate,
  UIViewControllerPreviewingDelegate
 >
 
@@ -767,19 +767,19 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
-- (nullable WPFullScreenAssetPreviewViewController *)fullscreenAssetPreviewControllerForTouchLocation:(CGPoint)location
+- (nullable WPAssetViewController *)fullscreenAssetPreviewControllerForTouchLocation:(CGPoint)location
 {
-    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:location];
-    if (!indexPath) {
+    self.assetIndexInPreview = [self.collectionView indexPathForItemAtPoint:location];
+    if (!self.assetIndexInPreview) {
         return nil;
     }
 
-    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    id<WPMediaAsset> asset = [self assetForPosition:self.assetIndexInPreview];
     if (!asset) {
         return nil;
     }
 
-    WPFullScreenAssetPreviewViewController *fullScreenImageVC = [[WPFullScreenAssetPreviewViewController alloc] init];
+    WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
     fullScreenImageVC.delegate = self;
@@ -806,7 +806,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     [self.navigationController pushViewController:viewControllerToCommit animated:YES];
 }
 
-- (void)fullScreenAssetPreviewViewController:(WPFullScreenAssetPreviewViewController *)assetPreviewVC selectionChange:(BOOL)selected
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChange:(BOOL)selected
 {
     if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 

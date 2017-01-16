@@ -1,11 +1,11 @@
-#import "WPFullScreenAssetPreviewViewController.h"
+#import "WPAssetViewController.h"
 
 @import AVFoundation;
 @import AVKit;
 
 #import "WPVideoPlayerView.h"
 
-@interface WPFullScreenAssetPreviewViewController ()
+@interface WPAssetViewController ()
 
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) WPVideoPlayerView *videoView;
@@ -14,7 +14,7 @@
 
 @end
 
-@implementation WPFullScreenAssetPreviewViewController
+@implementation WPAssetViewController
 
 
 - (void)viewDidLoad
@@ -171,7 +171,7 @@
 {
     self.selected = !self.selected;
     if (self.delegate) {
-        [self.delegate fullScreenAssetPreviewViewController:self selectionChange:self.selected];
+        [self.delegate assetViewController:self selectionChange:self.selected];
         [self.navigationController popViewControllerAnimated:YES];
     }
 }
