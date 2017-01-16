@@ -15,7 +15,8 @@
  WPMediaGroupPickerViewControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
- WPFullScreenAssetPreviewViewControllerDelegate
+ WPFullScreenAssetPreviewViewControllerDelegate,
+ UIViewControllerPreviewingDelegate
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
@@ -108,7 +109,13 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
         });
     }];
-    [self.view addGestureRecognizer:self.longPressGestureRecognizer];
+
+    if ([self.traitCollection containsTraitsInCollection:[UITraitCollection traitCollectionWithForceTouchCapability:UIForceTouchCapabilityAvailable]]) {
+        [self registerForPreviewingWithDelegate:self sourceView:self.view];
+    } else {
+        [self.view addGestureRecognizer:self.longPressGestureRecognizer];
+    }
+
     [self refreshData];
 }
 
@@ -738,19 +745,50 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)handleLongPressOnAsset:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        WPFullScreenAssetPreviewViewController *fullScreenImageVC = [[WPFullScreenAssetPreviewViewController alloc] init];
-        CGPoint pointTouched = [gestureRecognizer locationInView:self.collectionView];
-        NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointTouched];
-        if (!indexPath) {
-            return;
+        CGPoint location = [gestureRecognizer locationInView:self.collectionView];
+        UIViewController *viewController = [self fullscreenAssetPreviewControllerForTouchLocation:location];
+
+        if (viewController) {
+            [self.navigationController pushViewController:viewController animated:YES];
         }
-        id<WPMediaAsset> asset = [self assetForPosition:indexPath];
-        if (!asset) {
-            return;
-        }
-        fullScreenImageVC.asset = asset;
-        [self.navigationController pushViewController:fullScreenImageVC animated:YES];
     }
+}
+
+- (nullable WPFullScreenAssetPreviewViewController *)fullscreenAssetPreviewControllerForTouchLocation:(CGPoint)location
+{
+    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:location];
+    if (!indexPath) {
+        return nil;
+    }
+
+    id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (!asset) {
+        return nil;
+    }
+
+    WPFullScreenAssetPreviewViewController *fullScreenImageVC = [[WPFullScreenAssetPreviewViewController alloc] init];
+    fullScreenImageVC.asset = asset;
+    return fullScreenImageVC;
+}
+
+#pragma mark - UIViewControllerPreviewingDelegate
+
+- (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
+{
+    CGPoint convertedLocation = [self.collectionView convertPoint:location fromView:self.view];
+    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:convertedLocation];
+    if (indexPath) {
+        UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
+        CGRect rect = [self.view convertRect:attributes.frame fromView:self.collectionView];
+        [previewingContext setSourceRect:rect];
+    }
+
+    return [self fullscreenAssetPreviewControllerForTouchLocation:convertedLocation];
+}
+
+- (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
+{
+    [self.navigationController pushViewController:viewControllerToCommit animated:YES];
 }
 
 - (void)fullScreenAssetPreviewViewController:(WPFullScreenAssetPreviewViewController *)assetPreviewVC selectionChange:(BOOL)selected

@@ -138,6 +138,13 @@ typedef int32_t WPMediaRequestID;
  */
 - (NSDate *)date;
 
+/**
+ *  The size, in pixels, of the asset’s image or video data.
+ *
+ *  @return The size, in pixels, of the asset’s image or video data.
+ */
+- (CGSize)pixelSize;
+
 @end
 
 /**
