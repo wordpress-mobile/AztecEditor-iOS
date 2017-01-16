@@ -14,7 +14,8 @@
  UINavigationControllerDelegate,
  WPMediaGroupPickerViewControllerDelegate,
  UIPopoverPresentationControllerDelegate,
- UICollectionViewDelegateFlowLayout
+ UICollectionViewDelegateFlowLayout,
+ WPFullScreenAssetPreviewViewControllerDelegate
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
@@ -750,6 +751,11 @@ referenceSizeForFooterInSection:(NSInteger)section
         fullScreenImageVC.asset = asset;
         [self.navigationController pushViewController:fullScreenImageVC animated:YES];
     }
+}
+
+- (void)fullScreenAssetPreviewViewController:(WPFullScreenAssetPreviewViewController *)assetPreviewVC selectionChange:(BOOL)selected
+{
+
 }
 
 @end

@@ -43,6 +43,13 @@
     [self.activityIndicatorView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = YES;
     [self.activityIndicatorView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor].active = YES;
 
+    NSString *actionTitle = NSLocalizedString(@"Add", @"Remove asset from media picker list");
+    if (self.selected) {
+        NSString *actionTitle = NSLocalizedString(@"Remove", @"Add asset to media picker list");
+    }
+
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:actionTitle style:UIBarButtonItemStylePlain target:self action:@selector(selectAction:)];
+
     [self showAsset];
 }
 
@@ -155,6 +162,15 @@
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.navigationController setNavigationBarHidden:!self.navigationController.isNavigationBarHidden animated:YES];
+    }
+}
+
+- (void)selectAction:(UIBarButtonItem *)button
+{
+    self.selected = !self.selected;
+    if (self.delegate) {
+        [self.delegate fullScreenAssetPreviewViewController:self selectionChange:self.selected];
+        [self.navigationController popViewControllerAnimated:YES];
     }
 }
 
