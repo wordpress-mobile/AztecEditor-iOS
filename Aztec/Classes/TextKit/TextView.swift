@@ -137,7 +137,9 @@ open class TextView: UITextView {
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
         if removeParagraphAttributesIfNeeded(insertedText: text, at: selectedRange) {
-            typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
+            if (self.textStorage.length > 0) {
+                typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
+            }
             self.delegate?.textViewDidChangeSelection?(self)
             return
         }
