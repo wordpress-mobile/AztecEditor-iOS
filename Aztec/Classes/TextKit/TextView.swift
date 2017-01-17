@@ -566,6 +566,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
+        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
     }
 
 
@@ -577,6 +578,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
+        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
     }
 
 
@@ -594,6 +596,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {        
         let newSelectedRange = storage.toggleBlockquote(range)
         selectedRange = newSelectedRange ?? selectedRange
+        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
         forceRedrawCursorAfterDelay()
     }
 
