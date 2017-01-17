@@ -132,11 +132,19 @@ open class TextView: UITextView {
     // MARK: - Intersect keyboard operations
 
     open override func insertText(_ text: String) {
-        var insertionRange = selectedRange
+        // Note:
+        // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
+        // text insertion to happen. Thus, we won't call super.insertText.
+        // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
+        if removeParagraphAttributesIfNeeded(insertedText: text, at: selectedRange) {
+            if (self.textStorage.length > 0) {
+                typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
+            }
+            self.delegate?.textViewDidChangeSelection?(self)
+            return
+        }
+
         super.insertText(text)
-        insertionRange.length = 1
-        refreshListAfterInsertion(of: text, at: insertionRange)
-        refreshBlockquoteAfterInsertion(of: text, at: insertionRange)
         forceRedrawCursorIfNeeded(afterEditing: text)
     }
 
@@ -526,44 +534,6 @@ open class TextView: UITextView {
 
     // MARK: - Lists
 
-    /// Refresh Lists attributes when insert new text in the specified range
-    ///
-    /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
-    ///
-    private func refreshListAfterInsertion(of text: String, at range: NSRange) {
-        //check if new text is part of a list
-        guard let textList = storage.textListAttribute(atIndex: range.location) else {
-            return
-        }
-
-        let afterRange = NSRange(location: range.location + 1, length: 1)
-        let beforeRange = NSRange(location: range.location - 1, length: 1)
-
-        var afterString = "\n"
-        var beforeString = "\n"
-        if beforeRange.location >= 0 {
-            beforeString = storage.attributedSubstring(from: beforeRange).string
-        }
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
-
-        if text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem {
-            remove(list:textList, at: range)
-            if afterRange.endLocation < storage.length {
-                remove(list: textList, at: afterRange)
-                deleteBackward()
-            } else {
-                selectedRange = NSRange(location: range.location, length: 0)
-            }
-        }
-    }
-
-
     /// Refresh Lists attributes when text is deleted in the specified range
     ///
     /// - Parameters:
@@ -572,26 +542,19 @@ open class TextView: UITextView {
     ///
     private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
-              deletedText.string == "\n" || range.location == 0 else {
+              deletedText.string == StringConstants.newline && range.location == 0 else {
             return
         }
 
-        if (range.location == 0) {
-            remove(list: textList, at: range)
+        // Proceed to remove the list
+        // TODO: We should have explicit methods to Remove a TextList format, rather than just calling Toggle
+        //
+        switch textList.style {
+        case .ordered:
+            toggleOrderedList(range: range)
+        case .unordered:
+            toggleUnorderedList(range: range)
         }
-    }
-
-
-    /// Removes the TextList of the specified format, at a given range.
-    ///
-    /// - Parameters:
-    ///     - list: The list to be removed.
-    ///     - range: Range of the list to be removed.
-    ///
-    fileprivate func remove(list: TextList, at range: NSRange) {
-        let formatter = TextListFormatter(style: list.style, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
     }
 
 
@@ -649,56 +612,86 @@ open class TextView: UITextView {
             return
         }
 
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
+        // Remove the Blockquote.
+        // TODO: We should have explicit methods to Remove a Blockquote format, rather than just calling Toggle
+        //
+        toggleBlockquote(range: range)
     }
 
 
-    /// Refresh blockquote attributes when inserting new text at the specified range
+    /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
+    /// or not. Note that we should remove Paragraph Styles whenever:
+    ///
+    /// -   The previous string contains just a newline
+    /// -   The next string is a newline (or we're at the end of the text storage)
+    /// -   We're at the beginning of a new line
+    /// -   The user just typed a new line
     ///
     /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
+    ///     - insertedText: String that was just inserted
+    ///     - at: Location in which the string was just inserted
     ///
-    private func refreshBlockquoteAfterInsertion(of text: String, at range: NSRange) {
-        guard formattingAtIndexContainsBlockquote(range.location) else {
-            return
+    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
+    ///
+    private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
+        guard text == StringConstants.newline else {
+            return false
         }
 
-        let afterRange = NSRange(location: range.location + 1, length: 1)
-        let beforeRange = NSRange(location: range.location - 1, length: 1)
+        let afterRange = NSRange(location: location, length: 1)
+        let beforeRange = NSRange(location: location - 1, length: 1)
 
-        var afterString = "\n"
-        var beforeString = "\n"
+        var afterString = StringConstants.newline
+        var beforeString = StringConstants.newline
         if beforeRange.location >= 0 {
             beforeString = storage.attributedSubstring(from: beforeRange).string
         }
+
         if afterRange.endLocation < storage.length {
             afterString = storage.attributedSubstring(from: afterRange).string
         }
 
-        let isBegginingOfListItem = storage.isStartOfNewLine(atLocation: range.location)
-        guard text == "\n" && beforeString == "\n" && afterString == "\n" && isBegginingOfListItem else {
-            return
-        }
-
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        var newSelectedRange = formatter.toggle(in: textStorage, at: range)
-
-        if afterRange.endLocation < storage.length {
-            newSelectedRange = formatter.toggle(in: textStorage, at: afterRange) ?? newSelectedRange
-            deleteBackward()
-        }
-
-        selectedRange = newSelectedRange ?? selectedRange
+        return beforeString == StringConstants.newline && afterString == StringConstants.newline && storage.isStartOfNewLine(atLocation: location)
     }
 
+
+    /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
+    /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that just got inserted.
+    ///     - at: Range in which the string was inserted.
+    ///
+    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
+    ///
+    func removeParagraphAttributesIfNeeded(insertedText text: String, at range: NSRange) -> Bool {
+        guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
+            return false
+        }
+
+        if formattingAtIndexContainsOrderedList(range.location) {
+            toggleOrderedList(range: range)
+            return true
+        }
+
+        if formattingAtIndexContainsUnorderedList(range.location) {
+            toggleUnorderedList(range: range)
+            return true
+        }
+
+        if formattingAtIndexContainsBlockquote(range.location) {
+            toggleBlockquote(range: range)
+            return true
+        }
+        
+        return false
+    }
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
     ///
     func forceRedrawCursorIfNeeded(afterEditing text: String) {
-        guard text == "\n" else {
+        guard text == StringConstants.newline else {
             return
         }
 
@@ -1110,7 +1103,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsOrderedList(_ index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .ordered
+        let formatter = TextListFormatter(style: .ordered)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
@@ -1122,7 +1116,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
-        return storage.textListAttribute(atIndex: index)?.style == .unordered
+        let formatter = TextListFormatter(style: .unordered)
+        return formatter.present(in: textStorage, at: index)
     }
 
 
