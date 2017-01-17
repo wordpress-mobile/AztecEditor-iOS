@@ -850,7 +850,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
     if (!needToPop) {
         [self dismissViewControllerAnimated:YES completion:^{
-
+            [self presentViewController:alertController animated:YES completion:nil];
         }];
     } else {
         [self presentViewController:alertController animated:YES completion:nil];
