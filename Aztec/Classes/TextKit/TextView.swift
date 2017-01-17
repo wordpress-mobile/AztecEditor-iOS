@@ -542,6 +542,9 @@ open class TextView: UITextView {
             return
         }
 
+        // Proceed to remove the list
+        // TODO: We should have explicit methods to Remove a TextList format, rather than just calling Toggle
+        //
         switch textList.style {
         case .ordered:
             toggleOrderedList(range: range)
@@ -605,6 +608,9 @@ open class TextView: UITextView {
             return
         }
 
+        // Remove the Blockquote.
+        // TODO: We should have explicit methods to Remove a Blockquote format, rather than just calling Toggle
+        //
         toggleBlockquote(range: range)
     }
 
@@ -631,7 +637,14 @@ open class TextView: UITextView {
         return beforeString == StringConstants.newline && afterString == StringConstants.newline && storage.isStartOfNewLine(atLocation: location)
     }
 
+    /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
+    /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
     ///
+    /// - Parameters:
+    ///     - insertedText: String that just got inserted.
+    ///     - at: Range in which the string was inserted.
+    ///
+    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
     func removeParagraphAttributesIfNeeded(insertedText text: String, at range: NSRange) -> Bool {
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
