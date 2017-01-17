@@ -614,7 +614,20 @@ open class TextView: UITextView {
         toggleBlockquote(range: range)
     }
 
+
+    /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
+    /// or not. Note that we should remove Paragraph Styles whenever:
     ///
+    /// -   The previous string contains just a newline
+    /// -   The next string is a newline (or we're at the end of the text storage)
+    /// -   We're at the beginning of a new line
+    /// -   The user just typed a new line
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that was just inserted
+    ///     - at: Location in which the string was just inserted
+    ///
+    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
     ///
     private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
         guard text == StringConstants.newline else {
@@ -636,6 +649,7 @@ open class TextView: UITextView {
 
         return beforeString == StringConstants.newline && afterString == StringConstants.newline && storage.isStartOfNewLine(atLocation: location)
     }
+
 
     /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
     /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
