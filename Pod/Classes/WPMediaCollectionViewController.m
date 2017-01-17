@@ -833,8 +833,13 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (self.navigationController.topViewController == self) {
         needToPop = NO;
     }
+    NSString *errorDetails = error.localizedDescription;
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if (underlyingError) {
+        errorDetails = underlyingError.localizedDescription;
+    }
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
-                                                                             message:error.localizedDescription
+                                                                             message:errorDetails
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         if (needToPop) {
