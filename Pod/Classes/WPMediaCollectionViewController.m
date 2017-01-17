@@ -806,8 +806,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     [self.navigationController pushViewController:viewControllerToCommit animated:YES];
 }
 
-- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChange:(BOOL)selected
+#pragma mark - WPAssetViewControllerDelegate
+
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected
 {
+    [self.navigationController popViewControllerAnimated:YES];
+
     if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 
     }
@@ -821,6 +825,27 @@ referenceSizeForFooterInSection:(NSInteger)section
         [self.collectionView deselectItemAtIndexPath:self.assetIndexInPreview animated:YES];
         [self collectionView:self.collectionView didDeselectItemAtIndexPath:self.assetIndexInPreview];
     }
+}
+
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC failedWithError:(NSError *)error
+{
+    BOOL needToPop = YES;
+    if (self.navigationController.topViewController == self) {
+        needToPop = NO;
+    }
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
+                                                                             message:error.localizedDescription
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (needToPop) {
+            [self.navigationController popViewControllerAnimated:YES];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
+    }];
+    [alertController addAction:dismissAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end

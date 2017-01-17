@@ -150,14 +150,10 @@
 }
 
 - (void)showError:(NSError *)error {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
-                                                                              message:error.localizedDescription
-                                                                       preferredStyle:UIAlertControllerStyleAlert];
-    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self.navigationController popViewControllerAnimated:YES];
-    }]];
 
-    [self presentViewController:alertController animated:YES completion:nil];
+    if (self.delegate) {
+        [self.delegate assetViewController:self failedWithError:error];
+    }
 }
 
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
@@ -171,8 +167,7 @@
 {
     self.selected = !self.selected;
     if (self.delegate) {
-        [self.delegate assetViewController:self selectionChange:self.selected];
-        [self.navigationController popViewControllerAnimated:YES];
+        [self.delegate assetViewController:self selectionChanged:self.selected];    
     }
 }
 

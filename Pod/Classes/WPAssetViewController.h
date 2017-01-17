@@ -5,7 +5,9 @@
 
 @protocol WPAssetViewControllerDelegate <NSObject>
 
-- (void)assetViewController:(WPAssetViewController *) assetPreviewVC selectionChange:(BOOL)selected;
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected;
+
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC failedWithError:(NSError *)error;
 
 @end
 
