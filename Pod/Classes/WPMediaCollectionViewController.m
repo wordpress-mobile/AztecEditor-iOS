@@ -842,15 +842,21 @@ referenceSizeForFooterInSection:(NSInteger)section
                                                                              message:errorDetails
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        if (needToPop) {
-            [self.navigationController popViewControllerAnimated:YES];
-        } else {
-            [self dismissViewControllerAnimated:YES completion:nil];
-        }
+        [self dismissViewControllerAnimated:YES completion:^{
+            if (needToPop) {
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+        }];
     }];
     [alertController addAction:dismissAction];
 
-    [self presentViewController:alertController animated:YES completion:nil];
+    if (!needToPop) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentViewController:alertController animated:YES completion:nil];
+        }];
+    } else {
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
 }
 
 @end
