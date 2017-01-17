@@ -150,10 +150,7 @@ extension Libxml2 {
         /// Removes this node from its parent, if it has one.
         ///
         func removeFromParent() {
-            if let theParent = parent {
-                theParent.remove(self)
-                parent = nil
-            }
+            parent?.remove(self)
         }
         
         /// Wraps this node in a new node with the specified name.  Also takes care of updating

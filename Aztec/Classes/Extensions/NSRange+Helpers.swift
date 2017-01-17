@@ -5,6 +5,17 @@ import Foundation
 //
 extension NSRange
 {
+    /// Checks if the receiver contains the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range that the receiver may or may not contain.
+    ///
+    /// - Returns: `true` if the receiver contains the specified range, `false` otherwise.
+    ///
+    func contains(range: NSRange) -> Bool {
+        return intersect(withRange: range) == range
+    }
+    
     /// Returns the intersection between the receiver and the specified range.
     ///
     /// - Important: the main difference with NSIntersectionRange is that this method considers any contact (even a
