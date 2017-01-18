@@ -558,6 +558,12 @@ open class TextView: UITextView {
     }
 
 
+    private func updateTypingAttributes() {
+        if (textStorage.length > 0){
+            let location = max(0,min(selectedRange.location, textStorage.length-1))
+            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+        }
+    }
     /// Adds or removes a ordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
@@ -566,7 +572,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
-        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
+        updateTypingAttributes()
     }
 
 
@@ -578,7 +584,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
-        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
+        updateTypingAttributes()
     }
 
 
@@ -596,7 +602,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {        
         let newSelectedRange = storage.toggleBlockquote(range)
         selectedRange = newSelectedRange ?? selectedRange
-        typingAttributes = textStorage.attributes(at: selectedRange.location, effectiveRange: nil)
+        updateTypingAttributes()
         forceRedrawCursorAfterDelay()
     }
 
