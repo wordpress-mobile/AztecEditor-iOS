@@ -136,7 +136,7 @@ open class TextView: UITextView {
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
-        if removeParagraphAttributesIfNeeded(insertedText: text, at: selectedRange) {
+        if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
             if (self.textStorage.length > 0) {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
@@ -145,7 +145,7 @@ open class TextView: UITextView {
         }
 
         super.insertText(text)
-        forceRedrawCursorIfNeeded(afterEditing: text)
+        ensureCursorRedraw(afterEditing: text)
     }
 
     open override func deleteBackward() {
@@ -167,7 +167,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
-        forceRedrawCursorIfNeeded(afterEditing: deletedString.string)
+        ensureCursorRedraw(afterEditing: deletedString.string)
     }
 
     // MARK: - UIView Overrides
@@ -676,7 +676,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
-    func removeParagraphAttributesIfNeeded(insertedText text: String, at range: NSRange) -> Bool {
+    func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
             return false
         }
@@ -702,7 +702,7 @@ open class TextView: UITextView {
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
     ///
-    func forceRedrawCursorIfNeeded(afterEditing text: String) {
+    func ensureCursorRedraw(afterEditing text: String) {
         guard text == StringConstants.newline else {
             return
         }
