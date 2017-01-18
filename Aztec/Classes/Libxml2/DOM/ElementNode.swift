@@ -795,26 +795,26 @@ extension Libxml2 {
         /// - Returns: the requested nodes.
         ///
         fileprivate func splitChildren(after splitLocation: Int) -> [Node] {
-
+            
             var result = [Node]()
-            var childOffset = Int(0)
-
+            var childStartLocation = Int(0)
+            
             for child in children {
                 let childLength = child.length()
-                let childEndLocation = childOffset + childLength
+                let childEndLocation = childStartLocation + childLength
                 
-                if childOffset >= splitLocation {
+                if childStartLocation >= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode, childOffset < splitLocation && childEndLocation > splitLocation {
+                } else if let childEditableNode = child as? EditableNode, childStartLocation < splitLocation && childEndLocation > splitLocation {
                     
-                    let splitLocationInChild = splitLocation - childOffset
-                    let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocationInChild)
+                    let splitLocationInChild = splitLocation - childStartLocation
+                    let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocation)
                     
                     childEditableNode.split(forRange: splitRange)
                     result.append(child)
                 }
                 
-                childOffset = childOffset + childLength
+                childStartLocation = childEndLocation
             }
             
             return result
