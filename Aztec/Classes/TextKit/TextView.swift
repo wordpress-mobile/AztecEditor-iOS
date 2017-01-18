@@ -559,7 +559,10 @@ open class TextView: UITextView {
 
 
     private func updateTypingAttributes() {
-        if (textStorage.length > 0){
+        if (textStorage.length > 0) {
+            // NOTE: We are making sure that the selectedRange location is inside the string
+            // The selected range can be out of the string when you are adding content to the end of the string.
+            // In those cases we check the atributes of the previous caracter
             let location = max(0,min(selectedRange.location, textStorage.length-1))
             typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         }
