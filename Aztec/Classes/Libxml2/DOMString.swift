@@ -515,6 +515,12 @@ extension Libxml2 {
 
         // MARK: Remove Styles
 
+        func remove(element: StandardElementType, at range: NSRange){
+            performAsyncUndoable { [weak self] in
+                self?.removeSynchronously(element: element, at: range)
+            }
+        }
+
         /// Disables bold from the specified range.
         ///
         /// - Parameters:
@@ -572,7 +578,10 @@ extension Libxml2 {
         }
         
         // MARK: - Remove Styles: Synchronously
-        
+        private func removeSynchronously(element: StandardElementType, at range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: element.equivalentNames)
+        }
+
         private func removeBoldSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
         }

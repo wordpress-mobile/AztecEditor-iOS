@@ -3,6 +3,7 @@ import UIKit
 
 struct TextListFormatter: ParagraphAttributeFormatter {
 
+    let elementType: Libxml2.StandardElementType = .li
     let listStyle: TextList.Style
     let placeholderAttributes: [String : Any]?
 
