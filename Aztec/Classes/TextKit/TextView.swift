@@ -136,7 +136,7 @@ open class TextView: UITextView {
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
-        if removeParagraphAttributesIfNeeded(insertedText: text, at: selectedRange) {
+        if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
             if (self.textStorage.length > 0) {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
@@ -145,7 +145,7 @@ open class TextView: UITextView {
         }
 
         super.insertText(text)
-        forceRedrawCursorIfNeeded(afterEditing: text)
+        ensureCursorRedraw(afterEditing: text)
     }
 
     open override func deleteBackward() {
@@ -167,7 +167,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
-        forceRedrawCursorIfNeeded(afterEditing: deletedString.string)
+        ensureCursorRedraw(afterEditing: deletedString.string)
     }
 
     // MARK: - UIView Overrides
@@ -554,6 +554,15 @@ open class TextView: UITextView {
     }
 
 
+    private func updateTypingAttributes() {
+        if (textStorage.length > 0) {
+            // NOTE: We are making sure that the selectedRange location is inside the string
+            // The selected range can be out of the string when you are adding content to the end of the string.
+            // In those cases we check the atributes of the previous caracter
+            let location = max(0,min(selectedRange.location, textStorage.length-1))
+            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+        }
+    }
     /// Adds or removes a ordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
@@ -562,6 +571,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
+        updateTypingAttributes()
     }
 
 
@@ -573,6 +583,7 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         let newSelectedRange = formatter.toggle(in: textStorage, at: range)
         selectedRange = newSelectedRange ?? selectedRange
+        updateTypingAttributes()
     }
 
 
@@ -590,6 +601,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {        
         let newSelectedRange = storage.toggleBlockquote(range)
         selectedRange = newSelectedRange ?? selectedRange
+        updateTypingAttributes()
         forceRedrawCursorAfterDelay()
     }
 
@@ -660,7 +672,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
-    func removeParagraphAttributesIfNeeded(insertedText text: String, at range: NSRange) -> Bool {
+    func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
             return false
         }
@@ -686,7 +698,7 @@ open class TextView: UITextView {
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
     ///
-    func forceRedrawCursorIfNeeded(afterEditing text: String) {
+    func ensureCursorRedraw(afterEditing text: String) {
         guard text == StringConstants.newline else {
             return
         }
