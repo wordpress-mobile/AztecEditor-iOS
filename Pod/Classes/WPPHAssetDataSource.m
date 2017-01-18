@@ -370,8 +370,13 @@
     options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
     options.resizeMode = PHImageRequestOptionsResizeModeExact;
     options.networkAccessAllowed = YES;
+    CGSize requestSize = size;
+    if (CGSizeEqualToSize(requestSize, CGSizeZero)) {
+        requestSize.width = self.pixelWidth;
+        requestSize.height = self.pixelHeight;
+    }
     return [[WPPHAssetDataSource sharedImageManager] requestImageForAsset:self
-                                                        targetSize:size
+                                                        targetSize:requestSize
                                                        contentMode:PHImageContentModeAspectFill
                                                            options:options
                                                      resultHandler:^(UIImage *result, NSDictionary *info) {
@@ -393,6 +398,45 @@
 {
     [[WPPHAssetDataSource sharedImageManager] cancelImageRequest:requestID];
 }
+
+/**
+ Returns an url that points for the video stream. This is only valid for a MediaAsset of the type.
+
+ @return the url for the video, or nil if the asset is not of video type.
+ */
+- (WPMediaRequestID)videoURLWithCompletionHandler:(WPMediaURLBlock)completionHandler
+{
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    options.networkAccessAllowed = YES;
+    return [[WPPHAssetDataSource sharedImageManager] requestAVAssetForVideo:self
+                                                                  options:options
+                                                            resultHandler:^(AVAsset *result, AVAudioMix *audioMix, NSDictionary *info) {
+                                                                NSError *error = info[PHImageErrorKey];
+                                                                NSNumber *canceled = info[PHImageCancelledKey];
+                                                                if (error || canceled){
+                                                                    if (completionHandler && ![canceled boolValue]){
+                                                                        completionHandler(nil, error);
+                                                                    }
+                                                                    return;
+                                                                }
+                                                                AVURLAsset *assetURL = nil;
+                                                                if (![result isKindOfClass:[AVURLAsset class]]){
+                                                                    if (completionHandler){
+                                                                        NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain
+                                                                                                             code:WPMediaErrorCodeVideoURLNotAvailable
+                                                                                                         userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Video asset is not available for preview.", @"Message to show when video asset is not available to preview.")}];
+                                                                        completionHandler(nil, error);
+                                                                    }
+                                                                    return;
+                                                                }
+                                                                assetURL = (AVURLAsset *)result;
+                                                                if (completionHandler){
+                                                                    completionHandler(assetURL.URL, nil);
+                                                                }
+                                                            }];
+}
+
 
 - (WPMediaType)assetType
 {
@@ -420,6 +464,11 @@
 - (NSDate *)date
 {
     return [self creationDate];
+}
+
+- (CGSize)pixelSize
+{
+    return CGSizeMake((CGFloat)self.pixelWidth, (CGFloat)self.pixelHeight);
 }
 
 @end
