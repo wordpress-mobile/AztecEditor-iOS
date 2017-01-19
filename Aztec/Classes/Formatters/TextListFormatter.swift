@@ -43,7 +43,7 @@ struct TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : Any]) -> Bool {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
               let textList = paragraphStyle.textList else {
             return false

@@ -63,7 +63,7 @@ struct BlockquoteFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : Any]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
             return paragraphStyle.blockquote != nil
         }

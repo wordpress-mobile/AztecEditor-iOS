@@ -37,7 +37,7 @@ class FontFormatter: CharacterAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : Any]) -> Bool {
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
             return false
         }

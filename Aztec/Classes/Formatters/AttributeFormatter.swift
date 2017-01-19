@@ -44,7 +44,7 @@ protocol AttributeFormatter {
 
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
-    func present(in attributes: [String: AnyObject]) -> Bool
+    func present(in attributes: [String: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 }
@@ -58,7 +58,7 @@ extension AttributeFormatter {
     ///
     func present(in text: NSAttributedString, at index: Int) -> Bool {
         let safeIndex = max(min(index, text.length - 1), 0)
-        let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
+        let attributes = text.attributes(at: safeIndex, effectiveRange: nil)
         return present(in: attributes)
     }
 
