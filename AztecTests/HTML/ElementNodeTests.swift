@@ -583,6 +583,59 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(textNode2.text(), textPart2)
         XCTAssertEqual(textNode3.text(), textPart3)
     }
+    
+    /// Tests `split(atLocation:)`
+    ///
+    /// For reading simplicity we're marking text nodes with quotes ".
+    /// For reading simplicity we're marking the split location with a pipe |.
+    ///
+    /// HTML string: <root><b>"Hello!"</b><em>"The first part of text goes here.""B|ye!"</em></root>
+    ///
+    /// Resulting HTML string:  <root><b>"Hello!"</b><em>"The first part of text goes here.""B"</em><em>"ye!"</em></root>
+    ///
+    func testSplitAtLocation() {
+        let textPart1 = "Hello!"
+        let textPart2 = "The first part of text goes here."
+        let textPart3a = "B"
+        let textPart3b = "ye!"
+        let textPart3 = "\(textPart3a)\(textPart3b)"
+        
+        let fullText = "\(textPart1)\(textPart2)\(textPart3)"
+        
+        let textNode1 = TextNode(text: textPart1)
+        let textNode2 = TextNode(text: textPart2)
+        let textNode3 = TextNode(text: textPart3)
+        
+        let elemNode1 = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode1])
+        let elemNode2 = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode2, textNode3])
+        
+        let rootNode = RootNode(children: [elemNode1, elemNode2])
+        
+        let splitLocation = textPart2.characters.count + 1
+        
+        elemNode2.split(atLocation: splitLocation)
+        
+        XCTAssertEqual(rootNode.text(), fullText)
+        XCTAssertEqual(rootNode.children.count, 3)
+        XCTAssertEqual(rootNode.children[1].length(), splitLocation)
+        
+        guard let elemNodeLeft = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node here.")
+            return
+        }
+        
+        XCTAssertEqual(elemNodeLeft.children.count, 2)
+        XCTAssertEqual(elemNodeLeft.children[0], textNode2)
+        XCTAssertEqual(elemNodeLeft.children[1].text(), textPart3a)
+        
+        guard let elemNodeRight = rootNode.children[2] as? ElementNode else {
+            XCTFail("Expected an element node here.")
+            return
+        }
+        
+        XCTAssertEqual(elemNodeRight.children.count, 1)
+        XCTAssertEqual(elemNodeRight.text(), textPart3b)
+    }
 
     /// Tests obtaining the block-level elements intercepting the full range of the following
     /// HTML string: <div>Hello <p>there</p></div>
