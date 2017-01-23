@@ -5,7 +5,7 @@
 
 #import "WPVideoPlayerView.h"
 
-@interface WPAssetViewController ()
+@interface WPAssetViewController () <WPVideoPlayerViewDelegate>
 
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) WPVideoPlayerView *videoView;
@@ -37,6 +37,7 @@
     [self.videoView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor].active = YES;
     [self.videoView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.topAnchor].active = YES;
     [self.videoView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor].active = YES;
+    self.videoView.delegate = self;
 
     [self.view addSubview:self.activityIndicatorView];
     self.activityIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -138,8 +139,7 @@
         if (!strongSelf) {
             return;
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [strongSelf.activityIndicatorView stopAnimating];
+        dispatch_async(dispatch_get_main_queue(), ^{            
             if (error || url == nil) {
                 [strongSelf showError:error];
                 return;
@@ -150,7 +150,7 @@
 }
 
 - (void)showError:(NSError *)error {
-
+    [self.activityIndicatorView stopAnimating];
     if (self.delegate) {
         [self.delegate assetViewController:self failedWithError:error];
     }
@@ -181,6 +181,28 @@
     CGFloat scaleFactor = pixelSize.height / pixelSize.width;
 
     return CGSizeMake(size.width, size.width * scaleFactor);
+}
+
+#pragma mark - WPVideoPlayerViewDelegate
+
+- (void)videoPlayerViewStarted:(WPVideoPlayerView *)playerView {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.activityIndicatorView stopAnimating];
+    });
+}
+
+- (void)videoPlayerViewFinish:(WPVideoPlayerView *)playerView {
+
+}
+
+- (void)videoPlayerView:(WPVideoPlayerView *)playerView didFailWithError:(NSError *)error {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.activityIndicatorView stopAnimating];
+        if (error) {
+            [self showError:error];
+            return;
+        }
+    });
 }
 
 @end
