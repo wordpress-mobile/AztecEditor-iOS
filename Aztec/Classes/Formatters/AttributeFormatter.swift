@@ -9,6 +9,7 @@ import UIKit
 ///
 protocol AttributeFormatter {
 
+    var elementType: Libxml2.StandardElementType { get }
     /// Attributes to be used the Content Placeholder, when / if needed.
     ///
     var placeholderAttributes: [String: Any]? { get }
@@ -21,7 +22,7 @@ protocol AttributeFormatter {
     ///     - text: Text that should be formatted.
     ///     - range: Segment of text which format should be toggled.
     ///
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
+    @discardableResult func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
 
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
@@ -43,7 +44,7 @@ protocol AttributeFormatter {
 
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
-    func present(in attributes: [String: AnyObject]) -> Bool
+    func present(in attributes: [String: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 }
@@ -57,7 +58,7 @@ extension AttributeFormatter {
     ///
     func present(in text: NSAttributedString, at index: Int) -> Bool {
         let safeIndex = max(min(index, text.length - 1), 0)
-        let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
+        let attributes = text.attributes(at: safeIndex, effectiveRange: nil)
         return present(in: attributes)
     }
 
@@ -110,6 +111,8 @@ protocol CharacterAttributeFormatter: AttributeFormatter {
 
 extension CharacterAttributeFormatter {
 
+    var placeholderAttributes: [String : Any]? { return nil }
+
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return range
     }
@@ -117,9 +120,9 @@ extension CharacterAttributeFormatter {
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
         guard range.location < text.length else {
-            return
+            return range
         }
 
         if shouldApplyAttributes(to: text, at: range) {
@@ -127,6 +130,7 @@ extension CharacterAttributeFormatter {
         } else {
             removeAttributes(from: text, at: range)
         }
+        return range
     }
 }
 

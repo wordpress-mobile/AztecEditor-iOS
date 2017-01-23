@@ -78,6 +78,8 @@
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
+		FFD436961E300EF800A0E26F /* FontFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD436951E300EF700A0E26F /* FontFormatter.swift */; };
+		FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD436971E3180A500A0E26F /* FontFormatterTests.swift */; };
 		FFF585CF1DB6398E00299B93 /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF585CE1DB6398E00299B93 /* StandardElementType.swift */; };
 /* End PBXBuildFile section */
 
@@ -183,6 +185,8 @@
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
+		FFD436951E300EF700A0E26F /* FontFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatter.swift; sourceTree = "<group>"; };
+		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
 		FFF585CE1DB6398E00299B93 /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -469,6 +473,7 @@
 				E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */,
 				B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */,
 				E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */,
+				FFD436951E300EF700A0E26F /* FontFormatter.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -478,6 +483,7 @@
 			children = (
 				B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */,
 				E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */,
+				FFD436971E3180A500A0E26F /* FontFormatterTests.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -648,6 +654,7 @@
 				F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
 				FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */,
+				FFD436961E300EF800A0E26F /* FontFormatter.swift in Sources */,
 				599F25451D8BC9A1002871D6 /* Libxml2.swift in Sources */,
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
@@ -695,6 +702,7 @@
 				599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */,
 				59FEA0741D8BDFA700D138DF /* ElementNodeTests.swift in Sources */,
 				B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */,
+				FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

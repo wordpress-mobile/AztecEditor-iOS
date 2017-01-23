@@ -223,33 +223,13 @@ open class TextStorage: NSTextStorage {
     }
     
     // MARK: - Styles: Toggling
-
-    func toggleBold(_ range: NSRange) {
-
-        let enable = !fontTrait(.traitBold, spansRange: range)
-        
-        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
-        /// but since that may take a while to implement, we need this workaround until it's ready.
-        ///
-        if !enable {
-            dom.removeBold(spanning: range)
+    @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
+        let applicationRange = formatter.applicationRange(for: range, in: self)
+        let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
+        if !formatter.present(in: self, at: applicationRange.location) {
+            dom.remove(element:formatter.elementType, at: applicationRange)
         }
-
-        modifyTraits(.traitBold, range: range, enable: enable)
-    }
-
-    func toggleItalic(_ range: NSRange) {
-
-        let enable = !fontTrait(.traitItalic, spansRange: range)
-
-        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
-        /// but since that may take a while to implement, we need this workaround until it's ready.
-        ///
-        if !enable {
-            dom.removeItalic(spanning: range)
-        }
-        
-        modifyTraits(.traitItalic, range: range, enable: enable)
+        return newSelectedRange
     }
 
     func toggleStrikethrough(_ range: NSRange) {

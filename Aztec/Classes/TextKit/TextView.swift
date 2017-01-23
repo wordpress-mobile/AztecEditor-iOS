@@ -409,11 +409,9 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        updateTypingFont(toggle: .traitBold)
-
-        if range.length > 0 {
-            storage.toggleBold(range)
-        }
+        let formatter = BoldFormatter()
+        typingAttributes = formatter.apply(to: typingAttributes)
+        storage.toggle(formatter: formatter, at: range)
     }
 
 
@@ -422,11 +420,9 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleItalic(range: NSRange) {
-        updateTypingFont(toggle: .traitItalic)
-
-        if range.length > 0 {
-            storage.toggleItalic(range)
-        }
+        let formatter = ItalicFormatter()
+        typingAttributes = formatter.apply(to: typingAttributes)
+        storage.toggle(formatter: formatter, at: range)
     }
 
 
