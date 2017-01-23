@@ -92,6 +92,40 @@ extension Libxml2 {
             
             attributes.append(StringAttribute(name: attributeName, value: value))
         }
+        
+        /// Check if the node is the first child in its parent node.
+        ///
+        /// - Returns: `true` if the node is the first child in it's parent.  `false` otherwise.
+        ///
+        func isFirstChildInParent() -> Bool {
+            guard let parent = parent else {
+                assertionFailure("This scenario should not be possible.  Review the logic.")
+                return false
+            }
+            
+            guard let first = parent.children.first else {
+                return false
+            }
+            
+            return first === self
+        }
+        
+        /// Check if the node is the last child in its parent node.
+        ///
+        /// - Returns: `true` if the node is the last child in it's parent.  `false` otherwise.
+        ///
+        func isLastChildInParent() -> Bool {
+            guard let parent = parent else {
+                assertionFailure("This scenario should not be possible.  Review the logic.")
+                return false
+            }
+            
+            guard let last = parent.children.last else {
+                return false
+            }
+            
+            return last === self
+        }
 
         /// Check if the last of this children element is a block level element
         ///
@@ -632,10 +666,6 @@ extension Libxml2 {
             var text = ""
             for child in children {
                 text = text + child.text()
-            }
-
-            if isBlockLevelElement() && !isLastChildBlockLevelElement() {
-                text += StringConstants.newline
             }
 
             if let nodeType = standardName {

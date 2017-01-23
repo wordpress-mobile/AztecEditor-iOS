@@ -117,15 +117,41 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             content.append(childContent)
         }
 
-        if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.append(NSAttributedString(string: StringConstants.newline, attributes: childAttributes))
+        if node.isBlockLevelElement() {
+            content.append(blockElementOpenCharacter(forNode: node, inheritingAttributes: childAttributes))
         }
 
         if let nodeType = node.standardName {
             return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
         }
 
+        if node.isBlockLevelElement() {
+            content.append(blockElementCloseCharacter(forNode: node, inheritingAttributes: childAttributes))
+        }
+        
         return content
+    }
+    
+    // MARK: - Control characters
+    
+    private func blockElementCloseCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        precondition(node.isBlockLevelElement())
+        
+        if node.isFirstChildInParent() {
+            return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: inheritedAttributes)
+        } else {
+            return NSAttributedString(string: StringConstants.newline, attributes: inheritedAttributes)
+        }
+    }
+    
+    private func blockElementOpenCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        precondition(node.isBlockLevelElement())
+        
+        if node.isLastChildInParent() {
+            return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: inheritedAttributes)
+        } else {
+            return NSAttributedString(string: StringConstants.newline, attributes: inheritedAttributes)
+        }
     }
 
     // MARK: - String attributes
