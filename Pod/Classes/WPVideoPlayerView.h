@@ -1,5 +1,6 @@
 @import Foundation;
 @import UIKit;
+@import AVFoundation;
 
 @class WPVideoPlayerView;
 
@@ -20,6 +21,7 @@
 
 @property (nonatomic, strong) NSURL *videoURL;
 
-    
+@property (nonatomic, strong) AVAsset *asset;
+
 @end
 

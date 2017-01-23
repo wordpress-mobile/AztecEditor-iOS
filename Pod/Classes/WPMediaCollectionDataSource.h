@@ -1,3 +1,5 @@
+@import AVFoundation;
+
 typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeImage,
     WPMediaTypeVideo,
@@ -26,7 +28,7 @@ typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
-typedef void (^WPMediaURLBlock)(NSURL *url, NSError *error);
+typedef void (^WPMediaAssetBlock)(AVAsset *asset, NSError *error);
 typedef int32_t WPMediaRequestID;
 
 
@@ -97,11 +99,13 @@ typedef int32_t WPMediaRequestID;
 - (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
 /**
- Returns an url that points for the video stream. This is only valid for a MediaAsset of the type.
+ Asynchronously fetches an AVAsset that represents the media object.
 
- @return the url for the video, or nil if the asset is not of video type.
+ @param completionHandler a block that is invoked when the asset is available or when an error occurs.
+
+ @return an unique ID of the fetch operation that can be used to cancel it.
  */
-- (WPMediaRequestID)videoURLWithCompletionHandler:(WPMediaURLBlock)completionHandler;
+- (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.

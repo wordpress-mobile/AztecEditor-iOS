@@ -47,6 +47,7 @@ static NSString *tracksKey = @"tracks";
     [self.playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver: self];
     [self.player pause];
+    _asset = nil;
 }
 
 - (void)layoutSubviews {
@@ -56,16 +57,16 @@ static NSString *tracksKey = @"tracks";
 
 - (void)setVideoURL:(NSURL *)videoURL {
     _videoURL = videoURL;
-    [self loadAssetFromURL: videoURL];
+    AVURLAsset *asset = [AVURLAsset assetWithURL:videoURL];
+    self.asset = asset;
 }
 
-- (void)loadAssetFromURL:(NSURL *)url
-{
+- (void)setAsset:(AVAsset *)asset {
     [self.playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-    AVURLAsset *asset = [AVURLAsset assetWithURL:url];
-    self.playerItem = [[AVPlayerItem alloc] initWithAsset: asset];
+    _asset = asset;
+    self.playerItem = [[AVPlayerItem alloc] initWithAsset: _asset];
 
     [self.playerItem addObserver:self
                       forKeyPath: @"status"

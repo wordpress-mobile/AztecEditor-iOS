@@ -134,17 +134,17 @@
     self.videoView.hidden = NO;
     [self.activityIndicatorView startAnimating];
     __weak __typeof__(self) weakSelf = self;
-    [self.asset videoURLWithCompletionHandler:^(NSURL *url, NSError *error) {
+    [self.asset videoAssetWithCompletionHandler:^(AVAsset *asset, NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{            
-            if (error || url == nil) {
+            if (error) {
                 [strongSelf showError:error];
                 return;
             }
-            strongSelf.videoView.videoURL = url;
+            strongSelf.videoView.asset = asset;
         });
     }];
 }

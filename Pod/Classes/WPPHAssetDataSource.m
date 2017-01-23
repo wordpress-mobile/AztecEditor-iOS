@@ -404,7 +404,7 @@
 
  @return the url for the video, or nil if the asset is not of video type.
  */
-- (WPMediaRequestID)videoURLWithCompletionHandler:(WPMediaURLBlock)completionHandler
+- (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler
 {
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
@@ -420,19 +420,8 @@
                                                                     }
                                                                     return;
                                                                 }
-                                                                AVURLAsset *assetURL = nil;
-                                                                if (![result isKindOfClass:[AVURLAsset class]]){
-                                                                    if (completionHandler){
-                                                                        NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain
-                                                                                                             code:WPMediaErrorCodeVideoURLNotAvailable
-                                                                                                         userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Video asset is not available for preview.", @"Message to show when video asset is not available to preview.")}];
-                                                                        completionHandler(nil, error);
-                                                                    }
-                                                                    return;
-                                                                }
-                                                                assetURL = (AVURLAsset *)result;
                                                                 if (completionHandler){
-                                                                    completionHandler(assetURL.URL, nil);
+                                                                    completionHandler(result, nil);
                                                                 }
                                                             }];
 }
