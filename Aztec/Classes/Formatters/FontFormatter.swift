@@ -25,7 +25,7 @@ class FontFormatter: CharacterAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
+    func remove(from attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
             return attributes
