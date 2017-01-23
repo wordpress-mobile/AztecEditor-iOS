@@ -16,7 +16,7 @@ extension NSAttributedString
         if length > 0 && location > 0 {
             let previousRange = NSRange(location: location - 1, length: 1)
             let previousString = attributedSubstring(from: previousRange).string
-            isStartOfLine = previousString == "\n"
+            isStartOfLine = previousString == StringConstants.newline
         }
         return isStartOfLine
     }
@@ -32,7 +32,7 @@ extension NSAttributedString
         if length > 0 && location > 0 {
             let previousRange = NSRange(location: location - 1, length: 1)
             let previousString = attributedSubstring(from: previousRange)
-            isStartOfLine = previousString.string == "\n"
+            isStartOfLine = previousString.string == StringConstants.newline
             isStartOfListItem = previousString.textListAttribute(atIndex: 0) != nil
         }
         return isStartOfLine && isStartOfListItem

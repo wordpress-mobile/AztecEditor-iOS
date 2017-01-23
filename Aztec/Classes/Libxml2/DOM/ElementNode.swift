@@ -635,7 +635,7 @@ extension Libxml2 {
             }
 
             if isBlockLevelElement() && !isLastChildBlockLevelElement() {
-                text += "\n"
+                text += StringConstants.newline
             }
 
             if let nodeType = standardName {
@@ -1433,7 +1433,7 @@ extension Libxml2 {
             guard childNodesAndRanges.count > 0 else {
                 // It's possible the range may not intersect any child node, if this node is adding
                 // any special characters for formatting purposes in visual mode.  For instance some
-                // nodes add a `\n` character at their end.
+                // nodes add a newline character at their end.
                 //
                 return
             }

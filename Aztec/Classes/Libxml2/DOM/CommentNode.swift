@@ -32,7 +32,7 @@ extension Libxml2 {
         // MARK: - LeafNode
         
         override func text() -> String {
-            return "\n"
+            return StringConstants.newline
         }
     }
 }
