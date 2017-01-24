@@ -1181,17 +1181,14 @@ extension Libxml2 {
         }
 
         func split(atLocation location: Int) {
-            var trueLength = length()
-            if isBlockLevelElement() {
-                trueLength -= 1
-            }
+            let length = self.length()
             
-            guard location != 0 && location != trueLength - 1 else {
+            guard location != 0 && location != length else {
                 // Nothing to split, move along...
                 return
             }
             
-            guard location > 0 && location < trueLength - 1 else {
+            guard location > 0 && location < length else {
                 assertionFailure("Specified range is out-of-bounds.")
                 return
             }

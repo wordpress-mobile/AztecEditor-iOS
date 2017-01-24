@@ -220,7 +220,7 @@ class ElementNodeTests: XCTestCase {
         let text3 = TextNode(text: "text3 goes here..")
 
         let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
-        let range = NSRange(location: 0, length: mainNode.length() - 2)
+        let range = NSRange(location: 0, length: mainNode.length() - 1)
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
 
@@ -278,7 +278,7 @@ class ElementNodeTests: XCTestCase {
         let text3 = TextNode(text: "text3 goes here..")
 
         let mainNode = ElementNode(name: "p", attributes: [], children: [text1, text2, text3])
-        let range = NSRange(location: 0, length: (mainNode.length() - 1) - text3.length())
+        let range = NSRange(location: 0, length: mainNode.length() - text3.length())
 
         let nodesAndRanges = mainNode.leafNodesWrapping(range)
 
@@ -346,12 +346,12 @@ class ElementNodeTests: XCTestCase {
         
         XCTAssertEqual(div.children.count, 2)
         
-        guard let newParagraph1 = div.children[0] as? ElementNode, newParagraph1 == paragraph && newParagraph1.text() == text1 + "\n" else {
+        guard let newParagraph1 = div.children[0] as? ElementNode, newParagraph1 == paragraph && newParagraph1.text() == text1 else {
                 XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
                 return
         }
         
-        guard let newParagraph2 = div.children[1] as? ElementNode, newParagraph2.text() == text2 + "\n" else {
+        guard let newParagraph2 = div.children[1] as? ElementNode, newParagraph2.text() == text2 else {
                 XCTFail("Expected the first new paragraph to exist.")
                 return
         }
@@ -381,7 +381,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(div.children[0], paragraph)
         XCTAssertEqual(paragraph.children.count, 1)
         XCTAssertEqual(paragraph.children[0], textNode)
-        XCTAssertEqual(paragraph.text(), "Hello World!\n")
+        XCTAssertEqual(paragraph.text(), "Hello World!")
     }
 
     /// Tests that splitting an element node at a specified text location works fine.
@@ -402,13 +402,13 @@ class ElementNodeTests: XCTestCase {
         
         let splitLocation = text.characters.count
         
-        paragraph.split(atLocation: splitLocation - 1)
+        paragraph.split(atLocation: splitLocation)
         
         XCTAssertEqual(div.children.count, 1)
         XCTAssertEqual(div.children[0], paragraph)
         XCTAssertEqual(paragraph.children.count, 1)
         XCTAssertEqual(paragraph.children[0], textNode)
-        XCTAssertEqual(paragraph.text(), "Hello World!\n")
+        XCTAssertEqual(paragraph.text(), "Hello World!")
     }
 
     func testSplitWithFullRange() {
@@ -697,7 +697,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(results[1].intersection.location, 0)
         XCTAssertEqual(results[1].intersection.length, 5)
         XCTAssertEqual(results[2].element.name, "div")
-        XCTAssertEqual(results[2].intersection.location, 12)
+        XCTAssertEqual(results[2].intersection.location, 11)
         XCTAssertEqual(results[2].intersection.length, 5)
     }
 
@@ -728,7 +728,7 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(results[0].intersection.location, 0)
         XCTAssertEqual(results[0].intersection.length, 6)
         XCTAssertEqual(results[1].element.name, "div")
-        XCTAssertEqual(results[1].intersection.location, 7)
+        XCTAssertEqual(results[1].intersection.location, 6)
         XCTAssertEqual(results[1].intersection.length, 6)
     }
 
