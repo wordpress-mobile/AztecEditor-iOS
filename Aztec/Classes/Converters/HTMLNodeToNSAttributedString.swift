@@ -116,17 +116,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
             content.append(childContent)
         }
-
-        if node.isBlockLevelElement() {
-            content.append(blockElementOpenCharacter(forNode: node, inheritingAttributes: childAttributes))
+        
+        if let openingCharacter = openingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
+            content.append(openingCharacter)
         }
 
         if let nodeType = node.standardName {
             return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
         }
-
-        if node.isBlockLevelElement() {
-            content.append(blockElementCloseCharacter(forNode: node, inheritingAttributes: childAttributes))
+        
+        if let closingCharacter = closingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
+            content.append(closingCharacter)
         }
         
         return content
@@ -152,6 +152,38 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         } else {
             return NSAttributedString(string: StringConstants.newline, attributes: inheritedAttributes)
         }
+    }
+    
+    /// Returns the closing character for the specified node, if any is necessary.
+    ///
+    /// - Parameters:
+    ///     - node: the node the closing character is requested for.
+    ///     - inheritedAttributes: the string attributes inherited by the closing character.
+    ///
+    /// - Returns: the requested closing character, or `nil` if none is needed.
+    ///
+    private func closingCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
+        guard node.isBlockLevelElement() else {
+            return nil
+        }
+        
+        return blockElementCloseCharacter(forNode: node, inheritingAttributes: inheritedAttributes)
+    }
+    
+    /// Returns the opening character for the specified node, if any is necessary.
+    ///
+    /// - Parameters:
+    ///     - node: the node the opening character is requested for.
+    ///     - inheritedAttributes: the string attributes inherited by the opening character.
+    ///
+    /// - Returns: the requested opening character, or `nil` if none is needed.
+    ///
+    private func openingCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
+        guard node.isBlockLevelElement() else {
+            return nil
+        }
+        
+        return blockElementOpenCharacter(forNode: node, inheritingAttributes: inheritedAttributes)
     }
 
     // MARK: - String attributes
