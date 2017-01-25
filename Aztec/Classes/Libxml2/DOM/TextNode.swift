@@ -56,7 +56,6 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         func append(_ string: String) {
-            
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {
@@ -104,8 +103,34 @@ extension Libxml2 {
         }
         
         func prepend(_ string: String) {
-            registerUndoForPrepend(prependedLength: string.characters.count)
-            contents = "\(string)\(contents)"
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                prepend(sanitizedString: string)
+            } else {
+                
+                guard let parent = parent else {
+                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                    return
+                }
+                
+                let componentsCount = components.count
+                var insertionIndex = parent.indexOf(childNode: self)
+                
+                for (componentIndex, component) in components.enumerated() {
+                    if componentIndex == componentsCount - 1 {
+                        prepend(sanitizedString: component)
+                    } else {
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        let breakNode = ElementNode.break()
+                        
+                        parent.insert(textNode, at: insertionIndex)
+                        parent.insert(breakNode, at: insertionIndex + 1)
+                        
+                        insertionIndex = insertionIndex + 2
+                    }
+                }
+            }
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
