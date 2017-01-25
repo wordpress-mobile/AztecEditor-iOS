@@ -28,12 +28,64 @@ extension Libxml2 {
         override func length() -> Int {
             return contents.characters.count
         }
-
-        // MARK: - EditableNode
         
-        func append(_ string: String) {
+        // MARK: - Editing: Atomic Operations
+        
+        /// Appends the specified string.  The input data is assumed to be sanitized, which means
+        /// this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - string: the string to append to the node.
+        ///
+        private func append(sanitizedString string: String) {
             registerUndoForAppend(appendedLength: string.characters.count)
             contents.append(string)
+        }
+        
+        /// Prepends the specified string.  The input data is assumed to be sanitized, which means
+        /// this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - string: the string to prepend to the node.
+        ///
+        private func prepend(sanitizedString string: String) {
+            registerUndoForPrepend(prependedLength: string.characters.count)
+            contents = "\(string)\(contents)"
+        }
+
+        // MARK: - EditableNode
+
+        func append(_ string: String) {
+            
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                append(sanitizedString: string)
+            } else {
+                
+                guard let parent = parent else {
+                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                    return
+                }
+
+                var insertionIndex = parent.indexOf(childNode: self)
+
+                for (componentIndex, component) in components.enumerated() {
+                    if componentIndex == 0 {
+                        append(sanitizedString: component)
+                        
+                        insertionIndex = insertionIndex + 1
+                    } else {
+                        let breakNode = ElementNode.break()
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        
+                        parent.insert(breakNode, at: insertionIndex)
+                        parent.insert(textNode, at: insertionIndex + 1)
+                        
+                        insertionIndex = insertionIndex + 2
+                    }
+                }
+            }
         }
 
         func deleteCharacters(inRange range: NSRange) {

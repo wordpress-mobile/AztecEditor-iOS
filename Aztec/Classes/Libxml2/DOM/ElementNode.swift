@@ -56,6 +56,12 @@ extension Libxml2 {
             self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
         }
         
+        // MARK: - Node Constructors
+        
+        static func `break`() -> ElementNode {
+            return ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
+        }
+        
         // MARK: - Node Overrides
         
         /// Node length.  Calculated by adding the length of all child nodes.
@@ -166,6 +172,25 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
         
+        /// Returns the index of the specified child node.  This method should only be called when
+        /// there's 100% certainty that this node should contain the specified child node, as it
+        /// fails otherwise.
+        ///
+        /// Call `children.indexOf()` if you need to test the parent-child relationship instead.
+        ///
+        /// - Parameters:
+        ///     - childNode: the child node to find the index of.
+        ///
+        /// - Returns: the index of the specified child node.
+        ///
+        func indexOf(childNode: Node) -> Int {
+            guard let index = children.index(of: childNode) else {
+                fatalError("Broken parent-child relationship found.")
+            }
+            
+            return index
+        }
+        
         /// Returns the index of the child node intersecting the specified location.
         ///
         /// - Parameters:
@@ -175,7 +200,7 @@ extension Libxml2 {
         ///         exactly between two nodes, the left hand node will always be returned.  The only exception to this
         ///         rule is for text location zero, which will always result in index zero being returned.
         ///
-        func indexOfChildNode(intersecting location: Int) -> (index: Int, intersection: Int)  {
+        func indexOf(childNodeIntersecting location: Int) -> (index: Int, intersection: Int)  {
             
             guard children.count > 0 else {
                 fatalError("An element node without children should never happen.")
@@ -1095,7 +1120,7 @@ extension Libxml2 {
             let element = blockLevelElementsAndIntersections[0].element
             let intersection = blockLevelElementsAndIntersections[0].intersection
             
-            let indexAndIntersection = element.indexOfChildNode(intersecting: intersection.location)
+            let indexAndIntersection = element.indexOf(childNodeIntersecting: intersection.location)
             
             let childIndex = indexAndIntersection.index
             let childIntersection = indexAndIntersection.intersection
