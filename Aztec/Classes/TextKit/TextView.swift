@@ -542,7 +542,7 @@ open class TextView: UITextView {
     ///
     private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard let textList = deletedText.textListAttribute(atIndex: 0),
-              deletedText.string == StringConstants.newline && range.location == 0 else {
+              deletedText.string == String(.newline) && range.location == 0 else {
             return
         }
 
@@ -646,15 +646,15 @@ open class TextView: UITextView {
     /// - Returns: True if we should remove the paragraph attributes. False otherwise!
     ///
     private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
-        guard text == StringConstants.newline else {
+        guard text == String(.newline) else {
             return false
         }
 
         let afterRange = NSRange(location: location, length: 1)
         let beforeRange = NSRange(location: location - 1, length: 1)
 
-        var afterString = StringConstants.newline
-        var beforeString = StringConstants.newline
+        var afterString = String(.newline)
+        var beforeString = String(.newline)
         if beforeRange.location >= 0 {
             beforeString = storage.attributedSubstring(from: beforeRange).string
         }
@@ -663,7 +663,7 @@ open class TextView: UITextView {
             afterString = storage.attributedSubstring(from: afterRange).string
         }
 
-        return beforeString == StringConstants.newline && afterString == StringConstants.newline && storage.isStartOfNewLine(atLocation: location)
+        return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
 
@@ -703,7 +703,7 @@ open class TextView: UITextView {
     /// This method was meant as a workaround for Issue #144.
     ///
     func ensureCursorRedraw(afterEditing text: String) {
-        guard text == StringConstants.newline else {
+        guard text == String(.newline) else {
             return
         }
 

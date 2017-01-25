@@ -132,27 +132,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         return content
     }
     
-    // MARK: - Control characters
-    
-    private func blockElementCloseCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        precondition(node.isBlockLevelElement())
-        
-        if node.isFirstChildInParent() {
-            return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: inheritedAttributes)
-        } else {
-            return NSAttributedString(string: StringConstants.newline, attributes: inheritedAttributes)
-        }
-    }
-    
-    private func blockElementOpenCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        precondition(node.isBlockLevelElement())
-        
-        if node.isLastChildInParent() {
-            return NSAttributedString(string: StringConstants.zeroWidthSpace, attributes: inheritedAttributes)
-        } else {
-            return NSAttributedString(string: StringConstants.newline, attributes: inheritedAttributes)
-        }
-    }
+    // MARK: - Control Characters
     
     /// Returns the closing character for the specified node, if any is necessary.
     ///
@@ -167,7 +147,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             return nil
         }
         
-        return blockElementCloseCharacter(forNode: node, inheritingAttributes: inheritedAttributes)
+        let character: Character = node.isFirstChildInParent() ? Character(.zeroWidthSpace) : Character(.newline)
+        
+        return controlCharacter(ofType: .blockCloser, usingCharacter: character, inheritingAttributes: inheritedAttributes)
     }
     
     /// Returns the opening character for the specified node, if any is necessary.
@@ -183,7 +165,34 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             return nil
         }
         
-        return blockElementOpenCharacter(forNode: node, inheritingAttributes: inheritedAttributes)
+        let character: Character = node.isFirstChildInParent() ? Character(.zeroWidthSpace) : Character(.newline)
+        
+        return controlCharacter(ofType: .blockOpener, usingCharacter: character, inheritingAttributes: inheritedAttributes)
+    }
+    
+    // MARK: - Control Characters: Construction
+    
+    /// Returns a block element control character.  Can be either a block-opener, or a closer.
+    ///
+    /// - Important: you should call `blockElementCloseCharacter(ofType:forNode:inheritingAttributes)`
+    ///     or `blockElementOpenCharacter(ofType:forNode:inheritingAttributes)` instead of calling
+    ///     this method directly.
+    ///
+    /// - Parameters:
+    ///     - type: the type of control character.
+    ///     - character: the character to use to represent the control character.
+    ///     - inheritedAttributes: the attributes the control character will inherit.
+    ///
+    /// - Returns: the requested control character.
+    ///
+    private func controlCharacter(ofType type: ControlCharacterType,
+                                  usingCharacter character: Character,
+                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        var attributes = inheritedAttributes
+        
+        attributes[StringAttributeName.controlCharacterType.rawValue] = type
+        
+        return NSAttributedString(string: String(character), attributes: attributes)
     }
 
     // MARK: - String attributes

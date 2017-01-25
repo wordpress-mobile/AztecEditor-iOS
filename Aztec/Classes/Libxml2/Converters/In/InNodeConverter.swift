@@ -117,7 +117,7 @@ extension Libxml2.In {
         ///
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
             let text = String(cString: rawNode.content)
-            let cleanText = text.replacingOccurrences(of: StringConstants.newline, with: "")
+            let cleanText = text.replacingOccurrences(of: String(.newline), with: "")
             let node = TextNode(text: cleanText, editContext: editContext)
 
             return node
