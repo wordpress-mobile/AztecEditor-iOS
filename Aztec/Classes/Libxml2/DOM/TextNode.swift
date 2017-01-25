@@ -76,12 +76,16 @@ extension Libxml2 {
                         insertionIndex = insertionIndex + 1
                     } else {
                         let breakNode = ElementNode.break()
-                        let textNode = TextNode(text: component, editContext: editContext)
                         
                         parent.insert(breakNode, at: insertionIndex)
-                        parent.insert(textNode, at: insertionIndex + 1)
+                        insertionIndex = insertionIndex + 1
                         
-                        insertionIndex = insertionIndex + 2
+                        if component.characters.count > 0 {
+                            let textNode = TextNode(text: component, editContext: editContext)
+                            
+                            parent.insert(textNode, at: insertionIndex)
+                            insertionIndex = insertionIndex + 1
+                        }
                     }
                 }
             }

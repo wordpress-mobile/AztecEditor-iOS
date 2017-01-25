@@ -5,9 +5,174 @@ class TextNodeTests: XCTestCase {
     
     typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
+    typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
     
     // MARK: - Editing text nodes
+    
+    /// Tests that appending text to a text node works fine.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "Hello There! "
+    ///
+    /// The results should be: "Hello World! Hello There!"
+    ///
+    func testAppend() {
+        let textInNode = "Hello World!"
+        let textToAppend = " Hello There!"
+        let fullText = "\(textInNode)\(textToAppend)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        textNode.append(textToAppend)
+        
+        XCTAssertEqual(paragraphNode.text(), fullText)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\nHello There!"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!</p>
+    ///
+    func testAppendWithBr1() {
+        let textInNode = "Hello World!"
+        let textToAppend = "Hello There!"
+        let textToAppendWithBR = "\(String(.newline))\(textToAppend)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+
+        textNode.append(textToAppendWithBR)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode = paragraphNode.children[1] as? ElementNode,
+            brNode.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+        XCTAssertEqual(textNode2.text(), textToAppend)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\nHello There!\nHow are you?"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!<br>How are you?</p>
+    ///
+    func testAppendWithBr2() {
+        let textInNode = "Hello World!"
+        let textToAppend1 = "Hello There!"
+        let textToAppend2 = "How are you?"
+        
+        let fullTextToAppend = "\(String(.newline))\(textToAppend1)\(String(.newline))\(textToAppend2)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.append(fullTextToAppend)
+        
+        XCTAssertEqual(paragraphNode.children.count, 5)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode1 = paragraphNode.children[1] as? ElementNode,
+            brNode1.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode2 = paragraphNode.children[3] as? ElementNode,
+            brNode2.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode3 = paragraphNode.children[4] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+        XCTAssertEqual(textNode2.text(), textToAppend1)
+        XCTAssertEqual(textNode3.text(), textToAppend2)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\n\n"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!<br>How are you?</p>
+    ///
+    func testAppendWithBr3() {
+        let textInNode = "Hello World!"
+        let textToAppend = "\(String(.newline))\(String(.newline))"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.append(textToAppend)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode1 = paragraphNode.children[1] as? ElementNode,
+            brNode1.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let brNode2 = paragraphNode.children[2] as? ElementNode,
+            brNode2.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+    }
     
     /// Tests that splitting a text node at a specified text location works fine.
     ///

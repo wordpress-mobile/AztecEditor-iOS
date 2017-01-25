@@ -84,7 +84,7 @@ extension Libxml2 {
             case .img:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
-                return NSAttributedString(string: "\n", attributes: attributes)            
+                return NSAttributedString(.newline, attributes: attributes)
             default:
                 return resultString
             }
