@@ -42,7 +42,7 @@ extension Libxml2 {
             contents.append(string)
         }
         
-        private func append(componentsSeparatedByBreaks components: [String]) {
+        private func append(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
             guard let parent = parent else {
                 assertionFailure("This method cannot process newlines if the node's parent isn't set.")
                 return
@@ -56,9 +56,9 @@ extension Libxml2 {
                     
                     insertionIndex = insertionIndex + 1
                 } else {
-                    let breakNode = ElementNode.break()
+                    let separator = ElementNode(descriptor: separatorDescriptor)
                     
-                    parent.insert(breakNode, at: insertionIndex)
+                    parent.insert(separator, at: insertionIndex)
                     insertionIndex = insertionIndex + 1
                     
                     if component.characters.count > 0 {
@@ -82,7 +82,7 @@ extension Libxml2 {
             contents = "\(string)\(contents)"
         }
         
-        private func prepend(componentsSeparatedByBreaks components: [String]) {
+        private func prepend(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
             guard let parent = parent else {
                 assertionFailure("This method cannot process newlines if the node's parent isn't set.")
                 return
@@ -95,10 +95,10 @@ extension Libxml2 {
                     prepend(sanitizedString: component)
                 } else {
                     let textNode = TextNode(text: component, editContext: editContext)
-                    let breakNode = ElementNode.break()
+                    let separator = ElementNode(descriptor: separatorDescriptor)
                     
                     parent.insert(textNode, at: insertionIndex)
-                    parent.insert(breakNode, at: insertionIndex + 1)
+                    parent.insert(separator, at: insertionIndex + 1)
                     
                     insertionIndex = insertionIndex + 2
                 }
@@ -122,7 +122,20 @@ extension Libxml2 {
             contents.replaceSubrange(range, with: string)
         }
         
-        private func replaceCharacters(inRange range: NSRange, withComponents components: [String]) {
+        /// Replaces the specified range with an array of string components separated by nodes
+        /// specified using a node descriptor.
+        ///
+        /// This could be use, for example, to separate components with line breaks.
+        ///
+        /// - Parameters:
+        ///     - range: the range to replace.
+        ///     - components: an array of strings that will be inserted replacing the specified
+        ///         range.  These will be separated by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
+        private func replaceCharacters(inRange range: NSRange,
+                                       withComponents components: [String],
+                                       separatedBy separatorDescriptor: ElementNodeDescriptor) {
             guard let firstComponent = components.first,
                 let lastComponent = components.last else {
                     assertionFailure("This should not be possible, review your logic.")
@@ -137,9 +150,9 @@ extension Libxml2 {
             deleteCharacters(inRange: range)
             
             if range.location == 0 {
-                prepend(componentsSeparatedByBreaks: components)
+                prepend(components: components, separatedBy: separatorDescriptor)
             } else if range.location == length() {
-                append(componentsSeparatedByBreaks: components)
+                append(components: components, separatedBy: separatorDescriptor)
             } else {
                 split(atLocation: range.location)
                 
@@ -164,18 +177,18 @@ extension Libxml2 {
                     if component == firstComponent {
                         append(sanitizedString: firstComponent)
                         
-                        let breakNode = ElementNode.break()
+                        let separator = ElementNode(descriptor: separatorDescriptor)
                         
-                        parent.insert(breakNode, at: insertionIndex)
+                        parent.insert(separator, at: insertionIndex)
                         insertionIndex = insertionIndex + 1
                     } else if component == lastComponent {
                         rightNode.prepend(sanitizedString: lastComponent)
                     } else {
                         let textNode = TextNode(text: component, editContext: editContext)
-                        let breakNode = ElementNode.break()
+                        let separator = ElementNode(descriptor: separatorDescriptor)
                         
                         parent.insert(textNode, at: insertionIndex)
-                        parent.insert(breakNode, at: insertionIndex + 1)
+                        parent.insert(separator, at: insertionIndex + 1)
                         
                         insertionIndex = insertionIndex + 2
                     }
@@ -191,7 +204,7 @@ extension Libxml2 {
             if components.count == 1 {
                 append(sanitizedString: string)
             } else {
-                append(componentsSeparatedByBreaks: components)
+                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
             }
         }
 
@@ -216,7 +229,7 @@ extension Libxml2 {
             if components.count == 1 {
                 prepend(sanitizedString: string)
             } else {
-                prepend(componentsSeparatedByBreaks: components)
+                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
             }
         }
 
@@ -226,7 +239,7 @@ extension Libxml2 {
             if components.count == 1 {
                 replaceCharacters(inRange: range, withSanitizedString: string)
             } else {
-                replaceCharacters(inRange: range, withComponents: components)
+                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br))
             }
         }
 
