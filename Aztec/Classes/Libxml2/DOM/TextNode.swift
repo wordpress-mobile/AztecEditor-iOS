@@ -42,6 +42,35 @@ extension Libxml2 {
             contents.append(string)
         }
         
+        private func append(componentsSeparatedByBreaks components: [String]) {
+            guard let parent = parent else {
+                assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                return
+            }
+            
+            var insertionIndex = parent.indexOf(childNode: self)
+            
+            for (componentIndex, component) in components.enumerated() {
+                if componentIndex == 0 {
+                    append(sanitizedString: component)
+                    
+                    insertionIndex = insertionIndex + 1
+                } else {
+                    let breakNode = ElementNode.break()
+                    
+                    parent.insert(breakNode, at: insertionIndex)
+                    insertionIndex = insertionIndex + 1
+                    
+                    if component.characters.count > 0 {
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        
+                        parent.insert(textNode, at: insertionIndex)
+                        insertionIndex = insertionIndex + 1
+                    }
+                }
+            }
+        }
+        
         /// Prepends the specified string.  The input data is assumed to be sanitized, which means
         /// this method does not perform verifications or cleanups on it.
         ///
@@ -52,6 +81,107 @@ extension Libxml2 {
             registerUndoForPrepend(prependedLength: string.characters.count)
             contents = "\(string)\(contents)"
         }
+        
+        private func prepend(componentsSeparatedByBreaks components: [String]) {
+            guard let parent = parent else {
+                assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                return
+            }
+            
+            var insertionIndex = parent.indexOf(childNode: self)
+            
+            for (componentIndex, component) in components.enumerated() {
+                if componentIndex == components.count - 1 {
+                    prepend(sanitizedString: component)
+                } else {
+                    let textNode = TextNode(text: component, editContext: editContext)
+                    let breakNode = ElementNode.break()
+                    
+                    parent.insert(textNode, at: insertionIndex)
+                    parent.insert(breakNode, at: insertionIndex + 1)
+                    
+                    insertionIndex = insertionIndex + 2
+                }
+            }
+        }
+        
+        /// Replaces the specified range with a new string.  The input string is assumed to be
+        /// sanitized, which means this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - range: the range to replace.
+        ///     - string: the string that will replace the specified range.
+        ///
+        func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
+            
+            guard let range = contents.rangeFromNSRange(range) else {
+                fatalError("The specified range is out of bounds.")
+            }
+            
+            registerUndoForReplaceCharacters(in: range, withString: string)
+            contents.replaceSubrange(range, with: string)
+        }
+        
+        private func replaceCharacters(inRange range: NSRange, withComponents components: [String]) {
+            guard let firstComponent = components.first,
+                let lastComponent = components.last else {
+                    assertionFailure("This should not be possible, review your logic.")
+                    return
+            }
+            
+            guard firstComponent != lastComponent else {
+                replaceCharacters(inRange: range, withSanitizedString: firstComponent)
+                return
+            }
+            
+            deleteCharacters(inRange: range)
+            
+            if range.location == 0 {
+                prepend(componentsSeparatedByBreaks: components)
+            } else if range.location == length() {
+                append(componentsSeparatedByBreaks: components)
+            } else {
+                split(atLocation: range.location)
+                
+                guard let parent = parent else {
+                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                    return
+                }
+                
+                let leftNodeIndex = parent.indexOf(childNode: self)
+                let rightNodeIndex = leftNodeIndex + 1
+                
+                assert(parent.children.count > rightNodeIndex)
+                
+                guard let rightNode = parent.children[rightNodeIndex] as? TextNode else {
+                    assertionFailure("The right node should also be a TextNode.  Review the logic.")
+                    return
+                }
+                
+                var insertionIndex = parent.indexOf(childNode: self) + 1
+                
+                for component in components {
+                    if component == firstComponent {
+                        append(sanitizedString: firstComponent)
+                        
+                        let breakNode = ElementNode.break()
+                        
+                        parent.insert(breakNode, at: insertionIndex)
+                        insertionIndex = insertionIndex + 1
+                    } else if component == lastComponent {
+                        rightNode.prepend(sanitizedString: lastComponent)
+                    } else {
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        let breakNode = ElementNode.break()
+                        
+                        parent.insert(textNode, at: insertionIndex)
+                        parent.insert(breakNode, at: insertionIndex + 1)
+                        
+                        insertionIndex = insertionIndex + 2
+                    }
+                }
+            }
+        }
 
         // MARK: - EditableNode
 
@@ -61,33 +191,7 @@ extension Libxml2 {
             if components.count == 1 {
                 append(sanitizedString: string)
             } else {
-                
-                guard let parent = parent else {
-                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
-                    return
-                }
-
-                var insertionIndex = parent.indexOf(childNode: self)
-
-                for (componentIndex, component) in components.enumerated() {
-                    if componentIndex == 0 {
-                        append(sanitizedString: component)
-                        
-                        insertionIndex = insertionIndex + 1
-                    } else {
-                        let breakNode = ElementNode.break()
-                        
-                        parent.insert(breakNode, at: insertionIndex)
-                        insertionIndex = insertionIndex + 1
-                        
-                        if component.characters.count > 0 {
-                            let textNode = TextNode(text: component, editContext: editContext)
-                            
-                            parent.insert(textNode, at: insertionIndex)
-                            insertionIndex = insertionIndex + 1
-                        }
-                    }
-                }
+                append(componentsSeparatedByBreaks: components)
             }
         }
 
@@ -112,39 +216,18 @@ extension Libxml2 {
             if components.count == 1 {
                 prepend(sanitizedString: string)
             } else {
-                
-                guard let parent = parent else {
-                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
-                    return
-                }
-                
-                let componentsCount = components.count
-                var insertionIndex = parent.indexOf(childNode: self)
-                
-                for (componentIndex, component) in components.enumerated() {
-                    if componentIndex == componentsCount - 1 {
-                        prepend(sanitizedString: component)
-                    } else {
-                        let textNode = TextNode(text: component, editContext: editContext)
-                        let breakNode = ElementNode.break()
-                        
-                        parent.insert(textNode, at: insertionIndex)
-                        parent.insert(breakNode, at: insertionIndex + 1)
-                        
-                        insertionIndex = insertionIndex + 2
-                    }
-                }
+                prepend(componentsSeparatedByBreaks: components)
             }
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-
-            guard let range = contents.rangeFromNSRange(range) else {
-                fatalError("The specified range is out of bounds.")
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                replaceCharacters(inRange: range, withSanitizedString: string)
+            } else {
+                replaceCharacters(inRange: range, withComponents: components)
             }
-
-            registerUndoForReplaceCharacters(in: range, withString: string)
-            contents.replaceSubrange(range, with: string)
         }
 
         func split(atLocation location: Int) {

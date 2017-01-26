@@ -295,7 +295,7 @@ class TextNodeTests: XCTestCase {
         XCTAssertEqual(textNode2.text(), textToPrepend2)
         XCTAssertEqual(textNode3.text(), textInNode)
     }
-    
+
     /// Tests that splitting a text node at a specified text location works fine.
     ///
     /// HTML string: <p>Hello World!</p>
