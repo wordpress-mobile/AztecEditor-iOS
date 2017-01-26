@@ -132,12 +132,17 @@ extension CharacterAttributeFormatter {
         guard range.location < text.length else {
             return range
         }
-
-        if shouldApplyAttributes(to: text, at: range) {
-            applyAttributes(to: text, at: range)
-        } else {
-            removeAttributes(from: text, at: range)
+        //We decide if we need to apply or not the attribute based on the value on the initial position of the range
+        let needToApplyAttributes =  shouldApplyAttributes(to: text, at: range)
+        // Then we go trough for the range with different attributes and apply or remove accordingly.
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            if needToApplyAttributes {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
+
         return range
     }
 }
