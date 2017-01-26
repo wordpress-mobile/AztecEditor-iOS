@@ -42,6 +42,13 @@ extension Libxml2 {
             contents.append(string)
         }
         
+        /// Appends the specified components separated by the specified descriptor.
+        ///
+        /// - Parameters:
+        ///     - components: an array of strings that will be appended.  These will be separated
+        ///         by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
         private func append(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
             guard let parent = parent else {
                 assertionFailure("This method cannot process newlines if the node's parent isn't set.")
@@ -82,6 +89,13 @@ extension Libxml2 {
             contents = "\(string)\(contents)"
         }
         
+        /// Prepends the specified components separated by the specified descriptor.
+        ///
+        /// - Parameters:
+        ///     - components: an array of strings that will be prepended.  These will be separated
+        ///         by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
         private func prepend(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
             guard let parent = parent else {
                 assertionFailure("This method cannot process newlines if the node's parent isn't set.")
@@ -122,8 +136,8 @@ extension Libxml2 {
             contents.replaceSubrange(range, with: string)
         }
         
-        /// Replaces the specified range with an array of string components separated by nodes
-        /// specified using a node descriptor.
+        /// Replaces the specified range with an array of string components separated by the
+        /// specified descriptor.
         ///
         /// This could be use, for example, to separate components with line breaks.
         ///
