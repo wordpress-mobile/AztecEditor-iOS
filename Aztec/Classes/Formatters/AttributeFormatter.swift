@@ -99,6 +99,14 @@ private extension AttributeFormatter {
     func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) {
         let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
         let attributes = remove(from: currentAttributes)
+
+        let currentKeys = Set(currentAttributes.keys)
+        let newKeys = Set(attributes.keys)
+        let removedKeys = currentKeys.subtracting(newKeys)
+        for key in removedKeys {
+            string.removeAttribute(key, range: range)
+        }
+
         string.addAttributes(attributes, range: range)
     }
 }

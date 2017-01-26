@@ -232,26 +232,6 @@ open class TextStorage: NSTextStorage {
         return newSelectedRange
     }
 
-    func toggleStrikethrough(_ range: NSRange) {
-        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
-    }
-
-    /// Toggles underline for the specified range.
-    ///
-    /// - Note: A better name would have been `toggleUnderline` but it was clashing with a method
-    ///     in the parent class.
-    ///
-    /// - Note: This is a bit tricky as we can collide with a link style.  We'll want to check for
-    ///     that and correct the style if necessary.
-    ///
-    /// - Parameters:
-    ///     - range: the range to toggle the style of.
-    ///
-    func toggleUnderlineForRange(_ range: NSRange) {
-        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
-    }
-
-
     /// Toggles blockquotes for the specified range.
     ///
     /// - Parameter range: the range to toggle the style of.

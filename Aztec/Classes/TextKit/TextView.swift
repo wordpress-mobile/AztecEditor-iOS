@@ -431,11 +431,9 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
-
-        if range.length > 0 {
-            storage.toggleUnderlineForRange(range)
-        }
+        let formatter = UnderlineFormatter()
+        typingAttributes = formatter.apply(to: typingAttributes)
+        storage.toggle(formatter: formatter, at: range)
     }
 
 
@@ -444,11 +442,9 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleStrikethrough(range: NSRange) {
-        updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
-
-        if range.length > 0 {
-            storage.toggleStrikethrough(range)
-        }
+        let formatter = StrikethroughFormatter()
+        typingAttributes = formatter.apply(to: typingAttributes)
+        storage.toggle(formatter: formatter, at: range)
     }
 
 
