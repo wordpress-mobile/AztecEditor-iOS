@@ -225,6 +225,9 @@ open class TextStorage: NSTextStorage {
     // MARK: - Styles: Toggling
     @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
         let applicationRange = formatter.applicationRange(for: range, in: self)
+        if (applicationRange.length == 0) {
+            return applicationRange
+        }
         let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
         if !formatter.present(in: self, at: applicationRange.location) {
             dom.remove(element:formatter.elementType, at: applicationRange)
