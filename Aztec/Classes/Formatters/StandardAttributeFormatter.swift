@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+/// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string. 
 class StandardAttributeFormatter: CharacterAttributeFormatter {
 
     let elementType: Libxml2.StandardElementType
