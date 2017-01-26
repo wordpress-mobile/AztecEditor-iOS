@@ -126,7 +126,7 @@ extension Libxml2 {
         ///     - range: the range to replace.
         ///     - string: the string that will replace the specified range.
         ///
-        func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
+        private func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
             
             guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -150,14 +150,14 @@ extension Libxml2 {
         private func replaceCharacters(inRange range: NSRange,
                                        withComponents components: [String],
                                        separatedBy separatorDescriptor: ElementNodeDescriptor) {
-            guard let firstComponent = components.first,
-                let lastComponent = components.last else {
-                    assertionFailure("This should not be possible, review your logic.")
-                    return
+            
+            guard components.count > 0 else {
+                assertionFailure("Do not call this method with an empty list of components.")
+                return
             }
             
-            guard firstComponent != lastComponent else {
-                replaceCharacters(inRange: range, withSanitizedString: firstComponent)
+            guard components.count > 1 else {
+                replaceCharacters(inRange: range, withSanitizedString: components[0])
                 return
             }
             
@@ -187,16 +187,16 @@ extension Libxml2 {
                 
                 var insertionIndex = parent.indexOf(childNode: self) + 1
                 
-                for component in components {
-                    if component == firstComponent {
-                        append(sanitizedString: firstComponent)
+                for (index, component) in components.enumerated() {
+                    if index == 0 {
+                        append(sanitizedString: component)
                         
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
                         parent.insert(separator, at: insertionIndex)
                         insertionIndex = insertionIndex + 1
-                    } else if component == lastComponent {
-                        rightNode.prepend(sanitizedString: lastComponent)
+                    } else if index == components.count - 1 {
+                        rightNode.prepend(sanitizedString: component)
                     } else {
                         let textNode = TextNode(text: component, editContext: editContext)
                         let separator = ElementNode(descriptor: separatorDescriptor)

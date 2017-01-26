@@ -295,6 +295,268 @@ class TextNodeTests: XCTestCase {
         XCTAssertEqual(textNode2.text(), textToPrepend2)
         XCTAssertEqual(textNode3.text(), textInNode)
     }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of "Hello"
+    /// New text for the replaced range: "Good Bye"
+    ///
+    /// The results should be: <p>Good Bye World!</p>"
+    ///
+    func testReplaceCharacters1() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let byeText = "Good Bye"
+        
+        let finalText = "\(byeText)\(worldText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: 0, length: helloText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: byeText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        XCTAssertEqual(paragraphNode.children[0], textNode)
+        XCTAssertEqual(paragraphNode.text(), finalText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of " World!"
+    /// New text for the replaced range: " City!"
+    ///
+    /// The results should be: <p>Hello City!</p>"
+    ///
+    func testReplaceCharacters2() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let cityText = " City!"
+        
+        let finalText = "\(helloText)\(cityText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: cityText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        XCTAssertEqual(paragraphNode.children[0], textNode)
+        XCTAssertEqual(paragraphNode.text(), finalText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of "Hello "
+    /// New text for the replaced range: "Good Bye\n"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr1() {
+        let helloText = "Hello "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let helloAndBreakText = "\(helloText)\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: 0, length: helloText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: helloAndBreakText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of " World!"
+    /// New text for the replaced range: "\nWorld!"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr2() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let breakAndWorldText = "\n\(worldText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakAndWorldText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of the space between words
+    /// New text for the replaced range: "\n"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr3() {
+        let helloText = "Hello"
+        let space = " "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(space)\(worldText)"
+        
+        let breakText = "\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of the space between words
+    /// New text for the replaced range: "\nTo My\n"
+    ///
+    /// The results should be: <p>Hello<br>To My<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr4() {
+        let helloText = "Hello"
+        let space = " "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(space)\(worldText)"
+        
+        let toMyText = "To My"
+        let newText = "\n\(toMyText)\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: newText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 5)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode1 = paragraphNode.children[1] as? ElementNode,
+            breakNode1.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode2 = paragraphNode.children[3] as? ElementNode,
+            breakNode2.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode3 = paragraphNode.children[4] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), toMyText)
+        XCTAssertEqual(textNode3.text(), worldText)
+    }
 
     /// Tests that splitting a text node at a specified text location works fine.
     ///
