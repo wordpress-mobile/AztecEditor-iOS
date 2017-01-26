@@ -108,21 +108,24 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     ///
     fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-
-        let content = NSMutableAttributedString()
+        
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
-
-        for child in node.children {
-            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
-            content.append(childContent)
+        
+        if let nodeType = node.standardName,
+            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
+            
+            return implicitRepresentation
         }
+        
+        let content = NSMutableAttributedString()
         
         if let openingCharacter = openingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
             content.append(openingCharacter)
         }
-
-        if let nodeType = node.standardName {
-            return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
+        
+        for child in node.children {
+            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
+            content.append(childContent)
         }
         
         if let closingCharacter = closingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
@@ -142,14 +145,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the requested closing character, or `nil` if none is needed.
     ///
-    private func closingCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
-        guard node.isBlockLevelElement() else {
+    private func closingCharacter(forNode node: ElementNode,
+                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
+        guard let closingControlCharacter = ControlCharacterType.closingControlCharacter(forNodeNamed: node.name) else {
             return nil
         }
         
-        let character: Character = node.isFirstChildInParent() ? Character(.zeroWidthSpace) : Character(.newline)
-        
-        return controlCharacter(ofType: .blockCloser, usingCharacter: character, inheritingAttributes: inheritedAttributes)
+        return controlCharacter(
+            ofType: closingControlCharacter,
+            usingCharacter: Character(.newline),
+            inheritingAttributes: inheritedAttributes)
     }
     
     /// Returns the opening character for the specified node, if any is necessary.
@@ -160,14 +165,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the requested opening character, or `nil` if none is needed.
     ///
-    private func openingCharacter(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
-        guard node.isBlockLevelElement() else {
+    private func openingCharacter(forNode node: ElementNode,
+                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
+        guard let openingControlCharacter = ControlCharacterType.openingControlCharacter(forNodeNamed: node.name) else {
             return nil
         }
         
-        let character: Character = node.isFirstChildInParent() ? Character(.zeroWidthSpace) : Character(.newline)
-        
-        return controlCharacter(ofType: .blockOpener, usingCharacter: character, inheritingAttributes: inheritedAttributes)
+        return controlCharacter(
+            ofType: openingControlCharacter,
+            usingCharacter: Character(.zeroWidthSpace),
+            inheritingAttributes: inheritedAttributes)
     }
     
     // MARK: - Control Characters: Construction
@@ -190,7 +197,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                                   inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
         var attributes = inheritedAttributes
         
-        attributes[StringAttributeName.controlCharacterType.rawValue] = type
+        attributes[StringAttributeName.controlCharacter.rawValue] = type
         
         return NSAttributedString(string: String(character), attributes: attributes)
     }

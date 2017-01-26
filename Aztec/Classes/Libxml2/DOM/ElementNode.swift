@@ -687,16 +687,17 @@ extension Libxml2 {
         }
         
         override func text() -> String {
-
+            
+            if let nodeType = standardName,
+                let implicitRepresentation = nodeType.implicitRepresentation() {
+                
+                return implicitRepresentation.string
+            }
+            
             var text = ""
             for child in children {
                 text = text + child.text()
             }
-
-            if let nodeType = standardName {
-                text = nodeType.implicitRepresentation(forContent: text)
-            }
-
             return text
         }
 
