@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-struct TextListFormatter: ParagraphAttributeFormatter {
+class TextListFormatter: ParagraphAttributeFormatter {
 
     let elementType: Libxml2.StandardElementType = .li
     let listStyle: TextList.Style
