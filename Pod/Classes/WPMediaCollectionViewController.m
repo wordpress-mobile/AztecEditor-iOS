@@ -3,6 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
+#import "WPAssetViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -13,7 +14,9 @@
  UINavigationControllerDelegate,
  WPMediaGroupPickerViewControllerDelegate,
  UIPopoverPresentationControllerDelegate,
- UICollectionViewDelegateFlowLayout
+ UICollectionViewDelegateFlowLayout,
+ WPAssetViewControllerDelegate,
+ UIViewControllerPreviewingDelegate
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
@@ -24,6 +27,8 @@
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
+@property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
+@property (nonatomic, strong) NSIndexPath *assetIndexInPreview;
 
 @end
 
@@ -45,6 +50,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
+        _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
     }
     return self;
 }
@@ -104,6 +110,13 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
         });
     }];
+
+    if ([self.traitCollection containsTraitsInCollection:[UITraitCollection traitCollectionWithForceTouchCapability:UIForceTouchCapabilityAvailable]]) {
+        [self registerForPreviewingWithDelegate:self sourceView:self.view];
+    } else {
+        [self.view addGestureRecognizer:self.longPressGestureRecognizer];
+    }
+
     [self refreshData];
 }
 
@@ -204,6 +217,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
+    if ([removed containsIndex:self.assetIndexInPreview.item]){
+        self.assetIndexInPreview = nil;
+    }
     [self.collectionView performBatchUpdates:^{
         if (removed) {
             [self.collectionView deleteItemsAtIndexPaths:[self indexPathsFromIndexSet:removed section:0]];
@@ -219,6 +235,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             for (id<WPMediaMove> move in moves) {
                 [self.collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:[move from] inSection:0]
                                              toIndexPath:[NSIndexPath indexPathForItem:[move to] inSection:0]];
+                if (self.assetIndexInPreview.row == move.from) {
+                    self.assetIndexInPreview = [NSIndexPath indexPathForItem:move.to inSection:0];
+                }
             }
         } completion:^(BOOL finished) {
             [self refreshSelection];
@@ -455,11 +474,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (asset == nil) {
+        return;
+    }
     if (!self.allowMultipleSelection) {
         [self.selectedAssets removeAllObjects];
     }
     [self.selectedAssets addObject:asset];
-    
+
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     if (self.allowMultipleSelection) {
         [cell setPosition:self.selectedAssets.count];
@@ -491,6 +513,9 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
 
     id<WPMediaAsset> asset = [self assetForPosition:indexPath];
+    if (asset == nil){
+        return;
+    }
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
         [self.selectedAssets removeObjectAtIndex:deselectPosition];
@@ -727,6 +752,109 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Long Press Handling
+
+- (void)handleLongPressOnAsset:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        CGPoint location = [gestureRecognizer locationInView:self.collectionView];
+        UIViewController *viewController = [self fullscreenAssetPreviewControllerForTouchLocation:location];
+
+        if (viewController) {
+            [self.navigationController pushViewController:viewController animated:YES];
+        }
+    }
+}
+
+- (nullable WPAssetViewController *)fullscreenAssetPreviewControllerForTouchLocation:(CGPoint)location
+{
+    self.assetIndexInPreview = [self.collectionView indexPathForItemAtPoint:location];
+    if (!self.assetIndexInPreview) {
+        return nil;
+    }
+
+    id<WPMediaAsset> asset = [self assetForPosition:self.assetIndexInPreview];
+    if (!asset) {
+        return nil;
+    }
+
+    WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
+    fullScreenImageVC.asset = asset;
+    fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
+    fullScreenImageVC.delegate = self;
+    return fullScreenImageVC;
+}
+
+#pragma mark - UIViewControllerPreviewingDelegate
+
+- (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
+{
+    CGPoint convertedLocation = [self.collectionView convertPoint:location fromView:self.view];
+    self.assetIndexInPreview = [self.collectionView indexPathForItemAtPoint:convertedLocation];
+    if (self.assetIndexInPreview) {
+        UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:self.assetIndexInPreview];
+        CGRect rect = [self.view convertRect:attributes.frame fromView:self.collectionView];
+        [previewingContext setSourceRect:rect];
+    }
+
+    return [self fullscreenAssetPreviewControllerForTouchLocation:convertedLocation];
+}
+
+- (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
+{
+    [self.navigationController pushViewController:viewControllerToCommit animated:YES];
+}
+
+#pragma mark - WPAssetViewControllerDelegate
+
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected
+{
+    [self.navigationController popViewControllerAnimated:YES];
+
+    if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
+
+    }
+    if (self.assetIndexInPreview == nil) {
+        return;
+    }
+    if (selected) {
+        [self.collectionView selectItemAtIndexPath:self.assetIndexInPreview animated:YES scrollPosition:UICollectionViewScrollPositionNone];
+        [self collectionView:self.collectionView didSelectItemAtIndexPath:self.assetIndexInPreview];
+    } else {
+        [self.collectionView deselectItemAtIndexPath:self.assetIndexInPreview animated:YES];
+        [self collectionView:self.collectionView didDeselectItemAtIndexPath:self.assetIndexInPreview];
+    }
+}
+
+- (void)assetViewController:(WPAssetViewController *)assetPreviewVC failedWithError:(NSError *)error
+{
+    BOOL needToPop = YES;
+    if (self.navigationController.topViewController == self) {
+        needToPop = NO;
+    }
+    NSString *errorDetails = error.localizedDescription;
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if (underlyingError) {
+        errorDetails = underlyingError.localizedDescription;
+    }
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Media preview failed.", @"Alert title when there is issues loading an asset to preview.")
+                                                                             message:errorDetails
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (needToPop) {
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    }];
+    [alertController addAction:dismissAction];
+
+    if (!needToPop) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentViewController:alertController animated:YES completion:nil];
+        }];
+    } else {
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
 }
 
 @end

@@ -52,6 +52,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
     self.preferFrontCameraCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.preferFrontCameraCell.accessoryView = [[UISwitch alloc] init];
+    ((UISwitch *)self.preferFrontCameraCell.accessoryView).on = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
     self.preferFrontCameraCell.textLabel.text = @"Prefer Front Camera";
     
     self.allowMultipleSelectionCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];

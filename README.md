@@ -12,6 +12,7 @@ It allows:
  * Use different data sources for the media library.
  * Selection of groups of media.
  * Filtering by media types.
+ * Preview of media (images and video) in full screen.
 
 ![Screenshot](screenshots_1.jpg "Screenshot")
 

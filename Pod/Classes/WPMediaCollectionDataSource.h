@@ -1,3 +1,5 @@
+@import AVFoundation;
+
 typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeImage,
     WPMediaTypeVideo,
@@ -10,7 +12,8 @@ static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
 
 typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
     WPMediaErrorCodePermissionsFailed,
-    WPMediaErrorCodePermissionsUnknow
+    WPMediaErrorCodePermissionsUnknow,
+    WPMediaErrorCodeVideoURLNotAvailable
 };
 
 @protocol WPMediaMove <NSObject>
@@ -25,6 +28,7 @@ typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef void (^WPMediaAssetBlock)(AVAsset *asset, NSError *error);
 typedef int32_t WPMediaRequestID;
 
 
@@ -37,13 +41,13 @@ typedef int32_t WPMediaRequestID;
 - (NSString *)name;
 
 /**
- *  Assynchronously fetches an image that represents the group
+ *  Asynchronously fetches an image that represents the group
  *
  *  @param size, the target size for the image, this may not be respected if the requested size is not available
  *
  *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
  *
- *  @return an unique ID of the fecth operation
+ *  @return an unique ID of the fetch operation
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
@@ -79,13 +83,11 @@ typedef int32_t WPMediaRequestID;
 @protocol WPMediaAsset <NSObject>
 
 /**
- *  Assynchronously fetches an image that represents the asset with the requested size
- *
- *  @param size, the target size for the image, this may not be respected if the requested size is not available
- *
- *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
- *
- *  @return an unique ID of the fecth operation that can be used to cancel it.
+ Asynchronously fetches an image that represents the asset with the requested size
+
+ @param size the target size for the image, this may not be respected if the requested size is not available. If the size request is zero the maximum available
+ @param completionHandler a block that is invoked when the image is available or when an error occurs.
+ @return an unique ID of the fetch operation that can be used to cancel it.
  */
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
 
@@ -95,6 +97,15 @@ typedef int32_t WPMediaRequestID;
  *  @param requestID an identifier returned by the imageWithSize:completionHandler: method.
  */
 - (void)cancelImageRequest:(WPMediaRequestID)requestID;
+
+/**
+ Asynchronously fetches an AVAsset that represents the media object.
+
+ @param completionHandler a block that is invoked when the asset is available or when an error occurs.
+
+ @return an unique ID of the fetch operation that can be used to cancel it.
+ */
+- (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.
@@ -130,6 +141,13 @@ typedef int32_t WPMediaRequestID;
  *  @return  a NSDate object that represents the creation date of the asset.
  */
 - (NSDate *)date;
+
+/**
+ *  The size, in pixels, of the asset’s image or video data.
+ *
+ *  @return The size, in pixels, of the asset’s image or video data.
+ */
+- (CGSize)pixelSize;
 
 @end
 
