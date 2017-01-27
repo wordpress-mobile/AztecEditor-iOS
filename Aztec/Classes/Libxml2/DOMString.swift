@@ -181,8 +181,6 @@ extension Libxml2 {
         
         // MARK: - Undo Manager
         
-
-        
         /// We have some special setup we need to take care of before registering undo operations.
         /// This method takes care of hooking up an undo operation in the client-provided undo
         /// manager with an undo operation in the DOM undo manager.
