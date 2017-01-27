@@ -62,6 +62,23 @@ extension AttributeFormatter {
         return present(in: attributes)
     }
 
+    /// Indicates wheter the Formatter's Attributes are present in the full range provided
+    ///
+    /// - Parameters:
+    ///   - text: the attributed string to inspect for the attribute
+    ///   - range: the range to inspect
+    /// - Returns: true if the attributes exists on all of the range
+    func present(in text: NSAttributedString, at range: NSRange) -> Bool {
+        var result = true
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            result = present(in: attributes) && result
+            if !result {
+                stop.pointee = true
+            }
+        }
+        return result
+    }
+
 }
 
 

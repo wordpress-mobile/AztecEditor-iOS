@@ -832,9 +832,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func underlineFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = UnderlineFormatter()
-        let index = maxIndex(range.location)
-        return formatter.present(in: storage, at: index)
+        let formatter = UnderlineFormatter()        
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -846,8 +845,7 @@ open class TextView: UITextView {
     ///
     open func strikethroughFormattingSpansRange(_ range: NSRange) -> Bool {
         let formatter = StrikethroughFormatter()
-        let index = maxIndex(range.location)
-        return formatter.present(in: storage, at: index)
+        return formatter.present(in: storage, at: range)
     }
 
     /// Check if the link attribute spans the specified range.
