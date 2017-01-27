@@ -67,16 +67,23 @@ extension AttributeFormatter {
     /// - Parameters:
     ///   - text: the attributed string to inspect for the attribute
     ///   - range: the range to inspect
+    ///
     /// - Returns: true if the attributes exists on all of the range
+    ///
     func present(in text: NSAttributedString, at range: NSRange) -> Bool {
+        if range.length == 0 {
+            return present(in: text, at: range.location)
+        }
         var result = true
+        var enumerateAtLeastOnce = false
         text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            enumerateAtLeastOnce = true
             result = present(in: attributes) && result
             if !result {
                 stop.pointee = true
             }
         }
-        return result
+        return result && enumerateAtLeastOnce
     }
 
 }
@@ -100,7 +107,7 @@ private extension AttributeFormatter {
             return true
         }
 
-        return present(in: text, at: range.location) == false
+        return present(in: text, at: range) == false
     }
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
