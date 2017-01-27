@@ -383,7 +383,7 @@ class TextListFormatterTests: XCTestCase
         let ranges = paragraphRanges(inString: list)
         let lists = textListAttributes(inString: list, atRanges: ranges)
 
-        XCTAssert(lists.count == 0)
+        XCTAssert(lists.count == 5)
     }
 
 

@@ -62,6 +62,30 @@ extension AttributeFormatter {
         return present(in: attributes)
     }
 
+    /// Indicates whether the Formatter's Attributes are present in the full range provided
+    ///
+    /// - Parameters:
+    ///   - text: the attributed string to inspect for the attribute
+    ///   - range: the range to inspect
+    ///
+    /// - Returns: true if the attributes exists on all of the range
+    ///
+    func present(in text: NSAttributedString, at range: NSRange) -> Bool {
+        if range.length == 0 {
+            return present(in: text, at: range.location)
+        }
+        var result = true
+        var enumerateAtLeastOnce = false
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            enumerateAtLeastOnce = true
+            result = present(in: attributes) && result
+            if !result {
+                stop.pointee = true
+            }
+        }
+        return result && enumerateAtLeastOnce
+    }
+
 }
 
 
@@ -83,7 +107,7 @@ private extension AttributeFormatter {
             return true
         }
 
-        return present(in: text, at: range.location) == false
+        return present(in: text, at: range) == false
     }
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
@@ -99,6 +123,14 @@ private extension AttributeFormatter {
     func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) {
         let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
         let attributes = remove(from: currentAttributes)
+
+        let currentKeys = Set(currentAttributes.keys)
+        let newKeys = Set(attributes.keys)
+        let removedKeys = currentKeys.subtracting(newKeys)
+        for key in removedKeys {
+            string.removeAttribute(key, range: range)
+        }
+
         string.addAttributes(attributes, range: range)
     }
 }
@@ -124,12 +156,17 @@ extension CharacterAttributeFormatter {
         guard range.location < text.length else {
             return range
         }
-
-        if shouldApplyAttributes(to: text, at: range) {
-            applyAttributes(to: text, at: range)
-        } else {
-            removeAttributes(from: text, at: range)
+        //We decide if we need to apply or not the attribute based on the value on the initial position of the range
+        let shouldApply =  shouldApplyAttributes(to: text, at: range)
+        // Then we go trough for the range with different attributes and apply or remove accordingly.
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            if shouldApply {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
+
         return range
     }
 }
@@ -170,10 +207,12 @@ extension ParagraphAttributeFormatter {
             rangeToApply = NSMakeRange(text.length - 1, 1)
         }
 
-        if shouldApply {
-            applyAttributes(to: text, at: rangeToApply)
-        } else {
-            removeAttributes(from: text, at: rangeToApply)
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+            if shouldApply {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
 
         return newSelectedRange
