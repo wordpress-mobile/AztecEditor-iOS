@@ -207,10 +207,12 @@ extension ParagraphAttributeFormatter {
             rangeToApply = NSMakeRange(text.length - 1, 1)
         }
 
-        if shouldApply {
-            applyAttributes(to: text, at: rangeToApply)
-        } else {
-            removeAttributes(from: text, at: rangeToApply)
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+            if shouldApply {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
 
         return newSelectedRange

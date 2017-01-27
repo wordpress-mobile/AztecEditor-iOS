@@ -54,8 +54,8 @@ class BlockquoteFormatterTests: XCTestCase {
         textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
 
-        XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[0]))
-        XCTAssertFalse(existsBlockquote(for: textView.storage, in: paragraphs[1]))
+        XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[0]))
+        XCTAssertTrue(existsBlockquote(for: textView.storage, in: paragraphs[1]))
     }
 
     func testToggleBlockquoteTwiceLeavesReturnsIdenticalString() {

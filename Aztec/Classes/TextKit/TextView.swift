@@ -304,6 +304,10 @@ open class TextView: UITextView {
             identifiers.append(.unorderedlist)
         }
 
+        if blockquoteFormattingSpansRange(range) {
+            identifiers.append(.blockquote)
+        }
+
         return identifiers
     }
 
@@ -810,7 +814,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func boldFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.fontTrait(.traitBold, spansRange: range)
+        let formatter = BoldFormatter()
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -821,7 +826,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func italicFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.fontTrait(.traitItalic, spansRange: range)
+        let formatter = ItalicFormatter()
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -872,7 +878,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func orderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .ordered
+        let formatter = TextListFormatter(style: .ordered)
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -883,7 +890,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func unorderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .unordered
+        let formatter = TextListFormatter(style: .unordered)
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -929,13 +937,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func blockquoteFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
-            return false
-        }
-
-        return attribute.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        let formatter = BlockquoteFormatter()
+        return formatter.present(in: storage, at: range)
     }
 
 
