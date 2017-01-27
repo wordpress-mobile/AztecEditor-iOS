@@ -62,7 +62,7 @@ extension AttributeFormatter {
         return present(in: attributes)
     }
 
-    /// Indicates wheter the Formatter's Attributes are present in the full range provided
+    /// Indicates whether the Formatter's Attributes are present in the full range provided
     ///
     /// - Parameters:
     ///   - text: the attributed string to inspect for the attribute
@@ -157,10 +157,10 @@ extension CharacterAttributeFormatter {
             return range
         }
         //We decide if we need to apply or not the attribute based on the value on the initial position of the range
-        let needToApplyAttributes =  shouldApplyAttributes(to: text, at: range)
+        let shouldApply =  shouldApplyAttributes(to: text, at: range)
         // Then we go trough for the range with different attributes and apply or remove accordingly.
         text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
-            if needToApplyAttributes {
+            if shouldApply {
                 applyAttributes(to: text, at: range)
             } else {
                 removeAttributes(from: text, at: range)
