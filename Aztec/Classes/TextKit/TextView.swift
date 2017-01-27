@@ -832,13 +832,9 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func underlineFormattingSpansRange(_ range: NSRange) -> Bool {
+        let formatter = UnderlineFormatter()
         let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        return formatter.present(in: storage, at: index)
     }
 
 
@@ -849,13 +845,9 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func strikethroughFormattingSpansRange(_ range: NSRange) -> Bool {
+        let formatter = StrikethroughFormatter()
         let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        return formatter.present(in: storage, at: index)
     }
 
     /// Check if the link attribute spans the specified range.
@@ -1054,11 +1046,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsUnderline(_ index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
-            return false
-        }
-        // TODO: Figure out how to reconcile this with Link style.
-        return attribute == NSUnderlineStyle.styleSingle.rawValue
+        let formatter = UnderlineFormatter()
+        return formatter.present(in: storage, at: index)
     }
 
 
@@ -1069,11 +1058,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsStrikethrough(_ index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue
+        let formatter = StrikethroughFormatter()
+        return formatter.present(in: storage, at: index)
     }
 
     /// Check if the link attribute exists at the specified index.
@@ -1153,14 +1139,16 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
     ///
     open func typingAttributesContainsStrikethrough() -> Bool {
-        return typingAttributes[NSStrikethroughStyleAttributeName] != nil
+        let formatter = StrikethroughFormatter();
+        return formatter.present(in: typingAttributes)
     }
 
 
     /// Checks if the next character that the user types will be underlined, or not.
     ///
     open func typingAttributesContainsUnderline() -> Bool {
-        return typingAttributes[NSUnderlineStyleAttributeName] != nil
+        let formatter = UnderlineFormatter();
+        return formatter.present(in: typingAttributes)
     }
 
 
