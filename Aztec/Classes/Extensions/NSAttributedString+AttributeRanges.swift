@@ -12,8 +12,12 @@ extension NSAttributedString {
     ///
     /// - Returns: the mapped range.
     ///
-    private func map(range initialRange: NSRange, byFilteringAttributeNamed attributeName: String) -> NSRange? {
+    func map(range initialRange: NSRange, byFilteringAttributeNamed attributeName: String) -> NSRange? {
         let ranges = self.ranges(forAttributeNamed: attributeName, within: initialRange)
+        
+        guard ranges.count > 0 else {
+            return initialRange
+        }
         
         var mappedRange = initialRange
         let mappedRangeEndLocation = mappedRange.location + mappedRange.length
@@ -56,7 +60,7 @@ extension NSAttributedString {
     ///
     /// - Returns: an array of ranges where the attribute can be found
     ///
-    public func ranges(forAttributeNamed attributeName: String) -> [NSRange] {
+    func ranges(forAttributeNamed attributeName: String) -> [NSRange] {
         return ranges(forAttributeNamed: attributeName, within: NSRange(location: 0, length: length))
     }
     
@@ -69,15 +73,17 @@ extension NSAttributedString {
     ///
     /// - Returns: an array of ranges where the attribute can be found
     ///
-    public func ranges(forAttributeNamed attributeName: String, within range: NSRange) -> [NSRange] {
+    func ranges(forAttributeNamed attributeName: String, within range: NSRange) -> [NSRange] {
         var result = [NSRange]()
         
-        enumerateAttribute(attributeName, in: range, options: []) { (matchingAttributeName, matchingAttributeRange, nil) in
-            guard let matchingAttributeName = matchingAttributeName as? String, matchingAttributeName == attributeName else {
+        let rangeToInspect = NSRange(location: 0, length: range.location + range.length)
+        
+        enumerateAttribute(attributeName, in: rangeToInspect, options: []) { (matchingValue, matchingRange, nil) in
+            guard matchingValue != nil else {
                 return
             }
-            
-            result.append(matchingAttributeRange)
+        
+            result.append(matchingRange)
         }
         
         return result

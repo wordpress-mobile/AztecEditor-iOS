@@ -180,8 +180,9 @@ open class TextStorage: NSTextStorage {
 
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
 
-        if mustUpdateDOM() {
-            dom.replaceCharacters(inRange: range, withString: str, inheritStyle: true)
+        if let domRange = map(visualRange: range),
+            mustUpdateDOM() {
+            dom.replaceCharacters(inRange: domRange, withString: str, inheritStyle: true)
         }
         
         endEditing()
@@ -199,8 +200,9 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         
-        if mustUpdateDOM() {
-            dom.replaceCharacters(inRange: range, withAttributedString: processedString, inheritStyle: false)
+        if let domRange = map(visualRange: range),
+            mustUpdateDOM() {
+            dom.replaceCharacters(inRange: domRange, withAttributedString: processedString, inheritStyle: false)
         }
         
         endEditing()
@@ -215,11 +217,18 @@ open class TextStorage: NSTextStorage {
         textStore.setAttributes(attrs, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
-        if mustUpdateDOM() {
-            dom.setAttributes(attrs, range: range)
+        if let domRange = map(visualRange: range),
+            mustUpdateDOM() {
+            dom.setAttributes(attrs, range: domRange)
         }
         
         endEditing()
+    }
+    
+    // MARK: - Range Mapping: Visual vs HTML
+    
+    private func map(visualRange: NSRange) -> NSRange? {
+        return textStore.map(range: visualRange, byFilteringAttributeNamed: StringAttributeName.controlCharacter.rawValue)
     }
     
     // MARK: - Styles: Toggling
