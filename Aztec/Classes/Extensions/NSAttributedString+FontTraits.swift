@@ -63,18 +63,18 @@ public extension NSMutableAttributedString {
     ///     - trait: A font trait.
     ///     - range: The NSRange to inspect
     ///
-    public func toggleFontTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
+    public func toggle(_ fontTrait: UIFontDescriptorSymbolicTraits, inRange range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
             return
         }
 
-        let enable = !fontTrait(trait, spansRange: range)
+        let enable = !self.fontTrait(fontTrait, spansRange: range)
 
-        modifyTraits(trait, range: range, enable: enable)
+        modify(fontTrait, range: range, enable: enable)
     }
 
-    fileprivate func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+    fileprivate func modify(_ fontTrait: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
 
         enumerateAttribute(NSFontAttributeName,
                            in: range,
@@ -84,7 +84,7 @@ public extension NSMutableAttributedString {
                                 return
                             }
 
-                            let newFont = font.modifyTraits(traits, enable: enable)
+                            let newFont = font.modifyTraits(fontTrait, enable: enable)
 
                             self.beginEditing()
                             self.removeAttribute(NSFontAttributeName, range: range)
