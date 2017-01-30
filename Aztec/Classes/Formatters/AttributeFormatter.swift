@@ -24,6 +24,12 @@ protocol AttributeFormatter {
     ///
     @discardableResult func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
 
+    /// Apply or removes formatter attributes to the provided attribute dictionary and returns it.
+    ///
+    /// - Parameter attributes: attributes to be checked.
+    /// - Returns: the new attribute dictionary with the toggle applied.
+    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any]
+
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
     func present(in text: NSAttributedString, at index: Int) -> Bool
@@ -84,6 +90,14 @@ extension AttributeFormatter {
             }
         }
         return result && enumerateAtLeastOnce
+    }
+
+    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any] {
+        if present(in: attributes) {
+            return remove(from: attributes)
+        } else {
+            return apply(to: attributes)
+        }
     }
 
 }

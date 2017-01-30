@@ -407,6 +407,19 @@ open class TextView: UITextView {
 
     // MARK: - Formatting
 
+    func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
+        let newSelectedRange = storage.toggle(formatter: formatter, at: range)
+        selectedRange = newSelectedRange ?? selectedRange
+        if selectedRange.length == 0 {
+            typingAttributes = formatter.toggle(in: typingAttributes)
+        } else {
+            // NOTE: We are making sure that the selectedRange location is inside the string
+            // The selected range can be out of the string when you are adding content to the end of the string.
+            // In those cases we check the atributes of the previous caracter
+            let location = max(0,min(selectedRange.location, textStorage.length-1))
+            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+        }
+    }
 
     /// Adds or removes a bold style from the specified range.
     ///
@@ -414,8 +427,7 @@ open class TextView: UITextView {
     ///
     open func toggleBold(range: NSRange) {
         let formatter = BoldFormatter()
-        typingAttributes = formatter.apply(to: typingAttributes)
-        storage.toggle(formatter: formatter, at: range)
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -425,8 +437,7 @@ open class TextView: UITextView {
     ///
     open func toggleItalic(range: NSRange) {
         let formatter = ItalicFormatter()
-        typingAttributes = formatter.apply(to: typingAttributes)
-        storage.toggle(formatter: formatter, at: range)
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -436,8 +447,7 @@ open class TextView: UITextView {
     ///
     open func toggleUnderline(range: NSRange) {
         let formatter = UnderlineFormatter()
-        typingAttributes = formatter.apply(to: typingAttributes)
-        storage.toggle(formatter: formatter, at: range)
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -447,42 +457,43 @@ open class TextView: UITextView {
     ///
     open func toggleStrikethrough(range: NSRange) {
         let formatter = StrikethroughFormatter()
-        typingAttributes = formatter.apply(to: typingAttributes)
-        storage.toggle(formatter: formatter, at: range)
+        toggle(formatter: formatter, atRange: range)
+    }
+
+    /// Adds or removes a blockquote style from the specified range.
+    /// Blockquotes are applied to an entire paragrah regardless of the range.
+    /// If the range spans multiple paragraphs, the style is applied to all
+    /// affected paragraphs.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to edit.
+    ///
+    open func toggleBlockquote(range: NSRange) {
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
+    }
+
+    /// Adds or removes a ordered list style from the specified range.
+    ///
+    /// - Parameter range: The NSRange to edit.
+    ///
+    open func toggleOrderedList(range: NSRange) {
+        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
     }
 
 
-    // MARK: - Typing Attributes
-
-
-    /// Toggles the specified Font Trait in the currently selected Typing Font.
+    /// Adds or removes a unordered list style from the specified range.
     ///
-    /// - Parameter trait: The Font Property that should be toggled.
+    /// - Parameter range: The NSRange to edit.
     ///
-    private func updateTypingFont(toggle traits: UIFontDescriptorSymbolicTraits) {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return
-        }
-
-        let enabled = font.containsTraits(traits)
-        let newFont = font.modifyTraits(traits, enable: !enabled)
-        typingAttributes[NSFontAttributeName] = newFont
+    open func toggleUnorderedList(range: NSRange) {
+        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
     }
-
-
-    /// Toggles the specified Typing Attribute: If it's there, will be removed. If it's missing, will be added.
-    ///
-    /// - Parameter trait: The Font Property that should be toggled.
-    ///
-    private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
-        if typingAttributes[attributeName] != nil {
-            typingAttributes.removeValue(forKey: attributeName)
-            return
-        }
-
-        typingAttributes[attributeName] = value
-    }
-
 
     // MARK: - Selection Markers
 
@@ -553,60 +564,9 @@ open class TextView: UITextView {
         }
     }
 
-
-    private func updateTypingAttributes() {
-        if (textStorage.length > 0) {
-            // NOTE: We are making sure that the selectedRange location is inside the string
-            // The selected range can be out of the string when you are adding content to the end of the string.
-            // In those cases we check the atributes of the previous caracter
-            let location = max(0,min(selectedRange.location, textStorage.length-1))
-            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
-        }
-    }
-    /// Adds or removes a ordered list style from the specified range.
-    ///
-    /// - Parameter range: The NSRange to edit.
-    ///
-    open func toggleOrderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-    }
-
-
-    /// Adds or removes a unordered list style from the specified range.
-    ///
-    /// - Parameter range: The NSRange to edit.
-    ///
-    open func toggleUnorderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-    }
-
-
     // MARK: - Blockquotes
 
-
-    /// Adds or removes a blockquote style from the specified range.
-    /// Blockquotes are applied to an entire paragrah regardless of the range.
-    /// If the range spans multiple paragraphs, the style is applied to all
-    /// affected paragraphs.
-    ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
-    ///
-    open func toggleBlockquote(range: NSRange) {        
-        let newSelectedRange = storage.toggleBlockquote(range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-        forceRedrawCursorAfterDelay()
-    }
-
-
-    /// Refresh Lists attributes when text is deleted at the specified range.
+    /// Refresh Blockquote attributes when text is deleted at the specified range.
     ///
     /// - Notes: Toggles the Blockquote Style, whenever the deleted text is at the beginning of the text.
     ///
