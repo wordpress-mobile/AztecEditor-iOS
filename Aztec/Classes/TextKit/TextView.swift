@@ -940,7 +940,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsBold(_ index: Int) -> Bool {
-        return storage.fontTrait(.traitBold, existsAtIndex: index)
+        let formatter = BoldFormatter()
+        return formatter.present(in: storage, at: index)
     }
 
 
@@ -951,7 +952,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsItalic(_ index: Int) -> Bool {
-        return storage.fontTrait(.traitItalic, existsAtIndex: index)
+        let formatter = ItalicFormatter()
+        return formatter.present(in: storage, at: index)
     }
 
 
@@ -1033,22 +1035,16 @@ open class TextView: UITextView {
     /// Checks if the next character entered by the user will be in Bold, or not.
     ///
     open func typingAttributesContainsBold() -> Bool {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return false
-        }
-
-        return font.containsTraits(.traitBold)
+        let formatter = BoldFormatter();
+        return formatter.present(in: typingAttributes)
     }
 
 
     /// Checks if the next character entered by the user will be in Italic, or not.
     ///
     open func typingAttributesContainsItalic() -> Bool {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return false
-        }
-
-        return font.containsTraits(.traitItalic)
+        let formatter = ItalicFormatter();
+        return formatter.present(in: typingAttributes)
     }
 
 
@@ -1071,24 +1067,24 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will be formatted as Blockquote, or not.
     ///
     open func typingAttributesContainsBlockquote() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.blockquote != nil
+        let formatter = BlockquoteFormatter();
+        return formatter.present(in: typingAttributes)
     }
 
 
     /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
     ///
     open func typingAttributesContainsOrderedList() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.textList?.style == .ordered
+        let formatter = TextListFormatter(style: .ordered);
+        return formatter.present(in: typingAttributes)
     }
 
 
     /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
     ///
     open func typingAttributesContainsUnorderedList() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.textList?.style == .unordered
+        let formatter = TextListFormatter(style: .unordered);
+        return formatter.present(in: typingAttributes)
     }
 
     /// Checks if the next character that the user types will be part of a link anchor, or not.
