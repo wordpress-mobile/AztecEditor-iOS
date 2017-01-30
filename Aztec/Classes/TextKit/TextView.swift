@@ -256,7 +256,17 @@ open class TextView: UITextView {
 
 
     // MARK: - Getting format identifiers
-
+    
+    private let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
+        .bold: BoldFormatter(),
+        .italic: ItalicFormatter(),
+        .underline: UnderlineFormatter(),
+        .strikethrough: StrikethroughFormatter(),
+        .link: LinkFormatter(),
+        .orderedlist: TextListFormatter(style: .ordered),
+        .unorderedlist: TextListFormatter(style: .unordered),
+        .blockquote: BlockquoteFormatter()
+    ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
@@ -276,36 +286,10 @@ open class TextView: UITextView {
 
         var identifiers = [FormattingIdentifier]()
 
-        if boldFormattingSpansRange(range) {
-            identifiers.append(.bold)
-        }
-
-        if italicFormattingSpansRange(range) {
-            identifiers.append(.italic)
-        }
-
-        if underlineFormattingSpansRange(range) {
-            identifiers.append(.underline)
-        }
-
-        if strikethroughFormattingSpansRange(range) {
-            identifiers.append(.strikethrough)
-        }
-
-        if linkFormattingSpansRange(range) {
-            identifiers.append(.link)
-        }
-
-        if orderedListFormattingSpansRange(range) {
-            identifiers.append(.orderedlist)
-        }
-
-        if unorderedListFormattingSpansRange(range) {
-            identifiers.append(.unorderedlist)
-        }
-
-        if blockquoteFormattingSpansRange(range) {
-            identifiers.append(.blockquote)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: storage, at: range) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -326,36 +310,10 @@ open class TextView: UITextView {
         let index = adjustedIndex(index)
         var identifiers = [FormattingIdentifier]()
 
-        if formattingAtIndexContainsBold(index) {
-            identifiers.append(.bold)
-        }
-
-        if formattingAtIndexContainsItalic(index) {
-            identifiers.append(.italic)
-        }
-
-        if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(.underline)
-        }
-
-        if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(.strikethrough)
-        }
-
-        if formattingAtIndexContainsBlockquote(index) {
-            identifiers.append(.blockquote)
-        }
-
-        if formattingAtIndexContainsLink(index) {
-            identifiers.append(.link)
-        }
-
-        if formattingAtIndexContainsOrderedList(index) {
-            identifiers.append(.orderedlist)
-        }
-
-        if formattingAtIndexContainsUnorderedList(index) {
-            identifiers.append(.unorderedlist)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: storage, at: index) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -369,36 +327,10 @@ open class TextView: UITextView {
     open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
         var identifiers = [FormattingIdentifier]()
 
-        if typingAttributesContainsBold() {
-            identifiers.append(.bold)
-        }
-
-        if typingAttributesContainsItalic() {
-            identifiers.append(.italic)
-        }
-
-        if typingAttributesContainsUnderline() {
-            identifiers.append(.underline)
-        }
-
-        if typingAttributesContainsStrikethrough() {
-            identifiers.append(.strikethrough)
-        }
-
-        if typingAttributesContainsBlockquote() {
-            identifiers.append(.blockquote)
-        }
-
-        if typingAttributesContainsOrderedList() {
-            identifiers.append(.orderedlist)
-        }
-
-        if typingAttributesContainsUnorderedList() {
-            identifiers.append(.unorderedlist)
-        }
-
-        if typingAttributesContainsLink() {
-            identifiers.append(.link)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: typingAttributes) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -746,11 +678,6 @@ open class TextView: UITextView {
         print("video")
     }
 
-
-    // MARK: - Inspectors
-    // MARK: - Inspect Within Range
-
-
     /// Returns the associated TextAttachment, at a given point, if any.
     ///
     /// - Parameter point: The point on screen to check for attachments.
@@ -766,89 +693,7 @@ open class TextView: UITextView {
         return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
     }
 
-
-    /// Check if the bold attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func boldFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = BoldFormatter()
-        return formatter.present(in: storage, at: range)
-    }
-
-
-    /// Check if the italic attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func italicFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = ItalicFormatter()
-        return formatter.present(in: storage, at: range)
-    }
-
-
-    /// Check if the underline attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func underlineFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = UnderlineFormatter()        
-        return formatter.present(in: storage, at: range)
-    }
-
-
-    /// Check if the strikethrough attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func strikethroughFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = StrikethroughFormatter()
-        return formatter.present(in: storage, at: range)
-    }
-
-    /// Check if the link attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func linkFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = LinkFormatter()
-        return formatter.present(in: storage, at: range)
-    }
-
-
-    /// Check if an ordered list spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func orderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = TextListFormatter(style: .ordered)
-        return formatter.present(in: storage, at: range)
-    }
-
-
-    /// Check if an unordered list spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func unorderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = TextListFormatter(style: .unordered)
-        return formatter.present(in: storage, at: range)
-    }
-
+    // MARK: - Links
 
     /// Returns an NSURL if the specified range as attached a link attribute
     ///
@@ -885,18 +730,6 @@ open class TextView: UITextView {
         return nil
     }
 
-    /// Check if the blockquote attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func blockquoteFormattingSpansRange(_ range: NSRange) -> Bool {
-        let formatter = BlockquoteFormatter()
-        return formatter.present(in: storage, at: range)
-    }
-
-
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
     ///
@@ -912,7 +745,6 @@ open class TextView: UITextView {
         return index
     }
 
-
     /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
     ///
@@ -924,172 +756,6 @@ open class TextView: UITextView {
         let index = maxIndex(index)
         return max(0, index - 1)
     }
-
-    // MARK - Inspect at Index
-
-
-    /// Check if the bold attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsBold(_ index: Int) -> Bool {
-        let formatter = BoldFormatter()
-        return formatter.present(in: storage, at: index)
-    }
-
-
-    /// Check if the italic attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsItalic(_ index: Int) -> Bool {
-        let formatter = ItalicFormatter()
-        return formatter.present(in: storage, at: index)
-    }
-
-
-    /// Check if the underline attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsUnderline(_ index: Int) -> Bool {
-        let formatter = UnderlineFormatter()
-        return formatter.present(in: storage, at: index)
-    }
-
-
-    /// Check if the strikethrough attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsStrikethrough(_ index: Int) -> Bool {
-        let formatter = StrikethroughFormatter()
-        return formatter.present(in: storage, at: index)
-    }
-
-    /// Check if the link attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsLink(_ index: Int) -> Bool {
-        let formatter = LinkFormatter()
-        return formatter.present(in: storage, at: index)
-    }
-
-    
-    /// Check if the blockquote attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsBlockquote(_ index: Int) -> Bool {
-        let formatter = BlockquoteFormatter()
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    /// Check if an ordered list exists at the specified index.
-    ///
-    /// - Paramters:
-    ///     - index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsOrderedList(_ index: Int) -> Bool {
-        let formatter = TextListFormatter(style: .ordered)
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    /// Check if an unordered list exists at the specified index.
-    ///
-    /// - Paramters:
-    ///     - index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
-        let formatter = TextListFormatter(style: .unordered)
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    // MARK: - Inspect Typing Attributes
-
-
-    /// Checks if the next character entered by the user will be in Bold, or not.
-    ///
-    open func typingAttributesContainsBold() -> Bool {
-        let formatter = BoldFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character entered by the user will be in Italic, or not.
-    ///
-    open func typingAttributesContainsItalic() -> Bool {
-        let formatter = ItalicFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
-    ///
-    open func typingAttributesContainsStrikethrough() -> Bool {
-        let formatter = StrikethroughFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character that the user types will be underlined, or not.
-    ///
-    open func typingAttributesContainsUnderline() -> Bool {
-        let formatter = UnderlineFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as Blockquote, or not.
-    ///
-    open func typingAttributesContainsBlockquote() -> Bool {
-        let formatter = BlockquoteFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
-    ///
-    open func typingAttributesContainsOrderedList() -> Bool {
-        let formatter = TextListFormatter(style: .ordered)
-        return formatter.present(in: typingAttributes)
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
-    ///
-    open func typingAttributesContainsUnorderedList() -> Bool {
-        let formatter = TextListFormatter(style: .unordered)
-        return formatter.present(in: typingAttributes)
-    }
-
-    /// Checks if the next character that the user types will be part of a link anchor, or not.
-    ///
-    open func typingAttributesContainsLink() -> Bool {
-        let formatter = LinkFormatter()
-        return formatter.present(in: typingAttributes)
-    }
-
 
     // MARK: - Attachments
 
