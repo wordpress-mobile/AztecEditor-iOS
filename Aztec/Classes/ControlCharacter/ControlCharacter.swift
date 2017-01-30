@@ -2,12 +2,16 @@ import Foundation
 
 let ControlCharacterAttributeName = "Aztec.AttributeKeys.controlCharacter" // Value is ControlCharacterType
 
-enum ControlledElement {
+/// NSAttributedString attributes that can be affected by interactions with control characters.
+///
+enum ControlElement {
     case blockquote
     case listItem
     case paragraph
 }
 
+/// Control characters are used to control the formatting of some NSAttributedString attributes.
+///
 enum ControlCharacterType: String {
     case blockquoteCloser = "Aztec.ControlCharacterType.blockquoteCloser"
     case blockquoteOpener = "Aztec.ControlCharacterType.blockquoteOpener"
@@ -15,7 +19,7 @@ enum ControlCharacterType: String {
     case listItemOpener = "Aztec.ControlCharacterType.listItemOpener"
     case paragraphCloser = "Aztec.ControlCharacterType.paragraphCloser"
 
-    static func closer(forElement element: ControlledElement) -> ControlCharacterType? {
+    static func closer(forElement element: ControlElement) -> ControlCharacterType? {
         switch element {
         case .blockquote:
             return .blockquoteCloser
@@ -23,12 +27,10 @@ enum ControlCharacterType: String {
             return .listItemCloser
         case .paragraph:
             return .paragraphCloser
-        default:
-            return nil
         }
     }
 
-    static func opener(forElement element: ControlledElement) -> ControlCharacterType? {
+    static func opener(forElement element: ControlElement) -> ControlCharacterType? {
         switch element {
         case .blockquote:
             return .blockquoteOpener
@@ -38,45 +40,4 @@ enum ControlCharacterType: String {
             return nil
         }
     }
-/*
-    static func closingControlCharacter(forNodeNamed nodeName: String) -> ControlCharacterType? {
-        guard let elementType = Libxml2.StandardElementType(rawValue: nodeName) else {
-            return nil
-        }
-        
-        return closingControlCharacter(forStandardElementType: elementType)
-    }
-    
-    static func closingControlCharacter(forStandardElementType elementType: Libxml2.StandardElementType) -> ControlCharacterType? {
-        switch elementType {
-        case .blockquote:
-            return .blockquoteCloser
-        case .li:
-            return .listItemCloser
-        case .p:
-            return .paragraphCloser
-        default:
-            return nil
-        }
-    }
-    
-    static func openingControlCharacter(forNodeNamed nodeName: String) -> ControlCharacterType? {
-        guard let elementType = Libxml2.StandardElementType(rawValue: nodeName) else {
-            return nil
-        }
-        
-        return openingControlCharacter(forStandardElementType: elementType)
-    }
-    
-    static func openingControlCharacter(forStandardElementType elementType: Libxml2.StandardElementType) -> ControlCharacterType? {
-        switch elementType {
-        case .blockquote:
-            return .blockquoteOpener
-        case .li:
-            return .listItemOpener
-        default:
-            return nil
-        }
-    }
- */
 }

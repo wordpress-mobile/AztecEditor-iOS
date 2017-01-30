@@ -19,7 +19,7 @@ class ControlCharacterFactory {
     /// - Returns: the requested closing character, or `nil` if none is needed.
     ///
     func closer(
-        forElement element: ControlledElement,
+        forElement element: ControlElement,
         inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
 
         guard let type = ControlCharacterType.closer(forElement: element) else {
@@ -41,7 +41,7 @@ class ControlCharacterFactory {
     /// - Returns: the requested opening character, or `nil` if none is needed.
     ///
     func opener(
-        forElement element: ControlledElement,
+        forElement element: ControlElement,
         inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
 
         guard let type = ControlCharacterType.opener(forElement: element) else {

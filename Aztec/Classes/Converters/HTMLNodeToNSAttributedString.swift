@@ -19,7 +19,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Control Characters
 
     let controlCharacterFactory = ControlCharacterFactory()
-    let elementMapper = HTMLElementToControlledElementMapper()
+    let elementMapper = HTMLElementToControlElementMapper()
 
     // MARK: - Initializers
 

@@ -174,10 +174,19 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
-        
-        beginEditing()
-        textStore.replaceCharacters(in: range, with: str)
+/*
+        if let firstControlCharacter = textStore.firstControlCharacter(inRange: range) {
+            // Process first control character removal...
+        }
 
+        if let lastControlCharacter = textStore.lastControlCharacter(inRange: range) {
+            // Process last control character removal...
+        }
+ */
+
+        beginEditing()
+
+        textStore.replaceCharacters(in: range, with: str)
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
 
         if let domRange = map(visualRange: range),
