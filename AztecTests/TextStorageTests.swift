@@ -68,13 +68,13 @@ class TextStorageTests: XCTestCase
         XCTAssert(storage.fontTrait(.traitBold, spansRange: range))
 
         // Toggle it.
-        storage.toggleFontTrait(.traitBold, range: range)
+        storage.toggle(.traitBold, inRange: range)
 
         // Confirm the trait does not exist.
         XCTAssert(!storage.fontTrait(.traitBold, spansRange: range))
 
         // Toggle it again.
-        storage.toggleFontTrait(.traitBold, range: range)
+        storage.toggle(.traitBold, inRange: range)
 
         // Confirm the trait was restored
         XCTAssert(storage.fontTrait(.traitBold, spansRange: range))
