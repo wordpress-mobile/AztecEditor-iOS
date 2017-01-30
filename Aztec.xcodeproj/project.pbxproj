@@ -478,10 +478,10 @@
 		B5B86D3A1DA41A550083DB3F /* Formatters */ = {
 			isa = PBXGroup;
 			children = (
+				E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */,
 				FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */,
 				E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */,
 				B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */,
-				E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */,
 				FFD436951E300EF700A0E26F /* FontFormatter.swift */,
 			);
 			path = Formatters;
