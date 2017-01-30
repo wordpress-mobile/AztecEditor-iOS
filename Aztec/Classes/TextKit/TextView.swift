@@ -256,7 +256,7 @@ open class TextView: UITextView {
 
 
     // MARK: - Getting format identifiers
-    
+
     private let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
@@ -569,17 +569,19 @@ open class TextView: UITextView {
             return false
         }
 
-        if formattingAtIndexContainsOrderedList(range.location) {
+        let identifiers = formatIdentifiersAtIndex(range.location)
+
+        if identifiers.contains(.orderedlist) {
             toggleOrderedList(range: range)
             return true
         }
 
-        if formattingAtIndexContainsUnorderedList(range.location) {
+        if identifiers.contains(.unorderedlist) {
             toggleUnorderedList(range: range)
             return true
         }
 
-        if formattingAtIndexContainsBlockquote(range.location) {
+        if identifiers.contains(.blockquote) {
             toggleBlockquote(range: range)
             return true
         }
