@@ -821,13 +821,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute spans the entire range.
     ///
     open func linkFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
-           return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
-        }
-
-        return false
+        let formatter = LinkFormatter()
+        return formatter.present(in: storage, at: range)
     }
 
 
@@ -987,7 +982,8 @@ open class TextView: UITextView {
     /// - Returns: True if the attribute exists at the specified index.
     ///
     open func formattingAtIndexContainsLink(_ index: Int) -> Bool {
-        return storage.attribute(NSLinkAttributeName, at: index, effectiveRange: nil) != nil
+        let formatter = LinkFormatter()
+        return formatter.present(in: storage, at: index)
     }
 
     
@@ -1035,7 +1031,7 @@ open class TextView: UITextView {
     /// Checks if the next character entered by the user will be in Bold, or not.
     ///
     open func typingAttributesContainsBold() -> Bool {
-        let formatter = BoldFormatter();
+        let formatter = BoldFormatter()
         return formatter.present(in: typingAttributes)
     }
 
@@ -1043,7 +1039,7 @@ open class TextView: UITextView {
     /// Checks if the next character entered by the user will be in Italic, or not.
     ///
     open func typingAttributesContainsItalic() -> Bool {
-        let formatter = ItalicFormatter();
+        let formatter = ItalicFormatter()
         return formatter.present(in: typingAttributes)
     }
 
@@ -1051,7 +1047,7 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
     ///
     open func typingAttributesContainsStrikethrough() -> Bool {
-        let formatter = StrikethroughFormatter();
+        let formatter = StrikethroughFormatter()
         return formatter.present(in: typingAttributes)
     }
 
@@ -1059,7 +1055,7 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will be underlined, or not.
     ///
     open func typingAttributesContainsUnderline() -> Bool {
-        let formatter = UnderlineFormatter();
+        let formatter = UnderlineFormatter()
         return formatter.present(in: typingAttributes)
     }
 
@@ -1067,7 +1063,7 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will be formatted as Blockquote, or not.
     ///
     open func typingAttributesContainsBlockquote() -> Bool {
-        let formatter = BlockquoteFormatter();
+        let formatter = BlockquoteFormatter()
         return formatter.present(in: typingAttributes)
     }
 
@@ -1075,7 +1071,7 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
     ///
     open func typingAttributesContainsOrderedList() -> Bool {
-        let formatter = TextListFormatter(style: .ordered);
+        let formatter = TextListFormatter(style: .ordered)
         return formatter.present(in: typingAttributes)
     }
 
@@ -1083,14 +1079,15 @@ open class TextView: UITextView {
     /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
     ///
     open func typingAttributesContainsUnorderedList() -> Bool {
-        let formatter = TextListFormatter(style: .unordered);
+        let formatter = TextListFormatter(style: .unordered)
         return formatter.present(in: typingAttributes)
     }
 
     /// Checks if the next character that the user types will be part of a link anchor, or not.
     ///
     open func typingAttributesContainsLink() -> Bool {
-        return typingAttributes[NSLinkAttributeName] != nil
+        let formatter = LinkFormatter()
+        return formatter.present(in: typingAttributes)
     }
 
 
