@@ -930,51 +930,6 @@ open class TextView: UITextView {
         return max(0, index - 1)
     }
 
-
-    /// TextListFormatter was designed to be applied over a range of text. Whenever such range is
-    /// zero, we may have trouble determining where to apply the list. For that reason,
-    /// whenever the list range's length is zero, we'll attempt to infer the range of the line at
-    /// which the cursor is located.
-    ///
-    /// - Parameter range: The NSRange in which a TextList should be applied
-    ///
-    /// Returns: A corrected NSRange, if the original one had empty length.
-    ///
-    func rangeForTextList(_ range: NSRange) -> NSRange {
-        guard range.length == 0 else {
-            return range
-        }
-
-        return storage.rangeOfLine(atIndex: range.location) ?? range
-    }
-
-
-    /// Returns the expected Selected Range for a given TextList, with the specified Effective Range,
-    /// and the Applied Range.
-    ///
-    /// Note that "Effective Range" is the actual List Range (including Markers), whereas Applied Range is just
-    /// the range at which the list was originally inserted.
-    ///
-    /// - Parameters:
-    ///     - effectiveRange: The actual range occupied by the List. Includes the String Markers!
-    ///     - appliedRange: The (original) range at which the list was applied.
-    ///
-    /// - Returns: If the current selection's length is zero, we'll return the selectedRange with it's location
-    ///   updated to consider the left padding applied by the list. Otherwise, we'll return the List's 
-    ///   Effective range.
-    ///
-    func rangeForSelectedTextList(withEffectiveRange effectiveRange: NSRange, andAppliedRange appliedRange: NSRange) -> NSRange {
-        guard selectedRange.length == 0 else {
-            return effectiveRange
-        }
-
-        var newSelectedRange = selectedRange
-        newSelectedRange.location += effectiveRange.length - appliedRange.length
-
-        return newSelectedRange
-    }
-
-
     // MARK - Inspect at Index
 
 
