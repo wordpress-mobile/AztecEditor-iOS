@@ -276,8 +276,7 @@ open class TextView: UITextView {
     ///
     open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
-            // FIXME: if empty string, check typingAttributes
-            return []
+            return formatIdentifiersForTypingAttributes()
         }
 
         if range.length == 0 {
