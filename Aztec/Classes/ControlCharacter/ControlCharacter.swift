@@ -1,7 +1,11 @@
 import Foundation
 
-enum StringAttributeName: String {
-    case controlCharacter = "Aztec.AttributeKeys.controlCharacter" // Value is ControlCharacterType
+let ControlCharacterAttributeName = "Aztec.AttributeKeys.controlCharacter" // Value is ControlCharacterType
+
+enum ControlledElement {
+    case blockquote
+    case listItem
+    case paragraph
 }
 
 enum ControlCharacterType: String {
@@ -10,7 +14,31 @@ enum ControlCharacterType: String {
     case listItemCloser = "Aztec.ControlCharacterType.listItemCloser"
     case listItemOpener = "Aztec.ControlCharacterType.listItemOpener"
     case paragraphCloser = "Aztec.ControlCharacterType.paragraphCloser"
-    
+
+    static func closer(forElement element: ControlledElement) -> ControlCharacterType? {
+        switch element {
+        case .blockquote:
+            return .blockquoteCloser
+        case .listItem:
+            return .listItemCloser
+        case .paragraph:
+            return .paragraphCloser
+        default:
+            return nil
+        }
+    }
+
+    static func opener(forElement element: ControlledElement) -> ControlCharacterType? {
+        switch element {
+        case .blockquote:
+            return .blockquoteOpener
+        case .listItem:
+            return .listItemOpener
+        default:
+            return nil
+        }
+    }
+/*
     static func closingControlCharacter(forNodeNamed nodeName: String) -> ControlCharacterType? {
         guard let elementType = Libxml2.StandardElementType(rawValue: nodeName) else {
             return nil
@@ -50,4 +78,5 @@ enum ControlCharacterType: String {
             return nil
         }
     }
+ */
 }

@@ -4,42 +4,49 @@ extension NSAttributedString {
     
     // MARK: - Range mapping by attribute filtering
     
-    /// Maps a range after filtering the specified attribute.
+    /// Maps a range by subtracting the length of all instanced of a specified attribute in that
+    /// range.
     ///
     /// - Parameters:
     ///     - initialRange: the range to map.
-    ///     - attributeName: the attribute to filter from the initial range.
+    ///     - attributeName: the attribute to subract from the provided range.
     ///
     /// - Returns: the mapped range.
     ///
-    func map(range initialRange: NSRange, byFilteringAttributeNamed attributeName: String) -> NSRange? {
-        let ranges = self.ranges(forAttributeNamed: attributeName, within: initialRange)
+    func map(range initialRange: NSRange, bySubtractingAttributeNamed attributeName: String) -> NSRange? {
+
+        // We need to also inspect anything before initialRange, because attributes in that range
+        // affect the mapping as well.
+        //
+        let rangeToInspect = NSRange(location: 0, length: initialRange.location + initialRange.length)
+        let ranges = self.ranges(forAttributeNamed: attributeName, within: rangeToInspect)
         
         guard ranges.count > 0 else {
             return initialRange
         }
         
         var mappedRange = initialRange
-        let mappedRangeEndLocation = mappedRange.location + mappedRange.length
-        
+
         for range in ranges.reversed() {
+
+            guard !range.contains(range: mappedRange) else {
+                // This means the full visual range was visual-only, and there's really nothing
+                // to map.
+                //
+                return nil
+            }
+
             let rangeEndLocation = range.location + range.length
-            
+            let mappedRangeEndLocation = mappedRange.location + mappedRange.endLocation
+
             if rangeEndLocation <= mappedRange.location {
                 mappedRange.location = mappedRange.location - range.length
-            } else if range.location <= mappedRange.location && rangeEndLocation <= mappedRangeEndLocation {
-                
-                guard range.location != mappedRange.location && rangeEndLocation != mappedRangeEndLocation else {
-                    // This means the full visual range was visual-only, and there's really nothing
-                    // to map.
-                    //
-                    return nil
-                }
-                
-                // Order of execution is important in the next 2 lines, as the length is updated
-                // using the mappedRange location before it's updated.
+            } else if range.location < mappedRange.location && mappedRange.location < rangeEndLocation {
+
+                // Order of execution is important in the next 2 lines, as mappedRange.location
+                // is read first and written-to afterwards.
                 //
-                mappedRange.length = mappedRangeEndLocation - mappedRange.location
+                mappedRange.length = mappedRangeEndLocation - rangeEndLocation
                 mappedRange.location = range.location
             } else {
                 mappedRange.length = mappedRange.length - range.length
@@ -48,6 +55,7 @@ extension NSAttributedString {
         
         return mappedRange
     }
+
     
     // MARK: - Finding attribute ranges
     
@@ -76,9 +84,7 @@ extension NSAttributedString {
     func ranges(forAttributeNamed attributeName: String, within range: NSRange) -> [NSRange] {
         var result = [NSRange]()
         
-        let rangeToInspect = NSRange(location: 0, length: range.location + range.length)
-        
-        enumerateAttribute(attributeName, in: rangeToInspect, options: []) { (matchingValue, matchingRange, nil) in
+        enumerateAttribute(attributeName, in: range, options: []) { (matchingValue, matchingRange, nil) in
             guard matchingValue != nil else {
                 return
             }

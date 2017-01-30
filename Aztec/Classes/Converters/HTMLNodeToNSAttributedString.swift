@@ -16,6 +16,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
+    // MARK: - Control Characters
+
+    let controlCharacterFactory = ControlCharacterFactory()
+    let elementMapper = HTMLElementToControlledElementMapper()
+
+    // MARK: - Initializers
+
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
@@ -118,88 +125,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
         
         let content = NSMutableAttributedString()
-        
-        if let openingCharacter = openingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
+        let controlElement = elementMapper.map(node.name)
+
+        if let controlElement = controlElement,
+            let openingCharacter = controlCharacterFactory.opener(forElement: controlElement, inheritingAttributes: inheritedAttributes) {
             content.append(openingCharacter)
         }
         
         for child in node.children {
-            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
+            let childContent = convert(child, inheritingAttributes: childAttributes)
             content.append(childContent)
         }
-        
-        if let closingCharacter = closingCharacter(forNode: node, inheritingAttributes: inheritedAttributes) {
+
+        if let controlElement = controlElement,
+            let closingCharacter = controlCharacterFactory.closer(forElement: controlElement, inheritingAttributes: inheritedAttributes) {
+
             content.append(closingCharacter)
         }
         
         return content
-    }
-    
-    // MARK: - Control Characters
-    
-    /// Returns the closing character for the specified node, if any is necessary.
-    ///
-    /// - Parameters:
-    ///     - node: the node the closing character is requested for.
-    ///     - inheritedAttributes: the string attributes inherited by the closing character.
-    ///
-    /// - Returns: the requested closing character, or `nil` if none is needed.
-    ///
-    private func closingCharacter(forNode node: ElementNode,
-                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
-        guard let closingControlCharacter = ControlCharacterType.closingControlCharacter(forNodeNamed: node.name) else {
-            return nil
-        }
-        
-        return controlCharacter(
-            ofType: closingControlCharacter,
-            usingCharacter: Character(.newline),
-            inheritingAttributes: inheritedAttributes)
-    }
-    
-    /// Returns the opening character for the specified node, if any is necessary.
-    ///
-    /// - Parameters:
-    ///     - node: the node the opening character is requested for.
-    ///     - inheritedAttributes: the string attributes inherited by the opening character.
-    ///
-    /// - Returns: the requested opening character, or `nil` if none is needed.
-    ///
-    private func openingCharacter(forNode node: ElementNode,
-                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString? {
-        guard let openingControlCharacter = ControlCharacterType.openingControlCharacter(forNodeNamed: node.name) else {
-            return nil
-        }
-        
-        return controlCharacter(
-            ofType: openingControlCharacter,
-            usingCharacter: Character(.zeroWidthSpace),
-            inheritingAttributes: inheritedAttributes)
-    }
-    
-    // MARK: - Control Characters: Construction
-    
-    /// Returns a block element control character.  Can be either a block-opener, or a closer.
-    ///
-    /// - Important: you should call `blockElementCloseCharacter(ofType:forNode:inheritingAttributes)`
-    ///     or `blockElementOpenCharacter(ofType:forNode:inheritingAttributes)` instead of calling
-    ///     this method directly.
-    ///
-    /// - Parameters:
-    ///     - type: the type of control character.
-    ///     - character: the character to use to represent the control character.
-    ///     - inheritedAttributes: the attributes the control character will inherit.
-    ///
-    /// - Returns: the requested control character.
-    ///
-    private func controlCharacter(ofType type: ControlCharacterType,
-                                  usingCharacter character: Character,
-                                  inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        var attributes = inheritedAttributes
-        
-        attributes[StringAttributeName.controlCharacter.rawValue] = type
-        
-        return NSAttributedString(string: String(character), attributes: attributes)
     }
 
     // MARK: - String attributes

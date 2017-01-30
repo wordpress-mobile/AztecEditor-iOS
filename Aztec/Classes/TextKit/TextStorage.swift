@@ -228,7 +228,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Range Mapping: Visual vs HTML
     
     private func map(visualRange: NSRange) -> NSRange? {
-        return textStore.map(range: visualRange, byFilteringAttributeNamed: StringAttributeName.controlCharacter.rawValue)
+        return textStore.map(range: visualRange, bySubtractingAttributeNamed: ControlCharacterAttributeName)
     }
     
     // MARK: - Styles: Toggling
