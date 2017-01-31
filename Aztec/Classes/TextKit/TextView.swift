@@ -751,7 +751,7 @@ open class TextView: UITextView {
     ///
     func maxIndex(_ index: Int) -> Int {
         if index >= storage.length {
-            return storage.length - 1
+            return max(storage.length - 1, 0)
         }
 
         return index
