@@ -52,3 +52,9 @@ class StrikethroughFormatter: StandardAttributeFormatter {
     }
 }
 
+class LinkFormatter: StandardAttributeFormatter {
+    init() {
+        super.init(elementType: .a, attributeKey: NSLinkAttributeName, attributeValue: NSURL())
+    }
+}
+
