@@ -53,6 +53,8 @@ protocol AttributeFormatter {
     func present(in attributes: [String: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
+
+    func worksInEmtpyRange() -> Bool
 }
 
 
@@ -183,6 +185,10 @@ extension CharacterAttributeFormatter {
 
         return range
     }
+
+    func worksInEmtpyRange() -> Bool {
+        return false
+    }
 }
 
 
@@ -230,5 +236,9 @@ extension ParagraphAttributeFormatter {
         }
 
         return newSelectedRange
+    }
+
+    func worksInEmtpyRange() -> Bool {
+        return true
     }
 }

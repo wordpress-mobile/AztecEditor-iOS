@@ -408,7 +408,7 @@ open class TextView: UITextView {
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let newSelectedRange = storage.toggle(formatter: formatter, at: range)
+        let newSelectedRange = storage.toggle(formatter: formatter, at: range)         
         selectedRange = newSelectedRange ?? selectedRange
         if selectedRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
