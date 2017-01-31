@@ -705,7 +705,7 @@ open class TextView: UITextView {
     open func linkURL(forRange range: NSRange) -> URL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        guard index > storage.length,
+        guard index < storage.length,
             let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange)
             else {
                 return nil
@@ -732,7 +732,7 @@ open class TextView: UITextView {
     open func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        guard index > storage.length,
+        guard index < storage.length,
             storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil
             else {
                 return nil
