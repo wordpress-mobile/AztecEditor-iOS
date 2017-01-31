@@ -700,36 +700,47 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to inspect
     ///
-    /// - Returns: the NSURL if available
+    /// - Returns: The NSURL if available
     ///
     open func linkURL(forRange range: NSRange) -> URL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) {
-            if let url = attr as? URL {
-                return url
-            } else if let urlString = attr as? String {
-                return URL(string:urlString)
-            }
+        guard index > storage.length,
+            let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange)
+            else {
+                return nil
         }
+
+        if let url = attr as? URL {
+            return url
+        }
+
+        if let urlString = attr as? String {
+            return URL(string:urlString)
+        }
+
         return nil
     }
 
 
-    /// Returns the entire range covered by the link to be found in the (potentially partial) specified range.
+    /// Returns the Link Attribute's Full Range, intersecting the specified range.
     ///
     /// - Parameter range: The NSRange to inspect
     ///
-    /// - Returns: The full Range required by the link.
+    /// - Returns: The full Link's Range.
     ///
     open func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
-            return effectiveRange
+        guard index > storage.length,
+            storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil
+            else {
+                return nil
         }
-        return nil
+
+        return effectiveRange
     }
+
 
     /// The maximum index should never exceed the length of the text storage minus one,
     /// else we court out of index exceptions.
