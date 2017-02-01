@@ -59,7 +59,13 @@ open class TextAttachment: NSTextAttachment
 
     /// A message to display overlaid on top of the image
     ///
-    open var message: NSAttributedString?
+    open var message: NSAttributedString? {
+        willSet {
+            if newValue != message {
+                glyphImage = nil
+            }
+        }
+    }
 
     fileprivate var glyphImage: UIImage?
 
