@@ -257,6 +257,16 @@ open class TextView: UITextView {
 
     // MARK: - Getting format identifiers
 
+    private let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
+        .bold: BoldFormatter(),
+        .italic: ItalicFormatter(),
+        .underline: UnderlineFormatter(),
+        .strikethrough: StrikethroughFormatter(),
+        .link: LinkFormatter(),
+        .orderedlist: TextListFormatter(style: .ordered),
+        .unorderedlist: TextListFormatter(style: .unordered),
+        .blockquote: BlockquoteFormatter()
+    ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
@@ -266,8 +276,7 @@ open class TextView: UITextView {
     ///
     open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
         guard storage.length != 0 else {
-            // FIXME: if empty string, check typingAttributes
-            return []
+            return formatIdentifiersForTypingAttributes()
         }
 
         if range.length == 0 {
@@ -276,32 +285,10 @@ open class TextView: UITextView {
 
         var identifiers = [FormattingIdentifier]()
 
-        if boldFormattingSpansRange(range) {
-            identifiers.append(.bold)
-        }
-
-        if italicFormattingSpansRange(range) {
-            identifiers.append(.italic)
-        }
-
-        if underlineFormattingSpansRange(range) {
-            identifiers.append(.underline)
-        }
-
-        if strikethroughFormattingSpansRange(range) {
-            identifiers.append(.strikethrough)
-        }
-
-        if linkFormattingSpansRange(range) {
-            identifiers.append(.link)
-        }
-
-        if orderedListFormattingSpansRange(range) {
-            identifiers.append(.orderedlist)
-        }
-
-        if unorderedListFormattingSpansRange(range) {
-            identifiers.append(.unorderedlist)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: storage, at: range) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -322,36 +309,10 @@ open class TextView: UITextView {
         let index = adjustedIndex(index)
         var identifiers = [FormattingIdentifier]()
 
-        if formattingAtIndexContainsBold(index) {
-            identifiers.append(.bold)
-        }
-
-        if formattingAtIndexContainsItalic(index) {
-            identifiers.append(.italic)
-        }
-
-        if formattingAtIndexContainsUnderline(index) {
-            identifiers.append(.underline)
-        }
-
-        if formattingAtIndexContainsStrikethrough(index) {
-            identifiers.append(.strikethrough)
-        }
-
-        if formattingAtIndexContainsBlockquote(index) {
-            identifiers.append(.blockquote)
-        }
-
-        if formattingAtIndexContainsLink(index) {
-            identifiers.append(.link)
-        }
-
-        if formattingAtIndexContainsOrderedList(index) {
-            identifiers.append(.orderedlist)
-        }
-
-        if formattingAtIndexContainsUnorderedList(index) {
-            identifiers.append(.unorderedlist)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: storage, at: index) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -365,36 +326,10 @@ open class TextView: UITextView {
     open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
         var identifiers = [FormattingIdentifier]()
 
-        if typingAttributesContainsBold() {
-            identifiers.append(.bold)
-        }
-
-        if typingAttributesContainsItalic() {
-            identifiers.append(.italic)
-        }
-
-        if typingAttributesContainsUnderline() {
-            identifiers.append(.underline)
-        }
-
-        if typingAttributesContainsStrikethrough() {
-            identifiers.append(.strikethrough)
-        }
-
-        if typingAttributesContainsBlockquote() {
-            identifiers.append(.blockquote)
-        }
-
-        if typingAttributesContainsOrderedList() {
-            identifiers.append(.orderedlist)
-        }
-
-        if typingAttributesContainsUnorderedList() {
-            identifiers.append(.unorderedlist)
-        }
-
-        if typingAttributesContainsLink() {
-            identifiers.append(.link)
+        for (key, formatter) in formatterIdentifiersMap {
+            if formatter.present(in: typingAttributes) {
+                identifiers.append(key)
+            }
         }
 
         return identifiers
@@ -403,17 +338,27 @@ open class TextView: UITextView {
 
     // MARK: - Formatting
 
+    func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
+        let newSelectedRange = storage.toggle(formatter: formatter, at: range)         
+        selectedRange = newSelectedRange ?? selectedRange
+        if selectedRange.length == 0 {
+            typingAttributes = formatter.toggle(in: typingAttributes)
+        } else {
+            // NOTE: We are making sure that the selectedRange location is inside the string
+            // The selected range can be out of the string when you are adding content to the end of the string.
+            // In those cases we check the atributes of the previous caracter
+            let location = max(0,min(selectedRange.location, textStorage.length-1))
+            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+        }
+    }
 
     /// Adds or removes a bold style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        updateTypingFont(toggle: .traitBold)
-
-        if range.length > 0 {
-            storage.toggleBold(range)
-        }
+        let formatter = BoldFormatter()
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -422,11 +367,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleItalic(range: NSRange) {
-        updateTypingFont(toggle: .traitItalic)
-
-        if range.length > 0 {
-            storage.toggleItalic(range)
-        }
+        let formatter = ItalicFormatter()
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -435,11 +377,8 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        updateTypingAttribute(toggle: NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
-
-        if range.length > 0 {
-            storage.toggleUnderlineForRange(range)
-        }
+        let formatter = UnderlineFormatter()
+        toggle(formatter: formatter, atRange: range)
     }
 
 
@@ -448,45 +387,44 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleStrikethrough(range: NSRange) {
-        updateTypingAttribute(toggle: NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject)
+        let formatter = StrikethroughFormatter()
+        toggle(formatter: formatter, atRange: range)
+    }
 
-        if range.length > 0 {
-            storage.toggleStrikethrough(range)
-        }
+    /// Adds or removes a blockquote style from the specified range.
+    /// Blockquotes are applied to an entire paragrah regardless of the range.
+    /// If the range spans multiple paragraphs, the style is applied to all
+    /// affected paragraphs.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to edit.
+    ///
+    open func toggleBlockquote(range: NSRange) {
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
+    }
+
+    /// Adds or removes a ordered list style from the specified range.
+    ///
+    /// - Parameter range: The NSRange to edit.
+    ///
+    open func toggleOrderedList(range: NSRange) {
+        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
     }
 
 
-    // MARK: - Typing Attributes
-
-
-    /// Toggles the specified Font Trait in the currently selected Typing Font.
+    /// Adds or removes a unordered list style from the specified range.
     ///
-    /// - Parameter trait: The Font Property that should be toggled.
+    /// - Parameter range: The NSRange to edit.
     ///
-    private func updateTypingFont(toggle traits: UIFontDescriptorSymbolicTraits) {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return
-        }
-
-        let enabled = font.containsTraits(traits)
-        let newFont = font.modifyTraits(traits, enable: !enabled)
-        typingAttributes[NSFontAttributeName] = newFont
+    open func toggleUnorderedList(range: NSRange) {
+        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
     }
-
-
-    /// Toggles the specified Typing Attribute: If it's there, will be removed. If it's missing, will be added.
-    ///
-    /// - Parameter trait: The Font Property that should be toggled.
-    ///
-    private func updateTypingAttribute(toggle attributeName: String, value: AnyObject) {
-        if typingAttributes[attributeName] != nil {
-            typingAttributes.removeValue(forKey: attributeName)
-            return
-        }
-
-        typingAttributes[attributeName] = value
-    }
-
 
     // MARK: - Selection Markers
 
@@ -557,60 +495,9 @@ open class TextView: UITextView {
         }
     }
 
-
-    private func updateTypingAttributes() {
-        if (textStorage.length > 0) {
-            // NOTE: We are making sure that the selectedRange location is inside the string
-            // The selected range can be out of the string when you are adding content to the end of the string.
-            // In those cases we check the atributes of the previous caracter
-            let location = max(0,min(selectedRange.location, textStorage.length-1))
-            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
-        }
-    }
-    /// Adds or removes a ordered list style from the specified range.
-    ///
-    /// - Parameter range: The NSRange to edit.
-    ///
-    open func toggleOrderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-    }
-
-
-    /// Adds or removes a unordered list style from the specified range.
-    ///
-    /// - Parameter range: The NSRange to edit.
-    ///
-    open func toggleUnorderedList(range: NSRange) {
-        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
-        let newSelectedRange = formatter.toggle(in: textStorage, at: range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-    }
-
-
     // MARK: - Blockquotes
 
-
-    /// Adds or removes a blockquote style from the specified range.
-    /// Blockquotes are applied to an entire paragrah regardless of the range.
-    /// If the range spans multiple paragraphs, the style is applied to all
-    /// affected paragraphs.
-    ///
-    /// - Parameters:
-    ///     - range: The NSRange to edit.
-    ///
-    open func toggleBlockquote(range: NSRange) {        
-        let newSelectedRange = storage.toggleBlockquote(range)
-        selectedRange = newSelectedRange ?? selectedRange
-        updateTypingAttributes()
-        forceRedrawCursorAfterDelay()
-    }
-
-
-    /// Refresh Lists attributes when text is deleted at the specified range.
+    /// Refresh Blockquote attributes when text is deleted at the specified range.
     ///
     /// - Notes: Toggles the Blockquote Style, whenever the deleted text is at the beginning of the text.
     ///
@@ -681,17 +568,19 @@ open class TextView: UITextView {
             return false
         }
 
-        if formattingAtIndexContainsOrderedList(range.location) {
+        let identifiers = formatIdentifiersAtIndex(range.location)
+
+        if identifiers.contains(.orderedlist) {
             toggleOrderedList(range: range)
             return true
         }
 
-        if formattingAtIndexContainsUnorderedList(range.location) {
+        if identifiers.contains(.unorderedlist) {
             toggleUnorderedList(range: range)
             return true
         }
 
-        if formattingAtIndexContainsBlockquote(range.location) {
+        if identifiers.contains(.blockquote) {
             toggleBlockquote(range: range)
             return true
         }
@@ -790,11 +679,6 @@ open class TextView: UITextView {
         print("video")
     }
 
-
-    // MARK: - Inspectors
-    // MARK: - Inspect Within Range
-
-
     /// Returns the associated TextAttachment, at a given point, if any.
     ///
     /// - Parameter point: The point on screen to check for attachments.
@@ -810,150 +694,51 @@ open class TextView: UITextView {
         return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
     }
 
-
-    /// Check if the bold attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func boldFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.fontTrait(.traitBold, spansRange: range)
-    }
-
-
-    /// Check if the italic attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func italicFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.fontTrait(.traitItalic, spansRange: range)
-    }
-
-
-    /// Check if the underline attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func underlineFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
-    }
-
-
-    /// Check if the strikethrough attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func strikethroughFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
-    }
-
-    /// Check if the link attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func linkFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
-           return NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
-        }
-
-        return false
-    }
-
-
-    /// Check if an ordered list spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func orderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .ordered
-    }
-
-
-    /// Check if an unordered list spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func unorderedListFormattingSpansRange(_ range: NSRange) -> Bool {
-        return storage.textListAttribute(spanningRange: range)?.style == .unordered
-    }
-
+    // MARK: - Links
 
     /// Returns an NSURL if the specified range as attached a link attribute
     ///
     /// - Parameter range: The NSRange to inspect
     ///
-    /// - Returns: the NSURL if available
+    /// - Returns: The NSURL if available
     ///
     open func linkURL(forRange range: NSRange) -> URL? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) {
-            if let url = attr as? URL {
-                return url
-            } else if let urlString = attr as? String {
-                return URL(string:urlString)
-            }
+        guard index < storage.length,
+            let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange)
+            else {
+                return nil
         }
+
+        if let url = attr as? URL {
+            return url
+        }
+
+        if let urlString = attr as? String {
+            return URL(string:urlString)
+        }
+
         return nil
     }
 
 
-    /// Returns the entire range covered by the link to be found in the (potentially partial) specified range.
+    /// Returns the Link Attribute's Full Range, intersecting the specified range.
     ///
     /// - Parameter range: The NSRange to inspect
     ///
-    /// - Returns: The full Range required by the link.
+    /// - Returns: The full Link's Range.
     ///
     open func linkFullRange(forRange range: NSRange) -> NSRange? {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
-        if storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil {
-            return effectiveRange
-        }
-        return nil
-    }
-
-    /// Check if the blockquote attribute spans the specified range.
-    ///
-    /// - Parameter range: The NSRange to inspect.
-    ///
-    /// - Returns: True if the attribute spans the entire range.
-    ///
-    open func blockquoteFormattingSpansRange(_ range: NSRange) -> Bool {
-        let index = maxIndex(range.location)
-        var effectiveRange = NSRange()
-        guard let attribute = storage.attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: &effectiveRange) as? NSParagraphStyle else {
-            return false
+        guard index < storage.length,
+            storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil
+            else {
+                return nil
         }
 
-        return attribute.headIndent == Metrics.defaultIndentation && NSEqualRanges(range, NSIntersectionRange(range, effectiveRange))
+        return effectiveRange
     }
 
 
@@ -966,12 +751,11 @@ open class TextView: UITextView {
     ///
     func maxIndex(_ index: Int) -> Int {
         if index >= storage.length {
-            return storage.length - 1
+            return max(storage.length - 1, 0)
         }
 
         return index
     }
-
 
     /// In most instances, the value of NSRange.location is off by one when compared to a character index.
     /// Call this method to get an adjusted character index from an NSRange.location.
@@ -984,223 +768,6 @@ open class TextView: UITextView {
         let index = maxIndex(index)
         return max(0, index - 1)
     }
-
-
-    /// TextListFormatter was designed to be applied over a range of text. Whenever such range is
-    /// zero, we may have trouble determining where to apply the list. For that reason,
-    /// whenever the list range's length is zero, we'll attempt to infer the range of the line at
-    /// which the cursor is located.
-    ///
-    /// - Parameter range: The NSRange in which a TextList should be applied
-    ///
-    /// Returns: A corrected NSRange, if the original one had empty length.
-    ///
-    func rangeForTextList(_ range: NSRange) -> NSRange {
-        guard range.length == 0 else {
-            return range
-        }
-
-        return storage.rangeOfLine(atIndex: range.location) ?? range
-    }
-
-
-    /// Returns the expected Selected Range for a given TextList, with the specified Effective Range,
-    /// and the Applied Range.
-    ///
-    /// Note that "Effective Range" is the actual List Range (including Markers), whereas Applied Range is just
-    /// the range at which the list was originally inserted.
-    ///
-    /// - Parameters:
-    ///     - effectiveRange: The actual range occupied by the List. Includes the String Markers!
-    ///     - appliedRange: The (original) range at which the list was applied.
-    ///
-    /// - Returns: If the current selection's length is zero, we'll return the selectedRange with it's location
-    ///   updated to consider the left padding applied by the list. Otherwise, we'll return the List's 
-    ///   Effective range.
-    ///
-    func rangeForSelectedTextList(withEffectiveRange effectiveRange: NSRange, andAppliedRange appliedRange: NSRange) -> NSRange {
-        guard selectedRange.length == 0 else {
-            return effectiveRange
-        }
-
-        var newSelectedRange = selectedRange
-        newSelectedRange.location += effectiveRange.length - appliedRange.length
-
-        return newSelectedRange
-    }
-
-
-    // MARK - Inspect at Index
-
-
-    /// Check if the bold attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsBold(_ index: Int) -> Bool {
-        return storage.fontTrait(.traitBold, existsAtIndex: index)
-    }
-
-
-    /// Check if the italic attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsItalic(_ index: Int) -> Bool {
-        return storage.fontTrait(.traitItalic, existsAtIndex: index)
-    }
-
-
-    /// Check if the underline attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsUnderline(_ index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSUnderlineStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
-            return false
-        }
-        // TODO: Figure out how to reconcile this with Link style.
-        return attribute == NSUnderlineStyle.styleSingle.rawValue
-    }
-
-
-    /// Check if the strikethrough attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsStrikethrough(_ index: Int) -> Bool {
-        guard let attribute = storage.attribute(NSStrikethroughStyleAttributeName, at: index, effectiveRange: nil) as? Int else {
-            return false
-        }
-
-        return attribute == NSUnderlineStyle.styleSingle.rawValue
-    }
-
-    /// Check if the link attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsLink(_ index: Int) -> Bool {
-        return storage.attribute(NSLinkAttributeName, at: index, effectiveRange: nil) != nil
-    }
-
-    
-    /// Check if the blockquote attribute exists at the specified index.
-    ///
-    /// - Parameter index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsBlockquote(_ index: Int) -> Bool {
-        let formatter = BlockquoteFormatter()
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    /// Check if an ordered list exists at the specified index.
-    ///
-    /// - Paramters:
-    ///     - index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsOrderedList(_ index: Int) -> Bool {
-        let formatter = TextListFormatter(style: .ordered)
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    /// Check if an unordered list exists at the specified index.
-    ///
-    /// - Paramters:
-    ///     - index: The character index to inspect.
-    ///
-    /// - Returns: True if the attribute exists at the specified index.
-    ///
-    open func formattingAtIndexContainsUnorderedList(_ index: Int) -> Bool {
-        let formatter = TextListFormatter(style: .unordered)
-        return formatter.present(in: textStorage, at: index)
-    }
-
-
-    // MARK: - Inspect Typing Attributes
-
-
-    /// Checks if the next character entered by the user will be in Bold, or not.
-    ///
-    open func typingAttributesContainsBold() -> Bool {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return false
-        }
-
-        return font.containsTraits(.traitBold)
-    }
-
-
-    /// Checks if the next character entered by the user will be in Italic, or not.
-    ///
-    open func typingAttributesContainsItalic() -> Bool {
-        guard let font = typingAttributes[NSFontAttributeName] as? UIFont else {
-            return false
-        }
-
-        return font.containsTraits(.traitItalic)
-    }
-
-
-    /// Checks if the next character that the user types will get Strikethrough Attribute, or not.
-    ///
-    open func typingAttributesContainsStrikethrough() -> Bool {
-        return typingAttributes[NSStrikethroughStyleAttributeName] != nil
-    }
-
-
-    /// Checks if the next character that the user types will be underlined, or not.
-    ///
-    open func typingAttributesContainsUnderline() -> Bool {
-        return typingAttributes[NSUnderlineStyleAttributeName] != nil
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as Blockquote, or not.
-    ///
-    open func typingAttributesContainsBlockquote() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.blockquote != nil
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as an Ordered List, or not.
-    ///
-    open func typingAttributesContainsOrderedList() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.textList?.style == .ordered
-    }
-
-
-    /// Checks if the next character that the user types will be formatted as an Unordered List, or not.
-    ///
-    open func typingAttributesContainsUnorderedList() -> Bool {
-        let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return paragraphStyle?.textList?.style == .unordered
-    }
-
-    /// Checks if the next character that the user types will be part of a link anchor, or not.
-    ///
-    open func typingAttributesContainsLink() -> Bool {
-        return typingAttributes[NSLinkAttributeName] != nil
-    }
-
 
     // MARK: - Attachments
 

@@ -234,54 +234,17 @@ open class TextStorage: NSTextStorage {
     }
     
     // MARK: - Styles: Toggling
-
-    func toggleBold(_ range: NSRange) {
-
-        let enable = !fontTrait(.traitBold, spansRange: range)
-        
-        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
-        /// but since that may take a while to implement, we need this workaround until it's ready.
-        ///
-        if !enable {
-            dom.removeBold(spanning: range)
+    @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
+        let applicationRange = formatter.applicationRange(for: range, in: self)
+        if applicationRange.length == 0, !formatter.worksInEmtpyRange() {
+            return applicationRange
         }
-
-        modifyTraits(.traitBold, range: range, enable: enable)
-    }
-
-    func toggleItalic(_ range: NSRange) {
-
-        let enable = !fontTrait(.traitItalic, spansRange: range)
-
-        /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
-        /// but since that may take a while to implement, we need this workaround until it's ready.
-        ///
-        if !enable {
-            dom.removeItalic(spanning: range)
+        let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
+        if !formatter.present(in: self, at: applicationRange.location) {
+            dom.remove(element:formatter.elementType, at: applicationRange)
         }
-        
-        modifyTraits(.traitItalic, range: range, enable: enable)
+        return newSelectedRange
     }
-
-    func toggleStrikethrough(_ range: NSRange) {
-        toggleAttribute(NSStrikethroughStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
-    }
-
-    /// Toggles underline for the specified range.
-    ///
-    /// - Note: A better name would have been `toggleUnderline` but it was clashing with a method
-    ///     in the parent class.
-    ///
-    /// - Note: This is a bit tricky as we can collide with a link style.  We'll want to check for
-    ///     that and correct the style if necessary.
-    ///
-    /// - Parameters:
-    ///     - range: the range to toggle the style of.
-    ///
-    func toggleUnderlineForRange(_ range: NSRange) {
-        toggleAttribute(NSUnderlineStyleAttributeName, value: NSUnderlineStyle.styleSingle.rawValue as AnyObject, range: range)
-    }
-
 
     /// Toggles blockquotes for the specified range.
     ///
@@ -453,95 +416,4 @@ extension TextStorage: TextAttachmentImageProvider {
         return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
-}
-
-/// Convenience extension to group font trait related methods.
-///
-public extension TextStorage
-{
-
-
-    /// Checks if the specified font trait exists at the specified character index.
-    ///
-    /// - Parameters:
-    ///     - trait: A font trait.
-    ///     - index: A character index.
-    ///
-    /// - Returns: True if found.
-    ///
-    public func fontTrait(_ trait: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
-        guard let attr = attribute(NSFontAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-        if let font = attr as? UIFont {
-            return font.fontDescriptor.symbolicTraits.contains(trait)
-        }
-        return false
-    }
-
-
-    /// Checks if the specified font trait spans the specified NSRange.
-    ///
-    /// - Parameters:
-    ///     - trait: A font trait.
-    ///     - range: The NSRange to inspect
-    ///
-    /// - Returns: True if the trait spans the entire range.
-    ///
-    public func fontTrait(_ trait: UIFontDescriptorSymbolicTraits, spansRange range: NSRange) -> Bool {
-        var spansRange = true
-
-        // Assume we're removing the trait. If the trait is missing anywhere in the range assign it.
-        enumerateAttribute(NSFontAttributeName,
-                           in: range,
-                           options: [],
-                           using: { (object: Any?, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
-                            guard let font = object as? UIFont else {
-                                return
-                            }
-                            if !font.fontDescriptor.symbolicTraits.contains(trait) {
-                                spansRange = false
-                                stop.pointee = true
-                            }
-        })
-
-        return spansRange
-    }
-
-
-    /// Adds or removes the specified font trait within the specified range.
-    ///
-    /// - Parameters:
-    ///     - trait: A font trait.
-    ///     - range: The NSRange to inspect
-    ///
-    public func toggleFontTrait(_ trait: UIFontDescriptorSymbolicTraits, range: NSRange) {
-        // Bail if nothing is selected
-        if range.length == 0 {
-            return
-        }
-
-        let enable = !fontTrait(trait, spansRange: range)
-
-        modifyTraits(trait, range: range, enable: enable)
-    }
-
-    fileprivate func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
-
-        enumerateAttribute(NSFontAttributeName,
-                           in: range,
-                           options: [],
-                           using: { (object: Any, range: NSRange, stop: UnsafeMutablePointer<ObjCBool>) in
-                            guard let font = object as? UIFont else {
-                                return
-                            }
-
-                            let newFont = font.modifyTraits(traits, enable: enable)
-
-                            self.beginEditing()
-                            self.removeAttribute(NSFontAttributeName, range: range)
-                            self.addAttribute(NSFontAttributeName, value: newFont, range: range)
-                            self.endEditing()
-        })
-    }
 }

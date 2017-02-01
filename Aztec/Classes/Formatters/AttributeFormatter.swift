@@ -9,6 +9,7 @@ import UIKit
 ///
 protocol AttributeFormatter {
 
+    var elementType: Libxml2.StandardElementType { get }
     /// Attributes to be used the Content Placeholder, when / if needed.
     ///
     var placeholderAttributes: [String: Any]? { get }
@@ -21,7 +22,13 @@ protocol AttributeFormatter {
     ///     - text: Text that should be formatted.
     ///     - range: Segment of text which format should be toggled.
     ///
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
+    @discardableResult func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
+
+    /// Apply or removes formatter attributes to the provided attribute dictionary and returns it.
+    ///
+    /// - Parameter attributes: attributes to be checked.
+    /// - Returns: the new attribute dictionary with the toggle applied.
+    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any]
 
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
@@ -43,9 +50,11 @@ protocol AttributeFormatter {
 
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
-    func present(in attributes: [String: AnyObject]) -> Bool
+    func present(in attributes: [String: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
+
+    func worksInEmtpyRange() -> Bool
 }
 
 
@@ -57,8 +66,40 @@ extension AttributeFormatter {
     ///
     func present(in text: NSAttributedString, at index: Int) -> Bool {
         let safeIndex = max(min(index, text.length - 1), 0)
-        let attributes = text.attributes(at: safeIndex, effectiveRange: nil) as [String : AnyObject]
+        let attributes = text.attributes(at: safeIndex, effectiveRange: nil)
         return present(in: attributes)
+    }
+
+    /// Indicates whether the Formatter's Attributes are present in the full range provided
+    ///
+    /// - Parameters:
+    ///   - text: the attributed string to inspect for the attribute
+    ///   - range: the range to inspect
+    ///
+    /// - Returns: true if the attributes exists on all of the range
+    ///
+    func present(in text: NSAttributedString, at range: NSRange) -> Bool {
+        if range.length == 0 {
+            return present(in: text, at: range.location)
+        }
+        var result = true
+        var enumerateAtLeastOnce = false
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            enumerateAtLeastOnce = true
+            result = present(in: attributes) && result
+            if !result {
+                stop.pointee = true
+            }
+        }
+        return result && enumerateAtLeastOnce
+    }
+
+    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any] {
+        if present(in: attributes) {
+            return remove(from: attributes)
+        } else {
+            return apply(to: attributes)
+        }
     }
 
 }
@@ -82,7 +123,7 @@ private extension AttributeFormatter {
             return true
         }
 
-        return present(in: text, at: range.location) == false
+        return present(in: text, at: range) == false
     }
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
@@ -98,6 +139,14 @@ private extension AttributeFormatter {
     func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) {
         let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
         let attributes = remove(from: currentAttributes)
+
+        let currentKeys = Set(currentAttributes.keys)
+        let newKeys = Set(attributes.keys)
+        let removedKeys = currentKeys.subtracting(newKeys)
+        for key in removedKeys {
+            string.removeAttribute(key, range: range)
+        }
+
         string.addAttributes(attributes, range: range)
     }
 }
@@ -110,6 +159,8 @@ protocol CharacterAttributeFormatter: AttributeFormatter {
 
 extension CharacterAttributeFormatter {
 
+    var placeholderAttributes: [String : Any]? { return nil }
+
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return range
     }
@@ -117,16 +168,26 @@ extension CharacterAttributeFormatter {
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
         guard range.location < text.length else {
-            return
+            return range
+        }
+        //We decide if we need to apply or not the attribute based on the value on the initial position of the range
+        let shouldApply =  shouldApplyAttributes(to: text, at: range)
+        // Then we go trough for the range with different attributes and apply or remove accordingly.
+        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
+            if shouldApply {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
 
-        if shouldApplyAttributes(to: text, at: range) {
-            applyAttributes(to: text, at: range)
-        } else {
-            removeAttributes(from: text, at: range)
-        }
+        return range
+    }
+
+    func worksInEmtpyRange() -> Bool {
+        return false
     }
 }
 
@@ -166,12 +227,18 @@ extension ParagraphAttributeFormatter {
             rangeToApply = NSMakeRange(text.length - 1, 1)
         }
 
-        if shouldApply {
-            applyAttributes(to: text, at: rangeToApply)
-        } else {
-            removeAttributes(from: text, at: rangeToApply)
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+            if shouldApply {
+                applyAttributes(to: text, at: range)
+            } else {
+                removeAttributes(from: text, at: range)
+            }
         }
 
         return newSelectedRange
+    }
+
+    func worksInEmtpyRange() -> Bool {
+        return true
     }
 }

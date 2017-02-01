@@ -112,60 +112,60 @@ class AztecVisualEditorTests: XCTestCase {
         let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(editor.boldFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.bold))
 
         editor.toggleBold(range: range)
 
-        XCTAssert(!editor.boldFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.bold))
 
         editor.toggleBold(range: range)
 
-        XCTAssert(editor.boldFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.bold))
     }
 
     func testToggleItalic() {
         let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(editor.italicFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.italic))
 
         editor.toggleItalic(range: range)
 
-        XCTAssert(!editor.italicFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.italic))
 
         editor.toggleItalic(range: range)
 
-        XCTAssert(editor.italicFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.italic))
     }
 
     func testToggleUnderline() {
         let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(editor.underlineFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.underline))
 
         editor.toggleUnderline(range: range)
 
-        XCTAssert(!editor.underlineFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.underline))
 
         editor.toggleUnderline(range: range)
 
-        XCTAssert(editor.underlineFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.underline))
     }
 
     func testToggleStrike() {
         let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(editor.strikethroughFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.strikethrough))
 
         editor.toggleStrikethrough(range: range)
 
-        XCTAssert(!editor.strikethroughFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.strikethrough))
 
         editor.toggleStrikethrough(range: range)
 
-        XCTAssert(editor.strikethroughFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.strikethrough))
     }
 
     func testToggleBlockquote() {
@@ -175,13 +175,13 @@ class AztecVisualEditorTests: XCTestCase {
 
         editor.toggleBlockquote(range: range)
 
-        XCTAssert(editor.formattingAtIndexContainsBlockquote(1))
-        XCTAssert(editor.blockquoteFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.blockquote))
 
         editor.toggleBlockquote(range: range)
 
-        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
-        XCTAssert(!editor.blockquoteFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.blockquote))
     }
 
     func testToggleOrderedList() {
@@ -191,13 +191,13 @@ class AztecVisualEditorTests: XCTestCase {
 
         editor.toggleOrderedList(range: range)
 
-        XCTAssert(editor.formattingAtIndexContainsOrderedList(0))
-        XCTAssert(editor.orderedListFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersAtIndex(0).contains(.orderedlist))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.orderedlist))
 
         editor.toggleOrderedList(range: range)
 
-        XCTAssert(!editor.formattingAtIndexContainsOrderedList(0))
-        XCTAssert(!editor.orderedListFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersAtIndex(0).contains(.orderedlist))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.orderedlist))
     }
 
     func testToggleUnorderedList() {
@@ -207,59 +207,63 @@ class AztecVisualEditorTests: XCTestCase {
 
         editor.toggleUnorderedList(range: range)
 
-        XCTAssert(editor.formattingAtIndexContainsUnorderedList(0))
-        XCTAssert(editor.unorderedListFormattingSpansRange(range))
+        XCTAssert(editor.formatIdentifiersAtIndex(0).contains(.unorderedlist))
+        XCTAssert(editor.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
 
         editor.toggleOrderedList(range: range)
 
-        XCTAssert(!editor.formattingAtIndexContainsUnorderedList(0))
-        XCTAssert(!editor.unorderedListFormattingSpansRange(range))
+        XCTAssert(!editor.formatIdentifiersAtIndex(0).contains(.unorderedlist))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
     }
 
     // MARK: - Test Attributes Exist
 
+    func check(editor: TextView, range:NSRange, forIndentifier identifier: FormattingIdentifier) -> Bool {
+        return editor.formatIdentifiersSpanningRange(range).contains(identifier)
+    }
+
     func testBoldSpansRange() {
         let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
-        XCTAssert(editor.boldFormattingSpansRange(NSRange(location: 3, length: 3)))
-        XCTAssert(editor.boldFormattingSpansRange(NSRange(location: 3, length: 2)))
-        XCTAssert(editor.boldFormattingSpansRange(NSRange(location: 3, length: 1)))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.bold))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.bold))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.bold))
 
-        XCTAssert(!editor.boldFormattingSpansRange(NSRange(location: 2, length: 3)))
-        XCTAssert(!editor.boldFormattingSpansRange(NSRange(location: 4, length: 3)))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.bold))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.bold))
     }
 
     func testItalicSpansRange() {
         let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
 
-        XCTAssert(editor.italicFormattingSpansRange(NSRange(location: 3, length: 3)))
-        XCTAssert(editor.italicFormattingSpansRange(NSRange(location: 3, length: 2)))
-        XCTAssert(editor.italicFormattingSpansRange(NSRange(location: 3, length: 1)))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.italic))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.italic))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.italic))
 
-        XCTAssert(!editor.italicFormattingSpansRange(NSRange(location: 2, length: 3)))
-        XCTAssert(!editor.italicFormattingSpansRange(NSRange(location: 4, length: 3)))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.italic))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.italic))
     }
 
     func testUnderlineSpansRange() {
         let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
 
-        XCTAssert(editor.underlineFormattingSpansRange(NSRange(location: 3, length: 3)))
-        XCTAssert(editor.underlineFormattingSpansRange(NSRange(location: 3, length: 2)))
-        XCTAssert(editor.underlineFormattingSpansRange(NSRange(location: 3, length: 1)))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.underline))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.underline))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.underline))
 
-        XCTAssert(!editor.underlineFormattingSpansRange(NSRange(location: 2, length: 3)))
-        XCTAssert(!editor.underlineFormattingSpansRange(NSRange(location: 4, length: 3)))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.underline))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.underline))
     }
 
     func testStrikethroughSpansRange() {
         let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
 
-        XCTAssert(editor.strikethroughFormattingSpansRange(NSRange(location: 3, length: 3)))
-        XCTAssert(editor.strikethroughFormattingSpansRange(NSRange(location: 3, length: 2)))
-        XCTAssert(editor.strikethroughFormattingSpansRange(NSRange(location: 3, length: 1)))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.strikethrough))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.strikethrough))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.strikethrough))
 
-        XCTAssert(!editor.strikethroughFormattingSpansRange(NSRange(location: 2, length: 3)))
-        XCTAssert(!editor.strikethroughFormattingSpansRange(NSRange(location: 4, length: 3)))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.strikethrough))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.strikethrough))
     }
 
     func testBlockquoteSpansRange() {
@@ -269,68 +273,68 @@ class AztecVisualEditorTests: XCTestCase {
 
         editor.toggleBlockquote(range: range)
 
-        XCTAssert(editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length)))
-        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 0, length: length + 1)))
-        XCTAssert(!editor.blockquoteFormattingSpansRange(NSRange(location: 1, length: length)))
+        XCTAssert(editor.formatIdentifiersSpanningRange(NSRange(location: 0, length: length)).contains(.blockquote))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 0, length: length + 1)).contains(.blockquote))
+        XCTAssert(!editor.formatIdentifiersSpanningRange(NSRange(location: 1, length: length)).contains(.blockquote))
     }
 
     func testBoldAtIndex() {
         let editor = editorConfiguredForTesting(withHTML: "foo<b>bar</b>baz")
 
-        XCTAssert(editor.formattingAtIndexContainsBold(3))
-        XCTAssert(editor.formattingAtIndexContainsBold(4))
-        XCTAssert(editor.formattingAtIndexContainsBold(5))
+        XCTAssert(editor.formatIdentifiersAtIndex(4).contains(.bold))
+        XCTAssert(editor.formatIdentifiersAtIndex(5).contains(.bold))
+        XCTAssert(editor.formatIdentifiersAtIndex(6).contains(.bold))
 
-        XCTAssert(!editor.formattingAtIndexContainsBold(2))
-        XCTAssert(!editor.formattingAtIndexContainsBold(6))
+        XCTAssert(!editor.formatIdentifiersAtIndex(2).contains(.bold))
+        XCTAssert(!editor.formatIdentifiersAtIndex(7).contains(.bold))
     }
 
     func testItalicAtIndex() {
         let editor = editorConfiguredForTesting(withHTML: "foo<i>bar</i>baz")
 
-        XCTAssert(editor.formattingAtIndexContainsItalic(3))
-        XCTAssert(editor.formattingAtIndexContainsItalic(4))
-        XCTAssert(editor.formattingAtIndexContainsItalic(5))
+        XCTAssert(editor.formatIdentifiersAtIndex(4).contains(.italic))
+        XCTAssert(editor.formatIdentifiersAtIndex(5).contains(.italic))
+        XCTAssert(editor.formatIdentifiersAtIndex(6).contains(.italic))
 
-        XCTAssert(!editor.formattingAtIndexContainsItalic(2))
-        XCTAssert(!editor.formattingAtIndexContainsItalic(6))
+        XCTAssert(!editor.formatIdentifiersAtIndex(2).contains(.italic))
+        XCTAssert(!editor.formatIdentifiersAtIndex(7).contains(.italic))
     }
 
     func testUnderlineAtIndex() {
         let editor = editorConfiguredForTesting(withHTML: "foo<u>bar</u>baz")
 
-        XCTAssert(editor.formattingAtIndexContainsUnderline(3))
-        XCTAssert(editor.formattingAtIndexContainsUnderline(4))
-        XCTAssert(editor.formattingAtIndexContainsUnderline(5))
+        XCTAssert(editor.formatIdentifiersAtIndex(4).contains(.underline))
+        XCTAssert(editor.formatIdentifiersAtIndex(5).contains(.underline))
+        XCTAssert(editor.formatIdentifiersAtIndex(6).contains(.underline))
 
-        XCTAssert(!editor.formattingAtIndexContainsUnderline(2))
-        XCTAssert(!editor.formattingAtIndexContainsUnderline(6))
+        XCTAssert(!editor.formatIdentifiersAtIndex(2).contains(.underline))
+        XCTAssert(!editor.formatIdentifiersAtIndex(7).contains(.underline))
     }
 
     func testStrikethroughAtIndex() {
         let editor = editorConfiguredForTesting(withHTML: "foo<strike>bar</strike>baz")
 
-        XCTAssert(editor.formattingAtIndexContainsStrikethrough(3))
-        XCTAssert(editor.formattingAtIndexContainsStrikethrough(4))
-        XCTAssert(editor.formattingAtIndexContainsStrikethrough(5))
+        XCTAssert(editor.formatIdentifiersAtIndex(4).contains(.strikethrough))
+        XCTAssert(editor.formatIdentifiersAtIndex(5).contains(.strikethrough))
+        XCTAssert(editor.formatIdentifiersAtIndex(6).contains(.strikethrough))
 
-        XCTAssert(!editor.formattingAtIndexContainsStrikethrough(2))
-        XCTAssert(!editor.formattingAtIndexContainsStrikethrough(6))
+        XCTAssert(!editor.formatIdentifiersAtIndex(2).contains(.strikethrough))
+        XCTAssert(!editor.formatIdentifiersAtIndex(7).contains(.strikethrough))
     }
 
     func testBlockquoteAtIndex() {
         let editor = editorConfiguredWithParagraphs()
         let range = NSRange(location: 0, length: 1)
 
-        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
+        XCTAssert(!editor.formatIdentifiersAtIndex(1).contains(.blockquote))
 
         editor.toggleBlockquote(range: range)
 
-        XCTAssert(editor.formattingAtIndexContainsBlockquote(1))
+        XCTAssert(editor.formatIdentifiersAtIndex(1).contains(.blockquote))
 
         editor.toggleBlockquote(range: range)
 
-        XCTAssert(!editor.formattingAtIndexContainsBlockquote(1))
+        XCTAssert(!editor.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
     // MARK: - Helpers

@@ -1,25 +1,10 @@
 import Foundation
 import UIKit
 
-class Blockquote: NSObject, NSCoding {
-    public func encode(with aCoder: NSCoder) {
+class BlockquoteFormatter: ParagraphAttributeFormatter {
 
-    }
+    let elementType: Libxml2.StandardElementType = .blockquote 
 
-    override public init() {
-
-    }
-
-    required public init?(coder aDecoder: NSCoder){
-
-    }
-
-    static func ==(lhs: Blockquote, rhs: Blockquote) -> Bool {
-        return true
-    }
-}
-
-struct BlockquoteFormatter: ParagraphAttributeFormatter {
     let placeholderAttributes: [String : Any]?
 
     init(placeholderAttributes: [String : Any]? = nil) {
@@ -60,7 +45,7 @@ struct BlockquoteFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : AnyObject]) -> Bool {
+    func present(in attributes: [String : Any]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
             return paragraphStyle.blockquote != nil
         }
