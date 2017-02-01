@@ -4,6 +4,7 @@ extension Character {
     
     enum Name: Character {
         case newline = "\n"
+        case space = " "
         case zeroWidthSpace = "\u{200B}"
     }
     

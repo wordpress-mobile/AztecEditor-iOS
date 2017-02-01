@@ -117,8 +117,7 @@ extension Libxml2.In {
         ///
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
             let text = String(cString: rawNode.content)
-            let cleanText = text.replacingOccurrences(of: String(.newline), with: "")
-            let node = TextNode(text: cleanText, editContext: editContext)
+            let node = TextNode(text: sanitize(text), editContext: editContext)
 
             return node
         }
@@ -139,6 +138,24 @@ extension Libxml2.In {
 
         fileprivate func getNodeName(_ rawNode: xmlNode) -> String {
             return String(cString: rawNode.name)
+        }
+
+        // MARK: - Sanitization
+
+        private func sanitize(_ text: String) -> String {
+            let characterSet = CharacterSet(charactersIn: "\(String(.space))")
+            let trimmedText = text.trimmingCharacters(in: characterSet)
+            var singleSpaceText = trimmedText
+            let doubleSpace = "  "
+            let singleSpace = " "
+
+            while singleSpaceText.range(of: doubleSpace) != nil {
+                singleSpaceText = singleSpaceText.replacingOccurrences(of: doubleSpace, with: singleSpace)
+            }
+
+            let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.newline), with: "")
+
+            return noBreaksText
         }
     }
 }
