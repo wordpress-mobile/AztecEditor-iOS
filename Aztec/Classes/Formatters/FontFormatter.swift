@@ -49,14 +49,14 @@ class FontFormatter: CharacterAttributeFormatter {
 class BoldFormatter: FontFormatter {
 
     init() {
-        super.init(elementType: .b, traits: .traitBold)
+        super.init(elementType: .strong, traits: .traitBold)
     }
 }
 
 class ItalicFormatter: FontFormatter {
 
     init() {
-        super.init(elementType: .i, traits: .traitItalic)
+        super.init(elementType: .em, traits: .traitItalic)
     }
 }
 

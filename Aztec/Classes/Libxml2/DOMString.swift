@@ -608,7 +608,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         fileprivate func applyBold(spanning range: NSRange) {
-            applyElement(.b, spanning: range)
+            applyElement(.strong, spanning: range)
         }
         
         /// Applies italic to the specified range.
@@ -617,7 +617,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         fileprivate func applyItalic(spanning range: NSRange) {
-            applyElement(.i, spanning: range)
+            applyElement(.em, spanning: range)
         }
         
         /// Applies strikethrough to the specified range.
@@ -626,7 +626,7 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         fileprivate func applyStrikethrough(spanning range: NSRange) {
-            applyElement(.s, spanning: range)
+            applyElement(.del, spanning: range)
         }
         
         /// Applies underline to the specified range.

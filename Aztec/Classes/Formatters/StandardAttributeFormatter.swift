@@ -48,7 +48,7 @@ class UnderlineFormatter: StandardAttributeFormatter {
 class StrikethroughFormatter: StandardAttributeFormatter {
 
     init() {
-        super.init(elementType: .s, attributeKey: NSStrikethroughStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
+        super.init(elementType: .del, attributeKey: NSStrikethroughStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
     }
 }
 
