@@ -16,6 +16,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
+    // MARK: - Visual-only Elements
+
+    let visualOnlyElementFactory = VisualOnlyElementFactory()
+
     // MARK: - Initializers
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -75,10 +79,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
 
         if node.isLastBeforeBlockLevelElement() {
-            var visualNewlineAttributes = inheritedAttributes
-            visualNewlineAttributes[VisualOnlyAttributeName] = VisualOnlyElement.newline
-
-            content.append(NSAttributedString(string: "\n", attributes: visualNewlineAttributes))
+            content.append(visualOnlyElementFactory.newline(inheritingAttributes: inheritedAttributes))
         }
 
         return content
