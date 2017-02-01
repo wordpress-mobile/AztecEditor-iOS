@@ -138,17 +138,21 @@ extension Libxml2 {
         /// - Returns: true if the last child of this element is a block level element, false otherwise
         ///
         func isLastChildBlockLevelElement() -> Bool {
+
             let childrenIgnoringEmptyTextNodes = children.filter { (node) -> Bool in
                 if let textNode = node as? TextNode {
                     return !textNode.text().isEmpty
                 }
                 return true
             }
+
             if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
                return lastChild.isBlockLevelElement()
             }
+
             return false
         }
+
 
         /// Find out if this is a block-level element.
         ///
@@ -927,12 +931,16 @@ extension Libxml2 {
         ///
         fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
-            guard let theSibling: T = sibling(leftOf: childIndex), !bail(theSibling) else {
+            guard let theSibling: T = sibling(leftOf: childIndex) else {
                 return nil
             }
-            
+
             if evaluation(theSibling) {
                 return theSibling
+            }
+
+            guard !bail(theSibling) else {
+                return nil
             }
             
             guard let element = theSibling as? ElementNode else {
@@ -1003,14 +1011,18 @@ extension Libxml2 {
         ///
         fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
-            guard let theSibling: T = sibling(rightOf: childIndex), !bail(theSibling) else {
-                    return nil
+            guard let theSibling: T = sibling(rightOf: childIndex) else {
+                return nil
             }
             
             if evaluation(theSibling) {
                 return theSibling
             }
-            
+
+            guard !bail(theSibling) else {
+                return nil
+            }
+
             guard let element = theSibling as? ElementNode else {
                 return nil
             }

@@ -16,11 +16,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
-    // MARK: - Control Characters
-
-    let controlCharacterFactory = ControlCharacterFactory()
-    let elementMapper = HTMLElementToControlElementMapper()
-
     // MARK: - Initializers
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -76,7 +71,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+
+        let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
+
+        if node.isLastBeforeBlockLevelElement() {
+            var visualNewlineAttributes = inheritedAttributes
+            visualNewlineAttributes[VisualOnlyAttributeName] = VisualOnlyElement.newline
+
+            content.append(NSAttributedString(string: "\n", attributes: visualNewlineAttributes))
+        }
+
+        return content
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -125,22 +130,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
         
         let content = NSMutableAttributedString()
-        let controlElement = elementMapper.map(node.name)
-
-        if let controlElement = controlElement,
-            let openingCharacter = controlCharacterFactory.opener(forElement: controlElement, inheritingAttributes: inheritedAttributes) {
-            content.append(openingCharacter)
-        }
         
         for child in node.children {
             let childContent = convert(child, inheritingAttributes: childAttributes)
             content.append(childContent)
-        }
-
-        if let controlElement = controlElement,
-            let closingCharacter = controlCharacterFactory.closer(forElement: controlElement, inheritingAttributes: inheritedAttributes) {
-
-            content.append(closingCharacter)
         }
         
         return content

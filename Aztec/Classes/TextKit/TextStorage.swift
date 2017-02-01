@@ -174,23 +174,15 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
-/*
-        if let firstControlCharacter = textStore.firstControlCharacter(inRange: range) {
-            // Process first control character removal...
-        }
-
-        if let lastControlCharacter = textStore.lastControlCharacter(inRange: range) {
-            // Process last control character removal...
-        }
- */
 
         beginEditing()
+
+        let domRange = map(visualRange: range)
 
         textStore.replaceCharacters(in: range, with: str)
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
 
-        if let domRange = map(visualRange: range),
-            mustUpdateDOM() {
+        if let domRange = domRange, mustUpdateDOM() {
             dom.replaceCharacters(inRange: domRange, withString: str, inheritStyle: true)
         }
         
@@ -206,11 +198,12 @@ open class TextStorage: NSTextStorage {
 
         beginEditing()
 
+        let domRange = map(visualRange: range)
+
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         
-        if let domRange = map(visualRange: range),
-            mustUpdateDOM() {
+        if let domRange = domRange, mustUpdateDOM() {
             dom.replaceCharacters(inRange: domRange, withAttributedString: processedString, inheritStyle: false)
         }
         
@@ -237,7 +230,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Range Mapping: Visual vs HTML
     
     private func map(visualRange: NSRange) -> NSRange? {
-        return textStore.map(range: visualRange, bySubtractingAttributeNamed: ControlCharacterAttributeName)
+        return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
     }
     
     // MARK: - Styles: Toggling

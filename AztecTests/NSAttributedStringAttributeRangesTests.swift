@@ -34,7 +34,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
         string.append(closer)
 
         let range = NSRange(location: 0, length: string.length)
-        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: ControlCharacterAttributeName)
+        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: VisualOnlyAttributeName)
 
         XCTAssertEqual(mappedRange, NSRange(location: 0, length: 11))
     }
@@ -72,7 +72,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
         string.append(closer)
 
         let range = NSRange(location: 0, length: string.length)
-        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: ControlCharacterAttributeName)
+        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: VisualOnlyAttributeName)
 
         XCTAssertEqual(mappedRange, NSRange(location: 0, length: 18))
     }
@@ -110,7 +110,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
         string.append(closer)
 
         let range = NSRange(location: 7, length: 10)
-        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: ControlCharacterAttributeName)
+        let mappedRange = string.map(range: range, bySubtractingAttributeNamed: VisualOnlyAttributeName)
 
         XCTAssertEqual(mappedRange, NSRange(location: 6, length: 8))
     }

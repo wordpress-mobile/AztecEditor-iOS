@@ -335,12 +335,12 @@ extension Libxml2 {
             wrap(inElement: elementDescriptor)
         }
         
-        // MARK: - LeadNode
+        // MARK: - LeafNode
         
         override func text() -> String {
             return contents
         }
-        
+
         // MARK: - Undo support
         
         private func registerUndoForAppend(appendedLength: Int) {
