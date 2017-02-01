@@ -28,12 +28,198 @@ extension Libxml2 {
         override func length() -> Int {
             return contents.characters.count
         }
-
-        // MARK: - EditableNode
         
-        func append(_ string: String) {
+        // MARK: - Editing: Atomic Operations
+        
+        /// Appends the specified string.  The input data is assumed to be sanitized, which means
+        /// this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - string: the string to append to the node.
+        ///
+        private func append(sanitizedString string: String) {
             registerUndoForAppend(appendedLength: string.characters.count)
             contents.append(string)
+        }
+        
+        /// Appends the specified components separated by the specified descriptor.
+        ///
+        /// - Parameters:
+        ///     - components: an array of strings that will be appended.  These will be separated
+        ///         by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
+        private func append(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
+            guard let parent = parent else {
+                assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                return
+            }
+            
+            var insertionIndex = parent.indexOf(childNode: self)
+            
+            for (componentIndex, component) in components.enumerated() {
+                if componentIndex == 0 {
+                    append(sanitizedString: component)
+                    
+                    insertionIndex = insertionIndex + 1
+                } else {
+                    let separator = ElementNode(descriptor: separatorDescriptor)
+                    
+                    parent.insert(separator, at: insertionIndex)
+                    insertionIndex = insertionIndex + 1
+                    
+                    if component.characters.count > 0 {
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        
+                        parent.insert(textNode, at: insertionIndex)
+                        insertionIndex = insertionIndex + 1
+                    }
+                }
+            }
+        }
+        
+        /// Prepends the specified string.  The input data is assumed to be sanitized, which means
+        /// this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - string: the string to prepend to the node.
+        ///
+        private func prepend(sanitizedString string: String) {
+            registerUndoForPrepend(prependedLength: string.characters.count)
+            contents = "\(string)\(contents)"
+        }
+        
+        /// Prepends the specified components separated by the specified descriptor.
+        ///
+        /// - Parameters:
+        ///     - components: an array of strings that will be prepended.  These will be separated
+        ///         by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
+        private func prepend(components: [String], separatedBy separatorDescriptor: ElementNodeDescriptor) {
+            guard let parent = parent else {
+                assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                return
+            }
+            
+            var insertionIndex = parent.indexOf(childNode: self)
+            
+            for (componentIndex, component) in components.enumerated() {
+                if componentIndex == components.count - 1 {
+                    prepend(sanitizedString: component)
+                } else {
+                    let textNode = TextNode(text: component, editContext: editContext)
+                    let separator = ElementNode(descriptor: separatorDescriptor)
+                    
+                    parent.insert(textNode, at: insertionIndex)
+                    parent.insert(separator, at: insertionIndex + 1)
+                    
+                    insertionIndex = insertionIndex + 2
+                }
+            }
+        }
+        
+        /// Replaces the specified range with a new string.  The input string is assumed to be
+        /// sanitized, which means this method does not perform verifications or cleanups on it.
+        ///
+        /// - Parameters:
+        ///     - range: the range to replace.
+        ///     - string: the string that will replace the specified range.
+        ///
+        private func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
+            
+            guard let range = contents.rangeFromNSRange(range) else {
+                fatalError("The specified range is out of bounds.")
+            }
+            
+            registerUndoForReplaceCharacters(in: range, withString: string)
+            contents.replaceSubrange(range, with: string)
+        }
+        
+        /// Replaces the specified range with an array of string components separated by the
+        /// specified descriptor.
+        ///
+        /// This could be use, for example, to separate components with line breaks.
+        ///
+        /// - Parameters:
+        ///     - range: the range to replace.
+        ///     - components: an array of strings that will be inserted replacing the specified
+        ///         range.  These will be separated by the specified separator.
+        ///     - separatorDescriptor: the node to use to separate the specified components.
+        ///
+        private func replaceCharacters(inRange range: NSRange,
+                                       withComponents components: [String],
+                                       separatedBy separatorDescriptor: ElementNodeDescriptor) {
+            
+            guard components.count > 0 else {
+                assertionFailure("Do not call this method with an empty list of components.")
+                return
+            }
+            
+            guard components.count > 1 else {
+                replaceCharacters(inRange: range, withSanitizedString: components[0])
+                return
+            }
+            
+            deleteCharacters(inRange: range)
+            
+            if range.location == 0 {
+                prepend(components: components, separatedBy: separatorDescriptor)
+            } else if range.location == length() {
+                append(components: components, separatedBy: separatorDescriptor)
+            } else {
+                split(atLocation: range.location)
+                
+                guard let parent = parent else {
+                    assertionFailure("This method cannot process newlines if the node's parent isn't set.")
+                    return
+                }
+                
+                let leftNodeIndex = parent.indexOf(childNode: self)
+                let rightNodeIndex = leftNodeIndex + 1
+                
+                assert(parent.children.count > rightNodeIndex)
+                
+                guard let rightNode = parent.children[rightNodeIndex] as? TextNode else {
+                    assertionFailure("The right node should also be a TextNode.  Review the logic.")
+                    return
+                }
+                
+                var insertionIndex = parent.indexOf(childNode: self) + 1
+                
+                for (index, component) in components.enumerated() {
+                    if index == 0 {
+                        append(sanitizedString: component)
+                        
+                        let separator = ElementNode(descriptor: separatorDescriptor)
+                        
+                        parent.insert(separator, at: insertionIndex)
+                        insertionIndex = insertionIndex + 1
+                    } else if index == components.count - 1 {
+                        rightNode.prepend(sanitizedString: component)
+                    } else {
+                        let textNode = TextNode(text: component, editContext: editContext)
+                        let separator = ElementNode(descriptor: separatorDescriptor)
+                        
+                        parent.insert(textNode, at: insertionIndex)
+                        parent.insert(separator, at: insertionIndex + 1)
+                        
+                        insertionIndex = insertionIndex + 2
+                    }
+                }
+            }
+        }
+
+        // MARK: - EditableNode
+
+        func append(_ string: String) {
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                append(sanitizedString: string)
+            } else {
+                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+            }
         }
 
         func deleteCharacters(inRange range: NSRange) {
@@ -52,18 +238,23 @@ extension Libxml2 {
         }
         
         func prepend(_ string: String) {
-            registerUndoForPrepend(prependedLength: string.characters.count)
-            contents = "\(string)\(contents)"
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                prepend(sanitizedString: string)
+            } else {
+                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+            }
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-
-            guard let range = contents.rangeFromNSRange(range) else {
-                fatalError("The specified range is out of bounds.")
+            let components = string.components(separatedBy: String(.newline))
+            
+            if components.count == 1 {
+                replaceCharacters(inRange: range, withSanitizedString: string)
+            } else {
+                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br))
             }
-
-            registerUndoForReplaceCharacters(in: range, withString: string)
-            contents.replaceSubrange(range, with: string)
         }
 
         func split(atLocation location: Int) {
@@ -144,12 +335,12 @@ extension Libxml2 {
             wrap(inElement: elementDescriptor)
         }
         
-        // MARK: - LeadNode
+        // MARK: - LeafNode
         
         override func text() -> String {
             return contents
         }
-        
+
         // MARK: - Undo support
         
         private func registerUndoForAppend(appendedLength: Int) {

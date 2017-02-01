@@ -145,6 +145,32 @@ extension Libxml2 {
             return nil
         }
 
+        func isLastIn(blockLevelElement element: ElementNode) -> Bool {
+            return element.isBlockLevelElement() && element.children.last == self
+        }
+
+        func isLastInBlockLevelElement() -> Bool {
+            guard let parent = parent else {
+                return false
+            }
+
+            guard !isLastIn(blockLevelElement: parent) else {
+                return true
+            }
+
+            let index = parent.indexOf(childNode: self)
+
+            if let sibling = parent.sibling(rightOf: index) {
+                if let siblingElement = sibling as? ElementNode {
+                    return siblingElement.isBlockLevelElement()
+                } else {
+                    return sibling.isLastInBlockLevelElement()
+                }
+            } else {
+                return parent.isLastInBlockLevelElement()
+            }
+        }
+
         // MARK: - DOM Modification
 
         /// Removes this node from its parent, if it has one.

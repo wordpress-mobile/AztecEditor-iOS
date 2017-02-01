@@ -39,9 +39,10 @@ extension NSAttributedString
 
     /// Determine the character ranges for an attachment
     ///
-    /// - parameter attachment: the attachment to search for
+    /// - Parameters:
+    ///     - attachment: the attachment to search for
     ///
-    /// - returns: an array of ranges where the attachement can be found
+    /// - Returns: an array of ranges where the attachement can be found
     ///
     public func ranges(forAttachment attachment: NSTextAttachment) -> [NSRange] {
         let range = NSRange(location: 0, length: length)

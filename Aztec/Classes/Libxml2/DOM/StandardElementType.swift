@@ -73,20 +73,18 @@ extension Libxml2 {
             }
         }
 
-        func implicitRepresentation(forContent content: String) -> String {
-            return implicitRepresentation(forContent: NSAttributedString(string:content), attributes: [:] ).string
+        func implicitRepresentation() -> NSAttributedString? {
+            return implicitRepresentation(withAttributes: [:])
         }
 
-        func implicitRepresentation(forContent content: NSAttributedString, attributes:[String:Any]) -> NSAttributedString {
-
-            let resultString = NSMutableAttributedString(attributedString: content)
+        func implicitRepresentation(withAttributes attributes: [String:Any]) -> NSAttributedString? {
             switch self {
             case .img:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
-                return NSAttributedString(string: "\n", attributes: attributes)            
+                return NSAttributedString(.newline, attributes: attributes)
             default:
-                return resultString
+                return nil
             }
         }
         

@@ -56,6 +56,12 @@ extension Libxml2 {
             self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
         }
         
+        // MARK: - Node Constructors
+        
+        static func `break`() -> ElementNode {
+            return ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
+        }
+        
         // MARK: - Node Overrides
         
         /// Node length.  Calculated by adding the length of all child nodes.
@@ -92,23 +98,61 @@ extension Libxml2 {
             
             attributes.append(StringAttribute(name: attributeName, value: value))
         }
+        
+        /// Check if the node is the first child in its parent node.
+        ///
+        /// - Returns: `true` if the node is the first child in it's parent.  `false` otherwise.
+        ///
+        func isFirstChildInParent() -> Bool {
+            guard let parent = parent else {
+                assertionFailure("This scenario should not be possible.  Review the logic.")
+                return false
+            }
+            
+            guard let first = parent.children.first else {
+                return false
+            }
+            
+            return first === self
+        }
+        
+        /// Check if the node is the last child in its parent node.
+        ///
+        /// - Returns: `true` if the node is the last child in it's parent.  `false` otherwise.
+        ///
+        func isLastChildInParent() -> Bool {
+            guard let parent = parent else {
+                assertionFailure("This scenario should not be possible.  Review the logic.")
+                return false
+            }
+            
+            guard let last = parent.children.last else {
+                return false
+            }
+            
+            return last === self
+        }
 
         /// Check if the last of this children element is a block level element
         ///
         /// - Returns: true if the last child of this element is a block level element, false otherwise
         ///
         func isLastChildBlockLevelElement() -> Bool {
+
             let childrenIgnoringEmptyTextNodes = children.filter { (node) -> Bool in
                 if let textNode = node as? TextNode {
                     return !textNode.text().isEmpty
                 }
                 return true
             }
+
             if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
                return lastChild.isBlockLevelElement()
             }
+
             return false
         }
+
 
         /// Find out if this is a block-level element.
         ///
@@ -132,6 +176,25 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
         
+        /// Returns the index of the specified child node.  This method should only be called when
+        /// there's 100% certainty that this node should contain the specified child node, as it
+        /// fails otherwise.
+        ///
+        /// Call `children.indexOf()` if you need to test the parent-child relationship instead.
+        ///
+        /// - Parameters:
+        ///     - childNode: the child node to find the index of.
+        ///
+        /// - Returns: the index of the specified child node.
+        ///
+        func indexOf(childNode: Node) -> Int {
+            guard let index = children.index(of: childNode) else {
+                fatalError("Broken parent-child relationship found.")
+            }
+            
+            return index
+        }
+        
         /// Returns the index of the child node intersecting the specified location.
         ///
         /// - Parameters:
@@ -141,7 +204,7 @@ extension Libxml2 {
         ///         exactly between two nodes, the left hand node will always be returned.  The only exception to this
         ///         rule is for text location zero, which will always result in index zero being returned.
         ///
-        func indexOfChildNode(intersecting location: Int) -> (index: Int, intersection: Int)  {
+        func indexOf(childNodeIntersecting location: Int) -> (index: Int, intersection: Int)  {
             
             guard children.count > 0 else {
                 fatalError("An element node without children should never happen.")
@@ -628,20 +691,17 @@ extension Libxml2 {
         }
         
         override func text() -> String {
-
+            
+            if let nodeType = standardName,
+                let implicitRepresentation = nodeType.implicitRepresentation() {
+                
+                return implicitRepresentation.string
+            }
+            
             var text = ""
             for child in children {
                 text = text + child.text()
             }
-
-            if isBlockLevelElement() && !isLastChildBlockLevelElement() {
-                text += "\n"
-            }
-
-            if let nodeType = standardName {
-                text = nodeType.implicitRepresentation(forContent: text)
-            }
-
             return text
         }
 
@@ -871,12 +931,16 @@ extension Libxml2 {
         ///
         fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
-            guard let theSibling: T = sibling(leftOf: childIndex), !bail(theSibling) else {
+            guard let theSibling: T = sibling(leftOf: childIndex) else {
                 return nil
             }
-            
+
             if evaluation(theSibling) {
                 return theSibling
+            }
+
+            guard !bail(theSibling) else {
+                return nil
             }
             
             guard let element = theSibling as? ElementNode else {
@@ -947,14 +1011,18 @@ extension Libxml2 {
         ///
         fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
-            guard let theSibling: T = sibling(rightOf: childIndex), !bail(theSibling) else {
-                    return nil
+            guard let theSibling: T = sibling(rightOf: childIndex) else {
+                return nil
             }
             
             if evaluation(theSibling) {
                 return theSibling
             }
-            
+
+            guard !bail(theSibling) else {
+                return nil
+            }
+
             guard let element = theSibling as? ElementNode else {
                 return nil
             }
@@ -1048,7 +1116,16 @@ extension Libxml2 {
             } else if index < children.count, let nextTextNode = children[index] as? TextNode {
                 nextTextNode.prepend(string)
             } else {
-                insert(TextNode(text: string, editContext: editContext), at: index)
+                // It's not great having to set empty text and then append text to it.  The reason
+                // we're doing it here is that if the text contains line-breaks, they will only
+                // be processed as BR tags if the text is set after construction.
+                //
+                // This code can be improved but this "hack" will allow us to postpone the necessary
+                // code restructuration.
+                //
+                let textNode = TextNode(text: "", editContext: editContext)
+                insert(textNode, at: index)
+                textNode.append(string)
             }
         }
 
@@ -1065,7 +1142,7 @@ extension Libxml2 {
             let element = blockLevelElementsAndIntersections[0].element
             let intersection = blockLevelElementsAndIntersections[0].intersection
             
-            let indexAndIntersection = element.indexOfChildNode(intersecting: intersection.location)
+            let indexAndIntersection = element.indexOf(childNodeIntersecting: intersection.location)
             
             let childIndex = indexAndIntersection.index
             let childIntersection = indexAndIntersection.intersection
@@ -1151,17 +1228,14 @@ extension Libxml2 {
         }
 
         func split(atLocation location: Int) {
-            var trueLength = length()
-            if isBlockLevelElement() {
-                trueLength -= 1
-            }
+            let length = self.length()
             
-            guard location != 0 && location != trueLength - 1 else {
+            guard location != 0 && location != length else {
                 // Nothing to split, move along...
                 return
             }
             
-            guard location > 0 && location < trueLength - 1 else {
+            guard location > 0 && location < length else {
                 assertionFailure("Specified range is out-of-bounds.")
                 return
             }
@@ -1433,7 +1507,7 @@ extension Libxml2 {
             guard childNodesAndRanges.count > 0 else {
                 // It's possible the range may not intersect any child node, if this node is adding
                 // any special characters for formatting purposes in visual mode.  For instance some
-                // nodes add a `\n` character at their end.
+                // nodes add a newline character at their end.
                 //
                 return
             }

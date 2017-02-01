@@ -16,6 +16,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
+    // MARK: - Visual-only Elements
+
+    let visualOnlyElementFactory = VisualOnlyElementFactory()
+
+    // MARK: - Initializers
+
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
@@ -69,7 +75,17 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+        guard node.length() > 0 else {
+            return NSAttributedString()
+        }
+
+        let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
+
+        if node.isLastInBlockLevelElement() {
+            content.append(visualOnlyElementFactory.newline(inheritingAttributes: inheritedAttributes))
+        }
+
+        return content
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -108,23 +124,22 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     ///
     fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-
-        let content = NSMutableAttributedString()
+        
         let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
-
+        
+        if let nodeType = node.standardName,
+            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
+            
+            return implicitRepresentation
+        }
+        
+        let content = NSMutableAttributedString()
+        
         for child in node.children {
-            let childContent = NSAttributedString(attributedString:convert(child, inheritingAttributes: childAttributes))
+            let childContent = convert(child, inheritingAttributes: childAttributes)
             content.append(childContent)
         }
-
-        if node.isBlockLevelElement() && !node.isLastChildBlockLevelElement() {
-            content.append(NSAttributedString(string: "\n", attributes: childAttributes))
-        }
-
-        if let nodeType = node.standardName {
-            return nodeType.implicitRepresentation(forContent: content, attributes: childAttributes)
-        }
-
+        
         return content
     }
 

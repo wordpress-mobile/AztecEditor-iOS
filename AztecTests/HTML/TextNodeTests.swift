@@ -5,10 +5,559 @@ class TextNodeTests: XCTestCase {
     
     typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
+    typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
     
     // MARK: - Editing text nodes
     
+    /// Tests that appending text to a text node works fine.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: " Hello There!"
+    ///
+    /// The results should be: "Hello World! Hello There!"
+    ///
+    func testAppend() {
+        let textInNode = "Hello World!"
+        let textToAppend = " Hello There!"
+        let fullText = "\(textInNode)\(textToAppend)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        textNode.append(textToAppend)
+        
+        XCTAssertEqual(paragraphNode.text(), fullText)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\nHello There!"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!</p>
+    ///
+    func testAppendWithBr1() {
+        let textInNode = "Hello World!"
+        let textToAppend = "Hello There!"
+        let textToAppendWithBR = "\(String(.newline))\(textToAppend)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+
+        textNode.append(textToAppendWithBR)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode = paragraphNode.children[1] as? ElementNode,
+            brNode.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+        XCTAssertEqual(textNode2.text(), textToAppend)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\nHello There!\nHow are you?"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!<br>How are you?</p>
+    ///
+    func testAppendWithBr2() {
+        let textInNode = "Hello World!"
+        let textToAppend1 = "Hello There!"
+        let textToAppend2 = "How are you?"
+        
+        let fullTextToAppend = "\(String(.newline))\(textToAppend1)\(String(.newline))\(textToAppend2)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.append(fullTextToAppend)
+        
+        XCTAssertEqual(paragraphNode.children.count, 5)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode1 = paragraphNode.children[1] as? ElementNode,
+            brNode1.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode2 = paragraphNode.children[3] as? ElementNode,
+            brNode2.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode3 = paragraphNode.children[4] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+        XCTAssertEqual(textNode2.text(), textToAppend1)
+        XCTAssertEqual(textNode3.text(), textToAppend2)
+    }
+    
+    /// Tests that appending text to a text node works fine, when the text to append contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to append: "\n\n"
+    ///
+    /// The results should be: <p>Hello World!<br>Hello There!<br>How are you?</p>
+    ///
+    func testAppendWithBr3() {
+        let textInNode = "Hello World!"
+        let textToAppend = "\(String(.newline))\(String(.newline))"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.append(textToAppend)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode1 = paragraphNode.children[1] as? ElementNode,
+            brNode1.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let brNode2 = paragraphNode.children[2] as? ElementNode,
+            brNode2.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textInNode)
+    }
+    
+    
+    /// Tests that prepending text to a text node works fine.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to prepend: "Hello There! "
+    ///
+    /// The results should be: "Hello There! Hello World!"
+    ///
+    func testPrepend() {
+        let textInNode = "Hello World!"
+        let textToPrepend = "Hello There! "
+        let fullText = "\(textToPrepend)\(textInNode)"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        textNode.prepend(textToPrepend)
+        
+        XCTAssertEqual(paragraphNode.text(), fullText)
+    }
+    
+    /// Tests that prepending text to a text node works fine, when the text to prepend contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to prepend: "Hello There!\n"
+    ///
+    /// The results should be: <p>Hello There!<br>Hello World!</p>
+    ///
+    func testPrependWithBr1() {
+        let textInNode = "Hello World!"
+        let textToPrepend = "Hello There!"
+        let textToPrependWithBR = "\(textToPrepend)\(String(.newline))"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.prepend(textToPrependWithBR)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode = paragraphNode.children[1] as? ElementNode,
+            brNode.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textToPrepend)
+        XCTAssertEqual(textNode2.text(), textInNode)
+    }
+    
+    /// Tests that prepending text to a text node works fine, when the text to prepend contains line
+    /// breaks.
+    ///
+    /// HTML string: <p>Hello World!</p>
+    /// Text to prepend: "Hello There!\nHow are you?\n"
+    ///
+    /// The results should be: <p>Hello There!<br>nHow are you?<br>Hello World!</p>
+    ///
+    func testPrependWithBr2() {
+        let textInNode = "Hello World!"
+        let textToPrepend1 = "Hello There!"
+        let textToPrepend2 = "How are you?"
+        
+        let fullTextToPrepend = "\(textToPrepend1)\(String(.newline))\(textToPrepend2)\(String(.newline))"
+        
+        let textNode = TextNode(text: textInNode)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        textNode.prepend(fullTextToPrepend)
+        
+        XCTAssertEqual(paragraphNode.children.count, 5)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode1 = paragraphNode.children[1] as? ElementNode,
+            brNode1.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let brNode2 = paragraphNode.children[3] as? ElementNode,
+            brNode2.name == StandardElementType.br.rawValue else {
+                
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode3 = paragraphNode.children[4] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), textToPrepend1)
+        XCTAssertEqual(textNode2.text(), textToPrepend2)
+        XCTAssertEqual(textNode3.text(), textInNode)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of "Hello"
+    /// New text for the replaced range: "Good Bye"
+    ///
+    /// The results should be: <p>Good Bye World!</p>"
+    ///
+    func testReplaceCharacters1() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let byeText = "Good Bye"
+        
+        let finalText = "\(byeText)\(worldText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: 0, length: helloText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: byeText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        XCTAssertEqual(paragraphNode.children[0], textNode)
+        XCTAssertEqual(paragraphNode.text(), finalText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of " World!"
+    /// New text for the replaced range: " City!"
+    ///
+    /// The results should be: <p>Hello City!</p>"
+    ///
+    func testReplaceCharacters2() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let cityText = " City!"
+        
+        let finalText = "\(helloText)\(cityText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: cityText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        XCTAssertEqual(paragraphNode.children[0], textNode)
+        XCTAssertEqual(paragraphNode.text(), finalText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of "Hello "
+    /// New text for the replaced range: "Good Bye\n"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr1() {
+        let helloText = "Hello "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let helloAndBreakText = "\(helloText)\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: 0, length: helloText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: helloAndBreakText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of " World!"
+    /// New text for the replaced range: "\nWorld!"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr2() {
+        let helloText = "Hello"
+        let worldText = " World!"
+        let initialText = "\(helloText)\(worldText)"
+        
+        let breakAndWorldText = "\n\(worldText)"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakAndWorldText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of the space between words
+    /// New text for the replaced range: "\n"
+    ///
+    /// The results should be: <p>Hello<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr3() {
+        let helloText = "Hello"
+        let space = " "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(space)\(worldText)"
+        
+        let breakText = "\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 3)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode = paragraphNode.children[1] as? ElementNode,
+            breakNode.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), worldText)
+    }
+    
+    /// Tests that replacing text to a text node works fine.
+    ///
+    /// Initial DOM: <p>Hello World!</p>
+    /// Range to replace: the range of the space between words
+    /// New text for the replaced range: "\nTo My\n"
+    ///
+    /// The results should be: <p>Hello<br>To My<br>World!</p>"
+    ///
+    func testReplaceCharactersWithBr4() {
+        let helloText = "Hello"
+        let space = " "
+        let worldText = "World!"
+        let initialText = "\(helloText)\(space)\(worldText)"
+        
+        let toMyText = "To My"
+        let newText = "\n\(toMyText)\n"
+        
+        let textNode = TextNode(text: initialText)
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+        
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        
+        let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
+        
+        textNode.replaceCharacters(inRange: replaceRange, withString: newText, inheritStyle: false)
+        
+        XCTAssertEqual(paragraphNode.children.count, 5)
+        
+        guard let textNode1 = paragraphNode.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode1 = paragraphNode.children[1] as? ElementNode,
+            breakNode1.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode2 = paragraphNode.children[2] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        guard let breakNode2 = paragraphNode.children[3] as? ElementNode,
+            breakNode2.name == StandardElementType.br.rawValue else {
+                XCTFail("Expected a BR node.")
+                return
+        }
+        
+        guard let textNode3 = paragraphNode.children[4] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+        
+        XCTAssertEqual(textNode1.text(), helloText)
+        XCTAssertEqual(textNode2.text(), toMyText)
+        XCTAssertEqual(textNode3.text(), worldText)
+    }
+
     /// Tests that splitting a text node at a specified text location works fine.
     ///
     /// HTML string: <p>Hello World!</p>
