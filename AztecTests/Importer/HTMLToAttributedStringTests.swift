@@ -90,7 +90,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         XCTFail("Expected to find the main paragraph child nodes.")
                         return
                 }
-                
+
                 XCTAssertEqual(firstTextNode.text(), firstText)
                 XCTAssertEqual(elementNode.name, tagNames[index].lowercased())
                 XCTAssertEqual(thirdTextNode.text(), thirdText)
