@@ -145,9 +145,17 @@ extension Libxml2 {
             return nil
         }
 
-        func isLastBeforeBlockLevelElement() -> Bool {
+        func isLastIn(blockLevelElement element: ElementNode) -> Bool {
+            return element.isBlockLevelElement() && element.children.last == self
+        }
+
+        func isLastInBlockLevelElement() -> Bool {
             guard let parent = parent else {
                 return false
+            }
+
+            guard !isLastIn(blockLevelElement: parent) else {
+                return true
             }
 
             let index = parent.indexOf(childNode: self)
@@ -156,10 +164,10 @@ extension Libxml2 {
                 if let siblingElement = sibling as? ElementNode {
                     return siblingElement.isBlockLevelElement()
                 } else {
-                    return sibling.isLastBeforeBlockLevelElement()
+                    return sibling.isLastInBlockLevelElement()
                 }
             } else {
-                return parent.isLastBeforeBlockLevelElement()
+                return parent.isLastInBlockLevelElement()
             }
         }
 
