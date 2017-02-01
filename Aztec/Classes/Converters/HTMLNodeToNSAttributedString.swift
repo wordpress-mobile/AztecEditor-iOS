@@ -192,7 +192,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 url = nil
             }
 
-            let attachment = TextAttachment(url: url)
+            let attachment = TextAttachment(identifier: UUID().uuidString, url: url)
 
             if let elementClass = node.valueForStringAttribute(named: "class") {
                 let classAttributes = elementClass.components(separatedBy: " ")

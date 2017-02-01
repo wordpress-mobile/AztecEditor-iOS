@@ -622,8 +622,9 @@ private extension EditorDemoController
         let index = richTextView.positionForCursor()
         let fileURL = saveToDisk(image: image)
         
-        let imageId = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageId])
+        let attachment = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        let imageID = attachment.identifier
+        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
         progress.totalUnitCount = 100
         
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -631,11 +632,11 @@ private extension EditorDemoController
 
     @objc func timerFireMethod(_ timer: Timer) {
         guard let progress = timer.userInfo as? Progress,
-            let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String else {
+            let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String
+        else {
                 
             return
-        }
-        
+        }        
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {            
             richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blue)
