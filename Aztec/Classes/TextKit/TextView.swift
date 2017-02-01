@@ -21,7 +21,16 @@ public protocol TextViewMediaDelegate: class {
         imageAtUrl imageURL: URL,
         onSuccess success: @escaping (UIImage) -> Void,
         onFailure failure: @escaping (Void) -> Void) -> UIImage
-    
+
+    /// Called when an image is about to be added to the storage as an attachment (copy/paste), so that the
+    /// delegate can specify an URL where that image is available.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the image.
+    ///     - image: The image that was added to the storage.
+    ///
+    /// - Returns: the requested `NSURL` where the image is stored.
+    ///
     func textView(
         _ textView: TextView,
         urlForImage image: UIImage) -> URL
@@ -650,13 +659,13 @@ open class TextView: UITextView {
     ///     - sourceURL: The url of the image to be inserted.
     ///     - position: The character index at which to insert the image.
     ///
-    /// - Returns: an id of the attachment that can be used for further calls
+    /// - Returns: the attachment object that can be used for further calls
     ///
-    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?) -> String {
-        let imageId = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage)
+    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
+        let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         selectedRange = NSMakeRange(position+length, 0)
-        return imageId
+        return attachment
     }
 
 
@@ -779,9 +788,9 @@ open class TextView: UITextView {
     /// - parameter url:        the attachment url
     ///
     open func update(attachment: TextAttachment,
-                                  alignment: TextAttachment.Alignment,
-                                  size: TextAttachment.Size,
-                                  url: URL) {
+                     alignment: TextAttachment.Alignment,
+                     size: TextAttachment.Size,
+                     url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
     }

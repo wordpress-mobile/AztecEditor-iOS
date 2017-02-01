@@ -278,10 +278,10 @@ open class TextStorage: NSTextStorage {
     /// - parameter position: the position to insert the image
     /// - parameter placeHolderImage: an image to display while the image from sourceURL is being prepared
     ///
-    /// - returns: the identifier of the image
+    /// - returns: the attachment object that was created and inserted on the text
     ///
-    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage) -> String {
-        let attachment = TextAttachment()
+    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> TextAttachment {
+        let attachment = TextAttachment(identifier: identifier)
         attachment.imageProvider = self
         attachment.url = url
         attachment.image = placeHolderImage
@@ -291,7 +291,7 @@ open class TextStorage: NSTextStorage {
         let attachmentString = NSAttributedString(attachment: attachment)
         replaceCharacters(in: insertionRange, with: attachmentString)
 
-        return attachment.identifier
+        return attachment
     }
 
     // MARK: - Attachments

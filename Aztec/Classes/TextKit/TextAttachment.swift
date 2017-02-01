@@ -73,7 +73,7 @@ open class TextAttachment: NSTextAttachment
     ///
     /// - returns: self, initilized with the identifier a with kind = .MissingImage
     ///
-    required public init(identifier: String = UUID().uuidString, url: URL? = nil) {
+    required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
         
