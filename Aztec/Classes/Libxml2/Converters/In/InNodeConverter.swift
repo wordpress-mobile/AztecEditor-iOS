@@ -157,7 +157,7 @@ extension Libxml2.In {
             }
 
             let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.newline), with: "")
-            let endingSpace = hasAnEndingSpace ? String(.space) : ""
+            let endingSpace = noBreaksText.characters.count > 0 && hasAnEndingSpace ? String(.space) : ""
 
             return "\(noBreaksText)\(endingSpace)"
         }
