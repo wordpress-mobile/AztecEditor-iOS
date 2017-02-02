@@ -1134,9 +1134,17 @@ extension Libxml2 {
         func insert(_ string: String, atLocation location: Int) {
 
             let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
-            
-            guard blockLevelElementsAndIntersections.count > 0 else {
-                fatalError("We should have exactly one block-level element here.")
+
+            guard blockLevelElementsAndIntersections.count != 0 else {
+                if location == 0 {
+                    let textNode = TextNode(text: "", editContext: editContext)
+                    append(textNode)
+                    textNode.append(string)
+                } else {
+                    fatalError("If there are no child nodes, the insert location has to be zero.")
+                }
+
+                return
             }
 
             let element = blockLevelElementsAndIntersections[0].element
