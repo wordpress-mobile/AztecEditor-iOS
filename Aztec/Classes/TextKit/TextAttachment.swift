@@ -59,7 +59,13 @@ open class TextAttachment: NSTextAttachment
 
     /// A message to display overlaid on top of the image
     ///
-    open var message: NSAttributedString?
+    open var message: NSAttributedString? {
+        willSet {
+            if newValue != message {
+                glyphImage = nil
+            }
+        }
+    }
 
     fileprivate var glyphImage: UIImage?
 
@@ -195,7 +201,7 @@ open class TextAttachment: NSTextAttachment
 
         image.draw(in: CGRect(origin: origin, size: size))
 
-        if let progress = progress {
+        if message != nil || progress != nil {
             let box = UIBezierPath()
             box.move(to: CGPoint(x:origin.x, y:origin.y))
             box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
@@ -205,7 +211,9 @@ open class TextAttachment: NSTextAttachment
             box.lineWidth = 2.0
             UIColor(white: 1, alpha: 0.75).setFill()
             box.fill()
+        }
 
+        if let progress = progress {
             let path = UIBezierPath()
             path.move(to: CGPoint(x:origin.x, y:origin.y))
             path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
@@ -218,7 +226,6 @@ open class TextAttachment: NSTextAttachment
             let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
             let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
             message.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
-
         }
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
