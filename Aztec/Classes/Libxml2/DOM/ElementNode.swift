@@ -1137,6 +1137,13 @@ extension Libxml2 {
 
             guard blockLevelElementsAndIntersections.count != 0 else {
                 if location == 0 {
+                    // It's not great having to set empty text and then append text to it.  The reason
+                    // we're doing it here is that if the text contains line-breaks, they will only
+                    // be processed as BR tags if the text is set after construction.
+                    //
+                    // This code can be improved but this "hack" will allow us to postpone the necessary
+                    // code restructuration.
+                    //
                     let textNode = TextNode(text: "", editContext: editContext)
                     append(textNode)
                     textNode.append(string)
