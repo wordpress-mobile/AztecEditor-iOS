@@ -919,7 +919,7 @@ extension Libxml2 {
         ///
         /// The result is that the order of the receiver and its parent node will be inverted.
         ///
-        func pushUp() {
+        func pushUp(left: Bool) {
             guard let parent = parent, let grandParent = parent.parent else {
                 // This is actually an error scenario, as this method should not be called on
                 // nodes that don't have a parent and a grandparent.
@@ -942,7 +942,9 @@ extension Libxml2 {
             let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
             wrap(children: children, inElement: parentDescriptor)
 
-            grandParent.insert(self, at: parentIndex)
+            let indexOffset = left ? 0 : 1
+
+            grandParent.insert(self, at: parentIndex + indexOffset)
 
             if originalParent.children.count == 0 {
                 originalParent.removeFromParent()
@@ -1008,8 +1010,13 @@ extension Libxml2 {
                 return nil
             }
 
-            while element.parent != nil && element.parent != self {
-                element.pushUp()
+            guard let finalParent = parent else {
+                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
+                return nil
+            }
+
+            while element.parent != nil && element.parent != finalParent {
+                element.pushUp(left: true)
             }
             
             return node
@@ -1074,8 +1081,13 @@ extension Libxml2 {
                 return nil
             }
 
-            while element.parent != nil && element.parent != self {
-                element.pushUp()
+            guard let finalParent = parent else {
+                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
+                return nil
+            }
+
+            while element.parent != nil && element.parent != finalParent {
+                element.pushUp(left: false)
             }
 
             return node
