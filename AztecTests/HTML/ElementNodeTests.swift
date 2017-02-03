@@ -1535,7 +1535,7 @@ class ElementNodeTests: XCTestCase {
         
         let result = strike.pushUp(leftSideDescendantEvaluatedBy: { node -> Bool in
             return node.name == "b"
-            })
+        })
         
         XCTAssertEqual(paragraph.children.count, 2)
         
@@ -1589,7 +1589,7 @@ class ElementNodeTests: XCTestCase {
     ///
     /// Push the node named "b" up to the level of the "strike" node.
     ///
-    /// Input HTML: `<p><strike>Hello <b>there!</b><strike></p>`
+    /// Input HTML: `<p><strike>Hello <b>there!</b></strike></p>`
     /// - Evaluation criteria: node.name == "b"
     ///
     /// Expected results:
