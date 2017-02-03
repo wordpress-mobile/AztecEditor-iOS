@@ -163,7 +163,7 @@ open class TextStorage: NSTextStorage {
             
             finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
         }
-        
+
         return finalString
     }
 
@@ -216,11 +216,11 @@ open class TextStorage: NSTextStorage {
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
+
         textStore.setAttributes(attrs, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
-        if let domRange = map(visualRange: range),
-            mustUpdateDOM() {
+        if let domRange = map(visualRange: range), mustUpdateDOM() {
             dom.setAttributes(attrs, range: domRange)
         }
         

@@ -912,6 +912,42 @@ extension Libxml2 {
             
             return result
         }
+
+        /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
+        /// node, inserting all the receivers children to it, and adding the receiver to its
+        /// grandparent node.
+        ///
+        /// The result is that the order of the receiver and its parent node will be inverted.
+        ///
+        func pushUp() {
+            guard let parent = parent, let grandParent = parent.parent else {
+                // This is actually an error scenario, as this method should not be called on
+                // nodes that don't have a parent and a grandparent.
+                //
+                // The reason why this would be an error is that we're either trying to push-up
+                // a node without a parent, or we're trying to push up a node to become the root
+                // node.
+                //
+                // The reason why we allow
+                //
+                fatalError("Do not call this method if the node doesn't have a parent and grandparent node.")
+            }
+
+            guard let parentIndex = grandParent.children.index(of: parent) else {
+                fatalError("The grandparent element should contain the parent element.")
+            }
+
+            let originalParent = parent
+
+            let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
+            wrap(children: children, inElement: parentDescriptor)
+
+            grandParent.insert(self, at: parentIndex)
+
+            if originalParent.children.count == 0 {
+                originalParent.removeFromParent()
+            }
+        }
         
         /// Evaluates the left sibling for a certain condition.  If the condition is met, the
         /// sibling is returned.  Otherwise this method looks amongst the sibling's right-side
@@ -967,32 +1003,18 @@ extension Libxml2 {
             guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
             }
-            
-            while let parent = node.parent,
-                let grandParent = parent.parent {
-                    
-                    let lastSwap = parent == self
-                    
-                    if let element = node as? ElementNode {
-                        
-                        let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-                        element.wrap(children: element.children, inElement: parentDescriptor)
-                    }
-                    
-                    guard let parentIndex = grandParent.children.index(of: parent) else {
-                        fatalError("The grandparent element should contain the parent element.")
-                    }
-                    
-                    grandParent.insert(node, at: parentIndex)
-                    
-                    if lastSwap {
-                        break
-                    }
+
+            guard let element = node as? ElementNode else {
+                return nil
+            }
+
+            while element.parent != nil && element.parent != self {
+                element.pushUp()
             }
             
             return node
         }
-        
+
         /// Evaluates the right sibling for a certain condition.  If the condition is met, the
         /// sibling is returned.  Otherwise this method looks amongst the sibling's left-side
         /// descendants for any node returning `true` at the evaluation closure.
@@ -1047,29 +1069,15 @@ extension Libxml2 {
             guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
                 return nil
             }
-            
-            while let parent = node.parent,
-                let grandParent = parent.parent {
-                
-                    let lastSwap = parent == self
-                    
-                    if let element = node as? ElementNode {
-                        
-                        let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-                        element.wrap(children: element.children, inElement: parentDescriptor)
-                    }
-                    
-                    guard let parentIndex = grandParent.children.index(of: parent) else {
-                        fatalError("The grandparent element should contain the parent element.")
-                    }
-                    
-                    grandParent.insert(node, at: parentIndex + 1)
-                    
-                    if lastSwap {
-                        break
-                    }
+
+            guard let element = node as? ElementNode else {
+                return nil
             }
-            
+
+            while element.parent != nil && element.parent != self {
+                element.pushUp()
+            }
+
             return node
         }
 
