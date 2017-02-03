@@ -139,7 +139,7 @@ open class TextView: UITextView {
 
 
     // MARK: - Intersect keyboard operations
-/*
+
     open override func insertText(_ text: String) {
         // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
@@ -155,7 +155,7 @@ open class TextView: UITextView {
 
         super.insertText(text)
         ensureCursorRedraw(afterEditing: text)
-    }*/
+    }
 
     open override func deleteBackward() {
         var deletionRange = selectedRange
