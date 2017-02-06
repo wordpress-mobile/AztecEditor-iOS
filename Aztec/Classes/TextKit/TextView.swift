@@ -34,6 +34,14 @@ public protocol TextViewMediaDelegate: class {
     func textView(
         _ textView: TextView,
         urlForImage image: UIImage) -> URL
+
+
+    /// Called when a attachment is removed from the storage.
+    ///
+    /// - Parameters:
+    ///   - textView: The textView where the attachment was removed.
+    ///   - attachmentID: The attachment identifier of the media removed.
+    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String);
 }
 
 open class TextView: UITextView {
@@ -851,5 +859,9 @@ extension TextView: TextStorageAttachmentsDelegate {
         }
         
         return mediaDelegate.textView(self, urlForImage: image)
+    }
+
+    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
+        mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
     }
 }

@@ -79,4 +79,37 @@ class TextStorageTests: XCTestCase
         // Confirm the trait was restored
         XCTAssert(storage.fontTrait(.traitBold, spansRange: range))
     }
+
+    func testDelegateCallbackWhenAttachmentRemoved() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let attachment = storage.insertImage(sourceURL: URL(string:"test://")!, atPosition: 0, placeHolderImage: UIImage())
+
+        storage.replaceCharacters(in: NSRange(location: 0, length: 1) , with: NSAttributedString(string:""))
+
+        XCTAssertTrue(mockDelegate.deletedAttachmendIDCalledWithString == attachment.identifier)
+    }
+
+    class MockAttachmentsDelegate: TextStorageAttachmentsDelegate {
+
+        var deletedAttachmendIDCalledWithString: String?
+
+        func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
+            deletedAttachmendIDCalledWithString = attachmentID
+        }
+
+        func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL {
+            return URL(string:"test://")!
+        }
+
+        func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+            return UIImage()
+        }
+
+        func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+            return UIImage()
+        }
+    }
 }
