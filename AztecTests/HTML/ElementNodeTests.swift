@@ -831,7 +831,7 @@ class ElementNodeTests: XCTestCase {
     /// HTML String: <div><em>Hello </em>there!</div>
     /// Wrap range: (0...6)
     ///
-    /// The result should be: <div><em><b>Hello </b></em>there!</div>
+    /// The result should be: <div><b><em>Hello </em></b>there!</div>
     ///
     func testWrapChildrenInNewBNode1() {
 
@@ -851,21 +851,21 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
-        
-        guard let newBoldNode = div.children[0] as? ElementNode, newBoldNode.name == boldElementType.rawValue else {
-                XCTFail("Expected a bold node here.")
-                return
-        }
-        
-        XCTAssertEqual(newBoldNode.children.count, 1)
 
-        guard let newEmNode = newBoldNode.children[0] as? ElementNode, newEmNode.name == em.name else {
+        guard let newEmNode = div.children[0] as? ElementNode, newEmNode.name == em.name else {
             XCTFail("Expected an em node here.")
             return
         }
 
         XCTAssertEqual(newEmNode.children.count, 1)
-        XCTAssertEqual(newEmNode.children[0], textNode1)
+        
+        guard let newBoldNode = newEmNode.children[0] as? ElementNode, newBoldNode.name == boldElementType.rawValue else {
+                XCTFail("Expected a bold node here.")
+                return
+        }
+        
+        XCTAssertEqual(newBoldNode.children.count, 1)
+        XCTAssertEqual(newBoldNode.children[0], textNode1)
     }
 
 
