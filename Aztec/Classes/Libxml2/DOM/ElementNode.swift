@@ -1546,10 +1546,17 @@ extension Libxml2 {
                 //
                 return
             }
-            
+
             let firstChild = childNodesAndRanges[0].child
             let firstChildIntersection = childNodesAndRanges[0].intersection
-            
+
+            if childNodesAndRanges.count == 1,
+                let elementNode = firstChild as? ElementNode {
+
+                elementNode.forceWrapChildren(intersectingRange: firstChildIntersection, inElement: elementDescriptor)
+                return
+            }
+
             if let firstEditableChild = firstChild as? EditableNode, !NSEqualRanges(firstChild.range(), firstChildIntersection) {
                 firstEditableChild.split(forRange: firstChildIntersection)
             }
@@ -1580,18 +1587,18 @@ extension Libxml2 {
         /// - Returns: the newly created `ElementNode`.
         ///
         @discardableResult
-        func wrap(children newChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
+        func wrap(children selectedChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
-            guard newChildren.count > 0 else {
+            guard selectedChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
                 return ElementNode(descriptor: elementDescriptor, editContext: editContext)
             }
 
-            guard let firstNodeIndex = children.index(of: newChildren[0]) else {
+            guard let firstNodeIndex = children.index(of: selectedChildren[0]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
-            guard let lastNodeIndex = children.index(of: newChildren[newChildren.count - 1]) else {
+            guard let lastNodeIndex = children.index(of: selectedChildren[selectedChildren.count - 1]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
@@ -1609,7 +1616,7 @@ extension Libxml2 {
             let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
             let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
 
-            var childrenToWrap = newChildren
+            var childrenToWrap = selectedChildren
             var result: ElementNode?
             
             if let sibling = rightSibling {
