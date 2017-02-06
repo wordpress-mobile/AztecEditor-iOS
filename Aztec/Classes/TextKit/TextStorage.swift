@@ -34,6 +34,13 @@ protocol TextStorageAttachmentsDelegate {
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
     func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL
+
+    /// Called when a attachment is removed from the storage.
+    ///
+    /// - Parameters:
+    ///   - textView: The textView where the attachment was removed.
+    ///   - attachmentID: The attachment identifier of the media removed.
+    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String);
 }
 
 /// Custom NSTextStorage
@@ -167,6 +174,12 @@ open class TextStorage: NSTextStorage {
         return finalString
     }
 
+    fileprivate func detectAttachmentRemoved(in range:NSRange) {
+        textStore.enumerateAttachmentsOfType(TextAttachment.self, range: range) { (attachment, range, stop) in
+            self.attachmentsDelegate?.storage(self, deletedAttachmentWithID: attachment.identifier)
+        }
+    }
+
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
@@ -179,6 +192,7 @@ open class TextStorage: NSTextStorage {
 
         let domRange = map(visualRange: range)
 
+        detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
 
@@ -199,7 +213,7 @@ open class TextStorage: NSTextStorage {
         beginEditing()
 
         let domRange = map(visualRange: range)
-
+        detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: processedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         

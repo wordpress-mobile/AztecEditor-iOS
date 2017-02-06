@@ -574,6 +574,10 @@ extension EditorDemoController: TextViewMediaDelegate
         
         return saveToDisk(image: image)
     }
+
+    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
+        print("Attachment \(attachmentID) removed.\n")
+    }
 }
 
 
