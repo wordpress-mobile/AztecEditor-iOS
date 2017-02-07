@@ -645,17 +645,19 @@ private extension EditorDemoController
             return
         }        
         progress.completedUnitCount += 1
-        if let attachment = richTextView.attachment(withId: imageId) {            
-            richTextView.update(attachment: attachment, progress: progress.fractionCompleted, progressColor: UIColor.blue)
+        if let attachment = richTextView.attachment(withId: imageId) {
+            attachment.progress = progress.fractionCompleted
+            attachment.progressColor = UIColor.blue            
             if mediaErrorMode && progress.fractionCompleted >= 0.25 {
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
-                richTextView.update(attachment: attachment, message: message)
+                attachment.message = message
             }
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
-                richTextView.update(attachment: attachment, progress: nil)
+                attachment.progress = nil
             }
+            richTextView.refreshLayoutFor(attachment: attachment)
         } else {
             timer.invalidate()
         }
