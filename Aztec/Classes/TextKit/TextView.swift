@@ -686,6 +686,14 @@ open class TextView: UITextView {
         return storage.attachment(withId: id)
     }
 
+    /// Removes the attachments that match the attachament identifier provided from the storage
+    ///
+    /// - Parameter attachmentID: the unique id of the attachment
+    ///
+    open func remove(attachmentID: String) {
+        storage.remove(attachmentID: attachmentID)
+    }
+
 
     /// Inserts a Video attachment at the specified index
     ///

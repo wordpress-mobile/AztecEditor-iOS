@@ -664,7 +664,40 @@ private extension EditorDemoController
         let font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
         return [NSParagraphStyleAttributeName:paragraphStyle, NSFontAttributeName:font]
     }
-    
+
+    func displayActions(forAttachment attachment: TextAttachment, position: CGPoint) {
+        let mediaID = attachment.identifier
+        let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
+        let message: String? = nil
+        let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
+        let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
+                                          style: .cancel,
+                                          handler: { (action) in
+        })
+        alertController.addAction(dismissAction)
+
+        let removeAction = UIAlertAction(title: NSLocalizedString("Remove Media", comment: "User action to remove media."),
+                                         style: .destructive,
+                                         handler: { (action) in
+                                            self.richTextView.remove(attachmentID: mediaID)
+        })
+        alertController.addAction(removeAction)
+
+        let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to remove media."),
+                                          style: .destructive,
+                                          handler: { (action) in
+                                            self.displayDetailsForAttachment(attachment, position: position)
+        })
+        alertController.addAction(detailsAction)
+
+        alertController.title = title
+        alertController.message = message
+        alertController.popoverPresentationController?.sourceView = richTextView
+        alertController.popoverPresentationController?.sourceRect = CGRect(origin: richTextView.center, size: CGSize(width: 1, height: 1))
+        alertController.popoverPresentationController?.permittedArrowDirections = .up
+        present(alertController, animated:true, completion: nil)
+    }
+
     func displayDetailsForAttachment(_ attachment: TextAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
@@ -697,6 +730,6 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             return
         }
 
-        displayDetailsForAttachment(attachment, position:locationInTextView)
+        displayActions(forAttachment: attachment, position:locationInTextView)
     }
 }
