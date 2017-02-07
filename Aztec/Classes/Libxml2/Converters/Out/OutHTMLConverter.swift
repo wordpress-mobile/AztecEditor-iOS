@@ -20,27 +20,27 @@ extension Libxml2.Out {
         /// - Returns: a String object representing the specified HTML data.
         ///
         func convert(_ rawNode: Node) -> String {
-            
-            guard let buffer = xmlBufferCreate() else {
+
+            guard let outputBuffer = xmlAllocOutputBuffer(nil) else {
                 fatalError("This should not ever happen. Prevent the code from going further to avoid possible data loss.")
             }
-            
+
             let xmlDocPtr = xmlNewDoc(nil)
-            
+
             defer {
                 xmlFreeDoc(xmlDocPtr)
-                xmlBufferFree(buffer)
+                xmlOutputBufferClose(outputBuffer)
             }
 
             let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
-            
+
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
-            htmlNodeDump(buffer, xmlDocPtr, xmlNodePtr)
-            
-            let htmlDumpString = String(cString: buffer.pointee.content)
+            htmlNodeDumpFormatOutput(outputBuffer, xmlDocPtr, xmlNodePtr, nil, 0)
+
+            let htmlDumpString = String(cString: xmlBufContent(outputBuffer.pointee.buffer))
 
             let finalString = htmlDumpString.replacingOccurrences(of: "<\(RootNode.name)>", with: "").replacingOccurrences(of: "</\(RootNode.name)>", with: "")
-            
+
             return finalString
         }
     }
