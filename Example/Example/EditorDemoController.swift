@@ -17,6 +17,7 @@ class EditorDemoController: UIViewController {
 
         textView.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         textView.delegate = self
+        textView.formattingDelegate = self
         textView.mediaDelegate = self
         textView.font = defaultContentFont
 
@@ -269,21 +270,24 @@ class EditorDemoController: UIViewController {
     }
 }
 
-extension EditorDemoController : UITextViewDelegate
-{
+extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
-        updateFormatBar()        
+        updateFormatBar()
+    }
+}
+
+extension EditorDemoController : Aztec.TextViewFormattingDelegate {
+    func textViewCommandToggledAStyle() {
+        updateFormatBar()
     }
 }
 
 
-extension EditorDemoController : UITextFieldDelegate
-{
+extension EditorDemoController : UITextFieldDelegate {
 
 }
 
-extension EditorDemoController
-{
+extension EditorDemoController {
     enum EditionMode {
         case richText
         case html
@@ -319,8 +323,7 @@ extension EditorDemoController
 }
 
 
-extension EditorDemoController : Aztec.FormatBarDelegate
-{
+extension EditorDemoController : Aztec.FormatBarDelegate {
     func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
         switch identifier {
         case .bold:
@@ -580,12 +583,11 @@ extension EditorDemoController: TextViewMediaDelegate
     }
 }
 
-
 extension EditorDemoController: UINavigationControllerDelegate
 {
-
 }
 
+// MARK: - UIImagePickerControllerDelegate
 
 extension EditorDemoController: UIImagePickerControllerDelegate
 {
@@ -602,6 +604,7 @@ extension EditorDemoController: UIImagePickerControllerDelegate
     }
 }
 
+// MARK: - Misc
 
 private extension EditorDemoController
 {
@@ -717,6 +720,7 @@ private extension EditorDemoController
     }
 }
 
+// MARK: - UIGestureRecognizerDelegate
 
 extension EditorDemoController: UIGestureRecognizerDelegate
 {

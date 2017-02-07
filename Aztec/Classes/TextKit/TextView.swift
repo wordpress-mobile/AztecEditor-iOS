@@ -44,6 +44,15 @@ public protocol TextViewMediaDelegate: class {
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String);
 }
 
+public protocol TextViewFormattingDelegate: class {
+
+    /// Called a text view command toggled a style.
+    ///
+    /// If you have a format bar, you should probably update it here.
+    ///
+    func textViewCommandToggledAStyle()
+}
+
 open class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
@@ -54,7 +63,11 @@ open class TextView: UITextView {
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
-    open weak var mediaDelegate: TextViewMediaDelegate? = nil
+    open weak var mediaDelegate: TextViewMediaDelegate?
+
+    // MARK: - Properties: Formatting
+
+    open weak var formattingDelegate: TextViewFormattingDelegate?
 
     // MARK: - Properties: GUI Defaults
 
@@ -352,6 +365,22 @@ open class TextView: UITextView {
         return identifiers
     }
 
+    // MARK: - UIResponderStandardEditActions
+
+    open override func toggleBoldface(_ sender: Any?) {
+        super.toggleBoldface(sender)
+        formattingDelegate?.textViewCommandToggledAStyle()
+    }
+
+    open override func toggleItalics(_ sender: Any?) {
+        super.toggleItalics(sender)
+        formattingDelegate?.textViewCommandToggledAStyle()
+    }
+
+    open override func toggleUnderline(_ sender: Any?) {
+        super.toggleUnderline(sender)
+        formattingDelegate?.textViewCommandToggledAStyle()
+    }
 
     // MARK: - Formatting
 
