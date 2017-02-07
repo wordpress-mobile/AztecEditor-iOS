@@ -359,6 +359,21 @@ open class TextStorage: NSTextStorage {
         dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
     }
 
+    /// Removes the attachments that match the attachament identifier provided from the storage
+    ///
+    /// - Parameter attachmentID: the unique id of the attachment
+    ///
+    open func remove(attachmentID: String) {
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
+            if attachment.identifier == attachmentID {
+                self.replaceCharacters(in: range, with: NSAttributedString(string: ""))
+                stop.pointee = true
+            }
+        }
+    }
+
+    // MARK: - Toggle Attributes
+
     fileprivate func toggleAttribute(_ attributeName: String, value: AnyObject, range: NSRange) {
 
         var effectiveRange = NSRange()
