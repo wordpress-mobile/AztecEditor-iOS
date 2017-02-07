@@ -841,28 +841,14 @@ open class TextView: UITextView {
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 
-    /// Update the progress indicator of an attachment
+    /// Invalidates the layout of the attachment and marks it to be refresh on the next update
     ///
     /// - Parameters:
     ///   - attachment: the attachment to update
-    ///   - progress: the value of progress
     ///
-    open func update(attachment: TextAttachment, progress: Double?, progressColor: UIColor = UIColor.blue) {
-        attachment.progress = progress
-        attachment.progressColor = progressColor
+    open func refreshLayoutFor(attachment: TextAttachment) {
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }
-
-    /// Updates the message being displayed on top of the image attachment
-    ///
-    /// - Parameters:
-    ///   - attachment: the attachment where the message will be overlay
-    ///   - message: the message to show
-    ///
-    open func update(attachment: TextAttachment, message: NSAttributedString?) {
-        attachment.message = message
-        layoutManager.invalidateLayoutForAttachment(attachment)
-    }
+    }    
 }
 
 
