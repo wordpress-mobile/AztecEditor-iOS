@@ -122,16 +122,25 @@ extension Libxml2 {
         ///             no associated style.
         ///
         func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            
-            performAsyncUndoable { [weak self] in
-                self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
+
+            let domHasModifications = range.length > 0 || string.characters.count > 0
+
+            if domHasModifications {
+                performAsyncUndoable { [weak self] in
+                    self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
+                }
             }
         }
         
         func replaceCharacters(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-            
-            performAsyncUndoable { [weak self] in
-                self?.replaceCharactersSynchronously(inRange: range, withAttributedString: attributedString, inheritStyle: inheritStyle)
+
+            let domString = attributedString.filter(attributeNamed: VisualOnlyAttributeName)
+            let domHasModifications = range.length > 0 || domString.length > 0
+
+            if domHasModifications {
+                performAsyncUndoable { [weak self] in
+                    self?.replaceCharactersSynchronously(inRange: range, withAttributedString: domString, inheritStyle: inheritStyle)
+                }
             }
         }
         
@@ -294,10 +303,9 @@ extension Libxml2 {
         ///
         fileprivate func applyStyles(from attributedString: NSAttributedString, to location: Int) {
             
-            let options = NSAttributedString.EnumerationOptions(rawValue: 0)
             let sourceRange = NSRange(location: 0, length: attributedString.length)
             
-            attributedString.enumerateAttributes(in: sourceRange, options: options) { (attributes, sourceSubrange, stop) in
+            attributedString.enumerateAttributes(in: sourceRange, options: []) { (attributes, sourceSubrange, stop) in
                 
                 let subrangeWithOffset = NSRange(location: location + sourceSubrange.location, length: sourceSubrange.length)
                 applyStyles(from: attributes as [String : AnyObject], to: subrangeWithOffset)
@@ -482,6 +490,14 @@ extension Libxml2 {
             if paragraphStyle.blockquote != nil {
                 applyElement(.blockquote, spanning: range)
             }
+
+            if let textList = paragraphStyle.textList {
+                if textList.style == .ordered {
+                    applyElement(.li, spanning: range)
+                } else {
+                    applyElement(.li, spanning: range)
+                }
+            }
         }
         
         // MARK: - Images
@@ -577,6 +593,11 @@ extension Libxml2 {
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
+
+            guard range.length > 0 else {
+                return
+            }
+
             rootNode.unwrap(range: range, fromElementsNamed: element.equivalentNames)
         }
 

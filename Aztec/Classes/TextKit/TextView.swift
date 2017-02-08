@@ -211,38 +211,6 @@ open class TextView: UITextView {
         return caretRect
     }
 
-    // MARK: - Paragraphs
-
-    /// Get the ranges of paragraphs that encompase the specified range.
-    ///
-    /// - Parameter range: The specified NSRange.
-    ///
-    /// - Returns an array of NSRange objects.
-    ///
-    func rangesOfParagraphsEnclosingRange(_ range: NSRange) -> [NSRange] {
-        var paragraphRanges = [NSRange]()
-        let string = storage.string as NSString
-
-        string.enumerateSubstrings(in: storage.rangeOfEntireString, options: .byParagraphs) {
-            (substring, substringRange, enclosingRange, stop) in
-
-            // Stop if necessary.
-            if substringRange.location > NSMaxRange(range) {
-                stop.pointee = true
-                return
-            }
-
-            // Bail early if the paragraph precedes the start of the selection
-            if NSMaxRange(substringRange) < range.location {
-                return
-            }
-
-            paragraphRanges.append(substringRange)
-        }
-
-        return paragraphRanges
-    }
-
     // MARK: - HTML Interaction
 
     /// Converts the current Attributed Text into a raw HTML String

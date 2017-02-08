@@ -112,7 +112,7 @@ private extension AttributeFormatter {
     /// The string to be used when adding attributes to an empty line.
     ///
     func placeholderForEmptyLine(using attributes: [String: Any]?) -> NSAttributedString {
-        return NSAttributedString(string: String(.zeroWidthSpace), attributes: attributes)
+        return VisualOnlyElementFactory().zeroWidthSpace(inheritingAttributes: attributes)
     }
 
     /// Helper that indicates whether if we should format the specified range, or not. 
