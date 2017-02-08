@@ -6,4 +6,5 @@ let VisualOnlyAttributeName = "Aztec.AttributeKeys.VisualOnlyAttributeName" // V
 ///
 enum VisualOnlyElement: String {
     case newline = "Aztec.ControlCharacterType.newline"
+    case zeroWidthSpace = "Aztec.ControlCharacterType.zeroWidthSpace"
 }

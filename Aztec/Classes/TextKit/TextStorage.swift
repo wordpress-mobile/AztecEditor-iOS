@@ -49,7 +49,11 @@ open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
-    
+
+    // MARK: - Visual only elements
+
+    private let visualOnlyElementFactory = VisualOnlyElementFactory()
+
     // MARK: - Undo Support
     
     public var undoManager: UndoManager? {
@@ -116,6 +120,46 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - NSAttributedString preprocessing
 
+    private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+        let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
+        let stringWithParagraphs = preprocessParagraphsForInsertion(stringWithAttachments)
+
+        return stringWithParagraphs
+    }
+
+    private func preprocessParagraphsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+        let finalString = NSMutableAttributedString(attributedString: attributedString)
+
+        attributedString.enumerateAttribute(NSParagraphStyleAttributeName, in: fullRange, options: []) { (value, subRange, stop) in
+
+            guard let paragraphStyle = value as? ParagraphStyle else {
+                return
+            }
+
+            if paragraphStyle.textList != nil {
+                var newlineRange = finalString.mutableString.range(of: String(.newline))
+
+                while newlineRange.location != NSNotFound {
+
+                    let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
+                    let visualOnlyNewline = visualOnlyElementFactory.newline(inheritingAttributes: originalAttributes)
+
+                    finalString.replaceCharacters(in: newlineRange, with: visualOnlyNewline)
+
+                    let nextLocation = newlineRange.location + newlineRange.length
+                    let nextLength = subRange.length - nextLocation
+                    let nextRange = NSRange(location: nextLocation, length: nextLength)
+
+                    newlineRange = finalString.mutableString.range(of: String(.newline), options: [], range: nextRange)
+                }
+            }
+        }
+
+        return finalString
+    }
+
     /// Preprocesses an attributed string's attachments for insertion in the storage.
     ///
     /// - Important: This method takes care of removing any non-image attachments too.  This may
@@ -126,16 +170,13 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Returns: the preprocessed string.
     ///
-    fileprivate func preprocessAttachments(forAttributedString attributedString: NSAttributedString) -> NSAttributedString {
+    fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
         
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
-            
-            // For some weird reason object can be `nil` here in certain scenarios.
-            // We'll just bail out even though this method shouldn't have been called.
-            //
+
             guard let object = object else {
                 return
             }
@@ -190,36 +231,32 @@ open class TextStorage: NSTextStorage {
 
         beginEditing()
 
-        let domRange = map(visualRange: range)
+        if mustUpdateDOM() {
+            let targetDomRange = map(visualRange: range)
+            dom.replaceCharacters(inRange: targetDomRange, withString: str, inheritStyle: true)
+        }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
-
-        if let domRange = domRange, mustUpdateDOM() {
-            dom.replaceCharacters(inRange: domRange, withString: str, inheritStyle: true)
-        }
         
         endEditing()
     }
     
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
-        
-        // TODO: Evaluate moving this process to `Aztec.TextView.paste()`.
-        //      I didn't do it with the initial implementation as it was non-trivial. (DRM)
-        //
-        let processedString = preprocessAttachments(forAttributedString: attrString)
+
+        let preprocessedString = preprocessAttributesForInsertion(attrString)
 
         beginEditing()
 
-        let domRange = map(visualRange: range)
-        detectAttachmentRemoved(in: range)
-        textStore.replaceCharacters(in: range, with: processedString)
-        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-        
-        if let domRange = domRange, mustUpdateDOM() {
-            dom.replaceCharacters(inRange: domRange, withAttributedString: processedString, inheritStyle: false)
+        if mustUpdateDOM() {
+            let targetDomRange = map(visualRange: range)
+            dom.replaceCharacters(inRange: targetDomRange, withAttributedString: preprocessedString, inheritStyle: false)
         }
+
+        detectAttachmentRemoved(in: range)
+        textStore.replaceCharacters(in: range, with: preprocessedString)
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
         
         endEditing()
     }
@@ -231,19 +268,20 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        textStore.setAttributes(attrs, range: range)
-        edited(.editedAttributes, range: range, changeInLength: 0)
-        
-        if let domRange = map(visualRange: range), mustUpdateDOM() {
+        if mustUpdateDOM() {
+            let domRange = map(visualRange: range)
             dom.setAttributes(attrs, range: domRange)
         }
+
+        textStore.setAttributes(attrs, range: range)
+        edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
     }
     
     // MARK: - Range Mapping: Visual vs HTML
     
-    private func map(visualRange: NSRange) -> NSRange? {
+    private func map(visualRange: NSRange) -> NSRange {
         return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
     }
     
@@ -255,7 +293,8 @@ open class TextStorage: NSTextStorage {
         }
         let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
         if !formatter.present(in: self, at: applicationRange.location) {
-            dom.remove(element:formatter.elementType, at: applicationRange)
+            let domRange = map(visualRange: range)
+            dom.remove(element:formatter.elementType, at: domRange)
         }
         return newSelectedRange
     }

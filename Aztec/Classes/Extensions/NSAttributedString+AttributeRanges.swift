@@ -1,7 +1,21 @@
 import Foundation
 
 extension NSAttributedString {
-    
+
+    // MARK: - Attribute filtering
+
+    func filter(attributeNamed attributeName: String) -> NSAttributedString {
+        let result = NSMutableAttributedString()
+
+        enumerateAttribute(attributeName, in: rangeOfEntireString, options: []) { (attributeValue, subRange, stop) in
+            if attributeValue == nil {
+                result.append(attributedSubstring(from: subRange))
+            }
+        }
+
+        return result
+    }
+
     // MARK: - Range mapping by attribute filtering
     
     /// Maps a range by subtracting the length of all instanced of a specified attribute in that
@@ -13,7 +27,7 @@ extension NSAttributedString {
     ///
     /// - Returns: the mapped range.
     ///
-    func map(range initialRange: NSRange, bySubtractingAttributeNamed attributeName: String) -> NSRange? {
+    func map(range initialRange: NSRange, bySubtractingAttributeNamed attributeName: String) -> NSRange {
 
         // We need to also inspect anything before initialRange, because attributes in that range
         // affect the mapping as well.
@@ -29,11 +43,10 @@ extension NSAttributedString {
 
         for range in ranges.reversed() {
 
-            guard !range.contains(range: mappedRange) else {
-                // This means the full visual range was visual-only, and there's really nothing
-                // to map.
-                //
-                return nil
+            if range.contains(range: mappedRange) {
+                mappedRange.location = range.location
+                mappedRange.length = 0
+                continue
             }
 
             let rangeEndLocation = range.location + range.length
