@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.4.0'
+  s.version          = '0.5.0a1'
   s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
