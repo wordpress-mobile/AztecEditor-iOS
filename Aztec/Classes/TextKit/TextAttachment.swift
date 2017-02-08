@@ -24,7 +24,7 @@ open class TextAttachment: NSTextAttachment
 
     /// Attachment Alignment
     ///
-    internal(set) open var alignment: Alignment = .center {
+    open var alignment: Alignment = .center {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
