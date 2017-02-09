@@ -21,15 +21,14 @@ class EditorDemoController: UIViewController {
         textView.mediaDelegate = self
         textView.font = defaultContentFont
 
-        let toolbar = self.createToolbar(htmlMode: false)
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
-        toolbar.formatter = self
-
         textView.keyboardDismissMode = .interactive
-        textView.inputAccessoryView = toolbar
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.addGestureRecognizer(self.tapGestureRecognizer)
+
+        let toolbar = self.createToolbar(htmlMode: false)
+        toolbar.formatter = self
+        textView.inputAccessoryView = toolbar
 
         return textView
     }()
@@ -44,7 +43,6 @@ class EditorDemoController: UIViewController {
         textView.isHidden = true
 
         let toolbar = self.createToolbar(htmlMode: true)
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.formatter = self
         textView.inputAccessoryView = toolbar
 
@@ -60,13 +58,13 @@ class EditorDemoController: UIViewController {
                                                       attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
         textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
-        let toolbar = self.createToolbar(htmlMode: false)
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
-        toolbar.enabled = false
-        textField.inputAccessoryView = toolbar
         textField.returnKeyType = .next
         textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
+
+        let toolbar = self.createToolbar(htmlMode: false)
+        toolbar.enabled = false
+        textField.inputAccessoryView = toolbar
 
         return textField
     }()
@@ -501,34 +499,30 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let items = [
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
             flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
             flex,
         ]
 
         let toolbar = Aztec.FormatBar()
-        
-        toolbar.tintColor = UIColor.gray
-        toolbar.highlightedTintColor = UIColor.blue
-        toolbar.selectedTintColor = UIColor.darkGray
-        toolbar.disabledTintColor = UIColor.lightGray
+
 
         if htmlMode {
             for item in items {
@@ -539,6 +533,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
         toolbar.items = items
+
+        toolbar.tintColor = UIColor.gray
+        toolbar.highlightedTintColor = UIColor.blue
+        toolbar.selectedTintColor = UIColor.darkGray
+        toolbar.disabledTintColor = UIColor.lightGray
+        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+
         return toolbar
     }
 
