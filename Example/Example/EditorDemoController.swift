@@ -15,20 +15,15 @@ class EditorDemoController: UIViewController {
         let defaultMissingImage = Gridicon.iconOfType(.image)
         let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
 
-        textView.accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
+        let toolbar = self.createToolbar(htmlMode: false)
+
+        let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
+        self.configureDefaultProperties(for: textView, using: toolbar, accessibilityLabel: accessibilityLabel)
+
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
-        textView.font = defaultContentFont
-
-        textView.keyboardDismissMode = .interactive
-        textView.textColor = UIColor.darkText
-        textView.translatesAutoresizingMaskIntoConstraints = false
         textView.addGestureRecognizer(self.tapGestureRecognizer)
-
-        let toolbar = self.createToolbar(htmlMode: false)
-        toolbar.formatter = self
-        textView.inputAccessoryView = toolbar
 
         return textView
     }()
@@ -36,15 +31,12 @@ class EditorDemoController: UIViewController {
     fileprivate(set) lazy var htmlTextView: UITextView = {
         let textView = UITextView()
 
-        textView.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        textView.font = defaultContentFont
-        textView.textColor = UIColor.darkText
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.isHidden = true
-
         let toolbar = self.createToolbar(htmlMode: true)
-        toolbar.formatter = self
-        textView.inputAccessoryView = toolbar
+
+        let accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
+        self.configureDefaultProperties(for: textView, using: toolbar, accessibilityLabel: accessibilityLabel)
+
+        textView.isHidden = true
 
         return textView
     }()
@@ -167,7 +159,7 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Configuration Methods
 
-    func configureConstraints() {
+    private func configureConstraints() {
 
         NSLayoutConstraint.activate([
             titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
@@ -196,6 +188,16 @@ class EditorDemoController: UIViewController {
             htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
             htmlTextView.bottomAnchor.constraint(equalTo: richTextView.bottomAnchor),
             ])
+    }
+
+
+    private func configureDefaultProperties(for textView: UITextView, using formatBar: Aztec.FormatBar, accessibilityLabel: String) {
+        textView.accessibilityLabel = accessibilityLabel
+        textView.font = EditorDemoController.defaultContentFont
+        textView.inputAccessoryView = formatBar
+        textView.keyboardDismissMode = .interactive
+        textView.textColor = UIColor.darkText
+        textView.translatesAutoresizingMaskIntoConstraints = false
     }
 
 
@@ -523,7 +525,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         let toolbar = Aztec.FormatBar()
 
-
         if htmlMode {
             for item in items {
                 item.isEnabled = false
@@ -532,13 +533,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 }
             }
         }
-        toolbar.items = items
 
+        toolbar.items = items
         toolbar.tintColor = UIColor.gray
         toolbar.highlightedTintColor = UIColor.blue
         toolbar.selectedTintColor = UIColor.darkGray
         toolbar.disabledTintColor = UIColor.lightGray
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+        toolbar.formatter = self
 
         return toolbar
     }
