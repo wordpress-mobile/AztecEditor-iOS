@@ -193,7 +193,6 @@ class EditorDemoController: UIViewController {
 
     private func configureDefaultProperties(for textView: UITextView, using formatBar: Aztec.FormatBar, accessibilityLabel: String) {
         textView.accessibilityLabel = accessibilityLabel
-        textView.delegate = self
         textView.font = EditorDemoController.defaultContentFont
         textView.inputAccessoryView = formatBar
         textView.keyboardDismissMode = .interactive
