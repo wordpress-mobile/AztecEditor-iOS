@@ -80,9 +80,11 @@ class EditorDemoController: UIViewController {
         return separatorView
     }()
 
-    fileprivate(set) var mode = EditionMode.richText {
+    fileprivate(set) var editingMode: EditMode = .richText {
         didSet {
-            switch mode {
+            view.endEditing(true)
+            
+            switch editingMode {
             case .html:
                 switchToHTML()
             case .richText:
@@ -193,19 +195,11 @@ class EditorDemoController: UIViewController {
             ])
     }
 
-    func configureNavigationBar() {
-        let title = NSLocalizedString("HTML", comment: "HTML!")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: title,
-                                                            style: .plain,
-                                                            target: self,
-                                                           action: #selector(switchEditionMode))
-    }
-
 
     // MARK: - Helpers
 
-    @IBAction func switchEditionMode() {
-        mode.toggle()
+    @IBAction func toggleEditingMode() {
+        editingMode.toggle()
     }
 
 
@@ -294,7 +288,7 @@ extension EditorDemoController : UITextFieldDelegate {
 }
 
 extension EditorDemoController {
-    enum EditionMode {
+    enum EditMode {
         case richText
         case html
 
@@ -312,32 +306,20 @@ extension EditorDemoController {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
         
         htmlTextView.text = richTextView.getHTML()
-        view.endEditing(true)
-        htmlTextView.isHidden = false
+        htmlTextView.becomeFirstResponder()
+
         richTextView.isHidden = true
+        htmlTextView.isHidden = false
     }
 
     fileprivate func switchToRichText() {
         navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
 
         richTextView.setHTML(htmlTextView.text)
+        richTextView.becomeFirstResponder()
 
-        view.endEditing(true)
         richTextView.isHidden = false
         htmlTextView.isHidden = true
-    }
-
-    fileprivate func toggleSourceCodeMode() {
-        view.endEditing(true)
-        if richTextView.isHidden {
-            richTextView.setHTML(htmlTextView.text)
-            richTextView.becomeFirstResponder()
-        } else {
-            htmlTextView.text = richTextView.getHTML()
-            htmlTextView.becomeFirstResponder()
-        }
-        richTextView.isHidden = !richTextView.isHidden
-        htmlTextView.isHidden = !htmlTextView.isHidden
     }
 }
 
@@ -364,7 +346,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         case .media:
             showImagePicker()
         case .sourcecode:
-            toggleSourceCodeMode()
+            toggleEditingMode()
         }
         updateFormatBar()
     }
