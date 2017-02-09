@@ -82,8 +82,6 @@ class EditorDemoController: UIViewController {
 
     fileprivate(set) var editingMode: EditMode = .richText {
         didSet {
-            view.endEditing(true)
-            
             switch editingMode {
             case .html:
                 switchToHTML()
@@ -303,7 +301,7 @@ extension EditorDemoController {
     }
 
     fileprivate func switchToHTML() {
-        navigationItem.rightBarButtonItem?.title = NSLocalizedString("Native", comment: "Rich Edition!")
+        view.endEditing(true)
         
         htmlTextView.text = richTextView.getHTML()
         htmlTextView.becomeFirstResponder()
@@ -313,7 +311,7 @@ extension EditorDemoController {
     }
 
     fileprivate func switchToRichText() {
-        navigationItem.rightBarButtonItem?.title = NSLocalizedString("HTML", comment: "HTML!")
+        view.endEditing(true)
 
         richTextView.setHTML(htmlTextView.text)
         richTextView.becomeFirstResponder()
