@@ -686,6 +686,11 @@ private extension EditorDemoController
         let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
                                           style: .cancel,
                                           handler: { (action) in
+                                            if attachment == self.currentSelectedAttachment {
+                                                self.currentSelectedAttachment = nil
+                                                attachment.message = nil
+                                                self.richTextView.refreshLayoutFor(attachment: attachment)
+                                            }
         })
         alertController.addAction(dismissAction)
 
