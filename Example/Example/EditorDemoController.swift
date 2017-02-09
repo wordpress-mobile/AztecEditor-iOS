@@ -86,12 +86,14 @@ class EditorDemoController: UIViewController {
         }
     }
 
-    fileprivate(set) lazy var tapGestureRecognizer: UILongPressGestureRecognizer = {
-        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
+    fileprivate(set) lazy var tapGestureRecognizer: UIGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
         recognizer.cancelsTouchesInView = false
         recognizer.delegate = self
         return recognizer
     }()
+
+    fileprivate var currentSelectedAttachment: TextAttachment?
 
     var loadSampleHTML = false
 
@@ -663,11 +665,17 @@ private extension EditorDemoController
         }
     }
 
-    var mediaMessageAttributes:[String:AnyObject] {
+    var mediaMessageAttributes: [String: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        let font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
-        return [NSParagraphStyleAttributeName:paragraphStyle, NSFontAttributeName:font]
+        let shadow = NSShadow()
+        shadow.shadowOffset = CGSize(width: 1, height: 1)
+        shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
+        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 20),
+                                        NSParagraphStyleAttributeName: paragraphStyle,
+                                        NSForegroundColorAttributeName: UIColor.white,
+                                        NSShadowAttributeName: shadow]
+        return attributes
     }
 
     func displayActions(forAttachment attachment: TextAttachment, position: CGPoint) {
@@ -689,7 +697,7 @@ private extension EditorDemoController
         alertController.addAction(removeAction)
 
         let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to remove media."),
-                                          style: .destructive,
+                                          style: .default,
                                           handler: { (action) in
                                             self.displayDetailsForAttachment(attachment, position: position)
         })
@@ -732,10 +740,33 @@ extension EditorDemoController: UIGestureRecognizerDelegate
 
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
         let locationInTextView = recognizer.location(in: richTextView)
+        // check if we have an attachment in the position we tapped
         guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
+            // if we have an attachment marked lets unmark it
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.message = nil
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+                currentSelectedAttachment = nil
+            }
             return
         }
-
-        displayActions(forAttachment: attachment, position:locationInTextView)
+        // move the selection to the position of the attachment
+        let index = richTextView.layoutManager.characterIndex(for: locationInTextView, in: richTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        richTextView.selectedRange = NSRange(location: index, length: 0)
+        if attachment == currentSelectedAttachment {
+            //if it's the same attachment has before let's display the options
+            displayActions(forAttachment: attachment, position: locationInTextView)
+        } else {
+            // if it's a new attachment tapped let unmark the previous one
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.message = nil
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+            }
+            // and mark the newly tapped attachment
+            let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
+            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+            richTextView.refreshLayoutFor(attachment: attachment)
+            currentSelectedAttachment = attachment
+        }
     }
 }
