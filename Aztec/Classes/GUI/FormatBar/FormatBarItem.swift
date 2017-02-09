@@ -88,8 +88,8 @@ open class FormatBarItem: UIBarButtonItem
         button.frame = frame
         button.setImage(image, for: UIControlState())
         button.addTarget(self, action: #selector(type(of: self).handleButtonTapped(_:)), for: .touchUpInside)
-        button.adjustsImageWhenDisabled = false
-        button.adjustsImageWhenHighlighted = false
+        button.adjustsImageWhenDisabled = true
+        button.adjustsImageWhenHighlighted = true
 
         style = .plain
         customView = button
