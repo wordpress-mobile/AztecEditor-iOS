@@ -717,6 +717,20 @@ open class TextView: UITextView {
         return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
     }
 
+    /// Move the selected range to the nearest character of the point specified in the textView
+    ///
+    /// - Parameter point: the position to move the selection to.
+    ///
+    open func moveSelectionToPoint(_ point: CGPoint) {
+        let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        guard index < textStorage.length else {
+            return
+        }
+
+        selectedRange = NSRange(location: index + 1, length: 0)
+        forceRedrawCursorAfterDelay()
+    }
+
     // MARK: - Links
 
     /// Returns an NSURL if the specified range as attached a link attribute

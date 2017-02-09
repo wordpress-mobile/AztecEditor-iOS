@@ -751,8 +751,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             return
         }
         // move the selection to the position of the attachment
-        let index = richTextView.layoutManager.characterIndex(for: locationInTextView, in: richTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-        richTextView.selectedRange = NSRange(location: index, length: 0)
+        richTextView.moveSelectionToPoint(locationInTextView)
         if attachment == currentSelectedAttachment {
             //if it's the same attachment has before let's display the options
             displayActions(forAttachment: attachment, position: locationInTextView)
