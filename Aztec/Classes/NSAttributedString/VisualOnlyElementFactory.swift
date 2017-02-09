@@ -15,7 +15,7 @@ class VisualOnlyElementFactory {
     func newline(inheritingAttributes inheritedAttributes: [String:Any]? = nil) -> NSAttributedString {
         var attributes = inheritedAttributes ?? [String:Any]()
 
-        attributes[VisualOnlyAttributeName] = VisualOnlyElement.newline
+        attributes[VisualOnlyAttributeName] = VisualOnlyElement.newline.rawValue
 
         return NSAttributedString(.newline, attributes: attributes)
     }
@@ -31,7 +31,7 @@ class VisualOnlyElementFactory {
     func zeroWidthSpace(inheritingAttributes inheritedAttributes: [String:Any]? = nil) -> NSAttributedString {
         var attributes = inheritedAttributes ?? [String:Any]()
 
-        attributes[VisualOnlyAttributeName] = VisualOnlyElement.zeroWidthSpace
+        attributes[VisualOnlyAttributeName] = VisualOnlyElement.zeroWidthSpace.rawValue
 
         return NSAttributedString(.zeroWidthSpace, attributes: attributes)
     }
