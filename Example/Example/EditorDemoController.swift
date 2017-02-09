@@ -82,12 +82,19 @@ class EditorDemoController: UIViewController {
 
     fileprivate(set) var editingMode: EditMode = .richText {
         didSet {
+            view.endEditing(true)
+
             switch editingMode {
             case .html:
-                switchToHTML()
+                htmlTextView.text = richTextView.getHTML()
+                htmlTextView.becomeFirstResponder()
             case .richText:
-                switchToRichText()
+                richTextView.setHTML(htmlTextView.text)
+                richTextView.becomeFirstResponder()
             }
+
+            richTextView.isHidden = editingMode == .html
+            htmlTextView.isHidden = editingMode == .richText
         }
     }
 
@@ -298,26 +305,6 @@ extension EditorDemoController {
                 self = .html
             }
         }
-    }
-
-    fileprivate func switchToHTML() {
-        view.endEditing(true)
-        
-        htmlTextView.text = richTextView.getHTML()
-        htmlTextView.becomeFirstResponder()
-
-        richTextView.isHidden = true
-        htmlTextView.isHidden = false
-    }
-
-    fileprivate func switchToRichText() {
-        view.endEditing(true)
-
-        richTextView.setHTML(htmlTextView.text)
-        richTextView.becomeFirstResponder()
-
-        richTextView.isHidden = false
-        htmlTextView.isHidden = true
     }
 }
 
