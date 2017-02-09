@@ -209,7 +209,7 @@ open class TextAttachment: NSTextAttachment
             box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
             box.addLine(to: CGPoint(x: origin.x, y: origin.y))
             box.lineWidth = 2.0
-            UIColor(white: 1, alpha: 0.75).setFill()
+            UIColor(white: 0.3, alpha: 0.6).setFill()
             box.fill()
         }
 
