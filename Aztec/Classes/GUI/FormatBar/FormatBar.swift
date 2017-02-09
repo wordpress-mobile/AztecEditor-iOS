@@ -5,7 +5,7 @@ import UIKit
 open class FormatBar: UIToolbar
 {
 
-    open var formatter: FormatBarDelegate?
+    open weak var formatter: FormatBarDelegate?
 
 
     override open var items: [UIBarButtonItem]? {
