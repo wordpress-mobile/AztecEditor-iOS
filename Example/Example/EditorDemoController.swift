@@ -21,7 +21,7 @@ class EditorDemoController: UIViewController {
         textView.mediaDelegate = self
         textView.font = defaultContentFont
 
-        let toolbar = self.createToolbar()
+        let toolbar = self.createToolbar(htmlMode: false)
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.formatter = self
 
@@ -43,6 +43,11 @@ class EditorDemoController: UIViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isHidden = true
 
+        let toolbar = self.createToolbar(htmlMode: true)
+        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+        toolbar.formatter = self
+        textView.inputAccessoryView = toolbar
+
         return textView
     }()
 
@@ -55,7 +60,7 @@ class EditorDemoController: UIViewController {
                                                       attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
         textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
-        let toolbar = self.createToolbar()
+        let toolbar = self.createToolbar(htmlMode: false)
         toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
@@ -118,7 +123,6 @@ class EditorDemoController: UIViewController {
         view.addSubview(htmlTextView)
 
         configureConstraints()
-        configureNavigationBar()
 
         let html: String
 
@@ -322,6 +326,19 @@ extension EditorDemoController {
         richTextView.isHidden = false
         htmlTextView.isHidden = true
     }
+
+    fileprivate func toggleSourceCodeMode() {
+        view.endEditing(true)
+        if richTextView.isHidden {
+            richTextView.setHTML(htmlTextView.text)
+            richTextView.becomeFirstResponder()
+        } else {
+            htmlTextView.text = richTextView.getHTML()
+            htmlTextView.becomeFirstResponder()
+        }
+        richTextView.isHidden = !richTextView.isHidden
+        htmlTextView.isHidden = !htmlTextView.isHidden
+    }
 }
 
 
@@ -346,6 +363,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleLink()
         case .media:
             showImagePicker()
+        case .sourcecode:
+            toggleSourceCodeMode()
         }
         updateFormatBar()
     }
@@ -511,27 +530,29 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     // MARK: -
 
-    func createToolbar() -> Aztec.FormatBar {
+    func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
         let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let items = [
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_media"), identifier: .media),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_bold"), identifier: .bold),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_italic"), identifier: .italic),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_underline"), identifier: .underline),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_strikethrough"), identifier: .strikethrough),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_quote"), identifier: .blockquote),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ul"), identifier: .unorderedlist),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_ol"), identifier: .orderedlist),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
             flex,
-            Aztec.FormatBarItem(image: templateImage(named:"icon_format_link"), identifier: .link),
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            flex,
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode),
             flex,
         ]
 
@@ -542,13 +563,18 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.selectedTintColor = UIColor.darkGray
         toolbar.disabledTintColor = UIColor.lightGray
 
+        if htmlMode {
+            for item in items {
+                item.isEnabled = false
+                if let sourceItem = item as? FormatBarItem, sourceItem.identifier == .sourcecode {
+                    item.isEnabled = true
+                }
+            }
+        }
         toolbar.items = items
         return toolbar
     }
 
-    func templateImage(named: String) -> UIImage {
-        return UIImage(named: named)!.withRenderingMode(.alwaysTemplate)
-    }
 }
 
 extension EditorDemoController: TextViewMediaDelegate

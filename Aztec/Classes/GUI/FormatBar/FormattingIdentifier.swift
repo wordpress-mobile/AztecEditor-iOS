@@ -11,4 +11,5 @@ public enum FormattingIdentifier: String
     case blockquote = "blockquote"
     case link = "link"
     case media = "media"
+    case sourcecode = "sourcecode"
 }
