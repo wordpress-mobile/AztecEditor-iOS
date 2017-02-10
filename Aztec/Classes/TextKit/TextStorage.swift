@@ -394,8 +394,12 @@ open class TextStorage: NSTextStorage {
         attachment.size = size
         attachment.url = url
         let rangesForAttachment = ranges(forAttachment:attachment)
+
+        let domRanges = rangesForAttachment.map { range -> NSRange in
+            map(visualRange: range)
+        }
         
-        dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
+        dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
     }
 
     /// Removes the attachments that match the attachament identifier provided from the storage
