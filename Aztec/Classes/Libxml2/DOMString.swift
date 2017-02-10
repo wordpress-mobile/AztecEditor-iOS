@@ -715,7 +715,17 @@ extension Libxml2 {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
                 
                 if element.name == StandardElementType.img.rawValue {
-                    let classAttributes = alignment.htmlString() + " " + size.htmlString()
+                    var components = [String]()
+                    if let currentAttributes = element.valueForStringAttribute(named: "class") {
+                        components = currentAttributes.components(separatedBy: CharacterSet.whitespaces)
+                        components = components.filter({ (value) -> Bool in
+                            return !(value.lowercased().hasPrefix("size-") || value.lowercased().hasPrefix("align"))
+                        })
+
+                    }
+                    components.append(alignment.htmlString())
+                    components.append(size.htmlString())
+                    let classAttributes = components.joined(separator: " ")
                     element.updateAttribute(named: "class", value: classAttributes)
                     
                     if element.name == StandardElementType.img.rawValue {
