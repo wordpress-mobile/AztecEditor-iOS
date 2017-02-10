@@ -719,7 +719,7 @@ extension Libxml2 {
                     if let currentAttributes = element.valueForStringAttribute(named: "class") {
                         components = currentAttributes.components(separatedBy: CharacterSet.whitespaces)
                         components = components.filter({ (value) -> Bool in
-                            return !(value.lowercased().hasPrefix("size-") || value.lowercased().hasPrefix("align"))
+                            return TextAttachment.Alignment.fromHTML(string: value.lowercased()) == nil && TextAttachment.Size.fromHTML(string: value.lowercased()) == nil
                         })
 
                     }
