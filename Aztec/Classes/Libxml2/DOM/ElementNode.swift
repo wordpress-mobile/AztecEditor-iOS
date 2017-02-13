@@ -1215,7 +1215,14 @@ extension Libxml2 {
                 
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string)
+                        if intersection.location == 0 {
+                            let firstChildIndex = indexOf(childNode: child)
+                            let textNode = TextNode(text: string, editContext: editContext)
+
+                            insert(textNode, at: firstChildIndex)
+                        } else {
+                            childEditableNode.replaceCharacters(inRange: intersection, withString: string)
+                        }
                     } else if intersection.length > 0 {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }

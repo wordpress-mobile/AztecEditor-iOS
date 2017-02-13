@@ -255,18 +255,7 @@ open class TextStorage: NSTextStorage {
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
 
-            if range.location == 0 {
-                processStyleDifferences(forNew: [:], in: NSRange(location: 0, length: 0))
-            } else {
-                let enumerationRange = NSRange(location: 0, length: preprocessedString.length)
-
-                preprocessedString.enumerateAttributes(in: enumerationRange, options: [], using: { (attributes, subRange, stop) in
-
-                    let correctedSubrange = NSRange(location: range.location, length: subRange.length)
-
-                    processStyleDifferences(forNew: attributes, in: correctedSubrange)
-                })
-            }
+            applyStyles(from: preprocessedString, startingAt: range.location)
         }
 
         detectAttachmentRemoved(in: range)
@@ -274,18 +263,6 @@ open class TextStorage: NSTextStorage {
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
 
         endEditing()
-    }
-
-    override open func addAttribute(_ name: String, value: Any, range: NSRange) {
-        super.addAttribute(name, value: value, range: range)
-    }
-
-    override open func addAttributes(_ attrs: [String : Any] = [:], range: NSRange) {
-        super.addAttributes(attrs, range: range)
-    }
-    
-    override open func removeAttribute(_ name: String, range: NSRange) {
-        super.removeAttribute(name, range: range)
     }
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
@@ -301,6 +278,62 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
+    // MARK: - Applying style differences
+
+    private func applyStyles(from attributedString: NSAttributedString, startingAt location: Int) {
+        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: location - 1, effectiveRange: nil)
+        let enumerationRange = NSRange(location: 0, length: attributedString.length)
+
+        attributedString.enumerateAttributes(in: enumerationRange, options: []) { (attributes, subRange, stop) in
+            applyStyleDifferences(between: originalAttributes, and: attributes, to: subRange)
+        }
+    }
+
+    private func applyStyleDifferences(
+        between sourceAttributes: [String : Any],
+        and targetAttributes: [String : Any],
+        to range: NSRange) {
+
+        var sourceFont: UIFont?
+        var sourceStrikethroughStyle: NSNumber?
+        var sourceUnderlineStyle: NSNumber?
+
+        for sourceAttribute in sourceAttributes {
+            switch(sourceAttribute.key) {
+            case NSFontAttributeName:
+                sourceFont = sourceAttribute.value as? UIFont
+            case NSStrikethroughStyleAttributeName:
+                sourceStrikethroughStyle = sourceAttribute.value as? NSNumber
+            case NSUnderlineStyleAttributeName:
+                sourceUnderlineStyle = sourceAttribute.value as? NSNumber
+            default:
+                continue
+            }
+        }
+
+        var targetFont: UIFont?
+        var targetStrikethroughStyle: NSNumber?
+        var targetUndelineStyle: NSNumber?
+
+        for targetAttribute in targetAttributes {
+            switch(targetAttribute.key) {
+            case NSFontAttributeName:
+                targetFont = targetAttribute.value as? UIFont
+            case NSStrikethroughStyleAttributeName:
+                targetStrikethroughStyle = targetAttribute.value as? NSNumber
+            case NSUnderlineStyleAttributeName:
+                targetUndelineStyle = targetAttribute.value as? NSNumber
+            default:
+                continue
+            }
+        }
+
+        processBoldDifferences(in: range, betweenOriginal: sourceFont, andNew: targetFont)
+        processStrikethroughDifferences(in: range, betweenOriginal: sourceStrikethroughStyle, andNew: targetStrikethroughStyle)
+        processUnderlineDifferences(in: range, betweenOriginal: sourceUnderlineStyle, andNew: targetUndelineStyle)
+
+    }
+
     // MARK: - Processing style differences
 
     private func processStyleDifferences(forNew newAttributes: [String : Any], in range: NSRange) {
@@ -310,7 +343,6 @@ open class TextStorage: NSTextStorage {
         var newUnderlineStyle: NSNumber?
 
         for newAttribute in newAttributes {
-
             switch(newAttribute.key) {
             case NSFontAttributeName:
                 newFont = newAttribute.value as? UIFont
