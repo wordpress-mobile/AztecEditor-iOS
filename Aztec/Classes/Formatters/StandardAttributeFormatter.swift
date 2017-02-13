@@ -8,7 +8,7 @@ class StandardAttributeFormatter: CharacterAttributeFormatter {
 
     let attributeKey: String
 
-    let attributeValue: Any
+    var attributeValue: Any
 
     init(elementType: Libxml2.StandardElementType, attributeKey: String, attributeValue: Any) {
         self.elementType = elementType
@@ -54,7 +54,13 @@ class StrikethroughFormatter: StandardAttributeFormatter {
 
 class LinkFormatter: StandardAttributeFormatter {
     init() {
-        super.init(elementType: .a, attributeKey: NSLinkAttributeName, attributeValue: NSURL())
+        super.init(elementType: .a, attributeKey: NSLinkAttributeName, attributeValue: NSURL(string:"")!)
+    }
+}
+
+class ImageFormatter: StandardAttributeFormatter {
+    init() {
+        super.init(elementType: .img, attributeKey: NSAttachmentAttributeName, attributeValue: TextAttachment(identifier: NSUUID().uuidString))
     }
 }
 
