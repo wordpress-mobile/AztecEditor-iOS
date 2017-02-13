@@ -11,7 +11,7 @@
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
 @property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
 @property (nonatomic, copy) NSDictionary *options;
-
+@property (nonatomic, strong) UITextField *quickInputTextField;
 @end
 
 @implementation DemoViewController
@@ -86,6 +86,64 @@
     }
     
     return cell;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *viewHeaderView = [[UIView alloc] init];
+    [viewHeaderView addSubview:self.quickInputTextField];
+    return viewHeaderView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 44.0;
+}
+
+- (UITextField *)quickInputTextField {
+    if (_quickInputTextField) {
+        return _quickInputTextField;
+    }
+    _quickInputTextField = [[UITextField alloc] initWithFrame:CGRectInset(CGRectMake(0, 0, self.view.frame.size.width, 44), 5, 2)];
+    _quickInputTextField.placeholder = @"Tap here to quick select assets";
+    _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
+
+    WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
+    vc.allowCaptureOfMedia = YES;
+    vc.preferFrontCamera = NO;
+    vc.showMostRecentFirst = YES;
+    vc.filter = WPMediaTypeVideoOrImage;
+    vc.allowMultipleSelection = YES;
+    vc.dataSource = [self defaultDataSource];
+    UICollectionView *collectionView = vc.collectionView;
+    [collectionView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
+    _quickInputTextField.inputView = collectionView;
+    [_quickInputTextField.inputView removeFromSuperview];
+    [self addChildViewController:vc];
+    [vc didMoveToParentViewController:self];
+
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    layout.itemSize = CGSizeMake(100, 100);
+    layout.minimumLineSpacing = 1.0f;
+    layout.minimumInteritemSpacing = 1.0f;
+
+    collectionView.collectionViewLayout = layout;
+    collectionView.alwaysBounceVertical = NO;
+
+    UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
+    toolbar.items = @[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:nil action:nil]];
+    _quickInputTextField.inputAccessoryView = toolbar;
+
+    return _quickInputTextField;
+}
+
+- (id<WPMediaCollectionDataSource>)defaultDataSource
+{
+    static id<WPMediaCollectionDataSource> assetSource = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        assetSource = [[WPPHAssetDataSource alloc] init];
+    });
+    return assetSource;
 }
 
 #pragma - <WPMediaPickerViewControllerDelegate>

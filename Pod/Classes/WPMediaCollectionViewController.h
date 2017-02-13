@@ -33,4 +33,6 @@
  */
 @property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
+@property (nonatomic, strong, readonly) UICollectionViewFlowLayout *layout;
+
 @end

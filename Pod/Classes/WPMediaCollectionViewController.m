@@ -138,8 +138,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     [self setupLayout];
 }
 
