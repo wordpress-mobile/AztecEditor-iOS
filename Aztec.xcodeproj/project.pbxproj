@@ -83,8 +83,6 @@
 		F1C05B9F1E37FD2F007510EA /* NSAttributedString+CharacterName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B9E1E37FD2F007510EA /* NSAttributedString+CharacterName.swift */; };
 		F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DOMString.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
-		FF7A1C491E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec in Resources */ = {isa = PBXBuildFile; fileRef = FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */; };
-		FF7A1C4B1E51F05700C4C7C8 /* CONTRIBUTING.md in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */; };
 		FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */; };
 		FF7C89AC1E3A47F1000472A8 /* StandardAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
@@ -657,7 +655,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF7A1C491E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec in Resources */,
 				F138062A1E3651DC00CFB9ED /* ControlCharacters.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -732,7 +729,6 @@
 				F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */,
 				F17D64B01E4231C800D09FED /* VisualOnlyElementFactory.swift in Sources */,
 				F111DF0F1E3BA393003FB794 /* NSAttributedString+AttributeRanges.swift in Sources */,
-				FF7A1C4B1E51F05700C4C7C8 /* CONTRIBUTING.md in Sources */,
 				B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
