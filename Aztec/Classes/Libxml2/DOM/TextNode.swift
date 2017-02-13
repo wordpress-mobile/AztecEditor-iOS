@@ -247,7 +247,7 @@ extension Libxml2 {
             }
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {

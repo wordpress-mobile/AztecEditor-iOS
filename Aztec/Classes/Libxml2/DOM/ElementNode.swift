@@ -1204,11 +1204,8 @@ extension Libxml2 {
             element.insert(string, at: insertionIndex)
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            
-            // When inheriting the style, we can just replace the text from the first child node with our new text.
-            //
-            let replaceTextFromFirstChild = inheritStyle && string.characters.count > 0
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
+
             let childrenAndIntersections = childNodes(intersectingRange: range)
             
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
@@ -1217,18 +1214,14 @@ extension Libxml2 {
                 let intersection = childAndIntersection.intersection
                 
                 if let childEditableNode = child as? EditableNode {
-                    if index == 0 && replaceTextFromFirstChild {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, inheritStyle: inheritStyle)
+                    if index == 0 {
+                        childEditableNode.replaceCharacters(inRange: intersection, withString: string)
                     } else if intersection.length > 0 {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }
                 } else {
                     remove(child)
                 }
-            }
-            
-            if !inheritStyle && string.characters.count > 0 {
-                insert(string, atLocation: range.location)
             }
         }
 
@@ -1460,17 +1453,6 @@ extension Libxml2 {
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-            
-            // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
-            // removed.
-            //
-            var elementNamesToRemove = elementDescriptor.matchingNames
-            
-            if !elementNamesToRemove.contains(elementDescriptor.name) {
-                elementNamesToRemove.append(elementDescriptor.name)
-            }
-            
-            unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
             let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 

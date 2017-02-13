@@ -233,7 +233,7 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withString: str, inheritStyle: true)
+            dom.replaceCharacters(inRange: targetDomRange, withString: str)
         }
 
         detectAttachmentRemoved(in: range)
@@ -251,14 +251,37 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withAttributedString: preprocessedString, inheritStyle: false)
+
+            let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
+
+            if range.location == 0 {
+                processStyleDifferences(forNew: [:], in: NSRange(location: 0, length: 0))
+            } else {
+                let enumerationRange = NSRange(location: 0, length: preprocessedString.length)
+
+                preprocessedString.enumerateAttributes(in: enumerationRange, options: [], using: { (attributes, subRange, stop) in
+
+                    let correctedSubrange = NSRange(location: range.location, length: subRange.length)
+
+                    processStyleDifferences(forNew: attributes, in: correctedSubrange)
+                })
+            }
         }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-        
+
         endEditing()
+    }
+
+    override open func addAttribute(_ name: String, value: Any, range: NSRange) {
+        super.addAttribute(name, value: value, range: range)
+    }
+
+    override open func addAttributes(_ attrs: [String : Any] = [:], range: NSRange) {
+        super.addAttributes(attrs, range: range)
     }
     
     override open func removeAttribute(_ name: String, range: NSRange) {
@@ -268,9 +291,8 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM() {
-            let domRange = map(visualRange: range)
-            dom.setAttributes(attrs, range: domRange)
+        if mustUpdateDOM(), let attributes = attrs {
+            processStyleDifferences(forNew: attributes, in: range)
         }
 
         textStore.setAttributes(attrs, range: range)
@@ -278,7 +300,129 @@ open class TextStorage: NSTextStorage {
         
         endEditing()
     }
-    
+
+    // MARK: - Processing style differences
+
+    private func processStyleDifferences(forNew newAttributes: [String : Any], in range: NSRange) {
+
+        var newFont: UIFont?
+        var newStrikethroughStyle: NSNumber?
+        var newUnderlineStyle: NSNumber?
+
+        for newAttribute in newAttributes {
+
+            switch(newAttribute.key) {
+            case NSFontAttributeName:
+                newFont = newAttribute.value as? UIFont
+            case NSStrikethroughStyleAttributeName:
+                newStrikethroughStyle = newAttribute.value as? NSNumber
+            case NSUnderlineStyleAttributeName:
+                newUnderlineStyle = newAttribute.value as? NSNumber
+            default:
+                continue
+            }
+        }
+
+        processFontDifferences(in: range, withNew: newFont)
+        processStrikethroughDifferences(in: range, withNew: newStrikethroughStyle)
+        processUnderlineDifferences(in: range, withNew: newUnderlineStyle)
+    }
+
+    // MARK: - Processing style differences: NSFontAttributeName
+
+    private func processFontDifferences(in range: NSRange, withNew newFont: UIFont?) {
+        textStore.enumerateAttribute(NSFontAttributeName, in: range, options: []) { (attributeValue, subRange, stop) in
+            let oldFont = attributeValue as? UIFont
+            processFontDifferences(in: subRange, betweenOriginal: oldFont, andNew: newFont)
+        }
+    }
+
+    private func processFontDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+
+        let domRange = map(visualRange: range)
+
+        processBoldDifferences(in: domRange, betweenOriginal: originalFont, andNew: newFont)
+        processItalicDifferences(in: domRange, betweenOriginal: originalFont, andNew: newFont)
+    }
+
+    private func processBoldDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsBold = originalFont?.containsTraits(.traitBold) ?? false
+        let newIsBold = newFont?.containsTraits(.traitBold) ?? false
+
+        let addBold = !oldIsBold && newIsBold
+        let removeBold = oldIsBold && !newIsBold
+
+        if addBold {
+            dom.applyBold(spanning: range)
+        } else if removeBold {
+            dom.removeBold(spanning: range)
+        }
+    }
+
+    private func processItalicDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsItalic = originalFont?.containsTraits(.traitItalic) ?? false
+        let newIsItalic = newFont?.containsTraits(.traitItalic) ?? false
+
+        let addItalic = !oldIsItalic && newIsItalic
+        let removeItalic = oldIsItalic && !newIsItalic
+
+        if addItalic {
+            dom.applyItalic(spanning: range)
+        } else if removeItalic {
+            dom.removeItalic(spanning: range)
+        }
+    }
+
+    // MARK: - Processing style differences: NSUnderlineStyleAttributeName
+
+    private func processUnderlineDifferences(in range: NSRange, withNew newStyle: NSNumber?) {
+        textStore.enumerateAttribute(NSUnderlineStyleAttributeName, in: range, options: []) { (attributeValue, subRange, stop) in
+            let oldStyle = attributeValue as? NSNumber
+            processUnderlineDifferences(in: subRange, betweenOriginal: oldStyle, andNew: newStyle)
+        }
+    }
+
+    private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+        let domRange = map(visualRange: range)
+
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyUnderline(spanning: domRange)
+        } else if removeStyle {
+            dom.removeUnderline(spanning: domRange)
+        }
+    }
+
+    // MARK: - Processing style differences: NSStrikethroughStyleAttributeName
+
+    private func processStrikethroughDifferences(in range: NSRange, withNew newStyle: NSNumber?) {
+        textStore.enumerateAttribute(NSStrikethroughStyleAttributeName, in: range, options: []) { (attributeValue, subRange, stop) in
+            let oldStyle = attributeValue as? NSNumber
+            processStrikethroughDifferences(in: subRange, betweenOriginal: oldStyle, andNew: newStyle)
+        }
+    }
+
+    private func processStrikethroughDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+        let domRange = map(visualRange: range)
+
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyStrikethrough(spanning: domRange)
+        } else if removeStyle {
+            dom.removeStrikethrough(spanning: domRange)
+        }
+    }
+
     // MARK: - Range Mapping: Visual vs HTML
     
     private func map(visualRange: NSRange) -> NSRange {
@@ -291,12 +435,8 @@ open class TextStorage: NSTextStorage {
         if applicationRange.length == 0, !formatter.worksInEmtpyRange() {
             return applicationRange
         }
-        let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
-        if !formatter.present(in: self, at: applicationRange.location) {
-            let domRange = map(visualRange: range)
-            dom.remove(element:formatter.elementType, at: domRange)
-        }
-        return newSelectedRange
+
+        return formatter.toggle(in: self, at: applicationRange)
     }
 
     /// Toggles blockquotes for the specified range.
@@ -305,12 +445,8 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the range that was applied to.
     func toggleBlockquote(_ range: NSRange) -> NSRange? {
         let formatter = BlockquoteFormatter()
-        let applicationRange = formatter.applicationRange(for: range, in: self)
-        let newSelectedRange = formatter.toggle(in: self, at: range)
-        if !formatter.present(in: self, at: range.location) {
-            dom.removeBlockquote(spanning: applicationRange)
-        }
-        return newSelectedRange
+        
+        return formatter.toggle(in: self, at: range)
     }
 
     func setLink(_ url: URL, forRange range: NSRange) {

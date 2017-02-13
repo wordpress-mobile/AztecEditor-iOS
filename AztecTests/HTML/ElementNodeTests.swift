@@ -1376,7 +1376,7 @@ class ElementNodeTests: XCTestCase {
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
         
-        paragraph.replaceCharacters(inRange: range, withString: newString, inheritStyle: true)
+        paragraph.replaceCharacters(inRange: range, withString: newString)
         
         XCTAssertEqual(paragraph.children.count, 2)
         XCTAssertEqual(paragraph.children[0], preLinkText)
@@ -1413,7 +1413,7 @@ class ElementNodeTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
         
-        paragraph.replaceCharacters(inRange: range, withString: newString, inheritStyle: false)
+        paragraph.replaceCharacters(inRange: range, withString: newString)
         
         XCTAssertEqual(paragraph.children.count, 1)
         
@@ -1447,7 +1447,7 @@ class ElementNodeTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
         
-        div.replaceCharacters(inRange: range, withString: newString, inheritStyle: false)
+        div.replaceCharacters(inRange: range, withString: newString)
         
         XCTAssertEqual(div.children.count, 1)
         
