@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.1.0'
-  s.summary          = 'TBD.  This will be modified as soon as we can publish more info.'
+  s.version          = '0.5a2'
+  s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,30 +18,26 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
-TBD.  This will be modified as soon as we can publish more info.
+                       The native HTML Editor by Automattic Inc.
                        DESC
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
+  s.license          = { :type => 'GPLv2', :file => 'LICENSE' }
   s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com' }
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  # s.social_media_url = 'https://twitter.com/WordPress'
+  s.ios.deployment_target = '9.0'
 
-  s.ios.deployment_target = '8.0'
+  s.module_name = "Aztec"
+  s.source_files = 'Aztec/Classes/**/*'
 
-  s.source_files = 'WordPress-Aztec-iOS/Classes/**/*'
-  
-  # s.resource_bundles = {
-  #   'WordPress-Aztec-iOS' => ['WordPress-Aztec-iOS/Assets/*.png']
-  # }
-  
-  s.ios.library = 'xml2'
+  # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
+  # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
+  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Aztec/Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Aztec/Modulemaps/libxml2/**'}
+  s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
+  s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'Gridicons', '0.4'
+
 end
