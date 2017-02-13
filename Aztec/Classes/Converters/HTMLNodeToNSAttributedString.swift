@@ -157,6 +157,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         var attributes = inheritedAttributes
 
+        var attributeValue: Any?
+
         if node.isNodeType(.a) {
             let linkURL: String
 
@@ -170,7 +172,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 linkURL = ""
             }
 
-            attributes[NSLinkAttributeName] = linkURL as AnyObject?
+            attributeValue = linkURL
         }
 
         if node.isNodeType(.img) {
@@ -195,11 +197,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                     }
                 }
             }
-            attributes[NSAttachmentAttributeName] = attachment
+            attributeValue = attachment
         }
 
         for (key, formatter) in elementToFormattersMap {
             if node.isNodeType(key) {
+                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                    let value = attributeValue {
+                    standardValueFormatter.attributeValue = value
+                }
                 attributes = formatter.apply(to: attributes);
             }
         }
@@ -214,6 +220,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .strong: BoldFormatter(),
         .em: ItalicFormatter(),
         .u: UnderlineFormatter(),
-        .del: StrikethroughFormatter()
+        .del: StrikethroughFormatter(),
+        .a: LinkFormatter(),
+        .img: ImageFormatter()
     ]
 }
