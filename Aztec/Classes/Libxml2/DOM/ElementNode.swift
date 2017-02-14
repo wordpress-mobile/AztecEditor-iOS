@@ -1215,7 +1215,7 @@ extension Libxml2 {
                 
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 {
-                        if intersection.location == 0 {
+                        if intersection.location == 0 && !(child is TextNode) {
                             let firstChildIndex = indexOf(childNode: child)
                             let textNode = TextNode(text: string, editContext: editContext)
 

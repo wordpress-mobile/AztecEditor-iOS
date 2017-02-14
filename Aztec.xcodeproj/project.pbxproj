@@ -76,6 +76,7 @@
 		F15F61C91E0323EC00CD6DD8 /* EditContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F61C81E0323EC00CD6DD8 /* EditContext.swift */; };
 		F17D64AE1E4230A400D09FED /* VisualOnlyAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D64AD1E4230A400D09FED /* VisualOnlyAttribute.swift */; };
 		F17D64B01E4231C800D09FED /* VisualOnlyElementFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D64AF1E4231C800D09FED /* VisualOnlyElementFactory.swift */; };
+		F181CB381E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F181CB371E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
 		F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A218141E02D5B3000AF5EB /* UndoManager.swift */; };
 		F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B981E37F99D007510EA /* Character+Name.swift */; };
@@ -191,6 +192,7 @@
 		F15F61C81E0323EC00CD6DD8 /* EditContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditContext.swift; sourceTree = "<group>"; };
 		F17D64AD1E4230A400D09FED /* VisualOnlyAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualOnlyAttribute.swift; sourceTree = "<group>"; };
 		F17D64AF1E4231C800D09FED /* VisualOnlyElementFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualOnlyElementFactory.swift; sourceTree = "<group>"; };
+		F181CB371E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+AttributeDifferences.swift"; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
 		F1A218141E02D5B3000AF5EB /* UndoManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
@@ -381,6 +383,7 @@
 			children = (
 				F1C05B981E37F99D007510EA /* Character+Name.swift */,
 				FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */,
+				F181CB371E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift */,
 				599F25251D8BC9A1002871D6 /* NSAttributedString+Attachments.swift */,
 				F111DF0E1E3BA393003FB794 /* NSAttributedString+AttributeRanges.swift */,
 				F1C05B9E1E37FD2F007510EA /* NSAttributedString+CharacterName.swift */,
@@ -676,6 +679,7 @@
 				599F253C1D8BC9A1002871D6 /* OutHTMLAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
+				F181CB381E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift in Sources */,
 				F1288BAF1DD0B1EF00E67ABC /* HTMLNodeToNSAttributedString.swift in Sources */,
 				B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */,
 				F1C05B9F1E37FD2F007510EA /* NSAttributedString+CharacterName.swift in Sources */,
