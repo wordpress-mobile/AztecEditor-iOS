@@ -8,6 +8,8 @@
  */
 NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetDataSource : NSObject<WPMediaCollectionDataSource>
 
++ (instancetype)sharedInstance;
+
 @end
 
 /**
