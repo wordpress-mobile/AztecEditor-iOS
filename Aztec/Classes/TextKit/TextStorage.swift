@@ -280,6 +280,13 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Entry point for calculating style differences
 
+    /// This method applies the styles in the specified attributes dictionary, to the DOM in the
+    /// specified range.  To do so, it calculates the differences and applies them.
+    ///
+    /// - Parameters:
+    ///     - attributes: the attributes to apply.
+    ///     - range: the range to apply the styles to.
+    ///
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
