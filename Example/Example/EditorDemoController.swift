@@ -657,6 +657,7 @@ private extension EditorDemoController
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
                 attachment.message = message
+                attachment.overlayImage = Gridicon.iconOfType(.refresh)
             }
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
@@ -691,7 +692,7 @@ private extension EditorDemoController
                                           handler: { (action) in
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
-                                                attachment.message = nil
+                                                attachment.clearAllOverlays()
                                                 self.richTextView.refreshLayoutFor(attachment: attachment)
                                             }
         })
@@ -753,6 +754,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             // if we have an attachment marked lets unmark it
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.message = nil
+                selectedAttachment.clearAllOverlays()
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
                 currentSelectedAttachment = nil
             }
@@ -772,6 +774,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             richTextView.refreshLayoutFor(attachment: attachment)
             currentSelectedAttachment = attachment
         }
