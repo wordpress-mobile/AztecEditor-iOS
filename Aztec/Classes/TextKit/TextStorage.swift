@@ -278,7 +278,7 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    // MARK: - Applying style differences
+    // MARK: - Entry point for calculating style differences
 
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
@@ -307,6 +307,17 @@ open class TextStorage: NSTextStorage {
         })
     }
 
+    /// This method applies the styles from the specified attributed string, to the DOM, starting
+    /// at the specified location, and moving ahead for the length of the attributed string.
+    ///
+    /// This makes sense only if the attributed string has already been added to the DOM, as a way
+    /// to apply the styles for that string.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the attributed string containing the styles we want to apply.
+    ///     - location: the starting location where the styles should be applied in the DOM.
+    ///         It's the offset this method will use to apply the styles found in the source string.
+    ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
         let originalAttributes = location == 0 ? [:] : textStore.attributes(at: location - 1, effectiveRange: nil)
         let fullRange = NSRange(location: 0, length: attributedString.length)
@@ -340,13 +351,28 @@ open class TextStorage: NSTextStorage {
         })
     }
 
-    // MARK: - Processing style differences: NSFontAttributeName
+    // MARK: - Calculating and applying style differences
 
+    /// Processed differences in a font object, and applies them to the DOM in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
     private func processFontDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
         processBoldDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
         processItalicDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
     }
 
+    /// Processed differences in the bold trait of two font objects, and applies them to the DOM in
+    /// the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
     private func processBoldDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
         let oldIsBold = originalFont?.containsTraits(.traitBold) ?? false
         let newIsBold = newFont?.containsTraits(.traitBold) ?? false
@@ -361,6 +387,14 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Processed differences in the italic trait of two font objects, and applies them to the DOM
+    /// in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
     private func processItalicDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
         let oldIsItalic = originalFont?.containsTraits(.traitItalic) ?? false
         let newIsItalic = newFont?.containsTraits(.traitItalic) ?? false
@@ -375,24 +409,14 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    // MARK: - Processing style differences: NSUnderlineStyleAttributeName
-
-    private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
-        // At some point we'll support different styles.  For now we only check if ANY style is
-        // set.
-        //
-        let addStyle = originalStyle == nil && newStyle != nil
-        let removeStyle = originalStyle != nil && newStyle == nil
-
-        if addStyle {
-            dom.applyUnderline(spanning: range)
-        } else if removeStyle {
-            dom.removeUnderline(spanning: range)
-        }
-    }
-
-    // MARK: - Processing style differences: NSStrikethroughStyleAttributeName
-
+    /// Processed differences in two strikethrough styles, and applies them to the DOM in the
+    /// specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
     private func processStrikethroughDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
         // At some point we'll support different styles.  For now we only check if ANY style is
         // set.
@@ -404,6 +428,28 @@ open class TextStorage: NSTextStorage {
             dom.applyStrikethrough(spanning: range)
         } else if removeStyle {
             dom.removeStrikethrough(spanning: range)
+        }
+    }
+
+    /// Processed differences in two underline styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyUnderline(spanning: range)
+        } else if removeStyle {
+            dom.removeUnderline(spanning: range)
         }
     }
 
