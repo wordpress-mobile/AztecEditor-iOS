@@ -462,6 +462,94 @@ extension Libxml2 {
             }
         }
 
+        typealias NodeMatchTest = (_ node: Node) -> Bool
+        typealias NodeIntersectionReport = (_ node: Node, _ intersection: NSRange) -> Void
+        typealias RangeReport = (_ range: NSRange) -> Void
+
+        /// Enumerates the descendants that match the specified condition, and intersection range
+        /// between those descendants and the specified range constraint.
+        ///
+        /// - Important: the receiver is also tested.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             the receiver's coordinate system.
+        ///     - isMatch: a closure that evaluates nodes for matches.
+        ///     - matchFound: the closure to execute for each child element intersecting
+        ///             `targetRange`.
+        ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
+        ///             doesn't have a block-level node intersecting it.
+        ///
+        fileprivate func enumerateFirstDescendants(
+            in targetRange: NSRange,
+            matching isMatch: NodeMatchTest,
+            onMatchFound matchFound: NodeIntersectionReport?,
+            onMatchNotFound matchNotFound: RangeReport?) {
+
+            assert(range().contains(range: targetRange))
+            assert(matchFound != nil || matchNotFound != nil)
+
+            guard !isMatch(self) else {
+                matchFound?(self, targetRange)
+                return
+            }
+
+            var rangeWithoutMatch: NSRange?
+            var offset = Int(0)
+
+            let ensureProcessingOfRangeWithoutMatch = { () in
+                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                    matchNotFound?(previousRangeWithoutMatch)
+                    rangeWithoutMatch = nil
+                }
+            }
+
+            let processMatchFound = { (child: Node, intersection: NSRange) -> () in
+                ensureProcessingOfRangeWithoutMatch()
+                matchFound?(child, intersection)
+            }
+
+            let extendRangeWithoutMatch = { (range: NSRange) in
+                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                    rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + range.length)
+                } else {
+                    rangeWithoutMatch = range
+                }
+            }
+
+            for child in children {
+
+                let childLength = child.length()
+                let childRange = NSRange(location: offset, length: childLength)
+
+                if let intersection = targetRange.intersect(withRange: childRange) {
+                    if isMatch(child) {
+                        processMatchFound(child, intersection)
+                    } else if let childElement = child as? ElementNode {
+
+                        let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
+
+                        childElement.enumerateFirstDescendants(
+                            in: intersectionInChildCoordinates,
+                            matching: isMatch,
+                            onMatchFound: { (child, intersection) in
+                                processMatchFound(child, intersection)
+                            },
+                            onMatchNotFound: { (range) in
+                                let adjustedRange = NSRange(location: range.location + offset, length: range.length)
+                                extendRangeWithoutMatch(adjustedRange)
+                        })
+                    } else {
+                        extendRangeWithoutMatch(intersection)
+                    }
+                }
+
+                offset += childLength
+            }
+
+            ensureProcessingOfRangeWithoutMatch()
+        }
+
         /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
         /// range.  If no child element node wraps the specified range, this method returns this
         /// node.
@@ -1123,7 +1211,7 @@ extension Libxml2 {
         ///     - string: the string to insert in a new `TextNode`.
         ///     - index: the index where the next `TextNode` will be inserted.
         ///
-        func insert(_ string: String, at index: Int) {
+        func insert(_ string: String, atNodeIndex index: Int) {
 
             guard index <= children.count else {
                 fatalError("The specified index is outside the range of possible indexes for insertion.")
@@ -1201,11 +1289,10 @@ extension Libxml2 {
                 insertionIndex = childIndex + 1
             }
             
-            element.insert(string, at: insertionIndex)
+            element.insert(string, atNodeIndex: insertionIndex)
         }
 
         func replaceCharacters(inRange range: NSRange, withString string: String) {
-
             let childrenAndIntersections = childNodes(intersectingRange: range)
             
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
@@ -1216,10 +1303,8 @@ extension Libxml2 {
                 if let childEditableNode = child as? EditableNode {
                     if index == 0 {
                         if intersection.location == 0 && !(child is TextNode) {
-                            let firstChildIndex = indexOf(childNode: child)
-                            let textNode = TextNode(text: string, editContext: editContext)
-
-                            insert(textNode, at: firstChildIndex)
+                            insert(string, atNodeIndex: indexOf(childNode: child))
+                            childEditableNode.deleteCharacters(inRange: intersection)
                         } else {
                             childEditableNode.replaceCharacters(inRange: intersection, withString: string)
                         }
@@ -1461,25 +1546,33 @@ extension Libxml2 {
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
-            let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
+            let matchVerification: NodeMatchTest = { return $0 is ElementNode && elementDescriptor.matchingNames.contains($0.name) }
 
-            if mustFindLowestBlockLevelElements {
-                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
+            enumerateFirstDescendants(
+                in: targetRange,
+                matching: matchVerification,
+                onMatchFound: nil,
+                onMatchNotFound: { [unowned self] range in
+                    let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 
-                for (element, intersection) in elementsAndIntersections {
-                    // 0-length intersections are possible, but they make no sense in the context
-                    // of wrapping content inside new elements.  We should ignore zero-length
-                    // intersections.
-                    //
-                    guard intersection.length > 0 else {
-                        continue
+                    if mustFindLowestBlockLevelElements {
+                        let elementsAndIntersections = self.lowestBlockLevelElements(intersectingRange: targetRange)
+
+                        for (element, intersection) in elementsAndIntersections {
+                            // 0-length intersections are possible, but they make no sense in the context
+                            // of wrapping content inside new elements.  We should ignore zero-length
+                            // intersections.
+                            //
+                            guard intersection.length > 0 else {
+                                continue
+                            }
+
+                            element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
+                        }
+                    } else {
+                        self.forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
                     }
-                    
-                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
-                }
-            } else {
-                forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
-            }
+            })
         }
 
         /// Force-wraps the specified range inside a node with the specified properties.

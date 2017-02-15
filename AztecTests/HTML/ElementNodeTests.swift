@@ -1141,7 +1141,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 0)
+        paragraph.insert(textToInsert, atNodeIndex: 0)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1172,7 +1172,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 1)
+        paragraph.insert(textToInsert, atNodeIndex: 1)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1203,7 +1203,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 2)
+        paragraph.insert(textToInsert, atNodeIndex: 2)
 
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1238,7 +1238,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 0)
+        paragraph.insert(textToInsert, atNodeIndex: 0)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1273,7 +1273,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 1)
+        paragraph.insert(textToInsert, atNodeIndex: 1)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1308,7 +1308,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 2)
+        paragraph.insert(textToInsert, atNodeIndex: 2)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1344,7 +1344,7 @@ class ElementNodeTests: XCTestCase {
         
         let textToInsert = "---"
         
-        paragraph.insert(textToInsert, at: 3)
+        paragraph.insert(textToInsert, atNodeIndex: 3)
         
         XCTAssertEqual(paragraph.children.count, 3)
         
@@ -1362,33 +1362,30 @@ class ElementNodeTests: XCTestCase {
     /// Input HTML: `<p>Click on this <a href="http://www.wordpress.com">link</a></p>`
     /// - Range: the range of the full contents of the `<a>` node.
     /// - New String: "link!"
-    /// - Inherit Style: true
     ///
     /// Expected results:
-    /// - Output: `<p>Click on this <a href="http://www.wordpress.com">link!</a></p>`
+    /// - Output: `<p>Click on this link!</p>`
     ///
     func testReplaceCharactersInRangeWithString() {
         let linkText = TextNode(text: "link")
         let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
-        let preLinkText = TextNode(text: "Click on this ")
-        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
+        let preLinkText = "Click on this "
+        let preLinkTextNode = TextNode(text: preLinkText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkTextNode, linkElement])
         
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
         
         paragraph.replaceCharacters(inRange: range, withString: newString)
         
-        XCTAssertEqual(paragraph.children.count, 2)
-        XCTAssertEqual(paragraph.children[0], preLinkText)
-        
-        guard let link = paragraph.children[1] as? ElementNode, link.name == "a" else {
-                
-            XCTFail("Expected a link element node")
-                return
+        XCTAssertEqual(paragraph.children.count, 1)
+
+        guard let textNode = paragraph.children[0] as? TextNode else {
+            XCTFail("Expected a child text node")
+            return
         }
-        
-        XCTAssertEqual(link.children.count, 1)
-        XCTAssertEqual(link.text(), newString)
+
+        XCTAssertEqual(textNode.text(), "\(preLinkText)\(newString)")
     }
     
     /// Tests `replaceCharacters(inRange:withString:)`.

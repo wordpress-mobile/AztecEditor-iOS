@@ -347,7 +347,9 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         func applyBold(spanning range: NSRange) {
-            applyElement(.strong, spanning: range)
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.strong, spanning: range)
+            }
         }
         
         /// Applies italic to the specified range.
@@ -356,7 +358,9 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         func applyItalic(spanning range: NSRange) {
-            applyElement(.em, spanning: range)
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.em, spanning: range)
+            }
         }
         
         /// Applies strikethrough to the specified range.
@@ -365,7 +369,9 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         func applyStrikethrough(spanning range: NSRange) {
-            applyElement(.del, spanning: range)
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.del, spanning: range)
+            }
         }
         
         /// Applies underline to the specified range.
@@ -374,7 +380,9 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///
         func applyUnderline(spanning range: NSRange) {
-            applyElement(.u, spanning: range)
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.u, spanning: range)
+            }
         }
         
         // MARK: - Styles to HTML elements
