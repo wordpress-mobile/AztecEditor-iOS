@@ -67,6 +67,25 @@ open class TextAttachment: NSTextAttachment
         }
     }
 
+    /// An image to display overlaid on top of the image has an action icon.
+    ///
+    open var overlayImage: UIImage? {
+        willSet {
+            if newValue != overlayImage {
+                glyphImage = nil
+            }
+        }
+    }
+
+
+    /// Clears all overlay information that is applied to the attachment
+    ///
+    open func clearAllOverlays() {
+        progress = nil
+        message = nil
+        overlayImage = nil
+    }
+
     fileprivate var glyphImage: UIImage?
 
     var imageProvider: TextAttachmentImageProvider?
@@ -222,9 +241,19 @@ open class TextAttachment: NSTextAttachment
             path.stroke()
         }
 
+        var imagePadding: CGFloat = 0
+        if let overlayImage = overlayImage {
+            UIColor.white.set()
+            let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
+            let path = UIBezierPath(arcCenter: center, radius: round(overlayImage.size.width * 2.0/3.0), startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+            path.stroke()
+            overlayImage.draw(at: CGPoint(x: round(center.x - (overlayImage.size.width / 2.0)), y: round(center.y - (overlayImage.size.height / 2.0))))
+            imagePadding += round(overlayImage.size.width * (2.0/3.0) * 2);
+        }
+
         if let message = message {
             let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-            let textPosition = CGPoint(x: origin.x, y: origin.y + ((size.height-textRect.size.height) / 2) )
+            let textPosition = CGPoint(x: origin.x, y: origin.y + (size.height / 2 ) + imagePadding - (textRect.height / 2) )
             message.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
         }
 
