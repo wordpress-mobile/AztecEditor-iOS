@@ -233,7 +233,9 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withString: str, inheritStyle: true)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
+
+            dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
         }
 
         detectAttachmentRemoved(in: range)
@@ -251,26 +253,26 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withAttributedString: preprocessedString, inheritStyle: false)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
+
+            let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+
+            applyStylesToDom(from: preprocessedString, startingAt: range.location)
         }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-        
+
         endEditing()
-    }
-    
-    override open func removeAttribute(_ name: String, range: NSRange) {
-        super.removeAttribute(name, range: range)
     }
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM() {
-            let domRange = map(visualRange: range)
-            dom.setAttributes(attrs, range: domRange)
+        if mustUpdateDOM(), let attributes = attrs {
+            applyStylesToDom(attributes: attributes, in: range)
         }
 
         textStore.setAttributes(attrs, range: range)
@@ -278,9 +280,207 @@ open class TextStorage: NSTextStorage {
         
         endEditing()
     }
-    
+
+    // MARK: - Entry point for calculating style differences
+
+    /// This method applies the styles in the specified attributes dictionary, to the DOM in the
+    /// specified range.  To do so, it calculates the differences and applies them.
+    ///
+    /// - Parameters:
+    ///     - attributes: the attributes to apply.
+    ///     - range: the range to apply the styles to.
+    ///
+    private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
+        textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
+
+            let domRange = map(visualRange: subRange)
+
+            switch(key) {
+            case NSFontAttributeName:
+                let sourceFont = sourceValue as? UIFont
+                let targetFont = targetValue as? UIFont
+
+                processFontDifferences(in: domRange, betweenOriginal: sourceFont, andNew: targetFont)
+            case NSStrikethroughStyleAttributeName:
+                let sourceStyle = sourceValue as? NSNumber
+                let targetStyle = targetValue as? NSNumber
+
+                processStrikethroughDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+            case NSUnderlineStyleAttributeName:
+                let sourceStyle = sourceValue as? NSNumber
+                let targetStyle = targetValue as? NSNumber
+
+                processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+            default:
+                break
+            }
+        })
+    }
+
+    /// This method applies the styles from the specified attributed string, to the DOM, starting
+    /// at the specified location, and moving ahead for the length of the attributed string.
+    ///
+    /// This makes sense only if the attributed string has already been added to the DOM, as a way
+    /// to apply the styles for that string.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the attributed string containing the styles we want to apply.
+    ///     - location: the starting location where the styles should be applied in the DOM.
+    ///         It's the offset this method will use to apply the styles found in the source string.
+    ///
+    private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
+        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: location - 1, effectiveRange: nil)
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+
+        let domLocation = map(visualLocation: location)
+
+        attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
+            // The source and target values are inverted since we're enumerating on the new string.
+
+            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+
+            switch(key) {
+            case NSFontAttributeName:
+                let sourceFont = sourceValue as? UIFont
+                let targetFont = targetValue as? UIFont
+
+                processFontDifferences(in: domRange, betweenOriginal: targetFont, andNew: sourceFont)
+            case NSStrikethroughStyleAttributeName:
+                let sourceStyle = sourceValue as? NSNumber
+                let targetStyle = targetValue as? NSNumber
+
+                processStrikethroughDifferences(in: domRange, betweenOriginal: targetStyle, andNew: sourceStyle)
+            case NSUnderlineStyleAttributeName:
+                let sourceStyle = sourceValue as? NSNumber
+                let targetStyle = targetValue as? NSNumber
+
+                processUnderlineDifferences(in: domRange, betweenOriginal: targetStyle, andNew: sourceStyle)
+            default:
+                break
+            }
+        })
+    }
+
+    // MARK: - Calculating and applying style differences
+
+    /// Processes differences in a font object, and applies them to the DOM in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processFontDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        processBoldDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
+        processItalicDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
+    }
+
+    /// Processes differences in the bold trait of two font objects, and applies them to the DOM in
+    /// the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processBoldDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsBold = originalFont?.containsTraits(.traitBold) ?? false
+        let newIsBold = newFont?.containsTraits(.traitBold) ?? false
+
+        let addBold = !oldIsBold && newIsBold
+        let removeBold = oldIsBold && !newIsBold
+
+        if addBold {
+            dom.applyBold(spanning: range)
+        } else if removeBold {
+            dom.removeBold(spanning: range)
+        }
+    }
+
+    /// Processes differences in the italic trait of two font objects, and applies them to the DOM
+    /// in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processItalicDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsItalic = originalFont?.containsTraits(.traitItalic) ?? false
+        let newIsItalic = newFont?.containsTraits(.traitItalic) ?? false
+
+        let addItalic = !oldIsItalic && newIsItalic
+        let removeItalic = oldIsItalic && !newIsItalic
+
+        if addItalic {
+            dom.applyItalic(spanning: range)
+        } else if removeItalic {
+            dom.removeItalic(spanning: range)
+        }
+    }
+
+    /// Processes differences in two strikethrough styles, and applies them to the DOM in the
+    /// specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processStrikethroughDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyStrikethrough(spanning: range)
+        } else if removeStyle {
+            dom.removeStrikethrough(spanning: range)
+        }
+    }
+
+    /// Processes differences in two underline styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyUnderline(spanning: range)
+        } else if removeStyle {
+            dom.removeUnderline(spanning: range)
+        }
+    }
+
     // MARK: - Range Mapping: Visual vs HTML
-    
+
+    private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
+        guard caretPosition != 0 else {
+            return true
+        }
+
+        return attribute(VisualOnlyAttributeName, at: caretPosition - 1, effectiveRange: nil) == nil
+    }
+
+    private func map(visualLocation: Int) -> Int {
+
+        let locationRange = NSRange(location: visualLocation, length: 0)
+        let mappedRange = textStore.map(range: locationRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
+
+        return mappedRange.location
+    }
+
     private func map(visualRange: NSRange) -> NSRange {
         return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
     }
@@ -291,12 +491,8 @@ open class TextStorage: NSTextStorage {
         if applicationRange.length == 0, !formatter.worksInEmtpyRange() {
             return applicationRange
         }
-        let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
-        if !formatter.present(in: self, at: applicationRange.location) {
-            let domRange = map(visualRange: range)
-            dom.remove(element:formatter.elementType, at: domRange)
-        }
-        return newSelectedRange
+
+        return formatter.toggle(in: self, at: applicationRange)
     }
 
     /// Toggles blockquotes for the specified range.
@@ -305,12 +501,8 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the range that was applied to.
     func toggleBlockquote(_ range: NSRange) -> NSRange? {
         let formatter = BlockquoteFormatter()
-        let applicationRange = formatter.applicationRange(for: range, in: self)
-        let newSelectedRange = formatter.toggle(in: self, at: range)
-        if !formatter.present(in: self, at: range.location) {
-            dom.removeBlockquote(spanning: applicationRange)
-        }
-        return newSelectedRange
+        
+        return formatter.toggle(in: self, at: range)
     }
 
     func setLink(_ url: URL, forRange range: NSRange) {
