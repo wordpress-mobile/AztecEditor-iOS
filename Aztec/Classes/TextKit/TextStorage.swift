@@ -233,7 +233,9 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withString: str)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
+
+            dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
         }
 
         detectAttachmentRemoved(in: range)
@@ -251,9 +253,10 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
 
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
-            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
             applyStylesToDom(from: preprocessedString, startingAt: range.location)
         }
@@ -461,6 +464,14 @@ open class TextStorage: NSTextStorage {
     }
 
     // MARK: - Range Mapping: Visual vs HTML
+
+    private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
+        guard caretPosition != 0 else {
+            return true
+        }
+
+        return attribute(VisualOnlyAttributeName, at: caretPosition - 1, effectiveRange: nil) == nil
+    }
 
     private func map(visualLocation: Int) -> Int {
 

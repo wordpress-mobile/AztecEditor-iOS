@@ -7,16 +7,6 @@ extension Libxml2 {
     ///
     class ElementNode: Node, EditableNode {
 
-        class Equivalence {
-            let elementName1: String
-            let elementName2: String
-
-            init(ofElementNamed elementName1: String, andElementNamed elementName2: String) {
-                self.elementName1 = elementName1
-                self.elementName2 = elementName2
-            }
-        }
-
         fileprivate(set) var attributes = [Attribute]()
         fileprivate(set) var children: [Node]
 
@@ -33,6 +23,10 @@ extension Libxml2 {
                 return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .suppressed)
             }
         }
+
+        // MARK: - Editing behavior configuration
+
+        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a]
         
         // MARK: - Initializers
 
@@ -1292,28 +1286,76 @@ extension Libxml2 {
             element.insert(string, atNodeIndex: insertionIndex)
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
             let childrenAndIntersections = childNodes(intersectingRange: range)
-            
+            let preferRightNode = !preferLeftNode
+            var textInserted = false
+
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
                 
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
-                
+
+                guard let childEditableNode = child as? EditableNode else {
+                    if intersection.length > 0 {
+                        remove(child)
+                    }
+
+                    continue
+                }
+
+                guard !textInserted else {
+                    childEditableNode.deleteCharacters(inRange: intersection)
+                    continue
+                }
+
+                if intersection.location == 0 {
+                    guard index == 0 || preferRightNode else {
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                        continue
+                    }
+
+                    if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
+                        insert(string, atNodeIndex: indexOf(childNode: child))
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                    } else {
+                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                    }
+                } else if intersection.location + intersection.length == child.length() {
+                    guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                        continue
+                    }
+
+                    if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
+                        insert(string, atNodeIndex: indexOf(childNode: child) + 1)
+                        childEditableNode.deleteCharacters(inRange: intersection)
+                    } else {
+                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                    }
+                } else {
+                    childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                }
+
+                textInserted = true
+/*
                 if let childEditableNode = child as? EditableNode {
+                    childEditableNode.deleteCharacters(inRange: intersection)
+
+
                     if index == 0 {
                         if intersection.location == 0 && !(child is TextNode) {
                             insert(string, atNodeIndex: indexOf(childNode: child))
                             childEditableNode.deleteCharacters(inRange: intersection)
                         } else {
-                            childEditableNode.replaceCharacters(inRange: intersection, withString: string)
+                            childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                         }
                     } else if intersection.length > 0 {
                         childEditableNode.deleteCharacters(inRange: intersection)
                     }
                 } else {
                     remove(child)
-                }
+                }*/
             }
         }
 
@@ -1729,6 +1771,21 @@ extension Libxml2 {
                 
                 return newNode
             }
+        }
+
+        // MARK: - Editing behavior
+
+        private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
+            guard !(node is TextNode) else {
+                return false
+            }
+
+            guard let elementNode = node as? ElementNode,
+                let elementType = StandardElementType(rawValue: elementNode.name) else {
+                return true
+            }
+
+            return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
         
         // MARK: - Undo Support
