@@ -244,11 +244,11 @@ open class TextAttachment: NSTextAttachment
         var imagePadding: CGFloat = 0
         if let overlayImage = overlayImage {
             UIColor.white.set()
-            let center = CGPoint(x: origin.x + (size.width / 2.0), y: origin.y + (size.height / 2.0))
-            let path = UIBezierPath(arcCenter: center, radius: overlayImage.size.width * 2.0/3.0, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+            let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
+            let path = UIBezierPath(arcCenter: center, radius: round(overlayImage.size.width * 2.0/3.0), startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
             path.stroke()
-            overlayImage.draw(at: CGPoint(x: center.x - (overlayImage.size.width / 2.0), y: center.y - (overlayImage.size.height / 2.0)))
-            imagePadding += overlayImage.size.width * (2.0/3.0) * 2;
+            overlayImage.draw(at: CGPoint(x: round(center.x - (overlayImage.size.width / 2.0)), y: round(center.y - (overlayImage.size.height / 2.0))))
+            imagePadding += round(overlayImage.size.width * (2.0/3.0) * 2);
         }
 
         if let message = message {
