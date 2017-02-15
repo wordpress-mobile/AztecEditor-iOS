@@ -363,7 +363,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Calculating and applying style differences
 
-    /// Processed differences in a font object, and applies them to the DOM in the specified range.
+    /// Processes differences in a font object, and applies them to the DOM in the specified range.
     ///
     /// - Parameters:
     ///     - range: the range in the DOM where the differences must be applied.
@@ -375,7 +375,7 @@ open class TextStorage: NSTextStorage {
         processItalicDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
     }
 
-    /// Processed differences in the bold trait of two font objects, and applies them to the DOM in
+    /// Processes differences in the bold trait of two font objects, and applies them to the DOM in
     /// the specified range.
     ///
     /// - Parameters:
@@ -397,7 +397,7 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    /// Processed differences in the italic trait of two font objects, and applies them to the DOM
+    /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
     ///
     /// - Parameters:
@@ -419,7 +419,7 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    /// Processed differences in two strikethrough styles, and applies them to the DOM in the
+    /// Processes differences in two strikethrough styles, and applies them to the DOM in the
     /// specified range.
     ///
     /// - Parameters:
@@ -441,7 +441,7 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    /// Processed differences in two underline styles, and applies them to the DOM in the specified
+    /// Processes differences in two underline styles, and applies them to the DOM in the specified
     /// range.
     ///
     /// - Parameters:
