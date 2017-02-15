@@ -3,20 +3,6 @@ import Foundation
 extension NSAttributedString {
 
     typealias ProcessDifferenceClosure = (NSRange, String, Any?, Any?) -> ()
-/*
-    func enumerateAttributeDifferences(
-        startingAt location: Int,
-        against targetString: NSAttributedString,
-        do processDifference: ProcessDifferenceClosure) {
-
-        let targetRange = NSRange(location: 0, length: targetString.length)
-
-        targetString.enumerateAttributes(in: targetRange, options: []) { (attributes, subRange, stop) in
-            let sourceSubRange = NSRange(location: location + subRange.location, length: subRange.length)
-            enumerateAttributeDifferences(in: sourceSubRange, against: attributes, do: processDifference)
-        }
-    }
- */
 
     func enumerateAttributeDifferences(
         in range: NSRange,
