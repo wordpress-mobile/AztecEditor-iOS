@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-/// Custom text attachment.
+/// Custom horizontal line drawing attachment.
 ///
 open class LineAttachment: NSTextAttachment
 {
