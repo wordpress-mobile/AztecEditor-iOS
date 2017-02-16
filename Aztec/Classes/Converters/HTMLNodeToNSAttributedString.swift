@@ -26,6 +26,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
+    private lazy var defaultAttributes: [String: Any] = {
+        let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
+        return [NSFontAttributeName: defaultFont]
+    }()
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -36,10 +40,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(_ node: Node) -> NSAttributedString {
-
-        let defaultFont = UIFont(descriptor: defaultFontDescriptor, size: defaultFontDescriptor.pointSize)
-
-        return convert(node, inheritingAttributes: [NSFontAttributeName: defaultFont])
+        return convert(node, inheritingAttributes: defaultAttributes)
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -97,6 +98,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        if node.comment == "more" {
+            var attributes = inheritedAttributes;
+            let moreAttachment = MoreAttachment()
+            moreAttachment.message = NSAttributedString(string: NSLocalizedString("MORE", comment:"Text for the center of the   more divider"), attributes: defaultAttributes)
+            attributes[NSAttachmentAttributeName] = moreAttachment
+            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        }
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
