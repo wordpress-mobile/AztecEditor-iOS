@@ -19,7 +19,7 @@ static NSString *const ResourcesBundleName = @"WPMediaPicker";
 + (UIImage *)imageNamed:(NSString *)imageName withExtension:(NSString *)extension
 {
     int scale = [[UIScreen mainScreen] scale];
-    NSString *scaleAdjustedImageName = [imageName copy];
+    NSString *scaleAdjustedImageName;
     UIImage *image = nil;
     do {
         if (scale > 1) {

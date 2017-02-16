@@ -441,7 +441,7 @@ referenceSizeForFooterInSection:(NSInteger)section
         return self.captureCell;
     }
 
-    return nil;
+    return [UICollectionReusableView new];
 }
 
 - (void)showCapture {
