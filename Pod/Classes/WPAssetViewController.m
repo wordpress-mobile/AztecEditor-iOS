@@ -22,7 +22,6 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor blackColor];
-    UILayoutGuide *margins = self.view.layoutMarginsGuide;
 
     [self.view addSubview:self.imageView];
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -104,6 +103,9 @@
         break;
         case WPMediaTypeVideo:
             [self showVideoAsset];
+        break;
+        default:
+            return;
         break;
     }
 }
