@@ -86,6 +86,8 @@ extension Libxml2 {
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
                 return NSAttributedString(.newline, attributes: attributes)
+            case .hr:
+                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             default:
                 return nil
             }

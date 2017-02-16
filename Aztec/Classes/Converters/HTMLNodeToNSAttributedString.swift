@@ -230,6 +230,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .u: UnderlineFormatter(),
         .del: StrikethroughFormatter(),
         .a: LinkFormatter(),
-        .img: ImageFormatter()
+        .img: ImageFormatter(),
+        .hr: HRFormatter()
     ]
 }

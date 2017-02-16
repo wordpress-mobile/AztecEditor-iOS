@@ -64,3 +64,9 @@ class ImageFormatter: StandardAttributeFormatter {
     }
 }
 
+class HRFormatter: StandardAttributeFormatter {
+    init() {
+        super.init(elementType: .hr, attributeKey: NSAttachmentAttributeName, attributeValue: LineAttachment())
+    }
+}
+
