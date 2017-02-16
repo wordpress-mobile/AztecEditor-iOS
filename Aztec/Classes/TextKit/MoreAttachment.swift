@@ -44,7 +44,7 @@ open class MoreAttachment: NSTextAttachment
         colorMessage.addAttribute(NSForegroundColorAttributeName, value: color, range: message.rangeOfEntireString)
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         let textPosition = CGPoint(x: ((size.width - textRect.width) / 2), y: ((size.height - textRect.height) / 2) )
-        colorMessage.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
+        colorMessage.draw(in: CGRect(origin: textPosition , size: CGSize(width: size.width, height: textRect.size.height)))
 
         let path = UIBezierPath()
 
@@ -52,12 +52,12 @@ open class MoreAttachment: NSTextAttachment
         let  dashes: [ CGFloat ] = [ dashWidth, dashWidth ]
         path.setLineDash(dashes, count: dashes.count, phase: 0.0)
         path.lineWidth = 2.0
+        let centerY = round(size.height / 2.0)
+        path.move(to: CGPoint(x:0, y: centerY))
+        path.addLine(to: CGPoint(x: ((size.width - textRect.width) / 2) - dashWidth, y: centerY))
 
-        path.move(to: CGPoint(x:0, y:bounds.height / 2))
-        path.addLine(to: CGPoint(x: ((size.width - textRect.width) / 2) - dashWidth, y: bounds.height / 2))
-
-        path.move(to: CGPoint(x:((size.width + textRect.width) / 2) + dashWidth, y:bounds.height / 2))
-        path.addLine(to: CGPoint(x: size.width, y: bounds.height / 2))
+        path.move(to: CGPoint(x:((size.width + textRect.width) / 2) + dashWidth, y: centerY))
+        path.addLine(to: CGPoint(x: size.width, y: centerY))
 
         color.setStroke()
         path.stroke()
@@ -67,10 +67,6 @@ open class MoreAttachment: NSTextAttachment
         return result;
     }
 
-    /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
-    /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
-    /// Otherwise, we'll always take the whole container's width.
-    ///
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
 
         let padding = textContainer?.lineFragmentPadding ?? 0
@@ -78,9 +74,5 @@ open class MoreAttachment: NSTextAttachment
         let height:CGFloat = 44.0
 
         return CGRect(origin: CGPoint.zero, size: CGSize(width: width, height: height))
-    }
-
-    fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
-        textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
     }
 }
