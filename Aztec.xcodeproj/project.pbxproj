@@ -84,6 +84,7 @@
 		F1C05B9F1E37FD2F007510EA /* NSAttributedString+CharacterName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B9E1E37FD2F007510EA /* NSAttributedString+CharacterName.swift */; };
 		F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DOMString.swift */; };
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
+		FF7A1C4F1E560A1F00C4C7C8 /* MoreAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C4E1E560A1F00C4C7C8 /* MoreAttachment.swift */; };
 		FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */; };
 		FF7C89AC1E3A47F1000472A8 /* StandardAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
@@ -205,6 +206,7 @@
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
 		FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
+		FF7A1C4E1E560A1F00C4C7C8 /* MoreAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreAttachment.swift; sourceTree = "<group>"; };
 		FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Blockquote.swift; sourceTree = "<group>"; };
 		FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttributeFormatter.swift; sourceTree = "<group>"; };
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 			isa = PBXGroup;
 			children = (
 				599F25301D8BC9A1002871D6 /* TextAttachment.swift */,
+				FF7A1C4E1E560A1F00C4C7C8 /* MoreAttachment.swift */,
 				B5BC4FF51DA2D76600614582 /* TextList.swift */,
 				599F25311D8BC9A1002871D6 /* TextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
@@ -706,6 +709,7 @@
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
 				F17D64AE1E4230A400D09FED /* VisualOnlyAttribute.swift in Sources */,
+				FF7A1C4F1E560A1F00C4C7C8 /* MoreAttachment.swift in Sources */,
 				F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */,
 				FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
