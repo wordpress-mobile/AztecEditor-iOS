@@ -10,17 +10,12 @@ class ViewController: UITableViewController
 
     // MARK: LifeCycle Methods
 
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         rows = [
             DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
-            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) }),
-            DemoRow(title: "Cursor Callout Demo", action: { self.showCursorCalloutDemo() }),
-            // DRM: this was broken at some point, so I'm disabling it for the time being.
-            // DemoRow(title: "Draggable Demo", action: { self.showDraggableDemo() }),
-            DemoRow(title: "Formatter Demo", action: { self.showFormatterDemo() })
+            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) })
         ]
     }
 
@@ -31,24 +26,6 @@ class ViewController: UITableViewController
     func showEditorDemo(loadSampleHTML: Bool = true) {
         let controller = EditorDemoController()
         controller.loadSampleHTML = loadSampleHTML
-        navigationController?.pushViewController(controller, animated: true)
-    }
-
-
-    func showCursorCalloutDemo() {
-        let controller = CursorCalloutDemoController.controller()
-        navigationController?.pushViewController(controller, animated: true)
-    }
-
-
-    func showDraggableDemo() {
-        //let controller = DraggableDemoController.controller()
-        //navigationController?.pushViewController(controller, animated: true)
-    }
-
-
-    func showFormatterDemo() {
-        let controller = FormattingDemoController.controller()
         navigationController?.pushViewController(controller, animated: true)
     }
 
