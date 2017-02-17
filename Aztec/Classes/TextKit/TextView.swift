@@ -170,7 +170,8 @@ open class TextView: UITextView {
             if (self.textStorage.length > 0) {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
-            self.delegate?.textViewDidChangeSelection?(self)
+            delegate?.textViewDidChangeSelection?(self)
+            delegate?.textViewDidChange?(self)
             return
         }
 
@@ -198,6 +199,7 @@ open class TextView: UITextView {
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
+        delegate?.textViewDidChange?(self)
     }
 
     // MARK: - UIView Overrides
@@ -364,6 +366,7 @@ open class TextView: UITextView {
             let location = max(0,min(selectedRange.location, textStorage.length-1))
             typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         }
+        delegate?.textViewDidChange?(self)
     }
 
     /// Adds or removes a bold style from the specified range.
@@ -643,6 +646,7 @@ open class TextView: UITextView {
         let insertionRange = NSMakeRange(index, length)
         storage.replaceCharacters(in: range, with: title)
         storage.setLink(url, forRange: insertionRange)
+        delegate?.textViewDidChange?(self)
     }
 
 
@@ -652,6 +656,7 @@ open class TextView: UITextView {
     ///
     open func removeLink(inRange range: NSRange) {
         storage.removeLink(inRange: range)
+        delegate?.textViewDidChange?(self)
     }
 
 
@@ -671,6 +676,7 @@ open class TextView: UITextView {
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
         selectedRange = NSMakeRange(position+length, 0)
+        delegate?.textViewDidChange?(self)
         return attachment
     }
 
@@ -689,6 +695,7 @@ open class TextView: UITextView {
     ///
     open func remove(attachmentID: String) {
         storage.remove(attachmentID: attachmentID)
+        delegate?.textViewDidChange?(self)
     }
 
 
@@ -821,6 +828,7 @@ open class TextView: UITextView {
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
+        delegate?.textViewDidChange?(self)
     }
 
     /// Invalidates the layout of the attachment and marks it to be refresh on the next update
