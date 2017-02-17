@@ -478,7 +478,11 @@ open class TextStorage: NSTextStorage {
             return true
         }
 
-        return attribute(VisualOnlyAttributeName, at: caretPosition - 1, effectiveRange: nil) == nil
+        let rawIndex = caretPosition - 1
+        let index = textStore.string.index(textStore.string.startIndex, offsetBy: rawIndex)
+
+        return string.characters[index] != Character(.newline)
+            && attribute(VisualOnlyAttributeName, at: rawIndex, effectiveRange: nil) == nil
     }
 
     private func map(visualLocation: Int) -> Int {
