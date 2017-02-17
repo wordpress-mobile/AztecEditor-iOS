@@ -1079,7 +1079,7 @@ class ElementNodeTests: XCTestCase {
         let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
 
         guard childrenAndRanges.count == 2 else {
-            XCTFail("Expected 1 child.")
+            XCTFail("Expected 2 children.")
             return
         }
 
