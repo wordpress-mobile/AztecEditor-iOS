@@ -428,11 +428,15 @@ open class TextStorage: NSTextStorage {
     ///     - newFont: the new font object.
     ///
     private func processStrikethroughDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+
+        let sourceStyle = originalStyle ?? 0
+        let targetStyle = newStyle ?? 0
+
         // At some point we'll support different styles.  For now we only check if ANY style is
         // set.
         //
-        let addStyle = originalStyle == nil && newStyle != nil
-        let removeStyle = originalStyle != nil && newStyle == nil
+        let addStyle = sourceStyle == 0 && targetStyle == 1
+        let removeStyle = sourceStyle == 1 && targetStyle == 0
 
         if addStyle {
             dom.applyStrikethrough(spanning: range)
@@ -450,11 +454,15 @@ open class TextStorage: NSTextStorage {
     ///     - newFont: the new font object.
     ///
     private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+
+        let sourceStyle = originalStyle ?? 0
+        let targetStyle = newStyle ?? 0
+
         // At some point we'll support different styles.  For now we only check if ANY style is
         // set.
         //
-        let addStyle = originalStyle == nil && newStyle != nil
-        let removeStyle = originalStyle != nil && newStyle == nil
+        let addStyle = sourceStyle == 0 && targetStyle == 1
+        let removeStyle = sourceStyle == 1 && targetStyle == 0
 
         if addStyle {
             dom.applyUnderline(spanning: range)
