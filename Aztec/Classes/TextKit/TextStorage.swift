@@ -475,7 +475,8 @@ open class TextStorage: NSTextStorage {
 
     private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
         return !hasNewLine(atIndex: index)
-            && !hasMoreAttachment(atIndex: index)
+            && !hasHorizontalLine(atIndex: index)
+            && !hasMoreMarker(atIndex: index)
             && !hasVisualOnlyElement(atIndex: index)
     }
 
@@ -487,7 +488,16 @@ open class TextStorage: NSTextStorage {
         return canAppendToNodeRepresentedByCharacter(atIndex: caretPosition - 1)
     }
 
-    private func hasMoreAttachment(atIndex index: Int) -> Bool {
+    private func hasHorizontalLine(atIndex index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
+            attachment is LineAttachment else {
+                return false
+        }
+
+        return true
+    }
+
+    private func hasMoreMarker(atIndex index: Int) -> Bool {
         guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
             attachment is MoreAttachment else {
             return false
