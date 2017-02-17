@@ -279,6 +279,10 @@ extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
     }
+
+    func textViewDidChange(_ textView: UITextView) {
+        print("Changed content")
+    }
 }
 
 extension EditorDemoController : Aztec.TextViewFormattingDelegate {
