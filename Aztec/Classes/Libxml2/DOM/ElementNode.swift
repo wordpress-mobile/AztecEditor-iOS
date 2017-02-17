@@ -235,10 +235,10 @@ extension Libxml2 {
         ///
         /// - Returns: an array of pairs of child nodes and their ranges in child coordinates.
         ///
-        func childNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true) -> [(child: Node, intersection: NSRange)] {
+        func childNodes(intersectingRange targetRange: NSRange) -> [(child: Node, intersection: NSRange)] {
             var results = [(child: Node, intersection: NSRange)]()
 
-            enumerateChildNodes(intersectingRange: targetRange, preferLeftNode: preferLeftNode) { (child, intersection) in
+            enumerateChildNodes(intersectingRange: targetRange) { (child, intersection) in
                 results.append((child, intersection))
             }
 
@@ -261,11 +261,11 @@ extension Libxml2 {
         /// - Returns: an array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
         ///
-        func enumerateChildNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true, onMatchFound matchFound: (_ child: Node, _ intersection: NSRange) -> Void ) {
+        func enumerateChildNodes(intersectingRange targetRange: NSRange, onMatchFound matchFound: (_ child: Node, _ intersection: NSRange) -> Void ) {
 
             var offset = Int(0)
 
-            for (index, child) in children.enumerated() {
+            for child in children {
 
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
@@ -281,12 +281,10 @@ extension Libxml2 {
                         || intersectionRange.length > 0
                 } else {
                     let targetLocation = targetRange.location
-                    let preferLeftNode = preferLeftNode || (index == children.count - 1 && targetLocation == offset + childLength)
-                    let preferRightNode = !preferLeftNode || (index == 0 && targetLocation == 0)
 
                     childRangeInterceptsTargetRange =
-                        (preferRightNode && targetLocation == offset)
-                        || (preferLeftNode && targetLocation == offset + childLength)
+                        targetLocation == offset
+                        || targetLocation == offset + childLength
                         || (targetLocation > offset && targetLocation < offset + childLength)
 
                     intersectionRange = NSRange(location: targetLocation, length: 0)
@@ -1297,6 +1295,17 @@ extension Libxml2 {
                 let intersection = childAndIntersection.intersection
 
                 guard let childEditableNode = child as? EditableNode else {
+                    if (index == 0 && preferLeftNode)
+                        || (index == 1 && preferRightNode)
+                        && string.characters.count > 0 {
+
+                        let offset = preferLeftNode ? 1 : 0
+
+                        let textNode = TextNode(text: string, editContext: editContext)
+                        insert(textNode, at: indexOf(childNode: child) + offset)
+                        textInserted = true
+                    }
+
                     if intersection.length > 0 {
                         remove(child)
                     }
@@ -1311,7 +1320,9 @@ extension Libxml2 {
 
                 if intersection.location == 0 {
                     guard index == 0 || preferRightNode else {
-                        childEditableNode.deleteCharacters(inRange: intersection)
+                        if intersection.length > 0 {
+                            childEditableNode.deleteCharacters(inRange: intersection)
+                        }
                         continue
                     }
 
@@ -1323,7 +1334,9 @@ extension Libxml2 {
                     }
                 } else if intersection.location + intersection.length == child.length() {
                     guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
-                        childEditableNode.deleteCharacters(inRange: intersection)
+                        if intersection.length > 0 {
+                            childEditableNode.deleteCharacters(inRange: intersection)
+                        }
                         continue
                     }
 
@@ -1338,24 +1351,6 @@ extension Libxml2 {
                 }
 
                 textInserted = true
-/*
-                if let childEditableNode = child as? EditableNode {
-                    childEditableNode.deleteCharacters(inRange: intersection)
-
-
-                    if index == 0 {
-                        if intersection.location == 0 && !(child is TextNode) {
-                            insert(string, atNodeIndex: indexOf(childNode: child))
-                            childEditableNode.deleteCharacters(inRange: intersection)
-                        } else {
-                            childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                        }
-                    } else if intersection.length > 0 {
-                        childEditableNode.deleteCharacters(inRange: intersection)
-                    }
-                } else {
-                    remove(child)
-                }*/
             }
         }
 

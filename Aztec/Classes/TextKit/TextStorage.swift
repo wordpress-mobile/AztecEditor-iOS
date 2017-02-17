@@ -473,12 +473,47 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Range Mapping: Visual vs HTML
 
+    private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
+        return !hasNewLine(atIndex: index)
+            && !hasHorizontalLine(atIndex: index)
+            && !hasMoreMarker(atIndex: index)
+            && !hasVisualOnlyElement(atIndex: index)
+    }
+
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
         guard caretPosition != 0 else {
             return true
         }
 
-        return attribute(VisualOnlyAttributeName, at: caretPosition - 1, effectiveRange: nil) == nil
+        return canAppendToNodeRepresentedByCharacter(atIndex: caretPosition - 1)
+    }
+
+    private func hasHorizontalLine(atIndex index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
+            attachment is LineAttachment else {
+                return false
+        }
+
+        return true
+    }
+
+    private func hasMoreMarker(atIndex index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
+            attachment is MoreAttachment else {
+            return false
+        }
+
+        return true
+    }
+
+    private func hasNewLine(atIndex index: Int) -> Bool {
+        let swiftStringIndex = textStore.string.index(textStore.string.startIndex, offsetBy: index)
+
+        return string.characters[swiftStringIndex] == Character(.newline)
+    }
+
+    private func hasVisualOnlyElement(atIndex index: Int) -> Bool {
+        return attribute(VisualOnlyAttributeName, at: index, effectiveRange: nil) != nil
     }
 
     private func map(visualLocation: Int) -> Int {
