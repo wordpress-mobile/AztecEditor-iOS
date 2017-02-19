@@ -384,6 +384,12 @@ extension Libxml2 {
                 self?.applyElement(.u, spanning: range)
             }
         }
+
+        func applyImage(imageURL: URL?, spanning range:NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.setImageURLInDOM(imageURL, forRange: range)
+            }
+        }
         
         // MARK: - Styles to HTML elements
         
