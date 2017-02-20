@@ -385,6 +385,12 @@ extension Libxml2 {
             }
         }
 
+        /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
+        ///
+        /// - Parameters:
+        ///   - imageURL: the URL for the img src attribute
+        ///   - range: the range to insert the image
+        ///
         func applyImage(imageURL: URL?, spanning range:NSRange) {
             performAsyncUndoable { [weak self] in
                 self?.setImageURLInDOM(imageURL, forRange: range)
