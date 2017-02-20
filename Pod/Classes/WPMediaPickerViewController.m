@@ -45,7 +45,7 @@
     vc.filter = self.filter;
     vc.allowMultipleSelection = self.allowMultipleSelection;
     if (!self.dataSource) {
-        self.dataSource = [self defaulDataSource];
+        self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
     vc.dataSource = self.dataSource;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
@@ -57,16 +57,6 @@
     [self addChildViewController:nav];
     [nav didMoveToParentViewController:self];
     _internalNavigationController = nav;
-}
-
-- (id<WPMediaCollectionDataSource>)defaulDataSource
-{
-    static id<WPMediaCollectionDataSource> assetSource = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        assetSource = [[WPPHAssetDataSource alloc] init];
-    });
-    return assetSource;
 }
 
 #pragma mark - Public Methods
