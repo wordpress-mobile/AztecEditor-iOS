@@ -311,6 +311,14 @@ open class TextStorage: NSTextStorage {
                 let targetStyle = targetValue as? NSNumber
 
                 processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+            case NSAttachmentAttributeName:
+                if let attachment = sourceValue as? TextAttachment {
+                    dom.applyImage(imageURL: attachment.url, spanning: domRange)
+                }
+            case NSParagraphStyleAttributeName:
+                let sourceStyle = sourceValue as? ParagraphStyle
+                let targetStyle = targetValue as? ParagraphStyle
+                processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
             default:
                 break
             }
@@ -359,6 +367,10 @@ open class TextStorage: NSTextStorage {
                 if let attachment = sourceValue as? TextAttachment {
                     dom.applyImage(imageURL: attachment.url, spanning: domRange)
                 }
+            case NSParagraphStyleAttributeName:
+                let sourceStyle = sourceValue as? ParagraphStyle
+                let targetStyle = targetValue as? ParagraphStyle
+                processBlockquoteDifferences(in: domRange, betweenOriginal: targetStyle?.blockquote, andNew: sourceStyle?.blockquote)
             default:
                 break
             }
@@ -472,6 +484,26 @@ open class TextStorage: NSTextStorage {
             dom.applyUnderline(spanning: range)
         } else if removeStyle {
             dom.removeUnderline(spanning: range)
+        }
+    }
+
+    /// Processes differences in blockquote styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original Blockquote object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processBlockquoteDifferences(in range: NSRange, betweenOriginal originalStyle: Blockquote?, andNew newStyle: Blockquote?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyBlockquote(spanning: range)
+        } else if removeStyle {
+            dom.removeBlockquote(spanning: range)
         }
     }
 
