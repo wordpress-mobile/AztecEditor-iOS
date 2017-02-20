@@ -358,6 +358,10 @@ open class TextStorage: NSTextStorage {
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+        case NSLinkAttributeName:
+            let sourceStyle = sourceValue as? URL
+            let targetStyle = targetValue as? URL
+            processLinkDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
         default:
             break
         }
@@ -492,6 +496,31 @@ open class TextStorage: NSTextStorage {
             dom.removeBlockquote(spanning: range)
         }
     }
+
+    /// Processes differences in link styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original link URL object if any.
+    ///     - newStyle: the new link URL object if any.
+    ///
+    private func processLinkDifferences(in range: NSRange, betweenOriginal originalStyle: URL?, andNew newStyle: URL?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            var attributes: [Libxml2.Attribute] = []
+            if let url = newStyle {
+                attributes.append(Libxml2.StringAttribute(name:"href", value: url.absoluteString))
+            }
+            dom.apply(element: .a, spanning: range, attributes: attributes)
+        } else if removeStyle {
+            dom.remove(element: .a, at: range)
+        }
+    }
+
 
     // MARK: - Range Mapping: Visual vs HTML
 

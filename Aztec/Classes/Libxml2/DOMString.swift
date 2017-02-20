@@ -234,16 +234,6 @@ extension Libxml2 {
             
             rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
-        
-        // MARK: - Links
-        
-        fileprivate func setLinkInDOM(_ range: NSRange, url: URL) {
-            
-            let elementDescriptor = ElementNodeDescriptor(elementType: .a,
-                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
-            
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
-        }
 
         // MARK: Remove Styles
 
@@ -341,6 +331,11 @@ extension Libxml2 {
         
         // Apply Styles
         
+        func apply(element: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(element, spanning: range, attributes: attributes)
+            }
+        }
         /// Applies bold to the specified range.
         ///
         /// - Parameters:
@@ -418,8 +413,8 @@ extension Libxml2 {
         ///     - elementType: the standard element type to apply.
         ///     - range: the range to apply the bold style to.
         ///
-        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange) {
-            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames)
+        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
+            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames, attributes: attributes)
         }
         
         /// Applies an HTML element to the specified range.
@@ -432,9 +427,9 @@ extension Libxml2 {
         ///     - equivalentElementNames: equivalent element names to look for before applying
         ///             the specified one.
         ///
-        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
+        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
-            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
+            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         
