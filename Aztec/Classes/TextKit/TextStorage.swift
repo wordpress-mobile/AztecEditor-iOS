@@ -295,25 +295,7 @@ open class TextStorage: NSTextStorage {
 
             let domRange = map(visualRange: subRange)
 
-            switch(key) {
-            case NSFontAttributeName:
-                let sourceFont = sourceValue as? UIFont
-                let targetFont = targetValue as? UIFont
-
-                processFontDifferences(in: domRange, betweenOriginal: sourceFont, andNew: targetFont)
-            case NSStrikethroughStyleAttributeName:
-                let sourceStyle = sourceValue as? NSNumber
-                let targetStyle = targetValue as? NSNumber
-
-                processStrikethroughDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
-            case NSUnderlineStyleAttributeName:
-                let sourceStyle = sourceValue as? NSNumber
-                let targetStyle = targetValue as? NSNumber
-
-                processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
-            default:
-                break
-            }
+            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
     }
 
@@ -339,30 +321,46 @@ open class TextStorage: NSTextStorage {
 
             let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
 
-            switch(key) {
-            case NSFontAttributeName:
-                let sourceFont = sourceValue as? UIFont
-                let targetFont = targetValue as? UIFont
-
-                processFontDifferences(in: domRange, betweenOriginal: targetFont, andNew: sourceFont)
-            case NSStrikethroughStyleAttributeName:
-                let sourceStyle = sourceValue as? NSNumber
-                let targetStyle = targetValue as? NSNumber
-
-                processStrikethroughDifferences(in: domRange, betweenOriginal: targetStyle, andNew: sourceStyle)
-            case NSUnderlineStyleAttributeName:
-                let sourceStyle = sourceValue as? NSNumber
-                let targetStyle = targetValue as? NSNumber
-
-                processUnderlineDifferences(in: domRange, betweenOriginal: targetStyle, andNew: sourceStyle)
-            case NSAttachmentAttributeName:
-                if let attachment = sourceValue as? TextAttachment {
-                    dom.applyImage(imageURL: attachment.url, spanning: domRange)
-                }
-            default:
-                break
-            }
+            processAttributesDifference(in: domRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
         })
+    }
+
+    /// Check the difference in styles and applies the necessary changes to the DOM string.
+    ///
+    /// - Parameters:
+    ///   - domRange: the range to check
+    ///   - key: the attribute style key
+    ///   - sourceValue: the original value of the attribute
+    ///   - targetValue: the new value of the attribute
+    ///
+    private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        switch(key) {
+        case NSFontAttributeName:
+            let sourceFont = sourceValue as? UIFont
+            let targetFont = targetValue as? UIFont
+
+            processFontDifferences(in: domRange, betweenOriginal: sourceFont, andNew: targetFont)
+        case NSStrikethroughStyleAttributeName:
+            let sourceStyle = sourceValue as? NSNumber
+            let targetStyle = targetValue as? NSNumber
+
+            processStrikethroughDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        case NSUnderlineStyleAttributeName:
+            let sourceStyle = sourceValue as? NSNumber
+            let targetStyle = targetValue as? NSNumber
+
+            processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        case NSAttachmentAttributeName:
+            if let attachment = sourceValue as? TextAttachment {
+                dom.applyImage(imageURL: attachment.url, spanning: domRange)
+            }
+        case NSParagraphStyleAttributeName:
+            let sourceStyle = sourceValue as? ParagraphStyle
+            let targetStyle = targetValue as? ParagraphStyle
+            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+        default:
+            break
+        }
     }
 
     // MARK: - Calculating and applying style differences
@@ -475,6 +473,26 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Processes differences in blockquote styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original Blockquote object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processBlockquoteDifferences(in range: NSRange, betweenOriginal originalStyle: Blockquote?, andNew newStyle: Blockquote?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyBlockquote(spanning: range)
+        } else if removeStyle {
+            dom.removeBlockquote(spanning: range)
+        }
+    }
+
     // MARK: - Range Mapping: Visual vs HTML
 
     private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
@@ -540,16 +558,6 @@ open class TextStorage: NSTextStorage {
         }
 
         return formatter.toggle(in: self, at: applicationRange)
-    }
-
-    /// Toggles blockquotes for the specified range.
-    ///
-    /// - Parameter range: the range to toggle the style of.
-    /// - Returns: the range that was applied to.
-    func toggleBlockquote(_ range: NSRange) -> NSRange? {
-        let formatter = BlockquoteFormatter()
-        
-        return formatter.toggle(in: self, at: range)
     }
 
     func setLink(_ url: URL, forRange range: NSRange) {

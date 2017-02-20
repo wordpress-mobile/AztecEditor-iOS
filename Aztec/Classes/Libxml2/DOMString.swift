@@ -385,6 +385,17 @@ extension Libxml2 {
             }
         }
 
+        /// Applies blockquote to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func applyBlockquote(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.blockquote, spanning: range)
+            }
+        }
+
         /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
         ///
         /// - Parameters:

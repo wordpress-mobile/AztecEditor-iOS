@@ -149,4 +149,21 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
+
+    func testBlockquoteToggle() {
+        let storage = TextStorage()
+        storage.append(NSAttributedString(string: "Apply a blockquote"))
+        let blockquoteFormatter = BlockquoteFormatter()
+        storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
+
+        var html = storage.getHTML()
+
+        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
+
+        storage.toggle(formatter:blockquoteFormatter, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "Apply a blockquote")
+    }
 }
