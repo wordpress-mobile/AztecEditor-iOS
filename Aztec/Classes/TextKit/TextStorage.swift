@@ -560,16 +560,6 @@ open class TextStorage: NSTextStorage {
         return formatter.toggle(in: self, at: applicationRange)
     }
 
-    /// Toggles blockquotes for the specified range.
-    ///
-    /// - Parameter range: the range to toggle the style of.
-    /// - Returns: the range that was applied to.
-    func toggleBlockquote(_ range: NSRange) -> NSRange? {
-        let formatter = BlockquoteFormatter()
-        
-        return formatter.toggle(in: self, at: range)
-    }
-
     func setLink(_ url: URL, forRange range: NSRange) {
         var effectiveRange = range
         if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {

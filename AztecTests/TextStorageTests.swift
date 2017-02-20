@@ -153,14 +153,14 @@ class TextStorageTests: XCTestCase
     func testBlockquoteToggle() {
         let storage = TextStorage()
         storage.append(NSAttributedString(string: "Apply a blockquote"))
-
-        let _ = storage.toggleBlockquote(storage.rangeOfEntireString)
+        let blockquoteFormatter = BlockquoteFormatter()
+        storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
         var html = storage.getHTML()
 
         XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
 
-        let _ = storage.toggleBlockquote(storage.rangeOfEntireString)
+        storage.toggle(formatter:blockquoteFormatter, at: storage.rangeOfEntireString)
 
         html = storage.getHTML()
 
