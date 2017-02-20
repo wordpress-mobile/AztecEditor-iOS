@@ -124,4 +124,29 @@ class TextStorageTests: XCTestCase
 
         XCTAssertTrue(mockDelegate.deletedAttachmendIDCalledWithString == attachment.identifier)
     }
+
+    func testInsertImage() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let attachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        let html = storage.getHTML()
+
+        XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+    }
+
+    func testUpdateImage() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+        let url = URL(string: "https://wordpress.com")!
+        let attachment = storage.insertImage(sourceURL: url, atPosition: 0, placeHolderImage: UIImage())
+        storage.update(attachment: attachment, alignment: .left, size: .medium, url: url)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(attachment.url, url)
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
+    }
 }

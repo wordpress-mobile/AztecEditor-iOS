@@ -355,6 +355,10 @@ open class TextStorage: NSTextStorage {
                 let targetStyle = targetValue as? NSNumber
 
                 processUnderlineDifferences(in: domRange, betweenOriginal: targetStyle, andNew: sourceStyle)
+            case NSAttachmentAttributeName:
+                if let attachment = sourceValue as? TextAttachment {
+                    dom.applyImage(imageURL: attachment.url, spanning: domRange)
+                }
             default:
                 break
             }
