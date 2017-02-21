@@ -407,7 +407,12 @@ extension Libxml2 {
                 self?.setImageURLInDOM(imageURL, forRange: range)
             }
         }
-        
+
+        func applyHeader(spanning range:NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.h1, spanning: range)
+            }
+        }
         // MARK: - Styles to HTML elements
         
         /// Applies a standard HTML element to the specified range.

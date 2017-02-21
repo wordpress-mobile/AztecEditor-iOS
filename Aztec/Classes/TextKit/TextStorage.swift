@@ -358,6 +358,8 @@ open class TextStorage: NSTextStorage {
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+
+            processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
         default:
             break
         }
@@ -490,6 +492,29 @@ open class TextStorage: NSTextStorage {
             dom.applyBlockquote(spanning: range)
         } else if removeStyle {
             dom.removeBlockquote(spanning: range)
+        }
+    }
+
+    /// Processes differences in header styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processHeaderDifferences(in range: NSRange, betweenOriginal originalStyle: Int?, andNew newStyle: Int?) {
+
+        let sourceStyle = originalStyle ?? 0
+        let targetStyle = newStyle ?? 0
+
+        let addStyle = sourceStyle == 0 && targetStyle == 1
+        let removeStyle = sourceStyle == 1 && targetStyle == 0
+
+        if addStyle {
+            dom.applyHeader(spanning: range)
+        } else if removeStyle {
+            dom.applyHeader(spanning: range)
         }
     }
 
