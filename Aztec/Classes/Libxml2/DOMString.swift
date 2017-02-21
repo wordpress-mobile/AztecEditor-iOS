@@ -340,12 +340,7 @@ extension Libxml2 {
         }
         
         // Apply Styles
-        
-        fileprivate func apply(element: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
-            performAsyncUndoable { [weak self] in
-                self?.applyElement(element, spanning: range, attributes: attributes)
-            }
-        }
+                
         /// Applies bold to the specified range.
         ///
         /// - Parameters:
@@ -412,7 +407,9 @@ extension Libxml2 {
             if let url = url {
                 attributes.append(Libxml2.StringAttribute(name: HTMLLinkAttribute.Href.rawValue, value: url.absoluteString))
             }
-            self.apply(element: .a, spanning: range, attributes: attributes)
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.a, spanning: range, attributes: attributes)
+            }
         }
 
         /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
