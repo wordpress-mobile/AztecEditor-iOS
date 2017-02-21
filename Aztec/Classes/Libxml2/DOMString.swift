@@ -410,7 +410,7 @@ extension Libxml2 {
         func applyLink(_ url: URL?, spanning range: NSRange) {
             var attributes: [Libxml2.Attribute] = []
             if let url = url {
-                attributes.append(Libxml2.StringAttribute(name:"href", value: url.absoluteString))
+                attributes.append(Libxml2.StringAttribute(name: HTMLLinkAttribute.Href.rawValue, value: url.absoluteString))
             }
             self.apply(element: .a, spanning: range, attributes: attributes)
         }
