@@ -502,22 +502,18 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameters:
     ///     - range: the range in the DOM where the differences must be applied.
-    ///     - originalStyle: the original link URL object if any.
-    ///     - newStyle: the new link URL object if any.
+    ///     - originalURL: the original link URL object if any.
+    ///     - newURL: the new link URL object if any.
     ///
-    private func processLinkDifferences(in range: NSRange, betweenOriginal originalStyle: URL?, andNew newStyle: URL?) {
+    private func processLinkDifferences(in range: NSRange, betweenOriginal originalURL: URL?, andNew newURL: URL?) {
 
-        let addStyle = originalStyle == nil && newStyle != nil
-        let removeStyle = originalStyle != nil && newStyle == nil
+        let addStyle = originalURL == nil && newURL != nil
+        let removeStyle = originalURL != nil && newURL == nil
 
-        if addStyle {
-            var attributes: [Libxml2.Attribute] = []
-            if let url = newStyle {
-                attributes.append(Libxml2.StringAttribute(name:"href", value: url.absoluteString))
-            }
-            dom.apply(element: .a, spanning: range, attributes: attributes)
+        if addStyle {            
+            dom.applyLink(newURL, spanning: range)
         } else if removeStyle {
-            dom.remove(element: .a, at: range)
+            dom.removeLink(spanning: range)
         }
     }
 

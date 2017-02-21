@@ -298,6 +298,16 @@ extension Libxml2 {
                 self?.removeBlockquoteSynchronously(spanning: range)
             }
         }
+
+        /// Disables link from the specified range
+        ///
+        /// - Parameter range: the range to remove
+        ///
+        func removeLink(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeSynchronously(element:.a, at: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -331,7 +341,7 @@ extension Libxml2 {
         
         // Apply Styles
         
-        func apply(element: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
+        fileprivate func apply(element: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
             performAsyncUndoable { [weak self] in
                 self?.applyElement(element, spanning: range, attributes: attributes)
             }
@@ -391,6 +401,20 @@ extension Libxml2 {
             }
         }
 
+        /// Applies a link to the specified range
+        ///
+        /// - Parameters:
+        ///   - url: the url to link to
+        ///   - range: the range to apply the link
+        ///
+        func applyLink(_ url: URL?, spanning range: NSRange) {
+            var attributes: [Libxml2.Attribute] = []
+            if let url = url {
+                attributes.append(Libxml2.StringAttribute(name:"href", value: url.absoluteString))
+            }
+            self.apply(element: .a, spanning: range, attributes: attributes)
+        }
+
         /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
         ///
         /// - Parameters:
@@ -442,10 +466,6 @@ extension Libxml2 {
         }
         
         // MARK: - Candidates for removal: Synchronously
-        
-        private func removeLinkSynchronously(inRange range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: ["a"])
-        }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             
