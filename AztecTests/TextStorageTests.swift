@@ -166,4 +166,22 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(html, "Apply a blockquote")
     }
+
+    func testLinkInsert() {
+        let storage = TextStorage()
+        storage.append(NSAttributedString(string: "Apply a link"))
+        let linkFormatter = LinkFormatter()
+        linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
+        storage.toggle(formatter: linkFormatter, at: storage.rangeOfEntireString)
+
+        var html = storage.getHTML()
+
+        XCTAssertEqual(html, "<a href=\"www.wordpress.com\">Apply a link</a>")
+
+        storage.toggle(formatter:linkFormatter, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "Apply a link")
+    }
 }
