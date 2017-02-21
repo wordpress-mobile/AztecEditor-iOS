@@ -435,12 +435,6 @@ extension Libxml2 {
         
         // MARK: - Candidates for removal
         
-        func removeLink(inRange range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.removeLinkSynchronously(inRange: range)
-            }
-        }
-        
         func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)

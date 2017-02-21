@@ -589,29 +589,6 @@ open class TextStorage: NSTextStorage {
         return formatter.toggle(in: self, at: applicationRange)
     }
 
-    func setLink(_ url: URL, forRange range: NSRange) {
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-        } else {
-            //if a link was not there we are just going to add it to the provided range
-            effectiveRange = range
-        }
-        
-        addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-    }
-
-    func removeLink(inRange range: NSRange){
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-            
-            dom.removeLink(inRange: effectiveRange)
-        }
-    }
-
     /// Insert Image Element at the specified range using url as source
     ///
     /// - parameter url: the source URL of the image
