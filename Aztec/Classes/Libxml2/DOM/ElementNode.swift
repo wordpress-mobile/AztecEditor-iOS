@@ -1302,7 +1302,7 @@ extension Libxml2 {
                         || (index == 1 && preferRightNode)
                         && string.characters.count > 0 {
 
-                        let offset = preferLeftNode ? 1 : 0
+                        let offset = intersection.location == 0 ? 0 : 1
 
                         let textNode = TextNode(text: string, editContext: editContext)
                         insert(textNode, at: indexOf(childNode: child) + offset)

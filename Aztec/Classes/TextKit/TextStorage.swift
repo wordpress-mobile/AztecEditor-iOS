@@ -422,9 +422,9 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.applyImageURL(imageURL: urlToAdd, spanning: range)
+            dom.insertImage(imageURL: urlToAdd, replacing: range)
         } else if removeImageUrl {
-            dom.removeImageURL(spanning: range)
+            dom.removeImage(spanning: range)
         }
     }
 

@@ -242,7 +242,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        func removeImageURL(spanning range: NSRange) {
+        func removeImage(spanning range: NSRange) {
             performAsyncUndoable { [weak self] in
                 self?.removeImageSynchronously(spanning: range)
             }
@@ -409,29 +409,27 @@ extension Libxml2 {
             }
         }
 
+        // MARK: - Images
+
         /// Applies an image to the specified range
         ///
         /// - Parameters:
         ///   - imageURL: the URL for the img src attribute
         ///   - range: the range to insert the image
         ///
-        func applyImageURL(imageURL: URL, spanning range:NSRange) {
+        func insertImage(imageURL: URL, replacing range:NSRange) {
             performAsyncUndoable { [weak self] in
-                self?.applyImageURLSynchronously(imageURL: imageURL, spanning: range)
+                self?.insertImageSynchronously(imageURL: imageURL, replacing: range)
             }
         }
 
-        // MARK: - Apply Styles Synchronously
-
-        private func applyImageURLSynchronously(imageURL: URL, spanning range: NSRange) {
+        private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
             let imageURLString = imageURL.absoluteString
 
-            applyElement(.img, spanning: range, attributes: [StringAttribute(name:"src", value: imageURLString)])
-/*
             let elementDescriptor = ElementNodeDescriptor(elementType: .img,
                                                           attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
 
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)*/
+            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
         
         // MARK: - Styles to HTML elements
