@@ -13,13 +13,15 @@ open class MoreAttachment: NSTextAttachment
 
     /// A message to display overlaid on top of the image
     ///
-    open var message: NSAttributedString = NSAttributedString(string: "MORE") {
+    open var label: NSAttributedString = NSAttributedString(string: "MORE") {
         willSet {
-            if newValue != message {
+            if newValue != label {
                 glyphImage = nil
             }
         }
     }
+
+    open var message: String = ""
 
     // MARK: - NSTextAttachmentContainer
 
@@ -40,8 +42,8 @@ open class MoreAttachment: NSTextAttachment
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
-        let colorMessage = NSMutableAttributedString(attributedString: message)
-        colorMessage.addAttribute(NSForegroundColorAttributeName, value: color, range: message.rangeOfEntireString)
+        let colorMessage = NSMutableAttributedString(attributedString: label)
+        colorMessage.addAttribute(NSForegroundColorAttributeName, value: color, range: label.rangeOfEntireString)
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         let textPosition = CGPoint(x: ((size.width - textRect.width) / 2), y: ((size.height - textRect.height) / 2) )
         colorMessage.draw(in: CGRect(origin: textPosition , size: CGSize(width: size.width, height: textRect.size.height)))
