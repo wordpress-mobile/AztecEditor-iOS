@@ -27,6 +27,7 @@ extension Libxml2 {
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a]
+        static let elementsThatCantHaveChildren: [StandardElementType] = [.a, .br, .img]
         
         // MARK: - Initializers
 
@@ -1294,7 +1295,9 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                guard let childEditableNode = child as? EditableNode else {
+                guard child.canHaveChildren(),
+                    let childEditableNode = child as? EditableNode else {
+
                     if (index == 0 && preferLeftNode)
                         || (index == 1 && preferRightNode)
                         && string.characters.count > 0 {
@@ -1769,6 +1772,15 @@ extension Libxml2 {
         }
 
         // MARK: - Editing behavior
+
+        override func canHaveChildren() -> Bool {
+
+            guard let standardName = standardName else {
+                return true
+            }
+
+            return !ElementNode.elementsThatCantHaveChildren.contains(standardName)
+        }
 
         private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
             guard !(node is TextNode) else {
