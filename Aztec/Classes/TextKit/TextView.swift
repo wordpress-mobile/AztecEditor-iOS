@@ -225,11 +225,9 @@ open class TextView: UITextView {
                 return
         }
 
-        let string = storage.string
+        let firstOldCharacterIndex = storage.string.index(storage.string.startIndex, offsetBy: selectedRange.length)
 
-        let firstOldCharacterIndex = string.index(string.startIndex, offsetBy: selectedRange.length)
-
-        guard string.characters[firstOldCharacterIndex] != Character(.newline) else {
+        guard storage.string.characters[firstOldCharacterIndex] != Character(.newline) else {
             return
         }
 
