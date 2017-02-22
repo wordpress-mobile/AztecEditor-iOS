@@ -265,7 +265,8 @@ open class TextView: UITextView {
         .link: LinkFormatter(),
         .orderedlist: TextListFormatter(style: .ordered),
         .unorderedlist: TextListFormatter(style: .unordered),
-        .blockquote: BlockquoteFormatter()
+        .blockquote: BlockquoteFormatter(),
+        .header: HeaderFormatter(),
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -417,7 +418,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
@@ -439,6 +440,16 @@ open class TextView: UITextView {
     ///
     open func toggleUnorderedList(range: NSRange) {
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
+    }
+
+    /// Adds or removes a unordered list style from the specified range.
+    ///
+    /// - Parameter range: The NSRange to edit.
+    ///
+    open func toggleHeader(range: NSRange) {
+        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
