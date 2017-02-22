@@ -176,6 +176,9 @@ open class TextView: UITextView {
         }
 
         super.insertText(text)
+
+        ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
+
         ensureCursorRedraw(afterEditing: text)
     }
 
@@ -581,7 +584,6 @@ open class TextView: UITextView {
         return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
-
     /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
     /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
     ///
@@ -592,6 +594,7 @@ open class TextView: UITextView {
     /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
     func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
+
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
             return false
         }
@@ -613,6 +616,37 @@ open class TextView: UITextView {
             return true
         }
         
+        return false
+    }
+
+    private func shouldRemoveSingleLineParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
+        guard text == String(.newline) else {
+            return false
+        }
+
+        let afterRange = NSRange(location: location, length: 1)
+        var afterString = String(.newline)
+
+        if afterRange.endLocation < storage.length {
+            afterString = storage.attributedSubstring(from: afterRange).string
+        }
+
+        return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
+    }
+
+    @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
+
+        guard shouldRemoveSingleLineParagraphAttributes(insertedText: text, at: range.location) else {
+            return false
+        }
+
+        let identifiers = formatIdentifiersAtIndex(range.location)
+
+        if identifiers.contains(.header) {
+            toggleHeader(range: range)
+            return true
+        }
+
         return false
     }
 
