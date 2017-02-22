@@ -159,7 +159,7 @@ open class TextView: UITextView {
     }
 
 
-    // MARK: - Intersect keyboard operations
+    // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
         // Note:
@@ -174,6 +174,11 @@ open class TextView: UITextView {
             delegate?.textViewDidChange?(self)
             return
         }
+
+        // WORKAROUND: for paragraph issues when inserting text at location 0.  See the method's
+        // documentation for more info.
+        //
+        workaroundTypingAttributesIssueWhenInserting(text, in: selectedRange)
 
         super.insertText(text)
         ensureCursorRedraw(afterEditing: text)
@@ -200,6 +205,37 @@ open class TextView: UITextView {
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
+    }
+
+    // MARK: - Typing Attributes
+
+    /// This workaround method was created because of this issue:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/312
+    ///
+    /// If a better solution is found, feel free to replace this code.
+    ///
+    /// - Parameters:
+    ///     - text: the text to insert.
+    ///     - range: the range to replace with the text we're inserting.
+    ///
+    private func workaroundTypingAttributesIssueWhenInserting(_ text: String, in range: NSRange) {
+
+        guard selectedRange.location == 0,
+            range.length < storage.length else {
+                return
+        }
+
+        let string = storage.string
+
+        let firstOldCharacterIndex = string.index(string.startIndex, offsetBy: selectedRange.length)
+
+        guard string.characters[firstOldCharacterIndex] != Character(.newline) else {
+            return
+        }
+
+        if let oldParagraphStyle = storage.attributes(at: selectedRange.length, effectiveRange: nil)[NSParagraphStyleAttributeName] {
+            typingAttributes[NSParagraphStyleAttributeName] = oldParagraphStyle
+        }
     }
 
     // MARK: - UIView Overrides
