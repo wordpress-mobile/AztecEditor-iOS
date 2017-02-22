@@ -83,7 +83,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-
+        if headerLevel != otherParagraph.headerLevel {
+            return false
+        }
+        
         return super.isEqual(object)
     }
 

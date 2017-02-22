@@ -37,8 +37,9 @@ class HeaderFormatter: ParagraphAttributeFormatter {
             paragraphStyle.headerLevel != 0 else {
             return resultingAttributes
         }
-        newParagraphStyle.headerLevel = 0
         newParagraphStyle.setParagraphStyle(paragraphStyle)
+        
+        newParagraphStyle.headerLevel = 0
         newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
         newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
