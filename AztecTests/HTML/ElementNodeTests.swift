@@ -1323,6 +1323,25 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(paragraph.children[1], boldNode)
     }
 
+    // MARK: - replaceCharactersInRange
+
+    /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
+    /// more than once in the past.
+    ///
+    /// This test tries to make sure we don't have regressions causing `TextNode` fragmentation.
+    ///
+    func testInsertingTextDoesntFragmentTextNodes() {
+        let textNode = TextNode(text: "")
+        let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
+
+        paragraphNode.replaceCharacters(inRange: NSRange(location: 0, length: 0), withString: "a")
+        paragraphNode.replaceCharacters(inRange: NSRange(location: 1, length: 0), withString: "b")
+        paragraphNode.replaceCharacters(inRange: NSRange(location: 2, length: 0), withString: "c")
+
+        XCTAssertEqual(paragraphNode.children.count, 1)
+        XCTAssert(paragraphNode.children[0] is TextNode)
+    }
+
     /// Tests `replaceCharacters(inRange:withString:)`.
     ///
     /// Input HTML: `<p>Click on this <a href="http://www.wordpress.com">link</a></p>`
