@@ -6,7 +6,10 @@ extension Libxml2 {
     /// a string.
     ///
     /// Any requests made to this class are performed in its own queue (sometimes synchronously,
-    /// sometimes asynchronously).
+    /// sometimes asynchronously).  Public methods are resopnsible for queueing requests, while all
+    /// private methods MUST be synchronous.  This is to ensure a simple design in which we are sure
+    /// we're not queueing an operation more than once.  Private methods can be called without
+    /// having to figure out if they'll be queueing additional operations (they won't).
     ///
     class DOMString {
         
@@ -218,24 +221,7 @@ extension Libxml2 {
             }
         }
 
-        // MARK: - Images
-        
-        fileprivate func setImageURLInDOM(_ imageURL: URL?, forRange range: NSRange) {
-            
-            let imageURLString = imageURL?.absoluteString ?? ""
-            
-            setImageURLStringInDOM(imageURLString, forRange: range)
-        }
-        
-        fileprivate func setImageURLStringInDOM(_ imageURLString: String, forRange range: NSRange) {
-            
-            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
-                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
-            
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
-        }
-
-        // MARK: Remove Styles
+        // MARK: - Remove Styles
 
         func remove(element: StandardElementType, at range: NSRange){
             performAsyncUndoable { [weak self] in
@@ -254,13 +240,23 @@ extension Libxml2 {
             }
         }
 
+        /// Disables an image from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeImage(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeImageSynchronously(spanning: range)
+            }
+        }
+
         /// Disables italic from the specified range.
         ///
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
         func removeItalic(spanning range: NSRange) {
-            //domQueue.async { [weak self] in
             performAsyncUndoable { [weak self] in
                 self?.removeItalicSynchronously(spanning: range)
             }
@@ -328,6 +324,10 @@ extension Libxml2 {
         private func removeBoldSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
         }
+
+        private func removeImageSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.img.equivalentNames)
+        }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
@@ -349,7 +349,7 @@ extension Libxml2 {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.h1.equivalentNames)
         }
         
-        // Apply Styles
+        // MARK: - Apply Styles
                 
         /// Applies bold to the specified range.
         ///
@@ -422,17 +422,29 @@ extension Libxml2 {
             }
         }
 
-        /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
+        // MARK: - Images
+
+        /// Applies an image to the specified range
         ///
         /// - Parameters:
         ///   - imageURL: the URL for the img src attribute
         ///   - range: the range to insert the image
         ///
-        func applyImage(imageURL: URL?, spanning range:NSRange) {
+        func insertImage(imageURL: URL, replacing range:NSRange) {
             performAsyncUndoable { [weak self] in
-                self?.setImageURLInDOM(imageURL, forRange: range)
+                self?.insertImageSynchronously(imageURL: imageURL, replacing: range)
             }
         }
+
+        private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
+            let imageURLString = imageURL.absoluteString
+
+            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
+                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+
+            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+        }
+        
 
         func applyHeader(spanning range:NSRange) {
             performAsyncUndoable { [weak self] in

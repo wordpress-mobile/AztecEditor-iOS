@@ -52,6 +52,10 @@ extension Libxml2 {
 
         // MARK: - Override in Subclasses
 
+        func canHaveChildren() -> Bool {
+            return false
+        }
+
         /// Override.
         ///
         func length() -> Int {
