@@ -1325,6 +1325,11 @@ class ElementNodeTests: XCTestCase {
 
     // MARK: - replaceCharactersInRange
 
+    /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
+    /// more than once in the past.
+    ///
+    /// This test tries to make sure we don't have regressions on `TextNode` fragmentation.
+    ///
     func testInsertingTextDoesntFragmentTextNodes() {
         let textNode = TextNode(text: "")
         let paragraphNode = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode])
