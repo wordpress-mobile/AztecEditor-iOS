@@ -337,6 +337,30 @@ class AztecVisualEditorTests: XCTestCase {
         XCTAssert(!editor.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+    // MARK: - Insert links
+
+    /// Tests that inserting a link on an empty editor works.  Also that it doesn't crash the
+    /// editor (which was the reason why this test was first introduced).
+    ///
+    /// Input:
+    ///     - Link URL is: "www.wordpress.com"
+    ///     - Link Title: "WordPress.com"
+    ///     - Insertion range: (loc: 0, len: 0)
+    ///
+    func testInsertingLinkWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: 0)
+
+        let textView = editorConfiguredForTesting(withHTML: "")
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, title: linkTitle, inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
+    }
+
     // MARK: - Helpers
     let paragraph = "Lorem ipsum dolar sit amet.\n"
 

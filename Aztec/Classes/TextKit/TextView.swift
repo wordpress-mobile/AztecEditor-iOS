@@ -688,8 +688,7 @@ open class TextView: UITextView {
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
-        var attributes = storage.attributes(at: range.location, effectiveRange: nil)
-        attributes = formatter.apply(to: attributes)
+        let attributes = formatter.apply(to: typingAttributes)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
         delegate?.textViewDidChange?(self)
     }
