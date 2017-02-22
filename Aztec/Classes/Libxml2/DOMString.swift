@@ -6,7 +6,10 @@ extension Libxml2 {
     /// a string.
     ///
     /// Any requests made to this class are performed in its own queue (sometimes synchronously,
-    /// sometimes asynchronously).
+    /// sometimes asynchronously).  Public methods are resopnsible for queueing requests, while all
+    /// private methods MUST be synchronous.  This is to ensure a simple design in which we are sure
+    /// we're not queueing an operation more than once.  Private methods can be called without
+    /// having to figure out if they'll be queueing additional operations (they won't).
     ///
     class DOMString {
         
