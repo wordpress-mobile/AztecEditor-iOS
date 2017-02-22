@@ -351,9 +351,10 @@ open class TextStorage: NSTextStorage {
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
         case NSAttachmentAttributeName:
-            if let attachment = sourceValue as? TextAttachment {
-                dom.applyImage(imageURL: attachment.url, spanning: domRange)
-            }
+            let sourceAttachment = sourceValue as? TextAttachment
+            let targetAttachment = targetValue as? TextAttachment
+
+            processAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSParagraphStyleAttributeName:
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
@@ -400,6 +401,30 @@ open class TextStorage: NSTextStorage {
             dom.applyBold(spanning: range)
         } else if removeBold {
             dom.removeBold(spanning: range)
+        }
+    }
+
+    private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
+
+        let originalUrl = original?.url
+        let newUrl = new?.url
+
+        guard originalUrl != newUrl else {
+            return
+        }
+
+        let addImageUrl = originalUrl == nil && newUrl != nil
+        let removeImageUrl = originalUrl != nil && newUrl == nil
+
+        if addImageUrl {
+            guard let urlToAdd = newUrl else {
+                assertionFailure("This should not be possible.  Review your logic.")
+                return
+            }
+
+            dom.insertImage(imageURL: urlToAdd, replacing: range)
+        } else if removeImageUrl {
+            dom.removeImage(spanning: range)
         }
     }
 
