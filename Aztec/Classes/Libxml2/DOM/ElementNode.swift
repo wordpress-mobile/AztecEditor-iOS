@@ -1304,8 +1304,7 @@ extension Libxml2 {
 
                         let offset = intersection.location == 0 ? 0 : 1
 
-                        let textNode = TextNode(text: string, editContext: editContext)
-                        insert(textNode, at: indexOf(childNode: child) + offset)
+                        insert(string, atNodeIndex: indexOf(childNode: child) + offset)
                         textInserted = true
                     }
 
