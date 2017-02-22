@@ -417,7 +417,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
+        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
@@ -641,11 +641,11 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
-        let index = range.location
-        let length = title.characters.count
-        let insertionRange = NSMakeRange(index, length)
-        storage.replaceCharacters(in: range, with: title)
-        storage.setLink(url, forRange: insertionRange)
+        let formatter = LinkFormatter()
+        formatter.attributeValue = url        
+        var attributes = storage.attributes(at: range.location, effectiveRange: nil)
+        attributes = formatter.apply(to: attributes)
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
         delegate?.textViewDidChange?(self)
     }
 
@@ -655,7 +655,8 @@ open class TextView: UITextView {
     /// - Parameter range: range that contains the link to be removed.
     ///
     open func removeLink(inRange range: NSRange) {
-        storage.removeLink(inRange: range)
+        let formatter = LinkFormatter()
+        formatter.toggle(in: storage, at: range)
         delegate?.textViewDidChange?(self)
     }
 

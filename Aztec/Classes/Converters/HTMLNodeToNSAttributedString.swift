@@ -168,16 +168,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         var attributeValue: Any?
 
         if node.isNodeType(.a) {
-            let linkURL: String
+            var linkURL: URL?
 
             if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
                 let attribute = node.attributes[attributeIndex] as? StringAttribute {
 
-                linkURL = attribute.value
+                linkURL = URL(string: attribute.value)
             } else {
                 // We got a link tag without an HREF attribute
                 //
-                linkURL = ""
+                linkURL = URL(string: "")
             }
 
             attributeValue = linkURL

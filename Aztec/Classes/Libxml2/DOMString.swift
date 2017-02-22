@@ -234,16 +234,6 @@ extension Libxml2 {
             
             rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
-        
-        // MARK: - Links
-        
-        fileprivate func setLinkInDOM(_ range: NSRange, url: URL) {
-            
-            let elementDescriptor = ElementNodeDescriptor(elementType: .a,
-                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
-            
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
-        }
 
         // MARK: Remove Styles
 
@@ -308,6 +298,22 @@ extension Libxml2 {
                 self?.removeBlockquoteSynchronously(spanning: range)
             }
         }
+
+        /// Disables link from the specified range
+        ///
+        /// - Parameter range: the range to remove
+        ///
+        func removeLink(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeSynchronously(element:.a, at: range)
+            }
+        }
+
+        func removeHeader(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeHeaderSynchronously(spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -338,9 +344,13 @@ extension Libxml2 {
         private func removeBlockquoteSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
+
+        private func removeHeaderSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.h1.equivalentNames)
+        }
         
         // Apply Styles
-        
+                
         /// Applies bold to the specified range.
         ///
         /// - Parameters:
@@ -396,6 +406,22 @@ extension Libxml2 {
             }
         }
 
+        /// Applies a link to the specified range
+        ///
+        /// - Parameters:
+        ///   - url: the url to link to
+        ///   - range: the range to apply the link
+        ///
+        func applyLink(_ url: URL?, spanning range: NSRange) {
+            var attributes: [Libxml2.Attribute] = []
+            if let url = url {
+                attributes.append(Libxml2.StringAttribute(name: HTMLLinkAttribute.Href.rawValue, value: url.absoluteString))
+            }
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.a, spanning: range, attributes: attributes)
+            }
+        }
+
         /// Replaces the characteres in the specified range for a an img element pointing to the provided URL
         ///
         /// - Parameters:
@@ -423,8 +449,8 @@ extension Libxml2 {
         ///     - elementType: the standard element type to apply.
         ///     - range: the range to apply the bold style to.
         ///
-        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange) {
-            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames)
+        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
+            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames, attributes: attributes)
         }
         
         /// Applies an HTML element to the specified range.
@@ -437,19 +463,13 @@ extension Libxml2 {
         ///     - equivalentElementNames: equivalent element names to look for before applying
         ///             the specified one.
         ///
-        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
+        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
-            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
+            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         
         // MARK: - Candidates for removal
-        
-        func removeLink(inRange range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.removeLinkSynchronously(inRange: range)
-            }
-        }
         
         func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
@@ -458,10 +478,6 @@ extension Libxml2 {
         }
         
         // MARK: - Candidates for removal: Synchronously
-        
-        private func removeLinkSynchronously(inRange range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: ["a"])
-        }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             

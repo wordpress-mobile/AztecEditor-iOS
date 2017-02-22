@@ -280,8 +280,7 @@ extension EditorDemoController : UITextViewDelegate {
         updateFormatBar()
     }
 
-    func textViewDidChange(_ textView: UITextView) {
-        print("Changed content")
+    func textViewDidChange(_ textView: UITextView) {        
     }
 }
 

@@ -360,6 +360,10 @@ open class TextStorage: NSTextStorage {
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
 
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
+        case NSLinkAttributeName:
+            let sourceStyle = sourceValue as? URL
+            let targetStyle = targetValue as? URL
+            processLinkDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
         default:
             break
         }
@@ -514,9 +518,30 @@ open class TextStorage: NSTextStorage {
         if addStyle {
             dom.applyHeader(spanning: range)
         } else if removeStyle {
-            dom.applyHeader(spanning: range)
+            dom.removeHeader(spanning: range)
         }
     }
+
+    /// Processes differences in link styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalURL: the original link URL object if any.
+    ///     - newURL: the new link URL object if any.
+    ///
+    private func processLinkDifferences(in range: NSRange, betweenOriginal originalURL: URL?, andNew newURL: URL?) {
+
+        let addStyle = originalURL == nil && newURL != nil
+        let removeStyle = originalURL != nil && newURL == nil
+
+        if addStyle {            
+            dom.applyLink(newURL, spanning: range)
+        } else if removeStyle {
+            dom.removeLink(spanning: range)
+        }
+    }
+
 
     // MARK: - Range Mapping: Visual vs HTML
 
@@ -583,29 +608,6 @@ open class TextStorage: NSTextStorage {
         }
 
         return formatter.toggle(in: self, at: applicationRange)
-    }
-
-    func setLink(_ url: URL, forRange range: NSRange) {
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-        } else {
-            //if a link was not there we are just going to add it to the provided range
-            effectiveRange = range
-        }
-        
-        addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-    }
-
-    func removeLink(inRange range: NSRange){
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-            
-            dom.removeLink(inRange: effectiveRange)
-        }
     }
 
     /// Insert Image Element at the specified range using url as source
