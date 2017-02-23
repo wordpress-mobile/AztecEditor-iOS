@@ -116,6 +116,19 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         return copy
     }
 
+    open override var hash: Int {
+        var hash: Int = super.hash
+        if blockquote != nil {
+            hash = hash ^ String(describing: Blockquote.self).hashValue
+        }
+        if let listStyle = textList?.style {
+            hash = hash ^ listStyle.hashValue
+        }
+
+        hash = hash ^ headerLevel.hashValue
+        return hash
+    }
+
     var debugString: String {
         return description
     }
