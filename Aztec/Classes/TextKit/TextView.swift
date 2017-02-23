@@ -252,6 +252,11 @@ open class TextView: UITextView {
         font = defaultFont
         
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor)
+        if storage.length > 0 && selectedRange.location < storage.length {
+            typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
+        }
+        delegate?.textViewDidChange?(self)
+        formattingDelegate?.textViewCommandToggledAStyle()
     }
 
 
