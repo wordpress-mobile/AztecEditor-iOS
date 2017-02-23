@@ -255,7 +255,8 @@ open class TextView: UITextView {
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
         }
-        delegate?.textViewDidChangeSelection?(self)
+        delegate?.textViewDidChange?(self)
+        formattingDelegate?.textViewCommandToggledAStyle()
     }
 
 
