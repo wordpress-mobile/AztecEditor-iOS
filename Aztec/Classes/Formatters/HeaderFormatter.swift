@@ -3,11 +3,36 @@ import UIKit
 
 class HeaderFormatter: ParagraphAttributeFormatter {
 
+    enum HeaderType: Int {
+        case none = 0
+        case h1 = 1
+        case h2 = 2
+        case h3 = 3
+        case h4 = 4
+        case h5 = 5
+        case h6 = 6
+
+        var fontSize: CGFloat {
+            switch self {
+            case .none: return 14
+            case .h1: return 36
+            case .h2: return 24
+            case .h3: return 21
+            case .h4: return 16
+            case .h5: return 14
+            case .h6: return 11
+            }
+        }
+    }
+
     let elementType: Libxml2.StandardElementType = .h1
+
+    var headerLevel: HeaderType = .h1
 
     let placeholderAttributes: [String : Any]?
 
-    init(placeholderAttributes: [String : Any]? = nil) {
+    init(headerLevel: HeaderType = .h1, placeholderAttributes: [String : Any]? = nil) {
+        self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
 
@@ -17,13 +42,13 @@ class HeaderFormatter: ParagraphAttributeFormatter {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
-        newParagraphStyle.headerLevel = 1
+        newParagraphStyle.headerLevel = headerLevel.rawValue
         newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
         newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
-            let newFont = font.withSize(36)
+            let newFont = font.withSize(headerLevel.fontSize)
             resultingAttributes[NSFontAttributeName] = newFont
         }
 
@@ -39,13 +64,13 @@ class HeaderFormatter: ParagraphAttributeFormatter {
         }
         newParagraphStyle.setParagraphStyle(paragraphStyle)
         
-        newParagraphStyle.headerLevel = 0
+        newParagraphStyle.headerLevel = HeaderType.none.rawValue
         newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
         newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
-            let newFont = font.withSize(16)
+            let newFont = font.withSize(HeaderType.none.fontSize)
             resultingAttributes[NSFontAttributeName] = newFont
         }
 
@@ -54,7 +79,7 @@ class HeaderFormatter: ParagraphAttributeFormatter {
 
     func present(in attributes: [String : Any]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
-            return paragraphStyle.headerLevel != 0
+            return paragraphStyle.headerLevel == headerLevel.rawValue
         }
         return false
     }

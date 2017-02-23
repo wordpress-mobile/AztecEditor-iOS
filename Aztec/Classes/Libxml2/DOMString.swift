@@ -305,9 +305,9 @@ extension Libxml2 {
             }
         }
 
-        func removeHeader(spanning range: NSRange) {
+        func removeHeader(_ headerLevel: Int, spanning range: NSRange) {
             performAsyncUndoable { [weak self] in
-                self?.removeHeaderSynchronously(spanning: range)
+                self?.removeHeaderSynchronously(headerLevel: headerLevel, spanning: range)
             }
         }
         
@@ -345,8 +345,11 @@ extension Libxml2 {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
 
-        private func removeHeaderSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.h1.equivalentNames)
+        private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
+            rootNode.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
         }
         
         // MARK: - Apply Styles
@@ -445,10 +448,21 @@ extension Libxml2 {
             rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
         
+        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h4, .h5, .h6]
+        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+                return nil
+            }
+            return DOMString.headerLevels[headerLevel - 1]
+        }
 
-        func applyHeader(spanning range:NSRange) {
+
+        func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
             performAsyncUndoable { [weak self] in
-                self?.applyElement(.h1, spanning: range)
+                self?.applyElement(elementType, spanning: range)
             }
         }
         // MARK: - Styles to HTML elements

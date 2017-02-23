@@ -529,21 +529,21 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameters:
     ///     - range: the range in the DOM where the differences must be applied.
-    ///     - originalFont: the original font object.
-    ///     - newFont: the new font object.
+    ///     - originalHeaderLevel: the original font object.
+    ///     - newHeaderLevel: the new font object.
     ///
-    private func processHeaderDifferences(in range: NSRange, betweenOriginal originalStyle: Int?, andNew newStyle: Int?) {
+    private func processHeaderDifferences(in range: NSRange, betweenOriginal originalHeaderLevel: Int?, andNew newHeaderLevel: Int?) {
 
-        let sourceStyle = originalStyle ?? 0
-        let targetStyle = newStyle ?? 0
+        let sourceHeader = originalHeaderLevel ?? 0
+        let targetHeader = newHeaderLevel ?? 0
 
-        let addStyle = sourceStyle == 0 && targetStyle == 1
-        let removeStyle = sourceStyle == 1 && targetStyle == 0
+        let addStyle = sourceHeader == 0 && targetHeader > 0
+        let removeStyle = sourceHeader > 0 && targetHeader == 0
 
         if addStyle {
-            dom.applyHeader(spanning: range)
+            dom.applyHeader(targetHeader, spanning: range)
         } else if removeStyle {
-            dom.removeHeader(spanning: range)
+            dom.removeHeader(sourceHeader, spanning: range)
         }
     }
 
