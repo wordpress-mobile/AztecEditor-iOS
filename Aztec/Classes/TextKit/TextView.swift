@@ -201,6 +201,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
+        refreshHeaderAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -546,6 +547,30 @@ open class TextView: UITextView {
         // TODO: We should have explicit methods to Remove a Blockquote format, rather than just calling Toggle
         //
         toggleBlockquote(range: range)
+    }
+
+    // MARK: - Blockquotes
+
+    /// Refresh Header attributes when text is deleted at the specified range.
+    ///
+    /// - Notes: Toggles the Header Style, whenever the deleted text is at the beginning of the text.
+    ///
+    /// - Parameters:
+    ///   - text: the text being deleted
+    ///   - range: the deletion range
+    ///
+    private func refreshHeaderAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
+        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+        guard formatter.present(in: textStorage, at: range.location),
+            deletedText.string == String(.newline) else {
+                return
+        }
+
+        // Proceed to remove the header
+        // TODO: We should have explicit methods to Remove a TextHeader format, rather than just calling Toggle
+        //
+        toggleHeader(range: range)
+        toggleHeader(range: range)
     }
 
 
