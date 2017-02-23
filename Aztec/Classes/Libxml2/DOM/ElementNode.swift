@@ -27,7 +27,7 @@ extension Libxml2 {
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a]
-        static let elementsThatCantHaveChildren: [StandardElementType] = [.br, .img]
+        static let elementsThatCantHaveChildren: [StandardElementType] = [.br, .img, .hr]
         
         // MARK: - Initializers
 
