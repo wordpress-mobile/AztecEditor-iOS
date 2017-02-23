@@ -567,8 +567,8 @@ open class TextView: UITextView {
         }
 
         // Proceed to remove the header
-        // TODO: We should have explicit methods to Remove a TextHeader format, rather than just calling Toggle
-        //
+        // TODO: We should have explicit methods to apply a Header format, rather than just calling Toggle
+        // the double call it's because the first call will actually remove the header and we want to add it to all the new line
         toggleHeader(range: range)
         toggleHeader(range: range)
     }
