@@ -579,11 +579,14 @@ extension EditorDemoController: TextViewMediaDelegate
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
         
         // TODO: start fake upload process
-        
-        return saveToDisk(image: image)
+        if let image = attachment.image {
+            return saveToDisk(image: image)
+        } else {
+            return URL(string: "placeholder://")!
+        }
     }
 
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {

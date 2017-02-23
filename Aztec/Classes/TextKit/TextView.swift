@@ -22,18 +22,18 @@ public protocol TextViewMediaDelegate: class {
         onSuccess success: @escaping (UIImage) -> Void,
         onFailure failure: @escaping (Void) -> Void) -> UIImage
 
-    /// Called when an image is about to be added to the storage as an attachment (copy/paste), so that the
-    /// delegate can specify an URL where that image is available.
+    /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
+    /// delegate can specify an URL where that attachment is available.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the image.
-    ///     - image: The image that was added to the storage.
+    ///     - attachment: The attachment that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
     func textView(
         _ textView: TextView,
-        urlForImage image: UIImage) -> URL
+        urlForAttachment attachment: TextAttachment) -> URL
 
 
     /// Called when a attachment is removed from the storage.
@@ -870,13 +870,13 @@ extension TextView: TextStorageAttachmentsDelegate {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL {
+    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForImage: image)
+        return mediaDelegate.textView(self, urlForAttachment: attachment)
     }
 
     func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
