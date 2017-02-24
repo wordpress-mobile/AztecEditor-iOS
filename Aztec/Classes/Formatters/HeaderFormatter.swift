@@ -25,9 +25,7 @@ class HeaderFormatter: ParagraphAttributeFormatter {
         }
     }
 
-    let elementType: Libxml2.StandardElementType = .h1
-
-    var headerLevel: HeaderType = .h1
+    let headerLevel: HeaderType
 
     let placeholderAttributes: [String : Any]?
 
