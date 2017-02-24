@@ -5,7 +5,7 @@ extension Libxml2 {
 
     /// Element node.  Everything but text basically.
     ///
-    class ElementNode: Node, EditableNode {
+    class ElementNode: Node {
 
         fileprivate(set) var attributes = [Attribute]()
         fileprivate(set) var children: [Node]
@@ -946,12 +946,12 @@ extension Libxml2 {
                 
                 if childStartLocation >= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode, childStartLocation < splitLocation && childEndLocation > splitLocation {
+                } else if childStartLocation < splitLocation && childEndLocation > splitLocation {
                     
                     let splitLocationInChild = splitLocation - childStartLocation
                     let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocation)
                     
-                    childEditableNode.split(forRange: splitRange)
+                    child.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -979,12 +979,12 @@ extension Libxml2 {
                 
                 if childEndLocation <= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode, childOffset < splitLocation && childEndLocation > splitLocation {
+                } else if childOffset < splitLocation && childEndLocation > splitLocation {
                     
                     let splitLocationInChild = splitLocation - childOffset
                     let splitRange = NSRange(location: 0, length: splitLocationInChild)
                     
-                    childEditableNode.split(forRange: splitRange)
+                    child.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -1176,19 +1176,14 @@ extension Libxml2 {
 
         // MARK: - EditableNode
 
-        func deleteCharacters(inRange range: NSRange) {
+        override func deleteCharacters(inRange range: NSRange) {
             if range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
                 let childrenAndIntersections = childNodes(intersectingRange: range)
 
                 for (child, intersection) in childrenAndIntersections {
-
-                    if let childEditableNode = child as? EditableNode {
-                        childEditableNode.deleteCharacters(inRange: intersection)
-                    } else {
-                        remove(child)
-                    }
+                    child.deleteCharacters(inRange: intersection)
                 }
             }
         }
@@ -1271,12 +1266,7 @@ extension Libxml2 {
             } else {
                 
                 if childIntersection < child.length() {
-                    
-                    guard let editableNode = child as? EditableNode else {
-                        fatalError("We should never have a non-editable node with a representation that can be split.")
-                    }
-                    
-                    editableNode.split(atLocation: childIntersection)
+                    child.split(atLocation: childIntersection)
                 }
                 
                 insertionIndex = childIndex + 1
@@ -1285,7 +1275,7 @@ extension Libxml2 {
             element.insert(string, atNodeIndex: insertionIndex)
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
+        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
             let childrenAndIntersections = childNodes(intersectingRange: range)
             let preferRightNode = !preferLeftNode
             var textInserted = false
@@ -1295,9 +1285,7 @@ extension Libxml2 {
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
 
-                guard child.canHaveChildren(),
-                    let childEditableNode = child as? EditableNode else {
-
+                guard child.canHaveChildren() else {
                     if (index == 0 && preferLeftNode)
                         || (index == 1 && preferRightNode)
                         && string.characters.count > 0 {
@@ -1316,40 +1304,40 @@ extension Libxml2 {
                 }
 
                 guard !textInserted else {
-                    childEditableNode.deleteCharacters(inRange: intersection)
+                    child.deleteCharacters(inRange: intersection)
                     continue
                 }
 
                 if intersection.location == 0 {
                     guard index == 0 || preferRightNode else {
                         if intersection.length > 0 {
-                            childEditableNode.deleteCharacters(inRange: intersection)
+                            child.deleteCharacters(inRange: intersection)
                         }
                         continue
                     }
 
                     if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
                         insert(string, atNodeIndex: indexOf(childNode: child))
-                        childEditableNode.deleteCharacters(inRange: intersection)
+                        child.deleteCharacters(inRange: intersection)
                     } else {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                     }
                 } else if intersection.location + intersection.length == child.length() {
                     guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
                         if intersection.length > 0 {
-                            childEditableNode.deleteCharacters(inRange: intersection)
+                            child.deleteCharacters(inRange: intersection)
                         }
                         continue
                     }
 
                     if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
                         insert(string, atNodeIndex: indexOf(childNode: child) + 1)
-                        childEditableNode.deleteCharacters(inRange: intersection)
+                        child.deleteCharacters(inRange: intersection)
                     } else {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                     }
                 } else {
-                    childEditableNode.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                    child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                 }
 
                 textInserted = true
@@ -1386,7 +1374,7 @@ extension Libxml2 {
             textNodeParent.remove(textNode)
         }
 
-        func split(atLocation location: Int) {
+        override func split(atLocation location: Int) {
             let length = self.length()
             
             guard location != 0 && location != length else {
@@ -1421,7 +1409,7 @@ extension Libxml2 {
         ///     - range: the range to use for splitting this node.  All nodes before and after the specified range will
         ///         be inserted in clones of this node.  All child nodes inside the range will be kept inside this node.
         ///
-        func split(forRange range: NSRange) {
+        override func split(forRange range: NSRange) {
 
             guard range.location >= 0 && range.location + range.length <= length() else {
                 assertionFailure("Specified range is out-of-bounds.")
@@ -1635,7 +1623,7 @@ extension Libxml2 {
                 let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
                 
                 if canWrapReceiverInNewNode {
-                    wrap(inElement: elementDescriptor)
+                    wrap(in: elementDescriptor)
                     return
                 }
             }
@@ -1678,16 +1666,16 @@ extension Libxml2 {
                 return
             }
 
-            if let firstEditableChild = firstChild as? EditableNode, !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                firstEditableChild.split(forRange: firstChildIntersection)
+            if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
+                firstChild.split(forRange: firstChildIntersection)
             }
             
             if childNodesAndRanges.count > 1 {
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
                 
-                if let lastEditableChild = lastChild as? EditableNode, !NSEqualRanges(lastChild.range(), lastChildIntersection) {
-                    lastEditableChild.split(forRange: lastChildIntersection)
+                if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
+                    lastChild.split(forRange: lastChildIntersection)
                 }
             }
             

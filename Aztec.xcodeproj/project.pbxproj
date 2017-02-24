@@ -28,7 +28,6 @@
 		599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25121D8BC9A1002871D6 /* OutHTMLNodeConverter.swift */; };
 		599F253F1D8BC9A1002871D6 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25141D8BC9A1002871D6 /* Attribute.swift */; };
 		599F25401D8BC9A1002871D6 /* CommentNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25151D8BC9A1002871D6 /* CommentNode.swift */; };
-		599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25161D8BC9A1002871D6 /* EditableNode.swift */; };
 		599F25421D8BC9A1002871D6 /* ElementNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25171D8BC9A1002871D6 /* ElementNode.swift */; };
 		599F25431D8BC9A1002871D6 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25181D8BC9A1002871D6 /* Node.swift */; };
 		599F25441D8BC9A1002871D6 /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25191D8BC9A1002871D6 /* TextNode.swift */; };
@@ -139,7 +138,6 @@
 		599F25121D8BC9A1002871D6 /* OutHTMLNodeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLNodeConverter.swift; sourceTree = "<group>"; };
 		599F25141D8BC9A1002871D6 /* Attribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		599F25151D8BC9A1002871D6 /* CommentNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentNode.swift; sourceTree = "<group>"; };
-		599F25161D8BC9A1002871D6 /* EditableNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditableNode.swift; sourceTree = "<group>"; };
 		599F25171D8BC9A1002871D6 /* ElementNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNode.swift; sourceTree = "<group>"; };
 		599F25181D8BC9A1002871D6 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		599F25191D8BC9A1002871D6 /* TextNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
@@ -366,7 +364,6 @@
 			children = (
 				599F25141D8BC9A1002871D6 /* Attribute.swift */,
 				599F25151D8BC9A1002871D6 /* CommentNode.swift */,
-				599F25161D8BC9A1002871D6 /* EditableNode.swift */,
 				599F25171D8BC9A1002871D6 /* ElementNode.swift */,
 				F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */,
 				F12093F01E4A4C51006E8206 /* MarkerNode.swift */,
@@ -723,7 +720,6 @@
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
-				599F25411D8BC9A1002871D6 /* EditableNode.swift in Sources */,
 				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,

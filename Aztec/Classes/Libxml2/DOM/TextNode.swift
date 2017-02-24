@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    class TextNode: Node, EditableNode, LeafNode {
+    class TextNode: Node, LeafNode {
 
         fileprivate var contents: String
 
@@ -222,7 +222,7 @@ extension Libxml2 {
             }
         }
 
-        func deleteCharacters(inRange range: NSRange) {
+        override func deleteCharacters(inRange range: NSRange) {
 
             guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -247,7 +247,7 @@ extension Libxml2 {
             }
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {
@@ -257,7 +257,7 @@ extension Libxml2 {
             }
         }
 
-        func split(atLocation location: Int) {
+        override func split(atLocation location: Int) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -287,7 +287,7 @@ extension Libxml2 {
             }
         }
         
-        func split(forRange range: NSRange) {
+        override func split(forRange range: NSRange) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -327,12 +327,12 @@ extension Libxml2 {
         func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
-                wrap(inElement: elementDescriptor)
+                wrap(in: elementDescriptor)
                 return
             }
 
             split(forRange: targetRange)
-            wrap(inElement: elementDescriptor)
+            wrap(in: elementDescriptor)
         }
         
         // MARK: - LeafNode
