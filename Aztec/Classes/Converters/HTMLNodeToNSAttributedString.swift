@@ -234,6 +234,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .del: StrikethroughFormatter(),
         .a: LinkFormatter(),
         .img: ImageFormatter(),
-        .hr: HRFormatter()
+        .hr: HRFormatter(),
+        .h1: HeaderFormatter(headerLevel: .h1),
+        .h2: HeaderFormatter(headerLevel: .h2),
+        .h3: HeaderFormatter(headerLevel: .h3),
+        .h4: HeaderFormatter(headerLevel: .h4),
+        .h5: HeaderFormatter(headerLevel: .h5),
+        .h6: HeaderFormatter(headerLevel: .h6)
     ]
 }

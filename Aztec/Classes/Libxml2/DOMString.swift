@@ -12,7 +12,9 @@ extension Libxml2 {
     /// having to figure out if they'll be queueing additional operations (they won't).
     ///
     class DOMString {
-        
+
+        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h4, .h5, .h6]
+
         private lazy var editContext: EditContext = {
             return EditContext(undoManager: self.domUndoManager)
         }()
@@ -304,6 +306,12 @@ extension Libxml2 {
                 self?.removeSynchronously(element:.a, at: range)
             }
         }
+
+        func removeHeader(_ headerLevel: Int, spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeHeaderSynchronously(headerLevel: headerLevel, spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -337,6 +345,13 @@ extension Libxml2 {
 
         private func removeBlockquoteSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
+        }
+
+        private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
+            rootNode.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
         }
         
         // MARK: - Apply Styles
@@ -412,6 +427,23 @@ extension Libxml2 {
             }
         }
 
+        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+                return nil
+            }
+            return DOMString.headerLevels[headerLevel - 1]
+        }
+
+
+        func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(elementType, spanning: range)
+            }
+        }
+
         // MARK: - Images
 
         /// Applies an image to the specified range
@@ -434,7 +466,7 @@ extension Libxml2 {
 
             rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
-        
+
         // MARK: - Styles to HTML elements
         
         /// Applies a standard HTML element to the specified range.

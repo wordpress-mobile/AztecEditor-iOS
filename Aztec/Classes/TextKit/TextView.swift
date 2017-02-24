@@ -22,18 +22,18 @@ public protocol TextViewMediaDelegate: class {
         onSuccess success: @escaping (UIImage) -> Void,
         onFailure failure: @escaping (Void) -> Void) -> UIImage
 
-    /// Called when an image is about to be added to the storage as an attachment (copy/paste), so that the
-    /// delegate can specify an URL where that image is available.
+    /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
+    /// delegate can specify an URL where that attachment is available.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the image.
-    ///     - image: The image that was added to the storage.
+    ///     - attachment: The attachment that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
     func textView(
         _ textView: TextView,
-        urlForImage image: UIImage) -> URL
+        urlForAttachment attachment: TextAttachment) -> URL
 
 
     /// Called when a attachment is removed from the storage.
@@ -176,6 +176,9 @@ open class TextView: UITextView {
         }
 
         super.insertText(text)
+
+        ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
+
         ensureCursorRedraw(afterEditing: text)
     }
 
@@ -198,6 +201,7 @@ open class TextView: UITextView {
 
         refreshListAfterDeletion(of: deletedString, at: deletionRange)
         refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
+        refreshHeaderAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -270,7 +274,8 @@ open class TextView: UITextView {
         .link: LinkFormatter(),
         .orderedlist: TextListFormatter(style: .ordered),
         .unorderedlist: TextListFormatter(style: .unordered),
-        .blockquote: BlockquoteFormatter()
+        .blockquote: BlockquoteFormatter(),
+        .header: HeaderFormatter(),
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -448,6 +453,16 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+    /// Adds or removes a unordered list style from the specified range.
+    ///
+    /// - Parameter range: The NSRange to edit.
+    ///
+    open func toggleHeader(range: NSRange) {
+        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+        forceRedrawCursorAfterDelay()
+    }
+
     // MARK: - Lists
 
     /// Refresh Lists attributes when text is deleted in the specified range
@@ -495,6 +510,30 @@ open class TextView: UITextView {
         toggleBlockquote(range: range)
     }
 
+    // MARK: - Blockquotes
+
+    /// Refresh Header attributes when text is deleted at the specified range.
+    ///
+    /// - Notes: Toggles the Header Style, whenever the deleted text is at the beginning of the text.
+    ///
+    /// - Parameters:
+    ///   - text: the text being deleted
+    ///   - range: the deletion range
+    ///
+    private func refreshHeaderAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
+        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+        guard formatter.present(in: textStorage, at: range.location),
+            deletedText.string == String(.newline) else {
+                return
+        }
+
+        // Proceed to remove the header
+        // TODO: We should have explicit methods to apply a Header format, rather than just calling Toggle
+        // the double call it's because the first call will actually remove the header and we want to add it to all the new line
+        toggleHeader(range: range)
+        toggleHeader(range: range)
+    }
+
 
     /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
     /// or not. Note that we should remove Paragraph Styles whenever:
@@ -531,7 +570,6 @@ open class TextView: UITextView {
         return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
-
     /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
     /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
     ///
@@ -542,6 +580,7 @@ open class TextView: UITextView {
     /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
     func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
+
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
             return false
         }
@@ -563,6 +602,54 @@ open class TextView: UITextView {
             return true
         }
         
+        return false
+    }
+
+    /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that was just inserted
+    ///     - at: Location in which the string was just inserted
+    ///
+    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
+    ///
+    private func isNewEmptyParagraphAfter(insertedText text: String, at location: Int) -> Bool {
+        guard text == String(.newline) else {
+            return false
+        }
+
+        let afterRange = NSRange(location: location, length: 1)
+        var afterString = String(.newline)
+
+        if afterRange.endLocation < storage.length {
+            afterString = storage.attributedSubstring(from: afterRange).string
+        }
+
+        return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
+    }
+
+    /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
+    /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that just got inserted.
+    ///     - at: Range in which the string was inserted.
+    ///
+    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
+    ///
+    @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
+
+        guard isNewEmptyParagraphAfter(insertedText: text, at: range.location) else {
+            return false
+        }
+
+        let identifiers = formatIdentifiersAtIndex(range.location)
+
+        if identifiers.contains(.header) {
+            toggleHeader(range: range)
+            return true
+        }
+
         return false
     }
 
@@ -826,13 +913,13 @@ extension TextView: TextStorageAttachmentsDelegate {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL {
+    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForImage: image)
+        return mediaDelegate.textView(self, urlForAttachment: attachment)
     }
 
     func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
