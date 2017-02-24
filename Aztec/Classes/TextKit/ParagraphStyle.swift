@@ -3,7 +3,7 @@ import UIKit
 
 open class ParagraphStyle: NSMutableParagraphStyle {
 
-    enum EncodingKeys: String {
+    private enum EncodingKeys: String {
         case headerLevel
     }
 
