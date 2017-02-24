@@ -7,6 +7,7 @@
 @property (nonatomic, strong) PHAssetCollection *activeAssetsCollection;
 @property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
+@property (nonatomic, strong) PHFetchResult * albums;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
@@ -61,13 +62,14 @@
 {
     PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.assetsCollections];
     PHFetchResultChangeDetails *assetsChangeDetails = [changeInstance changeDetailsForFetchResult:self.assets];
-    
-    if (!groupChangeDetails && !assetsChangeDetails) {
+    PHFetchResultChangeDetails *albumChangeDetails = [changeInstance changeDetailsForFetchResult:self.albums];
+
+    if (!groupChangeDetails && !assetsChangeDetails && !albumChangeDetails) {
         return;
     }
     
-    if (groupChangeDetails){
-        self.refreshGroups = YES;
+    if (groupChangeDetails || albumChangeDetails){
+        [self loadGroupsWithSuccess:nil failure:nil];
     }
     BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
     // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
@@ -153,11 +155,11 @@
         }
     }
     
-    PHFetchResult * albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
-                                                                           subtype:PHAssetCollectionSubtypeAny
-                                                                           options:nil];
+    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                           subtype:PHAssetCollectionSubtypeAny
+                                                           options:nil];
 
-    [albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
+    [self.albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
         if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0) {
             [collectionsArray addObject:collection];
         }

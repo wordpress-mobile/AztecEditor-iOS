@@ -43,7 +43,9 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^(BOOL incrementalChanges, NSIndexSet *deleted, NSIndexSet *inserted, NSIndexSet *reload, NSArray *moves) {
-            [weakSelf loadData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf loadData];
+            });
         }];
     [self loadData];
 }
