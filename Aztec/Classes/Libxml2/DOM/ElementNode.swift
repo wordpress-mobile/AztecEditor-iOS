@@ -26,8 +26,7 @@ extension Libxml2 {
 
         // MARK: - Editing behavior configuration
 
-        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a]
-        static let elementsThatCantHaveChildren: [StandardElementType] = [.br, .img, .hr]
+        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
         
         // MARK: - Initializers
 
@@ -1280,28 +1279,16 @@ extension Libxml2 {
             let preferRightNode = !preferLeftNode
             var textInserted = false
 
+            assert(range.location == 0 || childrenAndIntersections.count > 0)
+
+            guard childrenAndIntersections.count > 0 else {
+                insert(string, atLocation: 0)
+                return
+            }
+
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
-                
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
-
-                guard child.canHaveChildren() else {
-                    if (index == 0 && preferLeftNode)
-                        || (index == 1 && preferRightNode)
-                        && string.characters.count > 0 {
-
-                        let offset = intersection.location == 0 ? 0 : 1
-
-                        insert(string, atNodeIndex: indexOf(childNode: child) + offset)
-                        textInserted = true
-                    }
-
-                    if intersection.length > 0 {
-                        remove(child)
-                    }
-
-                    continue
-                }
 
                 guard !textInserted else {
                     child.deleteCharacters(inRange: intersection)
@@ -1759,15 +1746,6 @@ extension Libxml2 {
         }
 
         // MARK: - Editing behavior
-
-        override func canHaveChildren() -> Bool {
-
-            guard let standardName = standardName else {
-                return true
-            }
-
-            return !ElementNode.elementsThatCantHaveChildren.contains(standardName)
-        }
 
         private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
             guard !(node is TextNode) else {

@@ -26,6 +26,10 @@ extension Libxml2 {
                 rawParent = newValue
             }
         }
+
+        // MARK: - Properties: Editing traits
+
+        var canEditTextRepresentation: Bool = true
         
         // MARK: - Properties: Edit Context
         
@@ -51,10 +55,6 @@ extension Libxml2 {
         }
 
         // MARK: - Override in Subclasses
-
-        func canHaveChildren() -> Bool {
-            return false
-        }
 
         /// Override.
         ///

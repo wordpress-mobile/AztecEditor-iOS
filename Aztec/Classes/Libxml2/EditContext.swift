@@ -9,6 +9,8 @@ extension Libxml2 {
         // MARK: - Properties: Undo support
         
         let undoManager: UndoManager
+
+        // MARK: - Initializers
         
         init(undoManager: UndoManager) {
             self.undoManager = undoManager
