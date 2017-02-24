@@ -22,18 +22,18 @@ public protocol TextViewMediaDelegate: class {
         onSuccess success: @escaping (UIImage) -> Void,
         onFailure failure: @escaping (Void) -> Void) -> UIImage
 
-    /// Called when an image is about to be added to the storage as an attachment (copy/paste), so that the
-    /// delegate can specify an URL where that image is available.
+    /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
+    /// delegate can specify an URL where that attachment is available.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the image.
-    ///     - image: The image that was added to the storage.
+    ///     - attachment: The attachment that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
     func textView(
         _ textView: TextView,
-        urlForImage image: UIImage) -> URL
+        urlForAttachment attachment: TextAttachment) -> URL
 
 
     /// Called when a attachment is removed from the storage.
@@ -256,6 +256,11 @@ open class TextView: UITextView {
         font = defaultFont
         
         storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor)
+        if storage.length > 0 && selectedRange.location < storage.length {
+            typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
+        }
+        delegate?.textViewDidChange?(self)
+        formattingDelegate?.textViewCommandToggledAStyle()
     }
 
 
@@ -457,50 +462,6 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
-
-    // MARK: - Selection Markers
-
-    fileprivate enum SelectionMarker: String {
-        case start = "SelectionStart"
-        case end = "SelectionEnd"
-    }
-
-    fileprivate func markCurrentSelection() {
-        let range = selectedRange
-        // selection marking
-        if range.location + 1 < storage.length {
-            storage.addAttribute(SelectionMarker.start.rawValue, value: SelectionMarker.start.rawValue, range: NSRange(location:range.location, length: 1))
-        }
-        if range.endLocation + 1 < storage.length {
-            storage.addAttribute(SelectionMarker.end.rawValue, value: SelectionMarker.end.rawValue, range: NSRange(location:range.location + range.length, length: 1))
-        }
-    }
-
-    fileprivate func restoreMarkedSelection() {
-        var selectionStartRange = NSRange(location: max(storage.length, 0), length: 0)
-        var selectionEndRange = selectionStartRange
-        storage.enumerateAttribute(SelectionMarker.start.rawValue,
-                                   in: NSRange(location: 0, length: storage.length),
-                                   options: []) { (attribute, range, stop) in
-                                    if attribute != nil {
-                                        selectionStartRange = range
-                                    }
-        }
-
-        storage.enumerateAttribute(SelectionMarker.end.rawValue,
-                                   in: NSRange(location: 0, length: storage.length),
-                                   options: []) { (attribute, range, stop) in
-                                    if attribute != nil {
-                                        selectionEndRange = range
-                                    }
-        }
-
-        storage.removeAttribute(SelectionMarker.start.rawValue, range: selectionStartRange)
-        storage.removeAttribute(SelectionMarker.end.rawValue, range: selectionEndRange)
-        selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
-        self.delegate?.textViewDidChangeSelection?(self)
-    }
-
 
     // MARK: - Lists
 
@@ -952,13 +913,13 @@ extension TextView: TextStorageAttachmentsDelegate {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL {
+    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
         
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForImage: image)
+        return mediaDelegate.textView(self, urlForAttachment: attachment)
     }
 
     func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
