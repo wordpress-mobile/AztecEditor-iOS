@@ -644,7 +644,15 @@ open class TextView: UITextView {
         return false
     }
 
-    private func shouldRemoveSingleLineParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
+    /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that was just inserted
+    ///     - at: Location in which the string was just inserted
+    ///
+    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
+    ///
+    private func isNewEmptyParagraphAfter(insertedText text: String, at location: Int) -> Bool {
         guard text == String(.newline) else {
             return false
         }
@@ -659,9 +667,18 @@ open class TextView: UITextView {
         return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
+    /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
+    /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
+    ///
+    /// - Parameters:
+    ///     - insertedText: String that just got inserted.
+    ///     - at: Range in which the string was inserted.
+    ///
+    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
+    ///
     @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
 
-        guard shouldRemoveSingleLineParagraphAttributes(insertedText: text, at: range.location) else {
+        guard isNewEmptyParagraphAfter(insertedText: text, at: range.location) else {
             return false
         }
 
