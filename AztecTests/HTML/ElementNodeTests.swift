@@ -1447,6 +1447,47 @@ class ElementNodeTests: XCTestCase {
         }
     }
 
+
+    /// Tests `replaceCharacters(inRange:withString:)`.
+    ///
+    /// Input HTML: `<b>Hello</b> there!`
+    /// - Range: the range of "there"
+    /// - New String: "everyone"
+    /// - Prefer left node: true
+    ///
+    /// Expected results:
+    /// - Output: `<b>Hello</b> everyone!`
+    ///
+    func testReplaceCharactersInRangeWithString4() {
+
+        let text1 = "Hello"
+        let space = " "
+        let textToReplace = "there"
+        let text2 = "\(space)\(textToReplace)!"
+
+        let textToInsert = "everyone"
+        let textToVerify = "\(space)\(textToInsert)!"
+
+        let textNode1 = TextNode(text: text1)
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode1])
+        let textNode2 = TextNode(text: text2)
+        let rootNode = RootNode(children: [boldNode, textNode2])
+
+        let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
+
+        rootNode.replaceCharacters(inRange: replaceRange, withString: "everyone", preferLeftNode: true)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+        XCTAssertEqual(rootNode.children[0], boldNode)
+
+        guard let textNode = rootNode.children[1] as? TextNode, textNode.text() == textToVerify else {
+
+            XCTFail("Expected a text node, with the full text.")
+            return
+        }
+    }
+
+
     /// Tests `replaceCharacters(inRange:withNodeName:withAttributes)`.
     ///
     /// Input HTML: `<p>Look at this photo:image.It's amazing</p>`

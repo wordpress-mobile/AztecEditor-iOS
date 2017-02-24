@@ -1304,8 +1304,10 @@ extension Libxml2 {
                     }
 
                     if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
+                        let childIndex = indexOf(childNode: child)
+
                         child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: indexOf(childNode: child))
+                        insert(string, atNodeIndex: childIndex)
                     } else {
                         child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                     }
@@ -1318,8 +1320,10 @@ extension Libxml2 {
                     }
 
                     if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
+                        let childIndex = indexOf(childNode: child) + 1
+
                         child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: indexOf(childNode: child) + 1)
+                        insert(string, atNodeIndex: childIndex)
                     } else {
                         child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                     }
