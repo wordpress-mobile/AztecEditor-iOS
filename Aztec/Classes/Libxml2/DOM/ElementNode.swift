@@ -1290,6 +1290,13 @@ extension Libxml2 {
             let preferRightNode = !preferLeftNode
             var textInserted = false
 
+            assert(range.location == 0 || childrenAndIntersections.count > 0)
+
+            guard childrenAndIntersections.count > 0 else {
+                insert(string, atLocation: 0)
+                return
+            }
+
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
                 
                 let child = childAndIntersection.child
@@ -1298,8 +1305,9 @@ extension Libxml2 {
                 guard child.canHaveChildren(),
                     let childEditableNode = child as? EditableNode else {
 
-                    if (index == 0 && preferLeftNode)
+                    if ((index == 0 && preferLeftNode)
                         || (index == 1 && preferRightNode)
+                        || index == childrenAndIntersections.count - 1)
                         && string.characters.count > 0 {
 
                         let offset = intersection.location == 0 ? 0 : 1
