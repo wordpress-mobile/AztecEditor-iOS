@@ -335,7 +335,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
+        case .header:
+            toggleHeader()
         }
+
         updateFormatBar()
     }
 
@@ -371,6 +374,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    func toggleHeader() {
+        richTextView.toggleHeader(range: richTextView.selectedRange)
     }
 
 
@@ -513,6 +520,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             flex,
             Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
             flex,
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+            flex,
             Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
             flex,
             Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
@@ -579,11 +588,14 @@ extension EditorDemoController: TextViewMediaDelegate
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
         
         // TODO: start fake upload process
-        
-        return saveToDisk(image: image)
+        if let image = attachment.image {
+            return saveToDisk(image: image)
+        } else {
+            return URL(string: "placeholder://")!
+        }
     }
 
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
