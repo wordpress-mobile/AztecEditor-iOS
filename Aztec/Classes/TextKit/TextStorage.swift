@@ -33,7 +33,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL
+    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL
 
     /// Called when a attachment is removed from the storage.
     ///
@@ -207,7 +207,7 @@ open class TextStorage: NSTextStorage {
             let replacementAttachment = TextAttachment()
             replacementAttachment.imageProvider = self
             replacementAttachment.image = image
-            replacementAttachment.url = attachmentsDelegate.storage(self, urlForImage: image)
+            replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
             
             finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
         }
