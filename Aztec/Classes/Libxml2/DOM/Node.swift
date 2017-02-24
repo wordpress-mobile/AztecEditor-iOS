@@ -26,6 +26,10 @@ extension Libxml2 {
                 rawParent = newValue
             }
         }
+
+        // MARK: - Properties: Editing traits
+
+        var canEditTextRepresentation: Bool = true
         
         // MARK: - Properties: Edit Context
         
@@ -51,10 +55,6 @@ extension Libxml2 {
         }
 
         // MARK: - Override in Subclasses
-
-        func canHaveChildren() -> Bool {
-            return false
-        }
 
         /// Override.
         ///
@@ -177,10 +177,46 @@ extension Libxml2 {
 
         // MARK: - DOM Modification
 
+        /// Deletes all characters in the specified range.
+        ///
+        func deleteCharacters(inRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
+        }
+
         /// Removes this node from its parent, if it has one.
         ///
         func removeFromParent() {
             parent?.remove(self)
+        }
+
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - string: the new string to replace the original text with.
+        ///
+        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+        /// Should split the node at the specified text location.  The receiver will become the node before the specified
+        /// location and a new node will be created to contain whatever comes after it.
+        ///
+        /// - Parameters:
+        ///     - location: the text location to split the node at.
+        ///
+        func split(atLocation location: Int) {
+            assertionFailure("This method should always be overridden.")
+        }
+
+        /// Should split the node for the specified text range.  The receiver will become the node
+        /// at the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to use for splitting the node.
+        ///
+        func split(forRange range: NSRange) {
+            assertionFailure("This method should always be overridden.")
         }
         
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
@@ -192,7 +228,7 @@ extension Libxml2 {
         /// - Returns: the newly created element.
         ///
         @discardableResult
-        func wrap(inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
+        func wrap(in elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
@@ -208,6 +244,16 @@ extension Libxml2 {
             }
 
             return newNode
+        }
+
+        /// Wraps the specified range in the specified element.
+        ///
+        /// - Parameters:
+        ///     - range: the range to wrap.
+        ///     - elementDescriptor: the element to wrap the range in.
+        ///
+        func wrap(in range: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
+            assertionFailure("This method should always be overridden.")
         }
         
         // MARK: - Undo support
