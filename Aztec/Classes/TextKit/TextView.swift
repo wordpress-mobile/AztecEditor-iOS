@@ -448,50 +448,6 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
-    // MARK: - Selection Markers
-
-    fileprivate enum SelectionMarker: String {
-        case start = "SelectionStart"
-        case end = "SelectionEnd"
-    }
-
-    fileprivate func markCurrentSelection() {
-        let range = selectedRange
-        // selection marking
-        if range.location + 1 < storage.length {
-            storage.addAttribute(SelectionMarker.start.rawValue, value: SelectionMarker.start.rawValue, range: NSRange(location:range.location, length: 1))
-        }
-        if range.endLocation + 1 < storage.length {
-            storage.addAttribute(SelectionMarker.end.rawValue, value: SelectionMarker.end.rawValue, range: NSRange(location:range.location + range.length, length: 1))
-        }
-    }
-
-    fileprivate func restoreMarkedSelection() {
-        var selectionStartRange = NSRange(location: max(storage.length, 0), length: 0)
-        var selectionEndRange = selectionStartRange
-        storage.enumerateAttribute(SelectionMarker.start.rawValue,
-                                   in: NSRange(location: 0, length: storage.length),
-                                   options: []) { (attribute, range, stop) in
-                                    if attribute != nil {
-                                        selectionStartRange = range
-                                    }
-        }
-
-        storage.enumerateAttribute(SelectionMarker.end.rawValue,
-                                   in: NSRange(location: 0, length: storage.length),
-                                   options: []) { (attribute, range, stop) in
-                                    if attribute != nil {
-                                        selectionEndRange = range
-                                    }
-        }
-
-        storage.removeAttribute(SelectionMarker.start.rawValue, range: selectionStartRange)
-        storage.removeAttribute(SelectionMarker.end.rawValue, range: selectionEndRange)
-        selectedRange = NSRange(location:selectionStartRange.location, length: selectionEndRange.location - selectionStartRange.location)
-        self.delegate?.textViewDidChangeSelection?(self)
-    }
-
-
     // MARK: - Lists
 
     /// Refresh Lists attributes when text is deleted in the specified range
