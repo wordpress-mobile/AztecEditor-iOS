@@ -554,7 +554,7 @@ open class TextStorage: NSTextStorage {
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
         guard caretPosition != 0 else {
-            return true
+            return false
         }
 
         return canAppendToNodeRepresentedByCharacter(atIndex: caretPosition - 1)
