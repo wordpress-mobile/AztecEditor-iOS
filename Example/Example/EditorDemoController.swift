@@ -335,7 +335,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
+        case .header:
+            toggleHeader()
         }
+
         updateFormatBar()
     }
 
@@ -371,6 +374,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    func toggleHeader() {
+        richTextView.toggleHeader(range: richTextView.selectedRange)
     }
 
 
@@ -512,6 +519,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let items = [
             flex,
             Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
+            flex,
+            Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
             flex,
             Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
             flex,

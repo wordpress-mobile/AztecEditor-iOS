@@ -184,4 +184,21 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(html, "Apply a link")
     }
+
+    func testHeaderToggle() {
+        let storage = TextStorage()
+        storage.append(NSAttributedString(string: "Apply a header"))
+        let formatter = HeaderFormatter(headerLevel: .h1)
+        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
+
+        var html = storage.getHTML()
+
+        XCTAssertEqual(html, "<h1>Apply a header</h1>")
+
+        storage.toggle(formatter:formatter, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "Apply a header")
+    }
 }

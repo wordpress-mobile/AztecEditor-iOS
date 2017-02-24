@@ -12,4 +12,5 @@ public enum FormattingIdentifier: String
     case link = "link"
     case media = "media"
     case sourcecode = "sourcecode"
+    case header = "header"
 }
