@@ -141,7 +141,9 @@ open class TextView: UITextView {
         }
 
         string.loadLazyAttachments()
+
         storage.replaceCharacters(in: selectedRange, with: string)
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
     open func pasteAndMatchStyle(_ sender: Any?) {
@@ -156,6 +158,7 @@ open class TextView: UITextView {
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
 
