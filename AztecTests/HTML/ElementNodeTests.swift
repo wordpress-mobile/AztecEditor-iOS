@@ -1452,7 +1452,7 @@ class ElementNodeTests: XCTestCase {
     /// Input HTML: `<p>Look at this photo:image.It's amazing</p>`
     /// - Range: the range of the image string.
     /// - New Node: <img>
-    /// - Attributes:
+    /// - Attributes: []
     ///
     /// Expected results:
     /// - Output: `<p>Look at this photo:<img src="https://httpbin.org/image/jpeg.It's amazing" /></p>`
