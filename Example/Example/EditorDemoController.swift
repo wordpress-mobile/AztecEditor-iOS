@@ -276,8 +276,18 @@ class EditorDemoController: UIViewController {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         richTextView.inputAccessoryView = createToolbar(htmlMode: false)
+        if richTextView.resignFirstResponder() {
+            richTextView.becomeFirstResponder()
+        }
         htmlTextView.inputAccessoryView = createToolbar(htmlMode: true)
+        if htmlTextView.resignFirstResponder() {
+            htmlTextView.becomeFirstResponder()
+        }
         titleTextField.inputAccessoryView = createToolbar(htmlMode: true)
+        if titleTextField.resignFirstResponder() {
+            titleTextField.becomeFirstResponder()
+        }
+
     }
 }
 
