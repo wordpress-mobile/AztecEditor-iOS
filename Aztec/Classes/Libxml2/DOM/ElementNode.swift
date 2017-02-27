@@ -5,17 +5,7 @@ extension Libxml2 {
 
     /// Element node.  Everything but text basically.
     ///
-    class ElementNode: Node, EditableNode {
-
-        class Equivalence {
-            let elementName1: String
-            let elementName2: String
-
-            init(ofElementNamed elementName1: String, andElementNamed elementName2: String) {
-                self.elementName1 = elementName1
-                self.elementName2 = elementName2
-            }
-        }
+    class ElementNode: Node {
 
         fileprivate(set) var attributes = [Attribute]()
         fileprivate(set) var children: [Node]
@@ -33,6 +23,10 @@ extension Libxml2 {
                 return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .suppressed)
             }
         }
+
+        // MARK: - Editing behavior configuration
+
+        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
         
         // MARK: - Initializers
 
@@ -241,10 +235,10 @@ extension Libxml2 {
         ///
         /// - Returns: an array of pairs of child nodes and their ranges in child coordinates.
         ///
-        func childNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true) -> [(child: Node, intersection: NSRange)] {
+        func childNodes(intersectingRange targetRange: NSRange) -> [(child: Node, intersection: NSRange)] {
             var results = [(child: Node, intersection: NSRange)]()
 
-            enumerateChildNodes(intersectingRange: targetRange, preferLeftNode: preferLeftNode) { (child, intersection) in
+            enumerateChildNodes(intersectingRange: targetRange) { (child, intersection) in
                 results.append((child, intersection))
             }
 
@@ -267,11 +261,11 @@ extension Libxml2 {
         /// - Returns: an array of child nodes and their intersection.  The intersection range is in
         ///         child coordinates.
         ///
-        func enumerateChildNodes(intersectingRange targetRange: NSRange, preferLeftNode: Bool = true, onMatchFound matchFound: (_ child: Node, _ intersection: NSRange) -> Void ) {
+        func enumerateChildNodes(intersectingRange targetRange: NSRange, onMatchFound matchFound: (_ child: Node, _ intersection: NSRange) -> Void ) {
 
             var offset = Int(0)
 
-            for (index, child) in children.enumerated() {
+            for child in children {
 
                 let childLength = child.length()
                 let childRange = NSRange(location: offset, length: childLength)
@@ -287,12 +281,10 @@ extension Libxml2 {
                         || intersectionRange.length > 0
                 } else {
                     let targetLocation = targetRange.location
-                    let preferLeftNode = preferLeftNode || (index == children.count - 1 && targetLocation == offset + childLength)
-                    let preferRightNode = !preferLeftNode || (index == 0 && targetLocation == 0)
 
                     childRangeInterceptsTargetRange =
-                        (preferRightNode && targetLocation == offset)
-                        || (preferLeftNode && targetLocation == offset + childLength)
+                        targetLocation == offset
+                        || targetLocation == offset + childLength
                         || (targetLocation > offset && targetLocation < offset + childLength)
 
                     intersectionRange = NSRange(location: targetLocation, length: 0)
@@ -460,6 +452,94 @@ extension Libxml2 {
                     matchNotFound(previousRangeWithoutMatch)
                 }
             }
+        }
+
+        typealias NodeMatchTest = (_ node: Node) -> Bool
+        typealias NodeIntersectionReport = (_ node: Node, _ intersection: NSRange) -> Void
+        typealias RangeReport = (_ range: NSRange) -> Void
+
+        /// Enumerates the descendants that match the specified condition, and intersection range
+        /// between those descendants and the specified range constraint.
+        ///
+        /// - Important: the receiver is also tested.
+        ///
+        /// - Parameters:
+        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
+        ///             the receiver's coordinate system.
+        ///     - isMatch: a closure that evaluates nodes for matches.
+        ///     - matchFound: the closure to execute for each child element intersecting
+        ///             `targetRange`.
+        ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
+        ///             doesn't have a block-level node intersecting it.
+        ///
+        fileprivate func enumerateFirstDescendants(
+            in targetRange: NSRange,
+            matching isMatch: NodeMatchTest,
+            onMatchFound matchFound: NodeIntersectionReport?,
+            onMatchNotFound matchNotFound: RangeReport?) {
+
+            assert(range().contains(range: targetRange))
+            assert(matchFound != nil || matchNotFound != nil)
+
+            guard !isMatch(self) else {
+                matchFound?(self, targetRange)
+                return
+            }
+
+            var rangeWithoutMatch: NSRange?
+            var offset = Int(0)
+
+            let ensureProcessingOfRangeWithoutMatch = { () in
+                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                    matchNotFound?(previousRangeWithoutMatch)
+                    rangeWithoutMatch = nil
+                }
+            }
+
+            let processMatchFound = { (child: Node, intersection: NSRange) -> () in
+                ensureProcessingOfRangeWithoutMatch()
+                matchFound?(child, intersection)
+            }
+
+            let extendRangeWithoutMatch = { (range: NSRange) in
+                if let previousRangeWithoutMatch = rangeWithoutMatch {
+                    rangeWithoutMatch = NSRange(location: previousRangeWithoutMatch.location, length: previousRangeWithoutMatch.length + range.length)
+                } else {
+                    rangeWithoutMatch = range
+                }
+            }
+
+            for child in children {
+
+                let childLength = child.length()
+                let childRange = NSRange(location: offset, length: childLength)
+
+                if let intersection = targetRange.intersect(withRange: childRange) {
+                    if isMatch(child) {
+                        processMatchFound(child, intersection)
+                    } else if let childElement = child as? ElementNode {
+
+                        let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
+
+                        childElement.enumerateFirstDescendants(
+                            in: intersectionInChildCoordinates,
+                            matching: isMatch,
+                            onMatchFound: { (child, intersection) in
+                                processMatchFound(child, intersection)
+                            },
+                            onMatchNotFound: { (range) in
+                                let adjustedRange = NSRange(location: range.location + offset, length: range.length)
+                                extendRangeWithoutMatch(adjustedRange)
+                        })
+                    } else {
+                        extendRangeWithoutMatch(intersection)
+                    }
+                }
+
+                offset += childLength
+            }
+
+            ensureProcessingOfRangeWithoutMatch()
         }
 
         /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
@@ -865,12 +945,12 @@ extension Libxml2 {
                 
                 if childStartLocation >= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode, childStartLocation < splitLocation && childEndLocation > splitLocation {
+                } else if childStartLocation < splitLocation && childEndLocation > splitLocation {
                     
                     let splitLocationInChild = splitLocation - childStartLocation
                     let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocation)
                     
-                    childEditableNode.split(forRange: splitRange)
+                    child.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -898,12 +978,12 @@ extension Libxml2 {
                 
                 if childEndLocation <= splitLocation {
                     result.append(child)
-                } else if let childEditableNode = child as? EditableNode, childOffset < splitLocation && childEndLocation > splitLocation {
+                } else if childOffset < splitLocation && childEndLocation > splitLocation {
                     
                     let splitLocationInChild = splitLocation - childOffset
                     let splitRange = NSRange(location: 0, length: splitLocationInChild)
                     
-                    childEditableNode.split(forRange: splitRange)
+                    child.split(forRange: splitRange)
                     result.append(child)
                 }
                 
@@ -1095,19 +1175,14 @@ extension Libxml2 {
 
         // MARK: - EditableNode
 
-        func deleteCharacters(inRange range: NSRange) {
+        override func deleteCharacters(inRange range: NSRange) {
             if range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
                 let childrenAndIntersections = childNodes(intersectingRange: range)
 
                 for (child, intersection) in childrenAndIntersections {
-
-                    if let childEditableNode = child as? EditableNode {
-                        childEditableNode.deleteCharacters(inRange: intersection)
-                    } else {
-                        remove(child)
-                    }
+                    child.deleteCharacters(inRange: intersection)
                 }
             }
         }
@@ -1123,7 +1198,7 @@ extension Libxml2 {
         ///     - string: the string to insert in a new `TextNode`.
         ///     - index: the index where the next `TextNode` will be inserted.
         ///
-        func insert(_ string: String, at index: Int) {
+        func insert(_ string: String, atNodeIndex index: Int) {
 
             guard index <= children.count else {
                 fatalError("The specified index is outside the range of possible indexes for insertion.")
@@ -1190,45 +1265,73 @@ extension Libxml2 {
             } else {
                 
                 if childIntersection < child.length() {
-                    
-                    guard let editableNode = child as? EditableNode else {
-                        fatalError("We should never have a non-editable node with a representation that can be split.")
-                    }
-                    
-                    editableNode.split(atLocation: childIntersection)
+                    child.split(atLocation: childIntersection)
                 }
                 
                 insertionIndex = childIndex + 1
             }
             
-            element.insert(string, at: insertionIndex)
+            element.insert(string, atNodeIndex: insertionIndex)
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            
-            // When inheriting the style, we can just replace the text from the first child node with our new text.
-            //
-            let replaceTextFromFirstChild = inheritStyle && string.characters.count > 0
+        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
             let childrenAndIntersections = childNodes(intersectingRange: range)
-            
+            let preferRightNode = !preferLeftNode
+            var textInserted = false
+
+            assert(range.location == 0 || childrenAndIntersections.count > 0)
+
+            guard childrenAndIntersections.count > 0 else {
+                insert(string, atLocation: 0)
+                return
+            }
+
             for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
-                
                 let child = childAndIntersection.child
                 let intersection = childAndIntersection.intersection
-                
-                if let childEditableNode = child as? EditableNode {
-                    if index == 0 && replaceTextFromFirstChild {
-                        childEditableNode.replaceCharacters(inRange: intersection, withString: string, inheritStyle: inheritStyle)
-                    } else if intersection.length > 0 {
-                        childEditableNode.deleteCharacters(inRange: intersection)
+
+                guard !textInserted else {
+                    child.deleteCharacters(inRange: intersection)
+                    continue
+                }
+
+                if intersection.location == 0 {
+                    guard index == 0 || preferRightNode else {
+                        if intersection.length > 0 {
+                            child.deleteCharacters(inRange: intersection)
+                        }
+                        continue
+                    }
+
+                    if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
+                        let childIndex = indexOf(childNode: child)
+
+                        child.deleteCharacters(inRange: intersection)
+                        insert(string, atNodeIndex: childIndex)
+                    } else {
+                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
+                    }
+                } else if intersection.location + intersection.length == child.length() {
+                    guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
+                        if intersection.length > 0 {
+                            child.deleteCharacters(inRange: intersection)
+                        }
+                        continue
+                    }
+
+                    if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
+                        let childIndex = indexOf(childNode: child) + 1
+
+                        child.deleteCharacters(inRange: intersection)
+                        insert(string, atNodeIndex: childIndex)
+                    } else {
+                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                     }
                 } else {
-                    remove(child)
+                    child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
                 }
-            }
-            
-            if !inheritStyle && string.characters.count > 0 {
-                insert(string, atLocation: range.location)
+
+                textInserted = true
             }
         }
 
@@ -1262,7 +1365,7 @@ extension Libxml2 {
             textNodeParent.remove(textNode)
         }
 
-        func split(atLocation location: Int) {
+        override func split(atLocation location: Int) {
             let length = self.length()
             
             guard location != 0 && location != length else {
@@ -1297,7 +1400,7 @@ extension Libxml2 {
         ///     - range: the range to use for splitting this node.  All nodes before and after the specified range will
         ///         be inserted in clones of this node.  All child nodes inside the range will be kept inside this node.
         ///
-        func split(forRange range: NSRange) {
+        override func split(forRange range: NSRange) {
 
             guard range.location >= 0 && range.location + range.length <= length() else {
                 assertionFailure("Specified range is out-of-bounds.")
@@ -1460,37 +1563,34 @@ extension Libxml2 {
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
         func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-            
-            // Before wrapping a range in a new node, we make sure equivalent element nodes wrapping that range are
-            // removed.
-            //
-            var elementNamesToRemove = elementDescriptor.matchingNames
-            
-            if !elementNamesToRemove.contains(elementDescriptor.name) {
-                elementNamesToRemove.append(elementDescriptor.name)
-            }
-            
-            unwrap(range: targetRange, fromElementsNamed: elementNamesToRemove)
 
-            let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
+            let matchVerification: NodeMatchTest = { return $0 is ElementNode && elementDescriptor.matchingNames.contains($0.name) }
 
-            if mustFindLowestBlockLevelElements {
-                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
+            enumerateFirstDescendants(
+                in: targetRange,
+                matching: matchVerification,
+                onMatchFound: nil,
+                onMatchNotFound: { [unowned self] range in
+                    let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
 
-                for (element, intersection) in elementsAndIntersections {
-                    // 0-length intersections are possible, but they make no sense in the context
-                    // of wrapping content inside new elements.  We should ignore zero-length
-                    // intersections.
-                    //
-                    guard intersection.length > 0 else {
-                        continue
+                    if mustFindLowestBlockLevelElements {
+                        let elementsAndIntersections = self.lowestBlockLevelElements(intersectingRange: targetRange)
+
+                        for (element, intersection) in elementsAndIntersections {
+                            // 0-length intersections are possible, but they make no sense in the context
+                            // of wrapping content inside new elements.  We should ignore zero-length
+                            // intersections.
+                            //
+                            guard intersection.length > 0 else {
+                                continue
+                            }
+
+                            element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
+                        }
+                    } else {
+                        self.forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
                     }
-                    
-                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
-                }
-            } else {
-                forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
-            }
+            })
         }
 
         /// Force-wraps the specified range inside a node with the specified properties.
@@ -1514,7 +1614,7 @@ extension Libxml2 {
                 let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
                 
                 if canWrapReceiverInNewNode {
-                    wrap(inElement: elementDescriptor)
+                    wrap(in: elementDescriptor)
                     return
                 }
             }
@@ -1557,16 +1657,16 @@ extension Libxml2 {
                 return
             }
 
-            if let firstEditableChild = firstChild as? EditableNode, !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                firstEditableChild.split(forRange: firstChildIntersection)
+            if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
+                firstChild.split(forRange: firstChildIntersection)
             }
             
             if childNodesAndRanges.count > 1 {
                 let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
                 let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
                 
-                if let lastEditableChild = lastChild as? EditableNode, !NSEqualRanges(lastChild.range(), lastChildIntersection) {
-                    lastEditableChild.split(forRange: lastChildIntersection)
+                if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
+                    lastChild.split(forRange: lastChildIntersection)
                 }
             }
             
@@ -1647,6 +1747,21 @@ extension Libxml2 {
                 
                 return newNode
             }
+        }
+
+        // MARK: - Editing behavior
+
+        private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
+            guard !(node is TextNode) else {
+                return false
+            }
+
+            guard let elementNode = node as? ElementNode,
+                let elementType = StandardElementType(rawValue: elementNode.name) else {
+                return true
+            }
+
+            return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
         
         // MARK: - Undo Support

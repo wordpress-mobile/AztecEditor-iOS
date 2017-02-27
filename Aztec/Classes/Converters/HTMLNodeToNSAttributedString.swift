@@ -26,6 +26,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
+    private lazy var defaultAttributes: [String: Any] = {
+        let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
+        return [NSFontAttributeName: defaultFont]
+    }()
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -36,10 +40,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(_ node: Node) -> NSAttributedString {
-
-        let defaultFont = UIFont(descriptor: defaultFontDescriptor, size: defaultFontDescriptor.pointSize)
-
-        return convert(node, inheritingAttributes: [NSFontAttributeName: defaultFont])
+        return convert(node, inheritingAttributes: defaultAttributes)
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -97,6 +98,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        let moreLabel = "more"
+        if node.comment.hasPrefix(moreLabel) {
+            var attributes = inheritedAttributes;
+            let moreAttachment = MoreAttachment()
+            let index = moreLabel.endIndex
+            moreAttachment.message = node.comment.substring(from: index)            
+            moreAttachment.label = NSAttributedString(string: NSLocalizedString("MORE", comment: "Text for the center of the more divider"), attributes: defaultAttributes)
+            attributes[NSAttachmentAttributeName] = moreAttachment
+            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        }
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -160,16 +171,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         var attributeValue: Any?
 
         if node.isNodeType(.a) {
-            let linkURL: String
+            var linkURL: URL?
 
             if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
                 let attribute = node.attributes[attributeIndex] as? StringAttribute {
 
-                linkURL = attribute.value
+                linkURL = URL(string: attribute.value)
             } else {
                 // We got a link tag without an HREF attribute
                 //
-                linkURL = ""
+                linkURL = URL(string: "")
             }
 
             attributeValue = linkURL
@@ -222,6 +233,13 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .u: UnderlineFormatter(),
         .del: StrikethroughFormatter(),
         .a: LinkFormatter(),
-        .img: ImageFormatter()
+        .img: ImageFormatter(),
+        .hr: HRFormatter(),
+        .h1: HeaderFormatter(headerLevel: .h1),
+        .h2: HeaderFormatter(headerLevel: .h2),
+        .h3: HeaderFormatter(headerLevel: .h3),
+        .h4: HeaderFormatter(headerLevel: .h4),
+        .h5: HeaderFormatter(headerLevel: .h5),
+        .h6: HeaderFormatter(headerLevel: .h6)
     ]
 }

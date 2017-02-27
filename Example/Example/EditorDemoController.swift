@@ -285,6 +285,9 @@ extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
     }
+
+    func textViewDidChange(_ textView: UITextView) {        
+    }
 }
 
 extension EditorDemoController : Aztec.TextViewFormattingDelegate {
@@ -338,7 +341,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
+        case .header:
+            toggleHeader()
         }
+
         updateFormatBar()
     }
 
@@ -374,6 +380,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    func toggleHeader() {
+        richTextView.toggleHeader(range: richTextView.selectedRange)
     }
 
 
@@ -616,11 +626,14 @@ extension EditorDemoController: TextViewMediaDelegate
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
         
         // TODO: start fake upload process
-        
-        return saveToDisk(image: image)
+        if let image = attachment.image {
+            return saveToDisk(image: image)
+        } else {
+            return URL(string: "placeholder://")!
+        }
     }
 
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
@@ -697,6 +710,7 @@ private extension EditorDemoController
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
                 attachment.message = message
+                attachment.overlayImage = Gridicon.iconOfType(.refresh)
             }
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
@@ -731,7 +745,7 @@ private extension EditorDemoController
                                           handler: { (action) in
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
-                                                attachment.message = nil
+                                                attachment.clearAllOverlays()
                                                 self.richTextView.refreshLayoutFor(attachment: attachment)
                                             }
         })
@@ -793,6 +807,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             // if we have an attachment marked lets unmark it
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.message = nil
+                selectedAttachment.clearAllOverlays()
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
                 currentSelectedAttachment = nil
             }
@@ -812,6 +827,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             richTextView.refreshLayoutFor(attachment: attachment)
             currentSelectedAttachment = attachment
         }

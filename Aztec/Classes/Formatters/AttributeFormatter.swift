@@ -9,7 +9,6 @@ import UIKit
 ///
 protocol AttributeFormatter {
 
-    var elementType: Libxml2.StandardElementType { get }
     /// Attributes to be used the Content Placeholder, when / if needed.
     ///
     var placeholderAttributes: [String: Any]? { get }

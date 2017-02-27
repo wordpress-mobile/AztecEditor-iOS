@@ -3,8 +3,13 @@ import UIKit
 
 open class ParagraphStyle: NSMutableParagraphStyle {
 
+    private enum EncodingKeys: String {
+        case headerLevel
+    }
+
     var textList: TextList?
     var blockquote: Blockquote?
+    var headerLevel: Int = 0
 
     override init() {
         super.init()
@@ -20,6 +25,9 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
             blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
         }
+
+        aDecoder.decodeInteger(forKey: EncodingKeys.headerLevel.rawValue)
+        
         super.init(coder: aDecoder)
     }
 
@@ -32,6 +40,8 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         if let blockquote = self.blockquote {
             aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
         }
+
+        aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
     }
 
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
@@ -39,6 +49,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         if let paragrahStyle = obj as? ParagraphStyle {
             textList = paragrahStyle.textList
             blockquote = paragrahStyle.blockquote
+            headerLevel = paragrahStyle.headerLevel
         }
     }
 
@@ -72,7 +83,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-
+        if headerLevel != otherParagraph.headerLevel {
+            return false
+        }
+        
         return super.isEqual(object)
     }
 
@@ -86,6 +100,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         copy.setParagraphStyle(originalCopy)
         copy.textList = textList
         copy.blockquote = blockquote
+        copy.headerLevel = headerLevel
 
         return copy
     }
@@ -96,8 +111,22 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         copy.setParagraphStyle(originalCopy)
         copy.textList = textList
         copy.blockquote = blockquote
+        copy.headerLevel = headerLevel
 
         return copy
+    }
+
+    open override var hash: Int {
+        var hash: Int = super.hash
+        if blockquote != nil {
+            hash = hash ^ String(describing: Blockquote.self).hashValue
+        }
+        if let listStyle = textList?.style {
+            hash = hash ^ listStyle.hashValue
+        }
+
+        hash = hash ^ headerLevel.hashValue
+        return hash
     }
 
     var debugString: String {
@@ -105,6 +134,6 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     open override var description:String {
-        return super.description + "\nTextList:\(textList?.style)\nBlockquote:\(blockquote)"
+        return super.description + "\nTextList:\(textList?.style)\nBlockquote:\(blockquote)\nHeaderLevel:\(headerLevel)"
     }
 }

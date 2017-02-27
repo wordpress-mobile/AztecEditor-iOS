@@ -6,10 +6,15 @@ extension Libxml2 {
     /// a string.
     ///
     /// Any requests made to this class are performed in its own queue (sometimes synchronously,
-    /// sometimes asynchronously).
+    /// sometimes asynchronously).  Public methods are resopnsible for queueing requests, while all
+    /// private methods MUST be synchronous.  This is to ensure a simple design in which we are sure
+    /// we're not queueing an operation more than once.  Private methods can be called without
+    /// having to figure out if they'll be queueing additional operations (they won't).
     ///
     class DOMString {
-        
+
+        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h4, .h5, .h6]
+
         private lazy var editContext: EditContext = {
             return EditContext(undoManager: self.domUndoManager)
         }()
@@ -117,44 +122,15 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
-        ///     - inheritStyle: If `true` the new string will inherit the style information from the
-        ///             first position in the specified range.  If `false`, the new sting will have
-        ///             no associated style.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
 
             let domHasModifications = range.length > 0 || string.characters.count > 0
 
             if domHasModifications {
                 performAsyncUndoable { [weak self] in
-                    self?.replaceCharactersSynchronously(inRange: range, withString: string, inheritStyle: inheritStyle)
+                    self?.replaceCharactersSynchronously(inRange: range, withString: string, preferLeftNode: preferLeftNode)
                 }
-            }
-        }
-        
-        func replaceCharacters(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-
-            let domString = attributedString.filter(attributeNamed: VisualOnlyAttributeName)
-            let domHasModifications = range.length > 0 || domString.length > 0
-
-            if domHasModifications {
-                performAsyncUndoable { [weak self] in
-                    self?.replaceCharactersSynchronously(inRange: range, withAttributedString: domString, inheritStyle: inheritStyle)
-                }
-            }
-        }
-        
-        func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
-            guard let attrs = attrs else {
-                return
-            }
-            
-            setAttributes(attrs, range: range)
-        }
-        
-        func setAttributes(_ attrs: [String : Any], range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.setAttributesSynchronously(attrs: attrs, range: range)
             }
         }
         
@@ -165,27 +141,9 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
-        ///     - inheritStyle: If `true` the new string will inherit the style information from the
-        ///             first position in the specified range.  If `false`, the new sting will have
-        ///             no associated style.
         ///
-        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
-            rootNode.replaceCharacters(inRange: range, withString: string, inheritStyle: inheritStyle)
-        }
-
-        private func replaceCharactersSynchronously(inRange range: NSRange, withAttributedString attributedString: NSAttributedString, inheritStyle: Bool) {
-            
-            rootNode.replaceCharacters(inRange: range, withString: attributedString.string, inheritStyle: inheritStyle)
-            
-            applyStyles(from: attributedString, to: range.location)
-        }
-        
-        private func setAttributesSynchronously(attrs: [String: Any]?, range: NSRange) {
-            guard let attrs = attrs else {
-                return
-            }
-            
-            applyStyles(from: attrs, to: range)
+        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+            rootNode.replaceCharacters(inRange: range, withString: string, preferLeftNode: preferLeftNode)
         }
         
         // MARK: - Undo Manager
@@ -265,269 +223,7 @@ extension Libxml2 {
             }
         }
 
-        // MARK: - Styles: Synchronization with DOM
-        
-        /// Applies all styles from the specified attributes to the specified range in the DOM.
-        ///
-        /// - Parameters:
-        ///     - attributes: the `NSAttributedString` attributes to apply.
-        ///     - range: the range to apply those styles to.
-        ///
-        fileprivate func applyStyles(from attributes: [String : Any], to range: NSRange) {
-            for (key, value) in attributes {
-                switch (key) {
-                case NSAttachmentAttributeName:
-                    applyStyle(attachmentValue: value, to: range)
-                case NSFontAttributeName:
-                    applyStyle(fontValue: value, to: range)
-                case NSLinkAttributeName:
-                    applyStyle(linkValue: value, to: range)
-                case NSStrikethroughStyleAttributeName:
-                    applyStyle(strikethroughValue: value, to: range)
-                case NSUnderlineStyleAttributeName:
-                    applyStyle(underlineValue: value, to: range)
-                case NSParagraphStyleAttributeName:
-                    applyStyle(paragraphStyle: value, to:range)
-                default:
-                    break
-                }
-            }
-        }
-        
-        /// Applies all styles from the specified attributed string to the specified range in the
-        /// DOM.
-        ///
-        /// - Parameters:
-        ///     - attributedString: the string to get the attributes form.
-        ///     - location: the location where the attributes from the string must be applied.
-        ///
-        fileprivate func applyStyles(from attributedString: NSAttributedString, to location: Int) {
-            
-            let sourceRange = NSRange(location: 0, length: attributedString.length)
-            
-            attributedString.enumerateAttributes(in: sourceRange, options: []) { (attributes, sourceSubrange, stop) in
-                
-                let subrangeWithOffset = NSRange(location: location + sourceSubrange.location, length: sourceSubrange.length)
-                applyStyles(from: attributes as [String : AnyObject], to: subrangeWithOffset)
-            }
-        }
-        
-        /// Applies the attachment style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - value: the value found in a `NSAttachmentAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(attachmentValue value: Any, to range: NSRange) {
-            guard let attachment = value as? TextAttachment else {
-                assertionFailure("We're expecting a TextAttachment object here.  preprocessStyles should've curated this.")
-                return
-            }
-            
-            applyStyle(attachment, to: range)
-        }
-        
-        /// Applies the attachment style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - attachmentValue: the value found in a `NSAttachmentAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(_ attachment: TextAttachment, to range: NSRange) {
-            setImageURLInDOM(attachment.url as URL?, forRange: range)
-        }
-        
-        /// Applies the font style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - value: the value found in a `NSFontAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(fontValue value: Any, to range: NSRange) {
-            
-            guard let font = value as? UIFont else {
-                assertionFailure("Was expecting a UIFont object as the value for the font attribute.")
-                return
-            }
-            
-            applyStyle(font, to: range)
-        }
-        
-        /// Applies the font style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - font: the font to apply.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(_ font: UIFont, to range: NSRange) {
-            
-            let fontTraits = font.fontDescriptor.symbolicTraits
-            
-            if fontTraits.contains(.traitBold) {
-                applyBold(spanning: range)
-            }
-            
-            if fontTraits.contains(.traitItalic) {
-                applyItalic(spanning: range)
-            }
-        }
-        
-        /// Applies the link style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - value: the value found in a `NSLinkAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(linkValue value: Any, to range: NSRange) {
-            if let urlValue = value as? URL {
-                applyStyle(urlValue, to: range)
-            } else {
-                guard let stringValue = value as? String,
-                    let urlValue = URL(string: stringValue) else {
-                        assertionFailure("Was expecting a NSString or NSURL object as the value for the link attribute.")
-                        return
-                }
-                
-                applyStyle(urlValue, to: range)
-            }
-        }
-        
-        /// Applies the link style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - linkURL: the URL to set for the link.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(_ linkURL: URL, to range: NSRange) {
-            setLinkInDOM(range, url: linkURL)
-        }
-    
-        /// Applies the strikethrough style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - value: the value found in a `NSStrikethroughStyleAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(strikethroughValue value: Any, to range: NSRange) {
-            
-            guard let intValue = value as? Int else {
-                assertionFailure("The strikethrough style is always expected to be an Int.")
-                return
-            }
-            
-            guard let style = NSUnderlineStyle(rawValue: intValue) else {
-                assertionFailure("The strikethrough style value is not-known.")
-                return
-            }
-            
-            applyStyle(strikethroughStyle: style, to: range)
-        }
-        
-        /// Applies the strikethrough style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - style: the style of the strikethrough.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(strikethroughStyle style: NSUnderlineStyle, to range: NSRange) {
-            
-            switch (style) {
-            case .styleSingle:
-                applyStrikethrough(spanning: range)
-            default:
-                // We don't support anything more than single-line strikethrough for now
-                break
-            }
-        }
-        
-        /// Applies the underline style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - value: the value found in a `NSUnderlineStyleAttributeName` attribute.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(underlineValue value: Any, to range: NSRange) {
-            
-            guard let intValue = value as? Int else {
-                assertionFailure("The underline style is always expected to be an Int.")
-                return
-            }
-            
-            guard let style = NSUnderlineStyle(rawValue: intValue) else {
-                assertionFailure("The underline style value is not-known.")
-                return
-            }
-            
-            applyStyle(underlineStyle: style, to: range)
-        }
-        
-        /// Applies the underline style spanning the specified range to the DOM.
-        ///
-        /// - Parameters:
-        ///     - style: the style of the underline.
-        ///     - range: the range the style will be applied to.
-        ///
-        fileprivate func applyStyle(underlineStyle style: NSUnderlineStyle, to range: NSRange) {
-            
-            switch (style) {
-            case .styleSingle:
-                applyUnderline(spanning: range)
-            default:
-                // We don't support anything more than single-line underline for now
-                break
-            }
-        }
-
-        fileprivate func applyStyle(paragraphStyle value: Any, to range: NSRange) {
-            guard let paragraphStyle = value as? ParagraphStyle else {
-                // if the value is not a Aztec ParagraphStyle we ignore it
-                return
-            }
-            applyStyle(paragraphStyle: paragraphStyle, to: range)
-        }
-
-        fileprivate func applyStyle(paragraphStyle: ParagraphStyle, to range: NSRange) {
-            if paragraphStyle.blockquote != nil {
-                applyElement(.blockquote, spanning: range)
-            }
-
-            if let textList = paragraphStyle.textList {
-                if textList.style == .ordered {
-                    applyElement(.li, spanning: range)
-                } else {
-                    applyElement(.li, spanning: range)
-                }
-            }
-        }
-        
-        // MARK: - Images
-        
-        fileprivate func setImageURLInDOM(_ imageURL: URL?, forRange range: NSRange) {
-            
-            let imageURLString = imageURL?.absoluteString ?? ""
-            
-            setImageURLStringInDOM(imageURLString, forRange: range)
-        }
-        
-        fileprivate func setImageURLStringInDOM(_ imageURLString: String, forRange range: NSRange) {
-            
-            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
-                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
-            
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
-        }
-        
-        // MARK: - Links
-        
-        fileprivate func setLinkInDOM(_ range: NSRange, url: URL) {
-            
-            let elementDescriptor = ElementNodeDescriptor(elementType: .a,
-                                                          attributes: [Libxml2.StringAttribute(name:"href", value: url.absoluteString)])
-            
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
-        }
-
-        // MARK: Remove Styles
+        // MARK: - Remove Styles
 
         func remove(element: StandardElementType, at range: NSRange){
             performAsyncUndoable { [weak self] in
@@ -546,13 +242,23 @@ extension Libxml2 {
             }
         }
 
+        /// Disables an image from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeImage(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeImageSynchronously(spanning: range)
+            }
+        }
+
         /// Disables italic from the specified range.
         ///
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
         func removeItalic(spanning range: NSRange) {
-            //domQueue.async { [weak self] in
             performAsyncUndoable { [weak self] in
                 self?.removeItalicSynchronously(spanning: range)
             }
@@ -590,6 +296,22 @@ extension Libxml2 {
                 self?.removeBlockquoteSynchronously(spanning: range)
             }
         }
+
+        /// Disables link from the specified range
+        ///
+        /// - Parameter range: the range to remove
+        ///
+        func removeLink(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeSynchronously(element:.a, at: range)
+            }
+        }
+
+        func removeHeader(_ headerLevel: Int, spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeHeaderSynchronously(headerLevel: headerLevel, spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -603,6 +325,10 @@ extension Libxml2 {
 
         private func removeBoldSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
+        }
+
+        private func removeImageSynchronously(spanning range: NSRange) {
+            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.img.equivalentNames)
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
@@ -620,16 +346,25 @@ extension Libxml2 {
         private func removeBlockquoteSynchronously(spanning range: NSRange) {
             rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
+
+        private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
+            rootNode.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
+        }
         
-        // Apply Styles
-        
+        // MARK: - Apply Styles
+                
         /// Applies bold to the specified range.
         ///
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        fileprivate func applyBold(spanning range: NSRange) {
-            applyElement(.strong, spanning: range)
+        func applyBold(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.strong, spanning: range)
+            }
         }
         
         /// Applies italic to the specified range.
@@ -637,8 +372,10 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        fileprivate func applyItalic(spanning range: NSRange) {
-            applyElement(.em, spanning: range)
+        func applyItalic(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.em, spanning: range)
+            }
         }
         
         /// Applies strikethrough to the specified range.
@@ -646,8 +383,10 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        fileprivate func applyStrikethrough(spanning range: NSRange) {
-            applyElement(.del, spanning: range)
+        func applyStrikethrough(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.del, spanning: range)
+            }
         }
         
         /// Applies underline to the specified range.
@@ -655,10 +394,79 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        fileprivate func applyUnderline(spanning range: NSRange) {
-            applyElement(.u, spanning: range)
+        func applyUnderline(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.u, spanning: range)
+            }
         }
-        
+
+        /// Applies blockquote to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func applyBlockquote(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.blockquote, spanning: range)
+            }
+        }
+
+        /// Applies a link to the specified range
+        ///
+        /// - Parameters:
+        ///   - url: the url to link to
+        ///   - range: the range to apply the link
+        ///
+        func applyLink(_ url: URL?, spanning range: NSRange) {
+            var attributes: [Libxml2.Attribute] = []
+            if let url = url {
+                attributes.append(Libxml2.StringAttribute(name: HTMLLinkAttribute.Href.rawValue, value: url.absoluteString))
+            }
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.a, spanning: range, attributes: attributes)
+            }
+        }
+
+        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+                return nil
+            }
+            return DOMString.headerLevels[headerLevel - 1]
+        }
+
+
+        func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
+            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+                return
+            }
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(elementType, spanning: range)
+            }
+        }
+
+        // MARK: - Images
+
+        /// Applies an image to the specified range
+        ///
+        /// - Parameters:
+        ///   - imageURL: the URL for the img src attribute
+        ///   - range: the range to insert the image
+        ///
+        func insertImage(imageURL: URL, replacing range:NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.insertImageSynchronously(imageURL: imageURL, replacing: range)
+            }
+        }
+
+        private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
+            let imageURLString = imageURL.absoluteString
+
+            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
+                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+
+            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+        }
+
         // MARK: - Styles to HTML elements
         
         /// Applies a standard HTML element to the specified range.
@@ -669,8 +477,8 @@ extension Libxml2 {
         ///     - elementType: the standard element type to apply.
         ///     - range: the range to apply the bold style to.
         ///
-        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange) {
-            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames)
+        fileprivate func applyElement(_ elementType: StandardElementType, spanning range: NSRange, attributes: [Attribute] = []) {
+            applyElement(elementType.rawValue, spanning: range, equivalentElementNames: elementType.equivalentNames, attributes: attributes)
         }
         
         /// Applies an HTML element to the specified range.
@@ -683,19 +491,13 @@ extension Libxml2 {
         ///     - equivalentElementNames: equivalent element names to look for before applying
         ///             the specified one.
         ///
-        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String]) {
+        fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
-            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: [], matchingNames: equivalentElementNames)
+            let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
             rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         
         // MARK: - Candidates for removal
-        
-        func removeLink(inRange range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.removeLinkSynchronously(inRange: range)
-            }
-        }
         
         func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
@@ -704,10 +506,6 @@ extension Libxml2 {
         }
         
         // MARK: - Candidates for removal: Synchronously
-        
-        private func removeLinkSynchronously(inRange range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: ["a"])
-        }
         
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
             
