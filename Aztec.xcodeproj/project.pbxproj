@@ -90,6 +90,7 @@
 		FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */; };
 		FF7C89AC1E3A47F1000472A8 /* StandardAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
+		FF96F3C61E6467860043F859 /* OutCustomHTMLConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF96F3C51E6467860043F859 /* OutCustomHTMLConverter.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
@@ -214,6 +215,7 @@
 		FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Blockquote.swift; sourceTree = "<group>"; };
 		FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttributeFormatter.swift; sourceTree = "<group>"; };
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
+		FF96F3C51E6467860043F859 /* OutCustomHTMLConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutCustomHTMLConverter.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
@@ -358,6 +360,7 @@
 			children = (
 				599F25101D8BC9A1002871D6 /* OutHTMLAttributeConverter.swift */,
 				599F25111D8BC9A1002871D6 /* OutHTMLConverter.swift */,
+				FF96F3C51E6467860043F859 /* OutCustomHTMLConverter.swift */,
 				599F25121D8BC9A1002871D6 /* OutHTMLNodeConverter.swift */,
 			);
 			path = Out;
@@ -728,6 +731,7 @@
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
+				FF96F3C61E6467860043F859 /* OutCustomHTMLConverter.swift in Sources */,
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
 				B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */,

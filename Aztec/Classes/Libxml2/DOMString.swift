@@ -81,7 +81,7 @@ extension Libxml2 {
                     return
                 }
                 
-                let converter = Libxml2.Out.HTMLConverter()
+                let converter = Libxml2.Out.CustomHTMLConverter()
                 result = converter.convert(strongSelf.rootNode)
             }
             
