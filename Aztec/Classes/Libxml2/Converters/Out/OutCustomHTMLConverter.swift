@@ -59,17 +59,14 @@ extension Libxml2.Out {
             }
             let name = rawNode.name
             output += "<\(name)"
-
-            if !rawNode.attributes.isEmpty {
-                output += " "
-            }
+            
             for rawAttribute in rawNode.attributes {
+                output += " "
                 if let stringAttribute = rawAttribute as? StringAttribute {
-                    output += "\(stringAttribute.name)=\"\(stringAttribute.value) \""
+                    output += "\(stringAttribute.name)=\"\(stringAttribute.value)\""
                 } else {
                     output += "\(rawAttribute.name)"
                 }
-                output += " "
             }
 
             if rawNode.children.isEmpty {
