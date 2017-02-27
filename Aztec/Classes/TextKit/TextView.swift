@@ -123,7 +123,7 @@ open class TextView: UITextView {
     }
 
 
-    // MARK: - Intersect copy paste operations
+    // MARK: - Intercept copy paste operations
 
     open override func copy(_ sender: Any?) {
         super.copy(sender)
@@ -141,7 +141,10 @@ open class TextView: UITextView {
         }
 
         string.loadLazyAttachments()
+
         storage.replaceCharacters(in: selectedRange, with: string)
+        delegate?.textViewDidChange?(self)
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
     open func pasteAndMatchStyle(_ sender: Any?) {
@@ -150,16 +153,17 @@ open class TextView: UITextView {
             return
         }
 
-
         let range = string.rangeOfEntireString
         string.addAttributes(typingAttributes, range: range)
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
+        delegate?.textViewDidChange?(self)
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
 
-    // MARK: - Intersect keyboard operations
+    // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
         // Note:
