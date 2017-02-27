@@ -554,6 +554,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
                 flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+                flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
@@ -578,6 +580,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             let items = [
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 fixed,
