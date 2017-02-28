@@ -203,9 +203,7 @@ open class TextView: UITextView {
             return
         }
 
-        refreshListAfterDeletion(of: deletedString, at: deletionRange)
-        refreshBlockquoteAfterDeletion(of: deletedString, at: deletionRange)
-        refreshHeaderAfterDeletion(of: deletedString, at: deletionRange)
+        refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -467,77 +465,19 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
-    // MARK: - Lists
-
-    /// Refresh Lists attributes when text is deleted in the specified range
-    ///
-    /// - Parameters:
-    ///   - text: the text being added
-    ///   - range: the range of the insertion of the new text
-    ///
-    private func refreshListAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        guard let textList = deletedText.textListAttribute(atIndex: 0),
-              deletedText.string == String(.newline) && range.location == 0 else {
+    private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
+        guard deletedText.string == String(.newline) || range.location == 0 else {
             return
         }
-
-        // Proceed to remove the list
-        // TODO: We should have explicit methods to Remove a TextList format, rather than just calling Toggle
-        //
-        switch textList.style {
-        case .ordered:
-            toggleOrderedList(range: range)
-        case .unordered:
-            toggleUnorderedList(range: range)
+        let formatters:[AttributeFormatter] = [TextListFormatter(style: .ordered), TextListFormatter(style: .unordered), BlockquoteFormatter(), HeaderFormatter(headerLevel:.h1),HeaderFormatter(headerLevel:.h2), HeaderFormatter(headerLevel:.h3)]
+        for formatter in formatters {
+            if range.location > 0 && formatter.present(in: textStorage, at: range.location-1) {
+                formatter.applyAttributes(to: storage, at: range)
+            } else if formatter.present(in: textStorage, at: range.location) || range.location == 0 {
+                formatter.removeAttributes(from: textStorage, at: range)
+            }
         }
     }
-
-    // MARK: - Blockquotes
-
-    /// Refresh Blockquote attributes when text is deleted at the specified range.
-    ///
-    /// - Notes: Toggles the Blockquote Style, whenever the deleted text is at the beginning of the text.
-    ///
-    /// - Parameters:
-    ///   - text: the text being deleted
-    ///   - range: the deletion range
-    ///
-    private func refreshBlockquoteAfterDeletion(of text: NSAttributedString, at range: NSRange) {
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        guard formatter.present(in: textStorage, at: range.location), range.location == 0 else {
-            return
-        }
-
-        // Remove the Blockquote.
-        // TODO: We should have explicit methods to Remove a Blockquote format, rather than just calling Toggle
-        //
-        toggleBlockquote(range: range)
-    }
-
-    // MARK: - Blockquotes
-
-    /// Refresh Header attributes when text is deleted at the specified range.
-    ///
-    /// - Notes: Toggles the Header Style, whenever the deleted text is at the beginning of the text.
-    ///
-    /// - Parameters:
-    ///   - text: the text being deleted
-    ///   - range: the deletion range
-    ///
-    private func refreshHeaderAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
-        guard formatter.present(in: textStorage, at: range.location),
-            deletedText.string == String(.newline) else {
-                return
-        }
-
-        // Proceed to remove the header
-        // TODO: We should have explicit methods to apply a Header format, rather than just calling Toggle
-        // the double call it's because the first call will actually remove the header and we want to add it to all the new line
-        toggleHeader(range: range)
-        toggleHeader(range: range)
-    }
-
 
     /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
     /// or not. Note that we should remove Paragraph Styles whenever:
@@ -589,23 +529,14 @@ open class TextView: UITextView {
             return false
         }
 
-        let identifiers = formatIdentifiersAtIndex(range.location)
-
-        if identifiers.contains(.orderedlist) {
-            toggleOrderedList(range: range)
-            return true
+        let formatters:[AttributeFormatter] = [TextListFormatter(style: .ordered), TextListFormatter(style: .unordered), BlockquoteFormatter()]
+        for formatter in formatters {
+            if formatter.present(in: textStorage, at: range.location) {
+                formatter.removeAttributes(from: textStorage, at: range)
+                return true
+            }
         }
 
-        if identifiers.contains(.unorderedlist) {
-            toggleUnorderedList(range: range)
-            return true
-        }
-
-        if identifiers.contains(.blockquote) {
-            toggleBlockquote(range: range)
-            return true
-        }
-        
         return false
     }
 
@@ -647,11 +578,12 @@ open class TextView: UITextView {
             return false
         }
 
-        let identifiers = formatIdentifiersAtIndex(range.location)
-
-        if identifiers.contains(.header) {
-            toggleHeader(range: range)
-            return true
+        let formatters:[AttributeFormatter] = [HeaderFormatter(headerLevel:.h1), HeaderFormatter(headerLevel:.h2), HeaderFormatter(headerLevel:.h3)]
+        for formatter in formatters {
+            if formatter.present(in: textStorage, at: range.location) {
+                formatter.removeAttributes(from: textStorage, at: range)
+                return true
+            }
         }
 
         return false
