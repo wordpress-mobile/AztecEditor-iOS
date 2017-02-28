@@ -114,7 +114,7 @@ extension AttributeFormatter {
     func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) {
         var rangeToApply = applicationRange(for: range, in: text)
 
-        if rangeToApply.length == 0 || text.length == 0 {
+        if worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
             let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
             text.insert(placeholder, at: rangeToApply.location)
             rangeToApply = NSMakeRange(text.length - 1, 1)
