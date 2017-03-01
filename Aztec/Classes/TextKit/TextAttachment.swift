@@ -13,6 +13,26 @@ protocol TextAttachmentImageProvider {
 ///
 open class TextAttachment: NSTextAttachment
 {
+    public struct Appearance {
+        public var overlayColor: UIColor = UIColor(white: 0.6, alpha: 0.6)
+
+        /// The height of the progress bar for progress indicators
+        public var progressHeight: CGFloat = 2.0;
+
+        /// The color to use when drawing the backkground of the progress indicators
+        ///
+        public var progressBackgroundColor: UIColor = UIColor.cyan
+
+        /// The color to use when drawing progress indicators
+        ///
+        public var progressColor: UIColor = UIColor.blue
+    }
+
+
+    /// This property allows the global customization of appearance properties of the TextAttachment
+    ///
+    open static var appearance: Appearance = Appearance()
+
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     fileprivate(set) open var identifier: String
@@ -55,18 +75,18 @@ open class TextAttachment: NSTextAttachment
 
     /// The color to use when drawing the background overlay for messages, icons, and progress
     ///
-    open var overlayColor: UIColor = UIColor(white: 0.6, alpha: 0.6)
+    open var overlayColor: UIColor = TextAttachment.appearance.overlayColor
 
     /// The height of the progress bar for progress indicators
-    open var progressHeight: CGFloat = 2.0;
+    open var progressHeight: CGFloat = TextAttachment.appearance.progressHeight
 
     /// The color to use when drawing the backkground of the progress indicators
     ///
-    open var progressBackgroundColor: UIColor = UIColor.cyan
+    open var progressBackgroundColor: UIColor = TextAttachment.appearance.progressBackgroundColor
 
     /// The color to use when drawing progress indicators
     ///
-    open var progressColor: UIColor = UIColor.blue
+    open var progressColor: UIColor = TextAttachment.appearance.progressColor
 
     /// A message to display overlaid on top of the image
     ///
@@ -121,6 +141,7 @@ open class TextAttachment: NSTextAttachment
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
         super.init(coder: aDecoder)
+
         if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
             identifier = decodedIndentifier
         }
@@ -145,6 +166,13 @@ open class TextAttachment: NSTextAttachment
         identifier = ""
         url = nil
         super.init(data: contentData, ofType: uti)
+    }
+
+    fileprivate func setupDefaultAppearance() {
+        progressHeight = TextAttachment.appearance.progressHeight
+        progressBackgroundColor = TextAttachment.appearance.progressBackgroundColor
+        progressColor = TextAttachment.appearance.progressColor
+        overlayColor = TextAttachment.appearance.overlayColor
     }
 
     override open func encode(with aCoder: NSCoder) {
