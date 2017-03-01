@@ -240,7 +240,8 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
-        edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        let nsString = str as NSString
+        edited(.editedCharacters, range: range, changeInLength:  nsString.length - range.length)
         
         endEditing()
     }
