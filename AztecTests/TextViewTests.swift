@@ -431,6 +431,28 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<blockquote>HelloWorld!</blockquote>")
     }
 
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<p>Hello</p>World!"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<p>HelloWorld!</p>"
+    ///
+    func testDeleteNewline4() {
+
+        let textView = createTextView(withHTML: "<p>Hello</p>World!")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
+    }
+
     // MARK: - Insert links
 
     /// Tests that inserting a link on an empty textView works.  Also that it doesn't crash the
