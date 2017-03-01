@@ -1386,7 +1386,7 @@ extension Libxml2 {
 
                 finalRightNodes = rightElement.unwrapChildren()
             } else {
-                finalRightNodes = [leftSibling]
+                finalRightNodes = [rightSibling]
             }
 
             if let leftElement = leftSibling as? ElementNode,
