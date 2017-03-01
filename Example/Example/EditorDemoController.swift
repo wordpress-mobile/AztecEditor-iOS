@@ -787,7 +787,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
             }
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
+            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             richTextView.refreshLayoutFor(attachment: attachment)
