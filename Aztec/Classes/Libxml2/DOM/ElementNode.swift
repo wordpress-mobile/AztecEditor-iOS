@@ -713,6 +713,40 @@ extension Libxml2 {
             
             return sibling
         }
+
+        func siblings(separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
+
+            var leftSibling: Node?
+            var rightSibling: Node?
+            var childStartLocation = 0
+
+            for child in children {
+
+                let childEndLocation = childStartLocation + child.length()
+
+                if location == childStartLocation {
+                    rightSibling = child
+                    break
+                } else if location == childEndLocation {
+                    leftSibling = child
+                } else if location > childStartLocation && location < childEndLocation {
+                    guard let childElement = child as? ElementNode else {
+                        return nil
+                    }
+
+                    return childElement.siblings(separatedAt: location - childStartLocation)
+                }
+
+                childStartLocation = childEndLocation
+            }
+
+            if let leftSibling = leftSibling,
+                let rightSibling = rightSibling {
+                return (leftSibling, rightSibling)
+            } else {
+                return nil
+            }
+        }
         
         /// Finds any left-side descendant with any of the specified names.
         ///
@@ -859,6 +893,46 @@ extension Libxml2 {
             child.removeFromParent()
             children.insert(child, at: index)
             child.parent = self
+        }
+
+        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
+        /// only two siblings can match this separator.
+        ///
+        /// - Parameters:
+        ///     - location: the location that separates the siblings we're looking for.
+        ///
+        func mergeSiblings(at location: Int) {
+            guard let theSiblings = siblings(separatedAt: location) else {
+                return
+            }
+
+            mergeSiblings(theSiblings.leftSibling, theSiblings.rightSibling)
+        }
+
+        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
+        /// only two siblings can match this separator.
+        ///
+        /// - Parameters:
+        ///     - leftSibling: the left sibling to merge.
+        ///     - rightSibling: the right sibling to merge.
+        ///
+        private func mergeSiblings(_ leftSibling: Node, _ rightSibling: Node) {
+
+            let finalRightNodes: [Node]
+
+            if let rightElement = rightSibling as? ElementNode,
+                rightElement.isBlockLevelElement() {
+
+                finalRightNodes = rightElement.unwrapChildren()
+            } else {
+                finalRightNodes = [rightSibling]
+            }
+
+            if let leftElement = leftSibling as? ElementNode,
+                leftElement.isBlockLevelElement() {
+                
+                leftElement.append(finalRightNodes)
+            }
         }
 
         /// Replaces the specified node with several new nodes.
@@ -1508,9 +1582,13 @@ extension Libxml2 {
 
         /// Unwraps the receiver's children from the receiver.
         ///
-        func unwrapChildren(undoManager: UndoManager? = nil) {
+        @discardableResult
+        func unwrapChildren(undoManager: UndoManager? = nil) -> [Node] {
+
+            let result = children
+
             if let parent = parent {
-                parent.replace(child: self, with: self.children)
+                parent.replace(child: self, with: children)
             } else {
                 for child in children {
                     child.parent = nil
@@ -1518,6 +1596,8 @@ extension Libxml2 {
 
                 children.removeAll()
             }
+
+            return result
         }
 
         func unwrapChildren(_ children: [Node], fromElementsNamed elementNames: [String]) {
