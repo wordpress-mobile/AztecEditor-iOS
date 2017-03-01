@@ -53,6 +53,17 @@ open class TextAttachment: NSTextAttachment
         }
     }
 
+    /// The color to use when drawing the background overlay for messages, icons, and progress
+    ///
+    open var overlayColor: UIColor = UIColor(white: 0.6, alpha: 0.6)
+
+    /// The height of the progress bar for progress indicators
+    open var progressHeight: CGFloat = 2.0;
+
+    /// The color to use when drawing the backkground of the progress indicators
+    ///
+    open var progressBackgroundColor: UIColor = UIColor.cyan
+
     /// The color to use when drawing progress indicators
     ///
     open var progressColor: UIColor = UIColor.blue
@@ -228,16 +239,25 @@ open class TextAttachment: NSTextAttachment
             box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
             box.addLine(to: CGPoint(x: origin.x, y: origin.y))
             box.lineWidth = 2.0
-            UIColor(white: 0.3, alpha: 0.6).setFill()
+            overlayColor.setFill()
             box.fill()
         }
 
         if let progress = progress {
+            let lineY = origin.y + (progressHeight / 2.0)
+
+            let backgroundPath = UIBezierPath()
+            backgroundPath.lineWidth = progressHeight
+            progressBackgroundColor.setStroke()
+            backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
+            backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
+            backgroundPath.stroke()
+
             let path = UIBezierPath()
-            path.move(to: CGPoint(x:origin.x, y:origin.y))
-            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
-            path.lineWidth = 4.0
+            path.lineWidth = progressHeight
             progressColor.setStroke()
+            path.move(to: CGPoint(x:origin.x, y: lineY))
+            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
             path.stroke()
         }
 
