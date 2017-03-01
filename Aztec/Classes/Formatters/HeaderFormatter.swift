@@ -40,9 +40,12 @@ class HeaderFormatter: ParagraphAttributeFormatter {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
+        if newParagraphStyle.headerLevel == .none  && headerLevel != .none {
+            newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
+            newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
+        }
         newParagraphStyle.headerLevel = headerLevel.rawValue
-        newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
-        newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
+
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
@@ -61,10 +64,11 @@ class HeaderFormatter: ParagraphAttributeFormatter {
             return resultingAttributes
         }
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        
+        if newParagraphStyle.headerLevel != .none  && headerLevel == .none {
+            newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
+            newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
+        }
         newParagraphStyle.headerLevel = HeaderType.none.rawValue
-        newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
-        newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
