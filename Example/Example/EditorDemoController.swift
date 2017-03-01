@@ -273,6 +273,22 @@ class EditorDemoController: UIViewController {
 
         return fileContents
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        richTextView.inputAccessoryView = createToolbar(htmlMode: false)
+        if richTextView.resignFirstResponder() {
+            richTextView.becomeFirstResponder()
+        }
+        htmlTextView.inputAccessoryView = createToolbar(htmlMode: true)
+        if htmlTextView.resignFirstResponder() {
+            htmlTextView.becomeFirstResponder()
+        }
+        titleTextField.inputAccessoryView = createToolbar(htmlMode: true)
+        if titleTextField.resignFirstResponder() {
+            titleTextField.becomeFirstResponder()
+        }
+
+    }
 }
 
 extension EditorDemoController : UITextViewDelegate {
@@ -515,32 +531,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     // MARK: -
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
-        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let items = [
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-            flex,
-        ]
+
+        let items = itemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
@@ -562,6 +554,66 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.formatter = self
 
         return toolbar
+    }
+
+    var itemsForToolbar: [UIBarButtonItem] {
+        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let fixed = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        if self.traitCollection.horizontalSizeClass == .compact {
+            let items = [
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
+                flex,
+                ]
+            return items
+        } else {
+            let items = [
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
+                fixed,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
+                fixed,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
+                fixed,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
+                fixed,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
+                fixed,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
+                flex,
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
+                flex,
+                ]
+            return items
+        }
     }
 
 }
@@ -787,7 +839,7 @@ extension EditorDemoController: UIGestureRecognizerDelegate
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
             }
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
+            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             richTextView.refreshLayoutFor(attachment: attachment)

@@ -265,15 +265,20 @@ open class TextAttachment: NSTextAttachment
         if let overlayImage = overlayImage {
             UIColor.white.set()
             let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
-            let path = UIBezierPath(arcCenter: center, radius: round(overlayImage.size.width * 2.0/3.0), startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+            let radius = round(overlayImage.size.width * 2.0/3.0)
+            let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
             path.stroke()
             overlayImage.draw(at: CGPoint(x: round(center.x - (overlayImage.size.width / 2.0)), y: round(center.y - (overlayImage.size.height / 2.0))))
-            imagePadding += round(overlayImage.size.width * (2.0/3.0) * 2);
+            imagePadding += radius * 2;
         }
 
         if let message = message {
             let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-            let textPosition = CGPoint(x: origin.x, y: origin.y + (size.height / 2 ) + imagePadding - (textRect.height / 2) )
+            var y =  origin.y + ((size.height - textRect.height) / 2.0)
+            if imagePadding != 0 {
+                y = origin.y + ((size.height + imagePadding) / 2.0)
+            }
+            let textPosition = CGPoint(x: origin.x, y: y)
             message.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
         }
 

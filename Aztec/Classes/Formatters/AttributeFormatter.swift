@@ -47,13 +47,21 @@ protocol AttributeFormatter {
     ///
     func remove(from attributes: [String: Any]) -> [String: Any]
 
+    /// Applies the Formatter's Attributes into a given string, at the specified range.
+    ///
+    func applyAttributes(to string: NSMutableAttributedString, at range: NSRange)
+
+    /// Removes the Formatter's Attributes from a given string, at the specified range.
+    ///
+    func removeAttributes(from string: NSMutableAttributedString, at range: NSRange)
+
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
     func present(in attributes: [String: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 
-    func worksInEmtpyRange() -> Bool
+    func worksInEmptyRange() -> Bool
 }
 
 
@@ -101,6 +109,58 @@ extension AttributeFormatter {
         }
     }
 
+    /// Applies the Formatter's Attributes into a given string, at the specified range.
+    ///
+    func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) {
+        var rangeToApply = applicationRange(for: range, in: text)
+
+        if worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
+            let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
+            text.insert(placeholder, at: rangeToApply.location)
+            rangeToApply = NSMakeRange(text.length - 1, 1)
+        }
+
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+            let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
+            let attributes = apply(to: currentAttributes)
+            text.addAttributes(attributes, range: range)
+        }
+    }
+
+    /// Removes the Formatter's Attributes from a given string, at the specified range.
+    ///
+    func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) {
+        let rangeToApply = applicationRange(for: range, in: text)
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+            let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
+            let attributes = remove(from: currentAttributes)
+
+            let currentKeys = Set(currentAttributes.keys)
+            let newKeys = Set(attributes.keys)
+            let removedKeys = currentKeys.subtracting(newKeys)
+            for key in removedKeys {
+                text.removeAttribute(key, range: range)
+            }
+
+            text.addAttributes(attributes, range: range)
+        }
+    }
+
+    /// Toggles the Attribute Format, into a given string, at the specified range.
+    ///
+    @discardableResult
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
+        //We decide if we need to apply or not the attribute based on the value on the initial position of the range
+        let shouldApply =  shouldApplyAttributes(to: text, at: range)
+
+        if shouldApply {
+            applyAttributes(to: text, at: range)
+        } else {
+            removeAttributes(from: text, at: range)
+        }
+
+        return nil
+    }
 }
 
 
@@ -124,30 +184,6 @@ private extension AttributeFormatter {
 
         return present(in: text, at: range) == false
     }
-
-    /// Applies the Formatter's Attributes into a given string, at the specified range.
-    ///
-    func applyAttributes(to string: NSMutableAttributedString, at range: NSRange) {
-        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = apply(to: currentAttributes)
-        string.addAttributes(attributes, range: range)
-    }
-
-    /// Removes the Formatter's Attributes from a given string, at the specified range.
-    ///
-    func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) {
-        let currentAttributes = string.attributes(at: range.location, effectiveRange: nil)
-        let attributes = remove(from: currentAttributes)
-
-        let currentKeys = Set(currentAttributes.keys)
-        let newKeys = Set(attributes.keys)
-        let removedKeys = currentKeys.subtracting(newKeys)
-        for key in removedKeys {
-            string.removeAttribute(key, range: range)
-        }
-
-        string.addAttributes(attributes, range: range)
-    }
 }
 
 
@@ -164,28 +200,7 @@ extension CharacterAttributeFormatter {
         return range
     }
 
-    /// Toggles the Attribute Format, into a given string, at the specified range.
-    ///
-    @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
-        guard range.location < text.length else {
-            return range
-        }
-        //We decide if we need to apply or not the attribute based on the value on the initial position of the range
-        let shouldApply =  shouldApplyAttributes(to: text, at: range)
-        // Then we go trough for the range with different attributes and apply or remove accordingly.
-        text.enumerateAttributes(in: range, options: []) { (attributes, range, stop) in
-            if shouldApply {
-                applyAttributes(to: text, at: range)
-            } else {
-                removeAttributes(from: text, at: range)
-            }
-        }
-
-        return range
-    }
-
-    func worksInEmtpyRange() -> Bool {
+    func worksInEmptyRange() -> Bool {
         return false
     }
 }
@@ -202,42 +217,7 @@ extension ParagraphAttributeFormatter {
         return text.paragraphRange(for: range)
     }
 
-    /// Toggles an attribute in the specified range of a text storage, and returns the new Selected Range.
-    ///
-    /// - Note: Whenever either the application paragraph is empty, or the entire storage is empty,
-    ///   we'll need to insert a placeholder (Zero Width String). Reason why? Because some formatters
-    ///   (TextList / Blockquote) need to display a custom UI, even when there is no content to display.
-    ///   In those scenarios, TextView's TypingAttributes just don't do the trick.
-    ///
-    /// - Note: For the reasons mentioned above, the first thing we'll do is to determine if the attribute should
-    ///   be applied or not. Order of events is important. 
-    ///   Why? because we *may need* to insert an empty string placeholder, and this operation may alter this result!
-    ///
-    @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
-        let shouldApply = shouldApplyAttributes(to: text, at: range)
-        var rangeToApply = applicationRange(for: range, in: text)
-        var newSelectedRange: NSRange?
-
-        if rangeToApply.length == 0 || text.length == 0 {
-            let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
-            text.insert(placeholder, at: rangeToApply.location)
-            newSelectedRange = NSRange(location: text.length, length: 0)
-            rangeToApply = NSMakeRange(text.length - 1, 1)
-        }
-
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
-            if shouldApply {
-                applyAttributes(to: text, at: range)
-            } else {
-                removeAttributes(from: text, at: range)
-            }
-        }
-
-        return newSelectedRange
-    }
-
-    func worksInEmtpyRange() -> Bool {
+    func worksInEmptyRange() -> Bool {
         return true
     }
 }

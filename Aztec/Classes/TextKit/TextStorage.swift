@@ -258,6 +258,10 @@ open class TextStorage: NSTextStorage {
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
+            if targetDomRange != range {
+                dom.deleteBlockSeparator(at: targetDomRange.location)
+            }
+
             applyStylesToDom(from: preprocessedString, startingAt: range.location)
         }
 
@@ -628,7 +632,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Styles: Toggling
     @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
         let applicationRange = formatter.applicationRange(for: range, in: self)
-        if applicationRange.length == 0, !formatter.worksInEmtpyRange() {
+        if applicationRange.length == 0, !formatter.worksInEmptyRange() {
             return applicationRange
         }
 

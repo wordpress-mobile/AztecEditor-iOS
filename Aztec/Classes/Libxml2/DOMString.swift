@@ -116,7 +116,18 @@ extension Libxml2 {
         }
         
         // MARK: - Editing
-        
+
+        /// Deletes a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to remove.
+        ///
+        func deleteBlockSeparator(at location: Int) {
+            performAsyncUndoable { [weak self] in
+                self?.deleteBlockSeparatorSynchronously(at: location)
+            }
+        }
+
         /// Replaces the specified range with a new string.
         ///
         /// - Parameters:
@@ -135,7 +146,16 @@ extension Libxml2 {
         }
         
         // MARK: - Editing: Synchronously
-        
+
+        /// Deletes a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to remove.
+        ///
+        private func deleteBlockSeparatorSynchronously(at location: Int) {
+            rootNode.mergeSiblings(at: location)
+        }
+
         /// Replaces the specified range with a new string.
         ///
         /// - Parameters:
