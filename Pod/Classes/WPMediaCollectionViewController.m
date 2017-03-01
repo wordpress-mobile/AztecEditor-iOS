@@ -101,15 +101,12 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:
                             ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (incrementalChanges) {
-                [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
-            } else {
-                [weakSelf refreshData];
-            }
-
-        });
-    }];
+                                if (incrementalChanges) {
+                                    [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
+                                } else {
+                                    [weakSelf refreshData];
+                                }
+                            }];
 
     if ([self.traitCollection containsTraitsInCollection:[UITraitCollection traitCollectionWithForceTouchCapability:UIForceTouchCapabilityAvailable]]) {
         [self registerForPreviewingWithDelegate:self sourceView:self.view];
