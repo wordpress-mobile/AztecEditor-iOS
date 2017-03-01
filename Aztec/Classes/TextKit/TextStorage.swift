@@ -610,8 +610,12 @@ open class TextStorage: NSTextStorage {
 
     private func hasNewLine(atIndex index: Int) -> Bool {
         let swiftStringIndex = textStore.string.index(textStore.string.startIndex, offsetBy: index)
-
-        return string.characters[swiftStringIndex] == Character(.newline)
+        if (swiftStringIndex == textStore.string.endIndex) {
+            return false
+        }
+        let swiftStringNextIndex = textStore.string.index(after: swiftStringIndex)
+        let text = string.substring(with: Range(uncheckedBounds: (swiftStringIndex, swiftStringNextIndex)))
+        return text == String(Character(.newline))
     }
 
     private func hasVisualOnlyElement(atIndex index: Int) -> Bool {
