@@ -133,6 +133,17 @@ extension Libxml2 {
                 }
             }
         }
+
+        func removeParagraphSeparator(at location: Int) {
+            performAsyncUndoable { [weak self] in
+                self?.removeParagraphSeparatorSynchronously(at: location)
+            }
+        }
+
+
+        private func removeParagraphSeparatorSynchronously(at location: Int) {
+            rootNode.mergeSiblings(at: location)
+        }
         
         // MARK: - Editing: Synchronously
         

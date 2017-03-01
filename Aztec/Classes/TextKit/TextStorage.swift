@@ -258,6 +258,10 @@ open class TextStorage: NSTextStorage {
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
+            if targetDomRange != range {
+                dom.removeParagraphSeparator(at: targetDomRange.location)
+            }
+
             applyStylesToDom(from: preprocessedString, startingAt: range.location)
         }
 

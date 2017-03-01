@@ -363,6 +363,74 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+    // MARK: - Deleting newlines
+
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<p>Hello</p><p>World!</p>"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<p>HelloWorld!</p>"
+    ///
+    func testDeleteNewline() {
+
+        let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
+    }
+
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "Hello<p>World!</p>"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "HelloWorld!"
+    ///
+    func testDeleteNewline2() {
+
+        let textView = createTextView(withHTML: "Hello<p>World!</p>")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "HelloWorld!")
+    }
+
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<blockquote>Hello</blockquote><p>World!</p>"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<blockquote>HelloWorld!</blockquote>"
+    ///
+    func testDeleteNewline3() {
+
+        let textView = createTextView(withHTML: "<blockquote>Hello</blockquote><p>World!</p>")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "<blockquote>HelloWorld!</blockquote>")
+    }
+
     // MARK: - Insert links
 
     /// Tests that inserting a link on an empty textView works.  Also that it doesn't crash the
