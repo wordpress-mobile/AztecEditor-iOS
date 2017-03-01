@@ -26,7 +26,8 @@ extension Libxml2 {
         /// Node length.
         ///
         override func length() -> Int {
-            return contents.characters.count
+            let nsString = contents as NSString
+            return nsString.length
         }
         
         // MARK: - Editing: Atomic Operations
@@ -38,7 +39,8 @@ extension Libxml2 {
         ///     - string: the string to append to the node.
         ///
         private func append(sanitizedString string: String) {
-            registerUndoForAppend(appendedLength: string.characters.count)
+            let nsString = string as NSString
+            registerUndoForAppend(appendedLength: nsString.length)
             contents.append(string)
         }
         
@@ -85,7 +87,8 @@ extension Libxml2 {
         ///     - string: the string to prepend to the node.
         ///
         private func prepend(sanitizedString string: String) {
-            registerUndoForPrepend(prependedLength: string.characters.count)
+            let nsString = string as NSString
+            registerUndoForPrepend(prependedLength: nsString.length)
             contents = "\(string)\(contents)"
         }
         

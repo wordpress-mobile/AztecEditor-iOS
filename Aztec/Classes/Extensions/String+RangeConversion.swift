@@ -7,14 +7,13 @@ extension String
 {    
     func rangeFromNSRange(_ nsRange : NSRange) -> Range<String.Index>? {
         
-        let rangeStartIndex = utf16.startIndex.advanced(by: nsRange.location)
-        let rangeEndIndex = rangeStartIndex.advanced(by: nsRange.length)
-        
-        if let from = String.Index(rangeStartIndex, within: self),
-            let to = String.Index(rangeEndIndex, within: self) {
-            return from ..< to
-        }
-        
-        return nil
+        guard
+            let from16 = utf16.index(utf16.startIndex, offsetBy: nsRange.location, limitedBy: utf16.endIndex),
+            let to16 = utf16.index(from16, offsetBy: nsRange.length, limitedBy: utf16.endIndex),
+            let from = from16.samePosition(in: self),
+            let to = to16.samePosition(in: self)
+            else { return nil }
+        return from ..< to
+                
     }
 }
