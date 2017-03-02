@@ -48,14 +48,18 @@ extension UIFont {
 //
 private extension UIFont {
 
+    /// Indicates whether the Font Name is explicitly set within the Descriptor's Attributes.
     ///
+    /// - Details: As per iOS 10, our Modify-Traits mechanism breaks whenever the Font Name is explicitly set.
+    ///     This method is useful to determine whenever we need to fallback to the "System Font"'s
+    ///     Default Descriptor (which does not include an explicit font name, and hence, the iOS 10 bug won't break).
     ///
     func shouldUseDefaultDescriptor() -> Bool {
         return fontDescriptor.fontAttributes[UIFontDescriptorNameAttribute] != nil
     }
 
 
-    ///
+    /// Returns the System Font's Descriptor, matching in size with the current UIFont Instance.
     ///
     var defaultFontDescriptor: UIFontDescriptor {
         return UIFont.systemFont(ofSize: pointSize).fontDescriptor
