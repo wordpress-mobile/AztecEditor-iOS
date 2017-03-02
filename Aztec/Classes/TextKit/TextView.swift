@@ -179,6 +179,11 @@ open class TextView: UITextView {
             return
         }
 
+        // WORKAROUND: for paragraph issues when inserting text at location 0.  See the method's
+        // documentation for more info.
+        //
+        workaroundTypingAttributesIssueWhenInserting(text, in: selectedRange)
+
         super.insertText(text)
 
         ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
@@ -206,6 +211,35 @@ open class TextView: UITextView {
         refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
+    }
+
+    // MARK: - Typing Attributes
+
+    /// This workaround method was created because of this issue:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/312
+    ///
+    /// If a better solution is found, feel free to replace this code.
+    ///
+    /// - Parameters:
+    ///     - text: the text to insert.
+    ///     - range: the range to replace with the text we're inserting.
+    ///
+    private func workaroundTypingAttributesIssueWhenInserting(_ text: String, in range: NSRange) {
+
+        guard selectedRange.location == 0,
+            range.length < storage.length else {
+                return
+        }
+
+        let firstOldCharacterIndex = storage.string.index(storage.string.startIndex, offsetBy: selectedRange.length)
+
+        guard storage.string.characters[firstOldCharacterIndex] != Character(.newline) else {
+            return
+        }
+
+        if let oldParagraphStyle = storage.attributes(at: selectedRange.length, effectiveRange: nil)[NSParagraphStyleAttributeName] {
+            typingAttributes[NSParagraphStyleAttributeName] = oldParagraphStyle
+        }
     }
 
     // MARK: - UIView Overrides
