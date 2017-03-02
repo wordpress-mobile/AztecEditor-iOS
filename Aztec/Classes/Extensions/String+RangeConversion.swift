@@ -16,4 +16,12 @@ extension String
         return from ..< to
                 
     }
+
+    func indexFromLocation(_ location: Int) -> String.Index? {
+        guard
+            let from16 = utf16.index(utf16.startIndex, offsetBy: location, limitedBy: utf16.endIndex),
+            let from = from16.samePosition(in: self)
+            else { return nil }
+        return from
+    }
 }
