@@ -1,7 +1,7 @@
 import Foundation
 
 
-// MARK: - String Extensions
+// MARK: - String NSRange and Location convertion Extensions
 //
 extension String
 {    
@@ -27,5 +27,23 @@ extension String
 
     func isLastValidLocation(_ location: Int) -> Bool {
         return index(before: endIndex) == indexFromLocation(location)
+    }
+
+    func location(after: Int) -> Int? {
+        guard let currentIndex = indexFromLocation(after) else {
+            return nil
+        }
+        let afterIndex = index(after: currentIndex)
+        let after16 = afterIndex.samePosition(in: utf16)
+        return utf16.distance(from: utf16.startIndex, to: after16)
+    }
+
+    func location(before: Int) -> Int? {
+        guard let currentIndex = indexFromLocation(before) else {
+            return nil
+        }
+        let beforeIndex = index(before: currentIndex)
+        let before16 = beforeIndex.samePosition(in: utf16)
+        return utf16.distance(from: utf16.startIndex, to: before16)
     }
 }

@@ -583,11 +583,12 @@ open class TextStorage: NSTextStorage {
     }
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
-        guard caretPosition != 0 else {
+        guard caretPosition != 0,
+            let previousLocation = textStore.string.location(before:caretPosition) else {
             return false
         }
 
-        return canAppendToNodeRepresentedByCharacter(atIndex: caretPosition - 1)
+        return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
     }
 
     private func hasHorizontalLine(atIndex index: Int) -> Bool {
