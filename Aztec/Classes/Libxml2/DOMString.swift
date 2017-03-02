@@ -135,8 +135,8 @@ extension Libxml2 {
         ///     - string: the new string to replace the original text with.
         ///
         func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
-
-            let domHasModifications = range.length > 0 || string.characters.count > 0
+            
+            let domHasModifications = range.length > 0 || !string.isEmpty
 
             if domHasModifications {
                 performAsyncUndoable { [weak self] in

@@ -240,7 +240,8 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
-        edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        let nsString = str as NSString
+        edited(.editedCharacters, range: range, changeInLength:  nsString.length - range.length)
         
         endEditing()
     }
@@ -267,7 +268,7 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
-        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
         endEditing()
     }
@@ -608,9 +609,11 @@ open class TextStorage: NSTextStorage {
     }
 
     private func hasNewLine(atIndex index: Int) -> Bool {
-        let swiftStringIndex = textStore.string.index(textStore.string.startIndex, offsetBy: index)
-
-        return string.characters[swiftStringIndex] == Character(.newline)
+        if index >= textStore.length || index < 0 {
+            return false
+        }
+        let nsString = string as NSString
+        return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
     }
 
     private func hasVisualOnlyElement(atIndex index: Int) -> Bool {

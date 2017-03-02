@@ -61,7 +61,8 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            return text().characters.count
+            let nsString = text() as NSString
+            return nsString.length
         }
 
         // MARK: - Node Queries
