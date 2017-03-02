@@ -85,6 +85,7 @@
 		F1E47FB91D9BFBD3006B46E2 /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */; };
 		F1FFB2A11E6058930015ACB8 /* DOMStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FFB2A01E6058930015ACB8 /* DOMStringTests.swift */; };
 		FF13CD4D1E5C8067000FF10E /* HeaderFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF13CD4C1E5C8067000FF10E /* HeaderFormatter.swift */; };
+		FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */; };
 		FF7A1C4F1E560A1F00C4C7C8 /* MoreAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C4E1E560A1F00C4C7C8 /* MoreAttachment.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */; };
@@ -205,6 +206,7 @@
 		F1E47FB81D9BFBD3006B46E2 /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
 		F1FFB2A01E6058930015ACB8 /* DOMStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMStringTests.swift; sourceTree = "<group>"; };
 		FF13CD4C1E5C8067000FF10E /* HeaderFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderFormatter.swift; sourceTree = "<group>"; };
+		FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRangeConversionTests.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
@@ -575,6 +577,7 @@
 				B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */,
 				F111DF101E3BAC8E003FB794 /* NSAttributedStringAttributeRangesTests.swift */,
 				F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */,
+				FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -772,6 +775,7 @@
 				B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
+				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
 				F1FFB2A11E6058930015ACB8 /* DOMStringTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */,
