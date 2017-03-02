@@ -24,4 +24,8 @@ extension String
             else { return nil }
         return from
     }
+
+    func isLastValidLocation(_ location: Int) -> Bool {
+        return index(before: endIndex) == indexFromLocation(location)
+    }
 }
