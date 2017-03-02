@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 
-// MARK:- UIFont Traits Helpers
+// MARK: - UIFont Traits Helpers
 //
 extension UIFont {
 
@@ -15,7 +15,8 @@ extension UIFont {
     /// - Returns: A new UIFont with the same descriptors as the current instance, but with its traits updated, as specified.
     ///
     func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, enable: Bool) -> UIFont {
-        var newTraits = fontDescriptor.symbolicTraits
+        let descriptor = shouldUseDefaultDescriptor() ? defaultFontDescriptor : fontDescriptor
+        var newTraits = descriptor.symbolicTraits
 
         if enable {
             newTraits.insert(traits)
@@ -23,10 +24,11 @@ extension UIFont {
             newTraits.remove(traits)
         }
 
-        let descriptor = fontDescriptor.withSymbolicTraits(newTraits)
-        let newFont = UIFont(descriptor: descriptor!, size: pointSize)
+        guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
+            return self
+        }
 
-        return newFont
+        return UIFont(descriptor: newDescriptor, size: pointSize)
     }
 
 
@@ -38,5 +40,24 @@ extension UIFont {
     ///
     func containsTraits(_ traits: UIFontDescriptorSymbolicTraits) -> Bool {
         return fontDescriptor.symbolicTraits.contains(traits)
+    }
+}
+
+
+// MARK: - Private UIFont Helpers
+//
+private extension UIFont {
+
+    ///
+    ///
+    func shouldUseDefaultDescriptor() -> Bool {
+        return fontDescriptor.fontAttributes[UIFontDescriptorNameAttribute] != nil
+    }
+
+
+    ///
+    ///
+    var defaultFontDescriptor: UIFontDescriptor {
+        return UIFont.systemFont(ofSize: pointSize).fontDescriptor
     }
 }
