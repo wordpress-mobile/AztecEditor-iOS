@@ -613,8 +613,7 @@ open class TextStorage: NSTextStorage {
             return false
         }
         let nsString = string as NSString
-        let text = nsString.substring(with: NSRange(location: index, length: 1))
-        return text == String(Character(.newline))
+        return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
     }
 
     private func hasVisualOnlyElement(atIndex index: Int) -> Bool {
