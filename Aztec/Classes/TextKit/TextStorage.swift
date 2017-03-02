@@ -609,6 +609,9 @@ open class TextStorage: NSTextStorage {
     }
 
     private func hasNewLine(atIndex index: Int) -> Bool {
+        if index >= textStore.length || index < 0 {
+            return false
+        }
         let nsString = string as NSString
         let text = nsString.substring(with: NSRange(location: index, length: 1))
         return text == String(Character(.newline))
