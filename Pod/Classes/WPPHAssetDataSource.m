@@ -60,40 +60,42 @@
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
-    PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.assetsCollections];
-    PHFetchResultChangeDetails *assetsChangeDetails = [changeInstance changeDetailsForFetchResult:self.assets];
-    PHFetchResultChangeDetails *albumChangeDetails = [changeInstance changeDetailsForFetchResult:self.albums];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PHFetchResultChangeDetails *groupChangeDetails = [changeInstance changeDetailsForFetchResult:self.assetsCollections];
+        PHFetchResultChangeDetails *assetsChangeDetails = [changeInstance changeDetailsForFetchResult:self.assets];
+        PHFetchResultChangeDetails *albumChangeDetails = [changeInstance changeDetailsForFetchResult:self.albums];
 
-    if (!groupChangeDetails && !assetsChangeDetails && !albumChangeDetails) {
-        return;
-    }
-    
-    if (groupChangeDetails || albumChangeDetails){
-        [self loadGroupsWithSuccess:nil failure:nil];
-    }
-    BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
-    // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
-    // The adjustedIndex depends on the *old* asset count.
-    NSIndexSet *removedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.removedIndexes];
-    NSIndexSet *changedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.changedIndexes];
-    NSMutableArray *moves = [NSMutableArray array];
-    if  (assetsChangeDetails.hasMoves) {
-        [assetsChangeDetails enumerateMovesWithBlock:^(NSUInteger fromIndex, NSUInteger toIndex) {
-            NSInteger fromIdx = [self adjustedIndexForIndex:fromIndex];
-            NSInteger toIdx = [self adjustedIndexForIndex:toIndex];
-            [moves addObject:[[WPIndexMove alloc] init:fromIdx to:toIdx]];
+        if (!groupChangeDetails && !assetsChangeDetails && !albumChangeDetails) {
+            return;
+        }
+
+        if (groupChangeDetails || albumChangeDetails){
+            [self loadGroupsWithSuccess:nil failure:nil];
+        }
+        BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
+        // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
+        // The adjustedIndex depends on the *old* asset count.
+        NSIndexSet *removedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.removedIndexes];
+        NSIndexSet *changedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.changedIndexes];
+        NSMutableArray *moves = [NSMutableArray array];
+        if  (assetsChangeDetails.hasMoves) {
+            [assetsChangeDetails enumerateMovesWithBlock:^(NSUInteger fromIndex, NSUInteger toIndex) {
+                NSInteger fromIdx = [self adjustedIndexForIndex:fromIndex];
+                NSInteger toIdx = [self adjustedIndexForIndex:toIndex];
+                [moves addObject:[[WPIndexMove alloc] init:fromIdx to:toIdx]];
+            }];
+        }
+        if (incrementalChanges) {
+            self.assets = assetsChangeDetails.fetchResultAfterChanges;
+        }
+        // Capture inserted indexes *after* fetching results after changes.
+        // The adjustedIndex depends on the *new* asset count.
+        NSIndexSet *insertedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.insertedIndexes];
+
+        [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+            block(incrementalChanges, removedIndexes, insertedIndexes, changedIndexes, moves);
         }];
-    }
-    if (incrementalChanges) {
-        self.assets = assetsChangeDetails.fetchResultAfterChanges;
-    }
-    // Capture inserted indexes *after* fetching results after changes.
-    // The adjustedIndex depends on the *new* asset count.
-    NSIndexSet *insertedIndexes = [self adjustedIndexesForIndexSet:assetsChangeDetails.insertedIndexes];
-
-    [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
-        block(incrementalChanges, removedIndexes, insertedIndexes, changedIndexes, moves);
-    }];
+    });
 }
 
 - (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
