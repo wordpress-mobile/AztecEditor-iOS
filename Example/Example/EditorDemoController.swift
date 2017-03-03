@@ -130,6 +130,11 @@ class EditorDemoController: UIViewController {
         }
 
         richTextView.setHTML(html)
+
+        TextAttachment.appearance.progressColor = UIColor.blue
+        TextAttachment.appearance.progressBackgroundColor = UIColor.lightGray
+        TextAttachment.appearance.progressHeight = 2.0
+        TextAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -718,8 +723,7 @@ private extension EditorDemoController
         }        
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {
-            attachment.progress = progress.fractionCompleted
-            attachment.progressColor = UIColor.blue            
+            attachment.progress = progress.fractionCompleted                        
             if mediaErrorMode && progress.fractionCompleted >= 0.25 {
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
