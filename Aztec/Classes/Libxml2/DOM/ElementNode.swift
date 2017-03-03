@@ -1620,7 +1620,7 @@ extension Libxml2 {
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
         func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
-            if isBlockLevelElement() && (range.location == self.length() - 1) {
+            if isBlockLevelElement() && text().isLastValidLocation(range.location) {
                     return
             }
 

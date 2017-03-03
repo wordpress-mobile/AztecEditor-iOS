@@ -333,15 +333,14 @@ class ElementNodeTests: XCTestCase {
     ///     - The original paragraph object should point to the first child paragraph.
     ///
     func testSplitAtLocation1() {
-        let text1 = "Hello"
+        let text1 = "Hello🇮🇳"
         let text2 = " World!"
         
         let textNode = TextNode(text: "\(text1)\(text2)")
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         let div = ElementNode(name: "div", attributes: [], children: [paragraph])
         
-        let splitLocation = text1.characters.count
-        
+        let splitLocation = (text1 as NSString).length
         paragraph.split(atLocation: splitLocation)
         
         XCTAssertEqual(div.children.count, 2)
@@ -1689,13 +1688,13 @@ class ElementNodeTests: XCTestCase {
     /// - Output: `<div>This is a paragraph in a div</div>\n\nThis is some unwrapped text`
     ///
     func testInsertNewlineAfterDivShouldNotCrash() {
-        let text1 = "This is a paragraph in a div"
+        let text1 = "🇮🇳 This is a paragraph in a div"
         let text2 = "\nThis is some unwrapped text"
         let divText = TextNode(text: text1)
         let div = ElementNode(name: "div", attributes: [], children: [divText])
         let unwrappedText = TextNode(text: text2)
         let rootNode = RootNode(children: [div, unwrappedText])
-        let location = text1.characters.count
+        let location = (text1 as NSString).length
 
         rootNode.insert("\n", atLocation: location)
     }
