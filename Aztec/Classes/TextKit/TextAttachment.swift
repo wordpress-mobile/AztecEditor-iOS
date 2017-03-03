@@ -14,18 +14,18 @@ protocol TextAttachmentImageProvider {
 open class TextAttachment: NSTextAttachment
 {
     public struct Appearance {
-        public var overlayColor: UIColor = UIColor(white: 0.6, alpha: 0.6)
+        public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
 
         /// The height of the progress bar for progress indicators
-        public var progressHeight: CGFloat = 2.0;
+        public var progressHeight = CGFloat(2.0)
 
         /// The color to use when drawing the backkground of the progress indicators
         ///
-        public var progressBackgroundColor: UIColor = UIColor.cyan
+        public var progressBackgroundColor = UIColor.cyan
 
         /// The color to use when drawing progress indicators
         ///
-        public var progressColor: UIColor = UIColor.blue
+        public var progressColor = UIColor.blue
     }
 
 
