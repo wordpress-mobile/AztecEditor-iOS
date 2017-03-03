@@ -179,7 +179,9 @@ open class TextView: UITextView {
             return
         }
 
+        restoreDefaultFontIfNeeded()
         super.insertText(text)
+        restoreDefaultFontIfNeeded()
 
         ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
 
@@ -455,6 +457,7 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+
     /// Adds or removes a unordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
@@ -465,6 +468,14 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+
+    /// After text deletion, this helper will re-apply the Text Formatters at the specified range, if they were
+    /// present in the segment previous to the modified range.
+    ///
+    /// - Parameters:
+    ///     - deletedText: String that was deleted.
+    ///     - range: Position in which the deletedText was present in the storage.
+    ///
     private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard deletedText.string == String(.newline) || range.location == 0 else {
             return
@@ -478,6 +489,22 @@ open class TextView: UITextView {
             }
         }
     }
+
+
+    /// Verifies if the Active Font's Family Name matches with our Default Font, or not. If the family diverges,
+    /// this helper will proceed to restore the defaultFont's Typing Attributes
+    /// This is meant as a workaround for the "Emojis Mixing Up Font's" glitch.
+    ///
+    private func restoreDefaultFontIfNeeded() {
+        guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont,
+            activeFont.familyName != defaultFont.familyName
+            else {
+                return
+        }
+
+        typingAttributes[NSFontAttributeName] = defaultFont
+    }
+
 
     /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
     /// or not. Note that we should remove Paragraph Styles whenever:
@@ -514,6 +541,7 @@ open class TextView: UITextView {
         return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
+
     /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
     /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
     ///
@@ -540,6 +568,7 @@ open class TextView: UITextView {
         return false
     }
 
+
     /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
     ///
     /// - Parameters:
@@ -562,6 +591,7 @@ open class TextView: UITextView {
 
         return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
+
 
     /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
     /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
@@ -588,6 +618,7 @@ open class TextView: UITextView {
 
         return false
     }
+
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
