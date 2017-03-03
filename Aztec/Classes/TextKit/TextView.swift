@@ -179,6 +179,17 @@ open class TextView: UITextView {
             return
         }
 
+        // Emoji Fix:
+        // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
+        // We do this twice (before and after inserting text), in order to properly handle two scenarios:
+        //
+        // - Before: Corrects the typing attributes in the scenario in which the user moves the cursor around.
+        //   Placing the caret after an emoji might update the typing attributes, and in some scenarios, the SDK might
+        //   fallback to Courier New.
+        //
+        // - After: If the user enters an Emoji, toggling Bold / Italics breaks. This is due to a glitch in the
+        //   SDK: the font "applied" after inserting an emoji breaks with our styling mechanism.
+        //
         restoreDefaultFontIfNeeded()
         super.insertText(text)
         restoreDefaultFontIfNeeded()
