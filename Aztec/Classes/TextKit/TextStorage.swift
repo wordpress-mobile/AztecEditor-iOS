@@ -316,7 +316,7 @@ open class TextStorage: NSTextStorage {
     ///         It's the offset this method will use to apply the styles found in the source string.
     ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
-        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: location - 1, effectiveRange: nil)
+        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: textStore.string.location(before:location)!, effectiveRange: nil)
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
         let domLocation = map(visualLocation: location)
