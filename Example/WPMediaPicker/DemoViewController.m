@@ -1,4 +1,5 @@
 #import "DemoViewController.h"
+#import "CustomPreviewViewController.h"
 #import "WPPHAssetDataSource.h"
 #import "OptionsViewController.h"
 #import "PostProcessingViewController.h"
@@ -37,7 +38,8 @@
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
-                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage)
+                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage),
+                     MediaPickerOptionsCustomPreview:@(NO)
                      };
 
 }
@@ -171,6 +173,15 @@
     };
     
     [self.mediaPicker showAfterViewController:postProcessingViewController];
+}
+
+- (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset
+{
+    if ([self.options[MediaPickerOptionsCustomPreview] boolValue] == false) {
+        return nil;
+    }
+
+    return [[CustomPreviewViewController alloc] initWithAsset:asset];
 }
 
 #pragma - Actions

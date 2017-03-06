@@ -102,7 +102,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         [self.view addGestureRecognizer:self.longPressGestureRecognizer];
     }
 
-    [self refreshData];
+    [self refreshDataAnimated:NO];
 }
 
 - (void)setupLayout
@@ -183,10 +183,15 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (void)refreshData
 {
+    [self refreshDataAnimated:YES];
+}
+
+- (void)refreshDataAnimated:(BOOL)animated
+{
     if (self.refreshGroupFirstTime) {
         if (![self.refreshControl isRefreshing]) {
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
-            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:YES];
+            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
             [self.refreshControl beginRefreshing];
         }
         // NOTE: Sergio Estevao (2015-11-19)
@@ -208,7 +213,15 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 strongSelf.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
                 [strongSelf.collectionView reloadData];
-                [strongSelf.refreshControl endRefreshing];
+
+                if (animated) {
+                    [strongSelf.refreshControl endRefreshing];
+                } else {
+                    [UIView performWithoutAnimation:^{
+                        [strongSelf.refreshControl endRefreshing];
+                    }];
+                }
+
                 // Scroll to the correct position
                 if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
                     NSInteger sectionToScroll = 0;
@@ -672,7 +685,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)handleLongPressOnAsset:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         CGPoint location = [gestureRecognizer locationInView:self.collectionView];
-        UIViewController *viewController = [self fullscreenAssetPreviewControllerForTouchLocation:location];
+        UIViewController *viewController = [self previewControllerForTouchLocation:location];
 
         if (viewController) {
             [self.navigationController pushViewController:viewController animated:YES];
@@ -680,7 +693,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
-- (nullable WPAssetViewController *)fullscreenAssetPreviewControllerForTouchLocation:(CGPoint)location
+- (nullable UIViewController *)previewControllerForTouchLocation:(CGPoint)location
 {
     self.assetIndexInPreview = [self.collectionView indexPathForItemAtPoint:location];
     if (!self.assetIndexInPreview) {
@@ -692,6 +705,27 @@ referenceSizeForFooterInSection:(NSInteger)section
         return nil;
     }
 
+    return [self previewViewControllerForAsset:asset];
+}
+
+- (UIViewController *)previewViewControllerForAsset:(id <WPMediaAsset>)asset
+{
+    UIViewController *previewViewController = nil;
+
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:previewViewControllerForAsset:)]) {
+        previewViewController = [self.mediaPickerDelegate mediaPickerController:self
+                                                  previewViewControllerForAsset:asset];
+    }
+
+    if (!previewViewController) {
+        previewViewController = [self defaultPreviewViewControllerForAsset:asset];
+    }
+
+    return previewViewController;
+}
+
+- (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
+{
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
@@ -711,7 +745,7 @@ referenceSizeForFooterInSection:(NSInteger)section
         [previewingContext setSourceRect:rect];
     }
 
-    return [self fullscreenAssetPreviewControllerForTouchLocation:convertedLocation];
+    return [self previewControllerForTouchLocation:convertedLocation];
 }
 
 - (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
