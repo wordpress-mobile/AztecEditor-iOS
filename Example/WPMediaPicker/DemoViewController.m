@@ -4,6 +4,7 @@
 #import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 #import <WPMediaPicker/WPMediaGroupTableViewCell.h>
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
 
@@ -11,6 +12,7 @@
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
 @property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
 @property (nonatomic, copy) NSDictionary *options;
+@property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
 @property (nonatomic, strong) UITextField *quickInputTextField;
 @end
 
@@ -106,7 +108,7 @@
     _quickInputTextField.placeholder = @"Tap here to quick select assets";
     _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
 
-    WPMediaCollectionViewController *vc = [[WPMediaCollectionViewController alloc] init];
+    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
     vc.allowCaptureOfMedia = YES;
     vc.preferFrontCamera = NO;
     vc.showMostRecentFirst = YES;
@@ -130,7 +132,11 @@
     collectionView.alwaysBounceVertical = NO;
 
     UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
-    toolbar.items = @[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:nil action:nil]];
+    toolbar.items = @[
+                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(mediaCanceled:)],
+                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(mediaSelected:)]
+                      ];
     _quickInputTextField.inputAccessoryView = toolbar;
 
     return _quickInputTextField;
@@ -144,6 +150,14 @@
         assetSource = [[WPPHAssetDataSource alloc] init];
     });
     return assetSource;
+}
+
+- (void)mediaSelected:(UIBarButtonItem *)sender {
+    [self.quickInputTextField resignFirstResponder];
+}
+
+- (void)mediaCanceled:(UIBarButtonItem *)sender {
+    [self.quickInputTextField resignFirstResponder];    
 }
 
 #pragma - <WPMediaPickerViewControllerDelegate>
@@ -171,7 +185,7 @@
         [self dismissViewControllerAnimated:YES completion:nil];
     };
     
-    [picker showAfterViewController:postProcessingViewController];
+    [self.mediaPicker showAfterViewController:postProcessingViewController];
 }
 
 #pragma - Actions
@@ -184,18 +198,18 @@
 
 - (void) showPicker:(id) sender
 {
-    WPMediaPickerViewController *mediaPicker = [[WPMediaPickerViewController alloc] init];
-    mediaPicker.delegate = self;
-    mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-    mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-    mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-    mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
-    mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
-    UIPopoverPresentationController *ppc = mediaPicker.popoverPresentationController;
+    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
+    self.mediaPicker.delegate = self;
+    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
+    UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;
     
-    [self presentViewController:mediaPicker animated:YES completion:nil];
+    [self presentViewController:self.mediaPicker animated:YES completion:nil];
 }
 
 - (void) showOptions:(id) sender
