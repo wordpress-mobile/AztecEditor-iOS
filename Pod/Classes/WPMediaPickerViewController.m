@@ -22,7 +22,6 @@
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
-@property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
@@ -35,7 +34,6 @@
 @implementation WPMediaPickerViewController
 
 static CGFloat SelectAnimationTime = 0.2;
-static NSString *const ArrowDown = @"\u25be";
 static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (instancetype)init
@@ -83,17 +81,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self.collectionView registerClass:[WPMediaCapturePreviewCollectionView class]
             forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                    withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class])];
-    [self setupLayout];
-
-    //setup navigation items
-    self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.titleView = self.titleButton;
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-    
-    if (self.allowMultipleSelection) {
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
-    }
+    [self setupLayout];    
 
     //setup data
     [self.dataSource setMediaTypeFilter:self.filter];
@@ -147,64 +135,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self refreshData];
 }
 
-- (void)changeGroup:(UIButton *)sender
-{
-    WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
-    groupViewController.delegate = self;
-    groupViewController.dataSource = self.dataSource;
-
-    groupViewController.modalPresentationStyle = UIModalPresentationPopover;
-    UIPopoverPresentationController *ppc = groupViewController.popoverPresentationController;
-    ppc.delegate = self;
-    ppc.sourceView = sender;
-    ppc.sourceRect = [sender bounds];
-    [self presentViewController:groupViewController animated:YES completion:nil];
-}
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-{
-    return UIModalPresentationNone;
-}
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-                                                               traitCollection:(UITraitCollection *)traitCollection
-{
-    return UIModalPresentationNone;
-}
-
-- (void)cancelPicker:(UIBarButtonItem *)sender
-{
-    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
-        [self.mediaPickerDelegate mediaPickerControllerDidCancel:self];
-    }
-}
-
-- (void)finishPicker:(UIBarButtonItem *)sender
-{
-    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-        [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.selectedAssets copy]];
-    }
-}
-
-
 - (BOOL)isShowingCaptureCell
 {
     return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
-}
-
-- (void)refreshTitle {
-    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
-    if (!mediaGroup) {
-        // mediaGroup can be nil in some cases. For instance if the
-        // user denied access to the device's Photos.
-        self.titleButton.hidden = YES;
-        return;
-    } else {
-        self.titleButton.hidden = NO;
-    }
-    NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
-    [self.titleButton setTitle:title forState:UIControlStateNormal];
-    [self.titleButton sizeToFit];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -270,8 +203,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [strongSelf refreshSelection];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [strongSelf refreshTitle];
+            dispatch_async(dispatch_get_main_queue(), ^{                
                 strongSelf.collectionView.allowsSelection = YES;
                 strongSelf.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
@@ -298,7 +230,6 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 }
 
 - (void)showError:(NSError *)error {
-    [self refreshTitle];
     [self.refreshControl endRefreshing];
     self.collectionView.allowsSelection = YES;
     self.collectionView.scrollEnabled = YES;
@@ -726,25 +657,13 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
 }
 
-#pragma mark - WPMediaGroupViewControllerDelegate
-
-- (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
-{
+- (void)setGroup:(id<WPMediaGroup>)group {
     if (group == [self.dataSource selectedGroup]){
         [self dismissViewControllerAnimated:YES completion:nil];
         return;
     }
     self.refreshGroupFirstTime = YES;
     [self.dataSource setSelectedGroup:group];
-    [self refreshTitle];
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self refreshData];
-    }];
-}
-
-- (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Long Press Handling

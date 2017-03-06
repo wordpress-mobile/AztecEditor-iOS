@@ -114,6 +114,7 @@
 
 @interface WPMediaPickerViewController : UICollectionViewController
 
+@property (nonatomic, readonly) NSMutableArray *selectedAssets;
 /**
  If set the picker will show a cell that allows capture of new media, that can be used immediatelly
  */
@@ -149,6 +150,10 @@
  */
 @property (nonatomic, weak) id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
 
+/**
+ Allows to set a group as the current display group on the data source. 
+ */
+- (void)setGroup:(id<WPMediaGroup>)group;
 
 @end
 
