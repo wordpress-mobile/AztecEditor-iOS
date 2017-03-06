@@ -3,8 +3,6 @@
 #import "OptionsViewController.h"
 #import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
-#import <WPMediaPicker/WPMediaGroupTableViewCell.h>
-#import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
 
@@ -14,6 +12,7 @@
 @property (nonatomic, copy) NSDictionary *options;
 @property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
 @property (nonatomic, strong) UITextField *quickInputTextField;
+@property (nonatomic, strong) WPInputMediaPickerView *mediaInputView;
 @end
 
 @implementation DemoViewController
@@ -108,36 +107,15 @@
     _quickInputTextField.placeholder = @"Tap here to quick select assets";
     _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
 
-    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
-    vc.allowCaptureOfMedia = YES;
-    vc.preferFrontCamera = NO;
-    vc.showMostRecentFirst = YES;
-    vc.filter = WPMediaTypeVideoOrImage;
-    vc.allowMultipleSelection = YES;
-    vc.dataSource = [self defaultDataSource];
-    UICollectionView *collectionView = vc.collectionView;
-    [collectionView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
-    _quickInputTextField.inputView = collectionView;
+    self.mediaInputView = [[WPInputMediaPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
+    self.mediaInputView.mediaPickerDelegate = self;
+    _quickInputTextField.inputView = self.mediaInputView;
+
     [_quickInputTextField.inputView removeFromSuperview];
-    [self addChildViewController:vc];
-    [vc didMoveToParentViewController:self];
+    [self addChildViewController:self.mediaInputView.mediaPicker];
+    [self.mediaInputView.mediaPicker didMoveToParentViewController:self];
 
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    layout.itemSize = CGSizeMake(100, 100);
-    layout.minimumLineSpacing = 1.0f;
-    layout.minimumInteritemSpacing = 1.0f;
-
-    collectionView.collectionViewLayout = layout;
-    collectionView.alwaysBounceVertical = NO;
-
-    UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
-    toolbar.items = @[
-                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(mediaCanceled:)],
-                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
-                      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(mediaSelected:)]
-                      ];
-    _quickInputTextField.inputAccessoryView = toolbar;
+    _quickInputTextField.inputAccessoryView = self.mediaInputView.mediaToolbar;
 
     return _quickInputTextField;
 }
@@ -152,18 +130,14 @@
     return assetSource;
 }
 
-- (void)mediaSelected:(UIBarButtonItem *)sender {
-    [self.quickInputTextField resignFirstResponder];
-}
-
-- (void)mediaCanceled:(UIBarButtonItem *)sender {
-    [self.quickInputTextField resignFirstResponder];    
-}
-
 #pragma - <WPMediaPickerViewControllerDelegate>
 
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker
 {
+    if (picker == self.mediaInputView.mediaPicker) {
+        [self.quickInputTextField resignFirstResponder];
+        return;
+    }
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -172,6 +146,11 @@
     // Update Assets
     self.assets = assets;
     [self.tableView reloadData];
+    
+    if (picker == self.mediaInputView.mediaPicker) {
+        [self.quickInputTextField resignFirstResponder];
+        return;
+    }
     
     // PostProcessing is Optional!
     if ([self.options[MediaPickerOptionsPostProcessingStep] boolValue] == false) {

@@ -146,7 +146,7 @@
 @property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
 /**
- The object that acts as the data source of the media picker.
+ The delegate for the WPMediaPickerViewController events
  */
 @property (nonatomic, weak) id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
 
