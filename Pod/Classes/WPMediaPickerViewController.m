@@ -659,11 +659,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)setGroup:(id<WPMediaGroup>)group {
     if (group == [self.dataSource selectedGroup]){
-        [self dismissViewControllerAnimated:YES completion:nil];
         return;
     }
+
     self.refreshGroupFirstTime = YES;
     [self.dataSource setSelectedGroup:group];
+    [self refreshData];
 }
 
 #pragma mark - Long Press Handling
