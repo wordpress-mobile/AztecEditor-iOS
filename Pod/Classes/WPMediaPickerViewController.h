@@ -109,6 +109,15 @@
  */
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset;
 
+/**
+ *  Asks the delegate for a view controller to push when previewing the specified asset.
+ *  If this method isn't implemented or returns nil, the default view controller will be used.
+ *
+ *  @param picker The controller object managing the assets picker interface.
+ *  @param asset  The asset to be previewed.
+ */
+- (nullable UIViewController *)mediaPickerController:(nonnull WPMediaPickerViewController *)picker previewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
+
 @end
 
 
