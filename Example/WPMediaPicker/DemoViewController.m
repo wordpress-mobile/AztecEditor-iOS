@@ -109,6 +109,12 @@
 
     self.mediaInputView = [[WPInputMediaPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
     self.mediaInputView.mediaPickerDelegate = self;
+    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+
     _quickInputTextField.inputView = self.mediaInputView;
 
     [_quickInputTextField.inputView removeFromSuperview];
