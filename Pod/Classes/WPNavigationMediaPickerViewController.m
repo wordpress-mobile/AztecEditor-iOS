@@ -41,6 +41,11 @@ static NSString *const ArrowDown = @"\u25be";
     // Dispose of any resources that can be recreated.
 }
 
+- (UIViewController *)childViewControllerForStatusBarStyle
+{
+    return self.internalNavigationController.topViewController;
+}
+
 - (void)setupNavigationController
 {
     WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
