@@ -714,40 +714,6 @@ extension Libxml2 {
             
             return sibling
         }
-
-        func siblings(separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
-
-            var leftSibling: Node?
-            var rightSibling: Node?
-            var childStartLocation = 0
-
-            for child in children {
-
-                let childEndLocation = childStartLocation + child.length()
-
-                if location == childStartLocation {
-                    rightSibling = child
-                    break
-                } else if location == childEndLocation {
-                    leftSibling = child
-                } else if location > childStartLocation && location < childEndLocation {
-                    guard let childElement = child as? ElementNode else {
-                        return nil
-                    }
-
-                    return childElement.siblings(separatedAt: location - childStartLocation)
-                }
-
-                childStartLocation = childEndLocation
-            }
-
-            if let leftSibling = leftSibling,
-                let rightSibling = rightSibling {
-                return (leftSibling, rightSibling)
-            } else {
-                return nil
-            }
-        }
         
         /// Finds any left-side descendant with any of the specified names.
         ///
@@ -895,7 +861,7 @@ extension Libxml2 {
             children.insert(child, at: index)
             child.parent = self
         }
-
+/*
         /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
         /// only two siblings can match this separator.
         ///
@@ -934,7 +900,7 @@ extension Libxml2 {
                 
                 leftElement.append(finalRightNodes)
             }
-        }
+        }*/
 
         /// Replaces the specified node with several new nodes.
         ///
