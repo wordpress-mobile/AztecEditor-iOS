@@ -14,6 +14,8 @@
 @property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
 @property (nonatomic, strong) UITextField *quickInputTextField;
 @property (nonatomic, strong) WPInputMediaPickerView *mediaInputView;
+@property (nonatomic, strong) UIView* wasFirstResponder;
+
 @end
 
 @implementation DemoViewController
@@ -44,10 +46,20 @@
 
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewWillDisappear:(BOOL)animated {
+    if (self.quickInputTextField.isFirstResponder) {
+        self.wasFirstResponder = self.quickInputTextField;
+    } else {
+        self.wasFirstResponder = nil;
+    }
+    [super viewWillDisappear:animated];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (self.wasFirstResponder != nil && self.wasFirstResponder == self.quickInputTextField) {
+        [self.quickInputTextField becomeFirstResponder];
+    }
+    [super viewWillAppear:animated];
 }
 
 #pragma - UITableViewControllerDelegate
@@ -115,10 +127,9 @@
     self.mediaInputView = [[WPInputMediaPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
     self.mediaInputView.mediaPickerDelegate = self;
 
-    _quickInputTextField.inputView = self.mediaInputView;
-
-    [_quickInputTextField.inputView removeFromSuperview];
     [self addChildViewController:self.mediaInputView.mediaPicker];
+    [self.mediaInputView removeFromSuperview];
+    _quickInputTextField.inputView = self.mediaInputView;
     [self.mediaInputView.mediaPicker didMoveToParentViewController:self];
 
     _quickInputTextField.inputAccessoryView = self.mediaInputView.mediaToolbar;
