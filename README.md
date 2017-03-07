@@ -33,17 +33,19 @@ To use the picker do the following:
 #import <WPMediaPicker/WPMediaPicker.h>
 ````
 
-### Create and present WPMediaPickerViewController
+### Create and present WPNavigationMediaPickerViewController
 
 ```` objective-c
-WPMediaPickerViewController * mediaPicker = [[WPMediaPickerViewController alloc] init];
+WPNavigationMediaPickerViewController * mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
 mediaPicker.delegate = self;
 [self presentViewController:mediaPicker animated:YES completion:nil];
 ````
 
+`WPNavigationMediaPickerViewController` wraps a `UICollectionViewController`, `WPMediaPickerViewController`, for convenience.
+
 ### Implement didFinishPickingAssets delegate
 
-The delegate is responsible for dismissing the picker when the operation completes. To dismiss the picker, call the [dismissViewControllerAnimated:completion:](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewController_Class/index.html#//apple_ref/occ/instm/UIViewController/dismissViewControllerAnimated:completion:) method of the presenting controller responsible for displaying `WPMediaPickerController` object. Please refer to the demo app.
+The delegate is responsible for dismissing the picker when the operation completes. To dismiss the picker, call the [dismissViewControllerAnimated:completion:](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewController_Class/index.html#//apple_ref/occ/instm/UIViewController/dismissViewControllerAnimated:completion:) method of the presenting controller responsible for displaying the `WPNavigationMediaPickerController` object. Please refer to the demo app.
 
 ```` objective-c
 - (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets
@@ -59,11 +61,11 @@ Just use the standard appearance methods from UIKIT. Here is an example how to c
 
 ```` objective-c
 //Configure navigation bar background color
-[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
+[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
 //Configure navigation bar items text color
-[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
+[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
 //Configure navigation bar title text color
-[[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
+[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
 //Configure background color for media scroll view
 [[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
 //Configure background color for media cell while loading image.

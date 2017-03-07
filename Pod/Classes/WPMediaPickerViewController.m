@@ -12,7 +12,6 @@
 <
  UIImagePickerControllerDelegate,
  UINavigationControllerDelegate,
- WPMediaGroupPickerViewControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
  WPAssetViewControllerDelegate,
