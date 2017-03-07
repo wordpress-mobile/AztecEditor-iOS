@@ -1,9 +1,11 @@
 #import "DemoViewController.h"
+#import "CustomPreviewViewController.h"
 #import "WPPHAssetDataSource.h"
 #import "OptionsViewController.h"
 #import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 #import <WPMediaPicker/WPMediaGroupTableViewCell.h>
+#import <WPMediaPicker/WPMediaPicker.h>
 
 @interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
 
@@ -11,6 +13,7 @@
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
 @property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
 @property (nonatomic, copy) NSDictionary *options;
+@property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
 
 @end
 
@@ -36,7 +39,8 @@
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
-                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage)
+                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage),
+                     MediaPickerOptionsCustomPreview:@(NO)
                      };
 
 }
@@ -113,7 +117,16 @@
         [self dismissViewControllerAnimated:YES completion:nil];
     };
     
-    [picker showAfterViewController:postProcessingViewController];
+    [self.mediaPicker showAfterViewController:postProcessingViewController];
+}
+
+- (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset
+{
+    if ([self.options[MediaPickerOptionsCustomPreview] boolValue] == false) {
+        return nil;
+    }
+
+    return [[CustomPreviewViewController alloc] initWithAsset:asset];
 }
 
 #pragma - Actions
@@ -126,18 +139,18 @@
 
 - (void) showPicker:(id) sender
 {
-    WPMediaPickerViewController *mediaPicker = [[WPMediaPickerViewController alloc] init];
-    mediaPicker.delegate = self;
-    mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-    mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-    mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-    mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
-    mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
-    UIPopoverPresentationController *ppc = mediaPicker.popoverPresentationController;
+    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
+    self.mediaPicker.delegate = self;
+    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
+    UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;
     
-    [self presentViewController:mediaPicker animated:YES completion:nil];
+    [self presentViewController:self.mediaPicker animated:YES completion:nil];
 }
 
 - (void) showOptions:(id) sender

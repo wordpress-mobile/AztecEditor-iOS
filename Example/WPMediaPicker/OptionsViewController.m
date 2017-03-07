@@ -7,6 +7,7 @@ NSString const *MediaPickerOptionsPreferFrontCamera = @"MediaPickerOptionsPrefer
 NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsAllowMultipleSelection";
 NSString const *MediaPickerOptionsPostProcessingStep = @"MediaPickerOptionsPostProcessingStep";
 NSString const *MediaPickerOptionsFilterType = @"MediaPickerOptionsFilterType";
+NSString const *MediaPickerOptionsCustomPreview = @"MediaPickerOptionsCustomPreview";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
@@ -15,6 +16,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellAllowMultipleSelection,
     OptionsViewControllerCellPostProcessingStep,
     OptionsViewControllerCellMediaType,
+    OptionsViewControllerCellCustomPreview,
     OptionsViewControllerCellTotal
 };
 
@@ -26,6 +28,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @property (nonatomic, strong) UITableViewCell *allowMultipleSelectionCell;
 @property (nonatomic, strong) UITableViewCell *postProcessingStepCell;
 @property (nonatomic, strong) UITableViewCell *filterMediaCell;
+@property (nonatomic, strong) UITableViewCell *customPreviewCell;
 
 @end
 
@@ -70,6 +73,11 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.filterMediaCell.accessoryView = segment;
     segment.selectedSegmentIndex = [self.options[MediaPickerOptionsFilterType] intValue];
     self.filterMediaCell.textLabel.text = @"Media Type";
+
+    self.customPreviewCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    self.customPreviewCell.accessoryView = [[UISwitch alloc] init];
+    ((UISwitch *)self.customPreviewCell.accessoryView).on = [self.options[MediaPickerOptionsCustomPreview] boolValue];
+    self.customPreviewCell.textLabel.text = @"Use Custom Preview Controller";
 }
 
 #pragma mark - Table view data source
@@ -105,6 +113,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellMediaType:
             return self.filterMediaCell;
             break;
+        case OptionsViewControllerCellCustomPreview:
+            return self.customPreviewCell;
+            break;
         default:
             break;
     }
@@ -122,6 +133,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on),
              MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on),
              MediaPickerOptionsFilterType:@(((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex),
+             MediaPickerOptionsCustomPreview:@(((UISwitch *)self.customPreviewCell.accessoryView).on),
              };
         
         [delegate optionsViewController:self changed:newOptions];
