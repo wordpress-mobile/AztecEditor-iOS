@@ -159,7 +159,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to remove.
         ///
         private func deleteBlockSeparatorSynchronously(at location: Int) {
-            domEditor.mergeNodes(separatedAt: location)
+            domEditor.mergeSiblings(separatedAt: location)
         }
 
         /// Replaces the specified range with a new string.

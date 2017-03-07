@@ -4,10 +4,14 @@ extension Libxml2 {
     ///
     class DOMEditor: DOMLogic {
 
-        let inspector: DOMInspector
+        private let inspector: DOMInspector
 
-        override init(with rootNode: RootNode) {
-            inspector = DOMInspector(with: rootNode)
+        convenience override init(with rootNode: RootNode) {
+            self.init(with: rootNode, using: DOMInspector(with: rootNode))
+        }
+
+        init(with rootNode: RootNode, using inspector: DOMInspector) {
+            self.inspector = inspector
 
             super.init(with: rootNode)
         }
@@ -18,7 +22,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - location: the location that separates the siblings we're looking for.
         ///
-        func mergeNodes(separatedAt location: Int) {
+        func mergeSiblings(separatedAt location: Int) {
             guard let theSiblings = inspector.findSiblings(separatedAt: location) else {
                 return
             }
@@ -33,7 +37,7 @@ extension Libxml2 {
         ///     - leftSibling: the left sibling to merge.
         ///     - rightSibling: the right sibling to merge.
         ///
-        func mergeSiblings(leftSibling: Node, rightSibling: Node) {
+        private func mergeSiblings(leftSibling: Node, rightSibling: Node) {
             let finalRightNodes: [Node]
 
             if let rightElement = rightSibling as? ElementNode,
