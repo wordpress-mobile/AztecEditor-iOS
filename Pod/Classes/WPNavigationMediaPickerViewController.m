@@ -3,7 +3,11 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPPHAssetDataSource.h"
 
-@interface WPNavigationMediaPickerViewController () <UINavigationControllerDelegate>
+@interface WPNavigationMediaPickerViewController () <
+UINavigationControllerDelegate,
+WPMediaGroupPickerViewControllerDelegate,
+UIPopoverPresentationControllerDelegate
+>
 @property (nonatomic, strong) UINavigationController *internalNavigationController;
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
 @property (nonatomic, strong) UIButton *titleButton;
