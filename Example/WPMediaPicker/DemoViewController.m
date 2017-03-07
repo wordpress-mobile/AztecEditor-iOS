@@ -92,8 +92,10 @@
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UIView *viewHeaderView = [[UIView alloc] init];
+    UIView *viewHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0,0, self.view.frame.size.width, 44)];
     [viewHeaderView addSubview:self.quickInputTextField];
+    self.quickInputTextField.frame = CGRectInset(viewHeaderView.frame, 2, 2);
+    self.quickInputTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     return viewHeaderView;
 }
 
