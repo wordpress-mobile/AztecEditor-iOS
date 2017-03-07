@@ -861,46 +861,6 @@ extension Libxml2 {
             children.insert(child, at: index)
             child.parent = self
         }
-/*
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
-        ///
-        /// - Parameters:
-        ///     - location: the location that separates the siblings we're looking for.
-        ///
-        func mergeSiblings(at location: Int) {
-            guard let theSiblings = siblings(separatedAt: location) else {
-                return
-            }
-
-            mergeSiblings(theSiblings.leftSibling, theSiblings.rightSibling)
-        }
-
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
-        ///
-        /// - Parameters:
-        ///     - leftSibling: the left sibling to merge.
-        ///     - rightSibling: the right sibling to merge.
-        ///
-        private func mergeSiblings(_ leftSibling: Node, _ rightSibling: Node) {
-
-            let finalRightNodes: [Node]
-
-            if let rightElement = rightSibling as? ElementNode,
-                rightElement.isBlockLevelElement() {
-
-                finalRightNodes = rightElement.unwrapChildren()
-            } else {
-                finalRightNodes = [rightSibling]
-            }
-
-            if let leftElement = leftSibling as? ElementNode,
-                leftElement.isBlockLevelElement() {
-                
-                leftElement.append(finalRightNodes)
-            }
-        }*/
 
         /// Replaces the specified node with several new nodes.
         ///
