@@ -8,8 +8,6 @@
 
 @end
 
-
-
 @implementation WPInputMediaPickerView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -30,11 +28,7 @@
 
 - (void)commonInit {
     WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
-    vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
-    vc.preferFrontCamera = self.preferFrontCamera;
-    vc.showMostRecentFirst = self.showMostRecentFirst;
-    vc.filter = self.filter;
-    vc.allowMultipleSelection = self.allowMultipleSelection;
+    self.mediaPicker = vc;
     vc.dataSource = [WPPHAssetDataSource sharedInstance];
     UICollectionView *collectionView = vc.collectionView;
     [collectionView setFrame:CGRectMake(0, 0, self.frame.size.width, 256)];
@@ -47,8 +41,6 @@
 
     collectionView.collectionViewLayout = layout;
     collectionView.alwaysBounceVertical = NO;
-
-    self.mediaPicker = vc;
 
     [self addSubview:self.mediaPicker.collectionView];
 
