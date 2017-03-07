@@ -72,6 +72,7 @@
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
         [self.mediaPickerDelegate mediaPickerController:self.mediaPicker didFinishPickingAssets:[self.mediaPicker.selectedAssets copy]];
     }
+    
 }
 
 - (void)mediaCanceled:(UIBarButtonItem *)sender {

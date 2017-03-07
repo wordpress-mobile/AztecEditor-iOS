@@ -164,5 +164,10 @@
  */
 - (void)setGroup:(id<WPMediaGroup>)group;
 
+/**
+ Clear all the current selection of assets in the picker
+ */
+- (void)clearAllSelection;
+
 @end
 

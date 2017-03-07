@@ -105,6 +105,18 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self refreshDataAnimated:NO];
 }
 
+- (void)setFilter:(WPMediaType)filter {
+    _filter = filter;
+    [self.dataSource setMediaTypeFilter:filter];
+    [self refreshDataAnimated:NO];
+}
+
+- (void)setShowMostRecentFirst:(BOOL)showMostRecentFirst {
+    _showMostRecentFirst = showMostRecentFirst;
+    [self.dataSource setAscendingOrdering:!showMostRecentFirst];
+    [self refreshDataAnimated:NO];
+}
+
 - (void)setupLayout
 {
     CGFloat minWidth = MIN (self.view.frame.size.width, self.view.frame.size.height);
@@ -802,6 +814,13 @@ referenceSizeForFooterInSection:(NSInteger)section
     } else {
         [self presentViewController:alertController animated:YES completion:nil];
     }
+}
+
+- (void)clearAllSelection {
+    for (NSIndexPath *indexPath in [self.collectionView indexPathsForSelectedItems]) {
+        [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+    }
+    [self.selectedAssets removeAllObjects];
 }
 
 @end

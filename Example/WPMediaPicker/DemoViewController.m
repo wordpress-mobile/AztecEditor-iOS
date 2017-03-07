@@ -5,7 +5,7 @@
 #import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
 
-@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
+@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate, UITextFieldDelegate>
 
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
@@ -110,14 +110,10 @@
     _quickInputTextField = [[UITextField alloc] initWithFrame:CGRectInset(CGRectMake(0, 0, self.view.frame.size.width, 44), 5, 2)];
     _quickInputTextField.placeholder = @"Tap here to quick select assets";
     _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
+    _quickInputTextField.delegate = self;
 
     self.mediaInputView = [[WPInputMediaPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
     self.mediaInputView.mediaPickerDelegate = self;
-    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
 
     _quickInputTextField.inputView = self.mediaInputView;
 
@@ -229,6 +225,21 @@
 - (void)cancelOptionsViewController:(OptionsViewController *)optionsViewController
 {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma - UITextFieldDelegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    if (textField == self.quickInputTextField) {
+        self.mediaInputView.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+        self.mediaInputView.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+        self.mediaInputView.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+        self.mediaInputView.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+        self.mediaInputView.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+        [self.mediaInputView.mediaPicker clearAllSelection];
+    }
+    return YES;
 }
 
 @end
