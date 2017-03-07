@@ -55,7 +55,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (void)dealloc
 {
-    [_dataSource unregisterChangeObserver:_changesObserver];
+    if (_changesObserver) {
+        [_dataSource unregisterChangeObserver:_changesObserver];
+    }
 }
 
 - (void)viewDidLoad
@@ -107,14 +109,18 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (void)setFilter:(WPMediaType)filter {
     _filter = filter;
-    [self.dataSource setMediaTypeFilter:filter];
-    [self refreshDataAnimated:NO];
+    if (self.viewLoaded) {
+        [self.dataSource setMediaTypeFilter:filter];
+        [self refreshDataAnimated:NO];
+    }
 }
 
 - (void)setShowMostRecentFirst:(BOOL)showMostRecentFirst {
     _showMostRecentFirst = showMostRecentFirst;
-    [self.dataSource setAscendingOrdering:!showMostRecentFirst];
-    [self refreshDataAnimated:NO];
+    if (self.viewLoaded) {
+        [self.dataSource setAscendingOrdering:!showMostRecentFirst];
+        [self refreshDataAnimated:NO];
+    }
 }
 
 - (void)setupLayout
