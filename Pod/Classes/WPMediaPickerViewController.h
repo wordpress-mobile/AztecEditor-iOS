@@ -169,5 +169,7 @@
  */
 - (void)clearAllSelection;
 
+@property (nonatomic, assign) CGSize cameraPreviewSize;
+
 @end
 

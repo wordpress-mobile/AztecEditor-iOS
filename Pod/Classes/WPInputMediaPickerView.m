@@ -38,11 +38,13 @@
     layout.itemSize = CGSizeMake(126, 126);
     layout.minimumLineSpacing = 1.0f;
     layout.minimumInteritemSpacing = 1.0f;
+    layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 10);
 
     collectionView.collectionViewLayout = layout;
     collectionView.alwaysBounceVertical = NO;
+    vc.cameraPreviewSize = CGSizeMake(126, 126);
 
-    [self addSubview:self.mediaPicker.collectionView];
+    [self addSubview:self.mediaPicker.view];
 
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 44)];
     self.mediaToolbar.items = @[

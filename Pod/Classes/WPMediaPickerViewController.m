@@ -49,6 +49,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
+        _cameraPreviewSize = CameraPreviewSize;
     }
     return self;
 }
@@ -363,7 +364,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && self.showMostRecentFirst)
     {
-        return CameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
