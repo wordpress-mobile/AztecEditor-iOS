@@ -19,7 +19,7 @@
 
 + (instancetype)sharedInstance
 {
-    static id<WPMediaCollectionDataSource> assetSource = nil;
+    static WPPHAssetDataSource *assetSource = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         assetSource = [[WPPHAssetDataSource alloc] init];
