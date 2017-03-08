@@ -171,13 +171,15 @@ open class TextView: UITextView {
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
         if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
-            if (self.textStorage.length > 0) {
+            if self.textStorage.length > 0 {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
             delegate?.textViewDidChangeSelection?(self)
             delegate?.textViewDidChange?(self)
             return
         }
+
+        ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
         super.insertText(text)
 
@@ -561,6 +563,29 @@ open class TextView: UITextView {
         }
 
         return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
+    }
+
+    /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
+    /// the NSLinkAttribute. Meaning that:
+    ///
+    ///     - Text inserted in front of a link will not be automagically linkified
+    ///     - Text inserted after a link (even with no spaces!) won't be linkified anymore
+    ///     - Only text edited "Within" a Link's Anchor will get linkified.
+    ///
+    /// - Parameter range: Range in which new text will be inserted.
+    ///
+    private func ensureRemovalOfLinkTypingAttribute(at range: NSRange) {
+        guard typingAttributes[NSLinkAttributeName] != nil else {
+            return
+        }
+
+        guard !storage.isLocationPreceededByLink(range.location) ||
+            !storage.isLocationSuccededByLink(range.location)
+            else {
+                return
+        }
+
+        typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
 
     /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
