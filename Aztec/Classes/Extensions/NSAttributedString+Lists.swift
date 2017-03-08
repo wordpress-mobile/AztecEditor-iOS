@@ -314,7 +314,7 @@ extension NSAttributedString
 
     /// Internal convenience helper. Returns the internal string as a NSString instance
     ///
-    fileprivate var foundationString: NSString {
+    var foundationString: NSString {
         return string as NSString
     }
 }
