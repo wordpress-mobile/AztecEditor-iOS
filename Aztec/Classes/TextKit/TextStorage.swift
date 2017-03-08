@@ -411,16 +411,19 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Process difference in attachmente properties, and applies them to the DOM in the specified range
+    ///
+    /// - Parameters:
+    ///   - range: the range in the DOM where the differences must be applied.
+    ///   - original: the original attachment existing in the range if any.
+    ///   - new: the new attachment to apply to the range if any.
+    ///
     private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
 
         let originalUrl = original?.url
         let newUrl = new?.url
 
-        guard originalUrl != newUrl else {
-            return
-        }
-
-        let addImageUrl = originalUrl == nil && newUrl != nil
+        let addImageUrl = newUrl != nil
         let removeImageUrl = originalUrl != nil && newUrl == nil
 
         if addImageUrl {
