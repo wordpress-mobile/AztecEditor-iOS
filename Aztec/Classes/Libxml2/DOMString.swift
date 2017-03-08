@@ -60,6 +60,12 @@ extension Libxml2 {
         /// The queue that will be used for all DOM interaction operations.
         ///
         let domQueue = DispatchQueue(label: "com.wordpress.domQueue", attributes: [])
+
+        // MARK: - Properties: DOM Logic
+
+        private lazy var domEditor: DOMEditor = {
+            return DOMEditor(with: self.rootNode)
+        }()
         
         // MARK: - Init & deinit
         
@@ -153,7 +159,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to remove.
         ///
         private func deleteBlockSeparatorSynchronously(at location: Int) {
-            rootNode.mergeSiblings(at: location)
+            domEditor.mergeSiblings(separatedAt: location)
         }
 
         /// Replaces the specified range with a new string.
