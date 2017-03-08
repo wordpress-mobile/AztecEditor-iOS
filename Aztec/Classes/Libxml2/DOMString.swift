@@ -346,38 +346,38 @@ extension Libxml2 {
                 return
             }
 
-            rootNode.unwrap(range: range, fromElementsNamed: element.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: element.equivalentNames)
         }
 
         private func removeBoldSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.b.equivalentNames)
         }
 
         private func removeImageSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.img.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.img.equivalentNames)
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.i.equivalentNames)
         }
         
         private func removeStrikethroughSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.s.equivalentNames)
         }
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
 
         private func removeBlockquoteSynchronously(spanning range: NSRange) {
-            rootNode.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
             guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
-            rootNode.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
         }
         
         // MARK: - Apply Styles
@@ -520,7 +520,7 @@ extension Libxml2 {
         fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
-            rootNode.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
+            domEditor.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         
         // MARK: - Candidates for removal
