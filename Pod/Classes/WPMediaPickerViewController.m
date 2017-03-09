@@ -709,18 +709,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIViewController *)previewViewControllerForAsset:(id <WPMediaAsset>)asset
 {
-    UIViewController *previewViewController = nil;
-
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:previewViewControllerForAsset:)]) {
-        previewViewController = [self.mediaPickerDelegate mediaPickerController:self
-                                                  previewViewControllerForAsset:asset];
+        return [self.mediaPickerDelegate mediaPickerController:self
+                                 previewViewControllerForAsset:asset];
     }
 
-    if (!previewViewController) {
-        previewViewController = [self defaultPreviewViewControllerForAsset:asset];
-    }
-
-    return previewViewController;
+    return [self defaultPreviewViewControllerForAsset:asset];
 }
 
 - (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
