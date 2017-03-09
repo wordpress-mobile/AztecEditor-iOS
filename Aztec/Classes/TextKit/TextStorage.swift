@@ -259,7 +259,7 @@ open class TextStorage: NSTextStorage {
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
-            if targetDomRange != range {
+            if targetDomRange.length != range.length {
                 dom.deleteBlockSeparator(at: targetDomRange.location)
             }
 

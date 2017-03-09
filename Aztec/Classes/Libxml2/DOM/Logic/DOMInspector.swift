@@ -21,15 +21,21 @@ extension Libxml2 {
         ///
         /// - Returns: the two siblings, if they exist, or `nil` in any other scenario.
         ///
-        private func findSiblings(of: ElementNode, separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
+        private func findSiblings(of element: ElementNode, separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
 
             var leftSibling: Node?
             var rightSibling: Node?
             var childStartLocation = 0
 
-            for child in rootNode.children {
+            for child in element.children {
 
                 let childEndLocation = childStartLocation + child.length()
+
+                // Ignore empty nodes
+                //
+                guard childStartLocation != childEndLocation else {
+                    continue
+                }
 
                 if location == childStartLocation {
                     rightSibling = child
