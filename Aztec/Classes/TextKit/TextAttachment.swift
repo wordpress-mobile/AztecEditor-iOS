@@ -27,6 +27,8 @@ open class TextAttachment: NSTextAttachment
         ///
         public var progressColor = UIColor.blue
 
+        /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
+        ///
         public var imageMargin = CGFloat(10.0)
     }
 
@@ -90,6 +92,8 @@ open class TextAttachment: NSTextAttachment
     ///
     open var progressColor: UIColor = TextAttachment.appearance.progressColor
 
+    /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
+    ///
     open var imageMargin: CGFloat = TextAttachment.appearance.imageMargin
 
     /// A message to display overlaid on top of the image
@@ -257,7 +261,7 @@ open class TextAttachment: NSTextAttachment
 
         let containerWidth = bounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - imageMargin)
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
