@@ -316,7 +316,7 @@ open class TextStorage: NSTextStorage {
     ///         It's the offset this method will use to apply the styles found in the source string.
     ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
-        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: textStore.string.location(before:location)!, effectiveRange: nil)
+        let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
         let domLocation = map(visualLocation: location)
@@ -411,14 +411,17 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Process difference in attachmente properties, and applies them to the DOM in the specified range
+    ///
+    /// - Parameters:
+    ///   - range: the range in the DOM where the differences must be applied.
+    ///   - original: the original attachment existing in the range if any.
+    ///   - new: the new attachment to apply to the range if any.
+    ///
     private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
 
         let originalUrl = original?.url
         let newUrl = new?.url
-
-        guard originalUrl != newUrl else {
-            return
-        }
 
         let addImageUrl = originalUrl == nil && newUrl != nil
         let removeImageUrl = originalUrl != nil && newUrl == nil

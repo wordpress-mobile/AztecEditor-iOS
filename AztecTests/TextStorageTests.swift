@@ -201,4 +201,37 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(html, "Apply a header")
     }
+
+
+    /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
+    ///
+    func testInsertOneImageAfterTheOther() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let firstAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        let secondAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.org")!, atPosition: 1, placeHolderImage: UIImage())
+        let html = storage.getHTML()
+
+        XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
+        XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\">")
+    }
+
+    /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
+    ///
+    func testInsertSameImageAfterTheOther() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let firstAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        let secondAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 1, placeHolderImage: UIImage())
+        let html = storage.getHTML()
+
+        XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
+        XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\">")
+    }
 }
