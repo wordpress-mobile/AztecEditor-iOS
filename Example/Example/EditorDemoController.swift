@@ -544,7 +544,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         if htmlMode {
             for item in items {
                 item.isEnabled = false
-                if let sourceItem = item as? FormatBarItem, sourceItem.identifier == .sourcecode {
+                if item.identifier == .sourcecode {
                     item.isEnabled = true
                 }
             }
@@ -561,64 +561,20 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         return toolbar
     }
 
-    var itemsForToolbar: [UIBarButtonItem] {
-        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let fixed = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        if self.traitCollection.horizontalSizeClass == .compact {
-            let items = [
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-                flex,
-                ]
-            return items
-        } else {
-            let items = [
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-                flex,
-                ]
-            return items
-        }
+    var itemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
+            FormatBarItem(image: Gridicon.iconOfType(.heading), identifier: .header),
+            FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
+            FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
+            FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
+            FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
+            FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
+            FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode),
+            ]
     }
 
 }
