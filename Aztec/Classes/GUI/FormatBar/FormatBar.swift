@@ -2,15 +2,21 @@ import Foundation
 import UIKit
 
 
-open class FormatBar: UIToolbar
-{
+// MARK: - FormatBar
+//
+open class FormatBar: UIView {
 
     open weak var formatter: FormatBarDelegate?
 
 
-    override open var items: [UIBarButtonItem]? {
+    open var items = [FormatBarItem]() {
+        willSet {
+            for item in items {
+                item.removeFromSuperview()
+            }
+        }
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 configureButtonStyle(item)
                 configureButtonAction(item)
             }
@@ -20,7 +26,7 @@ open class FormatBar: UIToolbar
 
     override open var tintColor: UIColor? {
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 item.tintColor = tintColor
             }
         }
@@ -29,7 +35,7 @@ open class FormatBar: UIToolbar
 
     open var selectedTintColor: UIColor? {
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 item.selectedTintColor = selectedTintColor
             }
         }
@@ -38,7 +44,7 @@ open class FormatBar: UIToolbar
 
     open var highlightedTintColor: UIColor? {
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 item.highlightedTintColor = highlightedTintColor
             }
         }
@@ -47,7 +53,7 @@ open class FormatBar: UIToolbar
 
     open var disabledTintColor: UIColor? {
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 item.disabledTintColor = disabledTintColor
             }
         }
@@ -56,23 +62,13 @@ open class FormatBar: UIToolbar
 
     open var enabled = true {
         didSet {
-            for item in formatBarItems {
+            for item in items {
                 item.isEnabled = enabled
             }
         }
     }
 
 
-    open var formatBarItems: [FormatBarItem] {
-        guard let items = items else {
-            return [FormatBarItem]()
-        }
-        return items.filter({ (element) -> Bool in
-            if let _ = element as? FormatBarItem {
-                return true
-            }
-            return false
-        }) as! [FormatBarItem]
     }
 
 
