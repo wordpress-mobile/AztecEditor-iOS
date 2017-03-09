@@ -1,7 +1,7 @@
 import Foundation
 
-public enum FormattingIdentifier: String
-{
+public enum FormattingIdentifier: String {
+    
     case bold = "bold"
     case italic = "italic"
     case underline = "underline"
