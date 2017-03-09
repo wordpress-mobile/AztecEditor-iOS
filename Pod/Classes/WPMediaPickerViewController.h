@@ -165,5 +165,10 @@
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
 
+/**
+ * Clears the current asset selection in the picker.
+ */
+- (void)clearSelectedAssets:(BOOL)animated;
+
 @end
 

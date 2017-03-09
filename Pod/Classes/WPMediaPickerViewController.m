@@ -148,6 +148,15 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     }
 }
 
+- (void)clearSelectedAssets:(BOOL)animated
+{
+    for (NSIndexPath *indexPath in [self.collectionView indexPathsForSelectedItems]) {
+        [self.collectionView deselectItemAtIndexPath:indexPath animated:animated];
+    }
+
+    [self.selectedAssets removeAllObjects];
+}
+
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
