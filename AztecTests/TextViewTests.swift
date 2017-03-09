@@ -16,6 +16,12 @@ class AztecVisualtextViewTests: XCTestCase {
 
     // MARK: - TextView construction
 
+    func createEmptyTextView() -> Aztec.TextView {
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+
+        return richTextView
+    }
+
     func createTextView(withHTML html: String) -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
 
@@ -208,6 +214,18 @@ class AztecVisualtextViewTests: XCTestCase {
 
         XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
         XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.blockquote))
+    }
+
+    /// This test was created to prevent regressions related to this issue:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/350
+    ///
+    func testToggleBlockquoteAndStrikethrough() {
+        let textView = createEmptyTextView()
+
+        textView.toggleStrikethrough(range: NSRange.zero)
+        textView.toggleBlockquote(range: NSRange.zero)
+
+        // There's no need to check any condition, as long as the test doesn't crash.
     }
 
     func testToggleOrderedList() {
