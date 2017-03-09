@@ -139,6 +139,15 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
+- (void)setAllowMultipleSelection:(BOOL)allowMultipleSelection
+{
+    _allowMultipleSelection = allowMultipleSelection;
+
+    if (self.isViewLoaded) {
+        self.collectionView.allowsMultipleSelection = allowMultipleSelection;
+    }
+}
+
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
