@@ -137,6 +137,7 @@ extension Libxml2 {
         /// Wraps the specified range inside a node with the specified properties.
         ///
         /// - Parameters:
+        ///     - element: the element containing the specified range.
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
@@ -174,6 +175,7 @@ extension Libxml2 {
         /// specified properties.
         ///
         /// - Parameters:
+        ///     - element: the element containing the specified range.
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
@@ -229,6 +231,7 @@ extension Libxml2 {
         /// nodes with the specified name, the range will be unwrapped from all of them.
         ///
         /// - Parameters:
+        ///     - element: the element containing the specified range.
         ///     - range: the range that must be unwrapped.
         ///     - elementNames: the names of the elements the range must be unwrapped from.
         ///
@@ -271,6 +274,7 @@ extension Libxml2 {
         /// Unwraps all child nodes from elements with the specified names.
         ///
         /// - Parameters:
+        ///     - element: the element containing the specified range.
         ///     - range: the range we want to unwrap.
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
