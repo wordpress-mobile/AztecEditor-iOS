@@ -91,9 +91,9 @@ open class FormatBar: UIView {
     ///
     ///
     open func selectItemsMatchingIdentifiers(_ identifiers: [FormattingIdentifier]) {
-        for item in formatBarItems {
+        for item in items {
             if let identifier = item.identifier {
-                item.selected = identifiers.contains(identifier)
+                item.isSelected = identifiers.contains(identifier)
             }
         }
     }
