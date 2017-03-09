@@ -2,97 +2,60 @@ import Foundation
 import UIKit
 
 
+open class FormatBarItem: UIButton {
 
-open class FormatBarItem: UIBarButtonItem
-{
+    var selectedTintColor: UIColor?
+    var highlightedTintColor: UIColor?
+    var disabledTintColor: UIColor?
+    var normalTintColor: UIColor?
 
     open var identifier: FormattingIdentifier?
 
 
-    fileprivate var button: AztecFormatBarButton? {
-        return customView as? AztecFormatBarButton
-    }
-
 
     override open var tintColor: UIColor? {
         didSet {
-            button?.normalTintColor = tintColor
-            button?.tintColor = tintColor
-        }
-    }
-
-
-    open var selectedTintColor: UIColor? {
-        get {
-            return button?.selectedTintColor
-        }
-        set {
-            button?.selectedTintColor = newValue
-        }
-    }
-
-
-    open var highlightedTintColor: UIColor? {
-        get {
-            return button?.highlightedTintColor
-        }
-        set {
-            button?.highlightedTintColor = newValue
-        }
-    }
-
-
-    open var disabledTintColor: UIColor? {
-        get {
-            return button?.disabledTintColor
-        }
-        set {
-            button?.disabledTintColor = newValue
+            normalTintColor = tintColor
         }
     }
 
 
     open override var isEnabled: Bool {
         didSet {
-            button?.isEnabled = isEnabled
+            updateTintColor()
         }
     }
 
 
-    open var selected: Bool {
-        get {
-            return button?.isSelected ?? false
-        }
-        set {
-            button?.isSelected = newValue
+    open override var isHighlighted: Bool {
+        didSet {
+            updateTintColor()
         }
     }
+
+
+    open override var isSelected: Bool {
+        didSet {
+            updateTintColor()
+        }
+    }
+
 
 
     // MARK: - Lifecycle
 
     public convenience init(image: UIImage, identifier: FormattingIdentifier) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
-        self.init(image: image, frame: defaultFrame, target: nil, action: nil)
+        self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
     }
 
 
-    init(image: UIImage, frame: CGRect, target: AnyObject?, action: Selector?) {
-        super.init()
-
-        self.target = target
-        self.action = action
-
-        let button = AztecFormatBarButton(type: .custom)
-        button.frame = frame
-        button.setImage(image, for: UIControlState())
-        button.addTarget(self, action: #selector(type(of: self).handleButtonTapped(_:)), for: .touchUpInside)
-        button.adjustsImageWhenDisabled = true
-        button.adjustsImageWhenHighlighted = true
-
-        style = .plain
-        customView = button
+    public init(image: UIImage, frame: CGRect) {
+        super.init(frame: frame)
+        self.setImage(image, for: UIControlState())
+        self.adjustsImageWhenDisabled = true
+        self.adjustsImageWhenHighlighted = true
     }
 
 
@@ -102,48 +65,6 @@ open class FormatBarItem: UIBarButtonItem
 
 
     // MARK: - Actions
-
-    func handleButtonTapped(_ sender: UIButton) {
-        guard let target = target,
-            let action = action else {
-            return
-        }
-        
-        _ = target.perform(action, with: self)
-    }
-
-}
-
-
-class AztecFormatBarButton: UIButton
-{
-
-    var selectedTintColor: UIColor?
-    var highlightedTintColor: UIColor?
-    var disabledTintColor: UIColor?
-    var normalTintColor: UIColor?
-
-
-    override var isSelected: Bool {
-        didSet {
-            updateTintColor()
-        }
-    }
-
-
-    override var isHighlighted: Bool {
-        didSet {
-            updateTintColor()
-        }
-    }
-
-
-    override var isEnabled: Bool {
-        didSet {
-            updateTintColor()
-        }
-    }
-
 
     func updateTintColor() {
         if state.contains(.disabled) {
@@ -163,5 +84,4 @@ class AztecFormatBarButton: UIButton
 
         tintColor = normalTintColor
     }
-
 }
