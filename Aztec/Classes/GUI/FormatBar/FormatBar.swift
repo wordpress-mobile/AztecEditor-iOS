@@ -84,8 +84,7 @@ open class FormatBar: UIView {
 
 
     func configureButtonAction(_ button: FormatBarItem) {
-        button.target = self
-        button.action = #selector(type(of: self).handleButtonAction(_:))
+        button.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
     }
 
 
@@ -103,8 +102,7 @@ open class FormatBar: UIView {
     // MARK: - Actions
 
 
-    func handleButtonAction(_ sender: FormatBarItem) {
+    @IBAction func handleButtonAction(_ sender: FormatBarItem) {
         formatter?.handleActionForIdentifier(sender.identifier!)
     }
-
 }
