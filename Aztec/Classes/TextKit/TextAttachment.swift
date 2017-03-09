@@ -26,6 +26,8 @@ open class TextAttachment: NSTextAttachment
         /// The color to use when drawing progress indicators
         ///
         public var progressColor = UIColor.blue
+
+        public var imageMargin = CGFloat(10.0)
     }
 
 
@@ -87,6 +89,8 @@ open class TextAttachment: NSTextAttachment
     /// The color to use when drawing progress indicators
     ///
     open var progressColor: UIColor = TextAttachment.appearance.progressColor
+
+    open var imageMargin: CGFloat = TextAttachment.appearance.imageMargin
 
     /// A message to display overlaid on top of the image
     ///
@@ -193,14 +197,14 @@ open class TextAttachment: NSTextAttachment
     }
     // MARK: - Origin calculation
 
-    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
+    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
         case .center:
-            return Int(floor((containerWidth - imageWidth) / 2))
+            return CGFloat(floor((containerWidth - imageWidth) / 2))
         case .right:
-            return Int(floor(containerWidth - imageWidth))
+            return CGFloat(floor(containerWidth - imageWidth))
         default:
             return 0
         }
@@ -211,7 +215,7 @@ open class TextAttachment: NSTextAttachment
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
 
-            return floor(image.size.height * scale)
+            return floor(image.size.height * scale) + (imageMargin * 2)
         } else {
             return 0
         }
@@ -252,7 +256,7 @@ open class TextAttachment: NSTextAttachment
     fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
 
         let containerWidth = bounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: 0)
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
