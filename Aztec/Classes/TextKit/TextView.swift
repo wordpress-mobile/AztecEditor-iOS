@@ -718,7 +718,21 @@ open class TextView: UITextView {
             return
         }
 
-        selectedRange = NSRange(location: index + 1, length: 0)
+        guard let locationAfter = textStorage.string.location(after: index) else {
+            selectedRange = NSRange(location: index, length: 0)
+            forceRedrawCursorAfterDelay()
+            return;
+        }
+        var newLocation = locationAfter
+        // Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the attachment based on the margins.
+        if let attachment = self.attachmentAtPoint(point) {
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
+            let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
+                newLocation = index
+            }
+        }
+        selectedRange = NSRange(location: newLocation, length: 0)
         forceRedrawCursorAfterDelay()
     }
 
