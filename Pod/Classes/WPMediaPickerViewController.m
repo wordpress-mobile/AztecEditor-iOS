@@ -419,9 +419,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 - (void)showCapture {
-    [self.captureCell stopCaptureOnCompletion:^{
-        [self captureMedia];
-    }];
+    [self captureMedia];
     return;
 }
 
@@ -694,16 +692,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     [picker dismissViewControllerAnimated:YES completion:^{
         [self processMediaCaptured:info];
-        if (self.showMostRecentFirst){
-            [self.captureCell startCapture];
-        }
     }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [picker dismissViewControllerAnimated:YES completion:^{
-        [self.captureCell startCapture];
     }];
 }
 
