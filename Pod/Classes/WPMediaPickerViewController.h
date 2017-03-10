@@ -111,7 +111,8 @@
 
 /**
  *  Asks the delegate for a view controller to push when previewing the specified asset.
- *  If this method isn't implemented or returns nil, the default view controller will be used.
+ *  If this method isn't implemented, the default view controller will be used.
+ *  If it returns nil, no preview will be displayed.
  *
  *  @param picker The controller object managing the assets picker interface.
  *  @param asset  The asset to be previewed.
@@ -163,6 +164,11 @@
  Allows to set a group as the current display group on the data source. 
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
+
+/**
+ * Clears the current asset selection in the picker.
+ */
+- (void)clearSelectedAssets:(BOOL)animated;
 
 @end
 

@@ -139,6 +139,24 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
+- (void)setAllowMultipleSelection:(BOOL)allowMultipleSelection
+{
+    _allowMultipleSelection = allowMultipleSelection;
+
+    if (self.isViewLoaded) {
+        self.collectionView.allowsMultipleSelection = allowMultipleSelection;
+    }
+}
+
+- (void)clearSelectedAssets:(BOOL)animated
+{
+    for (NSIndexPath *indexPath in [self.collectionView indexPathsForSelectedItems]) {
+        [self.collectionView deselectItemAtIndexPath:indexPath animated:animated];
+    }
+
+    [self.selectedAssets removeAllObjects];
+}
+
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
@@ -709,18 +727,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIViewController *)previewViewControllerForAsset:(id <WPMediaAsset>)asset
 {
-    UIViewController *previewViewController = nil;
-
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:previewViewControllerForAsset:)]) {
-        previewViewController = [self.mediaPickerDelegate mediaPickerController:self
-                                                  previewViewControllerForAsset:asset];
+        return [self.mediaPickerDelegate mediaPickerController:self
+                                 previewViewControllerForAsset:asset];
     }
 
-    if (!previewViewController) {
-        previewViewController = [self defaultPreviewViewControllerForAsset:asset];
-    }
-
-    return previewViewController;
+    return [self defaultPreviewViewControllerForAsset:asset];
 }
 
 - (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
