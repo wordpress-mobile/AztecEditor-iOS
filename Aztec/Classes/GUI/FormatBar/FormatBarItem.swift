@@ -2,38 +2,56 @@ import Foundation
 import UIKit
 
 
+// MARK: - FormatBarItem
+//
 open class FormatBarItem: UIButton {
 
+    /// Tint Color to be applied whenever the button is selected
+    ///
     var selectedTintColor: UIColor?
-    var highlightedTintColor: UIColor?
-    var disabledTintColor: UIColor?
-    var normalTintColor: UIColor?
 
+    /// Tint Color to be applied whenever the button is highlighted
+    ///
+    var highlightedTintColor: UIColor?
+
+    /// Tint Color to be applied whenever the button is disabled
+    ///
+    var disabledTintColor: UIColor?
+
+    /// Tint Color, as set by the user, by means of the tintColor property
+    ///
+    private var normalTintColor: UIColor?
+
+    /// Formatting Identifier
+    ///
     open var identifier: FormattingIdentifier?
 
-
-
+    /// TintColor
+    ///
     override open var tintColor: UIColor? {
         didSet {
             normalTintColor = tintColor
         }
     }
 
-
+    /// Enabled Listener: Update Tint Colors, as needed
+    ///
     open override var isEnabled: Bool {
         didSet {
             updateTintColor()
         }
     }
 
-
+    /// Highlight Listener: Update Tint Colors, as needed
+    ///
     open override var isHighlighted: Bool {
         didSet {
             updateTintColor()
         }
     }
 
-
+    /// Selection Listener: Update Tint Colors, as needed
+    ///
     open override var isSelected: Bool {
         didSet {
             updateTintColor()
@@ -66,7 +84,7 @@ open class FormatBarItem: UIButton {
 
     // MARK: - Actions
 
-    func updateTintColor() {
+    private func updateTintColor() {
         if state.contains(.disabled) {
             tintColor = disabledTintColor
             return
