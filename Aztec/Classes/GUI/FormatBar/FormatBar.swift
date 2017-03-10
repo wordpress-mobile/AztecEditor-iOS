@@ -126,6 +126,9 @@ open class FormatBar: UIView {
     public init() {
         super.init(frame: .zero)
 
+        // Make sure we getre-drawn whenever the bounds change!
+        layer.needsDisplayOnBoundsChange = true
+
         configure(scrollView: scrollView)
         configure(stackView: scrollableStackView)
         configure(stackView: fixedStackView)
@@ -155,11 +158,9 @@ open class FormatBar: UIView {
         }
 
         // Setup the Context
-        let scale = UIScreen.main.scale
-        let lineWidthInPoints = Constants.topBorderHeightInPixels / scale
+        let lineWidthInPoints = Constants.topBorderHeightInPixels / UIScreen.main.scale
 
         context.clear(rect)
-        context.setShouldAntialias(false)
         context.setLineWidth(lineWidthInPoints)
 
         // Background
@@ -170,8 +171,18 @@ open class FormatBar: UIView {
         // Top Separator
         topBorderColor.setStroke()
 
+        context.setShouldAntialias(false)
         context.move(to: CGPoint(x: 0, y: lineWidthInPoints))
         context.addLine(to: CGPoint(x: bounds.maxX, y: lineWidthInPoints))
+        context.strokePath()
+
+        // Scrollable / Fixed `>` Separator
+        let originX = fixedStackView.frame.minX - Constants.fixedStackViewInsets.left
+
+        context.setShouldAntialias(true)
+        context.move(to: CGPoint(x: originX, y: bounds.minY))
+        context.addLine(to: CGPoint(x: originX + Constants.fixedSeparatorMidPointPaddingX, y: bounds.midY))
+        context.addLine(to: CGPoint(x: originX, y: bounds.maxY))
         context.strokePath()
     }
 
@@ -288,6 +299,7 @@ private extension FormatBar {
 private extension FormatBar {
 
     struct Constants {
+        static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         static let stackViewSpacing = CGFloat(7)
