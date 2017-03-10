@@ -8,7 +8,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaGroupPickerViewController.h"
 #import "WPIndexMove.h"
-#import "WPInputMediaPickerView.h"
+#import "WPInputMediaPickerViewController.h"
 #import "WPVideoPlayerView.h"
 #import "WPMediaGroupTableViewCell.h"
 

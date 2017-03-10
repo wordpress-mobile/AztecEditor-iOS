@@ -13,7 +13,7 @@
 @property (nonatomic, copy) NSDictionary *options;
 @property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
 @property (nonatomic, strong) UITextField *quickInputTextField;
-@property (nonatomic, strong) WPInputMediaPickerView *mediaInputView;
+@property (nonatomic, strong) WPInputMediaPickerViewController *mediaInputViewController;
 @property (nonatomic, strong) UIView* wasFirstResponder;
 
 @end
@@ -74,7 +74,7 @@
     return self.assets.count;
 }
 
-- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
@@ -124,15 +124,14 @@
     _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
     _quickInputTextField.delegate = self;
 
-    self.mediaInputView = [[WPInputMediaPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 256)];
-    self.mediaInputView.mediaPickerDelegate = self;
+    self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
 
-    [self addChildViewController:self.mediaInputView.mediaPicker];
-    [self.mediaInputView removeFromSuperview];
-    _quickInputTextField.inputView = self.mediaInputView;
-    [self.mediaInputView.mediaPicker didMoveToParentViewController:self];
+    [self addChildViewController:self.mediaInputViewController];
+    _quickInputTextField.inputView = self.mediaInputViewController.view;
+    [self.mediaInputViewController didMoveToParentViewController:self];
 
-    _quickInputTextField.inputAccessoryView = self.mediaInputView.mediaToolbar;
+    self.mediaInputViewController.mediaPickerDelegate = self;
+    _quickInputTextField.inputAccessoryView = self.mediaInputViewController.mediaToolbar;
 
     return _quickInputTextField;
 }
@@ -151,7 +150,7 @@
 
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker
 {
-    if (picker == self.mediaInputView.mediaPicker) {
+    if (picker == self.mediaInputViewController.mediaPicker) {
         [self.quickInputTextField resignFirstResponder];
         return;
     }
@@ -164,7 +163,7 @@
     self.assets = assets;
     [self.tableView reloadData];
     
-    if (picker == self.mediaInputView.mediaPicker) {
+    if (picker == self.mediaInputViewController.mediaPicker) {
         [self.quickInputTextField resignFirstResponder];
         return;
     }
@@ -243,12 +242,12 @@
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
     if (textField == self.quickInputTextField) {
-        self.mediaInputView.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-        self.mediaInputView.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-        self.mediaInputView.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-        self.mediaInputView.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-        self.mediaInputView.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
-        [self.mediaInputView.mediaPicker clearSelectedAssets:NO];
+        self.mediaInputViewController.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+        self.mediaInputViewController.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+        self.mediaInputViewController.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+        self.mediaInputViewController.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+        self.mediaInputViewController.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+        [self.mediaInputViewController.mediaPicker clearSelectedAssets:NO];
     }
     return YES;
 }

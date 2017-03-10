@@ -7,7 +7,7 @@
  
  The mediaToolbar property provides a toolbar that can be used as the inputAccessoryView for this inputView.
  */
-@interface WPInputMediaPickerView : UIView
+@interface WPInputMediaPickerViewController : UIViewController
 
 /**
 The delegate for the WPMediaPickerViewController events
