@@ -111,7 +111,8 @@
 
 /**
  *  Asks the delegate for a view controller to push when previewing the specified asset.
- *  If this method isn't implemented or returns nil, the default view controller will be used.
+ *  If this method isn't implemented, the default view controller will be used.
+ *  If it returns nil, no preview will be displayed.
  *
  *  @param picker The controller object managing the assets picker interface.
  *  @param asset  The asset to be previewed.
@@ -164,12 +165,12 @@
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
 
-/**
- Clear all the current selection of assets in the picker
- */
-- (void)clearAllSelection;
-
 @property (nonatomic, assign) CGSize cameraPreviewSize;
+
+/**
+ * Clears the current asset selection in the picker.
+ */
+- (void)clearSelectedAssets:(BOOL)animated;
 
 @end
 

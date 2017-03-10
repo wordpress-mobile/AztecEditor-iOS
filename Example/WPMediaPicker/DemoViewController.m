@@ -248,7 +248,7 @@
         self.mediaInputView.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
         self.mediaInputView.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
         self.mediaInputView.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
-        [self.mediaInputView.mediaPicker clearAllSelection];
+        [self.mediaInputView.mediaPicker clearSelectedAssets:NO];
     }
     return YES;
 }
