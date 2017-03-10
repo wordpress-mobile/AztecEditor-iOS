@@ -209,7 +209,7 @@ open class FormatBar: UIView {
 
 
 
-// MARK: - Private Helpers
+// MARK: - Configuration Helpers
 //
 private extension FormatBar {
 
@@ -294,9 +294,50 @@ private extension FormatBar {
 }
 
 
+
+// MARK: - Animation Helpers
+//
+extension FormatBar {
+
+    private var scrollableContentSize: CGSize {
+        return scrollView.contentSize
+    }
+
+    private var scrollabeVisibleSize: CGSize {
+        return scrollView.frame.size
+    }
+
+    open func animateSlightPeekWhenOverflows() {
+        guard scrollableContentSize.width > scrollabeVisibleSize.width else {
+            return
+        }
+
+        let originalRect = CGRect(origin: .zero, size: scrollabeVisibleSize)
+        let peekOrigin = CGPoint(x: scrollableContentSize.width * Animations.peekWidthRatio, y: 0)
+        let peekRect = CGRect(origin: peekOrigin, size: scrollabeVisibleSize)
+
+        UIView.animate(withDuration: Animations.durationLong, delay: Animations.delayZero, options: .curveEaseInOut, animations: {
+            self.scrollView.scrollRectToVisible(peekRect, animated: false)
+        }, completion: { _ in
+            UIView.animate(withDuration: Animations.durationShort, delay: Animations.delayZero, options: .curveEaseInOut, animations: {
+                self.scrollView.scrollRectToVisible(originalRect, animated: false)
+            }, completion: nil)
+        })
+    }
+}
+
+
+
 // MARK: - Private Constants
 //
 private extension FormatBar {
+
+    struct Animations {
+        static let durationLong = TimeInterval(0.3)
+        static let durationShort = TimeInterval(0.15)
+        static let delayZero = TimeInterval(0)
+        static let peekWidthRatio = CGFloat(0.05)
+    }
 
     struct Constants {
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
