@@ -6,33 +6,46 @@ import UIKit
 //
 open class FormatBarItem: UIButton {
 
-    /// Tint Color to be applied whenever the button is selected
-    ///
-    var selectedTintColor: UIColor?
-
-    /// Tint Color to be applied whenever the button is highlighted
-    ///
-    var highlightedTintColor: UIColor?
-
-    /// Tint Color to be applied whenever the button is disabled
-    ///
-    var disabledTintColor: UIColor?
-
-    /// Tint Color, as set by the user, by means of the tintColor property
-    ///
-    private var normalTintColor: UIColor?
-
     /// Formatting Identifier
     ///
     open var identifier: FormattingIdentifier?
 
-    /// TintColor
+
+    /// Tint Color to be applied whenever the button is selected
     ///
-    override open var tintColor: UIColor? {
+    var selectedTintColor: UIColor? {
         didSet {
-            normalTintColor = tintColor
+            updateTintColor()
         }
     }
+
+
+    /// Tint Color to be applied whenever the button is highlighted
+    ///
+    var highlightedTintColor: UIColor? {
+        didSet {
+            updateTintColor()
+        }
+    }
+
+
+    /// Tint Color to be applied whenever the button is disabled
+    ///
+    var disabledTintColor: UIColor? {
+        didSet {
+            updateTintColor()
+        }
+    }
+
+
+    /// Tint Color to be applied to the "Normal" State
+    ///
+    var normalTintColor: UIColor? {
+        didSet {
+            updateTintColor()
+        }
+    }
+
 
     /// Enabled Listener: Update Tint Colors, as needed
     ///
@@ -42,6 +55,7 @@ open class FormatBarItem: UIButton {
         }
     }
 
+
     /// Highlight Listener: Update Tint Colors, as needed
     ///
     open override var isHighlighted: Bool {
@@ -50,6 +64,7 @@ open class FormatBarItem: UIButton {
         }
     }
 
+    
     /// Selection Listener: Update Tint Colors, as needed
     ///
     open override var isSelected: Bool {

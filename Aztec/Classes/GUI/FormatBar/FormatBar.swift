@@ -64,7 +64,7 @@ open class FormatBar: UIView {
     override open var tintColor: UIColor? {
         didSet {
             for item in items {
-                item.tintColor = tintColor
+                item.normalTintColor = tintColor
             }
         }
     }
