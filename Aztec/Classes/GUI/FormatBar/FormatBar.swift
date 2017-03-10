@@ -6,6 +6,8 @@ import UIKit
 //
 open class FormatBar: UIView {
 
+    /// Format Bar's Delegate
+    ///
     open weak var formatter: FormatBarDelegate?
 
 
@@ -24,6 +26,8 @@ open class FormatBar: UIView {
     }
 
 
+    /// Tint Color
+    ///
     override open var tintColor: UIColor? {
         didSet {
             for item in items {
@@ -33,6 +37,8 @@ open class FormatBar: UIView {
     }
 
 
+    /// Tint Color to be applied over Selected Items
+    ///
     open var selectedTintColor: UIColor? {
         didSet {
             for item in items {
@@ -42,6 +48,8 @@ open class FormatBar: UIView {
     }
 
 
+    /// Tint Color to be applied over Highlighted Items
+    ///
     open var highlightedTintColor: UIColor? {
         didSet {
             for item in items {
@@ -51,6 +59,8 @@ open class FormatBar: UIView {
     }
 
 
+    /// Tint Color to be applied over Disabled Items
+    ///
     open var disabledTintColor: UIColor? {
         didSet {
             for item in items {
@@ -60,6 +70,8 @@ open class FormatBar: UIView {
     }
 
 
+    /// Enables or disables all of the Format Bar Items
+    ///
     open var enabled = true {
         didSet {
             for item in items {
@@ -69,10 +81,9 @@ open class FormatBar: UIView {
     }
 
 
-    }
 
+    // MARK: - Initializers
 
-    // MARK: - Styles
 
 
     func configureButtonStyle(_ button: FormatBarItem) {
@@ -88,7 +99,9 @@ open class FormatBar: UIView {
     }
 
 
-    ///
+    // MARK: - Styles
+
+    /// Selects all of the FormatBarItems matching a collection of Identifiers
     ///
     open func selectItemsMatchingIdentifiers(_ identifiers: [FormattingIdentifier]) {
         for item in items {
@@ -100,7 +113,6 @@ open class FormatBar: UIView {
 
 
     // MARK: - Actions
-
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
         formatter?.handleActionForIdentifier(sender.identifier!)
