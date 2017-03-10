@@ -172,5 +172,7 @@
  */
 - (void)clearSelectedAssets:(BOOL)animated;
 
+@property (nonatomic, weak, nullable) UIViewController *viewControllerToUseToPresent;
+
 @end
 

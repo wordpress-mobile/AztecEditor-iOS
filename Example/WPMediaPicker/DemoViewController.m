@@ -131,6 +131,7 @@
     [self.mediaInputViewController didMoveToParentViewController:self];
 
     self.mediaInputViewController.mediaPickerDelegate = self;
+    self.mediaInputViewController.mediaPicker.viewControllerToUseToPresent = self;
     _quickInputTextField.inputAccessoryView = self.mediaInputViewController.mediaToolbar;
 
     return _quickInputTextField;

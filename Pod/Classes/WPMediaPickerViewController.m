@@ -49,6 +49,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
         _cameraPreviewSize = CameraPreviewSize;
+        _viewControllerToUseToPresent = self;
     }
     return self;
 }
@@ -576,7 +577,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self presentViewController:imagePickerController animated:YES completion:^{
+    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
 
     }];
 }
@@ -635,7 +636,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
     [alertController addAction:otherAction];
     
-    [self presentViewController:alertController animated:YES completion:nil];
+    [self.viewControllerToUseToPresent presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)processMediaCaptured:(NSDictionary *)info
