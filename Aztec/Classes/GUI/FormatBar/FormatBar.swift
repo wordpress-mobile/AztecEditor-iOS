@@ -186,6 +186,11 @@ open class FormatBar: UIView {
         context.strokePath()
     }
 
+    override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        refreshStackViewsSpacing()
+    }
+
 
     // MARK: - Styles
 
@@ -247,7 +252,7 @@ private extension FormatBar {
     ///
     func configure(stackView: UIStackView) {
         stackView.axis = .horizontal
-        stackView.spacing = Constants.stackViewSpacing
+        stackView.spacing = Constants.stackViewCompactSpacing
         stackView.alignment = .center
         stackView.distribution = .equalCentering
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -288,8 +293,18 @@ private extension FormatBar {
             scrollableStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             scrollableStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            scrollableStackView.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.widthAnchor, constant: -1 * (scrollableInsets.left + scrollableInsets.right))
             ])
+    }
+
+
+    /// Refreshes the Stack View(s) Spacing, according to the Horizontal Size Class
+    ///
+    func refreshStackViewsSpacing() {
+        let horizontallyCompact = traitCollection.horizontalSizeClass == .compact
+        let stackViewSpacing = horizontallyCompact ? Constants.stackViewCompactSpacing : Constants.stackViewRegularSpacing
+
+        scrollableStackView.spacing = stackViewSpacing
+        fixedStackView.spacing = stackViewSpacing
     }
 }
 
@@ -343,7 +358,8 @@ private extension FormatBar {
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        static let stackViewSpacing = CGFloat(7)
+        static let stackViewCompactSpacing = CGFloat(7)
+        static let stackViewRegularSpacing = CGFloat(20)
         static let topBorderHeightInPixels = CGFloat(1)
     }
 }
