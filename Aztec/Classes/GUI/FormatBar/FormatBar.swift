@@ -11,21 +11,54 @@ open class FormatBar: UIView {
     open weak var formatter: FormatBarDelegate?
 
 
-    open var items = [FormatBarItem]() {
+    /// Container ScrollView
+    ///
+    fileprivate let scrollView = UIScrollView()
+
+
+    /// StackView embedded within the ScrollView
+    ///
+    fileprivate let scrollableStackView = UIStackView()
+
+
+    /// Fixed StackView
+    ///
+    fileprivate let fixedStackView = UIStackView()
+
+
+    /// FormatBarItems to be embedded within the Scrollable StackView
+    ///
+    open var scrollableItems = [FormatBarItem]() {
         willSet {
-            for item in items {
-                item.removeFromSuperview()
-            }
+            scrollableStackView.removeArrangedSubviews(scrollableItems)
         }
         didSet {
-            for item in items {
-                configureButtonStyle(item)
-                configureButtonAction(item)
-            }
+            configure(items: scrollableItems)
+            scrollableStackView.addArrangedSubviews(scrollableItems)
         }
     }
 
 
+    /// FormatBarItems to be embedded within the Fixed StackView
+    ///
+    open var fixedItems = [FormatBarItem]() {
+        willSet {
+            fixedStackView.removeArrangedSubviews(fixedItems)
+        }
+        didSet {
+            configure(items: fixedItems)
+            fixedStackView.addArrangedSubviews(fixedItems)
+        }
+    }
+
+
+    /// Returns the collection of all of the FormatBarItem's (Scrollable + Fixed)
+    ///
+    private var items: [FormatBarItem] {
+        return scrollableItems + fixedItems
+    }
+
+    
     /// Tint Color
     ///
     override open var tintColor: UIColor? {
@@ -85,17 +118,24 @@ open class FormatBar: UIView {
     // MARK: - Initializers
 
 
+    public init() {
+        super.init(frame: .zero)
 
-    func configureButtonStyle(_ button: FormatBarItem) {
-        button.tintColor = tintColor
-        button.selectedTintColor = selectedTintColor
-        button.highlightedTintColor = highlightedTintColor
-        button.disabledTintColor = disabledTintColor
+        configure(scrollView: scrollView)
+        configure(stackView: scrollableStackView)
+        configure(stackView: fixedStackView)
+
+        scrollView.addSubview(scrollableStackView)
+        addSubview(scrollView)
+        addSubview(fixedStackView)
+
+        configureConstraints()
     }
 
 
-    func configureButtonAction(_ button: FormatBarItem) {
-        button.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        fatalError("init(coder:) has not been implemented")
     }
 
 
