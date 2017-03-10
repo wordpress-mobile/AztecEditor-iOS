@@ -537,12 +537,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
-        let items = itemsForToolbar
+        let scrollableItems = scrollableItemsForToolbar
+        let fixedItems = fixedItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            for item in items {
+            let merged = scrollableItems + fixedItems
+            for item in merged {
                 item.isEnabled = false
                 if item.identifier == .sourcecode {
                     item.isEnabled = true
@@ -550,18 +552,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
 
-        toolbar.items = items
-        toolbar.tintColor = UIColor.gray
-        toolbar.highlightedTintColor = UIColor.blue
-        toolbar.selectedTintColor = UIColor.darkGray
-        toolbar.disabledTintColor = UIColor.lightGray
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+        toolbar.scrollableItems = scrollableItems
+        toolbar.fixedItems = fixedItems
+        toolbar.tintColor = .gray
+        toolbar.highlightedTintColor = .blue
+        toolbar.selectedTintColor = .darkGray
+        toolbar.disabledTintColor = .lightGray
+        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 
         return toolbar
     }
 
-    var itemsForToolbar: [FormatBarItem] {
+    var scrollableItemsForToolbar: [FormatBarItem] {
         return [
             FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
             FormatBarItem(image: Gridicon.iconOfType(.heading), identifier: .header),
@@ -572,9 +575,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
             FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
-            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
-            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode),
-            ]
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link)
+        ]
+    }
+
+    var fixedItemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode)
+        ]
     }
 
 }
