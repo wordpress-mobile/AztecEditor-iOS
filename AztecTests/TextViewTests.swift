@@ -367,6 +367,9 @@ class AztecVisualtextViewTests: XCTestCase {
 
     /// Tests that entering a newline in an empty editor does not crash it.
     ///
+    /// Added to avoid regressions to the bug reported here:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/352
+    ///
     func testAddingNewlineOnEmptyEditor() {
         let textView = createTextView(withHTML: "")
 
