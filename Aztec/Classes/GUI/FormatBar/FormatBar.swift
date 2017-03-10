@@ -255,26 +255,29 @@ private extension FormatBar {
     /// Sets up the Constraints
     ///
     func configureConstraints() {
+        let fixedInsets = Constants.fixedStackViewInsets
+        let scrollableInsets = Constants.scrollableStackViewInsets
+
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: fixedStackView.leadingAnchor, constant: -1 * Constants.fixedLeftPadding)
             ])
 
         NSLayoutConstraint.activate([
-            fixedStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * Constants.edgesSpacing),
+            fixedStackView.leadingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: fixedInsets.left),
+            fixedStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * fixedInsets.right),
             fixedStackView.topAnchor.constraint(equalTo: topAnchor),
             fixedStackView.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
 
         NSLayoutConstraint.activate([
-            scrollableStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: Constants.edgesSpacing),
-            scrollableStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -1 * Constants.edgesSpacing),
+            scrollableStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: scrollableInsets.left),
+            scrollableStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -1 * scrollableInsets.right),
             scrollableStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             scrollableStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            scrollableStackView.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.widthAnchor, constant: -2 *  Constants.edgesSpacing)
+            scrollableStackView.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.widthAnchor, constant: -1 * (scrollableInsets.left + scrollableInsets.right))
             ])
     }
 }
@@ -285,8 +288,8 @@ private extension FormatBar {
 private extension FormatBar {
 
     struct Constants {
-        static let edgesSpacing = CGFloat(10)
-        static let fixedLeftPadding = CGFloat(10)
+        static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
+        static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         static let stackViewSpacing = CGFloat(7)
         static let topBorderHeightInPixels = CGFloat(1)
     }
