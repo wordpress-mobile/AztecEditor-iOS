@@ -94,10 +94,10 @@
         }
         if (!self.session.isRunning){
             [self.session startRunning];
+            self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.captureVideoPreviewLayer removeFromSuperlayer];
                 CALayer *viewLayer = self.previewView.layer;
-                self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
                 self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                 self.captureVideoPreviewLayer.frame = viewLayer.bounds;
                 self.captureVideoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)[[UIDevice currentDevice] orientation];
