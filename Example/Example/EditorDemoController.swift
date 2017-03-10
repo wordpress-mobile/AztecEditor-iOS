@@ -845,7 +845,11 @@ extension EditorDemoController: UIGestureRecognizerDelegate
         let locationInTextView = recognizer.location(in: richTextView)
         // check if we have an attachment in the position we tapped
         guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
-            // if we have an attachment marked lets unmark it
+            return
+        }
+        // move the selection to the position of the attachment
+        richTextView.moveSelectionToPoint(locationInTextView)
+        if richTextView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.clearAllOverlays()
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
@@ -853,8 +857,6 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             }
             return
         }
-        // move the selection to the position of the attachment
-        richTextView.moveSelectionToPoint(locationInTextView)
         if attachment == currentSelectedAttachment {
             //if it's the same attachment has before let's display the options
             displayActions(forAttachment: attachment, position: locationInTextView)
