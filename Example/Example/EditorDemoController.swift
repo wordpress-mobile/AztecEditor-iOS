@@ -356,7 +356,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
-        case .header:
+        case .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
         }
 
@@ -398,7 +398,21 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
-        richTextView.toggleHeader(range: richTextView.selectedRange)
+        richTextView.resignFirstResponder()
+        let headerPicker = UIPickerView()
+        headerPicker.dataSource = self
+        headerPicker.delegate = self
+
+        var identifiers = [FormattingIdentifier]()
+        if (richTextView.selectedRange.length > 0) {
+            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+        } else {
+            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        }
+        headerPicker.selectRow(6, inComponent: 0, animated: false)
+        headerPicker.showsSelectionIndicator = true
+        richTextView.inputView = headerPicker
+        richTextView.becomeFirstResponder()
     }
 
 
@@ -569,7 +583,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
                 flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header1),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 flex,
@@ -596,7 +610,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
                 flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header1),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 fixed,
@@ -849,5 +863,33 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             richTextView.refreshLayoutFor(attachment: attachment)
             currentSelectedAttachment = attachment
         }
+    }
+}
+
+extension EditorDemoController: UIPickerViewDelegate, UIPickerViewDataSource {
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return HeaderFormatter.HeaderType.h6.rawValue + 1
+    }
+
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        guard let headerType = HeaderFormatter.HeaderType(rawValue: row) else {
+            return ""
+        }
+        return headerType.description
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        guard let headerType = HeaderFormatter.HeaderType(rawValue: row) else {
+            return
+        }
+        richTextView.toggleHeader(headerType, range: richTextView.selectedRange)
+        richTextView.resignFirstResponder()
+        richTextView.inputView = nil
+        richTextView.becomeFirstResponder()
     }
 }

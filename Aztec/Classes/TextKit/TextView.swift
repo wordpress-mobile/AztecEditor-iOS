@@ -279,7 +279,12 @@ open class TextView: UITextView {
         .orderedlist: TextListFormatter(style: .ordered),
         .unorderedlist: TextListFormatter(style: .unordered),
         .blockquote: BlockquoteFormatter(),
-        .header: HeaderFormatter(),
+        .header1: HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil),
+        .header2: HeaderFormatter(headerLevel: .h2, placeholderAttributes: nil),
+        .header3: HeaderFormatter(headerLevel: .h3, placeholderAttributes: nil),
+        .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
+        .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
+        .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -461,8 +466,8 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleHeader(range: NSRange) {
-        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+    open func toggleHeader(_ headerType: HeaderFormatter.HeaderType, range: NSRange) {
+        let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }

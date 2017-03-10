@@ -1,9 +1,9 @@
 import Foundation
 import UIKit
 
-class HeaderFormatter: ParagraphAttributeFormatter {
+open class HeaderFormatter: ParagraphAttributeFormatter {
 
-    enum HeaderType: Int {
+    public enum HeaderType: Int {
         case none = 0
         case h1 = 1
         case h2 = 2
@@ -21,6 +21,18 @@ class HeaderFormatter: ParagraphAttributeFormatter {
             case .h4: return 16
             case .h5: return 14
             case .h6: return 11
+            }
+        }
+
+        public var description: String {
+            switch self {
+            case .none: return "Paragraph"
+            case .h1: return "Heading 1"
+            case .h2: return "Heading 2"
+            case .h3: return "Heading 3"
+            case .h4: return "Heading 4"
+            case .h5: return "Heading 5"
+            case .h6: return "Heading 6"
             }
         }
     }
