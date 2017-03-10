@@ -224,7 +224,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.attributes(at: location, effectiveRange: range)
+        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
