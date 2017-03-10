@@ -114,6 +114,11 @@ open class FormatBar: UIView {
     }
 
 
+    /// Top Border's Separator Color
+    ///
+    open var topBorderColor = UIColor.darkGray
+
+
 
     // MARK: - Initializers
 
@@ -136,6 +141,38 @@ open class FormatBar: UIView {
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         fatalError("init(coder:) has not been implemented")
+    }
+
+
+
+    // MARK: - Drawing!
+
+    open override func draw(_ rect: CGRect) {
+        super.draw(rect)
+
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return
+        }
+
+        // Setup the Context
+        let scale = UIScreen.main.scale
+        let lineWidthInPoints = Constants.topBorderHeightInPixels / scale
+
+        context.clear(rect)
+        context.setShouldAntialias(false)
+        context.setLineWidth(lineWidthInPoints)
+
+        // Background
+        let bgColor = backgroundColor ?? .white
+        bgColor.setFill()
+        context.fill(rect)
+
+        // Top Separator
+        topBorderColor.setStroke()
+
+        context.move(to: CGPoint(x: 0, y: lineWidthInPoints))
+        context.addLine(to: CGPoint(x: bounds.maxX, y: lineWidthInPoints))
+        context.strokePath()
     }
 
 
@@ -251,5 +288,6 @@ private extension FormatBar {
         static let edgesSpacing = CGFloat(10)
         static let fixedLeftPadding = CGFloat(10)
         static let stackViewSpacing = CGFloat(7)
+        static let topBorderHeightInPixels = CGFloat(1)
     }
 }
