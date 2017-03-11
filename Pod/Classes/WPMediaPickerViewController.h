@@ -172,7 +172,15 @@
  */
 - (void)clearSelectedAssets:(BOOL)animated;
 
+/**
+ View controller to use when picker needs to present another controller. By default this is set to self.
+ */
 @property (nonatomic, weak, nullable) UIViewController *viewControllerToUseToPresent;
+
+/**
+ Clears all selection and scroll the picker to the starting position
+ */
+- (void)resetState:(BOOL)animated;
 
 @end
 

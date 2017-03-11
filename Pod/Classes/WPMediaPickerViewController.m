@@ -177,6 +177,29 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self.selectedAssets removeAllObjects];
 }
 
+- (void)resetState:(BOOL)animated {
+    [self clearSelectedAssets:animated];
+    [self scrollToStart:animated];
+}
+
+- (void)scrollToStart:(BOOL)animated {
+    if ([self.dataSource numberOfAssets] == 0) {
+        return;
+    }
+
+    NSInteger sectionToScroll = 0;
+    NSInteger itemToScroll = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll];
+    UICollectionViewScrollPosition position = UICollectionViewScrollPositionTop;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    if (layout && layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+        position = self.showMostRecentFirst ? UICollectionViewScrollPositionRight : UICollectionViewScrollPositionLeft;
+    }
+    [self.collectionView scrollToItemAtIndexPath:indexPath
+                                atScrollPosition:position
+                                        animated:YES];
+}
+
 #pragma mark - UICollectionViewDataSource
 
 -(void)updateDataWithRemoved:(NSIndexSet *)removed inserted:(NSIndexSet *)inserted changed:(NSIndexSet *)changed moved:(NSArray<id<WPMediaMove>> *)moves {
@@ -242,6 +265,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
+        BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
         strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [strongSelf refreshSelection];
@@ -260,12 +284,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 }
 
                 // Scroll to the correct position
-                if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
-                    NSInteger sectionToScroll = 0;
-                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
-                    [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
-                                                      atScrollPosition:UICollectionViewScrollPositionCenteredVertically
-                                                              animated:NO];
+                if (refreshGroupFirstTime){
+                    [strongSelf scrollToStart:NO];
                 }
             });
  

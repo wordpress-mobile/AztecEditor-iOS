@@ -77,6 +77,7 @@
 - (void)mediaSelected:(UIBarButtonItem *)sender {
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
         [self.mediaPickerDelegate mediaPickerController:self.mediaPicker didFinishPickingAssets:[self.mediaPicker.selectedAssets copy]];
+        [self.mediaPicker resetState:NO];
     }
     
 }
@@ -84,6 +85,7 @@
 - (void)mediaCanceled:(UIBarButtonItem *)sender {
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
         [self.mediaPickerDelegate mediaPickerControllerDidCancel:self.mediaPicker];
+        [self.mediaPicker resetState:NO];
     }
 }
 
