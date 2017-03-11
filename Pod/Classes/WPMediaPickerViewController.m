@@ -393,7 +393,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && !self.showMostRecentFirst)
     {
-        return CameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
