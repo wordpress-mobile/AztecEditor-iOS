@@ -42,14 +42,15 @@
 }
 
 - (void)viewDidLayoutSubviews {
+    CGFloat spacing = 1.0f;
     [super viewDidLayoutSubviews];
-    CGFloat size = floorf((self.view.frame.size.height-1) / 2.0);
-    self.mediaPicker.cameraPreviewSize = CGSizeMake(size, size);
+    CGFloat size = floorf((self.view.frame.size.height - spacing) / 2.0);
+    self.mediaPicker.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     layout.itemSize = CGSizeMake(size, size);
-    layout.minimumLineSpacing = 1.0f;
-    layout.minimumInteritemSpacing = 1.0f;
+    layout.minimumLineSpacing = spacing;
+    layout.minimumInteritemSpacing = spacing;
     layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 10);
 
     self.mediaPicker.collectionView.collectionViewLayout = layout;
