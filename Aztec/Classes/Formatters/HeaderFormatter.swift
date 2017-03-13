@@ -12,7 +12,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         case h5 = 5
         case h6 = 6
 
-        var fontSize: CGFloat {
+        public var fontSize: CGFloat {
             switch self {
             case .none: return 14
             case .h1: return 36

@@ -11,6 +11,8 @@ class EditorDemoController: UIViewController {
 
     fileprivate var mediaErrorMode = false
 
+    lazy var headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
+
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.image)
         let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
@@ -406,23 +408,50 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
-        richTextView.resignFirstResponder()
-        let headerPicker = UIPickerView()
-        headerPicker.dataSource = self
-        headerPicker.delegate = self
+        let headerOptions = headers.map { (headerType) -> NSAttributedString in
+            NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
+        }
 
+        let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
+        headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        headerPicker.onSelect = { selected in
+            self.richTextView.toggleHeader(self.headers[selected], range: self.richTextView.selectedRange)
+            self.changeRichTextInputView(to: nil)
+        }
+        if let selectedHeader = headers.index(of:self.headerLevelForSelectedText()) {
+            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
+        }
+        changeRichTextInputView(to: headerPicker)
+    }
+
+    func changeRichTextInputView(to: UIView?) {
+        richTextView.resignFirstResponder()
+        richTextView.inputView = to
+        richTextView.becomeFirstResponder()
+    }
+
+    func headerLevelForSelectedText() -> HeaderFormatter.HeaderType {
         var identifiers = [FormattingIdentifier]()
         if (richTextView.selectedRange.length > 0) {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
-        headerPicker.selectRow(6, inComponent: 0, animated: false)
-        headerPicker.showsSelectionIndicator = true
-        richTextView.inputView = headerPicker
-        richTextView.becomeFirstResponder()
+        let mapping: [FormattingIdentifier: HeaderFormatter.HeaderType] = [
+            .header1 : .h1,
+            .header2 : .h2,
+            .header3 : .h3,
+            .header4 : .h4,
+            .header5 : .h5,
+            .header6 : .h6,
+        ]
+        for (key,value) in mapping {
+            if identifiers.contains(key) {
+                return value
+            }
+        }
+        return .none
     }
-
 
     func toggleLink() {
         var linkTitle = ""
@@ -887,33 +916,5 @@ extension EditorDemoController: UIGestureRecognizerDelegate
             richTextView.refreshLayoutFor(attachment: attachment)
             currentSelectedAttachment = attachment
         }
-    }
-}
-
-extension EditorDemoController: UIPickerViewDelegate, UIPickerViewDataSource {
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return HeaderFormatter.HeaderType.h6.rawValue + 1
-    }
-
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        guard let headerType = HeaderFormatter.HeaderType(rawValue: row) else {
-            return ""
-        }
-        return headerType.description
-    }
-
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        guard let headerType = HeaderFormatter.HeaderType(rawValue: row) else {
-            return
-        }
-        richTextView.toggleHeader(headerType, range: richTextView.selectedRange)
-        richTextView.resignFirstResponder()
-        richTextView.inputView = nil
-        richTextView.becomeFirstResponder()
     }
 }
