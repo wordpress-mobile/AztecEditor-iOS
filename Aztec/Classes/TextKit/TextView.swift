@@ -511,13 +511,11 @@ open class TextView: UITextView {
     /// This is meant as a workaround for the "Emojis Mixing Up Font's" glitch.
     ///
     private func restoreDefaultFontIfNeeded() {
-        guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont,
-            activeFont.fontName == ".AppleColorEmojiUI"
-            else {
-                return
+        guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont, activeFont.isAppleEmojiFont else {
+            return
         }
 
-        typingAttributes[NSFontAttributeName] = defaultFont
+        typingAttributes[NSFontAttributeName] = defaultFont.withSize(activeFont.pointSize)
     }
 
 
