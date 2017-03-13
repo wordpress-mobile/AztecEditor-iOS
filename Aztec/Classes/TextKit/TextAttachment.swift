@@ -13,6 +13,30 @@ protocol TextAttachmentImageProvider {
 ///
 open class TextAttachment: NSTextAttachment
 {
+    public struct Appearance {
+        public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
+
+        /// The height of the progress bar for progress indicators
+        public var progressHeight = CGFloat(2.0)
+
+        /// The color to use when drawing the backkground of the progress indicators
+        ///
+        public var progressBackgroundColor = UIColor.cyan
+
+        /// The color to use when drawing progress indicators
+        ///
+        public var progressColor = UIColor.blue
+
+        /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
+        ///
+        public var imageMargin = CGFloat(10.0)
+    }
+
+
+    /// This property allows the global customization of appearance properties of the TextAttachment
+    ///
+    open static var appearance: Appearance = Appearance()
+
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     fileprivate(set) open var identifier: String
@@ -53,9 +77,24 @@ open class TextAttachment: NSTextAttachment
         }
     }
 
+    /// The color to use when drawing the background overlay for messages, icons, and progress
+    ///
+    open var overlayColor: UIColor = TextAttachment.appearance.overlayColor
+
+    /// The height of the progress bar for progress indicators
+    open var progressHeight: CGFloat = TextAttachment.appearance.progressHeight
+
+    /// The color to use when drawing the backkground of the progress indicators
+    ///
+    open var progressBackgroundColor: UIColor = TextAttachment.appearance.progressBackgroundColor
+
     /// The color to use when drawing progress indicators
     ///
-    open var progressColor: UIColor = UIColor.blue
+    open var progressColor: UIColor = TextAttachment.appearance.progressColor
+
+    /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
+    ///
+    open var imageMargin: CGFloat = TextAttachment.appearance.imageMargin
 
     /// A message to display overlaid on top of the image
     ///
@@ -110,6 +149,7 @@ open class TextAttachment: NSTextAttachment
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
         super.init(coder: aDecoder)
+
         if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
             identifier = decodedIndentifier
         }
@@ -136,6 +176,13 @@ open class TextAttachment: NSTextAttachment
         super.init(data: contentData, ofType: uti)
     }
 
+    fileprivate func setupDefaultAppearance() {
+        progressHeight = TextAttachment.appearance.progressHeight
+        progressBackgroundColor = TextAttachment.appearance.progressBackgroundColor
+        progressColor = TextAttachment.appearance.progressColor
+        overlayColor = TextAttachment.appearance.overlayColor
+    }
+
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
         aCoder.encode(identifier, forKey: EncodeKeys.identifier.rawValue)
@@ -154,14 +201,14 @@ open class TextAttachment: NSTextAttachment
     }
     // MARK: - Origin calculation
 
-    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> Int {
+    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(containerWidth)
 
         switch (alignment) {
         case .center:
-            return Int(floor((containerWidth - imageWidth) / 2))
+            return CGFloat(floor((containerWidth - imageWidth) / 2))
         case .right:
-            return Int(floor(containerWidth - imageWidth))
+            return CGFloat(floor(containerWidth - imageWidth))
         default:
             return 0
         }
@@ -172,7 +219,7 @@ open class TextAttachment: NSTextAttachment
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
 
-            return floor(image.size.height * scale)
+            return floor(image.size.height * scale) + (imageMargin * 2)
         } else {
             return 0
         }
@@ -213,8 +260,8 @@ open class TextAttachment: NSTextAttachment
     fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
 
         let containerWidth = bounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: 0)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth))
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - imageMargin)
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
@@ -228,16 +275,25 @@ open class TextAttachment: NSTextAttachment
             box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
             box.addLine(to: CGPoint(x: origin.x, y: origin.y))
             box.lineWidth = 2.0
-            UIColor(white: 0.3, alpha: 0.6).setFill()
+            overlayColor.setFill()
             box.fill()
         }
 
         if let progress = progress {
+            let lineY = origin.y + (progressHeight / 2.0)
+
+            let backgroundPath = UIBezierPath()
+            backgroundPath.lineWidth = progressHeight
+            progressBackgroundColor.setStroke()
+            backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
+            backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
+            backgroundPath.stroke()
+
             let path = UIBezierPath()
-            path.move(to: CGPoint(x:origin.x, y:origin.y))
-            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: origin.y))
-            path.lineWidth = 4.0
+            path.lineWidth = progressHeight
             progressColor.setStroke()
+            path.move(to: CGPoint(x:origin.x, y: lineY))
+            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
             path.stroke()
         }
 

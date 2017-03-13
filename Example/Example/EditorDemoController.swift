@@ -25,6 +25,12 @@ class EditorDemoController: UIViewController {
         textView.mediaDelegate = self
         textView.addGestureRecognizer(self.tapGestureRecognizer)
 
+        for gesture in textView.gestureRecognizers ?? [] {
+            if let otherTapGesture = gesture as? UITapGestureRecognizer, otherTapGesture != self.tapGestureRecognizer {
+                otherTapGesture.require(toFail: self.tapGestureRecognizer)
+            }
+        }
+
         return textView
     }()
 
@@ -90,7 +96,9 @@ class EditorDemoController: UIViewController {
 
     fileprivate(set) lazy var tapGestureRecognizer: UIGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
-        recognizer.cancelsTouchesInView = false
+        recognizer.cancelsTouchesInView = true
+        recognizer.delaysTouchesBegan = true
+        recognizer.delaysTouchesEnded = true
         recognizer.delegate = self
         return recognizer
     }()
@@ -130,6 +138,11 @@ class EditorDemoController: UIViewController {
         }
 
         richTextView.setHTML(html)
+
+        TextAttachment.appearance.progressColor = UIColor.blue
+        TextAttachment.appearance.progressBackgroundColor = UIColor.lightGray
+        TextAttachment.appearance.progressHeight = 2.0
+        TextAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -718,8 +731,7 @@ private extension EditorDemoController
         }        
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {
-            attachment.progress = progress.fractionCompleted
-            attachment.progressColor = UIColor.blue            
+            attachment.progress = progress.fractionCompleted                        
             if mediaErrorMode && progress.fractionCompleted >= 0.25 {
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
@@ -814,28 +826,44 @@ extension EditorDemoController: UIGestureRecognizerDelegate
         return true
     }
 
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        let locationInTextView = gestureRecognizer.location(in: richTextView)
+        // check if we have an attachment in the position we tapped
+        guard richTextView.attachmentAtPoint(locationInTextView) != nil else {
+            // if we have a current selected attachment marked lets unmark it
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.clearAllOverlays()
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+                currentSelectedAttachment = nil
+            }
+            return false
+        }
+        return true
+    }
+
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
         let locationInTextView = recognizer.location(in: richTextView)
         // check if we have an attachment in the position we tapped
         guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
-            // if we have an attachment marked lets unmark it
+            return
+        }
+        // move the selection to the position of the attachment
+        richTextView.moveSelectionToPoint(locationInTextView)
+        if richTextView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
                 selectedAttachment.clearAllOverlays()
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
                 currentSelectedAttachment = nil
             }
             return
         }
-        // move the selection to the position of the attachment
-        richTextView.moveSelectionToPoint(locationInTextView)
         if attachment == currentSelectedAttachment {
             //if it's the same attachment has before let's display the options
             displayActions(forAttachment: attachment, position: locationInTextView)
         } else {
             // if it's a new attachment tapped let unmark the previous one
             if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
+                selectedAttachment.clearAllOverlays()
                 richTextView.refreshLayoutFor(attachment: selectedAttachment)
             }
             // and mark the newly tapped attachment

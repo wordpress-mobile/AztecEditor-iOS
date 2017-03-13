@@ -473,7 +473,7 @@ extension Libxml2 {
         ///     - matchNotFound: the closure to execute for any subrange of `targetRange` that
         ///             doesn't have a block-level node intersecting it.
         ///
-        fileprivate func enumerateFirstDescendants(
+        func enumerateFirstDescendants(
             in targetRange: NSRange,
             matching isMatch: NodeMatchTest,
             onMatchFound matchFound: NodeIntersectionReport?,
@@ -714,40 +714,6 @@ extension Libxml2 {
             
             return sibling
         }
-
-        func siblings(separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
-
-            var leftSibling: Node?
-            var rightSibling: Node?
-            var childStartLocation = 0
-
-            for child in children {
-
-                let childEndLocation = childStartLocation + child.length()
-
-                if location == childStartLocation {
-                    rightSibling = child
-                    break
-                } else if location == childEndLocation {
-                    leftSibling = child
-                } else if location > childStartLocation && location < childEndLocation {
-                    guard let childElement = child as? ElementNode else {
-                        return nil
-                    }
-
-                    return childElement.siblings(separatedAt: location - childStartLocation)
-                }
-
-                childStartLocation = childEndLocation
-            }
-
-            if let leftSibling = leftSibling,
-                let rightSibling = rightSibling {
-                return (leftSibling, rightSibling)
-            } else {
-                return nil
-            }
-        }
         
         /// Finds any left-side descendant with any of the specified names.
         ///
@@ -894,46 +860,6 @@ extension Libxml2 {
             child.removeFromParent()
             children.insert(child, at: index)
             child.parent = self
-        }
-
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
-        ///
-        /// - Parameters:
-        ///     - location: the location that separates the siblings we're looking for.
-        ///
-        func mergeSiblings(at location: Int) {
-            guard let theSiblings = siblings(separatedAt: location) else {
-                return
-            }
-
-            mergeSiblings(theSiblings.leftSibling, theSiblings.rightSibling)
-        }
-
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
-        ///
-        /// - Parameters:
-        ///     - leftSibling: the left sibling to merge.
-        ///     - rightSibling: the right sibling to merge.
-        ///
-        private func mergeSiblings(_ leftSibling: Node, _ rightSibling: Node) {
-
-            let finalRightNodes: [Node]
-
-            if let rightElement = rightSibling as? ElementNode,
-                rightElement.isBlockLevelElement() {
-
-                finalRightNodes = rightElement.unwrapChildren()
-            } else {
-                finalRightNodes = [rightSibling]
-            }
-
-            if let leftElement = leftSibling as? ElementNode,
-                leftElement.isBlockLevelElement() {
-                
-                leftElement.append(finalRightNodes)
-            }
         }
 
         /// Replaces the specified node with several new nodes.
@@ -1505,78 +1431,10 @@ extension Libxml2 {
             }
         }
 
-        /// Wraps the specified range inside a node with the specified properties.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range that must be wrapped.
-        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
-        ///
-        func wrap(range targetRange: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
-
-            let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
-
-            if mustFindLowestBlockLevelElements {
-                let elementsAndIntersections = lowestBlockLevelElements(intersectingRange: targetRange)
-
-                for elementAndIntersection in elementsAndIntersections {
-
-                    let element = elementAndIntersection.element
-                    let intersection = elementAndIntersection.intersection
-                    
-                    element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
-                }
-            } else {
-                forceWrap(range: targetRange, inElement: elementDescriptor)
-            }
-        }
-
         // MARK: - Wrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
             if elementNames.contains(name) {
-                unwrapChildren()
-            }
-        }
-
-        /// Unwraps the specified range from nodes with the specified name.  If there are multiple
-        /// nodes with the specified name, the range will be unwrapped from all of them.
-        ///
-        /// - Parameters:
-        ///     - range: the range that must be unwrapped.
-        ///     - elementNames: the names of the elements the range must be unwrapped from.
-        ///
-        /// - Todo: this method works with node names only for now.  At some point we'll want to
-        ///         modify this to be able to do more complex lookups.  For instance we'll want
-        ///         to be able to unwrapp CSS attributes, not just nodes by name.
-        ///
-        func unwrap(range: NSRange, fromElementsNamed elementNames: [String]) {
-            
-            guard children.count > 0 else {
-                return
-            }
-            
-            unwrapChildren(intersectingRange: range, fromElementsNamed: elementNames)
-
-            if elementNames.contains(name) {
-
-                let rangeEndLocation = range.location + range.length
-
-                let myLength = length()
-                assert(range.location >= 0 && rangeEndLocation <= myLength,
-                       "The specified range is out of bounds.")
-                
-                let elementDescriptor = ElementNodeDescriptor(name: name, attributes: attributes)
-
-                if range.location > 0 {
-                    let preRange = NSRange(location: 0, length: range.location)
-                    wrap(range: preRange, inElement: elementDescriptor)
-                }
-
-                if rangeEndLocation < myLength {
-                    let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    wrap(range: postRange, inElement: elementDescriptor)
-                }
-
                 unwrapChildren()
             }
         }
@@ -1611,151 +1469,6 @@ extension Libxml2 {
 
                 childElement.unwrap(fromElementsNamed: elementNames)
             }
-        }
-
-        /// Unwraps all child nodes from elements with the specified names.
-        ///
-        /// - Parameters:
-        ///     - range: the range we want to unwrap.
-        ///     - elementNames: the name of the elements we want to unwrap the nodes from.
-        ///
-        func unwrapChildren(intersectingRange range: NSRange, fromElementsNamed elementNames: [String]) {
-            if isBlockLevelElement() && (range.location == self.length() - 1) {
-                    return
-            }
-
-            let childNodesAndRanges = childNodes(intersectingRange: range)
-            assert(childNodesAndRanges.count > 0)
-
-            for (child, range) in childNodesAndRanges {
-                guard let childElement = child as? ElementNode else {
-                    continue
-                }
-
-                childElement.unwrap(range: range, fromElementsNamed: elementNames)
-            }
-        }
-
-        /// Wraps child nodes intersecting the specified range inside new elements with the
-        /// specified properties.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range that must be wrapped.
-        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
-        ///
-        func wrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-
-            let matchVerification: NodeMatchTest = { return $0 is ElementNode && elementDescriptor.matchingNames.contains($0.name) }
-
-            enumerateFirstDescendants(
-                in: targetRange,
-                matching: matchVerification,
-                onMatchFound: nil,
-                onMatchNotFound: { [unowned self] range in
-                    let mustFindLowestBlockLevelElements = !elementDescriptor.isBlockLevel()
-
-                    if mustFindLowestBlockLevelElements {
-                        let elementsAndIntersections = self.lowestBlockLevelElements(intersectingRange: targetRange)
-
-                        for (element, intersection) in elementsAndIntersections {
-                            // 0-length intersections are possible, but they make no sense in the context
-                            // of wrapping content inside new elements.  We should ignore zero-length
-                            // intersections.
-                            //
-                            guard intersection.length > 0 else {
-                                continue
-                            }
-
-                            element.forceWrapChildren(intersectingRange: intersection, inElement: elementDescriptor)
-                        }
-                    } else {
-                        self.forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
-                    }
-            })
-        }
-
-        /// Force-wraps the specified range inside a node with the specified properties.
-        ///
-        /// - Important: When the target range matches the receiver's full range we can just wrap the receiver in the
-        ///         new node.  We do need to check, however, that either:
-        /// - The new node is block-level, or
-        /// - The receiver isn't a block-level node either.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range that must be wrapped.
-        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
-        ///
-        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-            
-            if NSEqualRanges(targetRange, range()) {
-                
-                let receiverIsBlockLevel = isBlockLevelElement()
-                let newNodeIsBlockLevel = elementDescriptor.isBlockLevel()
-                
-                let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
-                
-                if canWrapReceiverInNewNode {
-                    wrap(in: elementDescriptor)
-                    return
-                }
-            }
-
-            forceWrapChildren(intersectingRange: targetRange, inElement: elementDescriptor)
-        }
-
-        /// Force wraps child nodes intersecting the specified range inside new elements with the
-        /// specified properties.
-        ///
-        /// - Important: this is almost the same as
-        ///         `wrapChildren(intersectingRange:, inNodeNamed:, withAttributes:)` but this
-        ///         method doesn't check if the child nodes are block-level elements or not.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range that must be wrapped.
-        ///     - elementDescriptor: the descriptor for the element to wrap the range in.
-        ///
-        fileprivate func forceWrapChildren(intersectingRange targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
-            
-            assert(range().contains(range: targetRange))
-            
-            let childNodesAndRanges = childNodes(intersectingRange: targetRange)
-            
-            guard childNodesAndRanges.count > 0 else {
-                // It's possible the range may not intersect any child node, if this node is adding
-                // any special characters for formatting purposes in visual mode.  For instance some
-                // nodes add a newline character at their end.
-                //
-                return
-            }
-
-            let firstChild = childNodesAndRanges[0].child
-            let firstChildIntersection = childNodesAndRanges[0].intersection
-
-            if childNodesAndRanges.count == 1,
-                let elementNode = firstChild as? ElementNode {
-
-                elementNode.forceWrapChildren(intersectingRange: firstChildIntersection, inElement: elementDescriptor)
-                return
-            }
-
-            if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
-                firstChild.split(forRange: firstChildIntersection)
-            }
-            
-            if childNodesAndRanges.count > 1 {
-                let lastChild = childNodesAndRanges[childNodesAndRanges.count - 1].child
-                let lastChildIntersection = childNodesAndRanges[childNodesAndRanges.count - 1].intersection
-                
-                if !NSEqualRanges(lastChild.range(), lastChildIntersection) {
-                    lastChild.split(forRange: lastChildIntersection)
-                }
-            }
-            
-            let children = childNodesAndRanges.map({ (child: Node, intersection: NSRange) -> Node in
-                return child
-            })
-            
-            wrap(children: children, inElement: elementDescriptor)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.

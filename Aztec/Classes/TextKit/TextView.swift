@@ -171,7 +171,7 @@ open class TextView: UITextView {
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
         if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
-            if (self.textStorage.length > 0) {
+            if self.textStorage.length > 0 {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
             delegate?.textViewDidChangeSelection?(self)
@@ -191,7 +191,11 @@ open class TextView: UITextView {
         //   SDK: the font "applied" after inserting an emoji breaks with our styling mechanism.
         //
         restoreDefaultFontIfNeeded()
+
+        ensureRemovalOfLinkTypingAttribute(at: selectedRange)
+
         super.insertText(text)
+
         restoreDefaultFontIfNeeded()
 
         ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
@@ -508,7 +512,7 @@ open class TextView: UITextView {
     ///
     private func restoreDefaultFontIfNeeded() {
         guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont,
-            activeFont.familyName != defaultFont.familyName
+            activeFont.fontName == ".AppleColorEmojiUI"
             else {
                 return
         }
@@ -601,6 +605,30 @@ open class TextView: UITextView {
         }
 
         return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
+    }
+
+
+    /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
+    /// the NSLinkAttribute. Meaning that:
+    ///
+    ///     - Text inserted in front of a link will not be automagically linkified
+    ///     - Text inserted after a link (even with no spaces!) won't be linkified anymore
+    ///     - Only text edited "Within" a Link's Anchor will get linkified.
+    ///
+    /// - Parameter range: Range in which new text will be inserted.
+    ///
+    private func ensureRemovalOfLinkTypingAttribute(at range: NSRange) {
+        guard typingAttributes[NSLinkAttributeName] != nil else {
+            return
+        }
+
+        guard !storage.isLocationPreceededByLink(range.location) ||
+            !storage.isLocationSuccededByLink(range.location)
+            else {
+                return
+        }
+
+        typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
 
 
@@ -760,8 +788,33 @@ open class TextView: UITextView {
             return
         }
 
-        selectedRange = NSRange(location: index + 1, length: 0)
-        forceRedrawCursorAfterDelay()
+        guard let locationAfter = textStorage.string.location(after: index) else {
+            selectedRange = NSRange(location: index, length: 0)
+            return;
+        }
+        var newLocation = locationAfter
+        if isPointInsideAttachmentMargin(point: point) {
+            newLocation = index
+        }
+        selectedRange = NSRange(location: newLocation, length: 0)
+    }
+
+
+    /// // Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the attachment based on the margins.
+    ///
+    /// - Parameter point: the point to check.
+    /// - Returns: true if the point fall inside an attachment margin
+    open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
+        let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+
+        if let attachment = attachmentAtPoint(point) {
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
+            let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
+                return true
+            }
+        }
+        return false
     }
 
     // MARK: - Links

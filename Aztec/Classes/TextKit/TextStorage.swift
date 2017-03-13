@@ -224,7 +224,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.attributes(at: location, effectiveRange: range)
+        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -259,7 +259,7 @@ open class TextStorage: NSTextStorage {
             let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
-            if targetDomRange != range {
+            if targetDomRange.length != range.length {
                 dom.deleteBlockSeparator(at: targetDomRange.location)
             }
 
@@ -316,7 +316,7 @@ open class TextStorage: NSTextStorage {
     ///         It's the offset this method will use to apply the styles found in the source string.
     ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
-        let originalAttributes = location == 0 ? [:] : textStore.attributes(at: location - 1, effectiveRange: nil)
+        let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
         let domLocation = map(visualLocation: location)
@@ -411,14 +411,17 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Process difference in attachmente properties, and applies them to the DOM in the specified range
+    ///
+    /// - Parameters:
+    ///   - range: the range in the DOM where the differences must be applied.
+    ///   - original: the original attachment existing in the range if any.
+    ///   - new: the new attachment to apply to the range if any.
+    ///
     private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
 
         let originalUrl = original?.url
         let newUrl = new?.url
-
-        guard originalUrl != newUrl else {
-            return
-        }
 
         let addImageUrl = originalUrl == nil && newUrl != nil
         let removeImageUrl = originalUrl != nil && newUrl == nil
@@ -583,11 +586,12 @@ open class TextStorage: NSTextStorage {
     }
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
-        guard caretPosition != 0 else {
+        guard caretPosition != 0,
+            let previousLocation = textStore.string.location(before:caretPosition) else {
             return false
         }
 
-        return canAppendToNodeRepresentedByCharacter(atIndex: caretPosition - 1)
+        return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
     }
 
     private func hasHorizontalLine(atIndex index: Int) -> Bool {

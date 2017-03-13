@@ -70,7 +70,7 @@ extension Libxml2 {
                     parent.insert(separator, at: insertionIndex)
                     insertionIndex = insertionIndex + 1
                     
-                    if component.characters.count > 0 {
+                    if !component.isEmpty {
                         let textNode = TextNode(text: component, editContext: editContext)
                         
                         parent.insert(textNode, at: insertionIndex)
@@ -271,10 +271,11 @@ extension Libxml2 {
             guard location > 0 && location < length() else {
                 fatalError("Out of bounds!")
             }
+
             
-            let index = text().characters.index(text().startIndex, offsetBy: location)
-            
-            guard let parent = parent,
+            guard
+                let index = text().indexFromLocation(location),
+                let parent = parent,
                 let nodeIndex = parent.children.index(of: self) else {
                     
                     fatalError("This scenario should not be possible. Review the logic.")
