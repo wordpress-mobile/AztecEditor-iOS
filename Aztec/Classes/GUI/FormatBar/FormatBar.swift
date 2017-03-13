@@ -189,6 +189,7 @@ open class FormatBar: UIView {
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         refreshStackViewsSpacing()
+        refreshScrollingLock()
     }
 
 
@@ -305,6 +306,14 @@ private extension FormatBar {
 
         scrollableStackView.spacing = stackViewSpacing
         fixedStackView.spacing = stackViewSpacing
+    }
+
+
+    /// Disables scrolling whenever there's no actual overflow
+    ///
+    func refreshScrollingLock() {
+        scrollView.layoutIfNeeded()
+        scrollView.isScrollEnabled = scrollView.contentSize.width > scrollView.frame.width
     }
 }
 
