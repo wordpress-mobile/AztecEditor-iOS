@@ -363,6 +363,19 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+    // MARK: - Adding newlines
+
+    /// Tests that entering a newline in an empty editor does not crash it.
+    ///
+    /// Added to avoid regressions to the bug reported here:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/352
+    ///
+    func testAddingNewlineOnEmptyEditor() {
+        let textView = createTextView(withHTML: "")
+
+        textView.insertText("\n")
+    }
+
     // MARK: - Deleting newlines
 
     /// Tests that deleting a newline works by merging the component around it.
