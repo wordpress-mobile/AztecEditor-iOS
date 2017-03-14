@@ -701,8 +701,9 @@ open class TextView: UITextView {
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
+        let linkWasPresent = formatter.present(in: storage, at: range)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
-        if range.length == 0 {
+        if range.length == 0 && !linkWasPresent {
             selectedRange = NSMakeRange(range.location + (title as NSString).length, 0)
         }
         delegate?.textViewDidChange?(self)
