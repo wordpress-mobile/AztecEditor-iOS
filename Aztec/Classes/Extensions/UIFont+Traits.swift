@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 
-// MARK:- UIFont Traits Helpers
+// MARK: - UIFont Traits Helpers
 //
 extension UIFont {
 
@@ -15,7 +15,8 @@ extension UIFont {
     /// - Returns: A new UIFont with the same descriptors as the current instance, but with its traits updated, as specified.
     ///
     func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, enable: Bool) -> UIFont {
-        var newTraits = fontDescriptor.symbolicTraits
+        let descriptor = fontDescriptor
+        var newTraits = descriptor.symbolicTraits
 
         if enable {
             newTraits.insert(traits)
@@ -23,10 +24,12 @@ extension UIFont {
             newTraits.remove(traits)
         }
 
-        let descriptor = fontDescriptor.withSymbolicTraits(newTraits)
-        let newFont = UIFont(descriptor: descriptor!, size: pointSize)
+        guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
+            assertionFailure("Unable to modify Font's Traits: \(self)")
+            return self
+        }
 
-        return newFont
+        return UIFont(descriptor: newDescriptor, size: pointSize)
     }
 
 
