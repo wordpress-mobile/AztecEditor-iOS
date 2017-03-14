@@ -418,6 +418,11 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
+        // check if we already showing a custom view.
+        if richTextView.inputView != nil {
+            changeRichTextInputView(to: nil)
+            return
+        }
         let headerOptions = headers.map { (headerType) -> NSAttributedString in
             NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
         }
