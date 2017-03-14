@@ -119,6 +119,27 @@ open class FormatBar: UIView {
     open var topBorderColor = UIColor.darkGray
 
 
+    /// Bounds Change Observer
+    ///
+    override open var bounds: CGRect {
+        didSet {
+            // Note: Under certain conditions, frame.didSet might get called instead of bounds.didSet.
+            // We're observing both for that reason!
+            refreshScrollingLock()
+        }
+    }
+
+
+    /// Bounds Change Observer
+    ///
+    override open var frame: CGRect {
+        didSet {
+            // Note: Under certain conditions, frame.didSet might get called instead of bounds.didSet.
+            // We're observing both for that reason!
+            refreshScrollingLock()
+        }
+    }
+
 
     // MARK: - Initializers
 
@@ -189,7 +210,6 @@ open class FormatBar: UIView {
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         refreshStackViewsSpacing()
-        refreshScrollingLock()
     }
 
 
@@ -312,7 +332,7 @@ private extension FormatBar {
     /// Disables scrolling whenever there's no actual overflow
     ///
     func refreshScrollingLock() {
-        scrollView.layoutIfNeeded()
+        layoutIfNeeded()
         scrollView.isScrollEnabled = scrollView.contentSize.width > scrollView.frame.width
     }
 }
