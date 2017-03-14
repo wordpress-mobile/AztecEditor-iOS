@@ -985,6 +985,9 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
+        guard recognizer.state == .recognized else {
+            return
+        }
         let locationInTextView = recognizer.location(in: textView)
         // check if we have an attachment in the position we tapped
         guard let attachment = textView.attachmentAtPoint(locationInTextView) else {
@@ -992,9 +995,8 @@ extension TextView: TextStorageAttachmentsDelegate {
         }
 
         // move the selection to the position of the attachment
-        if currentSelectedAttachment != attachment {
-            textView.moveSelectionToPoint(locationInTextView)
-        }
+
+        textView.moveSelectionToPoint(locationInTextView)
 
         if textView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
