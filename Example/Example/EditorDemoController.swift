@@ -657,6 +657,11 @@ extension EditorDemoController: TextViewMediaDelegate
             //if it's the same attachment has before let's display the options
             displayActions(forAttachment: attachment, position: position)
         } else {
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.clearAllOverlays()
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+            }
+
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
