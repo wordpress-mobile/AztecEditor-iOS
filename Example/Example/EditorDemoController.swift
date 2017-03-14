@@ -654,7 +654,6 @@ extension EditorDemoController: TextViewMediaDelegate
     func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
 
         if (currentSelectedAttachment == attachment) {
-            //if it's the same attachment has before let's display the options
             displayActions(forAttachment: attachment, position: position)
         } else {
             if let selectedAttachment = currentSelectedAttachment {

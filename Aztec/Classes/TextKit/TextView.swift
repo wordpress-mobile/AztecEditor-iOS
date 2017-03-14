@@ -48,7 +48,7 @@ public protocol TextViewMediaDelegate: class {
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was selected.
-    ///   - position: touch position
+    ///   - position: touch position relative to the textview.
     ///
     func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
 
@@ -57,7 +57,7 @@ public protocol TextViewMediaDelegate: class {
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was deselected.
-    ///   - position: touch position
+    ///   - position: touch position relative to the textView
     ///
     func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
 }
