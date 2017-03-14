@@ -316,6 +316,7 @@ class EditorDemoController: UIViewController {
 extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
+        changeRichTextInputView(to: nil)
     }
 
     func textViewDidChange(_ textView: UITextView) {        
@@ -432,6 +433,9 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func changeRichTextInputView(to: UIView?) {
+        if richTextView.inputView == to {
+            return
+        }
         richTextView.resignFirstResponder()
         richTextView.inputView = to
         richTextView.becomeFirstResponder()
