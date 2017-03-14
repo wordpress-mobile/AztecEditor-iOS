@@ -13,7 +13,7 @@ extension Libxml2 {
     ///
     class DOMString {
 
-        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h4, .h5, .h6]
+        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
         private lazy var editContext: EditContext = {
             return EditContext(undoManager: self.domUndoManager)
