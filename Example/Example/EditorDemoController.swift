@@ -273,8 +273,10 @@ class EditorDemoController: UIViewController {
         // Filter multiple header identifier to single header identifier
         identifiers = identifiers.map({ (identifier) -> FormattingIdentifier in
             switch identifier {
-            case .header1, .header2, .header3, .header4, .header5, .header6: return .header
-            default: return identifier
+            case .header1, .header2, .header3, .header4, .header5, .header6:
+                return .header
+            default:
+                return identifier
             }
         })
         toolbar.selectItemsMatchingIdentifiers(identifiers)

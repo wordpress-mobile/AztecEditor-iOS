@@ -1,5 +1,3 @@
-
-
 import UIKit
 
 class OptionsTableView: UITableView {
@@ -18,8 +16,6 @@ class OptionsTableView: UITableView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-
-
 }
 
 extension OptionsTableView: UITableViewDelegate {
