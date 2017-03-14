@@ -270,6 +270,13 @@ class EditorDemoController: UIViewController {
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
+        // Filter multiple header identifier to single header identifier
+        identifiers = identifiers.map({ (identifier) -> FormattingIdentifier in
+            switch identifier {
+            case .header1, .header2, .header3, .header4, .header5, .header6: return .header
+            default: return identifier
+            }
+        })
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -366,7 +373,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
-        case .header1, .header2, .header3, .header4, .header5, .header6:
+        case .header, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
         }
 
@@ -620,7 +627,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
                 flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header1),
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 flex,
@@ -647,7 +654,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
                 flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header1),
+                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
                 flex,
                 Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
                 fixed,
