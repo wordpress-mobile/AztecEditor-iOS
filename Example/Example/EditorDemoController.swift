@@ -91,6 +91,8 @@ class EditorDemoController: UIViewController {
 
     fileprivate var currentSelectedAttachment: TextAttachment?
 
+    fileprivate var formatBarAnimatedPeek = false
+
     var loadSampleHTML = false
 
 
@@ -134,16 +136,20 @@ class EditorDemoController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardDidShow), name: .UIKeyboardDidShow, object: nil)
     }
 
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        let nc = NotificationCenter.default
+        nc.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
+        nc.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
+        nc.removeObserver(self, name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -220,7 +226,6 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-
     func keyboardWillHide(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
@@ -230,6 +235,16 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
+    }
+
+    func keyboardDidShow(_ notification: Notification) {
+        guard richTextView.isFirstResponder, !formatBarAnimatedPeek else {
+            return
+        }
+
+        let formatBar = richTextView.inputAccessoryView as? FormatBar
+        formatBar?.animateSlightPeekWhenOverflows()
+        formatBarAnimatedPeek = true
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -590,88 +605,52 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
-        let items = itemsForToolbar
+        let scrollableItems = scrollableItemsForToolbar
+        let fixedItems = fixedItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            for item in items {
+            let merged = scrollableItems + fixedItems
+            for item in merged {
                 item.isEnabled = false
-                if let sourceItem = item as? FormatBarItem, sourceItem.identifier == .sourcecode {
+                if item.identifier == .sourcecode {
                     item.isEnabled = true
                 }
             }
         }
 
-        toolbar.items = items
-        toolbar.tintColor = UIColor.gray
-        toolbar.highlightedTintColor = UIColor.blue
-        toolbar.selectedTintColor = UIColor.darkGray
-        toolbar.disabledTintColor = UIColor.lightGray
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+        toolbar.scrollableItems = scrollableItems
+        toolbar.fixedItems = fixedItems
+        toolbar.tintColor = .gray
+        toolbar.highlightedTintColor = .blue
+        toolbar.selectedTintColor = .darkGray
+        toolbar.disabledTintColor = .lightGray
+        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 
         return toolbar
     }
 
-    var itemsForToolbar: [UIBarButtonItem] {
-        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let fixed = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        if self.traitCollection.horizontalSizeClass == .compact {
-            let items = [
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-                flex,
-                ]
-            return items
-        } else {
-            let items = [
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.heading).withRenderingMode(.alwaysTemplate), identifier: .header),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-                fixed,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-                flex,
-                Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-                flex,
-                ]
-            return items
-        }
+    var scrollableItemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
+            FormatBarItem(image: Gridicon.iconOfType(.heading), identifier: .header),
+            FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
+            FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
+            FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
+            FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
+            FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
+            FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link)
+        ]
+    }
+
+    var fixedItemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode)
+        ]
     }
 
 }
