@@ -11,6 +11,8 @@ class EditorDemoController: UIViewController {
 
     fileprivate var mediaErrorMode = false
 
+    lazy var headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
+
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.image)
         let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
@@ -252,6 +254,15 @@ class EditorDemoController: UIViewController {
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
+        // Filter multiple header identifier to single header identifier
+        identifiers = identifiers.map({ (identifier) -> FormattingIdentifier in
+            switch identifier {
+            case .header1, .header2, .header3, .header4, .header5, .header6:
+                return .header
+            default:
+                return identifier
+            }
+        })
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -291,6 +302,7 @@ class EditorDemoController: UIViewController {
 extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
+        changeRichTextInputView(to: nil)
     }
 
     func textViewDidChange(_ textView: UITextView) {        
@@ -348,7 +360,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
-        case .header:
+        case .header, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
         }
 
@@ -390,9 +402,58 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
-        richTextView.toggleHeader(range: richTextView.selectedRange)
+        // check if we already showing a custom view.
+        if richTextView.inputView != nil {
+            changeRichTextInputView(to: nil)
+            return
+        }
+        let headerOptions = headers.map { (headerType) -> NSAttributedString in
+            NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
+        }
+
+        let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
+        headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        headerPicker.onSelect = { selected in
+            self.richTextView.toggleHeader(self.headers[selected], range: self.richTextView.selectedRange)
+            self.changeRichTextInputView(to: nil)
+        }
+        if let selectedHeader = headers.index(of:self.headerLevelForSelectedText()) {
+            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
+        }
+        changeRichTextInputView(to: headerPicker)
     }
 
+    func changeRichTextInputView(to: UIView?) {
+        if richTextView.inputView == to {
+            return
+        }
+        richTextView.resignFirstResponder()
+        richTextView.inputView = to
+        richTextView.becomeFirstResponder()
+    }
+
+    func headerLevelForSelectedText() -> HeaderFormatter.HeaderType {
+        var identifiers = [FormattingIdentifier]()
+        if (richTextView.selectedRange.length > 0) {
+            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+        } else {
+            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        }
+        let mapping: [FormattingIdentifier: HeaderFormatter.HeaderType] = [
+            .header1 : .h1,
+            .header2 : .h2,
+            .header3 : .h3,
+            .header4 : .h4,
+            .header5 : .h5,
+            .header6 : .h6,
+        ]
+        for (key,value) in mapping {
+            if identifiers.contains(key) {
+                return value
+            }
+        }
+        return .none
+    }
 
     func toggleLink() {
         var linkTitle = ""

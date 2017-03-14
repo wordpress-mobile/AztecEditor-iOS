@@ -220,9 +220,24 @@ open class TextView: UITextView {
             return
         }
 
+        // Emoji Fix:
+        // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
+        // We do this twice (before and after inserting text), in order to properly handle two scenarios:
+        //
+        // - Before: Corrects the typing attributes in the scenario in which the user moves the cursor around.
+        //   Placing the caret after an emoji might update the typing attributes, and in some scenarios, the SDK might
+        //   fallback to Courier New.
+        //
+        // - After: If the user enters an Emoji, toggling Bold / Italics breaks. This is due to a glitch in the
+        //   SDK: the font "applied" after inserting an emoji breaks with our styling mechanism.
+        //
+        restoreDefaultFontIfNeeded()
+
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
         super.insertText(text)
+
+        restoreDefaultFontIfNeeded()
 
         ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
 
@@ -320,7 +335,12 @@ open class TextView: UITextView {
         .orderedlist: TextListFormatter(style: .ordered),
         .unorderedlist: TextListFormatter(style: .unordered),
         .blockquote: BlockquoteFormatter(),
-        .header: HeaderFormatter(),
+        .header1: HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil),
+        .header2: HeaderFormatter(headerLevel: .h2, placeholderAttributes: nil),
+        .header3: HeaderFormatter(headerLevel: .h3, placeholderAttributes: nil),
+        .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
+        .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
+        .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -498,16 +518,25 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+
     /// Adds or removes a unordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleHeader(range: NSRange) {
-        let formatter = HeaderFormatter(placeholderAttributes: typingAttributes)
+    open func toggleHeader(_ headerType: HeaderFormatter.HeaderType, range: NSRange) {
+        let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
+
+    /// After text deletion, this helper will re-apply the Text Formatters at the specified range, if they were
+    /// present in the segment previous to the modified range.
+    ///
+    /// - Parameters:
+    ///     - deletedText: String that was deleted.
+    ///     - range: Position in which the deletedText was present in the storage.
+    ///
     private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
         guard deletedText.string == String(.newline) || range.location == 0 else {
             return
@@ -521,6 +550,20 @@ open class TextView: UITextView {
             }
         }
     }
+
+
+    /// Verifies if the Active Font's Family Name matches with our Default Font, or not. If the family diverges,
+    /// this helper will proceed to restore the defaultFont's Typing Attributes
+    /// This is meant as a workaround for the "Emojis Mixing Up Font's" glitch.
+    ///
+    private func restoreDefaultFontIfNeeded() {
+        guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont, activeFont.isAppleEmojiFont else {
+            return
+        }
+
+        typingAttributes[NSFontAttributeName] = defaultFont.withSize(activeFont.pointSize)
+    }
+
 
     /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
     /// or not. Note that we should remove Paragraph Styles whenever:
@@ -557,6 +600,7 @@ open class TextView: UITextView {
         return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
+
     /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
     /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
     ///
@@ -583,6 +627,7 @@ open class TextView: UITextView {
         return false
     }
 
+
     /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
     ///
     /// - Parameters:
@@ -606,6 +651,7 @@ open class TextView: UITextView {
         return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
+
     /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
     /// the NSLinkAttribute. Meaning that:
     ///
@@ -628,6 +674,7 @@ open class TextView: UITextView {
 
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
+
 
     /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
     /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
@@ -654,6 +701,7 @@ open class TextView: UITextView {
 
         return false
     }
+
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.

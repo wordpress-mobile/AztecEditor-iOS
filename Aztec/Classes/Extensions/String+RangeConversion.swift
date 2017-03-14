@@ -26,6 +26,9 @@ extension String
     }
 
     func isLastValidLocation(_ location: Int) -> Bool {
+        if self.isEmpty {
+            return false
+        }
         return index(before: endIndex) == indexFromLocation(location)
     }
 
