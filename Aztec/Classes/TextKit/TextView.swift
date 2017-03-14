@@ -154,14 +154,10 @@ open class TextView: UITextView {
     }()
 
     private func setupAttachmentTouchDetection() {
-
-        addGestureRecognizer(attachmentGestureRecognizer)
-
         for gesture in gestureRecognizers ?? [] {
-            if gesture != attachmentGestureRecognizer {
-                gesture.require(toFail: attachmentGestureRecognizer)
-            }
+            gesture.require(toFail: attachmentGestureRecognizer)
         }
+        addGestureRecognizer(attachmentGestureRecognizer)
     }
 
     // MARK: - Intercept copy paste operations
