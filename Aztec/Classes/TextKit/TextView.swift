@@ -702,6 +702,9 @@ open class TextView: UITextView {
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
+        if range.length == 0 {
+            selectedRange = NSMakeRange(range.location + (title as NSString).length, 0)
+        }
         delegate?.textViewDidChange?(self)
     }
 
