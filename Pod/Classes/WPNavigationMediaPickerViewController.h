@@ -46,4 +46,6 @@
  */
 - (void)showAfterViewController:(nonnull UIViewController *)viewController;
 
+@property (nonatomic, strong, readonly) UICollectionViewFlowLayout *layout;
+
 @end

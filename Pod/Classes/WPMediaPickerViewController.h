@@ -156,7 +156,7 @@
 @property (nonatomic, weak, nullable) id<WPMediaCollectionDataSource> dataSource;
 
 /**
- The object that acts as the data source of the media picker.
+ The delegate for the WPMediaPickerViewController events
  */
 @property (nonatomic, weak, nullable) id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
 
@@ -165,10 +165,22 @@
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
 
+@property (nonatomic, assign) CGSize cameraPreviewSize;
+
 /**
  * Clears the current asset selection in the picker.
  */
 - (void)clearSelectedAssets:(BOOL)animated;
+
+/**
+ View controller to use when picker needs to present another controller. By default this is set to self.
+ */
+@property (nonatomic, weak, nullable) UIViewController *viewControllerToUseToPresent;
+
+/**
+ Clears all selection and scroll the picker to the starting position
+ */
+- (void)resetState:(BOOL)animated;
 
 @end
 

@@ -37,7 +37,7 @@
     UIImageView *imageView = [[UIImageView alloc] initWithImage:cameraImage];
     imageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2.0, CGRectGetHeight(self.frame) / 2.0);
     imageView.contentMode = UIViewContentModeScaleAspectFill;
-    imageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    imageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:imageView];
 }
 
@@ -94,10 +94,10 @@
         }
         if (!self.session.isRunning){
             [self.session startRunning];
+            self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.captureVideoPreviewLayer removeFromSuperlayer];
                 CALayer *viewLayer = self.previewView.layer;
-                self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
                 self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                 self.captureVideoPreviewLayer.frame = viewLayer.bounds;
                 self.captureVideoPreviewLayer.connection.videoOrientation = [self videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
