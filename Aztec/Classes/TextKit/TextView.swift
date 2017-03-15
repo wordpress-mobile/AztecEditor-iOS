@@ -755,6 +755,12 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
+    /// Removes all of the text attachments contained within the storage
+    ///
+    open func removeTextAttachments() {
+        storage.removeTextAttachments()
+        delegate?.textViewDidChange?(self)
+    }
 
     /// Inserts a Video attachment at the specified index
     ///
