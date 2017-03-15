@@ -466,6 +466,26 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
     }
 
+    /// Tests that deleting a newline works at the end of text with paragraph with header before works.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<h1>Header</h1>\n"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<h1>Header</h1>"
+    ///
+    func testDeleteNewlineAtEndOfText() {
+        let html = "<h1>Header</h1>\n"
+        let textView = createTextView(withHTML: html)
+
+        let range = NSRange(location:html.characters.count, length:0)
+        textView.selectedRange = range
+        textView.deleteBackward()
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+    }
+
     // MARK: - Insert links
 
     /// Tests that inserting a link on an empty textView works.  Also that it doesn't crash the
