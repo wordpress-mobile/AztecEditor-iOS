@@ -177,7 +177,7 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object else {
+            guard let object = object, !(object is LineAttachment) else {
                 return
             }
             
@@ -188,10 +188,6 @@ open class TextStorage: NSTextStorage {
 
             guard let attachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
-                return
-            }
-
-            if object is LineAttachment {
                 return
             }
             
