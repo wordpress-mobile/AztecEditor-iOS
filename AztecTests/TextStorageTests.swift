@@ -234,4 +234,17 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\">")
     }
+
+    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
+    ///
+    func testInsertHorizontalRuler() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertHorizontalRuler(at: NSRange.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
 }

@@ -393,6 +393,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleEditingMode()
         case .header, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
+        case .horizontalruler:
+            insertHorizontalRuler()
         }
 
         updateFormatBar()
@@ -430,6 +432,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    func insertHorizontalRuler() {
+        richTextView.insertHorizontalRuler(range: richTextView.selectedRange)
     }
 
     func toggleHeader() {
@@ -659,7 +665,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
             FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
-            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link)
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler)
         ]
     }
 
