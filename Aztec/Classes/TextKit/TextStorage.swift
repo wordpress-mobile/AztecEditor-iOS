@@ -725,6 +725,23 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Removes all of the TextAttachments from the storage
+    ///
+    open func removeTextAttachments() {
+        var ranges = [NSRange]()
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, _) in
+            ranges.append(range)
+        }
+
+        var delta = 0
+        for range in ranges {
+            let corrected = NSRange(location: range.location - delta, length: range.length)
+            replaceCharacters(in: corrected, with: NSAttributedString(string: ""))
+            delta += range.length
+        }
+    }
+
+
     // MARK: - Toggle Attributes
 
     fileprivate func toggleAttribute(_ attributeName: String, value: AnyObject, range: NSRange) {
