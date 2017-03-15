@@ -235,6 +235,44 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\">")
     }
 
+    /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
+    /// in the storage.
+    ///
+    func testRemoveAllTextAttachmentsNukeTextAttachmentInstances() {
+        // Mockup Storage
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let sample = NSMutableAttributedString(string: "Some string here")
+        storage.append(sample)
+
+        // New string with 10 attachments
+        var identifiers = [String]()
+        let count = 10
+
+        for _ in 0 ..< count {
+            let sourceURL = URL(string:"test://")!
+            let attachment = storage.insertImage(sourceURL: sourceURL, atPosition: 0, placeHolderImage: UIImage())
+
+            identifiers.append(attachment.identifier)
+        }
+
+
+        // Verify the attachments are there
+        for identifier in identifiers {
+            XCTAssertNotNil(storage.attachment(withId: identifier))
+        }
+
+        // Nuke
+        storage.removeTextAttachments()
+
+        // Verify the attachments are there
+        for identifier in identifiers {
+            XCTAssertNil(storage.attachment(withId: identifier))
+        }
+    }
+
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
     func testInsertHorizontalRuler() {
