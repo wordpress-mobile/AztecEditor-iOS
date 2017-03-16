@@ -471,7 +471,8 @@ open class TextStorage: NSTextStorage {
         if add {
             dom.insertComment(comment: "Comment", at: range)
         } else if remove {
-            dom.remove(element: .hr, at: range)
+// TODO: FIXME. Proper removeComment support
+//            dom.remove(element: .hr, at: range)
         }
     }
 
