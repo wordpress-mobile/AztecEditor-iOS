@@ -41,7 +41,25 @@ public protocol TextViewMediaDelegate: class {
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String);
+    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String)
+
+    /// Called when an attachment is selected with a single tap.
+    ///
+    /// - Parameters:
+    ///   - textView: the textview where the attachment is.
+    ///   - attachment: the attachment that was selected.
+    ///   - position: touch position relative to the textview.
+    ///
+    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+
+    /// Called when an attachment is deselected with a single tap.
+    ///
+    /// - Parameters:
+    ///   - textView: the textview where the attachment is.
+    ///   - attachment: the attachment that was deselected.
+    ///   - position: touch position relative to the textView
+    ///
+    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
 }
 
 public protocol TextViewFormattingDelegate: class {
@@ -98,7 +116,6 @@ open class TextView: UITextView {
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         storage.undoManager = undoManager
         commonInit()
-        setupMenuController()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -107,13 +124,14 @@ open class TextView: UITextView {
         defaultMissingImage = Gridicon.iconOfType(.image)
         super.init(coder: aDecoder)
         commonInit()
-        setupMenuController()
     }
 
     private func commonInit() {
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
         font = defaultFont
+        setupMenuController()
+        setupAttachmentTouchDetection()
     }
 
     private func setupMenuController() {
@@ -122,6 +140,25 @@ open class TextView: UITextView {
         UIMenuController.shared.menuItems = [pasteAndMatchItem]
     }
 
+    fileprivate lazy var recognizerDelegate: AttachmentGestureRecognizerDelegate = {
+        return AttachmentGestureRecognizerDelegate(textView: self)
+    }()
+
+    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = {
+        let attachmentGestureRecognizer = UITapGestureRecognizer(target: self.recognizerDelegate, action: #selector(AttachmentGestureRecognizerDelegate.richTextViewWasPressed))
+        attachmentGestureRecognizer.cancelsTouchesInView = true
+        attachmentGestureRecognizer.delaysTouchesBegan = true
+        attachmentGestureRecognizer.delaysTouchesEnded = true
+        attachmentGestureRecognizer.delegate = self.recognizerDelegate
+        return attachmentGestureRecognizer
+    }()
+
+    private func setupAttachmentTouchDetection() {
+        for gesture in gestureRecognizers ?? [] {
+            gesture.require(toFail: attachmentGestureRecognizer)
+        }
+        addGestureRecognizer(attachmentGestureRecognizer)
+    }
 
     // MARK: - Intercept copy paste operations
 
@@ -983,3 +1020,61 @@ extension TextView: TextStorageAttachmentsDelegate {
         mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
     }
 }
+
+// MARK: - UIGestureRecognizerDelegate
+
+@objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
+{
+    let textView: TextView
+    fileprivate var currentSelectedAttachment: TextAttachment?
+
+    public init(textView: TextView) {
+        self.textView = textView
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+
+        let locationInTextView = gestureRecognizer.location(in: textView)
+        // check if we have an attachment in the position we tapped
+        guard textView.attachmentAtPoint(locationInTextView) != nil else {
+            // if we have a current selected attachment let's notify of deselection
+            if let selectedAttachment = currentSelectedAttachment {
+                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+            }
+            currentSelectedAttachment = nil
+            return false
+        }
+        return true
+    }
+
+    func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
+        guard recognizer.state == .recognized else {
+            return
+        }
+        let locationInTextView = recognizer.location(in: textView)
+        // check if we have an attachment in the position we tapped
+        guard let attachment = textView.attachmentAtPoint(locationInTextView) else {
+            return
+        }
+
+        // move the selection to the position of the attachment
+
+        textView.moveSelectionToPoint(locationInTextView)
+
+        if textView.isPointInsideAttachmentMargin(point: locationInTextView) {
+            if let selectedAttachment = currentSelectedAttachment {
+                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+            }
+            currentSelectedAttachment = nil
+            return
+        }
+
+        currentSelectedAttachment = attachment
+        textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
+    }
+}
+
