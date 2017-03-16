@@ -510,6 +510,25 @@ extension Libxml2 {
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
+        /// Inserts an HTML Comment at the specified range.
+        ///
+        /// - Parameters:
+        ///     - comment: the comment to be stored.
+        ///     - range: the range to apply the style to.
+        ///
+        func insertComment(comment: String, at range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.insertCommentSynchronously(comment: comment, at: range)
+            }
+        }
+
+        private func insertCommentSynchronously(comment: String, at range: NSRange) {
+            let descriptor = CommentNodeDescriptor(comment: comment)
+
+            rootNode.replaceCharacters(in: range, with: descriptor)
+        }
+
+
         // MARK: - Styles to HTML elements
         
         /// Applies a standard HTML element to the specified range.
