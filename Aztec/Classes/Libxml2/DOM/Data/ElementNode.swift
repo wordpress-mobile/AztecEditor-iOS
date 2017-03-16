@@ -1351,7 +1351,6 @@ extension Libxml2 {
             let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
             textNode.split(forRange: localRange)
 
-            // CommentNode si el descriptor es un CommentNodeDescriptor
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
                 node = ElementNode(descriptor: descriptor, editContext: editContext)
