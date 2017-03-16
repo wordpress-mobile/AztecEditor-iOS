@@ -487,10 +487,10 @@ extension Libxml2 {
         private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
             let imageURLString = imageURL.absoluteString
 
-            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
-                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+            let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
+            let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
 
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+            rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
         /// Applies horizontal ruler to the specified range.
@@ -505,9 +505,9 @@ extension Libxml2 {
         }
 
         private func insertHorizontalRulerSynchronously(at range: NSRange) {
-            let elementDescriptor = ElementNodeDescriptor(elementType: .hr)
+            let descriptor = ElementNodeDescriptor(elementType: .hr)
 
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+            rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
         // MARK: - Styles to HTML elements
