@@ -177,10 +177,10 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object else {
+            guard let object = object, !(object is MoreAttachment) else {
                 return
             }
-            
+
             guard let attachmentsDelegate = attachmentsDelegate else {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
@@ -739,6 +739,23 @@ open class TextStorage: NSTextStorage {
             replaceCharacters(in: corrected, with: NSAttributedString(string: ""))
             delta += range.length
         }
+    }
+
+    /// Inserts the MoreAttachment at the specified position
+    ///
+    open func insertMoreAttachment(at position: Int) -> MoreAttachment {
+        let message = "MORE"
+        let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
+
+        let attachment = MoreAttachment()
+        attachment.message = message
+        attachment.label = NSAttributedString(string: label, attributes: [:])
+
+        let payload = NSAttributedString(attachment: attachment)
+        let target = NSMakeRange(position, 0)
+        replaceCharacters(in: target, with: payload)
+
+        return attachment
     }
 
 
