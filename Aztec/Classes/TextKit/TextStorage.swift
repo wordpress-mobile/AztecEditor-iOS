@@ -339,6 +339,9 @@ open class TextStorage: NSTextStorage {
     ///   - targetValue: the new value of the attribute
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
+        let isMoreAttachment = sourceValue is MoreAttachment || targetValue is MoreAttachment
+
         switch(key) {
         case NSFontAttributeName:
             let sourceFont = sourceValue as? UIFont
@@ -355,14 +358,17 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? NSNumber
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
-        case NSAttachmentAttributeName:
-            if sourceValue is LineAttachment || targetValue is LineAttachment {
-                let sourceAttachment = sourceValue as? LineAttachment
-                let targetAttachment = targetValue as? LineAttachment
+        case NSAttachmentAttributeName where isLineAttachment:
+            let sourceAttachment = sourceValue as? LineAttachment
+            let targetAttachment = targetValue as? LineAttachment
 
-                processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
-                return
-            }
+            processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isMoreAttachment:
+            let sourceAttachment = sourceValue as? MoreAttachment
+            let targetAttachment = targetValue as? MoreAttachment
+
+            processMoreAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
 
@@ -456,6 +462,19 @@ open class TextStorage: NSTextStorage {
             dom.remove(element: .hr, at: range)
         }
     }
+
+    private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
+
+        let add = original == nil && new != nil
+        let remove = original != nil && new == nil
+
+        if add {
+            dom.insertComment(comment: "Comment", at: range)
+        } else if remove {
+            dom.remove(element: .hr, at: range)
+        }
+    }
+
 
     /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
