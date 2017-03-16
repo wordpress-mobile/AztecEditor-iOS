@@ -301,7 +301,6 @@
 			isa = PBXGroup;
 			children = (
 				5951CB9E1D8BC93600E1866F /* Info.plist */,
-				599F25921D8BDCFC002871D6 /* TextStorageTests.swift */,
 				59FEA05D1D8BDFA700D138DF /* Exporter */,
 				F18733C61DA0970E005AEB80 /* Extensions */,
 				B5E607311DA56EB000C8A389 /* Formatters */,
@@ -558,6 +557,7 @@
 			isa = PBXGroup;
 			children = (
 				599F25931D8BDCFC002871D6 /* TextViewTests.swift */,
+				599F25921D8BDCFC002871D6 /* TextStorageTests.swift */,
 			);
 			name = TextKit;
 			sourceTree = "<group>";
