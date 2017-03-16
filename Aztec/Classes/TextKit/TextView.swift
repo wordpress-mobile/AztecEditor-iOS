@@ -698,6 +698,14 @@ open class TextView: UITextView {
     }
 
 
+    private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
+        HeaderFormatter(headerLevel:.h1),
+        HeaderFormatter(headerLevel:.h2),
+        HeaderFormatter(headerLevel:.h3),
+        HeaderFormatter(headerLevel:.h4),
+        HeaderFormatter(headerLevel:.h5),
+        HeaderFormatter(headerLevel:.h6),
+    ]
     /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
     /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
     ///
@@ -713,8 +721,7 @@ open class TextView: UITextView {
             return false
         }
 
-        let formatters:[AttributeFormatter] = [HeaderFormatter(headerLevel:.h1), HeaderFormatter(headerLevel:.h2), HeaderFormatter(headerLevel:.h3)]
-        for formatter in formatters {
+        for formatter in formattersThatBreakAfterEnter {
             if formatter.present(in: textStorage, at: range.location) {
                 formatter.removeAttributes(from: textStorage, at: range)
                 return true
