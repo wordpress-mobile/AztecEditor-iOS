@@ -6,6 +6,11 @@ import UIKit
 //
 extension NSAttributedString
 {
+    /// Indicates the Attributed String Length of a single TextAttachment
+    ///
+    static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
+
+
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
     ///
     func loadLazyAttachments() {
