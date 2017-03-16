@@ -734,7 +734,7 @@ open class TextView: UITextView {
     ///
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
         selectedRange = NSMakeRange(position+length, 0)
         delegate?.textViewDidChange?(self)
@@ -930,7 +930,29 @@ open class TextView: UITextView {
     ///
     open func refreshLayoutFor(attachment: TextAttachment) {
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }    
+    }
+
+
+    // MARK: - More
+
+    /// Inserts the More Comment at the specified position.
+    ///
+    /// - Parameter position: The character position at which to insert the more attachment.
+    ///
+    /// - Returns: the attachment object that can be used for further calls
+    ///
+    @discardableResult
+    open func insertMoreAttachment(at position: Int) -> MoreAttachment {
+        let attachment = storage.insertMoreAttachment(at: position)
+        let attachmentRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
+
+        storage.addAttributes(typingAttributes, range: attachmentRange)
+        
+        selectedRange = NSMakeRange(attachmentRange.endLocation, 0)
+        delegate?.textViewDidChange?(self)
+
+        return attachment
+    }
 }
 
 
