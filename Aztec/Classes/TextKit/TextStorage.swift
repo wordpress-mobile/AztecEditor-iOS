@@ -445,7 +445,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.insertImage(imageURL: urlToAdd, replacing: range)
+            dom.replace(range, with: urlToAdd)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
         }
@@ -457,7 +457,7 @@ open class TextStorage: NSTextStorage {
         let remove = original != nil && new == nil
 
         if add {
-            dom.insertHorizontalRuler(at: range)
+            dom.replaceWithHorizontalRuler(range)
         } else if remove {
             dom.remove(element: .hr, at: range)
         }
@@ -469,7 +469,8 @@ open class TextStorage: NSTextStorage {
         let remove = original != nil && new == nil
 
         if add {
-            dom.insertComment(comment: "Comment", at: range)
+// TODO: Load with CommentAttachment's payload
+            dom.replace(range, with: "Comment")
         } else if remove {
 // TODO: FIXME. Proper removeComment support
 //            dom.remove(element: .hr, at: range)
