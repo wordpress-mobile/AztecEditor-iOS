@@ -8,6 +8,7 @@ extension Libxml2 {
     /// - Creating it.
     ///
     class CommentNodeDescriptor: NodeDescriptor {
+        let defaultCommentName = "comment"
         let comment: String
 
         // MARK: - CustomReflectable
@@ -18,9 +19,9 @@ extension Libxml2 {
             }
         }
 
-        init(name: String, comment: String) {
+        init(comment: String) {
             self.comment = comment
-            super.init(name: name)
+            super.init(name: defaultCommentName)
         }
     }
 }
