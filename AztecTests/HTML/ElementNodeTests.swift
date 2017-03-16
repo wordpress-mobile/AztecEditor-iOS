@@ -1249,9 +1249,10 @@ class ElementNodeTests: XCTestCase {
 
         let elementType = StandardElementType.img
         let imgNodeName = elementType.rawValue
-        let elementDescriptor = ElementNodeDescriptor(elementType: elementType, attributes: [Libxml2.StringAttribute(name:"src", value: imgSrc)])
+        let attributes = [Libxml2.StringAttribute(name:"src", value: imgSrc)]
+        let descriptor = ElementNodeDescriptor(elementType: elementType, attributes: attributes)
         
-        paragraph.replaceCharacters(inRange: range, withElement: elementDescriptor)
+        paragraph.replaceCharacters(in: range, with: descriptor)
 
         XCTAssertEqual(paragraph.children.count, 3)
 
