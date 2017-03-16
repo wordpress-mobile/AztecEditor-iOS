@@ -393,6 +393,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleEditingMode()
         case .header, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
+        case .more:
+            insertMoreAttachment()
         }
 
         updateFormatBar()
@@ -498,6 +500,11 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
         showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
+    }
+
+    func insertMoreAttachment() {
+        let position = richTextView.selectedRange.location
+        richTextView.insertMoreAttachment(at: position)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -659,7 +666,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
             FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
-            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link)
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            FormatBarItem(image: Gridicon.iconOfType(.readMore), identifier: .more)
         ]
     }
 
