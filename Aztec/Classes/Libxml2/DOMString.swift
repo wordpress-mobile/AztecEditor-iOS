@@ -472,19 +472,19 @@ extension Libxml2 {
 
         // MARK: - Images
 
-        /// Applies an image to the specified range
+        /// Replaces the specified range with a given image.
         ///
         /// - Parameters:
-        ///   - imageURL: the URL for the img src attribute
         ///   - range: the range to insert the image
+        ///   - imageURL: the URL for the img src attribute
         ///
-        func insertImage(imageURL: URL, replacing range:NSRange) {
+        func replace(_ range: NSRange, with imageURL: URL) {
             performAsyncUndoable { [weak self] in
-                self?.insertImageSynchronously(imageURL: imageURL, replacing: range)
+                self?.replaceSynchronously(range, with: imageURL)
             }
         }
 
-        private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
+        private func replaceSynchronously(_ range: NSRange, with imageURL: URL) {
             let imageURLString = imageURL.absoluteString
 
             let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
@@ -493,36 +493,36 @@ extension Libxml2 {
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
-        /// Applies horizontal ruler to the specified range.
+        /// Replaces the specified range with a Horizontal Ruler.
         ///
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
-        func insertHorizontalRuler(at range: NSRange) {
+        func replaceWithHorizontalRuler(_ range: NSRange) {
             performAsyncUndoable { [weak self] in
-                self?.insertHorizontalRulerSynchronously(at: range)
+                self?.replaceSynchronouslyWithHorizontalRuler(range)
             }
         }
 
-        private func insertHorizontalRulerSynchronously(at range: NSRange) {
+        private func replaceSynchronouslyWithHorizontalRuler(_ range: NSRange) {
             let descriptor = ElementNodeDescriptor(elementType: .hr)
 
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
-        /// Inserts an HTML Comment at the specified range.
+        /// Replaces the specified range with a Comment.
         ///
         /// - Parameters:
-        ///     - comment: the comment to be stored.
         ///     - range: the range to apply the style to.
+        ///     - comment: the comment to be stored.
         ///
-        func insertComment(comment: String, at range: NSRange) {
+        func replace(_ range: NSRange, with comment: String) {
             performAsyncUndoable { [weak self] in
-                self?.insertCommentSynchronously(comment: comment, at: range)
+                self?.replaceSynchronously(range, with: comment)
             }
         }
 
-        private func insertCommentSynchronously(comment: String, at range: NSRange) {
+        private func replaceSynchronously(_ range: NSRange, with comment: String) {
             let descriptor = CommentNodeDescriptor(comment: comment)
 
             rootNode.replaceCharacters(in: range, with: descriptor)
