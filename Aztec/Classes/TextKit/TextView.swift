@@ -525,6 +525,19 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+    /// Inserts an horizontal ruler on the specified range
+    ///
+    /// - Parameter range: the range where the ruler will be inserted
+    ///
+    open func replaceWithHorizontalRuler(at range: NSRange) {
+        storage.insertHorizontalRuler(at: range)
+        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
+        selectedRange = NSMakeRange(range.location + length, 0)
+        delegate?.textViewDidChange?(self)
+    }
+
+
     private let paragraphFormatters: [AttributeFormatter] = [
         TextListFormatter(style: .ordered),
         TextListFormatter(style: .unordered),

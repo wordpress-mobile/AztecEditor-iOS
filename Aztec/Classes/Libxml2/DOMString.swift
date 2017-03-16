@@ -493,6 +493,23 @@ extension Libxml2 {
             rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
         }
 
+        /// Applies horizontal ruler to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func insertHorizontalRuler(at range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.insertHorizontalRulerSynchronously(at: range)
+            }
+        }
+
+        private func insertHorizontalRulerSynchronously(at range: NSRange) {
+            let elementDescriptor = ElementNodeDescriptor(elementType: .hr)
+
+            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+        }
+
         // MARK: - Styles to HTML elements
         
         /// Applies a standard HTML element to the specified range.
