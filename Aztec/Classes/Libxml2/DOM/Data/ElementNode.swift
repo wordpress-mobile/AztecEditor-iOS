@@ -1338,10 +1338,10 @@ extension Libxml2 {
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
         ///
-        /// - parameter targetRange:        The range to replace
-        /// - parameter elementDescriptor:  The descriptor for the element to replace the text with.
+        /// - parameter targetRange: The range to replace
+        /// - parameter descriptor:  The descriptor for the element to replace the text with.
         ///
-        func replaceCharacters(inRange targetRange: NSRange, withElement elementDescriptor: ElementNodeDescriptor) {
+        func replaceCharacters(in targetRange: NSRange, with descriptor: NodeDescriptor) {
             
             guard let textNode = lowestTextNodeWrapping(targetRange) else {
                 return
@@ -1350,8 +1350,16 @@ extension Libxml2 {
             let absoluteLocation = textNode.absoluteLocation()
             let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
             textNode.split(forRange: localRange)
-            
-            let imgNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
+
+            let node: Node
+            if let descriptor = descriptor as? ElementNodeDescriptor {
+                node = ElementNode(descriptor: descriptor, editContext: editContext)
+            } else if let descriptor = descriptor as? CommentNodeDescriptor {
+                node = CommentNode(text: descriptor.comment, editContext: editContext)
+            } else {
+                fatalError("Unsupported Node Descriptor")
+            }
+
             
             guard let index = textNode.parent?.children.index(of: textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
@@ -1362,7 +1370,7 @@ extension Libxml2 {
                 return
             }
             
-            textNodeParent.insert(imgNode, at: index)
+            textNodeParent.insert(node, at: index)
             textNodeParent.remove(textNode)
         }
 
