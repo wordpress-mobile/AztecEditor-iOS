@@ -488,7 +488,7 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
-    private lazy var paragraphFormatters: [AttributeFormatter] = [
+    private let paragraphFormatters: [AttributeFormatter] = [
         TextListFormatter(style: .ordered),
         TextListFormatter(style: .unordered),
         BlockquoteFormatter(),
