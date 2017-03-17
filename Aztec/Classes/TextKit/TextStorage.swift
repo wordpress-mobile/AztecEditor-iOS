@@ -177,7 +177,7 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object, !(object is MoreAttachment) else {
+            guard let object = object, !(object is LineAttachment), !(object is MoreAttachment) else {
                 return
             }
 
@@ -185,7 +185,7 @@ open class TextStorage: NSTextStorage {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
             }
-            
+
             guard let attachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
@@ -339,6 +339,9 @@ open class TextStorage: NSTextStorage {
     ///   - targetValue: the new value of the attribute
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
+        let isMoreAttachment = sourceValue is MoreAttachment || targetValue is MoreAttachment
+
         switch(key) {
         case NSFontAttributeName:
             let sourceFont = sourceValue as? UIFont
@@ -355,6 +358,16 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? NSNumber
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        case NSAttachmentAttributeName where isLineAttachment:
+            let sourceAttachment = sourceValue as? LineAttachment
+            let targetAttachment = targetValue as? LineAttachment
+
+            processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isMoreAttachment:
+            let sourceAttachment = sourceValue as? MoreAttachment
+            let targetAttachment = targetValue as? MoreAttachment
+
+            processMoreAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
@@ -432,11 +445,33 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.insertImage(imageURL: urlToAdd, replacing: range)
+            dom.replace(range, with: urlToAdd)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
         }
     }
+
+    private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
+
+        let add = original == nil && new != nil
+        let remove = original != nil && new == nil
+
+        if add {
+            dom.replaceWithHorizontalRuler(range)
+        } else if remove {
+            dom.remove(element: .hr, at: range)
+        }
+    }
+
+    private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
+
+        if let newAttachment = new, original == nil {
+            dom.replace(range, with: newAttachment.text)
+        } else if let _ = original, new == nil {
+            dom.replaceCharacters(inRange: range, withString: String(), preferLeftNode: false)
+        }
+    }
+
 
     /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
@@ -666,6 +701,17 @@ open class TextStorage: NSTextStorage {
         replaceCharacters(in: insertionRange, with: attachmentString)
 
         return attachment
+    }
+
+    /// Insert an HR element at the specifice range
+    ///
+    /// - Parameter range: the range where the element will be inserted
+    ///
+    func insertHorizontalRuler(at range: NSRange) {
+        let line = LineAttachment()
+
+        let attachmentString = NSAttributedString(attachment: line)
+        replaceCharacters(in: range, with: attachmentString)        
     }
 
     // MARK: - Attachments

@@ -20,4 +20,5 @@ public enum FormattingIdentifier: String {
     case header4 = "header4"
     case header5 = "header5"
     case header6 = "header6"
+    case horizontalruler = "horizontalruler"
 }

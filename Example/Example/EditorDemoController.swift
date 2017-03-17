@@ -25,13 +25,6 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
-        textView.addGestureRecognizer(self.tapGestureRecognizer)
-
-        for gesture in textView.gestureRecognizers ?? [] {
-            if let otherTapGesture = gesture as? UITapGestureRecognizer, otherTapGesture != self.tapGestureRecognizer {
-                otherTapGesture.require(toFail: self.tapGestureRecognizer)
-            }
-        }
 
         return textView
     }()
@@ -94,16 +87,7 @@ class EditorDemoController: UIViewController {
             richTextView.isHidden = editingMode == .html
             htmlTextView.isHidden = editingMode == .richText
         }
-    }
-
-    fileprivate(set) lazy var tapGestureRecognizer: UIGestureRecognizer = {
-        let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
-        recognizer.cancelsTouchesInView = true
-        recognizer.delaysTouchesBegan = true
-        recognizer.delaysTouchesEnded = true
-        recognizer.delegate = self
-        return recognizer
-    }()
+    }    
 
     fileprivate var currentSelectedAttachment: TextAttachment?
 
@@ -395,6 +379,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleHeader()
         case .more:
             insertMoreAttachment()
+        case .horizontalruler:
+            insertHorizontalRuler()
         }
 
         updateFormatBar()
@@ -432,6 +418,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    func insertHorizontalRuler() {
+        richTextView.replaceWithHorizontalRuler(at: richTextView.selectedRange)
     }
 
     func toggleHeader() {
@@ -667,6 +657,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler),
             FormatBarItem(image: Gridicon.iconOfType(.readMore), identifier: .more)
         ]
     }
@@ -713,6 +704,30 @@ extension EditorDemoController: TextViewMediaDelegate
 
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
         print("Attachment \(attachmentID) removed.\n")
+    }
+
+    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+
+        if (currentSelectedAttachment == attachment) {
+            displayActions(forAttachment: attachment, position: position)
+        } else {
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.clearAllOverlays()
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+            }
+
+            // and mark the newly tapped attachment
+            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
+            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+            richTextView.refreshLayoutFor(attachment: attachment)
+            currentSelectedAttachment = attachment
+        }
+    }
+
+    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+        attachment.clearAllOverlays()
+        richTextView.refreshLayoutFor(attachment: attachment)
     }
 }
 
@@ -863,63 +878,5 @@ private extension EditorDemoController
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
-    }
-}
-
-// MARK: - UIGestureRecognizerDelegate
-
-extension EditorDemoController: UIGestureRecognizerDelegate
-{
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        let locationInTextView = gestureRecognizer.location(in: richTextView)
-        // check if we have an attachment in the position we tapped
-        guard richTextView.attachmentAtPoint(locationInTextView) != nil else {
-            // if we have a current selected attachment marked lets unmark it
-            if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
-                currentSelectedAttachment = nil
-            }
-            return false
-        }
-        return true
-    }
-
-    func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
-        let locationInTextView = recognizer.location(in: richTextView)
-        // check if we have an attachment in the position we tapped
-        guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
-            return
-        }
-        // move the selection to the position of the attachment
-        richTextView.moveSelectionToPoint(locationInTextView)
-        if richTextView.isPointInsideAttachmentMargin(point: locationInTextView) {
-            if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
-                currentSelectedAttachment = nil
-            }
-            return
-        }
-        if attachment == currentSelectedAttachment {
-            //if it's the same attachment has before let's display the options
-            displayActions(forAttachment: attachment, position: locationInTextView)
-        } else {
-            // if it's a new attachment tapped let unmark the previous one
-            if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
-            }
-            // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
-            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
-            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
-            richTextView.refreshLayoutFor(attachment: attachment)
-            currentSelectedAttachment = attachment
-        }
     }
 }

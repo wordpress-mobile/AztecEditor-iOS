@@ -272,4 +272,31 @@ class TextStorageTests: XCTestCase
             XCTAssertNil(storage.attachment(withId: identifier))
         }
     }
+
+    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
+    ///
+    func testInsertHorizontalRuler() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertHorizontalRuler(at: NSRange.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
+    ///
+    func testInsertHorizontalRulerOverImage() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        storage.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
 }
