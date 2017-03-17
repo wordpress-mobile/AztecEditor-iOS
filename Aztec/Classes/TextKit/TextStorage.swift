@@ -700,7 +700,7 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameter range: the range where the element will be inserted
     ///
-    func insertHorizontalRuler(at range: NSRange) {
+    func replaceRangeWithHorizontalRuler(_ range: NSRange) {
         let line = LineAttachment()
 
         let attachmentString = NSAttributedString(attachment: line)
@@ -783,7 +783,7 @@ open class TextStorage: NSTextStorage {
     /// Inserts the MoreAttachment at the specified position
     ///
     @discardableResult
-    open func insertMoreAttachment(at position: Int) -> MoreAttachment {
+    open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
         let message = "MORE"
         let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
 

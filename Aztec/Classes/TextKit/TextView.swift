@@ -529,8 +529,8 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func replaceWithHorizontalRuler(at range: NSRange) {
-        storage.insertHorizontalRuler(at: range)
+    open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
+        storage.replaceRangeWithHorizontalRuler(range)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
         selectedRange = NSMakeRange(range.location + length, 0)

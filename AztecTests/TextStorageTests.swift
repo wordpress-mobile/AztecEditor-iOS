@@ -275,7 +275,7 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRuler() {
+    func testReplaceRangeWithHorizontalRuler() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
@@ -288,13 +288,13 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
     ///
-    func testInsertTwoHorizontalRulersGeneratesExpectedHTML() {
+    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertHorizontalRuler(at: NSRange.zero)
-        storage.insertHorizontalRuler(at: NSRange.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr><hr>")
