@@ -792,8 +792,7 @@ open class TextStorage: NSTextStorage {
         attachment.label = NSAttributedString(string: label, attributes: [:])
 
         let payload = NSAttributedString(attachment: attachment)
-        let target = NSMakeRange(position, 0)
-        replaceCharacters(in: target, with: payload)
+        replaceCharacters(in: range, with: payload)
 
         return attachment
     }

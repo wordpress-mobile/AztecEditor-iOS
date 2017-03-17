@@ -493,8 +493,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        let position = richTextView.selectedRange.location
-        richTextView.insertMoreAttachment(at: position)
+        richTextView.replaceRangeWithMoreAttachment(richTextView.selectedRange)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {

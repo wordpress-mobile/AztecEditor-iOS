@@ -280,7 +280,7 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertHorizontalRuler(at: NSRange.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
@@ -302,13 +302,13 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRulerOverImage() {
+    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
         let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
-        storage.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        storage.replaceRangeWithHorizontalRuler(NSRange(location: 0, length:1))
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
@@ -317,12 +317,12 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
     ///
-    func testInsertMoreAttachmentCorretlyGeneratesHTMLComment() {
+    func testReplaceRangeWithMoreAttachmentGeneratesExpectedHTMLComment() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertMoreAttachment(at: 0)
+        storage.replaceRangeWithMoreAttachment(.zero)
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
@@ -330,13 +330,13 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
     ///
-    func testInsertTwoMoreAttachmentsDoNotCrashTheEditor() {
+    func testReplaceRangeWithMoreAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertMoreAttachment(at: 0)
-        storage.insertMoreAttachment(at: 0)
+        storage.replaceRangeWithMoreAttachment(.zero)
+        storage.replaceRangeWithMoreAttachment(.zero)
 
         let html = storage.getHTML()
 

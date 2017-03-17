@@ -1007,14 +1007,14 @@ open class TextView: UITextView {
 
     /// Inserts the More Comment at the specified position.
     ///
-    /// - Parameter position: The character position at which to insert the more attachment.
+    /// - Parameter range: The character range that must be replaced by a More Attachment.
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func insertMoreAttachment(at position: Int) -> MoreAttachment {
-        let attachment = storage.insertMoreAttachment(at: position)
-        let attachmentRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
+    open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
+        let attachment = storage.replaceRangeWithMoreAttachment(range)
+        let attachmentRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
 
         storage.addAttributes(typingAttributes, range: attachmentRange)
         
