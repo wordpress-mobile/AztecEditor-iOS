@@ -467,8 +467,8 @@ open class TextStorage: NSTextStorage {
 
         if let newAttachment = new, original == nil {
             dom.replace(range, with: newAttachment.text)
-        } else if let _ = original, new == nil {
-            dom.replaceCharacters(inRange: range, withString: String(), preferLeftNode: false)
+        } else if original != nil, new == nil {
+            deleteCharacters(in: range)
         }
     }
 
@@ -789,6 +789,7 @@ open class TextStorage: NSTextStorage {
 
     /// Inserts the MoreAttachment at the specified position
     ///
+    @discardableResult
     open func insertMoreAttachment(at position: Int) -> MoreAttachment {
         let message = "MORE"
         let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
