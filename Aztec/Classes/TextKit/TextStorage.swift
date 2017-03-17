@@ -453,23 +453,16 @@ open class TextStorage: NSTextStorage {
 
     private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
 
-        let add = original == nil && new != nil
-        let remove = original != nil && new == nil
-
-        if add {
-            dom.replaceWithHorizontalRuler(range)
-        } else if remove {
-            dom.remove(element: .hr, at: range)
-        }
+        dom.replaceWithHorizontalRuler(range)
     }
 
     private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
 
-        if let newAttachment = new, original == nil {
-            dom.replace(range, with: newAttachment.text)
-        } else if original != nil, new == nil {
-            deleteCharacters(in: range)
+        guard let newAttachment = new else {
+            return
         }
+
+        dom.replace(range, with: newAttachment.text)
     }
 
 
