@@ -10,6 +10,7 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
+@property (nonatomic, strong) UIToolbar *toolbar;
 
 @end
 
@@ -41,6 +42,9 @@ static NSString *tracksKey = @"tracks";
     self.player = [[AVPlayer alloc] init];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
     [self.layer addSublayer: self.playerLayer];
+    self.toolbar = [[UIToolbar alloc] init];
+    [self updateControlToolbar];
+    [self addSubview:self.toolbar];
 }
 
 - (void)dealloc {
@@ -53,6 +57,7 @@ static NSString *tracksKey = @"tracks";
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.playerLayer.frame = self.bounds;
+    self.toolbar.frame = CGRectMake(0, self.frame.size.height - 44, self.frame.size.width, 44);
 }
 
 - (void)setVideoURL:(NSURL *)videoURL {
@@ -77,7 +82,7 @@ static NSString *tracksKey = @"tracks";
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:self.playerItem];
     [self.player replaceCurrentItemWithPlayerItem: self.playerItem];
-    [self.player play];
+    [self play];
 }
 
 
@@ -89,6 +94,37 @@ static NSString *tracksKey = @"tracks";
     if (self.delegate) {
         [self.delegate videoPlayerViewFinish:self];
     }
+    [self updateControlToolbar];
+}
+
+- (void)play {
+    [self.player play];
+    [self updateControlToolbar];
+}
+
+- (void)pause {
+    [self.player pause];
+    [self updateControlToolbar];
+}
+
+- (void)togglePlayPause {
+    if ([self.player timeControlStatus] == AVPlayerTimeControlStatusPaused) {
+        if (CMTimeCompare(self.player.currentItem.currentTime, self.player.currentItem.duration) == 0) {
+            [self.player seekToTime:kCMTimeZero];
+        }
+        [self play];
+    } else {
+        [self pause];
+    }
+}
+
+- (void)updateControlToolbar {
+    UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
+    self.toolbar.items = @[
+                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:playPauseButton target:self action:@selector(togglePlayPause)],
+                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]
+                           ];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath

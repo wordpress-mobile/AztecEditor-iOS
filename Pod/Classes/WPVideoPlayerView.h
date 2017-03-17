@@ -23,5 +23,9 @@
 
 @property (nonatomic, strong) AVAsset *asset;
 
+- (void)play;
+
+- (void)pause;
+
 @end
 
