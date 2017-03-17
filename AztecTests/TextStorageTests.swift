@@ -337,5 +337,9 @@ class TextStorageTests: XCTestCase
 
         storage.insertMoreAttachment(at: 0)
         storage.insertMoreAttachment(at: 0)
+
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--more--><!--more-->")
     }
 }
