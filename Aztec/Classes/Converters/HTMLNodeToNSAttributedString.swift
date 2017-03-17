@@ -99,7 +99,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
         let moreLabel = "more"
-        if node.comment.hasPrefix(moreLabel) {
+        if node.comment.lowercased().hasPrefix(moreLabel) {
             var attributes = inheritedAttributes;
             let moreAttachment = MoreAttachment()
             let index = moreLabel.endIndex
