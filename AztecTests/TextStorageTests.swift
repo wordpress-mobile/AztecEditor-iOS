@@ -286,6 +286,20 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<hr>")
     }
 
+    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
+    ///
+    func testInsertTwoHorizontalRulersGeneratesExpectedHTML() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertHorizontalRuler(at: NSRange.zero)
+        storage.insertHorizontalRuler(at: NSRange.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr><hr>")
+    }
+
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
     ///
     func testInsertHorizontalRulerOverImage() {
@@ -298,5 +312,30 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
+    }
+
+
+    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    ///
+    func testInsertMoreAttachmentCorretlyGeneratesHTMLComment() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertMoreAttachment(at: 0)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--more-->")
+    }
+
+    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    ///
+    func testInsertTwoMoreAttachmentsDoNotCrashTheEditor() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertMoreAttachment(at: 0)
+        storage.insertMoreAttachment(at: 0)
     }
 }
