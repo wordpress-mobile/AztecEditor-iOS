@@ -15,6 +15,9 @@ To run the example project, clone the repo, and run `carthage update` from the E
 
 ## Requirements
 
+- iOS 9 and above
+- Xcode 8
+
 ## Installation
 
 WordPress-Aztec-iOS is available through [CocoaPods](http://cocoapods.org). To install
