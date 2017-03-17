@@ -22,9 +22,9 @@ class DOMStringTests: XCTestCase {
         let string = DOMString()
 
         string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n", preferLeftNode: true)
-        XCTAssertEqual(string.getHTML(), "Hello<br>")
+        XCTAssertEqual(string.getHTML(), "Hello<br/>")
 
         string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!", preferLeftNode: false)
-        XCTAssertEqual(string.getHTML(), "Hello<br>World!")
+        XCTAssertEqual(string.getHTML(), "Hello<br/>World!")
     }
 }

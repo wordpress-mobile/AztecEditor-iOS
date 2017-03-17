@@ -134,7 +134,7 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\"/>")
     }
 
     func testUpdateImage() {
@@ -147,7 +147,7 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, url)
-        XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\"/>")
     }
 
     func testBlockquoteToggle() {
@@ -158,7 +158,7 @@ class TextStorageTests: XCTestCase
 
         var html = storage.getHTML()
 
-        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
+        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>\n")
 
         storage.toggle(formatter:blockquoteFormatter, at: storage.rangeOfEntireString)
 
@@ -193,7 +193,7 @@ class TextStorageTests: XCTestCase
 
         var html = storage.getHTML()
 
-        XCTAssertEqual(html, "<h1>Apply a header</h1>")
+        XCTAssertEqual(html, "<h1>Apply a header</h1>\n")
 
         storage.toggle(formatter:formatter, at: storage.rangeOfEntireString)
 
