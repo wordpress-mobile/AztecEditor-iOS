@@ -465,15 +465,10 @@ open class TextStorage: NSTextStorage {
 
     private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
 
-        let add = original == nil && new != nil
-        let remove = original != nil && new == nil
-
-        if add {
-// TODO: Load with CommentAttachment's payload
-            dom.replace(range, with: "Comment")
-        } else if remove {
-// TODO: FIXME. Proper removeComment support
-//            dom.remove(element: .hr, at: range)
+        if let newAttachment = new, original == nil {
+            dom.replace(range, with: newAttachment.text)
+        } else if let _ = original, new == nil {
+            dom.replaceCharacters(inRange: range, withString: String(), preferLeftNode: false)
         }
     }
 
