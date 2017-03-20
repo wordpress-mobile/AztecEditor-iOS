@@ -493,18 +493,18 @@ extension Libxml2 {
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
-        /// Replaces the specified range with a Horizontal Ruler.
+        /// Replaces the specified range with a Horizontal Ruler Style.
         ///
         /// - Parameters:
         ///     - range: the range to apply the style to.
         ///
         func replaceWithHorizontalRuler(_ range: NSRange) {
             performAsyncUndoable { [weak self] in
-                self?.replaceSynchronouslyWithHorizontalRuler(range)
+                self?.replaceSynchronouslyWithHorizontalRulerStyle(range)
             }
         }
 
-        private func replaceSynchronouslyWithHorizontalRuler(_ range: NSRange) {
+        private func replaceSynchronouslyWithHorizontalRulerStyle(_ range: NSRange) {
             let descriptor = ElementNodeDescriptor(elementType: .hr)
 
             rootNode.replaceCharacters(in: range, with: descriptor)
