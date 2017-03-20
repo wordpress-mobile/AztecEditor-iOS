@@ -322,7 +322,7 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.replaceRangeWithMoreAttachment(.zero)
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
@@ -335,8 +335,8 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.replaceRangeWithMoreAttachment(.zero)
-        storage.replaceRangeWithMoreAttachment(.zero)
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
 
         let html = storage.getHTML()
 
