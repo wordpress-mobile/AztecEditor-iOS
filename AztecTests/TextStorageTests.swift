@@ -314,7 +314,6 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<hr>")
     }
 
-
     /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
     ///
     func testReplaceRangeWithMoreAttachmentGeneratesExpectedHTMLComment() {
@@ -341,5 +340,19 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<!--more--><!--more-->")
+    }
+
+    /// This test verifies if we can delete all the content from a storage object that has html with a comment
+    ///
+    func testDeleteAllSelectionWhenContentHasComments() {
+        let storage = TextStorage()
+        let commentString = "This is a comment"
+        let html = "<!--\(commentString)-->"
+        storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
+        storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
+
+        let resultHTML = storage.getHTML()
+
+        XCTAssertEqual(String(), resultHTML)
     }
 }
