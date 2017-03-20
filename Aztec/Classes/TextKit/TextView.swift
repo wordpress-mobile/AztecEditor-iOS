@@ -1013,12 +1013,9 @@ open class TextView: UITextView {
     ///
     @discardableResult
     open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
-        let attachment = storage.replaceRangeWithMoreAttachment(range)
-        let attachmentRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+        let attachment = storage.replaceRangeWithMoreAttachment(range, attributes: typingAttributes)
 
-        storage.addAttributes(typingAttributes, range: attachmentRange)
-        
-        selectedRange = NSMakeRange(attachmentRange.endLocation, 0)
+        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         delegate?.textViewDidChange?(self)
 
         return attachment

@@ -783,16 +783,19 @@ open class TextStorage: NSTextStorage {
     /// Inserts the MoreAttachment at the specified position
     ///
     @discardableResult
-    open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
+    open func replaceRangeWithMoreAttachment(_ range: NSRange, attributes: [String: Any]) -> MoreAttachment {
         let message = "MORE"
         let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
-
+        
         let attachment = MoreAttachment()
         attachment.message = message
         attachment.label = NSAttributedString(string: label, attributes: [:])
 
-        let payload = NSAttributedString(attachment: attachment)
-        replaceCharacters(in: range, with: payload)
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+
+        let attachmentRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+        addAttributes(attributes, range: attachmentRange)
 
         return attachment
     }
