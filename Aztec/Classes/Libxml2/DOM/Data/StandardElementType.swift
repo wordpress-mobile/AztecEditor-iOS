@@ -35,6 +35,7 @@ extension Libxml2 {
         case p = "p"
         case pre = "pre"
         case s = "s"
+        case span = "span"
         case strike = "strike"
         case strong = "strong"
         case table = "table"
