@@ -324,7 +324,7 @@ class TextStorageTests: XCTestCase
         storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "<!--more-->")
+        XCTAssertEqual(html, "<!--MORE-->")
     }
 
     /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
@@ -339,7 +339,7 @@ class TextStorageTests: XCTestCase
 
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "<!--more--><!--more-->")
+        XCTAssertEqual(html, "<!--MORE--><!--MORE-->")
     }
 
     /// This test verifies if we can delete all the content from a storage object that has html with a comment
