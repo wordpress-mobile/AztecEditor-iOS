@@ -48,13 +48,17 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _filter = WPMediaTypeVideoOrImage;
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
+        _cameraPreviewSize = CameraPreviewSize;
+        _viewControllerToUseToPresent = self;
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [_dataSource unregisterChangeObserver:_changesObserver];
+    if (_changesObserver) {
+        [_dataSource unregisterChangeObserver:_changesObserver];
+    }
 }
 
 - (void)viewDidLoad
@@ -102,6 +106,22 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     }
 
     [self refreshDataAnimated:NO];
+}
+
+- (void)setFilter:(WPMediaType)filter {
+    _filter = filter;
+    if (self.viewLoaded) {
+        [self.dataSource setMediaTypeFilter:filter];
+        [self refreshDataAnimated:NO];
+    }
+}
+
+- (void)setShowMostRecentFirst:(BOOL)showMostRecentFirst {
+    _showMostRecentFirst = showMostRecentFirst;
+    if (self.viewLoaded) {
+        [self.dataSource setAscendingOrdering:!showMostRecentFirst];
+        [self refreshDataAnimated:NO];
+    }
 }
 
 - (void)setupLayout
@@ -155,6 +175,29 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     }
 
     [self.selectedAssets removeAllObjects];
+}
+
+- (void)resetState:(BOOL)animated {
+    [self clearSelectedAssets:animated];
+    [self scrollToStart:animated];
+}
+
+- (void)scrollToStart:(BOOL)animated {
+    if ([self.dataSource numberOfAssets] == 0) {
+        return;
+    }
+
+    NSInteger sectionToScroll = 0;
+    NSInteger itemToScroll = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll];
+    UICollectionViewScrollPosition position = UICollectionViewScrollPositionTop;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    if (layout && layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+        position = self.showMostRecentFirst ? UICollectionViewScrollPositionRight : UICollectionViewScrollPositionLeft;
+    }
+    [self.collectionView scrollToItemAtIndexPath:indexPath
+                                atScrollPosition:position
+                                        animated:YES];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -222,6 +265,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     __weak __typeof__(self) weakSelf = self;
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
+        BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
         strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [strongSelf refreshSelection];
@@ -240,12 +284,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 }
 
                 // Scroll to the correct position
-                if (strongSelf.refreshGroupFirstTime && [strongSelf.dataSource numberOfAssets] > 0){
-                    NSInteger sectionToScroll = 0;
-                    NSInteger itemToScroll = strongSelf.showMostRecentFirst ? 0 :[strongSelf.dataSource numberOfAssets]-1;
-                    [strongSelf.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll]
-                                                      atScrollPosition:UICollectionViewScrollPositionCenteredVertically
-                                                              animated:NO];
+                if (refreshGroupFirstTime){
+                    [strongSelf scrollToStart:NO];
                 }
             });
  
@@ -362,7 +402,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && self.showMostRecentFirst)
     {
-        return CameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -373,7 +413,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && !self.showMostRecentFirst)
     {
-        return CameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -399,9 +439,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 - (void)showCapture {
-    [self.captureCell stopCaptureOnCompletion:^{
-        [self captureMedia];
-    }];
+    [self captureMedia];
     return;
 }
 
@@ -557,7 +595,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self presentViewController:imagePickerController animated:YES completion:^{
+    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
 
     }];
 }
@@ -616,7 +654,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
     [alertController addAction:otherAction];
     
-    [self presentViewController:alertController animated:YES completion:nil];
+    [self.viewControllerToUseToPresent presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)processMediaCaptured:(NSDictionary *)info
@@ -674,16 +712,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     [picker dismissViewControllerAnimated:YES completion:^{
         [self processMediaCaptured:info];
-        if (self.showMostRecentFirst){
-            [self.captureCell startCapture];
-        }
     }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [picker dismissViewControllerAnimated:YES completion:^{
-        [self.captureCell startCapture];
     }];
 }
 

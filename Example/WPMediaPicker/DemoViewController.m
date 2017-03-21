@@ -4,16 +4,17 @@
 #import "OptionsViewController.h"
 #import "PostProcessingViewController.h"
 #import <WPMediaPicker/WPMediaPicker.h>
-#import <WPMediaPicker/WPMediaGroupTableViewCell.h>
-#import <WPMediaPicker/WPMediaPicker.h>
 
-@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate>
+@interface DemoViewController () <WPMediaPickerViewControllerDelegate, OptionsViewControllerDelegate, UITextFieldDelegate>
 
 @property (nonatomic, strong) NSArray * assets;
 @property (nonatomic, strong) NSDateFormatter * dateFormatter;
 @property (nonatomic, strong) id<WPMediaCollectionDataSource> customDataSource;
 @property (nonatomic, copy) NSDictionary *options;
 @property (nonatomic, strong) WPNavigationMediaPickerViewController *mediaPicker;
+@property (nonatomic, strong) UITextField *quickInputTextField;
+@property (nonatomic, strong) WPInputMediaPickerViewController *mediaInputViewController;
+@property (nonatomic, strong) UIView* wasFirstResponder;
 
 @end
 
@@ -45,10 +46,20 @@
 
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewWillDisappear:(BOOL)animated {
+    if (self.quickInputTextField.isFirstResponder) {
+        self.wasFirstResponder = self.quickInputTextField;
+    } else {
+        self.wasFirstResponder = nil;
+    }
+    [super viewWillDisappear:animated];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (self.wasFirstResponder != nil && self.wasFirstResponder == self.quickInputTextField) {
+        [self.quickInputTextField becomeFirstResponder];
+    }
+    [super viewWillAppear:animated];
 }
 
 #pragma - UITableViewControllerDelegate
@@ -63,7 +74,7 @@
     return self.assets.count;
 }
 
-- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     WPMediaGroupTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WPMediaGroupTableViewCell class]) forIndexPath:indexPath];
     
@@ -92,10 +103,58 @@
     return cell;
 }
 
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *viewHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0,0, self.view.frame.size.width, 44)];
+    [viewHeaderView addSubview:self.quickInputTextField];
+    self.quickInputTextField.frame = CGRectInset(viewHeaderView.frame, 2, 2);
+    self.quickInputTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    return viewHeaderView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 44.0;
+}
+
+- (UITextField *)quickInputTextField {
+    if (_quickInputTextField) {
+        return _quickInputTextField;
+    }
+    _quickInputTextField = [[UITextField alloc] initWithFrame:CGRectInset(CGRectMake(0, 0, self.view.frame.size.width, 44), 5, 2)];
+    _quickInputTextField.placeholder = @"Tap here to quick select assets";
+    _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
+    _quickInputTextField.delegate = self;
+
+    self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+
+    [self addChildViewController:self.mediaInputViewController];
+    _quickInputTextField.inputView = self.mediaInputViewController.view;
+    [self.mediaInputViewController didMoveToParentViewController:self];
+
+    self.mediaInputViewController.mediaPickerDelegate = self;
+    self.mediaInputViewController.mediaPicker.viewControllerToUseToPresent = self;
+    _quickInputTextField.inputAccessoryView = self.mediaInputViewController.mediaToolbar;
+
+    return _quickInputTextField;
+}
+
+- (id<WPMediaCollectionDataSource>)defaultDataSource
+{
+    static id<WPMediaCollectionDataSource> assetSource = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        assetSource = [[WPPHAssetDataSource alloc] init];
+    });
+    return assetSource;
+}
+
 #pragma - <WPMediaPickerViewControllerDelegate>
 
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker
 {
+    if (picker == self.mediaInputViewController.mediaPicker) {
+        [self.quickInputTextField resignFirstResponder];
+        return;
+    }
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -104,6 +163,11 @@
     // Update Assets
     self.assets = assets;
     [self.tableView reloadData];
+    
+    if (picker == self.mediaInputViewController.mediaPicker) {
+        [self.quickInputTextField resignFirstResponder];
+        return;
+    }
     
     // PostProcessing is Optional!
     if ([self.options[MediaPickerOptionsPostProcessingStep] boolValue] == false) {
@@ -172,6 +236,20 @@
 - (void)cancelOptionsViewController:(OptionsViewController *)optionsViewController
 {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma - UITextFieldDelegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    if (textField == self.quickInputTextField) {
+        self.mediaInputViewController.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+        self.mediaInputViewController.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+        self.mediaInputViewController.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+        self.mediaInputViewController.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+        self.mediaInputViewController.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    }
+    return YES;
 }
 
 @end
