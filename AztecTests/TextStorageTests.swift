@@ -314,32 +314,32 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<hr>")
     }
 
-    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
     ///
-    func testReplaceRangeWithMoreAttachmentGeneratesExpectedHTMLComment() {
+    func testReplaceRangeWithCommentAttachmentGeneratesExpectedHTMLComment() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
     }
 
-    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
     ///
-    func testReplaceRangeWithMoreAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
+    func testReplaceRangeWithCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
-        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
+        storage.replaceRangeWithCommentAttachment(.zero, text: "some other comment should go here", attributes: [:])
 
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "<!--more--><!--more-->")
+        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
     }
 
     /// This test verifies if we can delete all the content from a storage object that has html with a comment
