@@ -529,8 +529,8 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func replaceWithHorizontalRuler(at range: NSRange) {
-        storage.insertHorizontalRuler(at: range)
+    open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
+        storage.replaceRangeWithHorizontalRuler(range)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
         selectedRange = NSMakeRange(range.location + length, 0)
@@ -804,7 +804,7 @@ open class TextView: UITextView {
     ///
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
         selectedRange = NSMakeRange(position+length, 0)
         delegate?.textViewDidChange?(self)
@@ -1000,7 +1000,26 @@ open class TextView: UITextView {
     ///
     open func refreshLayoutFor(attachment: TextAttachment) {
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }    
+    }
+
+
+    // MARK: - More
+
+    /// Inserts the More Comment at the specified position.
+    ///
+    /// - Parameter range: The character range that must be replaced by a More Attachment.
+    ///
+    /// - Returns: the attachment object that can be used for further calls
+    ///
+    @discardableResult
+    open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
+        let attachment = storage.replaceRangeWithMoreAttachment(range, attributes: typingAttributes)
+
+        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
+        delegate?.textViewDidChange?(self)
+
+        return attachment
+    }
 }
 
 

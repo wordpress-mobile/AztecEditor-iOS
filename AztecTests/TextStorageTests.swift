@@ -275,28 +275,84 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRuler() {
+    func testReplaceRangeWithHorizontalRuler() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertHorizontalRuler(at: NSRange.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
     }
 
+    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithHorizontalRuler(.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr><hr>")
+    }
+
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRulerOverImage() {
+    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
         let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
-        storage.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        storage.replaceRangeWithHorizontalRuler(NSRange(location: 0, length:1))
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    ///
+    func testReplaceRangeWithMoreAttachmentGeneratesExpectedHTMLComment() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--MORE-->")
+    }
+
+    /// This test check if the insertion of a More Attachment works correctly and the <!--more--> tag is inserted
+    ///
+    func testReplaceRangeWithMoreAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+        storage.replaceRangeWithMoreAttachment(.zero, attributes: [:])
+
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--MORE--><!--MORE-->")
+    }
+
+    /// This test verifies if we can delete all the content from a storage object that has html with a comment
+    ///
+    func testDeleteAllSelectionWhenContentHasComments() {
+        let storage = TextStorage()
+        let commentString = "This is a comment"
+        let html = "<!--\(commentString)-->"
+        storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
+        storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
+
+        let resultHTML = storage.getHTML()
+
+        XCTAssertEqual(String(), resultHTML)
     }
 }

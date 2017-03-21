@@ -377,6 +377,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleEditingMode()
         case .header, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
+        case .more:
+            insertMoreAttachment()
         case .horizontalruler:
             insertHorizontalRuler()
         }
@@ -419,7 +421,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertHorizontalRuler() {
-        richTextView.replaceWithHorizontalRuler(at: richTextView.selectedRange)
+        richTextView.replaceRangeWithHorizontalRuler(richTextView.selectedRange)
     }
 
     func toggleHeader() {
@@ -488,6 +490,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
         showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
+    }
+
+    func insertMoreAttachment() {
+        richTextView.replaceRangeWithMoreAttachment(richTextView.selectedRange)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -650,7 +656,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
             FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
-            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler)
+            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler),
+            FormatBarItem(image: Gridicon.iconOfType(.readMore), identifier: .more)
         ]
     }
 

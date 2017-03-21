@@ -21,6 +21,12 @@ open class MoreAttachment: NSTextAttachment
         }
     }
 
+    /// Comment's Text.
+    /// This is a temporary helper property, and will be removed as soon as we merge MoreAttachment + CommentAttachment.
+    ///
+    let text = "MORE"
+
+
     open var message: String = ""
 
     // MARK: - NSTextAttachmentContainer
