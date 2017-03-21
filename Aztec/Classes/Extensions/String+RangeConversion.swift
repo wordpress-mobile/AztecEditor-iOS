@@ -33,9 +33,7 @@ extension String
     }
 
     func location(after: Int) -> Int? {
-        guard let currentIndex = indexFromLocation(after),
-            currentIndex != endIndex
-        else {
+        guard let currentIndex = indexFromLocation(after), currentIndex != endIndex else {
             return nil
         }
         let afterIndex = index(after: currentIndex)
@@ -44,9 +42,7 @@ extension String
     }
 
     func location(before: Int) -> Int? {
-        guard let currentIndex = indexFromLocation(before),
-              currentIndex != startIndex
-        else {
+        guard let currentIndex = indexFromLocation(before), currentIndex != startIndex else {
             return nil
         }
 
