@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 import Gridicons
 
-class AztecVisualtextViewTests: XCTestCase {
+class AztecVisualTextViewTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -15,6 +15,12 @@ class AztecVisualtextViewTests: XCTestCase {
     }
 
     // MARK: - TextView construction
+
+    func createEmptyTextView() -> Aztec.TextView {
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+
+        return richTextView
+    }
 
     func createTextView(withHTML html: String) -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
@@ -240,6 +246,18 @@ class AztecVisualtextViewTests: XCTestCase {
 
         XCTAssert(!textView.formatIdentifiersAtIndex(0).contains(.unorderedlist))
         XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
+    }
+
+    /// This test was created to prevent regressions related to this issue:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/350
+    ///
+    func testToggleBlockquoteAndStrikethrough() {
+        let textView = createEmptyTextView()
+
+        textView.toggleStrikethrough(range: NSRange.zero)
+        textView.toggleBlockquote(range: NSRange.zero)
+
+        // The test not crashing would be successful.
     }
 
     // MARK: - Test Attributes Exist

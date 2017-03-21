@@ -263,7 +263,7 @@ open class TextStorage: NSTextStorage {
                 dom.deleteBlockSeparator(at: targetDomRange.location)
             }
 
-            applyStylesToDom(from: preprocessedString, startingAt: range.location)
+            applyStylesToDom(from: domString, startingAt: range.location)
         }
 
         detectAttachmentRemoved(in: range)
