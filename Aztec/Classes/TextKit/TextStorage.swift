@@ -177,10 +177,10 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object, !(object is LineAttachment) else {
+            guard let object = object, !(object is LineAttachment), !(object is MoreAttachment) else {
                 return
             }
-            
+
             guard let attachmentsDelegate = attachmentsDelegate else {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
@@ -339,6 +339,9 @@ open class TextStorage: NSTextStorage {
     ///   - targetValue: the new value of the attribute
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
+        let isMoreAttachment = sourceValue is MoreAttachment || targetValue is MoreAttachment
+
         switch(key) {
         case NSFontAttributeName:
             let sourceFont = sourceValue as? UIFont
@@ -355,14 +358,17 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? NSNumber
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
-        case NSAttachmentAttributeName:
-            if sourceValue is LineAttachment || targetValue is LineAttachment {
-                let sourceAttachment = sourceValue as? LineAttachment
-                let targetAttachment = targetValue as? LineAttachment
+        case NSAttachmentAttributeName where isLineAttachment:
+            let sourceAttachment = sourceValue as? LineAttachment
+            let targetAttachment = targetValue as? LineAttachment
 
-                processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
-                return
-            }
+            processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isMoreAttachment:
+            let sourceAttachment = sourceValue as? MoreAttachment
+            let targetAttachment = targetValue as? MoreAttachment
+
+            processMoreAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
 
@@ -439,7 +445,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.insertImage(imageURL: urlToAdd, replacing: range)
+            dom.replace(range, with: urlToAdd)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
         }
@@ -447,15 +453,18 @@ open class TextStorage: NSTextStorage {
 
     private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
 
-        let add = original == nil && new != nil
-        let remove = original != nil && new == nil
-
-        if add {
-            dom.insertHorizontalRuler(at: range)
-        } else if remove {
-            dom.remove(element: .hr, at: range)
-        }
+        dom.replaceWithHorizontalRuler(range)
     }
+
+    private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
+
+        guard let newAttachment = new else {
+            return
+        }
+
+        dom.replace(range, with: newAttachment.text)
+    }
+
 
     /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
@@ -691,7 +700,7 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameter range: the range where the element will be inserted
     ///
-    func insertHorizontalRuler(at range: NSRange) {
+    func replaceRangeWithHorizontalRuler(_ range: NSRange) {
         let line = LineAttachment()
 
         let attachmentString = NSAttributedString(attachment: line)
@@ -769,6 +778,26 @@ open class TextStorage: NSTextStorage {
             replaceCharacters(in: corrected, with: NSAttributedString(string: ""))
             delta += range.length
         }
+    }
+
+    /// Inserts the MoreAttachment at the specified position
+    ///
+    @discardableResult
+    open func replaceRangeWithMoreAttachment(_ range: NSRange, attributes: [String: Any]) -> MoreAttachment {
+        let message = "MORE"
+        let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
+        
+        let attachment = MoreAttachment()
+        attachment.message = message
+        attachment.label = NSAttributedString(string: label, attributes: [:])
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+
+        let attachmentRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+        addAttributes(attributes, range: attachmentRange)
+
+        return attachment
     }
 
 
