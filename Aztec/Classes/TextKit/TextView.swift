@@ -1004,15 +1004,17 @@ open class TextView: UITextView {
 
     // MARK: - More
 
-    /// Inserts the More Comment at the specified position.
+    /// Inserts an HTML Comment at the specified position.
     ///
-    /// - Parameter range: The character range that must be replaced by a More Attachment.
+    /// - Parameters:
+    ///     - range: The character range that must be replaced with a Comment Attachment.
+    ///     - text: The Comment Attachment's Text.
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func replaceRangeWithMoreAttachment(_ range: NSRange) -> MoreAttachment {
-        let attachment = storage.replaceRangeWithMoreAttachment(range, attributes: typingAttributes)
+    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String) -> CommentAttachment {
+        let attachment = storage.replaceRangeWithCommentAttachment(range, text: text, attributes: typingAttributes)
 
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         delegate?.textViewDidChange?(self)
