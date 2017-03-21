@@ -139,5 +139,19 @@ class StringRangeConversionTests: XCTestCase {
         XCTAssertEqual("Hello ", wordCaptured)
     }
 
+    func testLocationBeforeAtLimits() {
+        // test at start of string
+        let string = ""
+        let nonExistentLocation = string.location(before: 0)
+        XCTAssertNil(nonExistentLocation)
+    }
+
+    func testLocationAfterAtLimits() {
+        // test at start of string
+        let string = ""
+        let nonExistentLocation = string.location(after: 0)
+        XCTAssertNil(nonExistentLocation)
+    }
+
     
 }
