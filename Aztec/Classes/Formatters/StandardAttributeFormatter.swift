@@ -70,3 +70,9 @@ class HRFormatter: StandardAttributeFormatter {
     }
 }
 
+class ColorFormatter: StandardAttributeFormatter {
+    init(color: UIColor = .black) {
+        super.init(elementType: .span, attributeKey: NSForegroundColorAttributeName, attributeValue: color)
+    }
+}
+
