@@ -55,7 +55,7 @@ The delegate is responsible for dismissing the picker when the operation complet
 
 ### Other methods to display the picker
 
-The example above show the recommend way to show the picker in a modal mode. There are currently three available controller to show the picker depending of your application needs:
+The example above show the recommended way to show the picker in a modal mode. There are currently three available controllers to show the picker depending on your application needs:
 
  * [WPMediaPickerViewController](Pod/Classes/WPMediaPickerViewController.h), this is the base collection view controller that display the media.
  * [WPInputMediaPickerViewController](Pod/Classes/WPInputMediaPickerViewController.h), a wrapper of the WPMediaPickerController to be used has an inputView of an UIControl. 
