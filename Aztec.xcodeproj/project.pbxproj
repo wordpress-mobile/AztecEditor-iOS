@@ -104,6 +104,7 @@
 		FF7C89AC1E3A47F1000472A8 /* StandardAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
 		FF7DCB471E80837D00AB77CB /* UIColor+Parsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB461E80837D00AB77CB /* UIColor+Parsers.swift */; };
+		FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
@@ -241,6 +242,7 @@
 		FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttributeFormatter.swift; sourceTree = "<group>"; };
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
 		FF7DCB461E80837D00AB77CB /* UIColor+Parsers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Parsers.swift"; sourceTree = "<group>"; };
+		FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIColorHexParserTests.swift; path = Extensions/UIColorHexParserTests.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
@@ -605,6 +607,7 @@
 				F111DF101E3BAC8E003FB794 /* NSAttributedStringAttributeRangesTests.swift */,
 				F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */,
 				FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */,
+				FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -828,6 +831,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */,
 				594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */,
 				B5F84B631E706B720089A76C /* NSAttributedStringAnalyzerTests.swift in Sources */,
 				59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */,

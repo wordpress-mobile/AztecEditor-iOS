@@ -2,14 +2,16 @@ import UIKit
 
 extension UIColor {
 
-    /// Creates a color based on a hexString. If the string is not a valid hexColor it return nils
+    /// Creates a color based on a hexString. If the string is not a valid hexColor it return nil
     /// Example of colors: #FF0000, #00FF0000
     ///
     convenience init?(hexString: String) {
 
         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int = UInt32()
-        Scanner(string: hex).scanHexInt32(&int)
+        if !Scanner(string: hex).scanHexInt32(&int) {
+            return nil
+        }
         let a, r, g, b: UInt32
         switch hex.characters.count {
         case 3: // RGB (12-bit)
