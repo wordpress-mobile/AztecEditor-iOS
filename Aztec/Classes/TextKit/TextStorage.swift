@@ -40,7 +40,30 @@ protocol TextStorageAttachmentsDelegate {
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
-    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String);
+    ///
+    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String)
+
+    /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - lineFragment: Line Fragment in which the glyph would be rendered.
+    ///
+    /// - Returns: Rect specifying the Bounds for the comment attachment
+    ///
+    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+
+    /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - size: Expected Image Size
+    ///
+    /// - Returns: (Optional) UIImage representation of the Comment Attachment.
+    ///
+    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
 }
 
 /// Custom NSTextStorage
