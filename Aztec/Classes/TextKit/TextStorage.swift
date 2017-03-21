@@ -7,13 +7,14 @@ protocol TextStorageAttachmentsDelegate {
 
     /// Provides images for attachments that are part of the storage
     ///
-    /// - parameter storage:    The storage that is requesting the image.
-    /// - parameter attachment: The attachment that is requesting the image.
-    /// - parameter url:        url for the image.
-    /// - parameter success:    a callback block to be invoked with the image fetched from the url.
-    /// - parameter failure:    a callback block to be invoked when an error occurs when fetching the image.
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the image.
+    ///     - attachment: The attachment that is requesting the image.
+    ///     - url: url for the image.
+    ///     - success: Callback block to be invoked with the image fetched from the url.
+    ///     - failure: Callback block to be invoked when an error occurs when fetching the image.
     ///
-    /// - returns: returns a temporary UIImage to be used while the request is happening
+    /// - Returns: returns a temporary UIImage to be used while the request is happening
     ///
     func storage(
         _ storage: TextStorage,
@@ -28,8 +29,8 @@ protocol TextStorageAttachmentsDelegate {
     /// delegate can specify an URL where that image is available.
     ///
     /// - Parameters:
-    ///     - storage:      The storage that is requesting the image.
-    ///     - image:        The image that was added to the storage.
+    ///     - storage: The storage that is requesting the image.
+    ///     - image: The image that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
