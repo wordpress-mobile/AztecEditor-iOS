@@ -21,7 +21,9 @@ protocol AttributeFormatter {
     ///     - text: Text that should be formatted.
     ///     - range: Segment of text which format should be toggled.
     ///
-    @discardableResult func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange?
+    /// - Returns: the full range where the toggle was applied
+    ///
+    @discardableResult func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange
 
     /// Apply or removes formatter attributes to the provided attribute dictionary and returns it.
     ///
@@ -49,11 +51,11 @@ protocol AttributeFormatter {
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
     ///
-    func applyAttributes(to string: NSMutableAttributedString, at range: NSRange)
+    @discardableResult func applyAttributes(to string: NSMutableAttributedString, at range: NSRange) -> NSRange
 
     /// Removes the Formatter's Attributes from a given string, at the specified range.
     ///
-    func removeAttributes(from string: NSMutableAttributedString, at range: NSRange)
+    @discardableResult func removeAttributes(from string: NSMutableAttributedString, at range: NSRange) -> NSRange
 
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
@@ -111,13 +113,15 @@ extension AttributeFormatter {
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
     ///
-    func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) {
+    /// - Returns: the full range where the attributes where applied
+    ///
+    @discardableResult func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         var rangeToApply = applicationRange(for: range, in: text)
 
         if worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
             let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
             text.insert(placeholder, at: rangeToApply.location)
-            rangeToApply = NSMakeRange(text.length - 1, 1)
+            rangeToApply = NSMakeRange(rangeToApply.location, placeholder.length)
         }
 
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
@@ -125,11 +129,15 @@ extension AttributeFormatter {
             let attributes = apply(to: currentAttributes)
             text.addAttributes(attributes, range: range)
         }
+
+        return rangeToApply
     }
 
     /// Removes the Formatter's Attributes from a given string, at the specified range.
     ///
-    func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) {
+    /// - Returns: the full range where the attributes where removed
+    ///
+    @discardableResult func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         let rangeToApply = applicationRange(for: range, in: text)
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
@@ -144,22 +152,21 @@ extension AttributeFormatter {
 
             text.addAttributes(attributes, range: range)
         }
+        return rangeToApply
     }
 
     /// Toggles the Attribute Format, into a given string, at the specified range.
     ///
     @discardableResult
-    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange? {
+    func toggle(in text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         //We decide if we need to apply or not the attribute based on the value on the initial position of the range
         let shouldApply =  shouldApplyAttributes(to: text, at: range)
 
         if shouldApply {
-            applyAttributes(to: text, at: range)
+            return applyAttributes(to: text, at: range)
         } else {
-            removeAttributes(from: text, at: range)
-        }
-
-        return nil
+            return removeAttributes(from: text, at: range)
+        }        
     }
 }
 
