@@ -177,7 +177,7 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object else {
+            guard let object = object, !(object is LineAttachment) else {
                 return
             }
             
@@ -185,7 +185,7 @@ open class TextStorage: NSTextStorage {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
             }
-            
+
             guard let attachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
@@ -224,7 +224,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.attributes(at: location, effectiveRange: range)
+        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -356,6 +356,13 @@ open class TextStorage: NSTextStorage {
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
         case NSAttachmentAttributeName:
+            if sourceValue is LineAttachment || targetValue is LineAttachment {
+                let sourceAttachment = sourceValue as? LineAttachment
+                let targetAttachment = targetValue as? LineAttachment
+
+                processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+                return
+            }
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
 
@@ -435,6 +442,18 @@ open class TextStorage: NSTextStorage {
             dom.insertImage(imageURL: urlToAdd, replacing: range)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
+        }
+    }
+
+    private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
+
+        let add = original == nil && new != nil
+        let remove = original != nil && new == nil
+
+        if add {
+            dom.insertHorizontalRuler(at: range)
+        } else if remove {
+            dom.remove(element: .hr, at: range)
         }
     }
 
@@ -668,6 +687,17 @@ open class TextStorage: NSTextStorage {
         return attachment
     }
 
+    /// Insert an HR element at the specifice range
+    ///
+    /// - Parameter range: the range where the element will be inserted
+    ///
+    func insertHorizontalRuler(at range: NSRange) {
+        let line = LineAttachment()
+
+        let attachmentString = NSAttributedString(attachment: line)
+        replaceCharacters(in: range, with: attachmentString)        
+    }
+
     // MARK: - Attachments
 
 
@@ -724,6 +754,23 @@ open class TextStorage: NSTextStorage {
             }
         }
     }
+
+    /// Removes all of the TextAttachments from the storage
+    ///
+    open func removeTextAttachments() {
+        var ranges = [NSRange]()
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, _) in
+            ranges.append(range)
+        }
+
+        var delta = 0
+        for range in ranges {
+            let corrected = NSRange(location: range.location - delta, length: range.length)
+            replaceCharacters(in: corrected, with: NSAttributedString(string: ""))
+            delta += range.length
+        }
+    }
+
 
     // MARK: - Toggle Attributes
 

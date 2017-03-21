@@ -381,6 +381,19 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+    // MARK: - Adding newlines
+
+    /// Tests that entering a newline in an empty editor does not crash it.
+    ///
+    /// Added to avoid regressions to the bug reported here:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/352
+    ///
+    func testAddingNewlineOnEmptyEditor() {
+        let textView = createTextView(withHTML: "")
+
+        textView.insertText("\n")
+    }
+
     // MARK: - Deleting newlines
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -469,6 +482,26 @@ class AztecVisualtextViewTests: XCTestCase {
         textView.replace(range, withText: "")
 
         XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
+    }
+
+    /// Tests that deleting a newline works at the end of text with paragraph with header before works.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<h1>Header</h1>\n"
+    ///     - Deletion range: (loc: 5, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<h1>Header</h1>"
+    ///
+    func testDeleteNewlineAtEndOfText() {
+        let html = "<h1>Header</h1>\n"
+        let textView = createTextView(withHTML: html)
+
+        let range = NSRange(location:html.characters.count, length:0)
+        textView.selectedRange = range
+        textView.deleteBackward()
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
     }
 
     // MARK: - Insert links

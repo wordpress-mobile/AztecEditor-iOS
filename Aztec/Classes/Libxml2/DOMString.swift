@@ -13,7 +13,7 @@ extension Libxml2 {
     ///
     class DOMString {
 
-        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h4, .h5, .h6]
+        private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
         private lazy var editContext: EditContext = {
             return EditContext(undoManager: self.domUndoManager)
@@ -487,10 +487,27 @@ extension Libxml2 {
         private func insertImageSynchronously(imageURL: URL, replacing range: NSRange) {
             let imageURLString = imageURL.absoluteString
 
-            let elementDescriptor = ElementNodeDescriptor(elementType: .img,
-                                                          attributes: [Libxml2.StringAttribute(name:"src", value: imageURLString)])
+            let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
+            let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
 
-            rootNode.replaceCharacters(inRange: range, withElement: elementDescriptor)
+            rootNode.replaceCharacters(in: range, with: descriptor)
+        }
+
+        /// Applies horizontal ruler to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func insertHorizontalRuler(at range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.insertHorizontalRulerSynchronously(at: range)
+            }
+        }
+
+        private func insertHorizontalRulerSynchronously(at range: NSRange) {
+            let descriptor = ElementNodeDescriptor(elementType: .hr)
+
+            rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
         // MARK: - Styles to HTML elements

@@ -19,6 +19,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
+		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -93,6 +94,7 @@
 		607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AztecExample-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
+		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -182,6 +184,7 @@
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				59280F271D47CAF40083FB59 /* SampleContent */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */,
 			);
 			name = "Example for WordPress-Aztec-iOS";
 			path = Example;
@@ -348,6 +351,7 @@
 			files = (
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
+				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 			);
@@ -501,7 +505,7 @@
 				MODULE_NAME = AztecExample;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.AztecExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "1aa23f94-9d95-4000-a0a6-8b0a49a2eb62";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Development";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -523,7 +527,7 @@
 				MODULE_NAME = AztecExample;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.AztecExample.Release;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "839aa3fc-0198-4ea8-bb9b-58c5e9b3e71c";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Ad Hoc";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -616,7 +620,7 @@
 				MODULE_NAME = AztecExample;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.AztecExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "1aa23f94-9d95-4000-a0a6-8b0a49a2eb62";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Development";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -699,7 +703,7 @@
 				MODULE_NAME = AztecExample;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.AztecExample.Alpha;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "3e277507-6579-4f06-95c1-93e8cd30fbe3";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "Aztec Example Alpha Distribution";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

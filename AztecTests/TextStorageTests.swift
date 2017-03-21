@@ -234,4 +234,69 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\">")
     }
+
+    /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
+    /// in the storage.
+    ///
+    func testRemoveAllTextAttachmentsNukeTextAttachmentInstances() {
+        // Mockup Storage
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let sample = NSMutableAttributedString(string: "Some string here")
+        storage.append(sample)
+
+        // New string with 10 attachments
+        var identifiers = [String]()
+        let count = 10
+
+        for _ in 0 ..< count {
+            let sourceURL = URL(string:"test://")!
+            let attachment = storage.insertImage(sourceURL: sourceURL, atPosition: 0, placeHolderImage: UIImage())
+
+            identifiers.append(attachment.identifier)
+        }
+
+
+        // Verify the attachments are there
+        for identifier in identifiers {
+            XCTAssertNotNil(storage.attachment(withId: identifier))
+        }
+
+        // Nuke
+        storage.removeTextAttachments()
+
+        // Verify the attachments are there
+        for identifier in identifiers {
+            XCTAssertNil(storage.attachment(withId: identifier))
+        }
+    }
+
+    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
+    ///
+    func testInsertHorizontalRuler() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.insertHorizontalRuler(at: NSRange.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
+    ///
+    func testInsertHorizontalRulerOverImage() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        storage.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
 }
