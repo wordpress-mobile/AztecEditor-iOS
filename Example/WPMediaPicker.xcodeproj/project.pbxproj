@@ -69,6 +69,7 @@
 		B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostProcessingViewController.m; sourceTree = "<group>"; };
 		CEF4FB57530C0C9D7C09607C /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		F0D09511821A352B062D5699 /* WPMediaPicker.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = WPMediaPicker.podspec; path = ../WPMediaPicker.podspec; sourceTree = "<group>"; };
+		FF7DCB451E7C494D00AB77CB /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = CONTRIBUTING.md; path = ../CONTRIBUTING.md; sourceTree = "<group>"; };
 		FFC3F6F21B0D9BB100EFC359 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		FFE69A1B1B14AB840073C2EB /* OptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionsViewController.h; sourceTree = "<group>"; };
 		FFE69A1C1B14AB840073C2EB /* OptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionsViewController.m; sourceTree = "<group>"; };
@@ -191,6 +192,7 @@
 			children = (
 				F0D09511821A352B062D5699 /* WPMediaPicker.podspec */,
 				CEF4FB57530C0C9D7C09607C /* README.md */,
+				FF7DCB451E7C494D00AB77CB /* CONTRIBUTING.md */,
 				5709B45B57F590232B3E5DA7 /* LICENSE */,
 			);
 			name = "Podspec Metadata";
