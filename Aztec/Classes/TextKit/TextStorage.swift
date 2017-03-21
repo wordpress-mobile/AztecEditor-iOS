@@ -839,9 +839,13 @@ open class TextStorage: NSTextStorage {
         
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: attributedString)
-        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
+        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, _, _) in
             attachment.imageProvider = self
         }
+        textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
+
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
 }
