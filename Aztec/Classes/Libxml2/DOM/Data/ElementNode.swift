@@ -1447,6 +1447,25 @@ extension Libxml2 {
             }
         }
 
+        func unwrapChildren(first amount: Int) {
+            assert(children.count >= amount)
+
+            guard let parent = parent else {
+                assertionFailure("Cannot execute this method if a parent isn't set.")
+                return
+            }
+
+            let myIndex = parent.indexOf(childNode: self)
+
+            for _ in 0...(amount - 1) {
+                parent.insert(children[0], at: myIndex)
+            }
+
+            if children.count == 0 {
+                removeFromParent()
+            }
+        }
+
         /// Unwraps the receiver's children from the receiver.
         ///
         @discardableResult
