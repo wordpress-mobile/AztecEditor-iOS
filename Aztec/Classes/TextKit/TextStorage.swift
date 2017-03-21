@@ -846,6 +846,9 @@ open class TextStorage: NSTextStorage {
     }
 }
 
+
+// MARK: - TextStorage: TextAttachmentImageProvider Conformance
+//
 extension TextStorage: TextAttachmentImageProvider {
 
     func textAttachment(
@@ -858,4 +861,20 @@ extension TextStorage: TextAttachmentImageProvider {
         return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
+}
+
+
+// MARK: - TextStorage: CommentAttachmentDelegate Conformance
+//
+extension TextStorage: CommentAttachmentDelegate {
+
+    func commentAttachment(_ commentAttachment: CommentAttachment, imageForSize size: CGSize) -> UIImage? {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, imageForComment: commentAttachment, with: size)
+    }
+
+    func commentAttachment(_ commentAttachment: CommentAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, boundsForComment: commentAttachment, with: fragment)
+    }
 }
