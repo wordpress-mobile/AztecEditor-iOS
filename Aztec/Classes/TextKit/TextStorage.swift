@@ -90,7 +90,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var attachmentsDelegate: TextStorageAttachmentsDelegate?
+    var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
@@ -171,18 +171,13 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        
+        assert(attachmentsDelegate != nil)
+
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
-
-            guard let object = object, !(object is LineAttachment), !(object is CommentAttachment) else {
-                return
-            }
-
-            guard let attachmentsDelegate = attachmentsDelegate else {
-                assertionFailure("This class can't really handle not having an image provider set.")
+            guard let object = object, !(object is LineAttachment) else {
                 return
             }
 
@@ -217,7 +212,7 @@ open class TextStorage: NSTextStorage {
 
     fileprivate func detectAttachmentRemoved(in range:NSRange) {
         textStore.enumerateAttachmentsOfType(TextAttachment.self, range: range) { (attachment, range, stop) in
-            self.attachmentsDelegate?.storage(self, deletedAttachmentWithID: attachment.identifier)
+            self.attachmentsDelegate.storage(self, deletedAttachmentWithID: attachment.identifier)
         }
     }
 
@@ -859,10 +854,7 @@ extension TextStorage: TextAttachmentImageProvider {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
     {
-        guard let attachmentsDelegate = attachmentsDelegate else {
-            fatalError("This class doesn't really support not having an attachments delegate set.")
-        }
-        
+        assert(attachmentsDelegate != nil)
         return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
