@@ -33,7 +33,7 @@ extension String
     }
 
     func location(after: Int) -> Int? {
-        guard let currentIndex = indexFromLocation(after) else {
+        guard let currentIndex = indexFromLocation(after), currentIndex != endIndex else {
             return nil
         }
         let afterIndex = index(after: currentIndex)
@@ -42,9 +42,10 @@ extension String
     }
 
     func location(before: Int) -> Int? {
-        guard let currentIndex = indexFromLocation(before) else {
+        guard let currentIndex = indexFromLocation(before), currentIndex != startIndex else {
             return nil
         }
+
         let beforeIndex = index(before: currentIndex)
         let before16 = beforeIndex.samePosition(in: utf16)
         return utf16.distance(from: utf16.startIndex, to: before16)

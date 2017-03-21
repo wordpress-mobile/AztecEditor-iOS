@@ -527,4 +527,13 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
+
+    func testToggleBlockquoteWriteOneCharAndDelete() {
+        let textView = createEmptyTextView()
+
+        textView.toggleBlockquote(range: NSRange.zero)
+        textView.insertText("A")
+        textView.deleteBackward()
+        // The test not crashing would be successful.
+    }
 }
