@@ -177,7 +177,7 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object, !(object is LineAttachment), !(object is MoreAttachment) else {
+            guard let object = object, !(object is LineAttachment), !(object is CommentAttachment) else {
                 return
             }
 
@@ -340,7 +340,7 @@ open class TextStorage: NSTextStorage {
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
         let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
-        let isMoreAttachment = sourceValue is MoreAttachment || targetValue is MoreAttachment
+        let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
 
         switch(key) {
         case NSFontAttributeName:
@@ -363,11 +363,11 @@ open class TextStorage: NSTextStorage {
             let targetAttachment = targetValue as? LineAttachment
 
             processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
-        case NSAttachmentAttributeName where isMoreAttachment:
-            let sourceAttachment = sourceValue as? MoreAttachment
-            let targetAttachment = targetValue as? MoreAttachment
+        case NSAttachmentAttributeName where isCommentAttachment:
+            let sourceAttachment = sourceValue as? CommentAttachment
+            let targetAttachment = targetValue as? CommentAttachment
 
-            processMoreAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+            processCommentAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
@@ -456,9 +456,12 @@ open class TextStorage: NSTextStorage {
         dom.replaceWithHorizontalRuler(range)
     }
 
-    private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
+    private func processCommentAttachmentDifferences(in range: NSRange, betweenOriginal original: CommentAttachment?, andNew new: CommentAttachment?) {
+        guard let newAttachment = new else {
+            return
+        }
 
-        dom.replace(range, with: MoreAttachment.commentNodeText)
+        dom.replace(range, with: newAttachment.text)
     }
 
 
@@ -605,7 +608,7 @@ open class TextStorage: NSTextStorage {
     private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
         return !hasNewLine(atIndex: index)
             && !hasHorizontalLine(atIndex: index)
-            && !hasMoreMarker(atIndex: index)
+            && !hasCommentMarker(atIndex: index)
             && !hasVisualOnlyElement(atIndex: index)
     }
 
@@ -627,9 +630,9 @@ open class TextStorage: NSTextStorage {
         return true
     }
 
-    private func hasMoreMarker(atIndex index: Int) -> Bool {
+    private func hasCommentMarker(atIndex index: Int) -> Bool {
         guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
-            attachment is MoreAttachment else {
+            attachment is CommentAttachment else {
             return false
         }
 
@@ -776,22 +779,15 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    /// Inserts the MoreAttachment at the specified position
+    /// Inserts the Comment Attachment at the specified position
     ///
     @discardableResult
-    open func replaceRangeWithMoreAttachment(_ range: NSRange, attributes: [String: Any]) -> MoreAttachment {
-        let message = "MORE"
-        let label = NSLocalizedString("MORE", comment: "Text for the center of the more divider")
-        
-        let attachment = MoreAttachment()
-        attachment.message = message
-        attachment.label = NSAttributedString(string: label, attributes: [:])
+    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String, attributes: [String: Any]) -> CommentAttachment {
+        let attachment = CommentAttachment()
+        attachment.text = text
 
-        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        let stringWithAttachment = NSAttributedString(attachment: attachment, attributes: attributes)
         replaceCharacters(in: range, with: stringWithAttachment)
-
-        let attachmentRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
-        addAttributes(attributes, range: attachmentRange)
 
         return attachment
     }
