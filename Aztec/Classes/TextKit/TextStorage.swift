@@ -458,11 +458,7 @@ open class TextStorage: NSTextStorage {
 
     private func processMoreAttachmentDifferences(in range: NSRange, betweenOriginal original: MoreAttachment?, andNew new: MoreAttachment?) {
 
-        guard let newAttachment = new else {
-            return
-        }
-
-        dom.replace(range, with: newAttachment.text)
+        dom.replace(range, with: MoreAttachment.commentNodeText)
     }
 
 
