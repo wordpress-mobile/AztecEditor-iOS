@@ -6,16 +6,12 @@ import UIKit
 import MobileCoreServices
 
 class EditorDemoController: UIViewController {
-    static let margin = CGFloat(20)
-    static let defaultContentFont = UIFont.systemFont(ofSize: 14)
+
 
     fileprivate var mediaErrorMode = false
 
-    lazy var headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
-
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
-        let defaultMissingImage = Gridicon.iconOfType(.image)
-        let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
+        let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
         let toolbar = self.createToolbar(htmlMode: false)
 
@@ -167,24 +163,24 @@ class EditorDemoController: UIViewController {
     private func configureConstraints() {
 
         NSLayoutConstraint.activate([
-            titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: type(of: self).margin),
+            titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.margin),
             titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
             ])
 
         NSLayoutConstraint.activate([
-            separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: type(of: self).margin),
+            separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: Constants.margin),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: type(of: self).margin),
-            richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -type(of: self).margin)
+            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: Constants.margin),
+            richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Constants.margin)
             ])
 
         NSLayoutConstraint.activate([
@@ -198,7 +194,7 @@ class EditorDemoController: UIViewController {
 
     private func configureDefaultProperties(for textView: UITextView, using formatBar: Aztec.FormatBar, accessibilityLabel: String) {
         textView.accessibilityLabel = accessibilityLabel
-        textView.font = EditorDemoController.defaultContentFont
+        textView.font = Constants.defaultContentFont
         textView.inputAccessoryView = formatBar
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
@@ -430,17 +426,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let headerOptions = headers.map { (headerType) -> NSAttributedString in
+        let headerOptions = Constants.headers.map { (headerType) -> NSAttributedString in
             NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
         }
 
         let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
         headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         headerPicker.onSelect = { selected in
-            self.richTextView.toggleHeader(self.headers[selected], range: self.richTextView.selectedRange)
+            self.richTextView.toggleHeader(Constants.headers[selected], range: self.richTextView.selectedRange)
             self.changeRichTextInputView(to: nil)
         }
-        if let selectedHeader = headers.index(of:self.headerLevelForSelectedText()) {
+        if let selectedHeader = Constants.headers.index(of: self.headerLevelForSelectedText()) {
             headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
         }
         changeRichTextInputView(to: headerPicker)
@@ -493,7 +489,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceRangeWithMoreAttachment(richTextView.selectedRange)
+        richTextView.replaceRangeWithCommentAttachment(richTextView.selectedRange, text: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -877,5 +873,17 @@ private extension EditorDemoController
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
+    }
+}
+
+
+extension EditorDemoController {
+
+    struct Constants {
+        static let defaultContentFont = UIFont.systemFont(ofSize: 14)
+        static let defaultMissingImage = Gridicon.iconOfType(.image)
+        static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let margin = CGFloat(20)
+        static let moreAttachmentText = "more"
     }
 }
