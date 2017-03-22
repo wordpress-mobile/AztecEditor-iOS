@@ -184,6 +184,18 @@
     [self.mediaPicker showAfterViewController:postProcessingViewController];
 }
 
+- (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
+    if (picker == self.mediaInputViewController.mediaPicker) {
+        return nil;
+    }
+    if ([self.options[MediaPickerOptionsCustomPreview] boolValue]) {
+        return [[CustomPreviewViewController alloc] initWithAsset:asset];;
+    }
+
+    return [[WPAssetViewController alloc] initWithAsset: asset];
+
+}
+
 #pragma - Actions
 
 - (void) clearSelection:(id) sender
