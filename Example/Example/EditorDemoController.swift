@@ -21,6 +21,7 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
+        textView.commentsDelegate = self
 
         return textView
     }()
@@ -665,8 +666,41 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 }
 
-extension EditorDemoController: TextViewMediaDelegate
-{
+
+extension EditorDemoController: TextViewCommentsDelegate {
+
+    ///
+    ///
+    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+        if let render = MoreAttachmentRender(attachment: attachment) {
+            return render.textView(textView, imageForComment: attachment, with: size)
+        }
+
+        if let render = CommentAttachmentRender(attachment: attachment) {
+            return render.textView(textView, imageForComment: attachment, with: size)
+        }
+
+        return nil
+    }
+
+    ///
+    ///
+    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+        if let render = MoreAttachmentRender(attachment: attachment) {
+            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
+        }
+
+        if let render = CommentAttachmentRender(attachment: attachment) {
+            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
+        }
+
+        return .zero
+    }
+}
+
+
+extension EditorDemoController: TextViewMediaDelegate {
+
     func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
