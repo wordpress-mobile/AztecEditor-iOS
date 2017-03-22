@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+
 /// Implemented by a class taking care of handling attachments for the storage.
 ///
 protocol TextStorageAttachmentsDelegate {
@@ -66,6 +67,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
 }
+
 
 /// Custom NSTextStorage
 ///
@@ -201,34 +203,34 @@ open class TextStorage: NSTextStorage {
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
-            guard let object = object, !(object is LineAttachment) else {
-                return
-            }
-
-            guard let attachment = object as? NSTextAttachment else {
+            guard let textAttachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
             }
-            
-            guard let image = attachment.image else {
-                // We only suppot image attachments for now.  All other attachment types are
-                // stripped for safety.
-                //
-                finalString.removeAttribute(NSAttachmentAttributeName, range: range)
-                return
+
+            switch textAttachment {
+            case _ as LineAttachment:
+                break
+            case let attachment as CommentAttachment:
+                attachment.delegate = self
+            case let attachment as TextAttachment:
+                attachment.delegate = self
+            default:
+                guard let image = textAttachment.image else {
+                    // We only suppot image attachments for now. All other attachment types are
+                    /// stripped for safety.
+                    //
+                    finalString.removeAttribute(NSAttachmentAttributeName, range: range)
+                    return
+                }
+
+                let replacementAttachment = TextAttachment()
+                replacementAttachment.delegate = self
+                replacementAttachment.image = image
+                replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
+
+                finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
             }
-            
-            if let textAttachment = attachment as? TextAttachment {
-                textAttachment.imageProvider = self
-                return
-            }
-            
-            let replacementAttachment = TextAttachment()
-            replacementAttachment.imageProvider = self
-            replacementAttachment.image = image
-            replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
-            
-            finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
         }
 
         return finalString
