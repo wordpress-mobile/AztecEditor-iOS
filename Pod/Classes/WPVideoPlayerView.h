@@ -23,7 +23,9 @@
 
 @property (nonatomic, strong) AVAsset *asset;
 
-@property (nonatomic, assign) BOOL showControls;
+@property (nonatomic, assign) BOOL controlToolbarHidden;
+
+- (void)setControlToolbarHidden:(BOOL)hidden animated:(BOOL)animated;
 
 - (void)play;
 

@@ -81,7 +81,7 @@
     }
     _videoView = [[WPVideoPlayerView alloc] init];
     [_videoView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOnAsset:)]];
-    _videoView.showControls = NO;
+    _videoView.controlToolbarHidden = YES;
     return _videoView;
 }
 
@@ -171,7 +171,7 @@
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.navigationController setNavigationBarHidden:!self.navigationController.isNavigationBarHidden animated:YES];
-        self.videoView.showControls = !self.navigationController.isNavigationBarHidden;
+        [self.videoView setControlToolbarHidden: self.navigationController.isNavigationBarHidden animated: YES];
     }
 }
 

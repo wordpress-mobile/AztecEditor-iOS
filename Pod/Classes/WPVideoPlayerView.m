@@ -155,23 +155,28 @@ static NSString *tracksKey = @"tracks";
     }
 }
 
-- (void)setShowControls:(BOOL)showControls {
-    if (showControls) {
-        self.controlToolbar.hidden = !showControls;
+- (void)setControlToolbarHidden:(BOOL)hidden animated:(BOOL)animated {
+    CGFloat animationDuration = animated ? UINavigationControllerHideShowBarDuration : 0;
+    if (!hidden) {
+        self.controlToolbar.hidden = hidden;
     }
-    [UIView animateWithDuration:0.3 animations:^{
+    [UIView animateWithDuration:animationDuration animations:^{
         CGFloat position = self.controlToolbar.frame.size.height;
-        if (!showControls) {
+        if (hidden) {
             position = 0;
         }
         self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, 44);
     } completion:^(BOOL finished) {
-        self.controlToolbar.hidden = !showControls;
+        self.controlToolbar.hidden = hidden;
     }];
 }
 
-- (BOOL)showControls {
-    return !self.controlToolbar.hidden;
+- (void)setControlToolbarHidden:(BOOL)hidden {
+    [self setControlToolbarHidden:hidden animated:NO];
+}
+
+- (BOOL)controlToolbarHidden {
+    return self.controlToolbar.hidden;
 }
 
 - (void)updateControlToolbar {
