@@ -487,16 +487,17 @@ class AztecVisualTextViewTests: XCTestCase {
     /// Tests that deleting a newline works by merging the component around it.
     ///
     /// Input:
-    ///     - Initial HTML: "List<ul><li>first</li><li>second</li>"
+    ///     - Initial HTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>"
     ///     - Deletion range: (loc: 4, len 1)
     ///     - Second deletion range: (loc: 9, len: 1)
+    ///     - Third deletion range: (loc: 15, len: 1)
     ///
     /// Output:
     ///     - Final HTML: "Listfirstsecond"
     ///
     func testDeleteNewline5() {
 
-        let textView = createTextView(withHTML: "List<ul><li>first</li><li>second</li>")
+        let textView = createTextView(withHTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 4)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -504,7 +505,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirst<ul><li>second</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "Listfirst<ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -512,7 +513,15 @@ class AztecVisualTextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirstsecond")
+        XCTAssertEqual(textView.getHTML(), "Listfirstsecond<ul><li>third</li></ul>")
+
+        let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
+        let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
+        let range3 = textView.textRange(from: rangeStart3, to: rangeEnd3)!
+
+        textView.replace(range3, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "Listfirstsecondthird")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
