@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-protocol TextAttachmentDelegate {
+protocol TextAttachmentDelegate: class {
     func textAttachment(
         _ textAttachment: TextAttachment,
         imageForURL url: URL,
@@ -127,7 +127,7 @@ open class TextAttachment: NSTextAttachment
 
     fileprivate var glyphImage: UIImage?
 
-    var delegate: TextAttachmentDelegate?
+    weak var delegate: TextAttachmentDelegate?
     
     var isFetchingImage: Bool = false
 
