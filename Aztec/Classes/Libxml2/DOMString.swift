@@ -113,9 +113,10 @@ extension Libxml2 {
             } catch {
                 fatalError("Could not convert the HTML.")
             }
-            
+
             domQueue.sync {
                 self.rootNode = output.rootNode
+                self.domEditor = DOMEditor(with: output.rootNode)
             }
             
             return output.attributedString
