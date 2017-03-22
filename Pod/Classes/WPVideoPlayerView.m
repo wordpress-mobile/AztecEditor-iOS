@@ -11,6 +11,9 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
 @property (nonatomic, strong) UIToolbar *controlToolbar;
+@property (nonatomic, strong) UILabel *videoDurationLabel;
+@property (nonatomic, strong) UIBarButtonItem * videoDurationButton;
+@property (nonatomic, strong) id timeObserver;
 
 @end
 
@@ -40,6 +43,10 @@ static NSString *tracksKey = @"tracks";
 
 - (void)commonInit {
     self.player = [[AVPlayer alloc] init];
+    __weak __typeof__(self) weakSelf = self;
+    self.timeObserver = [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, NSEC_PER_SEC) queue:nil usingBlock:^(CMTime time) {
+        [weakSelf updateVideoDuration];
+    }];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
     [self.layer addSublayer: self.playerLayer];
     [self addSubview:self.controlToolbar];
@@ -48,6 +55,7 @@ static NSString *tracksKey = @"tracks";
 - (void)dealloc {
     [self.playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver: self];
+    [self.player removeTimeObserver:self.timeObserver];
     [self.player pause];
     _asset = nil;
 }
@@ -65,6 +73,25 @@ static NSString *tracksKey = @"tracks";
     _controlToolbar = [[UIToolbar alloc] init];
     [self updateControlToolbar];
     return _controlToolbar;
+}
+
+- (UILabel *)videoDurationLabel {
+    if (_videoDurationLabel != nil) {
+        return _videoDurationLabel;
+    }
+    _videoDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 44)];
+    _videoDurationLabel.backgroundColor = [UIColor redColor];
+    _videoDurationLabel.font = [UIFont systemFontOfSize:12];
+    _videoDurationLabel.textColor = [UIColor blackColor];
+    [_videoDurationLabel sizeToFit];
+    return _videoDurationLabel;
+}
+
+- (UIBarButtonItem *)videoDurationButton {
+    if (_videoDurationButton == nil) {
+        _videoDurationButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    }
+    return _videoDurationButton;
 }
 
 - (void)setVideoURL:(NSURL *)videoURL {
@@ -107,6 +134,7 @@ static NSString *tracksKey = @"tracks";
 - (void)play {
     [self.player play];
     [self updateControlToolbar];
+    [self updateVideoDuration];
 }
 
 - (void)pause {
@@ -127,11 +155,38 @@ static NSString *tracksKey = @"tracks";
 
 - (void)updateControlToolbar {
     UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
+
     self.controlToolbar.items = @[
-                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
-                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:playPauseButton target:self action:@selector(togglePlayPause)],
-                           [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]
-                           ];
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:playPauseButton target:self action:@selector(togglePlayPause)],
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                                  self.videoDurationButton,
+                                  ];
+}
+
+- (void)updateVideoDuration {
+    AVPlayerItem *playerItem = self.player.currentItem;
+    if (!playerItem || playerItem.status != AVPlayerItemStatusReadyToPlay) {
+        return;
+    }
+    double totalSeconds = CMTimeGetSeconds(playerItem.duration);
+    double currentSeconds = CMTimeGetSeconds(playerItem.currentTime);
+    NSString *totalDuration = [self stringFromTimeInterval:totalSeconds];
+    NSString *currentDuration = [self stringFromTimeInterval:currentSeconds];
+    self.videoDurationButton.title = [NSString stringWithFormat:@"%@/%@", currentDuration, totalDuration];
+}
+
+- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSInteger roundedHours = floor(timeInterval / 3600);
+    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
+    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
+
+    if (roundedHours > 0)
+        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
+
+    else
+        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -164,6 +219,9 @@ static NSString *tracksKey = @"tracks";
                 // Player item is ready to play.
                 if (self.delegate) {
                     [self.delegate videoPlayerViewStarted:self];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self updateVideoDuration];
+                    });
                 }
             }
                 break;
