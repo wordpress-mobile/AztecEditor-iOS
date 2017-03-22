@@ -111,6 +111,14 @@ class TextStorageTests: XCTestCase
         func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
             return UIImage()
         }
+
+        func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+            return .zero
+        }
+
+        func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+            return UIImage()
+        }
     }
 
     func testRemovalOfAttachment() {

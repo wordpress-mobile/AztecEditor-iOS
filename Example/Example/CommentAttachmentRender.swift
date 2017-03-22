@@ -13,19 +13,23 @@ import Aztec
 
 class CommentAttachmentRender {
 
-    /// Attachment to be rendered
+    /// Comment Attachment Text
     ///
-    let attachment: CommentAttachment
+    let defaultText = NSLocalizedString("[COMMENT]", comment: "Comment Attachment Label")
 
     /// Text Color
     ///
     var textColor = UIColor.gray
 
+    /// Text Font
+    ///
+    var textFont: UIFont
+
 
     /// Default Initializer
     ///
-    init?(attachment: CommentAttachment) {
-        self.attachment = attachment
+    init?(font: UIFont) {
+        self.textFont = font
     }
 }
 
@@ -50,28 +54,33 @@ extension CommentAttachmentRender: TextViewCommentsDelegate {
 
     func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
         let message = messageAttributedString()
+
         let size = CGSize(width: lineFragment.size.width, height: lineFragment.size.height)
-        let targetRect = boundingRect(for: message, size: size)
+        var rect = boundingRect(for: message, size: size)
+        rect.origin.y = textFont.descender
 
-        return targetRect
+        return rect.integral
     }
+}
 
 
+// MARK: - Private Methods
+//
+private extension CommentAttachmentRender {
 
     func boundingRect(for message: NSAttributedString, size: CGSize) -> CGRect {
         let targetBounds = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         let targetPosition = CGPoint(x: ((size.width - targetBounds.width) * 0.5), y: ((size.height - targetBounds.height) * 0.5))
 
         return CGRect(origin: targetPosition, size: targetBounds.size)
-
     }
 
     func messageAttributedString() -> NSAttributedString {
         let attributes: [String: Any] = [
             NSForegroundColorAttributeName: textColor,
-            NSFontAttributeName: UIFont.systemFont(ofSize: 14)
+            NSFontAttributeName: textFont
         ]
 
-        return NSAttributedString(string: attachment.text.uppercased(), attributes: attributes)
+        return NSAttributedString(string: defaultText, attributes: attributes)
     }
 }
