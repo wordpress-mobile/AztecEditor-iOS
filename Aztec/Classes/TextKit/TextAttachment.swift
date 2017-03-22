@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-protocol TextAttachmentImageProvider {
+protocol TextAttachmentDelegate {
     func textAttachment(
         _ textAttachment: TextAttachment,
         imageForURL url: URL,
@@ -127,7 +127,7 @@ open class TextAttachment: NSTextAttachment
 
     fileprivate var glyphImage: UIImage?
 
-    var imageProvider: TextAttachmentImageProvider?
+    var delegate: TextAttachmentDelegate?
     
     var isFetchingImage: Bool = false
 
@@ -343,7 +343,7 @@ open class TextAttachment: NSTextAttachment
 
     func updateImage(inTextContainer textContainer: NSTextContainer? = nil) {
 
-        guard let imageProvider = imageProvider else {
+        guard let delegate = delegate else {
             assertionFailure("This class doesn't really support not having an updater set.")
             return
         }
@@ -354,9 +354,7 @@ open class TextAttachment: NSTextAttachment
         
         isFetchingImage = true
         
-        let image = imageProvider.textAttachment(self,
-                                                 imageForURL: url,
-                                                 onSuccess: { [weak self] (image) in
+        let image = delegate.textAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
                 guard let strongSelf = self else {
                     return
                 }
@@ -364,7 +362,7 @@ open class TextAttachment: NSTextAttachment
                 strongSelf.isFetchingImage = false
                 strongSelf.image = image
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
-            }, onFailure: { [weak self]() in
+            }, onFailure: { [weak self] _ in
                 
                 guard let strongSelf = self else {
                     return

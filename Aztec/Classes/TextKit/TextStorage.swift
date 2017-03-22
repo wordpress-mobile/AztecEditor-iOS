@@ -702,7 +702,7 @@ open class TextStorage: NSTextStorage {
     ///
     func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> TextAttachment {
         let attachment = TextAttachment(identifier: identifier)
-        attachment.imageProvider = self
+        attachment.delegate = self
         attachment.url = url
         attachment.image = placeHolderImage
 
@@ -864,7 +864,7 @@ open class TextStorage: NSTextStorage {
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: attributedString)
         textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.imageProvider = self
+            attachment.delegate = self
         }
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
@@ -875,9 +875,9 @@ open class TextStorage: NSTextStorage {
 }
 
 
-// MARK: - TextStorage: TextAttachmentImageProvider Conformance
+// MARK: - TextStorage: TextAttachmentDelegate Methods
 //
-extension TextStorage: TextAttachmentImageProvider {
+extension TextStorage: TextAttachmentDelegate {
 
     func textAttachment(
         _ textAttachment: TextAttachment,
@@ -892,7 +892,7 @@ extension TextStorage: TextAttachmentImageProvider {
 }
 
 
-// MARK: - TextStorage: CommentAttachmentDelegate Conformance
+// MARK: - TextStorage: CommentAttachmentDelegate Methods
 //
 extension TextStorage: CommentAttachmentDelegate {
 
