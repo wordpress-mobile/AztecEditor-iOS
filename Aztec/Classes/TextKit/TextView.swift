@@ -90,7 +90,7 @@ public protocol TextViewCommentsDelegate: class {
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage
+    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
 }
 
 
