@@ -155,6 +155,25 @@ static NSString *tracksKey = @"tracks";
     }
 }
 
+- (void)setShowControls:(BOOL)showControls {
+    if (showControls) {
+        self.controlToolbar.hidden = !showControls;
+    }
+    [UIView animateWithDuration:0.3 animations:^{
+        CGFloat position = self.controlToolbar.frame.size.height;
+        if (!showControls) {
+            position = 0;
+        }
+        self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, 44);
+    } completion:^(BOOL finished) {
+        self.controlToolbar.hidden = !showControls;
+    }];
+}
+
+- (BOOL)showControls {
+    return !self.controlToolbar.hidden;
+}
+
 - (void)updateControlToolbar {
     UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
 

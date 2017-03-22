@@ -23,6 +23,8 @@
 
 @property (nonatomic, strong) AVAsset *asset;
 
+@property (nonatomic, assign) BOOL showControls;
+
 - (void)play;
 
 - (void)pause;
