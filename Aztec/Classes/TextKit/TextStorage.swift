@@ -203,6 +203,10 @@ open class TextStorage: NSTextStorage {
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
+            guard let object = object else {
+                return
+            }
+
             guard let textAttachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
