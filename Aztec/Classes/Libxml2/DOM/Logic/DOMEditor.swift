@@ -324,7 +324,19 @@ extension Libxml2 {
             if let rightElement = rightSibling as? ElementNode,
                 rightElement.isBlockLevelElement() {
 
-                finalRightNodes = rightElement.unwrapChildren()
+                if rightElement.children.count > 0,
+                    let rightChildElement = rightElement.children[0] as? ElementNode,
+                    rightChildElement.isBlockLevelElement() {
+
+                    rightElement.unwrapChildren(first: 1)
+
+                    // This case was designed for lists.  They need to unwrap the first list element
+                    // from both the ul / ol and the li elements.
+                    //
+                    finalRightNodes = rightChildElement.unwrapChildren()
+                } else {
+                    finalRightNodes = rightElement.unwrapChildren()
+                }
             } else {
                 finalRightNodes = [rightSibling]
             }
