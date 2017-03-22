@@ -43,21 +43,23 @@ static NSString *tracksKey = @"tracks";
 
 - (void)commonInit {
     self.player = [[AVPlayer alloc] init];
+    self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
+    [self.layer addSublayer: self.playerLayer];
+    [self addSubview:self.controlToolbar];
+
     __weak __typeof__(self) weakSelf = self;
     self.timeObserver = [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, NSEC_PER_SEC) queue:nil usingBlock:^(CMTime time) {
         [weakSelf updateVideoDuration];
     }];
-    self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
-    [self.layer addSublayer: self.playerLayer];
-    [self addSubview:self.controlToolbar];
 }
 
 - (void)dealloc {
-    [self.playerItem removeObserver:self forKeyPath: @"status"];
+    [_playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver: self];
-    [self.player removeTimeObserver:self.timeObserver];
-    [self.player pause];
+    [_player removeTimeObserver:self.timeObserver];
+    [_player pause];
     _asset = nil;
+    _player = nil;
 }
 
 - (void)layoutSubviews {
