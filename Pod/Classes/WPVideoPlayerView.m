@@ -10,7 +10,7 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
-@property (nonatomic, strong) UIToolbar *toolbar;
+@property (nonatomic, strong) UIToolbar *controlToolbar;
 
 @end
 
@@ -42,9 +42,7 @@ static NSString *tracksKey = @"tracks";
     self.player = [[AVPlayer alloc] init];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
     [self.layer addSublayer: self.playerLayer];
-    self.toolbar = [[UIToolbar alloc] init];
-    [self updateControlToolbar];
-    [self addSubview:self.toolbar];
+    [self addSubview:self.controlToolbar];
 }
 
 - (void)dealloc {
@@ -57,7 +55,16 @@ static NSString *tracksKey = @"tracks";
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.playerLayer.frame = self.bounds;
-    self.toolbar.frame = CGRectMake(0, self.frame.size.height - 44, self.frame.size.width, 44);
+    self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - 44, self.frame.size.width, 44);
+}
+
+- (UIToolbar *)controlToolbar {
+    if (_controlToolbar) {
+        return _controlToolbar;
+    }
+    _controlToolbar = [[UIToolbar alloc] init];
+    [self updateControlToolbar];
+    return _controlToolbar;
 }
 
 - (void)setVideoURL:(NSURL *)videoURL {
@@ -120,7 +127,7 @@ static NSString *tracksKey = @"tracks";
 
 - (void)updateControlToolbar {
     UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
-    self.toolbar.items = @[
+    self.controlToolbar.items = @[
                            [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
                            [[UIBarButtonItem alloc] initWithBarButtonSystemItem:playPauseButton target:self action:@selector(togglePlayPause)],
                            [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]
