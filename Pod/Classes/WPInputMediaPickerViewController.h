@@ -25,11 +25,11 @@ The delegate for the WPMediaPickerViewController events
 /**
  The internal WPMediaPickerViewController that is used to display the media.
  */
-@property (nonatomic, readonly) WPMediaPickerViewController *mediaPicker;
+@property (nonatomic, readonly)  WPMediaPickerViewController * _Nonnull mediaPicker;
 
 /**
  A toolbar that can be used as the inputAccessoryView for this inputView.
  */
-@property (nonatomic, readonly) UIToolbar *mediaToolbar;
+@property (nonatomic, readonly) UIToolbar * _Nonnull mediaToolbar;
 
 @end

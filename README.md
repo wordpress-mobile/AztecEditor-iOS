@@ -33,15 +33,13 @@ To use the picker do the following:
 #import <WPMediaPicker/WPMediaPicker.h>
 ````
 
-### Create and present WPNavigationMediaPickerViewController
+### Create and present the picker in modal mode
 
 ```` objective-c
 WPNavigationMediaPickerViewController * mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
 mediaPicker.delegate = self;
 [self presentViewController:mediaPicker animated:YES completion:nil];
 ````
-
-`WPNavigationMediaPickerViewController` wraps a `UICollectionViewController`, `WPMediaPickerViewController`, for convenience.
 
 ### Implement didFinishPickingAssets delegate
 
@@ -54,6 +52,14 @@ The delegate is responsible for dismissing the picker when the operation complet
   // assets contains WPMediaAsset objects.
 }
 ````
+
+### Other methods to display the picker
+
+The example above show the recommended way to show the picker in a modal mode. There are currently three available controllers to show the picker depending on your application needs:
+
+ * [WPMediaPickerViewController](Pod/Classes/WPMediaPickerViewController.h), this is the base collection view controller that display the media.
+ * [WPInputMediaPickerViewController](Pod/Classes/WPInputMediaPickerViewController.h), a wrapper of the WPMediaPickerController to be used has an inputView of an UIControl. 
+ * [WPNavigationMediaPickerViewController](Pod/Classes/WPNavigationMediaPickerViewController.h), a convenience wrapper of the `WPMediaPickerViewController` inside a UINavigationController to show in a modal context.
 
 ### How to configure the appearance of the picker
 
