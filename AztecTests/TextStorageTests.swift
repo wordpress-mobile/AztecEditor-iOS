@@ -22,7 +22,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -43,7 +45,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -57,7 +61,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -81,8 +87,8 @@ class TextStorageTests: XCTestCase
     }
 
     func testDelegateCallbackWhenAttachmentRemoved() {
-        let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
+        let storage = TextStorage()
         storage.attachmentsDelegate = mockDelegate
 
         let attachment = storage.insertImage(sourceURL: URL(string:"test://")!, atPosition: 0, placeHolderImage: UIImage())
@@ -159,7 +165,9 @@ class TextStorageTests: XCTestCase
     }
 
     func testBlockquoteToggle() {
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "Apply a blockquote"))
         let blockquoteFormatter = BlockquoteFormatter()
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
@@ -177,6 +185,9 @@ class TextStorageTests: XCTestCase
 
     func testLinkInsert() {
         let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
         storage.append(NSAttributedString(string: "Apply a link"))
         let linkFormatter = LinkFormatter()
         linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
@@ -195,6 +206,9 @@ class TextStorageTests: XCTestCase
 
     func testHeaderToggle() {
         let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+        
         storage.append(NSAttributedString(string: "Apply a header"))
         let formatter = HeaderFormatter(headerLevel: .h1)
         storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
@@ -354,6 +368,9 @@ class TextStorageTests: XCTestCase
     ///
     func testDeleteAllSelectionWhenContentHasComments() {
         let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+        
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
         storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
