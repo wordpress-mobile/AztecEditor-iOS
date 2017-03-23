@@ -171,8 +171,8 @@
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        [self.navigationController setNavigationBarHidden:!self.navigationController.isNavigationBarHidden animated:YES];
-        [self.videoView setControlToolbarHidden: self.navigationController.isNavigationBarHidden animated: YES];
+        [self.navigationController setNavigationBarHidden:!self.videoView.controlToolbarHidden animated:YES];
+        [self.videoView setControlToolbarHidden: !self.videoView.controlToolbarHidden animated: YES];
     }
 }
 

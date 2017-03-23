@@ -19,6 +19,7 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @implementation WPVideoPlayerView
 
 static NSString *tracksKey = @"tracks";
+static CGFloat toolbarHeight = 44;
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -64,7 +65,11 @@ static NSString *tracksKey = @"tracks";
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.playerLayer.frame = self.bounds;
-    self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - 44, self.frame.size.width, 44);
+    CGFloat position = toolbarHeight;
+    if (self.controlToolbarHidden) {
+        position = 0;
+    }
+    self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
 }
 
 - (UIToolbar *)controlToolbar {
@@ -160,7 +165,7 @@ static NSString *tracksKey = @"tracks";
         if (hidden) {
             position = 0;
         }
-        self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, 44);
+        self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
     } completion:^(BOOL finished) {
         self.controlToolbar.hidden = hidden;
     }];
