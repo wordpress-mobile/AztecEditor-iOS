@@ -1,5 +1,5 @@
 //
-//  CommentAttachmentRender.swift
+//  CommentAttachmentRenderer.swift
 //  AztecExample
 //
 //  Created by Jorge Leandro Perez on 3/22/17.
@@ -11,7 +11,7 @@ import UIKit
 import Aztec
 
 
-class CommentAttachmentRender {
+class CommentAttachmentRenderer {
 
     /// Comment Attachment Text
     ///
@@ -36,7 +36,7 @@ class CommentAttachmentRender {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension CommentAttachmentRender: TextViewCommentsDelegate {
+extension CommentAttachmentRenderer: TextViewCommentsDelegate {
 
     func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
@@ -66,7 +66,7 @@ extension CommentAttachmentRender: TextViewCommentsDelegate {
 
 // MARK: - Private Methods
 //
-private extension CommentAttachmentRender {
+private extension CommentAttachmentRenderer {
 
     func boundingRect(for message: NSAttributedString, size: CGSize) -> CGRect {
         let targetBounds = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
