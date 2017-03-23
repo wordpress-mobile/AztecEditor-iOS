@@ -82,6 +82,7 @@
     _videoView = [[WPVideoPlayerView alloc] init];
     [_videoView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOnAsset:)]];
     _videoView.controlToolbarHidden = YES;
+    _videoView.shouldAutoPlay = YES;
     return _videoView;
 }
 

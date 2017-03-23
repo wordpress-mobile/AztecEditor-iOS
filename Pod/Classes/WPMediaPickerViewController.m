@@ -774,7 +774,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
-    fullScreenImageVC.delegate = self;
+    fullScreenImageVC.delegate = self;    
     return fullScreenImageVC;
 }
 

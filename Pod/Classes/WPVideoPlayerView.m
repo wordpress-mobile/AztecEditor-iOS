@@ -111,7 +111,9 @@ static NSString *tracksKey = @"tracks";
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:self.playerItem];
     [self.player replaceCurrentItemWithPlayerItem: self.playerItem];
-    [self play];
+    if (self.shouldAutoPlay) {
+        [self play];
+    }
 }
 
 

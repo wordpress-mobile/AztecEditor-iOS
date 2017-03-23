@@ -25,6 +25,8 @@
 
 @property (nonatomic, assign) BOOL controlToolbarHidden;
 
+@property (nonatomic, assign) BOOL shouldAutoPlay;
+
 - (void)setControlToolbarHidden:(BOOL)hidden animated:(BOOL)animated;
 
 - (void)play;
