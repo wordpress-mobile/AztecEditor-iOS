@@ -77,6 +77,7 @@ static CGFloat toolbarHeight = 44;
         return _controlToolbar;
     }
     _controlToolbar = [[UIToolbar alloc] init];
+    _controlToolbar.hidden = YES;
     [self updateControlToolbar];
     return _controlToolbar;
 }
