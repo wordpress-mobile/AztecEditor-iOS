@@ -670,11 +670,11 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 extension EditorDemoController: TextViewCommentsDelegate {
 
     func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        if let render = MoreAttachmentRender(attachment: attachment) {
+        if let render = MoreAttachmentRenderer(attachment: attachment) {
             return render.textView(textView, imageForComment: attachment, with: size)
         }
 
-        if let render = CommentAttachmentRender(font: Constants.defaultContentFont) {
+        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
             return render.textView(textView, imageForComment: attachment, with: size)
         }
 
@@ -682,11 +682,11 @@ extension EditorDemoController: TextViewCommentsDelegate {
     }
 
     func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        if let render = MoreAttachmentRender(attachment: attachment) {
+        if let render = MoreAttachmentRenderer(attachment: attachment) {
             return render.textView(textView, boundsForComment: attachment, with: lineFragment)
         }
 
-        if let render = CommentAttachmentRender(font: Constants.defaultContentFont) {
+        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
             return render.textView(textView, boundsForComment: attachment, with: lineFragment)
         }
 
