@@ -1,11 +1,3 @@
-//
-//  MoreAttachmentRenderer.swift
-//  AztecExample
-//
-//  Created by Jorge Leandro Perez on 3/22/17.
-//  Copyright © 2017 Automattic Inc. All rights reserved.
-//
-
 import Foundation
 import UIKit
 import Aztec
