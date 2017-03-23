@@ -11,7 +11,6 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
 @property (nonatomic, strong) UIToolbar *controlToolbar;
-@property (nonatomic, strong) UILabel *videoDurationLabel;
 @property (nonatomic, strong) UIBarButtonItem * videoDurationButton;
 @property (nonatomic, strong) id timeObserver;
 
@@ -77,21 +76,15 @@ static NSString *tracksKey = @"tracks";
     return _controlToolbar;
 }
 
-- (UILabel *)videoDurationLabel {
-    if (_videoDurationLabel != nil) {
-        return _videoDurationLabel;
-    }
-    _videoDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 44)];
-    _videoDurationLabel.backgroundColor = [UIColor redColor];
-    _videoDurationLabel.font = [UIFont systemFontOfSize:12];
-    _videoDurationLabel.textColor = [UIColor blackColor];
-    [_videoDurationLabel sizeToFit];
-    return _videoDurationLabel;
-}
-
 - (UIBarButtonItem *)videoDurationButton {
     if (_videoDurationButton == nil) {
         _videoDurationButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+        NSDictionary *titleAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateNormal];
+        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateSelected];
+        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateHighlighted];
+        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateDisabled];
+        _videoDurationButton.enabled = NO;
     }
     return _videoDurationButton;
 }
