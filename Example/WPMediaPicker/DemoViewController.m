@@ -192,7 +192,10 @@
         return [[CustomPreviewViewController alloc] initWithAsset:asset];;
     }
 
-    return [[WPAssetViewController alloc] initWithAsset: asset];
+    WPAssetViewController *assetViewController = [[WPAssetViewController alloc] initWithAsset: asset];
+    assetViewController.delegate = picker;
+    assetViewController.selected = [picker.selectedAssets containsObject:asset];
+    return assetViewController;
 
 }
 

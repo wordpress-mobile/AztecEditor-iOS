@@ -3,7 +3,6 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPAssetViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -14,7 +13,6 @@
  UINavigationControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
- WPAssetViewControllerDelegate,
  UIViewControllerPreviewingDelegate
 >
 
