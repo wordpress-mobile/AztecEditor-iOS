@@ -54,11 +54,18 @@ extension Libxml2.In {
         ///
         fileprivate func createElementNode(_ rawNode: xmlNode) -> ElementNode {
 
+            var childrenEditContext = editContext
+
             let nodeName = getNodeName(rawNode)
 
             switch nodeName.lowercased() {
             case RootNode.name:
                 return createRootNode(rawNode)
+            case "pre":
+                if childrenEditContext == nil {
+                    childrenEditContext = EditContext(undoManager: UndoManager())
+                }
+                childrenEditContext?.sanitizeText = false
             default:
                 break
             }
@@ -66,7 +73,7 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(editContext: editContext)
+                let nodesConverter = NodesConverter(editContext: childrenEditContext)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
@@ -116,8 +123,11 @@ extension Libxml2.In {
         /// - Returns: the HTML.TextNode
         ///
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
-            let text = String(cString: rawNode.content)
-            let node = TextNode(text: sanitize(text), editContext: editContext)
+            var text = String(cString: rawNode.content)
+            if editContext == nil || editContext!.sanitizeText {
+                text = sanitize(text)
+            }
+            let node = TextNode(text: text, editContext: editContext)
 
             return node
         }
