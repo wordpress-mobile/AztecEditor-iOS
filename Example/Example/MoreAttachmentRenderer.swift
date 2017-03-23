@@ -1,5 +1,5 @@
 //
-//  MoreAttachmentRender.swift
+//  MoreAttachmentRenderer.swift
 //  AztecExample
 //
 //  Created by Jorge Leandro Perez on 3/22/17.
@@ -11,9 +11,9 @@ import UIKit
 import Aztec
 
 
-// MARK: - MoreAttachmentRender: Renders More Comments!
+// MARK: - MoreAttachmentRenderer: Renders More Comments!
 //
-class MoreAttachmentRender {
+class MoreAttachmentRenderer {
 
     /// Attachment to be rendered
     ///
@@ -39,7 +39,7 @@ class MoreAttachmentRender {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension MoreAttachmentRender: TextViewCommentsDelegate {
+extension MoreAttachmentRenderer: TextViewCommentsDelegate {
 
     func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
@@ -85,7 +85,7 @@ extension MoreAttachmentRender: TextViewCommentsDelegate {
 
 // MARK: - Constants
 //
-extension MoreAttachmentRender {
+extension MoreAttachmentRenderer {
 
     struct Constants {
         static let defaultDashCount = CGFloat(8.0)
