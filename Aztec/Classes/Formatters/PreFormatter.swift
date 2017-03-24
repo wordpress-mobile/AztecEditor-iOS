@@ -6,7 +6,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
     let monospaceFont: UIFont
     let placeholderAttributes: [String : Any]?
 
-    init(monospaceFont: UIFont = UIFont.monospacedDigitSystemFont(ofSize: 12, weight:UIFontWeightRegular) ,placeholderAttributes: [String : Any]? = nil) {
+    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12) ,placeholderAttributes: [String : Any]? = nil) {
         self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
