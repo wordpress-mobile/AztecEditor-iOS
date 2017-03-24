@@ -216,6 +216,10 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         func append(_ string: String) {
+            if let context = editContext, !context.sanitizeText {
+                append(sanitizedString: string)
+                return
+            }
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {
@@ -251,6 +255,10 @@ extension Libxml2 {
         }
 
         override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+            if let context = editContext, !context.sanitizeText {
+                replaceCharacters(inRange: range, withSanitizedString: string)
+                return
+            }
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {
