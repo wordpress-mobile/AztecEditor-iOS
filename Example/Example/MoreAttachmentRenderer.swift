@@ -5,7 +5,7 @@ import Aztec
 
 // MARK: - MoreAttachmentRenderer: Renders More Comments!
 //
-class MoreAttachmentRenderer {
+final class MoreAttachmentRenderer {
 
     /// Attachment to be rendered
     ///

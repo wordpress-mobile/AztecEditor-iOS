@@ -3,7 +3,7 @@ import UIKit
 import Aztec
 
 
-class CommentAttachmentRenderer {
+final class CommentAttachmentRenderer {
 
     /// Comment Attachment Text
     ///
