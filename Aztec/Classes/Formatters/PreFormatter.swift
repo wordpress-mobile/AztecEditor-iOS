@@ -23,10 +23,10 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes:[String: Any]) -> [String: Any] {
         var resultingAttributes = attributes
-        let newParagraphStyle = ParagraphStyle()
 
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
-        resultingAttributes[NSFontAttributeName] = monospaceFont
+        if let attributes = placeholderAttributes {
+            resultingAttributes = attributes
+        }
 
         return resultingAttributes
     }
