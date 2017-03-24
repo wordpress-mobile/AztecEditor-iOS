@@ -61,7 +61,7 @@ extension Libxml2.In {
             switch nodeName.lowercased() {
             case RootNode.name:
                 return createRootNode(rawNode)
-            case "pre":
+            case Libxml2.StandardElementType.pre.rawValue:
                 if childrenEditContext == nil {
                     childrenEditContext = EditContext(undoManager: UndoManager())
                 }
