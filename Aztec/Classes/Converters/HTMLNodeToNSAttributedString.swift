@@ -97,17 +97,11 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        if node.comment.hasPrefix(MoreAttachment.commentNodeText) {
-            var attributes = inheritedAttributes;
-            let moreAttachment = MoreAttachment()
-            let index = MoreAttachment.commentNodeText.endIndex
-            moreAttachment.message = node.comment.substring(from: index)            
-            moreAttachment.label = NSAttributedString(string: NSLocalizedString("MORE", comment: "Text for the center of the more divider"), attributes: defaultAttributes)
-            attributes[NSAttachmentAttributeName] = moreAttachment
-            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-        }
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+        let attachment = CommentAttachment()
+        attachment.text = node.comment
+
+        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
     /// Converts an `ElementNode` to `NSAttributedString`.
