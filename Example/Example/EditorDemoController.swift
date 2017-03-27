@@ -42,25 +42,28 @@ class EditorDemoController: UIViewController {
         return textView
     }()
 
-    fileprivate(set) lazy var titleTextField: UITextField = {
+    fileprivate(set) lazy var titleTextField: UITextView = {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
-        let textField = UITextField()
+        let textField = UITextView()
 
         textField.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
-        textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
-                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
+        //textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
+        //                                              attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
         textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         textField.returnKeyType = .next
         textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
-
+        textField.backgroundColor = .red
+        textField.isScrollEnabled = false
         let toolbar = self.createToolbar(htmlMode: false)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
 
         return textField
     }()
+
+    fileprivate var titleHeightConstraint: NSLayoutConstraint!
 
     fileprivate(set) lazy var separatorView: UIView = {
         let separatorView = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
@@ -161,22 +164,28 @@ class EditorDemoController: UIViewController {
 
     }
 
-
+    func updateTitleHeight() {
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:self.view.frame.size.width-(2*type(of: self).margin), height: CGFloat.greatestFiniteMagnitude))
+        let insets = titleTextField.textContainerInset
+        titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
+    }
     // MARK: - Configuration Methods
 
     private func configureConstraints() {
 
+        titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
+        updateTitleHeight()
         NSLayoutConstraint.activate([
             titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
             titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: type(of: self).margin),
-            titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
+            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
+            titleHeightConstraint
             ])
 
         NSLayoutConstraint.activate([
             separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
             separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: type(of: self).margin),
+            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
@@ -320,7 +329,10 @@ extension EditorDemoController : UITextViewDelegate {
         changeRichTextInputView(to: nil)
     }
 
-    func textViewDidChange(_ textView: UITextView) {        
+    func textViewDidChange(_ textView: UITextView) {
+        if textView == titleTextField {
+            updateTitleHeight()
+        }
     }
 }
 
