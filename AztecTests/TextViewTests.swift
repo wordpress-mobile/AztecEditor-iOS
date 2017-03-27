@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 import Gridicons
 
-class AztecVisualtextViewTests: XCTestCase {
+class AztecVisualTextViewTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -15,6 +15,12 @@ class AztecVisualtextViewTests: XCTestCase {
     }
 
     // MARK: - TextView construction
+
+    func createEmptyTextView() -> Aztec.TextView {
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+
+        return richTextView
+    }
 
     func createTextView(withHTML html: String) -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
@@ -242,6 +248,18 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
     }
 
+    /// This test was created to prevent regressions related to this issue:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/350
+    ///
+    func testToggleBlockquoteAndStrikethrough() {
+        let textView = createEmptyTextView()
+
+        textView.toggleStrikethrough(range: NSRange.zero)
+        textView.toggleBlockquote(range: NSRange.zero)
+
+        // The test not crashing would be successful.
+    }
+
     // MARK: - Test Attributes Exist
 
     func check(textView: TextView, range:NSRange, forIndentifier identifier: FormattingIdentifier) -> Bool {
@@ -466,6 +484,46 @@ class AztecVisualtextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
     }
 
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>"
+    ///     - Deletion range: (loc: 4, len 1)
+    ///     - Second deletion range: (loc: 9, len: 1)
+    ///     - Third deletion range: (loc: 15, len: 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "Listfirstsecond"
+    ///
+    func testDeleteNewline5() {
+
+        let textView = createTextView(withHTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 4)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "Listfirst<ul><li>second</li><li>third</li></ul>")
+
+        let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
+        let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
+        let range2 = textView.textRange(from: rangeStart2, to: rangeEnd2)!
+
+        textView.replace(range2, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "Listfirstsecond<ul><li>third</li></ul>")
+
+        let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
+        let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
+        let range3 = textView.textRange(from: rangeStart3, to: rangeEnd3)!
+
+        textView.replace(range3, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "Listfirstsecondthird")
+    }
+
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
     ///
     /// Input:
@@ -508,5 +566,14 @@ class AztecVisualtextViewTests: XCTestCase {
         textView.setLink(url, title: linkTitle, inRange: insertionRange)
 
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
+    }
+
+    func testToggleBlockquoteWriteOneCharAndDelete() {
+        let textView = createEmptyTextView()
+
+        textView.toggleBlockquote(range: NSRange.zero)
+        textView.insertText("A")
+        textView.deleteBackward()
+        // The test not crashing would be successful.
     }
 }

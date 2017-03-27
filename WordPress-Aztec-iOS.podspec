@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.5a7'
+  s.version          = '0.5a7.1'
   s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
@@ -38,6 +38,6 @@ Pod::Spec.new do |s|
   s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
   s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
 
-  s.dependency 'Gridicons', '0.4'
+  s.dependency 'Gridicons', '0.5'
 
 end

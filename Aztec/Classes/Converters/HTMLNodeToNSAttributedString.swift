@@ -97,18 +97,11 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
-        let moreLabel = "more"
-        if node.comment.hasPrefix(moreLabel) {
-            var attributes = inheritedAttributes;
-            let moreAttachment = MoreAttachment()
-            let index = moreLabel.endIndex
-            moreAttachment.message = node.comment.substring(from: index)            
-            moreAttachment.label = NSAttributedString(string: NSLocalizedString("MORE", comment: "Text for the center of the more divider"), attributes: defaultAttributes)
-            attributes[NSAttachmentAttributeName] = moreAttachment
-            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-        }
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+        let attachment = CommentAttachment()
+        attachment.text = node.comment
+
+        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
     /// Converts an `ElementNode` to `NSAttributedString`.
@@ -211,6 +204,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributeValue = attachment
         }
 
+        if node.isNodeType(.span) {
+            if let elementStyle = node.valueForStringAttribute(named: "style") {
+                let styles = parseStyle(style: elementStyle)
+                if !styles.isEmpty, let colorString = styles["color"] {
+                    attributeValue = UIColor(hexString: colorString)
+                }
+            }           
+        }
+
         for (key, formatter) in elementToFormattersMap {
             if node.isNodeType(key) {
                 if let standardValueFormatter = formatter as? StandardAttributeFormatter,
@@ -240,6 +242,22 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .h3: HeaderFormatter(headerLevel: .h3),
         .h4: HeaderFormatter(headerLevel: .h4),
         .h5: HeaderFormatter(headerLevel: .h5),
-        .h6: HeaderFormatter(headerLevel: .h6)
+        .h6: HeaderFormatter(headerLevel: .h6),
+        .span: ColorFormatter()
     ]
+
+    func parseStyle(style: String) -> [String: String] {
+        var stylesDictionary = [String: String]()
+        let styleAttributes = style.components(separatedBy: ";")
+        for sytleAttribute in styleAttributes {
+            let keyValue = sytleAttribute.components(separatedBy: ":")
+            guard keyValue.count == 2,
+                  let key = keyValue.first?.trimmingCharacters(in: CharacterSet.whitespaces),
+                  let value = keyValue.last?.trimmingCharacters(in: CharacterSet.whitespaces) else {
+                continue
+            }
+            stylesDictionary[key] = value
+        }
+        return stylesDictionary
+    }
 }

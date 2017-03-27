@@ -6,6 +6,27 @@ import UIKit
 //
 extension NSAttributedString
 {
+    /// Indicates the Attributed String Length of a single TextAttachment
+    ///
+    static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
+
+
+    /// String containing the NSTextAttachment Character
+    ///
+    static let textAttachmentString = String(UnicodeScalar(NSAttachmentCharacter)!)
+
+
+
+    /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
+    /// collection of attributes.
+    ///
+    convenience init(attachment: NSTextAttachment, attributes: [String: Any]) {
+        var attributesWithAttachment = attributes
+        attributesWithAttachment[NSAttachmentAttributeName] = attachment
+
+        self.init(string: NSAttributedString.textAttachmentString, attributes: attributesWithAttachment)
+    }
+
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
     ///
     func loadLazyAttachments() {

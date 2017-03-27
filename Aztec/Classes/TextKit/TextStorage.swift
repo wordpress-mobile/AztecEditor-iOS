@@ -1,19 +1,21 @@
 import Foundation
 import UIKit
 
+
 /// Implemented by a class taking care of handling attachments for the storage.
 ///
 protocol TextStorageAttachmentsDelegate {
 
     /// Provides images for attachments that are part of the storage
     ///
-    /// - parameter storage:    The storage that is requesting the image.
-    /// - parameter attachment: The attachment that is requesting the image.
-    /// - parameter url:        url for the image.
-    /// - parameter success:    a callback block to be invoked with the image fetched from the url.
-    /// - parameter failure:    a callback block to be invoked when an error occurs when fetching the image.
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the image.
+    ///     - attachment: The attachment that is requesting the image.
+    ///     - url: url for the image.
+    ///     - success: Callback block to be invoked with the image fetched from the url.
+    ///     - failure: Callback block to be invoked when an error occurs when fetching the image.
     ///
-    /// - returns: returns a temporary UIImage to be used while the request is happening
+    /// - Returns: returns a temporary UIImage to be used while the request is happening
     ///
     func storage(
         _ storage: TextStorage,
@@ -28,8 +30,8 @@ protocol TextStorageAttachmentsDelegate {
     /// delegate can specify an URL where that image is available.
     ///
     /// - Parameters:
-    ///     - storage:      The storage that is requesting the image.
-    ///     - image:        The image that was added to the storage.
+    ///     - storage: The storage that is requesting the image.
+    ///     - image: The image that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
@@ -40,8 +42,32 @@ protocol TextStorageAttachmentsDelegate {
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
-    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String);
+    ///
+    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String)
+
+    /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - lineFragment: Line Fragment in which the glyph would be rendered.
+    ///
+    /// - Returns: Rect specifying the Bounds for the comment attachment
+    ///
+    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+
+    /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - size: Expected Image Size
+    ///
+    /// - Returns: (Optional) UIImage representation of the Comment Attachment.
+    ///
+    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
 }
+
 
 /// Custom NSTextStorage
 ///
@@ -90,7 +116,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var attachmentsDelegate: TextStorageAttachmentsDelegate?
+    var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open func TextAttachments() -> [TextAttachment] {
         let range = NSMakeRange(0, length)
@@ -171,45 +197,44 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        
+        assert(attachmentsDelegate != nil)
+
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
-
-            guard let object = object, !(object is LineAttachment) else {
-                return
-            }
-            
-            guard let attachmentsDelegate = attachmentsDelegate else {
-                assertionFailure("This class can't really handle not having an image provider set.")
+            guard let object = object else {
                 return
             }
 
-            guard let attachment = object as? NSTextAttachment else {
+            guard let textAttachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
             }
-            
-            guard let image = attachment.image else {
-                // We only suppot image attachments for now.  All other attachment types are
-                // stripped for safety.
-                //
-                finalString.removeAttribute(NSAttachmentAttributeName, range: range)
-                return
+
+            switch textAttachment {
+            case _ as LineAttachment:
+                break
+            case let attachment as CommentAttachment:
+                attachment.delegate = self
+            case let attachment as TextAttachment:
+                attachment.delegate = self
+            default:
+                guard let image = textAttachment.image else {
+                    // We only suppot image attachments for now. All other attachment types are
+                    /// stripped for safety.
+                    //
+                    finalString.removeAttribute(NSAttachmentAttributeName, range: range)
+                    return
+                }
+
+                let replacementAttachment = TextAttachment()
+                replacementAttachment.delegate = self
+                replacementAttachment.image = image
+                replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
+
+                finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
             }
-            
-            if let textAttachment = attachment as? TextAttachment {
-                textAttachment.imageProvider = self
-                return
-            }
-            
-            let replacementAttachment = TextAttachment()
-            replacementAttachment.imageProvider = self
-            replacementAttachment.image = image
-            replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
-            
-            finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
         }
 
         return finalString
@@ -217,7 +242,7 @@ open class TextStorage: NSTextStorage {
 
     fileprivate func detectAttachmentRemoved(in range:NSRange) {
         textStore.enumerateAttachmentsOfType(TextAttachment.self, range: range) { (attachment, range, stop) in
-            self.attachmentsDelegate?.storage(self, deletedAttachmentWithID: attachment.identifier)
+            self.attachmentsDelegate.storage(self, deletedAttachmentWithID: attachment.identifier)
         }
     }
 
@@ -263,7 +288,7 @@ open class TextStorage: NSTextStorage {
                 dom.deleteBlockSeparator(at: targetDomRange.location)
             }
 
-            applyStylesToDom(from: preprocessedString, startingAt: range.location)
+            applyStylesToDom(from: domString, startingAt: range.location)
         }
 
         detectAttachmentRemoved(in: range)
@@ -339,6 +364,9 @@ open class TextStorage: NSTextStorage {
     ///   - targetValue: the new value of the attribute
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
+        let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
+
         switch(key) {
         case NSFontAttributeName:
             let sourceFont = sourceValue as? UIFont
@@ -355,14 +383,17 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? NSNumber
 
             processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
-        case NSAttachmentAttributeName:
-            if sourceValue is LineAttachment || targetValue is LineAttachment {
-                let sourceAttachment = sourceValue as? LineAttachment
-                let targetAttachment = targetValue as? LineAttachment
+        case NSAttachmentAttributeName where isLineAttachment:
+            let sourceAttachment = sourceValue as? LineAttachment
+            let targetAttachment = targetValue as? LineAttachment
 
-                processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
-                return
-            }
+            processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isCommentAttachment:
+            let sourceAttachment = sourceValue as? CommentAttachment
+            let targetAttachment = targetValue as? CommentAttachment
+
+            processCommentAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
 
@@ -439,7 +470,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.insertImage(imageURL: urlToAdd, replacing: range)
+            dom.replace(range, with: urlToAdd)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
         }
@@ -447,15 +478,17 @@ open class TextStorage: NSTextStorage {
 
     private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
 
-        let add = original == nil && new != nil
-        let remove = original != nil && new == nil
-
-        if add {
-            dom.insertHorizontalRuler(at: range)
-        } else if remove {
-            dom.remove(element: .hr, at: range)
-        }
+        dom.replaceWithHorizontalRuler(range)
     }
+
+    private func processCommentAttachmentDifferences(in range: NSRange, betweenOriginal original: CommentAttachment?, andNew new: CommentAttachment?) {
+        guard let newAttachment = new else {
+            return
+        }
+
+        dom.replace(range, with: newAttachment.text)
+    }
+
 
     /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
@@ -600,7 +633,7 @@ open class TextStorage: NSTextStorage {
     private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
         return !hasNewLine(atIndex: index)
             && !hasHorizontalLine(atIndex: index)
-            && !hasMoreMarker(atIndex: index)
+            && !hasCommentMarker(atIndex: index)
             && !hasVisualOnlyElement(atIndex: index)
     }
 
@@ -622,9 +655,9 @@ open class TextStorage: NSTextStorage {
         return true
     }
 
-    private func hasMoreMarker(atIndex index: Int) -> Bool {
+    private func hasCommentMarker(atIndex index: Int) -> Bool {
         guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
-            attachment is MoreAttachment else {
+            attachment is CommentAttachment else {
             return false
         }
 
@@ -656,7 +689,7 @@ open class TextStorage: NSTextStorage {
     }
     
     // MARK: - Styles: Toggling
-    @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
+    @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
         let applicationRange = formatter.applicationRange(for: range, in: self)
         if applicationRange.length == 0, !formatter.worksInEmptyRange() {
             return applicationRange
@@ -675,7 +708,7 @@ open class TextStorage: NSTextStorage {
     ///
     func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> TextAttachment {
         let attachment = TextAttachment(identifier: identifier)
-        attachment.imageProvider = self
+        attachment.delegate = self
         attachment.url = url
         attachment.image = placeHolderImage
 
@@ -691,7 +724,7 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameter range: the range where the element will be inserted
     ///
-    func insertHorizontalRuler(at range: NSRange) {
+    func replaceRangeWithHorizontalRuler(_ range: NSRange) {
         let line = LineAttachment()
 
         let attachmentString = NSAttributedString(attachment: line)
@@ -771,6 +804,19 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Inserts the Comment Attachment at the specified position
+    ///
+    @discardableResult
+    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String, attributes: [String: Any]) -> CommentAttachment {
+        let attachment = CommentAttachment()
+        attachment.text = text
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment, attributes: attributes)
+        replaceCharacters(in: range, with: stringWithAttachment)
+
+        return attachment
+    }
+
 
     // MARK: - Toggle Attributes
 
@@ -823,14 +869,21 @@ open class TextStorage: NSTextStorage {
         
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: attributedString)
-        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, range, stop) in
-            attachment.imageProvider = self
+        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
         }
+        textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
+
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
 }
 
-extension TextStorage: TextAttachmentImageProvider {
+
+// MARK: - TextStorage: TextAttachmentDelegate Methods
+//
+extension TextStorage: TextAttachmentDelegate {
 
     func textAttachment(
         _ textAttachment: TextAttachment,
@@ -838,11 +891,24 @@ extension TextStorage: TextAttachmentImageProvider {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
     {
-        guard let attachmentsDelegate = attachmentsDelegate else {
-            fatalError("This class doesn't really support not having an attachments delegate set.")
-        }
-        
+        assert(attachmentsDelegate != nil)
         return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 
+}
+
+
+// MARK: - TextStorage: CommentAttachmentDelegate Methods
+//
+extension TextStorage: CommentAttachmentDelegate {
+
+    func commentAttachment(_ commentAttachment: CommentAttachment, imageForSize size: CGSize) -> UIImage? {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, imageForComment: commentAttachment, with: size)
+    }
+
+    func commentAttachment(_ commentAttachment: CommentAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, boundsForComment: commentAttachment, with: fragment)
+    }
 }

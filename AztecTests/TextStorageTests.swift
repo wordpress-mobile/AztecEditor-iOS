@@ -22,7 +22,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -43,7 +45,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -57,7 +61,9 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -81,8 +87,8 @@ class TextStorageTests: XCTestCase
     }
 
     func testDelegateCallbackWhenAttachmentRemoved() {
-        let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
+        let storage = TextStorage()
         storage.attachmentsDelegate = mockDelegate
 
         let attachment = storage.insertImage(sourceURL: URL(string:"test://")!, atPosition: 0, placeHolderImage: UIImage())
@@ -109,6 +115,14 @@ class TextStorageTests: XCTestCase
         }
 
         func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+            return UIImage()
+        }
+
+        func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+            return .zero
+        }
+
+        func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
             return UIImage()
         }
     }
@@ -151,7 +165,9 @@ class TextStorageTests: XCTestCase
     }
 
     func testBlockquoteToggle() {
+        let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "Apply a blockquote"))
         let blockquoteFormatter = BlockquoteFormatter()
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
@@ -169,6 +185,9 @@ class TextStorageTests: XCTestCase
 
     func testLinkInsert() {
         let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
         storage.append(NSAttributedString(string: "Apply a link"))
         let linkFormatter = LinkFormatter()
         linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
@@ -187,6 +206,9 @@ class TextStorageTests: XCTestCase
 
     func testHeaderToggle() {
         let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+        
         storage.append(NSAttributedString(string: "Apply a header"))
         let formatter = HeaderFormatter(headerLevel: .h1)
         storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
@@ -275,28 +297,87 @@ class TextStorageTests: XCTestCase
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRuler() {
+    func testReplaceRangeWithHorizontalRuler() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        storage.insertHorizontalRuler(at: NSRange.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
     }
 
+    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithHorizontalRuler(.zero)
+        storage.replaceRangeWithHorizontalRuler(.zero)
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<hr><hr>")
+    }
+
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
     ///
-    func testInsertHorizontalRulerOverImage() {
+    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
         let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
-        storage.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        storage.replaceRangeWithHorizontalRuler(NSRange(location: 0, length:1))
         let html = storage.getHTML()
 
         XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testReplaceRangeWithCommentAttachmentGeneratesExpectedHTMLComment() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--more-->")
+    }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testReplaceRangeWithCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
+        storage.replaceRangeWithCommentAttachment(.zero, text: "some other comment should go here", attributes: [:])
+
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
+    }
+
+    /// This test verifies if we can delete all the content from a storage object that has html with a comment
+    ///
+    func testDeleteAllSelectionWhenContentHasComments() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+        
+        let commentString = "This is a comment"
+        let html = "<!--\(commentString)-->"
+        storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
+        storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
+
+        let resultHTML = storage.getHTML()
+
+        XCTAssertEqual(String(), resultHTML)
     }
 }

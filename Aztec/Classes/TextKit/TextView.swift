@@ -3,6 +3,9 @@ import UIKit
 import Foundation
 import Gridicons
 
+
+// MARK: - TextViewMediaDelegate
+//
 public protocol TextViewMediaDelegate: class {
 
     /// This method requests from the delegate the image at the specified URL.
@@ -62,6 +65,37 @@ public protocol TextViewMediaDelegate: class {
     func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
 }
 
+
+// MARK: - TextViewCommentsDelegate
+//
+public protocol TextViewCommentsDelegate: class {
+
+    /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - lineFragment: Line Fragment in which the glyph would be rendered.
+    ///
+    /// - Returns: Rect specifying the Bounds for the comment attachment
+    ///
+    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+
+    /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the bounds.
+    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - size: Expected Image Size
+    ///
+    /// - Returns: (Optional) UIImage representation of the Comment Attachment.
+    ///
+    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+}
+
+
+// MARK: - TextViewFormattingDelegate
+//
 public protocol TextViewFormattingDelegate: class {
 
     /// Called a text view command toggled a style.
@@ -71,6 +105,9 @@ public protocol TextViewFormattingDelegate: class {
     func textViewCommandToggledAStyle()
 }
 
+
+// MARK: - TextView
+//
 open class TextView: UITextView {
 
     typealias ElementNode = Libxml2.ElementNode
@@ -82,6 +119,10 @@ open class TextView: UITextView {
     /// If this is not set, all remove images will be left blank.
     ///
     open weak var mediaDelegate: TextViewMediaDelegate?
+
+    // MARK: - Properties: Comment Attachments
+
+    open weak var commentsDelegate: TextViewCommentsDelegate?
 
     // MARK: - Properties: Formatting
 
@@ -426,9 +467,8 @@ open class TextView: UITextView {
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let newSelectedRange = storage.toggle(formatter: formatter, at: range)         
-        selectedRange = newSelectedRange ?? selectedRange
-        if selectedRange.length == 0 {
+        let applicationRange = storage.toggle(formatter: formatter, at: range)        
+        if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
         } else {
             // NOTE: We are making sure that the selectedRange location is inside the string
@@ -529,8 +569,8 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func replaceWithHorizontalRuler(at range: NSRange) {
-        storage.insertHorizontalRuler(at: range)
+    open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
+        storage.replaceRangeWithHorizontalRuler(range)
         let length = NSAttributedString(attachment:NSTextAttachment()).length
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
         selectedRange = NSMakeRange(range.location + length, 0)
@@ -804,7 +844,7 @@ open class TextView: UITextView {
     ///
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
         selectedRange = NSMakeRange(position+length, 0)
         delegate?.textViewDidChange?(self)
@@ -1000,7 +1040,28 @@ open class TextView: UITextView {
     ///
     open func refreshLayoutFor(attachment: TextAttachment) {
         layoutManager.invalidateLayoutForAttachment(attachment)
-    }    
+    }
+
+
+    // MARK: - More
+
+    /// Inserts an HTML Comment at the specified position.
+    ///
+    /// - Parameters:
+    ///     - range: The character range that must be replaced with a Comment Attachment.
+    ///     - text: The Comment Attachment's Text.
+    ///
+    /// - Returns: the attachment object that can be used for further calls
+    ///
+    @discardableResult
+    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String) -> CommentAttachment {
+        let attachment = storage.replaceRangeWithCommentAttachment(range, text: text, attributes: typingAttributes)
+
+        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
+        delegate?.textViewDidChange?(self)
+
+        return attachment
+    }
 }
 
 
@@ -1028,7 +1089,6 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
     
     func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
-        
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
@@ -1038,6 +1098,22 @@ extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
         mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
+    }
+
+    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+        guard let commentsDelegate = commentsDelegate else {
+            fatalError("This class requires a comments delegate to be set.")
+        }
+
+        return commentsDelegate.textView(self, imageForComment: attachment, with: size)
+    }
+
+    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+        guard let commentsDelegate = commentsDelegate else {
+            fatalError("This class requires a comments delegate to be set.")
+        }
+
+        return commentsDelegate.textView(self, boundsForComment: attachment, with: lineFragment)
     }
 }
 
