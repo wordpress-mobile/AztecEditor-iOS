@@ -33,7 +33,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func storage(_ storage: TextStorage, urlForImage image: UIImage) -> URL
+    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL
 
     /// Called when a attachment is removed from the storage.
     ///
@@ -177,7 +177,7 @@ open class TextStorage: NSTextStorage {
         
         attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
 
-            guard let object = object else {
+            guard let object = object, !(object is LineAttachment) else {
                 return
             }
             
@@ -185,7 +185,7 @@ open class TextStorage: NSTextStorage {
                 assertionFailure("This class can't really handle not having an image provider set.")
                 return
             }
-            
+
             guard let attachment = object as? NSTextAttachment else {
                 assertionFailure("We expected a text attachment object.")
                 return
@@ -207,7 +207,7 @@ open class TextStorage: NSTextStorage {
             let replacementAttachment = TextAttachment()
             replacementAttachment.imageProvider = self
             replacementAttachment.image = image
-            replacementAttachment.url = attachmentsDelegate.storage(self, urlForImage: image)
+            replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
             
             finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
         }
@@ -224,7 +224,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.attributes(at: location, effectiveRange: range)
+        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -233,12 +233,15 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withString: str, inheritStyle: true)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
+
+            dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
         }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
-        edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
+        let nsString = str as NSString
+        edited(.editedCharacters, range: range, changeInLength:  nsString.length - range.length)
         
         endEditing()
     }
@@ -251,26 +254,30 @@ open class TextStorage: NSTextStorage {
 
         if mustUpdateDOM() {
             let targetDomRange = map(visualRange: range)
-            dom.replaceCharacters(inRange: targetDomRange, withAttributedString: preprocessedString, inheritStyle: false)
+            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
+
+            let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+
+            if targetDomRange.length != range.length {
+                dom.deleteBlockSeparator(at: targetDomRange.location)
+            }
+
+            applyStylesToDom(from: preprocessedString, startingAt: range.location)
         }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
-        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.string.characters.count - range.length)
-        
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
+
         endEditing()
-    }
-    
-    override open func removeAttribute(_ name: String, range: NSRange) {
-        super.removeAttribute(name, range: range)
     }
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM() {
-            let domRange = map(visualRange: range)
-            dom.setAttributes(attrs, range: domRange)
+        if mustUpdateDOM(), let attributes = attrs {
+            applyStylesToDom(attributes: attributes, in: range)
         }
 
         textStore.setAttributes(attrs, range: range)
@@ -278,9 +285,372 @@ open class TextStorage: NSTextStorage {
         
         endEditing()
     }
-    
+
+    // MARK: - Entry point for calculating style differences
+
+    /// This method applies the styles in the specified attributes dictionary, to the DOM in the
+    /// specified range.  To do so, it calculates the differences and applies them.
+    ///
+    /// - Parameters:
+    ///     - attributes: the attributes to apply.
+    ///     - range: the range to apply the styles to.
+    ///
+    private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
+        textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
+
+            let domRange = map(visualRange: subRange)
+
+            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
+        })
+    }
+
+    /// This method applies the styles from the specified attributed string, to the DOM, starting
+    /// at the specified location, and moving ahead for the length of the attributed string.
+    ///
+    /// This makes sense only if the attributed string has already been added to the DOM, as a way
+    /// to apply the styles for that string.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the attributed string containing the styles we want to apply.
+    ///     - location: the starting location where the styles should be applied in the DOM.
+    ///         It's the offset this method will use to apply the styles found in the source string.
+    ///
+    private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
+        let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+
+        let domLocation = map(visualLocation: location)
+
+        attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
+            // The source and target values are inverted since we're enumerating on the new string.
+
+            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+
+            processAttributesDifference(in: domRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
+        })
+    }
+
+    /// Check the difference in styles and applies the necessary changes to the DOM string.
+    ///
+    /// - Parameters:
+    ///   - domRange: the range to check
+    ///   - key: the attribute style key
+    ///   - sourceValue: the original value of the attribute
+    ///   - targetValue: the new value of the attribute
+    ///
+    private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+        switch(key) {
+        case NSFontAttributeName:
+            let sourceFont = sourceValue as? UIFont
+            let targetFont = targetValue as? UIFont
+
+            processFontDifferences(in: domRange, betweenOriginal: sourceFont, andNew: targetFont)
+        case NSStrikethroughStyleAttributeName:
+            let sourceStyle = sourceValue as? NSNumber
+            let targetStyle = targetValue as? NSNumber
+
+            processStrikethroughDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        case NSUnderlineStyleAttributeName:
+            let sourceStyle = sourceValue as? NSNumber
+            let targetStyle = targetValue as? NSNumber
+
+            processUnderlineDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        case NSAttachmentAttributeName:
+            if sourceValue is LineAttachment || targetValue is LineAttachment {
+                let sourceAttachment = sourceValue as? LineAttachment
+                let targetAttachment = targetValue as? LineAttachment
+
+                processLineAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+                return
+            }
+            let sourceAttachment = sourceValue as? TextAttachment
+            let targetAttachment = targetValue as? TextAttachment
+
+            processAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSParagraphStyleAttributeName:
+            let sourceStyle = sourceValue as? ParagraphStyle
+            let targetStyle = targetValue as? ParagraphStyle
+            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+
+            processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
+        case NSLinkAttributeName:
+            let sourceStyle = sourceValue as? URL
+            let targetStyle = targetValue as? URL
+            processLinkDifferences(in: domRange, betweenOriginal: sourceStyle, andNew: targetStyle)
+        default:
+            break
+        }
+    }
+
+    // MARK: - Calculating and applying style differences
+
+    /// Processes differences in a font object, and applies them to the DOM in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processFontDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        processBoldDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
+        processItalicDifferences(in: range, betweenOriginal: originalFont, andNew: newFont)
+    }
+
+    /// Processes differences in the bold trait of two font objects, and applies them to the DOM in
+    /// the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processBoldDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsBold = originalFont?.containsTraits(.traitBold) ?? false
+        let newIsBold = newFont?.containsTraits(.traitBold) ?? false
+
+        let addBold = !oldIsBold && newIsBold
+        let removeBold = oldIsBold && !newIsBold
+
+        if addBold {
+            dom.applyBold(spanning: range)
+        } else if removeBold {
+            dom.removeBold(spanning: range)
+        }
+    }
+
+    /// Process difference in attachmente properties, and applies them to the DOM in the specified range
+    ///
+    /// - Parameters:
+    ///   - range: the range in the DOM where the differences must be applied.
+    ///   - original: the original attachment existing in the range if any.
+    ///   - new: the new attachment to apply to the range if any.
+    ///
+    private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
+
+        let originalUrl = original?.url
+        let newUrl = new?.url
+
+        let addImageUrl = originalUrl == nil && newUrl != nil
+        let removeImageUrl = originalUrl != nil && newUrl == nil
+
+        if addImageUrl {
+            guard let urlToAdd = newUrl else {
+                assertionFailure("This should not be possible.  Review your logic.")
+                return
+            }
+
+            dom.insertImage(imageURL: urlToAdd, replacing: range)
+        } else if removeImageUrl {
+            dom.removeImage(spanning: range)
+        }
+    }
+
+    private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
+
+        let add = original == nil && new != nil
+        let remove = original != nil && new == nil
+
+        if add {
+            dom.insertHorizontalRuler(at: range)
+        } else if remove {
+            dom.remove(element: .hr, at: range)
+        }
+    }
+
+    /// Processes differences in the italic trait of two font objects, and applies them to the DOM
+    /// in the specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processItalicDifferences(in range: NSRange, betweenOriginal originalFont: UIFont?, andNew newFont: UIFont?) {
+        let oldIsItalic = originalFont?.containsTraits(.traitItalic) ?? false
+        let newIsItalic = newFont?.containsTraits(.traitItalic) ?? false
+
+        let addItalic = !oldIsItalic && newIsItalic
+        let removeItalic = oldIsItalic && !newIsItalic
+
+        if addItalic {
+            dom.applyItalic(spanning: range)
+        } else if removeItalic {
+            dom.removeItalic(spanning: range)
+        }
+    }
+
+    /// Processes differences in two strikethrough styles, and applies them to the DOM in the
+    /// specified range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processStrikethroughDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+
+        let sourceStyle = originalStyle ?? 0
+        let targetStyle = newStyle ?? 0
+
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = sourceStyle == 0 && targetStyle == 1
+        let removeStyle = sourceStyle == 1 && targetStyle == 0
+
+        if addStyle {
+            dom.applyStrikethrough(spanning: range)
+        } else if removeStyle {
+            dom.removeStrikethrough(spanning: range)
+        }
+    }
+
+    /// Processes differences in two underline styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalFont: the original font object.
+    ///     - newFont: the new font object.
+    ///
+    private func processUnderlineDifferences(in range: NSRange, betweenOriginal originalStyle: NSNumber?, andNew newStyle: NSNumber?) {
+
+        let sourceStyle = originalStyle ?? 0
+        let targetStyle = newStyle ?? 0
+
+        // At some point we'll support different styles.  For now we only check if ANY style is
+        // set.
+        //
+        let addStyle = sourceStyle == 0 && targetStyle == 1
+        let removeStyle = sourceStyle == 1 && targetStyle == 0
+
+        if addStyle {
+            dom.applyUnderline(spanning: range)
+        } else if removeStyle {
+            dom.removeUnderline(spanning: range)
+        }
+    }
+
+    /// Processes differences in blockquote styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original Blockquote object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processBlockquoteDifferences(in range: NSRange, betweenOriginal originalStyle: Blockquote?, andNew newStyle: Blockquote?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyBlockquote(spanning: range)
+        } else if removeStyle {
+            dom.removeBlockquote(spanning: range)
+        }
+    }
+
+    /// Processes differences in header styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalHeaderLevel: the original font object.
+    ///     - newHeaderLevel: the new font object.
+    ///
+    private func processHeaderDifferences(in range: NSRange, betweenOriginal originalHeaderLevel: Int?, andNew newHeaderLevel: Int?) {
+
+        let sourceHeader = originalHeaderLevel ?? 0
+        let targetHeader = newHeaderLevel ?? 0
+
+        let addStyle = sourceHeader == 0 && targetHeader > 0
+        let removeStyle = sourceHeader > 0 && targetHeader == 0
+
+        if addStyle {
+            dom.applyHeader(targetHeader, spanning: range)
+        } else if removeStyle {
+            dom.removeHeader(sourceHeader, spanning: range)
+        }
+    }
+
+    /// Processes differences in link styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalURL: the original link URL object if any.
+    ///     - newURL: the new link URL object if any.
+    ///
+    private func processLinkDifferences(in range: NSRange, betweenOriginal originalURL: URL?, andNew newURL: URL?) {
+
+        let addStyle = originalURL == nil && newURL != nil
+        let removeStyle = originalURL != nil && newURL == nil
+
+        if addStyle {            
+            dom.applyLink(newURL, spanning: range)
+        } else if removeStyle {
+            dom.removeLink(spanning: range)
+        }
+    }
+
+
     // MARK: - Range Mapping: Visual vs HTML
-    
+
+    private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
+        return !hasNewLine(atIndex: index)
+            && !hasHorizontalLine(atIndex: index)
+            && !hasMoreMarker(atIndex: index)
+            && !hasVisualOnlyElement(atIndex: index)
+    }
+
+    private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
+        guard caretPosition != 0,
+            let previousLocation = textStore.string.location(before:caretPosition) else {
+            return false
+        }
+
+        return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
+    }
+
+    private func hasHorizontalLine(atIndex index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
+            attachment is LineAttachment else {
+                return false
+        }
+
+        return true
+    }
+
+    private func hasMoreMarker(atIndex index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
+            attachment is MoreAttachment else {
+            return false
+        }
+
+        return true
+    }
+
+    private func hasNewLine(atIndex index: Int) -> Bool {
+        if index >= textStore.length || index < 0 {
+            return false
+        }
+        let nsString = string as NSString
+        return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
+    }
+
+    private func hasVisualOnlyElement(atIndex index: Int) -> Bool {
+        return attribute(VisualOnlyAttributeName, at: index, effectiveRange: nil) != nil
+    }
+
+    private func map(visualLocation: Int) -> Int {
+
+        let locationRange = NSRange(location: visualLocation, length: 0)
+        let mappedRange = textStore.map(range: locationRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
+
+        return mappedRange.location
+    }
+
     private func map(visualRange: NSRange) -> NSRange {
         return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
     }
@@ -288,52 +658,11 @@ open class TextStorage: NSTextStorage {
     // MARK: - Styles: Toggling
     @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange? {
         let applicationRange = formatter.applicationRange(for: range, in: self)
-        if applicationRange.length == 0, !formatter.worksInEmtpyRange() {
+        if applicationRange.length == 0, !formatter.worksInEmptyRange() {
             return applicationRange
         }
-        let newSelectedRange = formatter.toggle(in: self, at: applicationRange)
-        if !formatter.present(in: self, at: applicationRange.location) {
-            let domRange = map(visualRange: range)
-            dom.remove(element:formatter.elementType, at: domRange)
-        }
-        return newSelectedRange
-    }
 
-    /// Toggles blockquotes for the specified range.
-    ///
-    /// - Parameter range: the range to toggle the style of.
-    /// - Returns: the range that was applied to.
-    func toggleBlockquote(_ range: NSRange) -> NSRange? {
-        let formatter = BlockquoteFormatter()
-        let applicationRange = formatter.applicationRange(for: range, in: self)
-        let newSelectedRange = formatter.toggle(in: self, at: range)
-        if !formatter.present(in: self, at: range.location) {
-            dom.removeBlockquote(spanning: applicationRange)
-        }
-        return newSelectedRange
-    }
-
-    func setLink(_ url: URL, forRange range: NSRange) {
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-        } else {
-            //if a link was not there we are just going to add it to the provided range
-            effectiveRange = range
-        }
-        
-        addAttribute(NSLinkAttributeName, value: url, range: effectiveRange)
-    }
-
-    func removeLink(inRange range: NSRange){
-        var effectiveRange = range
-        if attribute(NSLinkAttributeName, at: range.location, effectiveRange: &effectiveRange) != nil {
-            //if there was a link there before let's remove it
-            removeAttribute(NSLinkAttributeName, range: effectiveRange)
-            
-            dom.removeLink(inRange: effectiveRange)
-        }
+        return formatter.toggle(in: self, at: applicationRange)
     }
 
     /// Insert Image Element at the specified range using url as source
@@ -356,6 +685,17 @@ open class TextStorage: NSTextStorage {
         replaceCharacters(in: insertionRange, with: attachmentString)
 
         return attachment
+    }
+
+    /// Insert an HR element at the specifice range
+    ///
+    /// - Parameter range: the range where the element will be inserted
+    ///
+    func insertHorizontalRuler(at range: NSRange) {
+        let line = LineAttachment()
+
+        let attachmentString = NSAttributedString(attachment: line)
+        replaceCharacters(in: range, with: attachmentString)        
     }
 
     // MARK: - Attachments
@@ -414,6 +754,23 @@ open class TextStorage: NSTextStorage {
             }
         }
     }
+
+    /// Removes all of the TextAttachments from the storage
+    ///
+    open func removeTextAttachments() {
+        var ranges = [NSRange]()
+        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, _) in
+            ranges.append(range)
+        }
+
+        var delta = 0
+        for range in ranges {
+            let corrected = NSRange(location: range.location - delta, length: range.length)
+            replaceCharacters(in: corrected, with: NSAttributedString(string: ""))
+            delta += range.length
+        }
+    }
+
 
     // MARK: - Toggle Attributes
 

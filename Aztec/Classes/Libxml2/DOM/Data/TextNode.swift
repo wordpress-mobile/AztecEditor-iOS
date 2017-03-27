@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    class TextNode: Node, EditableNode, LeafNode {
+    class TextNode: Node, LeafNode {
 
         fileprivate var contents: String
 
@@ -26,7 +26,8 @@ extension Libxml2 {
         /// Node length.
         ///
         override func length() -> Int {
-            return contents.characters.count
+            let nsString = contents as NSString
+            return nsString.length
         }
         
         // MARK: - Editing: Atomic Operations
@@ -38,7 +39,8 @@ extension Libxml2 {
         ///     - string: the string to append to the node.
         ///
         private func append(sanitizedString string: String) {
-            registerUndoForAppend(appendedLength: string.characters.count)
+            let nsString = string as NSString
+            registerUndoForAppend(appendedLength: nsString.length)
             contents.append(string)
         }
         
@@ -68,7 +70,7 @@ extension Libxml2 {
                     parent.insert(separator, at: insertionIndex)
                     insertionIndex = insertionIndex + 1
                     
-                    if component.characters.count > 0 {
+                    if !component.isEmpty {
                         let textNode = TextNode(text: component, editContext: editContext)
                         
                         parent.insert(textNode, at: insertionIndex)
@@ -85,7 +87,8 @@ extension Libxml2 {
         ///     - string: the string to prepend to the node.
         ///
         private func prepend(sanitizedString string: String) {
-            registerUndoForPrepend(prependedLength: string.characters.count)
+            let nsString = string as NSString
+            registerUndoForPrepend(prependedLength: nsString.length)
             contents = "\(string)\(contents)"
         }
         
@@ -222,7 +225,7 @@ extension Libxml2 {
             }
         }
 
-        func deleteCharacters(inRange range: NSRange) {
+        override func deleteCharacters(inRange range: NSRange) {
 
             guard let range = contents.rangeFromNSRange(range) else {
                 fatalError("The specified range is out of bounds.")
@@ -247,7 +250,7 @@ extension Libxml2 {
             }
         }
 
-        func replaceCharacters(inRange range: NSRange, withString string: String, inheritStyle: Bool) {
+        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
             let components = string.components(separatedBy: String(.newline))
             
             if components.count == 1 {
@@ -257,7 +260,7 @@ extension Libxml2 {
             }
         }
 
-        func split(atLocation location: Int) {
+        override func split(atLocation location: Int) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -268,10 +271,11 @@ extension Libxml2 {
             guard location > 0 && location < length() else {
                 fatalError("Out of bounds!")
             }
+
             
-            let index = text().characters.index(text().startIndex, offsetBy: location)
-            
-            guard let parent = parent,
+            guard
+                let index = text().indexFromLocation(location),
+                let parent = parent,
                 let nodeIndex = parent.children.index(of: self) else {
                     
                     fatalError("This scenario should not be possible. Review the logic.")
@@ -287,7 +291,7 @@ extension Libxml2 {
             }
         }
         
-        func split(forRange range: NSRange) {
+        override func split(forRange range: NSRange) {
 
             guard let swiftRange = contents.rangeFromNSRange(range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
@@ -327,12 +331,12 @@ extension Libxml2 {
         func wrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
             guard !NSEqualRanges(targetRange, NSRange(location: 0, length: length())) else {
-                wrap(inElement: elementDescriptor)
+                wrap(in: elementDescriptor)
                 return
             }
 
             split(forRange: targetRange)
-            wrap(inElement: elementDescriptor)
+            wrap(in: elementDescriptor)
         }
         
         // MARK: - LeafNode

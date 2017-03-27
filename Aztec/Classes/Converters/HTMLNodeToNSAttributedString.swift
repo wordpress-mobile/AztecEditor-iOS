@@ -26,6 +26,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
+    private lazy var defaultAttributes: [String: Any] = {
+        let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
+        return [NSFontAttributeName: defaultFont]
+    }()
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -36,10 +40,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(_ node: Node) -> NSAttributedString {
-
-        let defaultFont = UIFont(descriptor: defaultFontDescriptor, size: defaultFontDescriptor.pointSize)
-
-        return convert(node, inheritingAttributes: [NSFontAttributeName: defaultFont])
+        return convert(node, inheritingAttributes: defaultAttributes)
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -97,6 +98,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+        let moreLabel = "more"
+        if node.comment.hasPrefix(moreLabel) {
+            var attributes = inheritedAttributes;
+            let moreAttachment = MoreAttachment()
+            let index = moreLabel.endIndex
+            moreAttachment.message = node.comment.substring(from: index)            
+            moreAttachment.label = NSAttributedString(string: NSLocalizedString("MORE", comment: "Text for the center of the more divider"), attributes: defaultAttributes)
+            attributes[NSAttachmentAttributeName] = moreAttachment
+            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        }
         return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
@@ -157,48 +168,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         var attributes = inheritedAttributes
 
-        // Since a default font is requested by this class, there's no way this attribute should
-        // ever be unset.
-        //
-        precondition(inheritedAttributes[NSFontAttributeName] is UIFont)
-        let baseFont = inheritedAttributes[NSFontAttributeName] as! UIFont
-        let baseFontDescriptor = baseFont.fontDescriptor
-        let descriptor = fontDescriptor(forNode: node, withBaseFontDescriptor: baseFontDescriptor)
+        var attributeValue: Any?
 
-        if descriptor != baseFontDescriptor {
-            attributes[NSFontAttributeName] = UIFont(descriptor: descriptor, size: descriptor.pointSize)
-        }
-
-        if isLink(node) {
-            let linkURL: String
+        if node.isNodeType(.a) {
+            var linkURL: URL?
 
             if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
                 let attribute = node.attributes[attributeIndex] as? StringAttribute {
 
-                linkURL = attribute.value
+                linkURL = URL(string: attribute.value)
             } else {
                 // We got a link tag without an HREF attribute
                 //
-                linkURL = ""
+                linkURL = URL(string: "")
             }
 
-            attributes[NSLinkAttributeName] = linkURL as AnyObject?
+            attributeValue = linkURL
         }
 
-        if isStrikedThrough(node) {
-            attributes[NSStrikethroughStyleAttributeName] = NSUnderlineStyle.styleSingle.rawValue as AnyObject?
-        }
-
-        if isUnderlined(node) {
-            attributes[NSUnderlineStyleAttributeName] = NSUnderlineStyle.styleSingle.rawValue as AnyObject?
-        }
-
-        if isBlockquote(node) {
-            let formatter = BlockquoteFormatter()
-            attributes = formatter.apply(to: attributes)
-        }
-
-        if isImage(node) {
+        if node.isNodeType(.img) {
             let url: URL?
 
             if let urlString = node.valueForStringAttribute(named: "src") {
@@ -220,79 +208,38 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                     }
                 }
             }
-            attributes[NSAttachmentAttributeName] = attachment
+            attributeValue = attachment
         }
 
-        if node.isNodeType(.ol) {
-            let formatter = TextListFormatter(style: .ordered)
-            attributes = formatter.apply(to: attributes)
-        }
-
-        if node.isNodeType(.ul) {
-            let formatter = TextListFormatter(style: .unordered)
-            attributes = formatter.apply(to: attributes)
+        for (key, formatter) in elementToFormattersMap {
+            if node.isNodeType(key) {
+                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                    let value = attributeValue {
+                    standardValueFormatter.attributeValue = value
+                }
+                attributes = formatter.apply(to: attributes);
+            }
         }
 
         return attributes
     }
 
-    // MARK: - Font
-
-    fileprivate func fontDescriptor(forNode node: ElementNode, withBaseFontDescriptor fontDescriptor: UIFontDescriptor) -> UIFontDescriptor {
-        let traits = symbolicTraits(forNode: node, withBaseSymbolicTraits: fontDescriptor.symbolicTraits)
-
-        return fontDescriptor.withSymbolicTraits(traits)!
-    }
-
-    /// Gets a list of symbolic traits representing the specified node.
-    ///
-    /// - Parameters:
-    ///     - node: the node to get the traits from.
-    ///
-    /// - Returns: the requested symbolic traits.
-    ///
-    fileprivate func symbolicTraits(forNode node: ElementNode, withBaseSymbolicTraits baseTraits: UIFontDescriptorSymbolicTraits) -> UIFontDescriptorSymbolicTraits {
-
-        var traits = baseTraits
-
-        if isBold(node) {
-            traits.insert(.traitBold)
-        }
-
-        if isItalic(node) {
-            traits.insert(.traitItalic)
-        }
-
-        return traits
-    }
-
-    // MARK: - Node Style Checks
-
-    fileprivate func isLink(_ node: ElementNode) -> Bool {
-        return node.name == StandardElementType.a.rawValue
-    }
-
-    fileprivate func isBold(_ node: ElementNode) -> Bool {
-        return StandardElementType.b.equivalentNames.contains(node.name)
-    }
-
-    fileprivate func isItalic(_ node: ElementNode) -> Bool {
-        return StandardElementType.i.equivalentNames.contains(node.name)
-    }
-
-    fileprivate func isStrikedThrough(_ node: ElementNode) -> Bool {
-        return StandardElementType.s.equivalentNames.contains(node.name)
-    }
-
-    fileprivate func isUnderlined(_ node: ElementNode) -> Bool {
-        return node.name == StandardElementType.u.rawValue
-    }
-
-    fileprivate func isBlockquote(_ node: ElementNode) -> Bool {
-        return node.name == StandardElementType.blockquote.rawValue
-    }
-
-    fileprivate func isImage(_ node: ElementNode) -> Bool {
-        return node.name == StandardElementType.img.rawValue
-    }    
+    public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
+        .ol: TextListFormatter(style: .ordered),
+        .ul: TextListFormatter(style: .unordered),
+        .blockquote: BlockquoteFormatter(),
+        .strong: BoldFormatter(),
+        .em: ItalicFormatter(),
+        .u: UnderlineFormatter(),
+        .del: StrikethroughFormatter(),
+        .a: LinkFormatter(),
+        .img: ImageFormatter(),
+        .hr: HRFormatter(),
+        .h1: HeaderFormatter(headerLevel: .h1),
+        .h2: HeaderFormatter(headerLevel: .h2),
+        .h3: HeaderFormatter(headerLevel: .h3),
+        .h4: HeaderFormatter(headerLevel: .h4),
+        .h5: HeaderFormatter(headerLevel: .h5),
+        .h6: HeaderFormatter(headerLevel: .h6)
+    ]
 }

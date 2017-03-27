@@ -144,10 +144,10 @@ extension Libxml2.In {
 
         private func sanitize(_ text: String) -> String {
 
-            let hasAnEndingSpace = text[text.index(before: text.endIndex)] == Character(.space)
+            let hasAnEndingSpace = text.hasSuffix(String(.space))
+            let hasAStartingSpace = text.hasPrefix(String(.space))
 
-            let characterSet = CharacterSet(charactersIn: "\(String(.space))")
-            let trimmedText = text.trimmingCharacters(in: characterSet)
+            let trimmedText = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             var singleSpaceText = trimmedText
             let doubleSpace = "  "
             let singleSpace = " "
@@ -157,9 +157,9 @@ extension Libxml2.In {
             }
 
             let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.newline), with: "")
-            let endingSpace = noBreaksText.characters.count > 0 && hasAnEndingSpace ? String(.space) : ""
-
-            return "\(noBreaksText)\(endingSpace)"
+            let endingSpace = !noBreaksText.isEmpty && hasAnEndingSpace ? String(.space) : ""
+            let startingSpace = !noBreaksText.isEmpty && hasAStartingSpace ? String(.space) : ""
+            return "\(startingSpace)\(noBreaksText)\(endingSpace)"
         }
     }
 }

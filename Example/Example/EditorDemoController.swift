@@ -11,6 +11,8 @@ class EditorDemoController: UIViewController {
 
     fileprivate var mediaErrorMode = false
 
+    lazy var headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
+
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let defaultMissingImage = Gridicon.iconOfType(.image)
         let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
@@ -23,7 +25,6 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
-        textView.addGestureRecognizer(self.tapGestureRecognizer)
 
         return textView
     }()
@@ -86,16 +87,11 @@ class EditorDemoController: UIViewController {
             richTextView.isHidden = editingMode == .html
             htmlTextView.isHidden = editingMode == .richText
         }
-    }
-
-    fileprivate(set) lazy var tapGestureRecognizer: UIGestureRecognizer = {
-        let recognizer = UITapGestureRecognizer(target: self, action: #selector(richTextViewWasPressed))
-        recognizer.cancelsTouchesInView = false
-        recognizer.delegate = self
-        return recognizer
-    }()
+    }    
 
     fileprivate var currentSelectedAttachment: TextAttachment?
+
+    fileprivate var formatBarAnimatedPeek = false
 
     var loadSampleHTML = false
 
@@ -130,21 +126,30 @@ class EditorDemoController: UIViewController {
         }
 
         richTextView.setHTML(html)
+
+        TextAttachment.appearance.progressColor = UIColor.blue
+        TextAttachment.appearance.progressBackgroundColor = UIColor.lightGray
+        TextAttachment.appearance.progressHeight = 2.0
+        TextAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardDidShow), name: .UIKeyboardDidShow, object: nil)
     }
 
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        let nc = NotificationCenter.default
+        nc.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
+        nc.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
+        nc.removeObserver(self, name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -221,7 +226,6 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-
     func keyboardWillHide(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
@@ -231,6 +235,16 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
+    }
+
+    func keyboardDidShow(_ notification: Notification) {
+        guard richTextView.isFirstResponder, !formatBarAnimatedPeek else {
+            return
+        }
+
+        let formatBar = richTextView.inputAccessoryView as? FormatBar
+        formatBar?.animateSlightPeekWhenOverflows()
+        formatBarAnimatedPeek = true
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -255,6 +269,15 @@ class EditorDemoController: UIViewController {
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
+        // Filter multiple header identifier to single header identifier
+        identifiers = identifiers.map({ (identifier) -> FormattingIdentifier in
+            switch identifier {
+            case .header1, .header2, .header3, .header4, .header5, .header6:
+                return .header
+            default:
+                return identifier
+            }
+        })
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -273,11 +296,31 @@ class EditorDemoController: UIViewController {
 
         return fileContents
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        richTextView.inputAccessoryView = createToolbar(htmlMode: false)
+        if richTextView.resignFirstResponder() {
+            richTextView.becomeFirstResponder()
+        }
+        htmlTextView.inputAccessoryView = createToolbar(htmlMode: true)
+        if htmlTextView.resignFirstResponder() {
+            htmlTextView.becomeFirstResponder()
+        }
+        titleTextField.inputAccessoryView = createToolbar(htmlMode: true)
+        if titleTextField.resignFirstResponder() {
+            titleTextField.becomeFirstResponder()
+        }
+
+    }
 }
 
 extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
+        changeRichTextInputView(to: nil)
+    }
+
+    func textViewDidChange(_ textView: UITextView) {        
     }
 }
 
@@ -332,7 +375,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
+        case .header, .header1, .header2, .header3, .header4, .header5, .header6:
+            toggleHeader()
+        case .horizontalruler:
+            insertHorizontalRuler()
         }
+
         updateFormatBar()
     }
 
@@ -370,6 +418,63 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
 
+    func insertHorizontalRuler() {
+        richTextView.replaceWithHorizontalRuler(at: richTextView.selectedRange)
+    }
+
+    func toggleHeader() {
+        // check if we already showing a custom view.
+        if richTextView.inputView != nil {
+            changeRichTextInputView(to: nil)
+            return
+        }
+        let headerOptions = headers.map { (headerType) -> NSAttributedString in
+            NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
+        }
+
+        let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
+        headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        headerPicker.onSelect = { selected in
+            self.richTextView.toggleHeader(self.headers[selected], range: self.richTextView.selectedRange)
+            self.changeRichTextInputView(to: nil)
+        }
+        if let selectedHeader = headers.index(of:self.headerLevelForSelectedText()) {
+            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
+        }
+        changeRichTextInputView(to: headerPicker)
+    }
+
+    func changeRichTextInputView(to: UIView?) {
+        if richTextView.inputView == to {
+            return
+        }
+        richTextView.resignFirstResponder()
+        richTextView.inputView = to
+        richTextView.becomeFirstResponder()
+    }
+
+    func headerLevelForSelectedText() -> HeaderFormatter.HeaderType {
+        var identifiers = [FormattingIdentifier]()
+        if (richTextView.selectedRange.length > 0) {
+            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+        } else {
+            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        }
+        let mapping: [FormattingIdentifier: HeaderFormatter.HeaderType] = [
+            .header1 : .h1,
+            .header2 : .h2,
+            .header3 : .h3,
+            .header4 : .h4,
+            .header5 : .h5,
+            .header6 : .h6,
+        ]
+        for (key,value) in mapping {
+            if identifiers.contains(key) {
+                return value
+            }
+        }
+        return .none
+    }
 
     func toggleLink() {
         var linkTitle = ""
@@ -505,51 +610,54 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     // MARK: -
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
-        let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let items = [
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.addImage).withRenderingMode(.alwaysTemplate), identifier: .media),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.bold).withRenderingMode(.alwaysTemplate), identifier: .bold),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.italic).withRenderingMode(.alwaysTemplate), identifier: .italic),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.underline).withRenderingMode(.alwaysTemplate), identifier: .underline),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.strikethrough).withRenderingMode(.alwaysTemplate), identifier: .strikethrough),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.quote).withRenderingMode(.alwaysTemplate), identifier: .blockquote),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listUnordered).withRenderingMode(.alwaysTemplate), identifier: .unorderedlist),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.listOrdered).withRenderingMode(.alwaysTemplate), identifier: .orderedlist),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.link).withRenderingMode(.alwaysTemplate), identifier: .link),
-            flex,
-            Aztec.FormatBarItem(image: Gridicon.iconOfType(.code).withRenderingMode(.alwaysTemplate), identifier: .sourcecode),
-            flex,
-        ]
+
+        let scrollableItems = scrollableItemsForToolbar
+        let fixedItems = fixedItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            for item in items {
+            let merged = scrollableItems + fixedItems
+            for item in merged {
                 item.isEnabled = false
-                if let sourceItem = item as? FormatBarItem, sourceItem.identifier == .sourcecode {
+                if item.identifier == .sourcecode {
                     item.isEnabled = true
                 }
             }
         }
 
-        toolbar.items = items
-        toolbar.tintColor = UIColor.gray
-        toolbar.highlightedTintColor = UIColor.blue
-        toolbar.selectedTintColor = UIColor.darkGray
-        toolbar.disabledTintColor = UIColor.lightGray
-        toolbar.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44.0)
+        toolbar.scrollableItems = scrollableItems
+        toolbar.fixedItems = fixedItems
+        toolbar.tintColor = .gray
+        toolbar.highlightedTintColor = .blue
+        toolbar.selectedTintColor = .darkGray
+        toolbar.disabledTintColor = .lightGray
+        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 
         return toolbar
+    }
+
+    var scrollableItemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
+            FormatBarItem(image: Gridicon.iconOfType(.heading), identifier: .header),
+            FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
+            FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
+            FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
+            FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
+            FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
+            FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
+            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
+            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler)
+        ]
+    }
+
+    var fixedItemsForToolbar: [FormatBarItem] {
+        return [
+            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode)
+        ]
     }
 
 }
@@ -576,15 +684,42 @@ extension EditorDemoController: TextViewMediaDelegate
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForImage image: UIImage) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
         
         // TODO: start fake upload process
-        
-        return saveToDisk(image: image)
+        if let image = attachment.image {
+            return saveToDisk(image: image)
+        } else {
+            return URL(string: "placeholder://")!
+        }
     }
 
     func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
         print("Attachment \(attachmentID) removed.\n")
+    }
+
+    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+
+        if (currentSelectedAttachment == attachment) {
+            displayActions(forAttachment: attachment, position: position)
+        } else {
+            if let selectedAttachment = currentSelectedAttachment {
+                selectedAttachment.clearAllOverlays()
+                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+            }
+
+            // and mark the newly tapped attachment
+            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
+            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+            richTextView.refreshLayoutFor(attachment: attachment)
+            currentSelectedAttachment = attachment
+        }
+    }
+
+    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+        attachment.clearAllOverlays()
+        richTextView.refreshLayoutFor(attachment: attachment)
     }
 }
 
@@ -651,12 +786,12 @@ private extension EditorDemoController
         }        
         progress.completedUnitCount += 1
         if let attachment = richTextView.attachment(withId: imageId) {
-            attachment.progress = progress.fractionCompleted
-            attachment.progressColor = UIColor.blue            
+            attachment.progress = progress.fractionCompleted                        
             if mediaErrorMode && progress.fractionCompleted >= 0.25 {
                 timer.invalidate()
                 let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
                 attachment.message = message
+                attachment.overlayImage = Gridicon.iconOfType(.refresh)
             }
             if progress.fractionCompleted >= 1 {
                 timer.invalidate()
@@ -691,7 +826,7 @@ private extension EditorDemoController
                                           handler: { (action) in
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
-                                                attachment.message = nil
+                                                attachment.clearAllOverlays()
                                                 self.richTextView.refreshLayoutFor(attachment: attachment)
                                             }
         })
@@ -735,45 +870,5 @@ private extension EditorDemoController
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
-    }
-}
-
-// MARK: - UIGestureRecognizerDelegate
-
-extension EditorDemoController: UIGestureRecognizerDelegate
-{
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-
-    func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
-        let locationInTextView = recognizer.location(in: richTextView)
-        // check if we have an attachment in the position we tapped
-        guard let attachment = richTextView.attachmentAtPoint(locationInTextView) else {
-            // if we have an attachment marked lets unmark it
-            if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
-                currentSelectedAttachment = nil
-            }
-            return
-        }
-        // move the selection to the position of the attachment
-        richTextView.moveSelectionToPoint(locationInTextView)
-        if attachment == currentSelectedAttachment {
-            //if it's the same attachment has before let's display the options
-            displayActions(forAttachment: attachment, position: locationInTextView)
-        } else {
-            // if it's a new attachment tapped let unmark the previous one
-            if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
-            }
-            // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap to edit", comment: "Options to show when tapping on a image on the post/page editor.")
-            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
-            richTextView.refreshLayoutFor(attachment: attachment)
-            currentSelectedAttachment = attachment
-        }
     }
 }
