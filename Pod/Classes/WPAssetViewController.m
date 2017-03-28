@@ -172,6 +172,7 @@
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.navigationController setNavigationBarHidden:!self.videoView.controlToolbarHidden animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:!self.videoView.controlToolbarHidden withAnimation:UIStatusBarAnimationSlide];
         [self.videoView setControlToolbarHidden: !self.videoView.controlToolbarHidden animated: YES];
     }
 }
