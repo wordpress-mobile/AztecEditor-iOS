@@ -65,10 +65,7 @@ static CGFloat toolbarHeight = 44;
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.playerLayer.frame = self.bounds;
-    CGFloat position = toolbarHeight;
-    if (self.controlToolbarHidden) {
-        position = 0;
-    }
+    CGFloat position = self.controlToolbarHidden ? 0 : toolbarHeight;
     self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
 }
 
@@ -78,20 +75,26 @@ static CGFloat toolbarHeight = 44;
     }
     _controlToolbar = [[UIToolbar alloc] init];
     _controlToolbar.hidden = YES;
+    _controlToolbar.tintColor = [UIColor whiteColor];
+    _controlToolbar.barStyle = UIBarStyleBlack;
+    _controlToolbar.translucent = YES;
     [self updateControlToolbar];
     return _controlToolbar;
 }
 
 - (UIBarButtonItem *)videoDurationButton {
-    if (_videoDurationButton == nil) {
-        _videoDurationButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-        NSDictionary *titleAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
-        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateNormal];
-        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateSelected];
-        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateHighlighted];
-        [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateDisabled];
-        _videoDurationButton.enabled = NO;
+    if (_videoDurationButton) {
+        return _videoDurationButton;
     }
+
+    _videoDurationButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    NSDictionary *titleAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateNormal];
+    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateSelected];
+    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateHighlighted];
+    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateDisabled];
+    _videoDurationButton.enabled = NO;
+
     return _videoDurationButton;
 }
 
@@ -162,10 +165,7 @@ static CGFloat toolbarHeight = 44;
         self.controlToolbar.hidden = hidden;
     }
     [UIView animateWithDuration:animationDuration animations:^{
-        CGFloat position = self.controlToolbar.frame.size.height;
-        if (hidden) {
-            position = 0;
-        }
+        CGFloat position = hidden ? 0 : self.controlToolbar.frame.size.height;
         self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
     } completion:^(BOOL finished) {
         self.controlToolbar.hidden = hidden;
@@ -209,11 +209,11 @@ static CGFloat toolbarHeight = 44;
     NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
     NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
 
-    if (roundedHours > 0)
+    if (roundedHours > 0) {
         return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
-
-    else
+    } else {
         return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
+    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
