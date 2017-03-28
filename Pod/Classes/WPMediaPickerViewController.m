@@ -188,14 +188,14 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     NSInteger sectionToScroll = 0;
     NSInteger itemToScroll = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll];
-    UICollectionViewScrollPosition position = UICollectionViewScrollPositionTop;
+    UICollectionViewScrollPosition position = UICollectionViewScrollPositionCenteredVertically;
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
     if (layout && layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
-        position = self.showMostRecentFirst ? UICollectionViewScrollPositionRight : UICollectionViewScrollPositionLeft;
+        position = UICollectionViewScrollPositionCenteredHorizontally;
     }
     [self.collectionView scrollToItemAtIndexPath:indexPath
                                 atScrollPosition:position
-                                        animated:YES];
+                                        animated:animated];
 }
 
 #pragma mark - UICollectionViewDataSource
