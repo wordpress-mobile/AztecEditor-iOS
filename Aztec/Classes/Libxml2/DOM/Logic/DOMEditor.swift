@@ -375,13 +375,18 @@ extension Libxml2 {
 
         private func extractNodesForMerging(from parent: ElementNode, startingAt index: Int) -> [Node] {
 
+            guard index < parent.children.count else {
+                return []
+            }
+
             var nodes = [Node]()
 
-            for i in index ..< parent.children.count {
+            var currentNode = parent.children[index]
 
-                let node = parent.children[i]
+            while true {
+                let nextNodeOptional = inspector.rightSibling(of: currentNode)
 
-                if let element = node as? ElementNode {
+                if let element = currentNode as? ElementNode {
                     if element.isBlockLevelElement() {
                         if nodes.count == 0 {
                             nodes = extractNodesForMerging(from: element, startingAt: 0)
@@ -394,8 +399,14 @@ extension Libxml2 {
                     }
                 }
 
-                node.removeFromParent()
-                nodes.append(node)
+                currentNode.removeFromParent()
+                nodes.append(currentNode)
+
+                guard let nextNode = nextNodeOptional else {
+                    break
+                }
+
+                currentNode = nextNode
             }
 
             if parent.children.count == 0 {
