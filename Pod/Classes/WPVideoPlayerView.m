@@ -11,7 +11,8 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
 @property (nonatomic, strong) UIToolbar *controlToolbar;
-@property (nonatomic, strong) UIBarButtonItem * videoDurationButton;
+@property (nonatomic, strong) UIBarButtonItem *videoDurationButton;
+@property (nonatomic, strong) UILabel *videoDurationLabel;
 @property (nonatomic, strong) id timeObserver;
 
 @end
@@ -19,6 +20,7 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @implementation WPVideoPlayerView
 
 static NSString *tracksKey = @"tracks";
+static NSString *timeFormatString = @"%@ / %@";
 static CGFloat toolbarHeight = 44;
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -86,16 +88,28 @@ static CGFloat toolbarHeight = 44;
     if (_videoDurationButton) {
         return _videoDurationButton;
     }
-
-    _videoDurationButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-    NSDictionary *titleAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
-    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateNormal];
-    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateSelected];
-    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateHighlighted];
-    [_videoDurationButton setTitleTextAttributes:titleAttributes forState:UIControlStateDisabled];
-    _videoDurationButton.enabled = NO;
-
+    _videoDurationButton = [[UIBarButtonItem alloc] initWithCustomView:self.videoDurationLabel];
     return _videoDurationButton;
+}
+
+- (UILabel *)videoDurationLabel {
+    if (_videoDurationLabel) {
+        return _videoDurationLabel;
+    }
+
+    _videoDurationLabel = [UILabel new];
+    _videoDurationLabel.textColor = [UIColor whiteColor];
+    _videoDurationLabel.font = [UIFont monospacedDigitSystemFontOfSize:14.0 weight: UIFontWeightBold];
+    _videoDurationLabel.adjustsFontSizeToFitWidth = NO;
+    _videoDurationLabel.textAlignment = NSTextAlignmentRight;
+    _videoDurationLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    // Fix the label to the widest size we want to show, so it doesn't
+    // resize itself and move around as we update the content
+    _videoDurationLabel.text = [NSString stringWithFormat:timeFormatString, @"0:00:00", @"0:00:00"];
+    [_videoDurationLabel sizeToFit];
+
+    return _videoDurationLabel;
 }
 
 - (void)setVideoURL:(NSURL *)videoURL {
@@ -200,7 +214,7 @@ static CGFloat toolbarHeight = 44;
     double currentSeconds = CMTimeGetSeconds(playerItem.currentTime);
     NSString *totalDuration = [self stringFromTimeInterval:totalSeconds];
     NSString *currentDuration = [self stringFromTimeInterval:currentSeconds];
-    self.videoDurationButton.title = [NSString stringWithFormat:@"%@/%@", currentDuration, totalDuration];
+    self.videoDurationLabel.text = [NSString stringWithFormat:timeFormatString, currentDuration, totalDuration];
 }
 
 - (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
