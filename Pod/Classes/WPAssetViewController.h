@@ -13,6 +13,8 @@
 
 @interface WPAssetViewController : UIViewController
 
+- (instancetype)initWithAsset:(id<WPMediaAsset>)asset;
+
 @property (nonatomic, strong) id<WPMediaAsset> asset;
 @property (nonatomic, assign) BOOL selected;
 

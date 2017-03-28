@@ -1,5 +1,6 @@
 @import UIKit;
 #import "WPMediaCollectionDataSource.h"
+#import "WPAssetViewController.h"
 
 @class WPMediaPickerViewController;
 /**
@@ -122,7 +123,7 @@
 @end
 
 
-@interface WPMediaPickerViewController : UICollectionViewController
+@interface WPMediaPickerViewController : UICollectionViewController<WPAssetViewControllerDelegate>
 
 @property (nonatomic, readonly, nonnull) NSMutableArray *selectedAssets;
 /**

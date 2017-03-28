@@ -16,6 +16,14 @@
 
 @implementation WPAssetViewController
 
+- (instancetype)initWithAsset:(id<WPMediaAsset>)asset
+{
+    if (self = [super initWithNibName:nil bundle:nil]) {
+        _asset = asset;
+    }
+
+    return self;
+}
 
 - (void)viewDidLoad
 {
@@ -73,6 +81,8 @@
     }
     _videoView = [[WPVideoPlayerView alloc] init];
     [_videoView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOnAsset:)]];
+    _videoView.controlToolbarHidden = YES;
+    _videoView.shouldAutoPlay = YES;
     return _videoView;
 }
 
@@ -161,7 +171,9 @@
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        [self.navigationController setNavigationBarHidden:!self.navigationController.isNavigationBarHidden animated:YES];
+        [self.navigationController setNavigationBarHidden:!self.videoView.controlToolbarHidden animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:!self.videoView.controlToolbarHidden withAnimation:UIStatusBarAnimationSlide];
+        [self.videoView setControlToolbarHidden: !self.videoView.controlToolbarHidden animated: YES];
     }
 }
 

@@ -184,13 +184,19 @@
     [self.mediaPicker showAfterViewController:postProcessingViewController];
 }
 
-- (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset
-{
-    if ([self.options[MediaPickerOptionsCustomPreview] boolValue] == false) {
+- (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
+    if (picker == self.mediaInputViewController.mediaPicker) {
         return nil;
     }
+    if ([self.options[MediaPickerOptionsCustomPreview] boolValue]) {
+        return [[CustomPreviewViewController alloc] initWithAsset:asset];
+    }
 
-    return [[CustomPreviewViewController alloc] initWithAsset:asset];
+    WPAssetViewController *assetViewController = [[WPAssetViewController alloc] initWithAsset: asset];
+    assetViewController.delegate = picker;
+    assetViewController.selected = [picker.selectedAssets containsObject:asset];
+    return assetViewController;
+
 }
 
 #pragma - Actions
@@ -248,6 +254,7 @@
         self.mediaInputViewController.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
         self.mediaInputViewController.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
         self.mediaInputViewController.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+        [self.mediaInputViewController.mediaPicker resetState:NO];
     }
     return YES;
 }

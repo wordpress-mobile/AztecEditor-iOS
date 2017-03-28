@@ -10,12 +10,18 @@ static NSString *playerItemContext = @"ItemStatusContext";
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) AVPlayerItem *playerItem;
+@property (nonatomic, strong) UIToolbar *controlToolbar;
+@property (nonatomic, strong) UIBarButtonItem *videoDurationButton;
+@property (nonatomic, strong) UILabel *videoDurationLabel;
+@property (nonatomic, strong) id timeObserver;
 
 @end
 
 @implementation WPVideoPlayerView
 
 static NSString *tracksKey = @"tracks";
+static NSString *timeFormatString = @"%@ / %@";
+static CGFloat toolbarHeight = 44;
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -41,18 +47,70 @@ static NSString *tracksKey = @"tracks";
     self.player = [[AVPlayer alloc] init];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer: self.player];
     [self.layer addSublayer: self.playerLayer];
+    [self addSubview:self.controlToolbar];
+
+    __weak __typeof__(self) weakSelf = self;
+    self.timeObserver = [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, NSEC_PER_SEC) queue:nil usingBlock:^(CMTime time) {
+        [weakSelf updateVideoDuration];
+    }];
 }
 
 - (void)dealloc {
-    [self.playerItem removeObserver:self forKeyPath: @"status"];
+    [_playerItem removeObserver:self forKeyPath: @"status"];
     [[NSNotificationCenter defaultCenter] removeObserver: self];
-    [self.player pause];
+    [_player removeTimeObserver:self.timeObserver];
+    [_player pause];
     _asset = nil;
+    _player = nil;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.playerLayer.frame = self.bounds;
+    CGFloat position = self.controlToolbarHidden ? 0 : toolbarHeight;
+    self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
+}
+
+- (UIToolbar *)controlToolbar {
+    if (_controlToolbar) {
+        return _controlToolbar;
+    }
+    _controlToolbar = [[UIToolbar alloc] init];
+    _controlToolbar.hidden = YES;
+    _controlToolbar.tintColor = [UIColor whiteColor];
+    _controlToolbar.barStyle = UIBarStyleBlack;
+    _controlToolbar.translucent = YES;
+    [self updateControlToolbar];
+    return _controlToolbar;
+}
+
+- (UIBarButtonItem *)videoDurationButton {
+    if (_videoDurationButton) {
+        return _videoDurationButton;
+    }
+    _videoDurationButton = [[UIBarButtonItem alloc] initWithCustomView:self.videoDurationLabel];
+    _videoDurationButton.enabled = NO;
+    return _videoDurationButton;
+}
+
+- (UILabel *)videoDurationLabel {
+    if (_videoDurationLabel) {
+        return _videoDurationLabel;
+    }
+
+    _videoDurationLabel = [UILabel new];
+    _videoDurationLabel.textColor = [UIColor whiteColor];
+    _videoDurationLabel.font = [UIFont monospacedDigitSystemFontOfSize:14.0 weight: UIFontWeightBold];
+    _videoDurationLabel.adjustsFontSizeToFitWidth = NO;
+    _videoDurationLabel.textAlignment = NSTextAlignmentRight;
+    _videoDurationLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    // Fix the label to the widest size we want to show, so it doesn't
+    // resize itself and move around as we update the content
+    _videoDurationLabel.text = [NSString stringWithFormat:timeFormatString, @"0:00:00", @"0:00:00"];
+    [_videoDurationLabel sizeToFit];
+
+    return _videoDurationLabel;
 }
 
 - (void)setVideoURL:(NSURL *)videoURL {
@@ -77,7 +135,9 @@ static NSString *tracksKey = @"tracks";
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:self.playerItem];
     [self.player replaceCurrentItemWithPlayerItem: self.playerItem];
-    [self.player play];
+    if (self.shouldAutoPlay) {
+        [self play];
+    }
 }
 
 
@@ -88,6 +148,86 @@ static NSString *tracksKey = @"tracks";
     }
     if (self.delegate) {
         [self.delegate videoPlayerViewFinish:self];
+    }
+    [self updateControlToolbar];
+}
+
+- (void)play {
+    [self.player play];
+    [self updateControlToolbar];
+    [self updateVideoDuration];
+}
+
+- (void)pause {
+    [self.player pause];
+    [self updateControlToolbar];
+}
+
+- (void)togglePlayPause {
+    if ([self.player timeControlStatus] == AVPlayerTimeControlStatusPaused) {
+        if (CMTimeCompare(self.player.currentItem.currentTime, self.player.currentItem.duration) == 0) {
+            [self.player seekToTime:kCMTimeZero];
+        }
+        [self play];
+    } else {
+        [self pause];
+    }
+}
+
+- (void)setControlToolbarHidden:(BOOL)hidden animated:(BOOL)animated {
+    CGFloat animationDuration = animated ? UINavigationControllerHideShowBarDuration : 0;
+    if (!hidden) {
+        self.controlToolbar.hidden = hidden;
+    }
+    [UIView animateWithDuration:animationDuration animations:^{
+        CGFloat position = hidden ? 0 : self.controlToolbar.frame.size.height;
+        self.controlToolbar.frame = CGRectMake(0, self.frame.size.height - position, self.frame.size.width, toolbarHeight);
+    } completion:^(BOOL finished) {
+        self.controlToolbar.hidden = hidden;
+    }];
+}
+
+- (void)setControlToolbarHidden:(BOOL)hidden {
+    [self setControlToolbarHidden:hidden animated:NO];
+}
+
+- (BOOL)controlToolbarHidden {
+    return self.controlToolbar.hidden;
+}
+
+- (void)updateControlToolbar {
+    UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
+
+    self.controlToolbar.items = @[
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil],
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:playPauseButton target:self action:@selector(togglePlayPause)],
+                                  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
+                                  self.videoDurationButton,
+                                  ];
+}
+
+- (void)updateVideoDuration {
+    AVPlayerItem *playerItem = self.player.currentItem;
+    if (!playerItem || playerItem.status != AVPlayerItemStatusReadyToPlay) {
+        return;
+    }
+    double totalSeconds = CMTimeGetSeconds(playerItem.duration);
+    double currentSeconds = CMTimeGetSeconds(playerItem.currentTime);
+    NSString *totalDuration = [self stringFromTimeInterval:totalSeconds];
+    NSString *currentDuration = [self stringFromTimeInterval:currentSeconds];
+    self.videoDurationLabel.text = [NSString stringWithFormat:timeFormatString, currentDuration, totalDuration];
+}
+
+- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSInteger roundedHours = floor(timeInterval / 3600);
+    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
+    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
+
+    if (roundedHours > 0) {
+        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
+    } else {
+        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
     }
 }
 
@@ -121,6 +261,9 @@ static NSString *tracksKey = @"tracks";
                 // Player item is ready to play.
                 if (self.delegate) {
                     [self.delegate videoPlayerViewStarted:self];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self updateVideoDuration];
+                    });
                 }
             }
                 break;

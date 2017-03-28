@@ -3,7 +3,6 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPAssetViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -14,7 +13,6 @@
  UINavigationControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
- WPAssetViewControllerDelegate,
  UIViewControllerPreviewingDelegate
 >
 
@@ -190,14 +188,14 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     NSInteger sectionToScroll = 0;
     NSInteger itemToScroll = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll];
-    UICollectionViewScrollPosition position = UICollectionViewScrollPositionTop;
+    UICollectionViewScrollPosition position = UICollectionViewScrollPositionCenteredVertically;
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
     if (layout && layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
-        position = self.showMostRecentFirst ? UICollectionViewScrollPositionRight : UICollectionViewScrollPositionLeft;
+        position = UICollectionViewScrollPositionCenteredHorizontally;
     }
     [self.collectionView scrollToItemAtIndexPath:indexPath
                                 atScrollPosition:position
-                                        animated:YES];
+                                        animated:animated];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -774,7 +772,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
-    fullScreenImageVC.delegate = self;
+    fullScreenImageVC.delegate = self;    
     return fullScreenImageVC;
 }
 
