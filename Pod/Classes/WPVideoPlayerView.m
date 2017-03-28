@@ -89,6 +89,7 @@ static CGFloat toolbarHeight = 44;
         return _videoDurationButton;
     }
     _videoDurationButton = [[UIBarButtonItem alloc] initWithCustomView:self.videoDurationLabel];
+    _videoDurationButton.enabled = NO;
     return _videoDurationButton;
 }
 
