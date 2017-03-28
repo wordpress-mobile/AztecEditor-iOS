@@ -23,7 +23,6 @@
 		702AD5F17F8916AABC105A1B /* libPods-WPMediaPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C1CDA09FDF3F25E866D8A4D /* libPods-WPMediaPicker.a */; };
 		AE22BBE03B862A6657E6B66E /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1E578A5967DE531E1AC701 /* libPods-Tests.a */; };
 		B5FF3BEA1CAD8AB100C1D597 /* PostProcessingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FF3BE91CAD8AB100C1D597 /* PostProcessingViewController.m */; };
-		FF41CBE41E8B0F5B001B8235 /* CHANGELOG.md in Sources */ = {isa = PBXBuildFile; fileRef = FF41CBE31E8B0F5B001B8235 /* CHANGELOG.md */; };
 		FFC3F6F31B0D9BB100EFC359 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFC3F6F21B0D9BB100EFC359 /* Launch Screen.xib */; };
 		FFE69A1D1B14AB840073C2EB /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE69A1C1B14AB840073C2EB /* OptionsViewController.m */; };
 		FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFFFD8801A447E67000FC184 /* DemoViewController.m */; };
@@ -418,7 +417,6 @@
 				6003F59E195388D20070C39A /* AppDelegate.m in Sources */,
 				FFFFD8811A447E67000FC184 /* DemoViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
-				FF41CBE41E8B0F5B001B8235 /* CHANGELOG.md in Sources */,
 				FFE69A1D1B14AB840073C2EB /* OptionsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
