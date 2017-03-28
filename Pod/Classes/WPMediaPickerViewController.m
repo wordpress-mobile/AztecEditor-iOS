@@ -3,7 +3,6 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
-#import "WPAssetViewController.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -14,7 +13,6 @@
  UINavigationControllerDelegate,
  UIPopoverPresentationControllerDelegate,
  UICollectionViewDelegateFlowLayout,
- WPAssetViewControllerDelegate,
  UIViewControllerPreviewingDelegate
 >
 
@@ -774,7 +772,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
-    fullScreenImageVC.delegate = self;
+    fullScreenImageVC.delegate = self;    
     return fullScreenImageVC;
 }
 

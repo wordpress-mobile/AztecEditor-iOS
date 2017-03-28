@@ -11,5 +11,6 @@
 #import "WPInputMediaPickerViewController.h"
 #import "WPVideoPlayerView.h"
 #import "WPMediaGroupTableViewCell.h"
+#import "WPAssetViewController.h"
 
 #endif /* _WPMEDIAPICKER_ */
