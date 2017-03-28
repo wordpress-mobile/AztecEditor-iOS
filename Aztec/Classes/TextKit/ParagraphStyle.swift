@@ -134,6 +134,6 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     open override var description:String {
-        return super.description + "\nTextList:\(textList?.style)\nBlockquote:\(blockquote)\nHeaderLevel:\(headerLevel)"
+        return super.description + "\nTextList:\(String(describing: textList?.style))\nBlockquote:\(String(describing:blockquote))\nHeaderLevel:\(headerLevel)"
     }
 }
