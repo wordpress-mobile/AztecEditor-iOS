@@ -314,7 +314,8 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.mergeSiblings(separatedAt: textNode1.length())
+        //editor.mergeSiblings(separatedAt: textNode1.length())
+        editor.mergeBlockLevelElementRight(endingAt: textNode1.length())
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -365,7 +366,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.mergeSiblings(separatedAt: 0)
+        editor.mergeBlockLevelElementRight(endingAt: 0)
 
         XCTAssertEqual(rootNode.children.count, 2)
 
@@ -410,7 +411,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.mergeSiblings(separatedAt: text1.characters.count + text2.characters.count)
+        editor.mergeBlockLevelElementRight(endingAt: text1.characters.count + text2.characters.count)
 
         XCTAssertEqual(rootNode.children.count, 2)
 
