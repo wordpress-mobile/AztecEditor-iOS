@@ -204,15 +204,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributeValue = attachment
         }
 
-        if node.isNodeType(.span) {
-            if let elementStyle = node.valueForStringAttribute(named: "style") {
-                let styles = parseStyle(style: elementStyle)
-                if !styles.isEmpty, let colorString = styles["color"] {
-                    attributeValue = UIColor(hexString: colorString)
-                }
-            }           
-        }
-
         for (key, formatter) in elementToFormattersMap {
             if node.isNodeType(key) {
                 if let standardValueFormatter = formatter as? StandardAttributeFormatter,
@@ -223,6 +214,19 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             }
         }
 
+        if let elementStyle = node.valueForStringAttribute(named: "style") {
+            let styles = parseStyle(style: elementStyle)
+            for (key, (formatter, parser)) in styleToFormattersMap {
+                guard let styleString = styles[key],
+                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                      let value = parser(styleString)
+                    else {
+                        continue
+                    }
+                    standardValueFormatter.attributeValue = value
+                    attributes = standardValueFormatter.apply(to: attributes);
+            }
+        }
         return attributes
     }
 
@@ -243,7 +247,11 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .h4: HeaderFormatter(headerLevel: .h4),
         .h5: HeaderFormatter(headerLevel: .h5),
         .h6: HeaderFormatter(headerLevel: .h6),
-        .span: ColorFormatter()
+    ]
+
+    public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
+        "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
+        "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
 
     func parseStyle(style: String) -> [String: String] {
