@@ -3,31 +3,45 @@ extension Libxml2 {
     ///
     class DOMInspector: DOMLogic {
 
-        /// Finds the two siblings separated at the specified location.
-        ///
-        //// - Parameters:
-        ///     - location: the location that separates the two siblings.
-        ///
-        /// - Returns: the two siblings, if they exist, or `nil` in any other scenario.
-        ///
-        func findSiblings(separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
-            return findSiblings(of: rootNode, separatedAt: location)
+        func rightSibling(of node: Node) -> Node? {
+            guard let parent = node.parent else {
+                assertionFailure("Shouldn't call this method in a node without a parent.")
+                return nil
+            }
+
+            let nextIndex = parent.indexOf(childNode: node) + 1
+
+            guard parent.children.count > nextIndex else {
+                return nil
+            }
+
+            return parent.children[nextIndex]
         }
 
-        /// Finds the two siblings separated at the specified location.
+        /// Finds a node ending at the specified location.
         ///
         //// - Parameters:
-        ///     - location: the location that separates the two siblings.
+        ///     - location: the location where the node is supposed to end.
         ///
-        /// - Returns: the two siblings, if they exist, or `nil` in any other scenario.
+        /// - Returns: the node that ends at the specified location.
         ///
-        private func findSiblings(of element: ElementNode, separatedAt location: Int) -> (leftSibling: Node, rightSibling: Node)? {
+        func findNode(endingAt location: Int) -> Node? {
+            return findDescendant(of: rootNode, endingAt: location)
+        }
 
-            var leftSibling: Node?
-            var rightSibling: Node?
+        /// Finds the descendant of the specified node, ending at the specified location.
+        ///
+        //// - Parameters:
+        ///     - startingElement: the node to search the descendant of.
+        ///     - location: the location where the descendant ends.
+        ///
+        /// - Returns: the node that ends at the specified location.
+        ///
+        private func findDescendant(of startingElement: ElementNode, endingAt location: Int) -> Node? {
+            
             var childStartLocation = 0
 
-            for child in element.children {
+            for child in startingElement.children {
 
                 let childEndLocation = childStartLocation + child.length()
 
@@ -37,28 +51,20 @@ extension Libxml2 {
                     continue
                 }
 
-                if location == childStartLocation {
-                    rightSibling = child
-                    break
-                } else if location == childEndLocation {
-                    leftSibling = child
+                if location == childEndLocation {
+                    return child
                 } else if location > childStartLocation && location < childEndLocation {
                     guard let childElement = child as? ElementNode else {
                         return nil
                     }
 
-                    return findSiblings(of: childElement, separatedAt: location - childStartLocation)
+                    return findDescendant(of: childElement, endingAt: location - childStartLocation)
                 }
 
                 childStartLocation = childEndLocation
             }
 
-            if let leftSibling = leftSibling,
-                let rightSibling = rightSibling {
-                return (leftSibling, rightSibling)
-            } else {
-                return nil
-            }
+            return nil
         }
     }
 }

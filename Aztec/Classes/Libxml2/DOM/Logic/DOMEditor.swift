@@ -300,52 +300,120 @@ extension Libxml2 {
         /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
         /// only two siblings can match this separator.
         ///
+        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
+        ///         even though it's not part of the contents of any node.  This method implements
+        ///         the logic that's executed when such visual-only newline is removed.
+        ///
         /// - Parameters:
         ///     - location: the location that separates the siblings we're looking for.
         ///
-        func mergeSiblings(separatedAt location: Int) {
-            guard let theSiblings = inspector.findSiblings(separatedAt: location) else {
+        func mergeBlockLevelElementRight(endingAt location: Int) {
+            guard let node = inspector.findNode(endingAt: location) else {
                 return
             }
 
-            mergeSiblings(leftSibling: theSiblings.leftSibling, rightSibling: theSiblings.rightSibling)
+            mergeRight(node)
         }
 
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
+        /// Merges the specified block-level element with the sibling(s) to its right.
+        ///
+        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
+        ///         even though it's not part of the contents of any node.  This method implements
+        ///         the logic that's executed when such visual-only newline is removed.
         ///
         /// - Parameters:
-        ///     - leftSibling: the left sibling to merge.
-        ///     - rightSibling: the right sibling to merge.
+        ///     - node: the node we're merging to the right.
         ///
-        private func mergeSiblings(leftSibling: Node, rightSibling: Node) {
-            let finalRightNodes: [Node]
+        private func mergeRight(_ node: Node) {
+            let rightNodes = extractRightNodesForMerging(after: node)
 
-            if let rightElement = rightSibling as? ElementNode,
-                rightElement.isBlockLevelElement() {
+            merge(node, withRightNodes: rightNodes)
+        }
 
-                if rightElement.children.count > 0,
-                    let rightChildElement = rightElement.children[0] as? ElementNode,
-                    rightChildElement.isBlockLevelElement() {
+        private func merge(_ node: Node, withRightNodes rightNodes: [Node]) {
 
-                    rightElement.unwrapChildren(first: 1)
-
-                    // This case was designed for lists.  They need to unwrap the first list element
-                    // from both the ul / ol and the li elements.
-                    //
-                    finalRightNodes = rightChildElement.unwrapChildren()
-                } else {
-                    finalRightNodes = rightElement.unwrapChildren()
+            guard let element = node as? ElementNode else {
+                guard let parent = node.parent else {
+                    fatalError("This method should not be called for a node without a parent set.")
                 }
-            } else {
-                finalRightNodes = [rightSibling]
+
+                let insertionIndex = parent.indexOf(childNode: node) + 1
+
+                for (index, child) in rightNodes.enumerated() {
+                    parent.insert(child, at: insertionIndex + index)
+                }
+
+                return
             }
 
-            if let leftElement = leftSibling as? ElementNode,
-                leftElement.isBlockLevelElement() {
-                
-                leftElement.append(finalRightNodes)
+            if element.children.count > 0,
+                let lastChildElement = element.children[element.children.count - 1] as? ElementNode,
+                lastChildElement.isBlockLevelElement() {
+
+                merge(lastChildElement, withRightNodes: rightNodes)
+                return
             }
+
+            if element.standardName == .ul || element.standardName == .ol {
+                let newListItem = ElementNode(name: StandardElementType.li.rawValue, attributes: [], children: rightNodes)
+                element.append(newListItem)
+                return
+            }
+            
+            element.append(rightNodes)
+        }
+
+        private func extractRightNodesForMerging(after node: Node) -> [Node] {
+            guard let parent = node.parent else {
+                fatalError("Expected to have a parent node here.")
+            }
+
+            let nodeIndex = parent.indexOf(childNode: node)
+
+            return extractNodesForMerging(from: parent, startingAt: nodeIndex + 1)
+        }
+
+        private func extractNodesForMerging(from parent: ElementNode, startingAt index: Int) -> [Node] {
+
+            guard index < parent.children.count else {
+                return []
+            }
+
+            var nodes = [Node]()
+
+            var currentNode = parent.children[index]
+
+            while true {
+                let nextNodeOptional = inspector.rightSibling(of: currentNode)
+
+                if let element = currentNode as? ElementNode {
+                    if element.isBlockLevelElement() {
+                        if nodes.count == 0 {
+                            nodes = extractNodesForMerging(from: element, startingAt: 0)
+                        }
+
+                        break
+                    } else if element.standardName == .br  {
+                        element.removeFromParent()
+                        break
+                    }
+                }
+
+                currentNode.removeFromParent()
+                nodes.append(currentNode)
+
+                guard let nextNode = nextNodeOptional else {
+                    break
+                }
+
+                currentNode = nextNode
+            }
+
+            if parent.children.count == 0 {
+                parent.removeFromParent()
+            }
+            
+            return nodes
         }
     }
 }
