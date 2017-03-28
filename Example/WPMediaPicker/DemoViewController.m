@@ -189,7 +189,7 @@
         return nil;
     }
     if ([self.options[MediaPickerOptionsCustomPreview] boolValue]) {
-        return [[CustomPreviewViewController alloc] initWithAsset:asset];;
+        return [[CustomPreviewViewController alloc] initWithAsset:asset];
     }
 
     WPAssetViewController *assetViewController = [[WPAssetViewController alloc] initWithAsset: asset];
