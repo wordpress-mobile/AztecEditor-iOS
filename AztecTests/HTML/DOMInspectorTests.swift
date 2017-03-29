@@ -18,7 +18,7 @@ class DOMInspectorTests: XCTestCase {
     /// - Expected results:
     ///     - Both the bold and italic nodes should be returned.
     ///
-    func testFindSiblings() {
+    func testFindNode() {
         let textNode1 = TextNode(text: "bold")
         let textNode2 = TextNode(text: "italic")
 
@@ -28,11 +28,15 @@ class DOMInspectorTests: XCTestCase {
 
         let inspector = DOMInspector(with: rootNode)
 
-        let siblings = inspector.findSiblings(separatedAt: textNode1.length())
+        guard let leftNode = inspector.findNode(endingAt: textNode1.length()) else {
+            XCTFail("Expected to find a node here.")
+            return
+        }
 
-        XCTAssertNotNil(siblings)
-        XCTAssertEqual(siblings?.leftSibling, boldNode)
-        XCTAssertEqual(siblings?.rightSibling, italicNode)
+        let rightNode = inspector.rightSibling(of: leftNode)
+
+        XCTAssertEqual(leftNode, boldNode)
+        XCTAssertEqual(rightNode, italicNode)
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
@@ -44,7 +48,7 @@ class DOMInspectorTests: XCTestCase {
     /// - Expected results:
     ///     - Should return `nil`
     ///
-    func testFindSiblings2() {
+    func testFindNode2() {
         let textNode1 = TextNode(text: "bold")
         let textNode2 = TextNode(text: "italic")
 
@@ -54,9 +58,9 @@ class DOMInspectorTests: XCTestCase {
 
         let inspector = DOMInspector(with: rootNode)
 
-        let siblings = inspector.findSiblings(separatedAt: 0)
+        let leftNode = inspector.findNode(endingAt: 0)
 
-        XCTAssertNil(siblings)
+        XCTAssertNil(leftNode)
     }
 
 
@@ -69,7 +73,7 @@ class DOMInspectorTests: XCTestCase {
     /// - Expected results:
     ///     - Should return `nil`
     ///
-    func testFindSiblings3() {
+    func testFindNode3() {
         let textNode1 = TextNode(text: "bold")
         let textNode2 = TextNode(text: "italic")
 
@@ -79,8 +83,13 @@ class DOMInspectorTests: XCTestCase {
 
         let inspector = DOMInspector(with: rootNode)
 
-        let siblings = inspector.findSiblings(separatedAt: textNode1.length() + textNode2.length())
+        guard let leftNode = inspector.findNode(endingAt: textNode1.length() + textNode2.length()) else {
+            XCTFail("Expected to find a left node here.")
+            return
+        }
 
-        XCTAssertNil(siblings)
+        let rightNode = inspector.rightSibling(of: leftNode)
+
+        XCTAssertNil(rightNode)
     }
 }

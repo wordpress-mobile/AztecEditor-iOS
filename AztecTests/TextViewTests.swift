@@ -524,6 +524,50 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "Listfirstsecondthird")
     }
 
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!"
+    ///     - Deletion range: (loc: 12, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!"
+    ///
+    func testDeleteNewline6() {
+
+        let textView = createTextView(withHTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 12)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+    }
+
+    /// Tests that deleting a newline works by merging the component around it.
+    ///
+    /// Input:
+    ///     - Initial HTML: "<ol><li>First</li><li>Second</li></ol><ul><li>Third</li><li>Fourth</li></ul>"
+    ///     - Deletion range: (loc: 12, len 1)
+    ///
+    /// Output:
+    ///     - Final HTML: "<ol><li>First</li><li>Second</li><li>Third</li></ol><ul><li>Fourth</li></u"
+    ///
+    func testDeleteNewline7() {
+
+        let textView = createTextView(withHTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!")
+
+        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 12)!
+        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
+        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
+
+        textView.replace(range, withText: "")
+
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+    }
+
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
     ///
     /// Input:

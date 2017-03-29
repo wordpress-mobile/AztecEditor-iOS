@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.5a5'
+  s.version          = '0.5a7.1'
   s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
@@ -24,9 +24,9 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'GPLv2', :file => 'LICENSE' }
-  s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com' }
+  s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com', 'Sergio Estevao' => 'sergioestevao@gmail.com', 'Jorge Leandro Perez' => 'jorge.perez@automattic.com' }
+  s.social_media_url = "http://twitter.com/WordPressiOS"
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/WordPress'
   s.ios.deployment_target = '9.0'
 
   s.module_name = "Aztec"
