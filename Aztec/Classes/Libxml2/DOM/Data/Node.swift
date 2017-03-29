@@ -168,7 +168,7 @@ extension Libxml2 {
                 if let siblingElement = sibling as? ElementNode {
                     return siblingElement.isBlockLevelElement()
                 } else {
-                    return sibling.isLastInBlockLevelElement()
+                    return false
                 }
             } else {
                 return parent.isLastInBlockLevelElement()
