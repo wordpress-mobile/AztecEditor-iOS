@@ -39,23 +39,31 @@ class EditorDemoController: UIViewController {
         return textView
     }()
 
-    fileprivate(set) lazy var titleTextField: UITextView = {
-        let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
+    fileprivate(set) lazy var titleTextField: UITextView = {        
         let textField = UITextView()
 
         textField.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
-        //textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
-        //                                              attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
         textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         textField.returnKeyType = .next
         textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = .red
         textField.isScrollEnabled = false
         let toolbar = self.createToolbar(htmlMode: false)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
+
+        return textField
+    }()
+
+    fileprivate(set) lazy var titlePlaceholderLabel: UILabel = {
+        let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
+        let textField = UILabel()
+
+        textField.attributedText = NSAttributedString(string: placeholderText,
+                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray, NSFontAttributeName: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
+        textField.sizeToFit()
+        textField.translatesAutoresizingMaskIntoConstraints = false
 
         return textField
     }()
@@ -111,6 +119,7 @@ class EditorDemoController: UIViewController {
 
         view.backgroundColor = UIColor.white
         view.addSubview(titleTextField)
+        view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
@@ -161,11 +170,17 @@ class EditorDemoController: UIViewController {
 
     }
 
+    // MARK: - Title and Title placeholder position methods
     func updateTitleHeight() {
         let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:self.view.frame.size.width - ( 2 * Constants.margin), height: CGFloat.greatestFiniteMagnitude))
         let insets = titleTextField.textContainerInset
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
     }
+
+    func updateTitlePlaceholderVisibility() {
+        self.titlePlaceholderLabel.isHidden = !self.titleTextField.text.isEmpty
+    }
+
     // MARK: - Configuration Methods
 
     private func configureConstraints() {
@@ -177,6 +192,14 @@ class EditorDemoController: UIViewController {
             titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
             titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.margin),
             titleHeightConstraint
+            ])
+
+        let insets = titleTextField.textContainerInset
+        NSLayoutConstraint.activate([
+            titlePlaceholderLabel.leftAnchor.constraint(equalTo: titleTextField.leftAnchor, constant: insets.left + titleTextField.textContainer.lineFragmentPadding),
+            titlePlaceholderLabel.rightAnchor.constraint(equalTo: titleTextField.rightAnchor, constant: -insets.right),
+            titlePlaceholderLabel.topAnchor.constraint(equalTo: titleTextField.topAnchor, constant: insets.top),
+            titlePlaceholderLabel.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
             ])
 
         NSLayoutConstraint.activate([
@@ -329,6 +352,7 @@ extension EditorDemoController : UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         if textView == titleTextField {
             updateTitleHeight()
+            updateTitlePlaceholderVisibility()
         }
     }
 }
