@@ -6,16 +6,12 @@ import UIKit
 import MobileCoreServices
 
 class EditorDemoController: UIViewController {
-    static let margin = CGFloat(20)
-    static let defaultContentFont = UIFont.systemFont(ofSize: 14)
+
 
     fileprivate var mediaErrorMode = false
 
-    lazy var headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
-
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
-        let defaultMissingImage = Gridicon.iconOfType(.image)
-        let textView = Aztec.TextView(defaultFont: type(of: self).defaultContentFont, defaultMissingImage: defaultMissingImage)
+        let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
         let toolbar = self.createToolbar(htmlMode: false)
 
@@ -25,6 +21,7 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
+        textView.commentsDelegate = self
 
         return textView
     }()
@@ -165,7 +162,7 @@ class EditorDemoController: UIViewController {
     }
 
     func updateTitleHeight() {
-        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:self.view.frame.size.width-(2*type(of: self).margin), height: CGFloat.greatestFiniteMagnitude))
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:self.view.frame.size.width - ( 2 * Constants.margin), height: CGFloat.greatestFiniteMagnitude))
         let insets = titleTextField.textContainerInset
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
     }
@@ -176,24 +173,24 @@ class EditorDemoController: UIViewController {
         titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
         updateTitleHeight()
         NSLayoutConstraint.activate([
-            titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
+            titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.margin),
             titleHeightConstraint
             ])
 
         NSLayoutConstraint.activate([
-            separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
+            separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
             separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: type(of: self).margin),
-            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -type(of: self).margin),
-            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: type(of: self).margin),
-            richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -type(of: self).margin)
+            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
+            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: Constants.margin),
+            richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Constants.margin)
             ])
 
         NSLayoutConstraint.activate([
@@ -207,7 +204,7 @@ class EditorDemoController: UIViewController {
 
     private func configureDefaultProperties(for textView: UITextView, using formatBar: Aztec.FormatBar, accessibilityLabel: String) {
         textView.accessibilityLabel = accessibilityLabel
-        textView.font = EditorDemoController.defaultContentFont
+        textView.font = Constants.defaultContentFont
         textView.inputAccessoryView = formatBar
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
@@ -442,17 +439,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let headerOptions = headers.map { (headerType) -> NSAttributedString in
+        let headerOptions = Constants.headers.map { (headerType) -> NSAttributedString in
             NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
         }
 
         let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
         headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         headerPicker.onSelect = { selected in
-            self.richTextView.toggleHeader(self.headers[selected], range: self.richTextView.selectedRange)
+            self.richTextView.toggleHeader(Constants.headers[selected], range: self.richTextView.selectedRange)
             self.changeRichTextInputView(to: nil)
         }
-        if let selectedHeader = headers.index(of:self.headerLevelForSelectedText()) {
+        if let selectedHeader = Constants.headers.index(of: self.headerLevelForSelectedText()) {
             headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
         }
         changeRichTextInputView(to: headerPicker)
@@ -505,7 +502,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceRangeWithMoreAttachment(richTextView.selectedRange)
+        richTextView.replaceRangeWithCommentAttachment(richTextView.selectedRange, text: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -681,8 +678,37 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 }
 
-extension EditorDemoController: TextViewMediaDelegate
-{
+
+extension EditorDemoController: TextViewCommentsDelegate {
+
+    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+        if let render = MoreAttachmentRenderer(attachment: attachment) {
+            return render.textView(textView, imageForComment: attachment, with: size)
+        }
+
+        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
+            return render.textView(textView, imageForComment: attachment, with: size)
+        }
+
+        return nil
+    }
+
+    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+        if let render = MoreAttachmentRenderer(attachment: attachment) {
+            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
+        }
+
+        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
+            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
+        }
+
+        return .zero
+    }
+}
+
+
+extension EditorDemoController: TextViewMediaDelegate {
+
     func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
@@ -889,5 +915,17 @@ private extension EditorDemoController
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
+    }
+}
+
+
+extension EditorDemoController {
+
+    struct Constants {
+        static let defaultContentFont = UIFont.systemFont(ofSize: 14)
+        static let defaultMissingImage = Gridicon.iconOfType(.image)
+        static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let margin = CGFloat(20)
+        static let moreAttachmentText = "more"
     }
 }
