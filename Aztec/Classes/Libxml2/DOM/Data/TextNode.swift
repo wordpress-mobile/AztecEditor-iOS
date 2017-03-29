@@ -216,7 +216,7 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         func append(_ string: String) {
-            if let context = editContext, !context.sanitizeText {
+            if !shouldSanitizeText() {
                 append(sanitizedString: string)
                 return
             }
@@ -254,8 +254,19 @@ extension Libxml2 {
             }
         }
 
+        func shouldSanitizeText() -> Bool {
+            var parentNode = self.parent
+            while parentNode != nil {
+                if let node = parentNode, node.name == Libxml2.StandardElementType.pre.rawValue {
+                    return false
+                }
+                parentNode = parentNode?.parent
+            }
+            return true
+        }
+
         override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
-            if let context = editContext, !context.sanitizeText {
+            if !shouldSanitizeText() {
                 replaceCharacters(inRange: range, withSanitizedString: string)
                 return
             }

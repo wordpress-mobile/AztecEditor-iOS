@@ -54,18 +54,11 @@ extension Libxml2.In {
         ///
         fileprivate func createElementNode(_ rawNode: xmlNode) -> ElementNode {
 
-            var childrenEditContext = editContext
-
             let nodeName = getNodeName(rawNode)
 
             switch nodeName.lowercased() {
             case RootNode.name:
                 return createRootNode(rawNode)
-            case Libxml2.StandardElementType.pre.rawValue:
-                if childrenEditContext == nil {
-                    childrenEditContext = EditContext(undoManager: UndoManager())
-                }
-                childrenEditContext?.sanitizeText = false
             default:
                 break
             }
@@ -73,7 +66,7 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(editContext: childrenEditContext)
+                let nodesConverter = NodesConverter(editContext: editContext)
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
@@ -115,6 +108,20 @@ extension Libxml2.In {
             return node
         }
 
+        func shouldSanitizeText(inNode rawNode: xmlNode) -> Bool {
+            var parentNode = rawNode.parent
+            while parentNode != nil {
+                guard let xmlNode = parentNode?.pointee else {
+                    return true
+                }
+                if xmlNode.name != nil && String(cString:xmlNode.name) == Libxml2.StandardElementType.pre.rawValue {
+                    return false
+                }
+                parentNode = xmlNode.parent
+            }
+            return true
+        }
+
         /// Creates an HTML.TextNode from a libxml2 element node.
         ///
         /// - Parameters:
@@ -124,7 +131,7 @@ extension Libxml2.In {
         ///
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
             var text = String(cString: rawNode.content)
-            if editContext == nil || editContext!.sanitizeText {
+            if shouldSanitizeText(inNode: rawNode) {
                 text = sanitize(text)
             }
             let node = TextNode(text: text, editContext: editContext)
