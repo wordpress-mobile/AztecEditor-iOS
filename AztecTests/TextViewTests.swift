@@ -394,6 +394,17 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText("\n")
     }
 
+    /// Tests that the visual newline is shown at the correct position.
+    ///
+    /// Added to avoid regressions to the bug reported here:
+    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/387
+    ///
+    func testNewlineRenderedAtTheCorrectPosition() {
+        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+
+        XCTAssertEqual(textView.text, "Testing bold newlines\n")
+    }
+
     // MARK: - Deleting newlines
 
     /// Tests that deleting a newline works by merging the component around it.
