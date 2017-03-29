@@ -584,8 +584,7 @@ open class TextView: UITextView {
     private lazy var paragraphFormatters: [AttributeFormatter] = [
         TextListFormatter(style: .ordered),
         TextListFormatter(style: .unordered),
-        BlockquoteFormatter(),
-        HeaderFormatter(headerLevel:.none),
+        BlockquoteFormatter(),        
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
         HeaderFormatter(headerLevel:.h3),
