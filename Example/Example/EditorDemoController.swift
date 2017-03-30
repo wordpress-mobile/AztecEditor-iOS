@@ -172,13 +172,13 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Title and Title placeholder position methods
     func updateTitleHeight() {
-        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:self.view.frame.size.width - ( 2 * Constants.margin), height: CGFloat.greatestFiniteMagnitude))
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width - ( 2 * Constants.margin), height: CGFloat.greatestFiniteMagnitude))
         let insets = titleTextField.textContainerInset
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
     }
 
     func updateTitlePlaceholderVisibility() {
-        self.titlePlaceholderLabel.isHidden = !self.titleTextField.text.isEmpty
+        self.titlePlaceholderLabel.isHidden = !titleTextField.text.isEmpty
     }
 
     // MARK: - Configuration Methods
