@@ -6,8 +6,10 @@ import Foundation
 ///
 enum Metrics {
 
-    static let defaultIndentation = CGFloat(12)
-    static let maxIndentation = CGFloat(200)
-    static let tabStepInterval = 8
-    static let tabStepCount = 12
+    static let defaultIndentation       = CGFloat(12)
+    static let maxIndentation           = CGFloat(200)
+    static let listBulletIndentation    = CGFloat(30)
+    static let listTextIndentation      = CGFloat(36)
+    static let tabStepInterval          = 8
+    static let tabStepCount             = 12
 }
