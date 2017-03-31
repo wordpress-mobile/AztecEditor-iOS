@@ -216,7 +216,7 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         func append(_ string: String) {
-            if !shouldSanitizeText() {
+            guard shouldSanitizeText() else {
                 append(sanitizedString: string)
                 return
             }
@@ -254,10 +254,10 @@ extension Libxml2 {
             }
         }
 
-        func shouldSanitizeText() -> Bool {
+        func hasAncestor(ofType type: StandardElementType) -> Bool {
             var parentNode = self.parent
             while parentNode != nil {
-                if let node = parentNode, node.name == Libxml2.StandardElementType.pre.rawValue {
+                if let node = parentNode, node.name == type.rawValue {
                     return false
                 }
                 parentNode = parentNode?.parent
@@ -265,8 +265,17 @@ extension Libxml2 {
             return true
         }
 
+        /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
+        /// For example if you are inside a pre element you shoulnd't clean up the nodes.
+        ///
+        /// - Returns: true if sanitization should happen, false otherwise
+        ///
+        func shouldSanitizeText() -> Bool {
+            return hasAncestor(ofType: .pre)
+        }
+
         override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
-            if !shouldSanitizeText() {
+            guard shouldSanitizeText() else {
                 replaceCharacters(inRange: range, withSanitizedString: string)
                 return
             }
