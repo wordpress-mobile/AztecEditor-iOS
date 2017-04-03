@@ -8,7 +8,7 @@ extension Libxml2 {
 
         // MARK: - Properties: Undo support
         
-        let undoManager: UndoManager
+        let undoManager: UndoManager        
 
         // MARK: - Initializers
         
