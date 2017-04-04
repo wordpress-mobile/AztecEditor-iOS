@@ -66,31 +66,41 @@ public protocol TextViewMediaDelegate: class {
 }
 
 
-// MARK: - TextViewCommentsDelegate
+// MARK: - TextAttachmentRenderer
 //
-public protocol TextViewCommentsDelegate: class {
+public protocol TextViewAttachmentRenderer: class {
+
+    /// Indicates whether the current Attachment Renderer supports a given NSTextAttachment instance, or not.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the bounds.
+    ///     - attachment: Attachment about to be rendered.
+    ///
+    /// - Returns: True when supported, false otherwise.
+    ///
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - lineFragment: Line Fragment in which the glyph would be rendered.
     ///
     /// - Returns: Rect specifying the Bounds for the comment attachment
     ///
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
     /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - size: Expected Image Size
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
 
 
