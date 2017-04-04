@@ -1602,6 +1602,14 @@ extension Libxml2 {
                 self?.children.insert(child, at: index)
             }
         }
+
+        func isSupportedByAztec() -> Bool {
+            guard let editContext = editContext, let standardName = standardName else {
+                return false
+            }
+
+            return editContext.knownElements.contains(standardName)
+        }
     }
 
 
@@ -1630,6 +1638,12 @@ extension Libxml2 {
 
         init(children: [Node], editContext: EditContext? = nil) {
             super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
+        }
+
+        // MARK: - Overriden Methods
+
+        override func isSupportedByAztec() -> Bool {
+            return true
         }
     }
 }
