@@ -24,6 +24,10 @@ extension Libxml2 {
             }
         }
 
+        // MARK: - Constants
+
+        fileprivate let defaultLengthForUnsupportedElements = 1
+
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
@@ -61,6 +65,10 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
+            guard isSupportedByAztec() else {
+                return defaultLengthForUnsupportedElements
+            }
+
             let nsString = text() as NSString
             return nsString.length
         }
