@@ -54,7 +54,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: Rect specifying the Bounds for the comment attachment
     ///
-    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+    func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
     /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
     ///
@@ -65,7 +65,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+    func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
 
 
