@@ -236,7 +236,8 @@ class EditorDemoController: UIViewController {
     private func registerAttachmentRenderers() {
         let renderers: [TextViewAttachmentRenderer] = [
             MoreAttachmentRenderer(),
-            CommentAttachmentRenderer(font: Constants.defaultContentFont)
+            CommentAttachmentRenderer(font: Constants.defaultContentFont),
+            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
         ]
 
         for renderer in renderers {
