@@ -130,9 +130,9 @@ open class TextView: UITextView {
     ///
     open weak var mediaDelegate: TextViewMediaDelegate?
 
-    // MARK: - Properties: Comment Attachments
-
-    open weak var commentsDelegate: TextViewCommentsDelegate?
+    /// Maintains a reference to the user provided Text Attachment Renderers
+    ///
+    fileprivate var textAttachmentRenderers = [TextViewAttachmentRenderer]()
 
     // MARK: - Properties: Formatting
 
@@ -370,6 +370,12 @@ open class TextView: UITextView {
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
+
+    // MARK: - Attachment Helpers
+
+    open func registerAttachmentRenderer(_ renderer: TextViewAttachmentRenderer) {
+        textAttachmentRenderers.append(renderer)
+    }
 
     // MARK: - Getting format identifiers
 
@@ -1114,20 +1120,20 @@ extension TextView: TextStorageAttachmentsDelegate {
         mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
     }
 
-    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+    func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+        let renderer = textAttachmentRenderers.first { renderer in
+            return renderer.textView(self, shouldRender: attachment)
         }
 
-        return commentsDelegate.textView(self, imageForComment: attachment, with: size)
+        return renderer?.textView(self, imageFor: attachment, with: size)
     }
 
-    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+    func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        let renderer = textAttachmentRenderers.first { renderer in
+            return renderer.textView(self, shouldRender: attachment)
         }
 
-        return commentsDelegate.textView(self, boundsForComment: attachment, with: lineFragment)
+        return renderer?.textView(self, boundsFor: attachment, with: lineFragment) ?? .zero
     }
 }
 
