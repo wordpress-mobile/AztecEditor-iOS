@@ -108,6 +108,30 @@ extension Libxml2.In {
             return node
         }
 
+        func hasNode(_ rawNode:xmlNode, ancestorOfType type: Libxml2.StandardElementType) -> Bool {
+            var parentNode = rawNode.parent
+            while parentNode != nil {
+                guard let xmlNode = parentNode?.pointee else {
+                    return true
+                }
+                if xmlNode.name != nil && String(cString:xmlNode.name) == type.rawValue {
+                    return false
+                }
+                parentNode = xmlNode.parent
+            }
+            return true
+        }
+
+        /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
+        /// For example if you are inside a pre element you shoulnd't clean up the nodes.
+        ///
+        /// - Parameter rawNode: the base node to check
+        ///
+        /// - Returns: true if sanitization should happen, false otherwise
+        func shouldSanitizeText(inNode rawNode: xmlNode) -> Bool {
+            return hasNode(rawNode, ancestorOfType: .pre)
+        }
+
         /// Creates an HTML.TextNode from a libxml2 element node.
         ///
         /// - Parameters:
@@ -116,8 +140,11 @@ extension Libxml2.In {
         /// - Returns: the HTML.TextNode
         ///
         fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
-            let text = String(cString: rawNode.content)
-            let node = TextNode(text: sanitize(text), editContext: editContext)
+            var text = String(cString: rawNode.content)
+            if shouldSanitizeText(inNode: rawNode) {
+                text = sanitize(text)
+            }
+            let node = TextNode(text: text, editContext: editContext)
 
             return node
         }
