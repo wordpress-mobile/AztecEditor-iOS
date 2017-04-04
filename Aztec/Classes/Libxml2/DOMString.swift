@@ -517,13 +517,13 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///     - comment: the comment to be stored.
         ///
-        func replace(_ range: NSRange, with comment: String) {
+        func replace(_ range: NSRange, comment: String) {
             performAsyncUndoable { [weak self] in
-                self?.replaceSynchronously(range, with: comment)
+                self?.replaceSynchronously(range, comment: comment)
             }
         }
 
-        private func replaceSynchronously(_ range: NSRange, with comment: String) {
+        private func replaceSynchronously(_ range: NSRange, comment: String) {
             let descriptor = CommentNodeDescriptor(comment: comment)
 
             rootNode.replaceCharacters(in: range, with: descriptor)
