@@ -15,5 +15,32 @@ extension Libxml2 {
         init(undoManager: UndoManager) {
             self.undoManager = undoManager
         }
+
+        let knownElements: [StandardElementType] = [
+            .a,
+            .b,
+            .br,
+            .blockquote,
+            .em,
+            .h1,
+            .h2,
+            .h3,
+            .h4,
+            .h5,
+            .h6,
+            .hr,
+            .i,
+            .img,
+            .li,
+            .ol,
+            .p,
+            .pre,
+            .s,
+            .span,
+            .strike,
+            .strong,
+            .u,
+            .ul
+        ]
     }
 }
