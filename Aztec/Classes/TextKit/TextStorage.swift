@@ -900,15 +900,15 @@ extension TextStorage: TextAttachmentDelegate {
 
 // MARK: - TextStorage: CommentAttachmentDelegate Methods
 //
-extension TextStorage: CommentAttachmentDelegate {
+extension TextStorage: RenderableAttachmentDelegate {
 
-    func commentAttachment(_ commentAttachment: CommentAttachment, imageForSize size: CGSize) -> UIImage? {
+    func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, imageForComment: commentAttachment, with: size)
+        return attachmentsDelegate.storage(self, imageFor: attachment, with: size)
     }
 
-    func commentAttachment(_ commentAttachment: CommentAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+    func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, boundsForComment: commentAttachment, with: fragment)
+        return attachmentsDelegate.storage(self, boundsFor: attachment, with: fragment)
     }
 }
