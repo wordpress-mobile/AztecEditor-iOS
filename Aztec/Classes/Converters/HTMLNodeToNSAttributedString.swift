@@ -54,16 +54,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
 
-        if let textNode = node as? TextNode {
+        switch node {
+        case let textNode as TextNode:
             return convertTextNode(textNode, inheritingAttributes: attributes)
-        } else if let commentNode = node as? CommentNode {
+        case let commentNode as CommentNode:
             return convertCommentNode(commentNode, inheritingAttributes: attributes)
-        } else {
-            guard let elementNode = node as? ElementNode else {
-                fatalError("Nodes can be either text or element nodes.")
-            }
-
+        case let elementNode as ElementNode:
             return convertElementNode(elementNode, inheritingAttributes: attributes)
+        default:
+            fatalError("Nodes can be either text, comment or element nodes.")
         }
     }
 
@@ -112,8 +111,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
-        return stringForNode(node, inheritingAttributes: attributes)
+    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+        guard !node.isSupportedByAztec() else {
+            return stringForNode(node, inheritingAttributes: attributes)
+        }
+
+        let converter = Libxml2.Out.HTMLConverter()
+        let attachment = HTMLAttachment()
+
+        attachment.rootTagName = node.name
+        attachment.rawHTML = converter.convert(node)
+
+        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
     // MARK: - Node Styling
@@ -136,7 +145,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             
             return implicitRepresentation
         }
-        
+
         let content = NSMutableAttributedString()
         
         for child in node.children {
