@@ -30,7 +30,7 @@ final class CommentAttachmentRenderer {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension CommentAttachmentRenderer: TextViewAttachmentRenderer {
+extension CommentAttachmentRenderer: TextViewAttachmentImageProvider {
 
     func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
         return attachment is CommentAttachment

@@ -30,7 +30,7 @@ final class HTMLAttachmentRenderer {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension HTMLAttachmentRenderer: TextViewAttachmentRenderer {
+extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
 
     func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
         return attachment is HTMLAttachment

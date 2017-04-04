@@ -123,7 +123,7 @@ class EditorDemoController: UIViewController {
         view.addSubview(htmlTextView)
 
         configureConstraints()
-        registerAttachmentRenderers()
+        registerAttachmentImageProviders()
 
         let html: String
 
@@ -233,15 +233,15 @@ class EditorDemoController: UIViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    private func registerAttachmentRenderers() {
-        let renderers: [TextViewAttachmentRenderer] = [
+    private func registerAttachmentImageProviders() {
+        let providers: [TextViewAttachmentImageProvider] = [
             MoreAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
             HTMLAttachmentRenderer(font: Constants.defaultContentFont)
         ]
 
-        for renderer in renderers {
-            richTextView.registerAttachmentRenderer(renderer)
+        for provider in providers {
+            richTextView.registerAttachmentImageProvider(provider)
         }
     }
 

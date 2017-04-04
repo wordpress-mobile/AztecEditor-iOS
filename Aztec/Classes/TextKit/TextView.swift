@@ -66,9 +66,9 @@ public protocol TextViewMediaDelegate: class {
 }
 
 
-// MARK: - TextAttachmentRenderer
+// MARK: - TextViewAttachmentImageProvider
 //
-public protocol TextViewAttachmentRenderer: class {
+public protocol TextViewAttachmentImageProvider: class {
 
     /// Indicates whether the current Attachment Renderer supports a given NSTextAttachment instance, or not.
     ///
@@ -130,9 +130,9 @@ open class TextView: UITextView {
     ///
     open weak var mediaDelegate: TextViewMediaDelegate?
 
-    /// Maintains a reference to the user provided Text Attachment Renderers
+    /// Maintains a reference to the user provided Text Attachment Image Providers
     ///
-    fileprivate var textAttachmentRenderers = [TextViewAttachmentRenderer]()
+    fileprivate var textAttachmentImageProvider = [TextViewAttachmentImageProvider]()
 
     // MARK: - Properties: Formatting
 
@@ -373,8 +373,8 @@ open class TextView: UITextView {
 
     // MARK: - Attachment Helpers
 
-    open func registerAttachmentRenderer(_ renderer: TextViewAttachmentRenderer) {
-        textAttachmentRenderers.append(renderer)
+    open func registerAttachmentImageProvider(_ provider: TextViewAttachmentImageProvider) {
+        textAttachmentImageProvider.append(provider)
     }
 
     // MARK: - Getting format identifiers
@@ -1121,19 +1121,27 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
-        let renderer = textAttachmentRenderers.first { renderer in
-            return renderer.textView(self, shouldRender: attachment)
+        let provider = textAttachmentImageProvider.first { provider in
+            return provider.textView(self, shouldRender: attachment)
         }
 
-        return renderer?.textView(self, imageFor: attachment, with: size)
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
+        }
+
+        return firstProvider.textView(self, imageFor: attachment, with: size)
     }
 
     func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
-        let renderer = textAttachmentRenderers.first { renderer in
-            return renderer.textView(self, shouldRender: attachment)
+        let provider = textAttachmentImageProvider.first {
+            $0.textView(self, shouldRender: attachment)
         }
 
-        return renderer?.textView(self, boundsFor: attachment, with: lineFragment) ?? .zero
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
+        }
+
+        return firstProvider.textView(self, boundsFor: attachment, with: lineFragment)
     }
 }
 
