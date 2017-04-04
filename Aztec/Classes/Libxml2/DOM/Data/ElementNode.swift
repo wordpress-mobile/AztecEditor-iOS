@@ -1612,11 +1612,11 @@ extension Libxml2 {
         }
 
         func isSupportedByAztec() -> Bool {
-            guard let editContext = editContext, let standardName = standardName else {
+            guard let standardName = standardName else {
                 return false
             }
 
-            return editContext.knownElements.contains(standardName)
+            return EditContext.knownElements.contains(standardName)
         }
     }
 
