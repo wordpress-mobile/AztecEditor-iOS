@@ -895,6 +895,9 @@ open class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+        textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
 
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
