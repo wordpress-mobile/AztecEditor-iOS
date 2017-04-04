@@ -413,7 +413,7 @@ class ElementNodeTests: XCTestCase {
     func testSplitWithFullRange() {
 
         let textNode = TextNode(text: "Some text goes here")
-        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode])
+        let elemNode = ElementNode(name: "div", attributes: [], children: [textNode])
         let rootNode = RootNode(children: [elemNode])
 
         let splitRange = NSRange(location: 0, length: textNode.length())
@@ -429,7 +429,7 @@ class ElementNodeTests: XCTestCase {
 
     func testSplitWithPartialRange1() {
 
-        let elemNodeName = "SomeNode"
+        let elemNodeName = "div"
         let textPart1 = "Some"
         let textPart2 = " text goes here"
         let fullText = "\(textPart1)\(textPart2)"
@@ -476,7 +476,7 @@ class ElementNodeTests: XCTestCase {
 
     func testSplitWithPartialRange2() {
 
-        let elemNodeName = "SomeNode"
+        let elemNodeName = "div"
         let textPart1 = "Some"
         let textPart2 = " text goes here"
         let fullText = "\(textPart1)\(textPart2)"
@@ -524,7 +524,7 @@ class ElementNodeTests: XCTestCase {
 
     func testSplitWithPartialRange3() {
 
-        let elemNodeName = "SomeNode"
+        let elemNodeName = "div"
         let textPart1 = "Some"
         let textPart2 = " text goes "
         let textPart3 = "here"
