@@ -51,7 +51,9 @@
 		B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B572AC271E817CFE008948C2 /* CommentAttachment.swift */; };
 		B577DC651E7B18E90012A1F8 /* NodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */; };
 		B577DC671E7B18F80012A1F8 /* CommentNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */; };
+		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
+		B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */; };
 		B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */; };
 		B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */; };
@@ -186,7 +188,9 @@
 		B572AC271E817CFE008948C2 /* CommentAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachment.swift; sourceTree = "<group>"; };
 		B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NodeDescriptor.swift; path = Descriptors/NodeDescriptor.swift; sourceTree = "<group>"; };
 		B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommentNodeDescriptor.swift; path = Descriptors/CommentNodeDescriptor.swift; sourceTree = "<group>"; };
+		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
+		B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderableAttachmentDelegate.swift; sourceTree = "<group>"; };
 		B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatter.swift; sourceTree = "<group>"; };
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
 		B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Lists.swift"; sourceTree = "<group>"; };
@@ -459,9 +463,11 @@
 		599F252E1D8BC9A1002871D6 /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
+				B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */,
 				B572AC271E817CFE008948C2 /* CommentAttachment.swift */,
-				599F25301D8BC9A1002871D6 /* TextAttachment.swift */,
+				B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */,
 				FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */,
+				599F25301D8BC9A1002871D6 /* TextAttachment.swift */,
 				B5BC4FF51DA2D76600614582 /* TextList.swift */,
 				599F25311D8BC9A1002871D6 /* TextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
@@ -802,6 +808,7 @@
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
 				B5BC4FF61DA2D76600614582 /* TextList.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
+				B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */,
 				F1FA0E871E6EF514009D98EE /* StandardElementType.swift in Sources */,
 				599F25391D8BC9A1002871D6 /* InHTMLConverter.swift in Sources */,
 				F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */,
@@ -809,6 +816,7 @@
 				599F253E1D8BC9A1002871D6 /* OutHTMLNodeConverter.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
 				F1FA0E851E6EF514009D98EE /* MarkerNode.swift in Sources */,
+				B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */,
 				B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */,
 				B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */,
 				599F25361D8BC9A1002871D6 /* Converter.swift in Sources */,
