@@ -31,6 +31,37 @@ open class HTMLAttachment: NSTextAttachment {
     }
 
 
+    // MARK: - Initializers
+
+    init() {
+        super.init(data: nil, ofType: nil)
+    }
+
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(data: nil, ofType: nil)
+
+        guard let rootTagName = aDecoder.decodeObject(forKey: Keys.rootTagName) as? String,
+            let rawHTML = aDecoder.decodeObject(forKey: Keys.rawHTML) as? String
+            else {
+                return
+        }
+
+        self.rootTagName = rootTagName
+        self.rawHTML = rawHTML
+    }
+
+
+    // MARK: - NSCoder Methods
+
+    open override func encode(with aCoder: NSCoder) {
+        super.encode(with: aCoder)
+
+        aCoder.encode(rootTagName, forKey: Keys.rootTagName)
+        aCoder.encode(rawHTML, forKey: Keys.rawHTML)
+    }
+
+
+
     // MARK: - NSTextAttachmentContainer
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
@@ -50,5 +81,16 @@ open class HTMLAttachment: NSTextAttachment {
         }
 
         return bounds
+    }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension HTMLAttachment {
+
+    struct Keys {
+        static let rootTagName  = "rootTagName"
+        static let rawHTML      = "rawHTML"
     }
 }
