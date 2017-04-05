@@ -498,7 +498,7 @@ open class TextStorage: NSTextStorage {
     }
 
     private func processHtmlAttachmentDifferences(in range: NSRange, betweenOriginal original: HTMLAttachment?, andNew new: HTMLAttachment?) {
-        guard let html = original?.rawHTML ?? new?.rawHTML else {
+        guard let html = new?.rawHTML, original?.rawHTML != new?.rawHTML else {
             return
         }
 
