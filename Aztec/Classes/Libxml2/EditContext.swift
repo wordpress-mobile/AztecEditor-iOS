@@ -16,7 +16,7 @@ extension Libxml2 {
             self.undoManager = undoManager
         }
 
-        static let knownElements: [StandardElementType] = [
+        let knownElements: [StandardElementType] = [
             .a,
             .b,
             .br,

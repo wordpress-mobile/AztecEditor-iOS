@@ -65,7 +65,7 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            guard isSupportedByAztec() else {
+            guard isSupportedByEditor() else {
                 return defaultLengthForUnsupportedElements
             }
 
@@ -1599,7 +1599,7 @@ extension Libxml2 {
                 return true
             }
 
-            guard elementNode.isSupportedByAztec() else {
+            guard elementNode.isSupportedByEditor() else {
                 return true
             }
 
@@ -1624,12 +1624,22 @@ extension Libxml2 {
             }
         }
 
-        func isSupportedByAztec() -> Bool {
+        func isSupportedByEditor() -> Bool {
+            /// NOTE:
+            /// ElementNode.length is coupled to the value of this method. Elements not known by the Editor are
+            /// represented by a single character (NSTextAttachment), with a customizable visual representation.
+            /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
+            /// "Length=1" workaround.
+            ///
+            guard let editContext = editContext else {
+                return true
+            }
+
             guard let standardName = standardName else {
                 return false
             }
 
-            return EditContext.knownElements.contains(standardName)
+            return editContext.knownElements.contains(standardName)
         }
     }
 
@@ -1663,7 +1673,7 @@ extension Libxml2 {
 
         // MARK: - Overriden Methods
 
-        override func isSupportedByAztec() -> Bool {
+        override func isSupportedByEditor() -> Bool {
             return true
         }
     }

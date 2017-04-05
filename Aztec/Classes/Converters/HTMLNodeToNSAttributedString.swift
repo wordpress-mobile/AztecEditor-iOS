@@ -112,7 +112,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
-        guard !node.isSupportedByAztec() else {
+        guard !node.isSupportedByEditor() else {
             return stringForNode(node, inheritingAttributes: attributes)
         }
 
