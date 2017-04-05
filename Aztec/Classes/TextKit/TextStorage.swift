@@ -498,8 +498,11 @@ open class TextStorage: NSTextStorage {
     }
 
     private func processHtmlAttachmentDifferences(in range: NSRange, betweenOriginal original: HTMLAttachment?, andNew new: HTMLAttachment?) {
-        // TODO:
-        // Support DOM Insertion
+        guard let html = original?.rawHTML ?? new?.rawHTML else {
+            return
+        }
+
+        dom.replace(range, rawHTML: html)
     }
 
 
