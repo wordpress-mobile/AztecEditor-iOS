@@ -1590,6 +1590,10 @@ extension Libxml2 {
                 return true
             }
 
+            guard elementNode.isSupportedByAztec() else {
+                return true
+            }
+
             return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
         
