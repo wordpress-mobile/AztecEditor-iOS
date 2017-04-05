@@ -471,6 +471,36 @@ extension Libxml2 {
             }
         }
 
+
+        // MARK: - Raw HTML
+
+        /// Replaces the specified range with a given Raw HTML String.
+        ///
+        /// - Parameters:
+        ///   - range: the range to insert the HTML
+        ///   - rawHTML: String representing a raw HTML Snippet, to be converted into Nodes.
+        ///
+        func replace(_ range: NSRange, rawHTML: String) {
+            performAsyncUndoable { [weak self] in
+                self?.replaceSynchronously(range, rawHTML: rawHTML)
+            }
+        }
+
+        private func replaceSynchronously(_ range: NSRange, rawHTML: String) {
+            do {
+                let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
+                let parsedRootNode = try htmlToNode.convert(rawHTML)
+
+                guard let firstChild = parsedRootNode.children.first else {
+                    return
+                }
+                rootNode.replaceCharacters(in: range, with: firstChild)
+            } catch {
+                fatalError("Could not replace range with raw HTML: \(rawHTML).")
+            }
+        }
+
+
         // MARK: - Images
 
         /// Replaces the specified range with a given image.

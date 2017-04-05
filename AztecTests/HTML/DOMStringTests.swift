@@ -18,7 +18,7 @@ class DOMStringTests: XCTestCase {
     /// Output:
     ///     - Make sure the HTML is updated accordingly at each step.
     ///
-    func testReplaceCharacters() {
+    func testReplaceCharactersWithStringEffectivelyInsertsTheNewString() {
         let string = DOMString()
 
         string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n", preferLeftNode: true)
@@ -26,5 +26,25 @@ class DOMStringTests: XCTestCase {
 
         string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!", preferLeftNode: false)
         XCTAssertEqual(string.getHTML(), "Hello<br>World!")
+    }
+
+
+    /// This test ensures that replace with rawHTML generates the expected HTML.
+    ///
+    /// Input:
+    ///     - Insert "<unknown>plain</unknown>"
+    ///     - Insert "<b>prepended</b>"
+    ///
+    /// Output:
+    ///     - Verify the Updated HTML at each step.
+    ///
+    func testReplaceWithRawHtmlCreatesNewInternalNodes() {
+        let string = DOMString()
+
+        string.replace(NSRange.zero, rawHTML: "<unknown>plain</unknown>")
+        XCTAssertEqual(string.getHTML(), "<unknown>plain</unknown>")
+
+        string.replace(NSRange.zero, rawHTML: "<b>prepended</b>")
+        XCTAssertEqual(string.getHTML(), "<unknown><b>prepended</b>plain</unknown>")
     }
 }
