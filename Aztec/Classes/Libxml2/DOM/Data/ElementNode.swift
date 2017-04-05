@@ -1350,14 +1350,6 @@ extension Libxml2 {
         /// - parameter descriptor:  The descriptor for the element to replace the text with.
         ///
         func replaceCharacters(in targetRange: NSRange, with descriptor: NodeDescriptor) {
-            
-            guard let textNode = lowestTextNodeWrapping(targetRange) else {
-                return
-            }
-            
-            let absoluteLocation = textNode.absoluteLocation()
-            let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
-            textNode.split(forRange: localRange)
 
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
@@ -1368,16 +1360,33 @@ extension Libxml2 {
                 fatalError("Unsupported Node Descriptor")
             }
 
-            
+            replaceCharacters(in: targetRange, with: node)
+        }
+
+        /// Replace characters in targetRange by a node with the name in nodeName and attributes
+        ///
+        /// - parameter targetRange: The range to replace
+        /// - parameter node:  The Element to replace the text with.
+        ///
+        func replaceCharacters(in targetRange: NSRange, with node: Node) {
+
+            guard let textNode = lowestTextNodeWrapping(targetRange) else {
+                return
+            }
+
+            let absoluteLocation = textNode.absoluteLocation()
+            let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
+            textNode.split(forRange: localRange)
+
             guard let index = textNode.parent?.children.index(of: textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
                 return
             }
-            
+
             guard let textNodeParent = textNode.parent else {
                 return
             }
-            
+
             textNodeParent.insert(node, at: index)
             textNodeParent.remove(textNode)
         }

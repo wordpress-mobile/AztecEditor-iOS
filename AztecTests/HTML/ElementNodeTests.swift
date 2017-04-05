@@ -1237,7 +1237,7 @@ class ElementNodeTests: XCTestCase {
     /// Expected results:
     /// - Output: `<p>Look at this photo:<img src="https://httpbin.org/image/jpeg.It's amazing" /></p>`
     ///
-    func testReplaceCharactersInRangeWithNode() {
+    func testReplaceCharactersInRangeWithNodeDescriptor() {
         let startText = "Look at this photo:"
         let middleText = "image"
         let endText = ".It's amazing"
@@ -1274,7 +1274,54 @@ class ElementNodeTests: XCTestCase {
                 return
         }
     }
-    
+
+    /// Tests `replaceCharacters(inRange:withNode)`.
+    ///
+    /// Input HTML: `<p>Look at this photo:image.It's amazing</p>`
+    /// - Range: the range of the image string.
+    /// - New Node: <img>
+    /// - Attributes:
+    ///
+    /// Expected results:
+    /// - Output: `<p>Look at this photo:<img src="https://httpbin.org/image/jpeg.It's amazing" /></p>`
+    ///
+    func testReplaceCharactersInRangeWithNode() {
+        let startText = "Look at this photo:"
+        let middleText = "image"
+        let endText = ".It's amazing"
+        let paragraphText = TextNode(text: startText + middleText + endText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText])
+
+        let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
+        let imgSrc = "https://httpbin.org/image/jpeg"
+
+        let attributes = [Libxml2.StringAttribute(name: "src", value: imgSrc)]
+        let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
+        let node = ElementNode(descriptor: descriptor)
+
+        paragraph.replaceCharacters(in: range, with: node)
+
+        XCTAssertEqual(paragraph.children.count, 3)
+
+        guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
+
+            XCTFail("Expected a text node")
+            return
+        }
+
+        guard let imgNode = paragraph.children[1] as? ElementNode, imgNode.name == node.name else {
+
+            XCTFail("Expected a img node")
+            return
+        }
+
+        guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
+
+            XCTFail("Expected a text node")
+            return
+        }
+    }
+
     // MARK: - pushUp(rightSideDescendantEvaluatedBy:)
     
     
