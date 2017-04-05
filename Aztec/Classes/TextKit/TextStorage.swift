@@ -597,12 +597,13 @@ open class TextStorage: NSTextStorage {
         let sourceHeader = originalHeaderLevel ?? 0
         let targetHeader = newHeaderLevel ?? 0
 
-        let addStyle = sourceHeader == 0 && targetHeader > 0
-        let removeStyle = sourceHeader > 0 && targetHeader == 0
+        let addStyle = sourceHeader >= 0 && targetHeader > 0 && sourceHeader != targetHeader
+        let removeStyle = sourceHeader > 0 && targetHeader >= 0 && sourceHeader != targetHeader
 
         if addStyle {
             dom.applyHeader(targetHeader, spanning: range)
-        } else if removeStyle {
+        }
+        if removeStyle {
             dom.removeHeader(sourceHeader, spanning: range)
         }
     }
