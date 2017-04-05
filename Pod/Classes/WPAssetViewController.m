@@ -61,6 +61,75 @@
     [self showAsset];
 }
 
++ (NSDateFormatter *)sharedDateFormater {
+    static NSDateFormatter * _sharedDateFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedDateFormatter = [[NSDateFormatter alloc] init];
+        _sharedDateFormatter.dateStyle = NSDateFormatterLongStyle;
+        _sharedDateFormatter.timeStyle = NSDateFormatterNoStyle;
+    });
+    return _sharedDateFormatter;
+}
+
++ (NSDateFormatter *)sharedTimeFormater {
+    static NSDateFormatter * _sharedTimeFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedTimeFormatter = [[NSDateFormatter alloc] init];
+        _sharedTimeFormatter.dateStyle = NSDateFormatterNoStyle;
+        _sharedTimeFormatter.timeStyle = NSDateFormatterShortStyle;
+    });
+    return _sharedTimeFormatter;
+}
+
++ (NSDateFormatter *)sharedDateWeekFormater {
+    static NSDateFormatter * _sharedDateWeekFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedDateWeekFormatter = [[NSDateFormatter alloc] init];
+        _sharedDateWeekFormatter.dateFormat = [NSDateFormatter dateFormatFromTemplate:@"cccc" options:0 locale:nil];
+    });
+    return _sharedDateWeekFormatter;
+}
+
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self updateNavigationTitle];
+}
+
+- (void)updateNavigationTitle {
+    if (self.asset.date == nil || self.navigationController == nil) {
+        return;
+    }
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.textColor = self.navigationController.navigationBar.tintColor;
+
+    NSDate *assetDate = self.asset.date;
+    NSDate *now = [NSDate date];
+    NSString *dateString = [[[self class] sharedDateFormater] stringFromDate:assetDate];
+    NSString *timeString = [[[self class] sharedTimeFormater] stringFromDate:assetDate];
+
+    NSCalendar *gregorianCalendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *dateComponents = [gregorianCalendar components:NSCalendarUnitDay fromDate:assetDate toDate:now options:0];
+    if (dateComponents.day < 7) {
+        dateString = [[[[self class] sharedDateWeekFormater] stringFromDate:assetDate] capitalizedStringWithLocale:nil];
+    }
+
+    NSAttributedString *dateAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", dateString] attributes:@{NSFontAttributeName: titleLabel.font}];
+    NSAttributedString *timeAttributedString = [[NSAttributedString alloc] initWithString:timeString attributes:@{NSFontAttributeName: [titleLabel.font fontWithSize:floorf(titleLabel.font.pointSize * 0.75)]}];
+
+    NSMutableAttributedString *titleAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:dateAttributedString];
+    [titleAttributedString appendAttributedString:timeAttributedString];
+
+    titleLabel.numberOfLines = 2;
+    titleLabel.attributedText = titleAttributedString;
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    [titleLabel sizeToFit];
+    self.navigationItem.titleView = titleLabel;
+}
+
 - (UIImageView *)imageView
 {
     if (_imageView) {
