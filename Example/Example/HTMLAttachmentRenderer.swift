@@ -9,7 +9,7 @@ final class HTMLAttachmentRenderer {
 
     /// Comment Attachment Text
     ///
-    let defaultText = NSLocalizedString("[HTML]", comment: "HTML Attachment Label")
+    let defaultText = NSLocalizedString("HTML", comment: "HTML Attachment Label")
 
     /// Text Color
     ///
@@ -39,7 +39,7 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
     func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
-        let message = messageAttributedString()
+        let message = messageAttributedString(with: attachment)
         let targetRect = boundingRect(for: message, size: size)
 
         message.draw(in: targetRect)
@@ -51,7 +51,7 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
     }
 
     func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
-        let message = messageAttributedString()
+        let message = messageAttributedString(with: attachment)
 
         let size = CGSize(width: lineFragment.size.width, height: lineFragment.size.height)
         var rect = boundingRect(for: message, size: size)
@@ -73,12 +73,15 @@ private extension HTMLAttachmentRenderer {
         return CGRect(origin: targetPosition, size: targetBounds.size)
     }
 
-    func messageAttributedString() -> NSAttributedString {
+    func messageAttributedString(with attachment: NSTextAttachment) -> NSAttributedString {
         let attributes: [String: Any] = [
             NSForegroundColorAttributeName: textColor,
             NSFontAttributeName: textFont
         ]
 
-        return NSAttributedString(string: defaultText, attributes: attributes)
+        let htmlAttachment = attachment as? HTMLAttachment
+        let displayText = htmlAttachment?.rootTagName.uppercased() ?? defaultText
+
+        return NSAttributedString(string: "[\(displayText)]", attributes: attributes)
     }
 }
