@@ -480,13 +480,13 @@ extension Libxml2 {
         ///   - range: the range to insert the HTML
         ///   - rawHTML: String representing a raw HTML Snippet, to be converted into Nodes.
         ///
-        func replace(_ range: NSRange, rawHTML: String) {
+        func replace(_ range: NSRange, withRawHTML rawHTML: String) {
             performAsyncUndoable { [weak self] in
-                self?.replaceSynchronously(range, rawHTML: rawHTML)
+                self?.replaceSynchronously(range, withRawHTML: rawHTML)
             }
         }
 
-        private func replaceSynchronously(_ range: NSRange, rawHTML: String) {
+        private func replaceSynchronously(_ range: NSRange, withRawHTML rawHTML: String) {
             do {
                 let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
                 let parsedRootNode = try htmlToNode.convert(rawHTML)
@@ -547,13 +547,13 @@ extension Libxml2 {
         ///     - range: the range to apply the style to.
         ///     - comment: the comment to be stored.
         ///
-        func replace(_ range: NSRange, comment: String) {
+        func replace(_ range: NSRange, withComment comment: String) {
             performAsyncUndoable { [weak self] in
-                self?.replaceSynchronously(range, comment: comment)
+                self?.replaceSynchronously(range, withComment: comment)
             }
         }
 
-        private func replaceSynchronously(_ range: NSRange, comment: String) {
+        private func replaceSynchronously(_ range: NSRange, withComment comment: String) {
             let descriptor = CommentNodeDescriptor(comment: comment)
 
             rootNode.replaceCharacters(in: range, with: descriptor)

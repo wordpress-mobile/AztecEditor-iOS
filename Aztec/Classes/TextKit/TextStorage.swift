@@ -494,7 +494,7 @@ open class TextStorage: NSTextStorage {
             return
         }
 
-        dom.replace(range, comment: newAttachment.text)
+        dom.replace(range, withComment: newAttachment.text)
     }
 
     private func processHtmlAttachmentDifferences(in range: NSRange, betweenOriginal original: HTMLAttachment?, andNew new: HTMLAttachment?) {
@@ -502,7 +502,7 @@ open class TextStorage: NSTextStorage {
             return
         }
 
-        dom.replace(range, rawHTML: html)
+        dom.replace(range, withRawHTML: html)
     }
 
 

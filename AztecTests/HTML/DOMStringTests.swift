@@ -41,10 +41,10 @@ class DOMStringTests: XCTestCase {
     func testReplaceWithRawHtmlCreatesNewInternalNodes() {
         let string = DOMString()
 
-        string.replace(NSRange.zero, rawHTML: "<unknown>plain</unknown>")
+        string.replace(NSRange.zero, withRawHTML: "<unknown>plain</unknown>")
         XCTAssertEqual(string.getHTML(), "<unknown>plain</unknown>")
 
-        string.replace(NSRange.zero, rawHTML: "<b>prepended</b>")
+        string.replace(NSRange.zero, withRawHTML: "<b>prepended</b>")
         XCTAssertEqual(string.getHTML(), "<unknown><b>prepended</b>plain</unknown>")
     }
 }
