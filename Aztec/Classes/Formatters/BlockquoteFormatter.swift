@@ -3,8 +3,6 @@ import UIKit
 
 class BlockquoteFormatter: ParagraphAttributeFormatter {
 
-    let elementType: Libxml2.StandardElementType = .blockquote 
-
     let placeholderAttributes: [String : Any]?
 
     init(placeholderAttributes: [String : Any]? = nil) {

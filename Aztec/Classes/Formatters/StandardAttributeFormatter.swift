@@ -4,14 +4,11 @@ import UIKit
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string. 
 class StandardAttributeFormatter: CharacterAttributeFormatter {
 
-    let elementType: Libxml2.StandardElementType
-
     let attributeKey: String
 
     var attributeValue: Any
 
-    init(elementType: Libxml2.StandardElementType, attributeKey: String, attributeValue: Any) {
-        self.elementType = elementType
+    init(attributeKey: String, attributeValue: Any) {
         self.attributeKey = attributeKey
         self.attributeValue = attributeValue
     }
@@ -41,38 +38,38 @@ class StandardAttributeFormatter: CharacterAttributeFormatter {
 class UnderlineFormatter: StandardAttributeFormatter {
 
     init() {
-        super.init(elementType: .u, attributeKey: NSUnderlineStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
+        super.init(attributeKey: NSUnderlineStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
     }
 }
 
 class StrikethroughFormatter: StandardAttributeFormatter {
 
     init() {
-        super.init(elementType: .del, attributeKey: NSStrikethroughStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
+        super.init(attributeKey: NSStrikethroughStyleAttributeName, attributeValue: NSUnderlineStyle.styleSingle.rawValue)
     }
 }
 
 class LinkFormatter: StandardAttributeFormatter {
     init() {
-        super.init(elementType: .a, attributeKey: NSLinkAttributeName, attributeValue: NSURL(string:"")!)
+        super.init(attributeKey: NSLinkAttributeName, attributeValue: NSURL(string:"")!)
     }
 }
 
 class ImageFormatter: StandardAttributeFormatter {
     init() {
-        super.init(elementType: .img, attributeKey: NSAttachmentAttributeName, attributeValue: TextAttachment(identifier: NSUUID().uuidString))
+        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: TextAttachment(identifier: NSUUID().uuidString))
     }
 }
 
 class HRFormatter: StandardAttributeFormatter {
     init() {
-        super.init(elementType: .hr, attributeKey: NSAttachmentAttributeName, attributeValue: LineAttachment())
+        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: LineAttachment())
     }
 }
 
 class ColorFormatter: StandardAttributeFormatter {
     init(color: UIColor = .black) {
-        super.init(elementType: .span, attributeKey: NSForegroundColorAttributeName, attributeValue: color)
+        super.init(attributeKey: NSForegroundColorAttributeName, attributeValue: color)
     }
 }
 
