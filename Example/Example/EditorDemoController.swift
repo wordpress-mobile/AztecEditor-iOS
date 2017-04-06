@@ -35,29 +35,43 @@ class EditorDemoController: UIViewController {
         self.configureDefaultProperties(for: textView, using: toolbar, accessibilityLabel: accessibilityLabel)
 
         textView.isHidden = true
+        textView.delegate = self
 
         return textView
     }()
 
-    fileprivate(set) lazy var titleTextField: UITextField = {
-        let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
-        let textField = UITextField()
+    fileprivate(set) lazy var titleTextField: UITextView = {        
+        let textField = UITextView()
 
         textField.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
-        textField.attributedPlaceholder = NSAttributedString(string: placeholderText,
-                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray])
         textField.delegate = self
         textField.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         textField.returnKeyType = .next
         textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
-
+        textField.isScrollEnabled = false
+        textField.backgroundColor = .clear
         let toolbar = self.createToolbar(htmlMode: false)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
 
         return textField
     }()
+
+    fileprivate(set) lazy var titlePlaceholderLabel: UILabel = {
+        let placeholderText = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
+        let textField = UILabel()
+
+        textField.attributedText = NSAttributedString(string: placeholderText,
+                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray, NSFontAttributeName: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
+        textField.sizeToFit()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+
+        return textField
+    }()
+
+    fileprivate var titleHeightConstraint: NSLayoutConstraint!
+    fileprivate var titleTopConstraint: NSLayoutConstraint!
 
     fileprivate(set) lazy var separatorView: UIView = {
         let separatorView = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
@@ -107,11 +121,11 @@ class EditorDemoController: UIViewController {
         navigationController?.navigationBar.isTranslucent = false
 
         view.backgroundColor = UIColor.white
-        view.addSubview(titleTextField)
-        view.addSubview(separatorView)
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
-
+        view.addSubview(titleTextField)
+        view.addSubview(titlePlaceholderLabel)
+        view.addSubview(separatorView)
         configureConstraints()
 
         let html: String
@@ -152,35 +166,68 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        // TODO: Update toolbars
-        //    [self.editorToolbar configureForHorizontalSizeClass:newCollection.horizontalSizeClass];
-        //    [self.titleToolbar configureForHorizontalSizeClass:newCollection.horizontalSizeClass];
-
     }
 
+    // MARK: - Title and Title placeholder position methods
+    func updateTitlePosition() {
+        let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
+        titleTopConstraint.constant = -(referenceView.contentOffset.y+referenceView.contentInset.top)
+
+        var contentInset = referenceView.contentInset
+        contentInset.top = (titleHeightConstraint.constant + separatorView.frame.height)
+        referenceView.contentInset = contentInset
+    }
+    
+    func updateTitleHeight() {
+        let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
+
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width - ( 2 * Constants.margin), height: CGFloat.greatestFiniteMagnitude))
+        let insets = titleTextField.textContainerInset
+        titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
+
+        var contentInset = referenceView.contentInset
+        contentInset.top = (titleHeightConstraint.constant + separatorView.frame.height)
+        referenceView.contentInset = contentInset
+        referenceView.setContentOffset(CGPoint(x:0, y: -contentInset.top), animated: false)
+    }
+
+    func updateTitlePlaceholderVisibility() {
+        self.titlePlaceholderLabel.isHidden = !titleTextField.text.isEmpty
+    }
 
     // MARK: - Configuration Methods
 
     private func configureConstraints() {
 
+        titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
+        titleTopConstraint = titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: -richTextView.contentOffset.y)
+        updateTitleHeight()
         NSLayoutConstraint.activate([
             titleTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
             titleTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
-            titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.margin),
-            titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
+            titleTopConstraint,
+            titleHeightConstraint
+            ])
+
+        let insets = titleTextField.textContainerInset
+        NSLayoutConstraint.activate([
+            titlePlaceholderLabel.leftAnchor.constraint(equalTo: titleTextField.leftAnchor, constant: insets.left + titleTextField.textContainer.lineFragmentPadding),
+            titlePlaceholderLabel.rightAnchor.constraint(equalTo: titleTextField.rightAnchor, constant: -insets.right),
+            titlePlaceholderLabel.topAnchor.constraint(equalTo: titleTextField.topAnchor, constant: insets.top),
+            titlePlaceholderLabel.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
             ])
 
         NSLayoutConstraint.activate([
             separatorView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
             separatorView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
-            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: Constants.margin),
+            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
         NSLayoutConstraint.activate([
             richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
             richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
-            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: Constants.margin),
+            richTextView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Constants.margin)
             ])
 
@@ -245,8 +292,10 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let scrollInsets = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
-        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
+        let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
+
+        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
+        let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: view.frame.maxY - keyboardFrame.minY, right: 0)
 
         htmlTextView.scrollIndicatorInsets = scrollInsets
         htmlTextView.contentInset = contentInset
@@ -317,7 +366,15 @@ extension EditorDemoController : UITextViewDelegate {
         changeRichTextInputView(to: nil)
     }
 
-    func textViewDidChange(_ textView: UITextView) {        
+    func textViewDidChange(_ textView: UITextView) {
+        if textView == titleTextField {
+            updateTitleHeight()
+            updateTitlePlaceholderVisibility()
+        }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateTitlePosition()
     }
 }
 

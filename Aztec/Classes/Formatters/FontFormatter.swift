@@ -3,14 +3,10 @@ import UIKit
 
 class FontFormatter: CharacterAttributeFormatter {
 
-    let elementType: Libxml2.StandardElementType
-    
     let traits: UIFontDescriptorSymbolicTraits
 
-    init(elementType: Libxml2.StandardElementType, traits: UIFontDescriptorSymbolicTraits) {
-        self.elementType = elementType
+    init(traits: UIFontDescriptorSymbolicTraits) {
         self.traits = traits
-
     }
 
     func apply(to attributes: [String : Any]) -> [String: Any] {
@@ -49,14 +45,14 @@ class FontFormatter: CharacterAttributeFormatter {
 class BoldFormatter: FontFormatter {
 
     init() {
-        super.init(elementType: .strong, traits: .traitBold)
+        super.init(traits: .traitBold)
     }
 }
 
 class ItalicFormatter: FontFormatter {
 
     init() {
-        super.init(elementType: .em, traits: .traitItalic)
+        super.init(traits: .traitItalic)
     }
 }
 

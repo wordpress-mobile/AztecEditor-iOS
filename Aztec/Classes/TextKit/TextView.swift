@@ -271,6 +271,7 @@ open class TextView: UITextView {
         restoreDefaultFontIfNeeded()
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
+        ensureRemovalOfVisualOnlyTypingAttribute()
 
         super.insertText(text)
 
@@ -577,19 +578,23 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
+    private lazy var defaultAttributes: [String: Any] = {
+        return [NSFontAttributeName: self.defaultFont, NSParagraphStyleAttributeName: ParagraphStyle.default]
+    }()
 
-    private let paragraphFormatters: [AttributeFormatter] = [
+    private lazy var paragraphFormatters: [AttributeFormatter] = [
         TextListFormatter(style: .ordered),
         TextListFormatter(style: .unordered),
-        BlockquoteFormatter(),
+        BlockquoteFormatter(),        
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
         HeaderFormatter(headerLevel:.h3),
         HeaderFormatter(headerLevel:.h4),
         HeaderFormatter(headerLevel:.h5),
         HeaderFormatter(headerLevel:.h6),
+        PreFormatter(placeholderAttributes: self.defaultAttributes)
     ]
-    
+
     /// After text deletion, this helper will re-apply the Text Formatters at the specified range, if they were
     /// present in the segment previous to the modified range.
     ///
@@ -737,6 +742,12 @@ open class TextView: UITextView {
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
 
+    /// Ensures the removal of visual-only typing attributes.  Visual-only elements can never
+    /// be introduced by keyboard input.
+    ///
+    private func ensureRemovalOfVisualOnlyTypingAttribute() {
+        typingAttributes[VisualOnlyAttributeName] = nil
+    }
 
     private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
         HeaderFormatter(headerLevel:.h1),

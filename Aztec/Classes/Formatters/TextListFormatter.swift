@@ -2,8 +2,7 @@ import Foundation
 import UIKit
 
 class TextListFormatter: ParagraphAttributeFormatter {
-
-    let elementType: Libxml2.StandardElementType = .li
+    
     let listStyle: TextList.Style
     let placeholderAttributes: [String : Any]?
 
@@ -19,8 +18,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
         if newParagraphStyle.textList == nil {
-            newParagraphStyle.headIndent += Metrics.defaultIndentation
-            newParagraphStyle.firstLineHeadIndent += Metrics.defaultIndentation
+            newParagraphStyle.headIndent += Metrics.listTextIndentation
+            newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
         }
         newParagraphStyle.textList = TextList(style: self.listStyle)
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -36,8 +35,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
             return resultingAttributes
         }
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.headIndent -= Metrics.defaultIndentation
-        newParagraphStyle.firstLineHeadIndent -= Metrics.defaultIndentation
+        newParagraphStyle.headIndent -= Metrics.listTextIndentation
+        newParagraphStyle.firstLineHeadIndent -= Metrics.listTextIndentation
         newParagraphStyle.textList = nil
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
         return resultingAttributes

@@ -249,12 +249,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-
-        var attributes = textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
-
-        attributes[VisualOnlyAttributeName] = nil
-
-        return attributes
+        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
