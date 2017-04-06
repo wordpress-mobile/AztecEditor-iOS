@@ -8,7 +8,11 @@
 
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDate *oneWeekAgo = [calendar dateByAddingUnit:NSCalendarUnitWeekOfYear value:-1 toDate:now options:0];
-    if ([date compare:oneWeekAgo] == NSOrderedDescending) {
+    if ([calendar isDateInToday:date]) {
+        dateString = NSLocalizedString(@"Today", @"Reference to the current day.");
+    } else if ([calendar isDateInYesterday:date]) {
+        dateString = NSLocalizedString(@"Yesterday", @"Reference to the previous day.");
+    } else if ([date compare:oneWeekAgo] == NSOrderedDescending) {
         dateString = [[[[self class] sharedDateWeekFormater] stringFromDate:date] capitalizedStringWithLocale:nil];
     }
     return dateString;
