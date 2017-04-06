@@ -1510,16 +1510,24 @@ extension Libxml2 {
         @discardableResult
         func wrap(children selectedChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
+            var childrenToWrap = selectedChildren
+
+            if let childElementDescriptor = elementDescriptor.childDescriptor {
+                let newChild = wrap(children: selectedChildren, inElement: childElementDescriptor)
+
+                childrenToWrap = [newChild]
+            }
+
             guard selectedChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
                 return ElementNode(descriptor: elementDescriptor, editContext: editContext)
             }
 
-            guard let firstNodeIndex = children.index(of: selectedChildren[0]) else {
+            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
-            guard let lastNodeIndex = children.index(of: selectedChildren[selectedChildren.count - 1]) else {
+            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
@@ -1537,7 +1545,6 @@ extension Libxml2 {
             let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
             let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
 
-            var childrenToWrap = selectedChildren
             var result: ElementNode?
             
             if let sibling = rightSibling {

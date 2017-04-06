@@ -454,13 +454,15 @@ extension Libxml2 {
             }
         }
 
-        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
-            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
-                return nil
-            }
-            return DOMString.headerLevels[headerLevel - 1]
-        }
+        func applyOrderedList(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
 
+                let liDescriptor = ElementNodeDescriptor(elementType: .li)
+                let olDescriptor = ElementNodeDescriptor(elementType: .ol, childDescriptor: liDescriptor)
+
+                self?.applyElementDescriptor(olDescriptor, spanning: range)
+            }
+        }
 
         func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
             guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
@@ -469,6 +471,15 @@ extension Libxml2 {
             performAsyncUndoable { [weak self] in
                 self?.applyElement(elementType, spanning: range)
             }
+        }
+
+        // MARK: - Header types
+
+        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+                return nil
+            }
+            return DOMString.headerLevels[headerLevel - 1]
         }
 
         // MARK: - Images
@@ -557,6 +568,10 @@ extension Libxml2 {
         fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
+            applyElementDescriptor(elementDescriptor, spanning: range)
+        }
+
+        private func applyElementDescriptor(_ elementDescriptor: ElementNodeDescriptor, spanning range: NSRange) {
             domEditor.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         

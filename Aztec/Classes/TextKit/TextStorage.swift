@@ -249,7 +249,12 @@ open class TextStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
+
+        var attributes = textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
+
+        attributes[VisualOnlyAttributeName] = nil
+
+        return attributes
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -288,7 +293,11 @@ open class TextStorage: NSTextStorage {
                 dom.deleteBlockSeparator(at: targetDomRange.location)
             }
 
+            print("Pre: \(dom.getHTML())")
+
             applyStylesToDom(from: domString, startingAt: range.location)
+
+            print("Pos: \(dom.getHTML())")
         }
 
         detectAttachmentRemoved(in: range)
@@ -401,8 +410,9 @@ open class TextStorage: NSTextStorage {
         case NSParagraphStyleAttributeName:
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
-            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
 
+            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList)
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
         case NSLinkAttributeName:
             let sourceStyle = sourceValue as? URL
@@ -579,6 +589,26 @@ open class TextStorage: NSTextStorage {
 
         if addStyle {
             dom.applyBlockquote(spanning: range)
+        } else if removeStyle {
+            dom.removeBlockquote(spanning: range)
+        }
+    }
+
+    /// Processes differences in list styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original TextList object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processListDifferences(in range: NSRange, betweenOriginal originalStyle: TextList?, andNew newStyle: TextList?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyOrderedList(spanning: range)
         } else if removeStyle {
             dom.removeBlockquote(spanning: range)
         }
