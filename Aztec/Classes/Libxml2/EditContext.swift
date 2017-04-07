@@ -21,6 +21,7 @@ extension Libxml2 {
             .b,
             .br,
             .blockquote,
+            .del,
             .div,
             .em,
             .h1,
