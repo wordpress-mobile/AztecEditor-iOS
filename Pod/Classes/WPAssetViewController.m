@@ -4,6 +4,7 @@
 @import AVKit;
 
 #import "WPVideoPlayerView.h"
+#import "WPDateTimeHelpers.h"
 
 @interface WPAssetViewController () <WPVideoPlayerViewDelegate>
 
@@ -59,6 +60,33 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:actionTitle style:UIBarButtonItemStylePlain target:self action:@selector(selectAction:)];
 
     [self showAsset];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self updateNavigationTitle];
+}
+
+- (void)updateNavigationTitle {
+    if (self.asset.date == nil || self.navigationController == nil) {
+        return;
+    }
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.textColor = self.navigationController.navigationBar.tintColor;
+    NSString *dateString = [WPDateTimeHelpers userFriendlyStringDateFromDate:self.asset.date];
+    NSString *timeString = [WPDateTimeHelpers userFriendlyStringTimeFromDate:self.asset.date];
+
+    NSAttributedString *dateAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", dateString] attributes:@{NSFontAttributeName: titleLabel.font}];
+    NSAttributedString *timeAttributedString = [[NSAttributedString alloc] initWithString:timeString attributes:@{NSFontAttributeName: [titleLabel.font fontWithSize:floorf(titleLabel.font.pointSize * 0.75)]}];
+
+    NSMutableAttributedString *titleAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:dateAttributedString];
+    [titleAttributedString appendAttributedString:timeAttributedString];
+
+    titleLabel.numberOfLines = 2;
+    titleLabel.attributedText = titleAttributedString;
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    [titleLabel sizeToFit];
+    self.navigationItem.titleView = titleLabel;
 }
 
 - (UIImageView *)imageView
