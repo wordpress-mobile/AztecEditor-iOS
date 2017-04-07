@@ -4,7 +4,7 @@
 
 + (NSString *)userFriendlyStringDateFromDate:(NSDate *)date {
     NSDate *now = [NSDate date];
-    NSString *dateString = [[[self class] sharedDateFormater] stringFromDate:date];
+    NSString *dateString = [[[self class] sharedDateFormatter] stringFromDate:date];
 
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDate *oneWeekAgo = [calendar dateByAddingUnit:NSCalendarUnitWeekOfYear value:-1 toDate:now options:0];
@@ -13,16 +13,16 @@
     } else if ([calendar isDateInYesterday:date]) {
         dateString = NSLocalizedString(@"Yesterday", @"Reference to the previous day.");
     } else if ([date compare:oneWeekAgo] == NSOrderedDescending) {
-        dateString = [[[[self class] sharedDateWeekFormater] stringFromDate:date] capitalizedStringWithLocale:nil];
+        dateString = [[[[self class] sharedDateWeekFormatter] stringFromDate:date] capitalizedStringWithLocale:nil];
     }
     return dateString;
 }
 
 + (NSString *)userFriendlyStringTimeFromDate:(NSDate *)date {
-    return [[[self class] sharedTimeFormater] stringFromDate:date];
+    return [[[self class] sharedTimeFormatter] stringFromDate:date];
 }
 
-+ (NSDateFormatter *)sharedDateFormater {
++ (NSDateFormatter *)sharedDateFormatter {
     static NSDateFormatter * _sharedDateFormatter;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -33,7 +33,7 @@
     return _sharedDateFormatter;
 }
 
-+ (NSDateFormatter *)sharedTimeFormater {
++ (NSDateFormatter *)sharedTimeFormatter {
     static NSDateFormatter * _sharedTimeFormatter;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -44,7 +44,7 @@
     return _sharedTimeFormatter;
 }
 
-+ (NSDateFormatter *)sharedDateWeekFormater {
++ (NSDateFormatter *)sharedDateWeekFormatter {
     static NSDateFormatter * _sharedDateWeekFormatter;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
