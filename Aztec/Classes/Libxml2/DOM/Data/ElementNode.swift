@@ -24,6 +24,10 @@ extension Libxml2 {
             }
         }
 
+        // MARK: - Constants
+
+        fileprivate let defaultLengthForUnsupportedElements = 1
+
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
@@ -61,6 +65,10 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
+            guard isSupportedByEditor() else {
+                return defaultLengthForUnsupportedElements
+            }
+
             let nsString = text() as NSString
             return nsString.length
         }
@@ -1342,14 +1350,6 @@ extension Libxml2 {
         /// - parameter descriptor:  The descriptor for the element to replace the text with.
         ///
         func replaceCharacters(in targetRange: NSRange, with descriptor: NodeDescriptor) {
-            
-            guard let textNode = lowestTextNodeWrapping(targetRange) else {
-                return
-            }
-            
-            let absoluteLocation = textNode.absoluteLocation()
-            let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
-            textNode.split(forRange: localRange)
 
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
@@ -1360,16 +1360,33 @@ extension Libxml2 {
                 fatalError("Unsupported Node Descriptor")
             }
 
-            
+            replaceCharacters(in: targetRange, with: node)
+        }
+
+        /// Replace characters in targetRange by a node with the name in nodeName and attributes
+        ///
+        /// - parameter targetRange: The range to replace
+        /// - parameter node:  The Element to replace the text with.
+        ///
+        func replaceCharacters(in targetRange: NSRange, with node: Node) {
+
+            guard let textNode = lowestTextNodeWrapping(targetRange) else {
+                return
+            }
+
+            let absoluteLocation = textNode.absoluteLocation()
+            let localRange = NSRange(location: targetRange.location - absoluteLocation, length: targetRange.length)
+            textNode.split(forRange: localRange)
+
             guard let index = textNode.parent?.children.index(of: textNode) else {
                 assertionFailure("Can't remove a node that's not a child.")
                 return
             }
-            
+
             guard let textNodeParent = textNode.parent else {
                 return
             }
-            
+
             textNodeParent.insert(node, at: index)
             textNodeParent.remove(textNode)
         }
@@ -1582,6 +1599,10 @@ extension Libxml2 {
                 return true
             }
 
+            guard elementNode.isSupportedByEditor() else {
+                return true
+            }
+
             return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
         
@@ -1601,6 +1622,24 @@ extension Libxml2 {
             editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
+        }
+
+        func isSupportedByEditor() -> Bool {
+            /// NOTE:
+            /// ElementNode.length is coupled to the value of this method. Elements not known by the Editor are
+            /// represented by a single character (NSTextAttachment), with a customizable visual representation.
+            /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
+            /// "Length=1" workaround.
+            ///
+            guard let editContext = editContext else {
+                return true
+            }
+
+            guard let standardName = standardName else {
+                return false
+            }
+
+            return editContext.knownElements.contains(standardName)
         }
     }
 
@@ -1630,6 +1669,12 @@ extension Libxml2 {
 
         init(children: [Node], editContext: EditContext? = nil) {
             super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
+        }
+
+        // MARK: - Overriden Methods
+
+        override func isSupportedByEditor() -> Bool {
+            return true
         }
     }
 }

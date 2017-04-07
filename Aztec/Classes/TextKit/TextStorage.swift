@@ -54,7 +54,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: Rect specifying the Bounds for the comment attachment
     ///
-    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+    func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
     /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
     ///
@@ -65,7 +65,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+    func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
 
 
@@ -217,6 +217,8 @@ open class TextStorage: NSTextStorage {
                 break
             case let attachment as CommentAttachment:
                 attachment.delegate = self
+            case let attachment as HTMLAttachment:
+                attachment.delegate = self
             case let attachment as TextAttachment:
                 attachment.delegate = self
             default:
@@ -364,8 +366,9 @@ open class TextStorage: NSTextStorage {
     ///   - targetValue: the new value of the attribute
     ///
     private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
-        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
         let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
+        let isHtmlAttachment = sourceValue is HTMLAttachment || targetValue is HTMLAttachment
+        let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
 
         switch(key) {
         case NSFontAttributeName:
@@ -393,6 +396,11 @@ open class TextStorage: NSTextStorage {
             let targetAttachment = targetValue as? CommentAttachment
 
             processCommentAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isHtmlAttachment:
+            let sourceAttachment = sourceValue as? HTMLAttachment
+            let targetAttachment = targetValue as? HTMLAttachment
+
+            processHtmlAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSAttachmentAttributeName:
             let sourceAttachment = sourceValue as? TextAttachment
             let targetAttachment = targetValue as? TextAttachment
@@ -486,7 +494,15 @@ open class TextStorage: NSTextStorage {
             return
         }
 
-        dom.replace(range, with: newAttachment.text)
+        dom.replace(range, withComment: newAttachment.text)
+    }
+
+    private func processHtmlAttachmentDifferences(in range: NSRange, betweenOriginal original: HTMLAttachment?, andNew new: HTMLAttachment?) {
+        guard let html = new?.rawHTML, original?.rawHTML != new?.rawHTML else {
+            return
+        }
+
+        dom.replace(range, withRawHTML: html)
     }
 
 
@@ -631,10 +647,11 @@ open class TextStorage: NSTextStorage {
     // MARK: - Range Mapping: Visual vs HTML
 
     private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
-        return !hasNewLine(atIndex: index)
-            && !hasHorizontalLine(atIndex: index)
-            && !hasCommentMarker(atIndex: index)
-            && !hasVisualOnlyElement(atIndex: index)
+        return !hasNewLine(at: index)
+            && !hasHorizontalLine(at: index)
+            && !hasCommentMarker(at: index)
+            && !hasUnknownHtmlMarker(at: index)
+            && !hasVisualOnlyElement(at: index)
     }
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
@@ -646,25 +663,31 @@ open class TextStorage: NSTextStorage {
         return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
     }
 
-    private func hasHorizontalLine(atIndex index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
-            attachment is LineAttachment else {
-                return false
-        }
-
-        return true
-    }
-
-    private func hasCommentMarker(atIndex index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil),
-            attachment is CommentAttachment else {
+    private func hasHorizontalLine(at index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
             return false
         }
 
-        return true
+        return attachment is LineAttachment
     }
 
-    private func hasNewLine(atIndex index: Int) -> Bool {
+    private func hasCommentMarker(at index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
+            return false
+        }
+
+        return attachment is CommentAttachment
+    }
+
+    private func hasUnknownHtmlMarker(at index: Int) -> Bool {
+        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
+            return false
+        }
+
+        return attachment is HTMLAttachment
+    }
+
+    private func hasNewLine(at index: Int) -> Bool {
         if index >= textStore.length || index < 0 {
             return false
         }
@@ -672,7 +695,7 @@ open class TextStorage: NSTextStorage {
         return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
     }
 
-    private func hasVisualOnlyElement(atIndex index: Int) -> Bool {
+    private func hasVisualOnlyElement(at index: Int) -> Bool {
         return attribute(VisualOnlyAttributeName, at: index, effectiveRange: nil) != nil
     }
 
@@ -875,6 +898,9 @@ open class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+        textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
 
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
@@ -900,15 +926,15 @@ extension TextStorage: TextAttachmentDelegate {
 
 // MARK: - TextStorage: CommentAttachmentDelegate Methods
 //
-extension TextStorage: CommentAttachmentDelegate {
+extension TextStorage: RenderableAttachmentDelegate {
 
-    func commentAttachment(_ commentAttachment: CommentAttachment, imageForSize size: CGSize) -> UIImage? {
+    func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, imageForComment: commentAttachment, with: size)
+        return attachmentsDelegate.storage(self, imageFor: attachment, with: size)
     }
 
-    func commentAttachment(_ commentAttachment: CommentAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+    func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, boundsForComment: commentAttachment, with: fragment)
+        return attachmentsDelegate.storage(self, boundsFor: attachment, with: fragment)
     }
 }

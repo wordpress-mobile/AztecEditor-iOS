@@ -7,7 +7,6 @@ import MobileCoreServices
 
 class EditorDemoController: UIViewController {
 
-
     fileprivate var mediaErrorMode = false
 
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
@@ -21,7 +20,6 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
-        textView.commentsDelegate = self
 
         return textView
     }()
@@ -120,13 +118,15 @@ class EditorDemoController: UIViewController {
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
 
-        view.backgroundColor = UIColor.white
+
+        view.backgroundColor = .white
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
         view.addSubview(titleTextField)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
         configureConstraints()
+        registerAttachmentImageProviders()
 
         let html: String
 
@@ -247,6 +247,18 @@ class EditorDemoController: UIViewController {
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    private func registerAttachmentImageProviders() {
+        let providers: [TextViewAttachmentImageProvider] = [
+            MoreAttachmentRenderer(),
+            CommentAttachmentRenderer(font: Constants.defaultContentFont),
+            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
+        ]
+
+        for provider in providers {
+            richTextView.registerAttachmentImageProvider(provider)
+        }
     }
 
 
@@ -721,34 +733,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         ]
     }
 
-}
-
-
-extension EditorDemoController: TextViewCommentsDelegate {
-
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        if let render = MoreAttachmentRenderer(attachment: attachment) {
-            return render.textView(textView, imageForComment: attachment, with: size)
-        }
-
-        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
-            return render.textView(textView, imageForComment: attachment, with: size)
-        }
-
-        return nil
-    }
-
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        if let render = MoreAttachmentRenderer(attachment: attachment) {
-            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
-        }
-
-        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
-            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
-        }
-
-        return .zero
-    }
 }
 
 

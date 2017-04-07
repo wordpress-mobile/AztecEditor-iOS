@@ -66,31 +66,41 @@ public protocol TextViewMediaDelegate: class {
 }
 
 
-// MARK: - TextViewCommentsDelegate
+// MARK: - TextViewAttachmentImageProvider
 //
-public protocol TextViewCommentsDelegate: class {
+public protocol TextViewAttachmentImageProvider: class {
+
+    /// Indicates whether the current Attachment Renderer supports a given NSTextAttachment instance, or not.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the bounds.
+    ///     - attachment: Attachment about to be rendered.
+    ///
+    /// - Returns: True when supported, false otherwise.
+    ///
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - lineFragment: Line Fragment in which the glyph would be rendered.
     ///
     /// - Returns: Rect specifying the Bounds for the comment attachment
     ///
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
     /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - size: Expected Image Size
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
 
 
@@ -120,9 +130,9 @@ open class TextView: UITextView {
     ///
     open weak var mediaDelegate: TextViewMediaDelegate?
 
-    // MARK: - Properties: Comment Attachments
-
-    open weak var commentsDelegate: TextViewCommentsDelegate?
+    /// Maintains a reference to the user provided Text Attachment Image Providers
+    ///
+    fileprivate var textAttachmentImageProvider = [TextViewAttachmentImageProvider]()
 
     // MARK: - Properties: Formatting
 
@@ -360,6 +370,12 @@ open class TextView: UITextView {
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
+
+    // MARK: - Attachment Helpers
+
+    open func registerAttachmentImageProvider(_ provider: TextViewAttachmentImageProvider) {
+        textAttachmentImageProvider.append(provider)
+    }
 
     // MARK: - Getting format identifiers
 
@@ -1104,20 +1120,28 @@ extension TextView: TextStorageAttachmentsDelegate {
         mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
     }
 
-    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+    func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+        let provider = textAttachmentImageProvider.first { provider in
+            return provider.textView(self, shouldRender: attachment)
         }
 
-        return commentsDelegate.textView(self, imageForComment: attachment, with: size)
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
+        }
+
+        return firstProvider.textView(self, imageFor: attachment, with: size)
     }
 
-    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+    func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        let provider = textAttachmentImageProvider.first {
+            $0.textView(self, shouldRender: attachment)
         }
 
-        return commentsDelegate.textView(self, boundsForComment: attachment, with: lineFragment)
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
+        }
+
+        return firstProvider.textView(self, boundsFor: attachment, with: lineFragment)
     }
 }
 
