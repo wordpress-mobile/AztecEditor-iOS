@@ -31,7 +31,7 @@ class VisualOnlyElementFactory {
     func zeroWidthSpace(inheritingAttributes inheritedAttributes: [String:Any]? = nil) -> NSAttributedString {
         var attributes = inheritedAttributes ?? [String:Any]()
 
-        attributes[VisualOnlyAttributeName] = VisualOnlyElement.zeroWidthSpace.rawValue
+        //attributes[VisualOnlyAttributeName] = VisualOnlyElement.zeroWidthSpace.rawValue
 
         return NSAttributedString(.zeroWidthSpace, attributes: attributes)
     }
