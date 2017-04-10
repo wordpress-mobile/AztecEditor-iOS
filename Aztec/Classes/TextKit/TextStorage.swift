@@ -270,7 +270,7 @@ open class TextStorage: NSTextStorage {
         
         endEditing()
     }
-    
+
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
 
         let preprocessedString = preprocessAttributesForInsertion(attrString)
@@ -313,6 +313,8 @@ open class TextStorage: NSTextStorage {
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
+
+        print("Style: \(dom.getHTML())")
     }
 
     // MARK: - Entry point for calculating style differences

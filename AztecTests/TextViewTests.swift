@@ -592,7 +592,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let html = "<h1>Header</h1>\n"
         let textView = createTextView(withHTML: html)
 
-        let range = NSRange(location:html.characters.count, length:0)
+        let range = NSRange(location: textView.text.characters.count, length:0)
         textView.selectedRange = range
         textView.deleteBackward()
 
