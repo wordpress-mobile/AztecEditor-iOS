@@ -631,4 +631,25 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.deleteBackward()
         // The test not crashing would be successful.
     }
+
+    /// Tests that there is no content loss, when switching to HTML mode, after toggling H1 Style.
+    ///
+    /// Input:
+    ///     - "Header" (inserted character by character).
+    ///
+    /// Ref.: https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/404
+    ///
+    func testToggleHeader1DoesNotLooseTheFirstCharacter() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleHeader(.h1, range: .zero)
+        textView.insertText("H")
+        textView.insertText("e")
+        textView.insertText("a")
+        textView.insertText("d")
+        textView.insertText("e")
+        textView.insertText("r")
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+    }
 }
