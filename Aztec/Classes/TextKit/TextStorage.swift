@@ -170,9 +170,10 @@ open class TextStorage: NSTextStorage {
                 while newlineRange.location != NSNotFound {
 
                     let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
-                    let visualOnlyNewline = visualOnlyElementFactory.newline(inheritingAttributes: originalAttributes)
+                    //let visualOnlyNewline = visualOnlyElementFactory.newline(inheritingAttributes: originalAttributes)
 
-                    finalString.replaceCharacters(in: newlineRange, with: visualOnlyNewline)
+                    finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
+                    //finalString.replaceCharacters(in: newlineRange, with: visualOnlyNewline)
 
                     let nextLocation = newlineRange.location + newlineRange.length
                     let nextLength = subRange.length - nextLocation

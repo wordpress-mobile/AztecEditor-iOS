@@ -16,6 +16,60 @@ extension NSAttributedString {
         return result
     }
 
+    // MARK: - Range mapping by character filtering
+
+    func map(range initialNSRange: NSRange, byFiltering stringToFilter: String) -> NSRange {
+
+        guard let initialRange = string.rangeFromNSRange(initialNSRange) else {
+            fatalError("Unexpected problem converting ranges.")
+        }
+
+        let rangeToInspect = string.startIndex ..< initialRange.upperBound
+
+        var finalRange = initialRange
+
+        while let matchRange = string.range(of: stringToFilter, options: .backwards, range: rangeToInspect) {
+
+            if finalRange.clamped(to: matchRange) == finalRange {
+                finalRange = matchRange.lowerBound ..< matchRange.lowerBound
+                continue
+            }
+
+            if matchRange.upperBound <= finalRange.lowerBound {
+                let distance = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
+
+                finalRange = string.range(finalRange, offsetBy: distance)
+            } else if matchRange.lowerBound < finalRange.lowerBound && finalRange.lowerBound < matchRange.upperBound {
+
+                let distance = string.distance(from: matchRange.upperBound, to: finalRange.upperBound)
+
+                let distance = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
+                let startIndex = string.index(finalRange.lowerBound, offsetBy: distance)
+                let endIndex = string.index(finalRange.upperBound, offsetBy: distance)
+
+                finalRange = startIndex ..< endIndex
+            }
+/*
+            let rangeEndLocation = range.location + range.length
+            let mappedRangeEndLocation = mappedRange.location + mappedRange.endLocation
+
+            if rangeEndLocation <= mappedRange.location {
+                mappedRange.location = mappedRange.location - range.length
+            } else if range.location < mappedRange.location && mappedRange.location < rangeEndLocation {
+
+                // Order of execution is important in the next 2 lines, as mappedRange.location
+                // is read first and written-to afterwards.
+                //
+                mappedRange.length = mappedRangeEndLocation - rangeEndLocation
+                mappedRange.location = range.location
+            } else {
+                mappedRange.length = mappedRange.length - range.length
+            } */
+        }
+
+        return NSRange(location: 0, length: 1)
+    }
+
     // MARK: - Range mapping by attribute filtering
     
     /// Maps a range by subtracting the length of all instanced of a specified attribute in that

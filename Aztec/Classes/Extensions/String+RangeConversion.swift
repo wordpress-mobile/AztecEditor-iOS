@@ -50,4 +50,12 @@ extension String
         let before16 = beforeIndex.samePosition(in: utf16)
         return utf16.distance(from: utf16.startIndex, to: before16)
     }
+
+    func range(_ range: Range<String.Index>, offsetBy: String.IndexDistance) -> Range<String.Index> {
+
+        let startIndex = index(range.lowerBound, offsetBy: distance)
+        let endIndex = index(range.upperBound, offsetBy: distance)
+
+        return startIndex ..< endIndex
+    }
 }

@@ -82,7 +82,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
 
         if node.isLastInBlockLevelElement() {
-            content.append(visualOnlyElementFactory.newline(inheritingAttributes: inheritedAttributes))
+            content.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
+            //content.append(visualOnlyElementFactory.newline(inheritingAttributes: inheritedAttributes))
         }
 
         return content
