@@ -186,15 +186,15 @@ class StringRangeConversionTests: XCTestCase {
     ///
     /// Input:
     ///     - String is: "Hello 😬 world!"
-    ///     - NSRange is: (loc: 5, len: 3)
+    ///     - NSRange is: range of "world"
     ///
     /// Expected Output:
     ///     - The range will be converted to a range and back, the final NSRange should stay the
     ///         same.
     ///
     func testNSRangeFromRange2() {
-        let nsRange = NSRange(location: 5, length: 3)
         let string = "Hello world!"
+        let nsRange = (string as NSString).range(of: "world")
 
         guard let range = string.range(from: nsRange) else {
             XCTFail("Range conversion failed!")
@@ -209,8 +209,8 @@ class StringRangeConversionTests: XCTestCase {
     /// Tests that converting a range back and forth works.
     ///
     /// Input:
-    ///     - String is: "Hello 😬 world!"
-    ///     - NSRange is: (loc: 5, len: 3)
+    ///     - String is: "Hello 🌎!"
+    ///     - NSRange is: range of "🌎"
     ///
     /// Expected Output:
     ///     - The range will be converted to a range and back, the final NSRange should stay the
