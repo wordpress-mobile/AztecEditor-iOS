@@ -213,13 +213,18 @@ open class TextView: UITextView {
 
     // MARK: - Intercept copy paste operations
 
+    open override func cut(_ sender: Any?) {
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        super.cut(sender)
+
+        storeInPasteboard(encoded: data)
+    }
+
     open override func copy(_ sender: Any?) {
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
         super.copy(sender)
-        let data = self.storage.attributedSubstring(from: selectedRange).archivedData()
-        let pasteboard  = UIPasteboard.general
-        var items = pasteboard.items
-        items[0][NSAttributedString.pastesboardUTI] = data
-        pasteboard.items = items
+
+        storeInPasteboard(encoded: data)
     }
 
     open override func paste(_ sender: Any?) {
@@ -248,6 +253,14 @@ open class TextView: UITextView {
         storage.replaceCharacters(in: selectedRange, with: string)
         delegate?.textViewDidChange?(self)
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+    }
+
+
+    // MARK: - Pasteboard Helpers
+
+    private func storeInPasteboard(encoded data: Data) {
+        let pasteboard  = UIPasteboard.general
+        pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
 
