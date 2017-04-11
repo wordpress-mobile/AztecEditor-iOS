@@ -5,29 +5,47 @@ import Foundation
 //
 extension String
 {
+    /// Converts a UTF16 NSRange into a `Range<String.Index>` for this string.
+    ///
+    /// - Parameters:
+    ///     - nsRange: the UTF16 NSRange to convert.
+    ///
+    /// - Returns: the requested `Range<String.Index>`
+    ///
     func range(from nsRange : NSRange) -> Range<String.Index>? {
-        let unicodeStart = unicodeScalars.index(unicodeScalars.startIndex, offsetBy: nsRange.location)
-        let unicodeEnd = unicodeScalars.index(unicodeStart, offsetBy: nsRange.length)
+        let utf16Start = utf16.index(utf16.startIndex, offsetBy: nsRange.location)
+        let utf16End = utf16.index(utf16Start, offsetBy: nsRange.length)
 
         guard
-            let start = unicodeStart.samePosition(in: self),
-            let end = unicodeEnd.samePosition(in: self) else {
+            let start = utf16Start.samePosition(in: self),
+            let end = utf16End.samePosition(in: self) else {
                 return nil
         }
 
         return start ..< end
     }
 
+    /// Converts a `Range<String.Index>` into an UTF16 NSRange.
+    ///
+    /// - Parameters:
+    ///     - range: the range to convert.
+    ///
+    /// - Returns: the requested `NSRange`.
+    ///
     func nsRange(from range: Range<String.Index>) -> NSRange {
-        let location = distance(from: startIndex, to: range.lowerBound)
-        let length = distance(from: range.lowerBound, to: range.upperBound)
+
+        let lowerBound = range.lowerBound.samePosition(in: utf16)
+        let upperBound = range.upperBound.samePosition(in: utf16)
+
+        let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
+        let length = utf16.distance(from: lowerBound, to: upperBound)
 
         return NSRange(location: location, length: length)
     }
 
     func indexFromLocation(_ location: Int) -> String.Index? {
         guard
-            let unicodeLocation = unicodeScalars.index(unicodeScalars.startIndex, offsetBy: location, limitedBy: unicodeScalars.endIndex),
+            let unicodeLocation = utf16.index(utf16.startIndex, offsetBy: location, limitedBy: utf16.endIndex),
             let location = unicodeLocation.samePosition(in: self) else {
                 return nil
         }

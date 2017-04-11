@@ -157,15 +157,15 @@ class StringRangeConversionTests: XCTestCase {
     ///
     /// Input:
     ///     - String is: "Hello world!"
-    ///     - NSRange is: (loc: 2, len: 3)
+    ///     - NSRange is: range of "Hello"
     ///
     /// Expected Output:
     ///     - The range will be converted to a range and back, the final NSRange should stay the
     ///         same.
     ///
     func testNSRangeFromRange1() {
-        let nsRange = NSRange(location: 2, length: 3)
         let string = "Hello world!"
+        let nsRange = (string as NSString).range(of: "Hello")
 
         guard let range = string.range(from: nsRange) else {
             XCTFail("Range conversion failed!")
@@ -212,8 +212,8 @@ class StringRangeConversionTests: XCTestCase {
     ///         same.
     ///
     func testNSRangeFromRange3() {
-        let nsRange = NSRange(location: 6, length: 1)
         let string = "Hello 🌎!"
+        let nsRange = (string as NSString).range(of: "🌎")
 
         guard let range = string.range(from: nsRange) else {
             XCTFail("Range conversion failed!")
