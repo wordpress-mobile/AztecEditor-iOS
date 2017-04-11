@@ -4,25 +4,35 @@ import Foundation
 // MARK: - String NSRange and Location convertion Extensions
 //
 extension String
-{    
-    func rangeFromNSRange(_ nsRange : NSRange) -> Range<String.Index>? {
-        let from16 = utf16.index(utf16.startIndex, offsetBy: nsRange.location)
-        let to16 = utf16.index(from16, offsetBy: nsRange.length)
+{
+    func range(from nsRange : NSRange) -> Range<String.Index>? {
+        let unicodeStart = unicodeScalars.index(unicodeScalars.startIndex, offsetBy: nsRange.location)
+        let unicodeEnd = unicodeScalars.index(unicodeStart, offsetBy: nsRange.length)
 
         guard
-            let from = from16.samePosition(in: self),
-            let to = to16.samePosition(in: self)
-            else { return nil }
-        return from ..< to
-                
+            let start = unicodeStart.samePosition(in: self),
+            let end = unicodeEnd.samePosition(in: self) else {
+                return nil
+        }
+
+        return start ..< end
+    }
+
+    func nsRange(from range: Range<String.Index>) -> NSRange {
+        let location = distance(from: startIndex, to: range.lowerBound)
+        let length = distance(from: range.lowerBound, to: range.upperBound)
+
+        return NSRange(location: location, length: length)
     }
 
     func indexFromLocation(_ location: Int) -> String.Index? {
         guard
-            let from16 = utf16.index(utf16.startIndex, offsetBy: location, limitedBy: utf16.endIndex),
-            let from = from16.samePosition(in: self)
-            else { return nil }
-        return from
+            let unicodeLocation = unicodeScalars.index(unicodeScalars.startIndex, offsetBy: location, limitedBy: unicodeScalars.endIndex),
+            let location = unicodeLocation.samePosition(in: self) else {
+                return nil
+        }
+
+        return location
     }
 
     func isLastValidLocation(_ location: Int) -> Bool {
@@ -51,10 +61,10 @@ extension String
         return utf16.distance(from: utf16.startIndex, to: before16)
     }
 
-    func range(_ range: Range<String.Index>, offsetBy: String.IndexDistance) -> Range<String.Index> {
+    func range(_ range: Range<String.Index>, offsetBy offset: String.IndexDistance) -> Range<String.Index> {
 
-        let startIndex = index(range.lowerBound, offsetBy: distance)
-        let endIndex = index(range.upperBound, offsetBy: distance)
+        let startIndex = index(range.lowerBound, offsetBy: offset)
+        let endIndex = index(range.upperBound, offsetBy: offset)
 
         return startIndex ..< endIndex
     }

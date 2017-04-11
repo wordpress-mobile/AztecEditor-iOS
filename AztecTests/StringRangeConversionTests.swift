@@ -20,7 +20,7 @@ class StringRangeConversionTests: XCTestCase {
 
         var wordToCapture = "World"
         var nsRange = nsString.range(of: wordToCapture)
-        var range = string.rangeFromNSRange(nsRange)
+        var range = string.range(from: nsRange)
 
         var wordCaptured = string.substring(with: range!)
 
@@ -32,7 +32,7 @@ class StringRangeConversionTests: XCTestCase {
 
         wordToCapture = "🌍"
         nsRange = nsString.range(of: wordToCapture)
-        range = string.rangeFromNSRange(nsRange)
+        range = string.range(from: nsRange)
 
         wordCaptured = string.substring(with: range!)
 
@@ -44,7 +44,7 @@ class StringRangeConversionTests: XCTestCase {
 
         wordToCapture = "🇮🇳"
         nsRange = nsString.range(of: wordToCapture)
-        range = string.rangeFromNSRange(nsRange)
+        range = string.range(from: nsRange)
 
         wordCaptured = string.substring(with: range!)
 
@@ -56,7 +56,7 @@ class StringRangeConversionTests: XCTestCase {
 
         wordToCapture = "🌍"
         nsRange = nsString.range(of: wordToCapture)
-        range = string.rangeFromNSRange(nsRange)
+        range = string.range(from: nsRange)
 
         wordCaptured = string.substring(with: range!)
 
@@ -153,5 +153,76 @@ class StringRangeConversionTests: XCTestCase {
         XCTAssertNil(nonExistentLocation)
     }
 
+    /// Tests that converting a range back and forth works.
+    ///
+    /// Input:
+    ///     - String is: "Hello world!"
+    ///     - NSRange is: (loc: 2, len: 3)
+    ///
+    /// Expected Output:
+    ///     - The range will be converted to a range and back, the final NSRange should stay the
+    ///         same.
+    ///
+    func testNSRangeFromRange1() {
+        let nsRange = NSRange(location: 2, length: 3)
+        let string = "Hello world!"
+
+        guard let range = string.range(from: nsRange) else {
+            XCTFail("Range conversion failed!")
+            return
+        }
+
+        let finalNSRange = string.nsRange(from: range)
+
+        XCTAssertEqual(nsRange, finalNSRange)
+    }
+
+    /// Tests that converting a range back and forth works.
+    ///
+    /// Input:
+    ///     - String is: "Hello 😬 world!"
+    ///     - NSRange is: (loc: 5, len: 3)
+    ///
+    /// Expected Output:
+    ///     - The range will be converted to a range and back, the final NSRange should stay the
+    ///         same.
+    ///
+    func testNSRangeFromRange2() {
+        let nsRange = NSRange(location: 5, length: 3)
+        let string = "Hello world!"
+
+        guard let range = string.range(from: nsRange) else {
+            XCTFail("Range conversion failed!")
+            return
+        }
+
+        let finalNSRange = string.nsRange(from: range)
+
+        XCTAssertEqual(nsRange, finalNSRange)
+    }
+
+    /// Tests that converting a range back and forth works.
+    ///
+    /// Input:
+    ///     - String is: "Hello 😬 world!"
+    ///     - NSRange is: (loc: 5, len: 3)
+    ///
+    /// Expected Output:
+    ///     - The range will be converted to a range and back, the final NSRange should stay the
+    ///         same.
+    ///
+    func testNSRangeFromRange3() {
+        let nsRange = NSRange(location: 6, length: 1)
+        let string = "Hello 🌎!"
+
+        guard let range = string.range(from: nsRange) else {
+            XCTFail("Range conversion failed!")
+            return
+        }
+
+        let finalNSRange = string.nsRange(from: range)
+
+        XCTAssertEqual(nsRange, finalNSRange)
+    }
     
 }

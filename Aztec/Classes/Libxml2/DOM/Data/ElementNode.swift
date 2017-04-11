@@ -806,7 +806,7 @@ extension Libxml2 {
             
             for textNodeAndRange in textNodesAndRanges {
                 let nodeText = textNodeAndRange.node.text()
-                let range = nodeText.rangeFromNSRange(textNodeAndRange.range)!
+                let range = nodeText.range(from: textNodeAndRange.range)!
                 
                 text = text + nodeText.substring(with: range)
             }

@@ -18,11 +18,16 @@ extension NSAttributedString {
 
     // MARK: - Range mapping by character filtering
 
-    func map(range initialNSRange: NSRange, byFiltering stringToFilter: String) -> NSRange {
+    func map(range initialRange: NSRange, byFiltering stringToFilter: String) -> NSRange {
 
-        guard let initialRange = string.rangeFromNSRange(initialNSRange) else {
+        guard let convertedRange = string.range(from: initialRange) else {
             fatalError("Unexpected problem converting ranges.")
         }
+
+        return map(range: convertedRange, byFiltering: stringToFilter)
+    }
+
+    func map(range initialRange: Range<String.Index>, byFiltering stringToFilter: String) -> NSRange {
 
         let rangeToInspect = string.startIndex ..< initialRange.upperBound
 
@@ -36,35 +41,25 @@ extension NSAttributedString {
             }
 
             if matchRange.upperBound <= finalRange.lowerBound {
-                let distance = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
+                let distance = string.distance(from: matchRange.upperBound, to: matchRange.lowerBound)
 
                 finalRange = string.range(finalRange, offsetBy: distance)
             } else if matchRange.lowerBound < finalRange.lowerBound && finalRange.lowerBound < matchRange.upperBound {
-
                 let distance = string.distance(from: matchRange.upperBound, to: finalRange.upperBound)
 
-                let distance = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
-                let startIndex = string.index(finalRange.lowerBound, offsetBy: distance)
+                let startIndex = matchRange.lowerBound
                 let endIndex = string.index(finalRange.upperBound, offsetBy: distance)
 
                 finalRange = startIndex ..< endIndex
-            }
-/*
-            let rangeEndLocation = range.location + range.length
-            let mappedRangeEndLocation = mappedRange.location + mappedRange.endLocation
-
-            if rangeEndLocation <= mappedRange.location {
-                mappedRange.location = mappedRange.location - range.length
-            } else if range.location < mappedRange.location && mappedRange.location < rangeEndLocation {
-
-                // Order of execution is important in the next 2 lines, as mappedRange.location
-                // is read first and written-to afterwards.
-                //
-                mappedRange.length = mappedRangeEndLocation - rangeEndLocation
-                mappedRange.location = range.location
             } else {
-                mappedRange.length = mappedRange.length - range.length
-            } */
+                let matchRangeLength = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
+                let finalRangeLength = string.distance(from: finalRange.lowerBound, to: finalRange.upperBound)
+                let distance = finalRangeLength - matchRangeLength
+
+                let newUpperBound = string.index(finalRange.lowerBound, offsetBy: distance)
+
+                finalRange = finalRange.lowerBound ..< newUpperBound
+            }
         }
 
         return NSRange(location: 0, length: 1)
