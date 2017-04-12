@@ -803,8 +803,8 @@ open class TextView: UITextView {
         }
 
         for formatter in formattersThatBreakAfterEnter {
-            if formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
+            if formatter.present(in: typingAttributes) {
+                typingAttributes = formatter.remove(from: typingAttributes)
                 return true
             }
         }
