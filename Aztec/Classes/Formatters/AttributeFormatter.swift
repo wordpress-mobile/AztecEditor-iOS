@@ -64,6 +64,8 @@ protocol AttributeFormatter {
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 
     func worksInEmptyRange() -> Bool
+
+    func needsEmptyLinePlaceholder() -> Bool
 }
 
 
@@ -118,7 +120,7 @@ extension AttributeFormatter {
     @discardableResult func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         var rangeToApply = applicationRange(for: range, in: text)
 
-        if worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
+        if needsEmptyLinePlaceholder() && worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
             let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
             text.insert(placeholder, at: rangeToApply.location)
             rangeToApply = NSMakeRange(rangeToApply.location, placeholder.length)
@@ -210,6 +212,10 @@ extension CharacterAttributeFormatter {
     func worksInEmptyRange() -> Bool {
         return false
     }
+
+    func needsEmptyLinePlaceholder() -> Bool {
+        return true
+    }
 }
 
 
@@ -225,6 +231,10 @@ extension ParagraphAttributeFormatter {
     }
 
     func worksInEmptyRange() -> Bool {
+        return true
+    }
+
+    func needsEmptyLinePlaceholder() -> Bool {
         return true
     }
 }
