@@ -6,7 +6,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
     let monospaceFont: UIFont
     let placeholderAttributes: [String : Any]?
 
-    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12) ,placeholderAttributes: [String : Any]? = nil) {
+    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [String : Any]? = nil) {
         self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
@@ -21,11 +21,14 @@ open class PreFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
-        var resultingAttributes = attributes
+    func remove(from attributes: [String: Any]) -> [String: Any] {
+        guard let placeholderAttributes = placeholderAttributes else {
+            return attributes
+        }
 
-        if let attributes = placeholderAttributes {
-            resultingAttributes = attributes
+        var resultingAttributes = attributes
+        for (key, value) in placeholderAttributes {
+            resultingAttributes[key] = value
         }
 
         return resultingAttributes
