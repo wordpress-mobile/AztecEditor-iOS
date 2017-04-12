@@ -833,8 +833,10 @@ open class TextView: UITextView {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
             let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            let beforeTypingAttributes = self.typingAttributes
             self.selectedRange = updated
             self.selectedRange = pristine
+            self.typingAttributes = beforeTypingAttributes
         }
     }
 
