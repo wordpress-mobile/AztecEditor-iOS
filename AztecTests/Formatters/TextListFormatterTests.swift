@@ -4,8 +4,8 @@ import XCTest
 
 // MARK: - TextListFormatter Tests
 //
-class TextListFormatterTests: XCTestCase
-{
+class TextListFormatterTests: XCTestCase {
+    
     // Helpers #1:
     // ===========
     //
