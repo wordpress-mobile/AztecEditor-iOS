@@ -803,8 +803,8 @@ open class TextView: UITextView {
         }
 
         for formatter in formattersThatBreakAfterEnter {
-            if formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
+            if formatter.present(in: typingAttributes) {
+                typingAttributes = formatter.remove(from: typingAttributes)
                 return true
             }
         }
@@ -833,8 +833,10 @@ open class TextView: UITextView {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
             let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            let beforeTypingAttributes = self.typingAttributes
             self.selectedRange = updated
             self.selectedRange = pristine
+            self.typingAttributes = beforeTypingAttributes
         }
     }
 
