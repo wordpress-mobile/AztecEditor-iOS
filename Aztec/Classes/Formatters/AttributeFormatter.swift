@@ -214,7 +214,7 @@ extension CharacterAttributeFormatter {
     }
 
     func needsEmptyLinePlaceholder() -> Bool {
-        return true
+        return false
     }
 }
 
