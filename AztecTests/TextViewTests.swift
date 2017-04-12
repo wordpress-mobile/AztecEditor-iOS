@@ -677,6 +677,6 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><br>1")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
 }
