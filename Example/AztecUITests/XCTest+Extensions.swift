@@ -38,8 +38,8 @@ extension XCUIElement {
     func enterAndSelectText(text: String) -> Void {
         let app = XCUIApplication()
 
-        self.typeText(text)
-        self.press(forDuration: 1.2)
+        typeText(text)
+        press(forDuration: 1.2)
         app.menuItems.element(boundBy: 1).tap()
     }
 }
