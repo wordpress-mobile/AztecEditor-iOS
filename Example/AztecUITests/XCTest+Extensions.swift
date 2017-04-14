@@ -64,6 +64,9 @@ extension XCTest {
      */
     func getHTMLContent() -> String {
         let app = XCUIApplication()
+
+        app.buttons[elementStringIDs.sourcecodeButton].tap()
+
         let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
         return text

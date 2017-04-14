@@ -29,7 +29,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.boldButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<strong>text</strong>"
@@ -41,7 +40,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.italicButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<em>text</em>"
@@ -53,7 +51,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.underlineButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<u>text</u>"
@@ -65,7 +62,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.strikethroughButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<del>text</del>"
@@ -77,7 +73,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.blockquoteButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<blockquote>text</blockquote>"
@@ -90,7 +85,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.unorderedlistButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<ul><li>text</li></ul>"
@@ -103,7 +97,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.orderedlistButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<ol><li>text</li></ol>"
@@ -118,7 +111,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         UIPasteboard.general.string = "https://wordpress.com/"
         app.scrollViews.otherElements.buttons[elementStringIDs.linkButton].tap()
         app.alerts.buttons[elementStringIDs.insertLinkConfirmButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<a href=\"https://wordpress.com/\">text</a>"
@@ -130,7 +122,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         richTextField.tap()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.horizontalrulerButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<hr>"
@@ -142,7 +133,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         richTextField.tap()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<!--more-->"
@@ -155,7 +145,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.staticTexts[elementStringIDs.header1Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h1>text</h1>"
@@ -168,7 +157,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.staticTexts[elementStringIDs.header2Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h2>text</h2>"
@@ -181,7 +169,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.staticTexts[elementStringIDs.header3Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h3>text</h3>"
@@ -195,7 +182,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.element(boundBy: 0).swipeUp()
         app.tables.staticTexts[elementStringIDs.header4Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h4>text</h4>"
@@ -209,7 +195,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.element(boundBy: 0).swipeUp()
         app.tables.staticTexts[elementStringIDs.header5Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h5>text</h5>"
@@ -223,7 +208,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app.scrollViews.otherElements.buttons[elementStringIDs.headerButton].tap()
         app.tables.element(boundBy: 0).swipeUp()
         app.tables.staticTexts[elementStringIDs.header6Button].tap()
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
         let expected = "<h6>text</h6>"
