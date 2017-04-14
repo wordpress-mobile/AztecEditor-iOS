@@ -30,16 +30,39 @@ public struct elementStringIDs {
     static var header6Button = "Heading 6"
 }
 
-extension XCUIElement {
+extension XCTest {
     /**
-     Enters text in the field and then selects all entered text
-     - Parameter text: the text to enter into the field
-    */
-    func enterAndSelectText(text: String) -> Void {
+     Enters text in the rich text field with auto-correction disabled
+     - Parameter text: the test to enter into the field
+     */
+    func enterTextInField(text: String) -> Void {
         let app = XCUIApplication()
+        let richTextField = app.textViews[elementStringIDs.richTextField]
 
-        typeText(text)
-        press(forDuration: 1.2)
+        // Paste text to avoid autocorrection
+        UIPasteboard.general.string = text
+        richTextField.press(forDuration: 1.2)
+        app.menuItems.element(boundBy: 0).tap()
+    }
+
+    /**
+     Selects all entered text in the rich text field
+     */
+    func selectAllTextInField() -> Void {
+        let app = XCUIApplication()
+        let richTextField = app.textViews[elementStringIDs.richTextField]
+
+        richTextField.press(forDuration: 1.2)
         app.menuItems.element(boundBy: 1).tap()
+    }
+
+    /**
+     Gets the contents of the HTML text view
+     */
+    func getHTMLContent() -> String {
+        let app = XCUIApplication()
+        let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
+        let text = htmlContentTextView.value as! String
+        return text
     }
 }
