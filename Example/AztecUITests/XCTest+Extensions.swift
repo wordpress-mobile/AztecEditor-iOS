@@ -8,6 +8,9 @@ public struct elementStringIDs {
     static var richTextField = "richContentView"
     static var htmlTextField = "HTMLContentView"
 
+    // Alerts
+    static var insertLinkConfirmButton = "Insert Link"
+
     // Toolbar
     static var mediaButton = "formatToolbarInsertMedia"
     static var headerButton = "formatToolbarSelectParagraphStyle"

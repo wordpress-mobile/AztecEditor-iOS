@@ -117,7 +117,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         // Copy link to be auto-filled in URL field
         UIPasteboard.general.string = "https://wordpress.com/"
         app.scrollViews.otherElements.buttons[elementStringIDs.linkButton].tap()
-        app.alerts.buttons.element(boundBy: 3).tap()
+        app.alerts.buttons[elementStringIDs.insertLinkConfirmButton].tap()
         app.buttons[elementStringIDs.sourcecodeButton].tap()
 
         let text = getHTMLContent()
