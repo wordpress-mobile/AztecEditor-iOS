@@ -42,10 +42,7 @@ extension XCTest {
         let app = XCUIApplication()
         let richTextField = app.textViews[elementStringIDs.richTextField]
 
-        // Paste text to avoid autocorrection
-        UIPasteboard.general.string = text
-        richTextField.press(forDuration: 1.2)
-        app.menuItems.element(boundBy: 0).tap()
+        richTextField.typeText(text)
     }
 
     /**
@@ -66,7 +63,6 @@ extension XCTest {
         let app = XCUIApplication()
 
         app.buttons[elementStringIDs.sourcecodeButton].tap()
-
         let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
         return text
