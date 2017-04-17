@@ -211,6 +211,26 @@ open class TextView: UITextView {
         addGestureRecognizer(attachmentGestureRecognizer)
     }
 
+
+    // MARK: - Overwritten Properties
+    
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the List attributes.
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    override open var typingAttributes: [String: Any] {
+        get {
+            let updatedAttributes = ensureRemovalOfListAttribute(from: super.typingAttributes)
+            super.typingAttributes = updatedAttributes
+
+            return updatedAttributes
+        }
+        set {
+            super.typingAttributes = newValue
+        }
+    }
+
+
     // MARK: - Intercept copy paste operations
 
     open override func cut(_ sender: Any?) {
@@ -568,29 +588,12 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        insertText("\n")
-        selectedRange = NSRange(location: 0, length: 0)
+        ensureInsertionOfNewlineOnEmptyDocuments()
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
-    }
-
-
-    /// Overwrites Typing Attributes:
-    /// This is the (only) valid hook we've found, in order to (selectively) remove the List attributes.
-    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
-    ///
-    override open var typingAttributes: [String: Any] {
-        get {
-            let updatedAttributes = ensureRemovalOfListAttribute(from: super.typingAttributes)
-            super.typingAttributes = updatedAttributes
-
-            return updatedAttributes
-        }
-        set {
-            super.typingAttributes = newValue
-        }
     }
 
 
@@ -599,11 +602,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        insertText("\n")
-        selectedRange = NSRange(location: 0, length: 0)
+        ensureInsertionOfNewlineOnEmptyDocuments()
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -637,7 +640,7 @@ open class TextView: UITextView {
     private lazy var paragraphFormatters: [AttributeFormatter] = [
         TextListFormatter(style: .ordered),
         TextListFormatter(style: .unordered),
-        BlockquoteFormatter(),        
+        BlockquoteFormatter(),
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
         HeaderFormatter(headerLevel:.h3),
@@ -769,6 +772,23 @@ open class TextView: UITextView {
         updatedAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
 
         return updatedAttributes
+    }
+
+
+    /// Inserts an empty line, whenever we're at the end of the document, and there's no selected text.
+    ///
+    private func ensureInsertionOfNewlineOnEmptyDocuments() {
+        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+            return
+        }
+
+        let previousRange = selectedRange
+        let previousStyle = typingAttributes
+
+        insertText(String(.newline))
+
+        selectedRange = previousRange
+        typingAttributes = previousStyle
     }
 
 
