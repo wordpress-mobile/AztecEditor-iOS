@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import Aztec
 
-class NSAttributedStringAttributeRangesTests: XCTestCase {
+class NSAttributedStringRangeMappingTests: XCTestCase {
     
     /// Tests that `map(range:bySubtractingAttributeNamed:)` works.
     ///
@@ -15,7 +15,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
     /// Expected result:
     ///     - (loc: 0, len: 11)
     ///
-    func testMapRange() {
+    func testMapRangeBySubtractingAttributeNamed() {
         let factory = VisualOnlyElementFactory()
 
         let string = NSMutableAttributedString(attributedString: factory.newline())
@@ -40,7 +40,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
     /// Expected result:
     ///     - (loc: 0, len: 18)
     ///
-    func testMapRange2() {
+    func testMapRangeBySubtractingAttributeNamed2() {
         let factory = VisualOnlyElementFactory()
 
         let string = NSMutableAttributedString(attributedString: factory.newline())
@@ -68,7 +68,7 @@ class NSAttributedStringAttributeRangesTests: XCTestCase {
     /// Expected result:
     ///     - (loc: 0, len: 18)
     ///
-    func testMapRange3() {
+    func testMapRangeBySubtractingAttributeNamed3() {
         let factory = VisualOnlyElementFactory()
 
         let string = NSMutableAttributedString(attributedString: factory.newline())

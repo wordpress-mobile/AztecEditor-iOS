@@ -24,10 +24,12 @@ extension NSAttributedString {
             fatalError("Unexpected problem converting ranges.")
         }
 
-        return map(range: convertedRange, byFiltering: stringToFilter)
+        let finalRange = map(range: convertedRange, byFiltering: stringToFilter)
+
+        return string.nsRange(from: finalRange)
     }
 
-    func map(range initialRange: Range<String.Index>, byFiltering stringToFilter: String) -> NSRange {
+    func map(range initialRange: Range<String.Index>, byFiltering stringToFilter: String) -> Range<String.Index> {
 
         let rangeToInspect = string.startIndex ..< initialRange.upperBound
 
@@ -62,7 +64,7 @@ extension NSAttributedString {
             }
         }
 
-        return NSRange(location: 0, length: 1)
+        return finalRange
     }
 
     // MARK: - Range mapping by attribute filtering
