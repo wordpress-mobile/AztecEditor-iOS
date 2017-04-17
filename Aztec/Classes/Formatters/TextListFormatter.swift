@@ -70,6 +70,9 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
         return list.style == listStyle
     }
+
+    func needsEmptyLinePlaceholder() -> Bool {
+        return false
     }
 }
 
