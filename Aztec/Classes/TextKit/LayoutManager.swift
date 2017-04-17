@@ -108,17 +108,6 @@ private extension LayoutManager {
 
                 self.drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
             }
-
-            // Draw the Last Line's Item
-            guard range.endLocation == textStorage.rangeOfEntireString.endLocation, !extraLineFragmentRect.isEmpty else {
-                return
-            }
-
-            let location = range.endLocation - 1
-            let lineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-            let markerNumber = textStorage.itemNumber(in: list, at: location) + 1
-
-            drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
         }
     }
 
