@@ -497,7 +497,7 @@ open class TextView: UITextView {
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let applicationRange = storage.toggle(formatter: formatter, at: range)        
+        let applicationRange = storage.toggle(formatter: formatter, at: range)
         if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
         } else {
@@ -568,20 +568,43 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
+        insertText("\n")
+        selectedRange = NSRange(location: 0, length: 0)
+
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
-        forceRedrawCursorAfterDelay()
+
+//        forceRedrawCursorAfterDelay()
     }
 
+    override open var typingAttributes: [String : Any] {
+        get {
+            NSLog("### typingAttributes Getter")
+            if selectedRange.location == storage.length && selectedRange.length == 0 {
+                var updated = super.typingAttributes
+                updated.removeValue(forKey: NSParagraphStyleAttributeName)
+
+                return updated
+            }
+
+            return super.typingAttributes
+        }
+        set {
+            super.typingAttributes = newValue
+        }
+    }
 
     /// Adds or removes a unordered list style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
+        insertText("\n")
+        selectedRange = NSRange(location: 0, length: 0)
+
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
-        forceRedrawCursorAfterDelay()
+//        forceRedrawCursorAfterDelay()
     }
 
 
