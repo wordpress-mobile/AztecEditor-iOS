@@ -576,22 +576,23 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
-    override open var typingAttributes: [String : Any] {
+
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the List attributes.
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    override open var typingAttributes: [String: Any] {
         get {
-            NSLog("### typingAttributes Getter")
-            if selectedRange.location == storage.length && selectedRange.length == 0 {
-                var updated = super.typingAttributes
-                updated.removeValue(forKey: NSParagraphStyleAttributeName)
+            let updatedAttributes = ensureRemovalOfListAttribute(from: super.typingAttributes)
+            super.typingAttributes = updatedAttributes
 
-                return updated
-            }
-
-            return super.typingAttributes
+            return updatedAttributes
         }
         set {
             super.typingAttributes = newValue
         }
     }
+
 
     /// Adds or removes a unordered list style from the specified range.
     ///
@@ -743,6 +744,31 @@ open class TextView: UITextView {
         }
 
         return false
+    }
+
+
+    /// Removes the List Attributes from a collection of attributes, whenever:
+    ///
+    ///     A. The caret is at the very end of the document (+ there is no selected text)
+    ///     B. There's a list!
+    ///
+    /// - Parameter attributes: Typing Attributes.
+    ///
+    /// - Returns: Updated Typing Attributes.
+    ///
+    private func ensureRemovalOfListAttribute(from attributes: [String: Any]) -> [String: Any] {
+        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+            return attributes
+        }
+
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, style.textList != nil else {
+            return attributes
+        }
+
+        var updatedAttributes = attributes
+        updatedAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+
+        return updatedAttributes
     }
 
 
