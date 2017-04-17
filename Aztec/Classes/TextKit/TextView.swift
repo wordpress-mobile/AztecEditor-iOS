@@ -168,7 +168,7 @@ open class TextView: UITextView {
         storage.undoManager = undoManager
         commonInit()
     }
-    
+
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
@@ -573,8 +573,7 @@ open class TextView: UITextView {
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
-
-//        forceRedrawCursorAfterDelay()
+        forceRedrawCursorAfterDelay()
     }
 
     override open var typingAttributes: [String : Any] {
@@ -604,7 +603,7 @@ open class TextView: UITextView {
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
-//        forceRedrawCursorAfterDelay()
+        forceRedrawCursorAfterDelay()
     }
 
 
