@@ -45,14 +45,14 @@ class TextListFormatter: ParagraphAttributeFormatter {
     }
 
     func remove(from attributes: [String: Any]) -> [String: Any] {
-        guard present(in: attributes) else {
+        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+            paragraphStyle.textList?.style == self.listStyle
+        else {
             return attributes
         }
 
         let newParagraphStyle = ParagraphStyle()
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
-            newParagraphStyle.setParagraphStyle(paragraphStyle)
-        }
+        newParagraphStyle.setParagraphStyle(paragraphStyle)
         newParagraphStyle.headIndent -= Metrics.listTextIndentation
         newParagraphStyle.firstLineHeadIndent -= Metrics.listTextIndentation
         newParagraphStyle.textList = nil
