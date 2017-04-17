@@ -12,130 +12,136 @@ class StringRangeConversionTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
-    func testRangeConversion() {
-        // test simple word
-        var nsString: NSString = "Hello World!"
-        var string: String = nsString as String
 
-        var wordToCapture = "World"
-        var nsRange = nsString.range(of: wordToCapture)
-        var range = string.range(from: nsRange)
 
-        var wordCaptured = string.substring(with: range!)
+    func testRangeConversion1() {
+        let nsString: NSString = "Hello World!"
+        let string: String = nsString as String
 
-        XCTAssertEqual(wordToCapture, wordCaptured)
+        let wordToCapture = "World"
+        let nsRange = nsString.range(of: wordToCapture)
+        let range = string.range(from: nsRange)
 
-        // test with emoji size 2
-        nsString = "Hello 🌍!"
-        string = nsString as String
-
-        wordToCapture = "🌍"
-        nsRange = nsString.range(of: wordToCapture)
-        range = string.range(from: nsRange)
-
-        wordCaptured = string.substring(with: range!)
-
-        XCTAssertEqual(wordToCapture, wordCaptured)
-
-        // test with emoji size 4
-        nsString = "Hello 🇮🇳!"
-        string = nsString as String
-
-        wordToCapture = "🇮🇳"
-        nsRange = nsString.range(of: wordToCapture)
-        range = string.range(from: nsRange)
-
-        wordCaptured = string.substring(with: range!)
-
-        XCTAssertEqual(wordToCapture, wordCaptured)
-
-        // test with two emojis
-        nsString = "Hello 🇮🇳 🌍!"
-        string = nsString as String
-
-        wordToCapture = "🌍"
-        nsRange = nsString.range(of: wordToCapture)
-        range = string.range(from: nsRange)
-
-        wordCaptured = string.substring(with: range!)
+        let wordCaptured = string.substring(with: range!)
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
-    func testLocationConversion() {
+    func testRangeConversion2() {
+        let nsString: NSString = "Hello 🌍!"
+        let string: String = nsString as String
+
+        let wordToCapture = "🌍"
+        let nsRange = nsString.range(of: wordToCapture)
+        let range = string.range(from: nsRange)
+
+        let wordCaptured = string.substring(with: range!)
+
+        XCTAssertEqual(wordToCapture, wordCaptured)
+    }
+
+    func testRangeConversion3() {
+        let nsString: NSString = "Hello 🇮🇳!"
+        let string: String = nsString as String
+
+        let wordToCapture = "🇮🇳"
+        let nsRange = nsString.range(of: wordToCapture)
+        let range = string.range(from: nsRange)
+
+        let wordCaptured = string.substring(with: range!)
+
+        XCTAssertEqual(wordToCapture, wordCaptured)
+    }
+
+    func testRangeConversion4() {
+        let nsString: NSString = "Hello 🇮🇳 🌍!"
+        let string: String = nsString as String
+
+        let wordToCapture = "🌍"
+        let nsRange = nsString.range(of: wordToCapture)
+        let range = string.range(from: nsRange)
+
+        let wordCaptured = string.substring(with: range!)
+
+        XCTAssertEqual(wordToCapture, wordCaptured)
+    }
+
+    func testLocationConversion1() {
         // test simple word
-        var nsString: NSString = "Hello World!"
-        var string: String = nsString as String
+        let nsString: NSString = "Hello World!"
+        let string: String = nsString as String
 
-        var wordToCapture = "World"
-        var nsRange = nsString.range(of: wordToCapture)
-        var index = string.indexFromLocation(nsRange.location)!
+        let wordToCapture = "World"
+        let nsRange = nsString.range(of: wordToCapture)
+        let index = string.indexFromLocation(nsRange.location)!
 
-        var wordCaptured = string.substring(to: index)
-
-        XCTAssertEqual("Hello ", wordCaptured)
-
-        // test with emoji size 2
-        nsString = "Hello 🌍!"
-        string = nsString as String
-
-        wordToCapture = "🌍"
-        nsRange = nsString.range(of: wordToCapture)
-        index = string.indexFromLocation(nsRange.location)!
-
-        wordCaptured = string.substring(to: index)
+        let wordCaptured = string.substring(to: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
+    }
 
-        // test with emoji size 4
-        nsString = "Hello 🇮🇳!"
-        string = nsString as String
+    func testLocationConversion2() {
+        let nsString: NSString = "Hello 🌍!"
+        let string: String = nsString as String
 
-        wordToCapture = "🇮🇳"
-        nsRange = nsString.range(of: wordToCapture)
-        index = string.indexFromLocation(nsRange.location)!
+        let wordToCapture = "🌍"
+        let nsRange = nsString.range(of: wordToCapture)
+        let index = string.indexFromLocation(nsRange.location)!
 
-        wordCaptured = string.substring(to: index)
+        let wordCaptured = string.substring(to: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
+    }
 
-        // test with two emojis
-        nsString = "Hello 🇮🇳 🌍!"
-        string = nsString as String
+    func testLocationConversion3() {
+        let nsString: NSString = "Hello 🇮🇳!"
+        let string: String = nsString as String
 
-        wordToCapture = "🌍"
-        nsRange = nsString.range(of: wordToCapture)
-        index = string.indexFromLocation(nsRange.location)!
+        let wordToCapture = "🇮🇳"
+        let nsRange = nsString.range(of: wordToCapture)
+        let index = string.indexFromLocation(nsRange.location)!
 
-        wordCaptured = string.substring(to: index)
-        
+        let wordCaptured = string.substring(to: index)
+
+        XCTAssertEqual("Hello ", wordCaptured)
+    }
+
+    func testLocationConversion4() {
+        let nsString: NSString = "Hello 🇮🇳 🌍!"
+        let string: String = nsString as String
+
+        let wordToCapture = "🌍"
+        let nsRange = nsString.range(of: wordToCapture)
+        let index = string.indexFromLocation(nsRange.location)!
+
+        let wordCaptured = string.substring(to: index)
+
         XCTAssertEqual("Hello 🇮🇳 ", wordCaptured)
     }
 
-    func testLocationBefore() {
-        var nsString: NSString = "Hello World!"
-        var string: String = nsString as String
+    func testLocationBefore1() {
+        let nsString: NSString = "Hello World!"
+        let string: String = nsString as String
 
-        var wordToCapture = "World"
-        var nsRange = nsString.range(of: wordToCapture)
-        var location = string.location(before: nsRange.location)!
-        var index = string.indexFromLocation(location)!
-        var wordCaptured = string.substring(to: index)
+        let wordToCapture = "World"
+        let nsRange = nsString.range(of: wordToCapture)
+        let location = string.location(before: nsRange.location)!
+        let index = string.indexFromLocation(location)!
+        let wordCaptured = string.substring(to: index)
 
         XCTAssertEqual("Hello", wordCaptured)
+    }
 
-        // test with emoji size 2
-        nsString = "Hello 🌍!"
-        string = nsString as String
+    func testLocationBefore2() {
+        let nsString: NSString = "Hello 🌍!"
+        let string: String = nsString as String
 
-        wordToCapture = "🌍"
-        nsRange = nsString.range(of: wordToCapture)
-        location = string.location(before: nsRange.endLocation)!
-        index = string.indexFromLocation(location)!
+        let wordToCapture = "🌍"
+        let nsRange = nsString.range(of: wordToCapture)
+        let location = string.location(before: nsRange.endLocation)!
+        let index = string.indexFromLocation(location)!
+        let wordCaptured = string.substring(to: index)
 
-        wordCaptured = string.substring(to: index)
-        
         XCTAssertEqual("Hello ", wordCaptured)
     }
 
@@ -180,16 +186,16 @@ class StringRangeConversionTests: XCTestCase {
     /// Tests that converting a range back and forth works.
     ///
     /// Input:
-    ///     - String is: "Hello 😬 world!"
-    ///     - NSRange is: (loc: 5, len: 3)
+    ///     - String is: "Hello world!"
+    ///     - NSRange is: range of "world"
     ///
     /// Expected Output:
     ///     - The range will be converted to a range and back, the final NSRange should stay the
     ///         same.
     ///
     func testNSRangeFromRange2() {
-        let nsRange = NSRange(location: 5, length: 3)
         let string = "Hello world!"
+        let nsRange = (string as NSString).range(of: "world")
 
         guard let range = string.range(from: nsRange) else {
             XCTFail("Range conversion failed!")
@@ -204,8 +210,8 @@ class StringRangeConversionTests: XCTestCase {
     /// Tests that converting a range back and forth works.
     ///
     /// Input:
-    ///     - String is: "Hello 😬 world!"
-    ///     - NSRange is: (loc: 5, len: 3)
+    ///     - String is: "Hello 🌎!"
+    ///     - NSRange is: range of "🌎"
     ///
     /// Expected Output:
     ///     - The range will be converted to a range and back, the final NSRange should stay the

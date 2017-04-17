@@ -97,5 +97,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         }
         return false
     }
+
+    func needsEmptyLinePlaceholder() -> Bool {
+        return false
+    }
 }
 

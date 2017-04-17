@@ -23,6 +23,33 @@ open class CommentAttachment: NSTextAttachment {
     }
 
 
+    // MARK: - Initializers
+
+    init() {
+        super.init(data: nil, ofType: nil)
+    }
+
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(data: nil, ofType: nil)
+
+        guard let text = aDecoder.decodeObject(forKey: Keys.text) as? String else {
+            return
+        }
+
+        self.text = text
+    }
+
+
+    // MARK: - NSCoder Methods
+
+    open override func encode(with aCoder: NSCoder) {
+        super.encode(with: aCoder)
+
+        aCoder.encode(text, forKey: Keys.text)
+    }
+
+
+
     // MARK: - NSTextAttachmentContainer
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
@@ -42,5 +69,15 @@ open class CommentAttachment: NSTextAttachment {
         }
 
         return bounds
+    }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension CommentAttachment {
+
+    struct Keys {
+        static let text = "text"
     }
 }

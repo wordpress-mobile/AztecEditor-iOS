@@ -402,7 +402,7 @@ class AztecVisualTextViewTests: XCTestCase {
     func testNewlineRenderedAtTheCorrectPosition() {
         let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
 
-        XCTAssertEqual(textView.text, "Testing bold newlines\n")
+        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))")
     }
 
     // MARK: - Deleting newlines
@@ -651,5 +651,32 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText("r")
 
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+    }
+
+
+    /// Tests that there is no HTML Corruption when editing text, after toggling H1 and entering two lines of text.
+    ///
+    /// Input:
+    ///     - "Header\n12" (Inserted character by character)
+    ///     - Delete Backwards event.
+    ///
+    /// Ref. https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/407
+    ///
+    func testDeletingBackwardAfterTogglingHeaderDoesNotTriggerInvalidHTML() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleHeader(.h1, range: .zero)
+        textView.insertText("H")
+        textView.insertText("e")
+        textView.insertText("a")
+        textView.insertText("d")
+        textView.insertText("e")
+        textView.insertText("r")
+        textView.insertText("\n")
+        textView.insertText("1")
+        textView.insertText("2")
+        textView.deleteBackward()
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
 }
