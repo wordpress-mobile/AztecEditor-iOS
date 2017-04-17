@@ -9,7 +9,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     ///
-    var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
 
     /// Blockquote's Background Color
     ///
