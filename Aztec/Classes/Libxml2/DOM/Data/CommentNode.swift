@@ -26,8 +26,7 @@ extension Libxml2 {
         /// Node length.
         ///
         override func length() -> Int {
-            let nsString = text() as NSString
-            return nsString.length
+            return text().characters.count
         }
         
         // MARK: - LeafNode

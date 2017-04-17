@@ -257,6 +257,10 @@ open class TextStorage: NSTextStorage {
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
 
+        guard let unicodeRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
         beginEditing()
 
         if mustUpdateDOM() {
@@ -268,8 +272,8 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
-        let nsString = str as NSString
-        edited(.editedCharacters, range: range, changeInLength:  nsString.length - range.length)
+
+        edited(.editedCharacters, range: range, changeInLength: string.characters.count - range.length)
         
         endEditing()
     }

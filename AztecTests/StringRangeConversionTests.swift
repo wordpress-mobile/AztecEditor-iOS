@@ -22,46 +22,46 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range!)
+        let wordCaptured = string.substring(with: range)
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
     func testRangeConversion2() {
-        let nsString: NSString = "Hello 🌍!"
-        let string: String = nsString as String
-
+        let string = "Hello 🌍!"
         let wordToCapture = "🌍"
-        let nsRange = nsString.range(of: wordToCapture)
+
+        let utf16NSRange = (string as NSString).range(of: wordToCapture)
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range!)
+        let wordCaptured = string.substring(with: range)
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
     func testRangeConversion3() {
-        let nsString: NSString = "Hello 🇮🇳!"
-        let string: String = nsString as String
-
+        let string = "Hello 🇮🇳!"
         let wordToCapture = "🇮🇳"
-        let nsRange = nsString.range(of: wordToCapture)
+
+        let utf16NSRange = (string as NSString).range(of: wordToCapture)
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range!)
+        let wordCaptured = string.substring(with: range)
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
     func testRangeConversion4() {
-        let nsString: NSString = "Hello 🇮🇳 🌍!"
-        let string: String = nsString as String
-
+        let string = "Hello 🇮🇳 🌍!"
         let wordToCapture = "🌍"
-        let nsRange = nsString.range(of: wordToCapture)
+
+        let utf16NSRange = (string as NSString).range(of: wordToCapture)
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range!)
+        let wordCaptured = string.substring(with: range)
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
@@ -171,13 +171,14 @@ class StringRangeConversionTests: XCTestCase {
     ///
     func testNSRangeFromRange1() {
         let string = "Hello world!"
-        let nsRange = (string as NSString).range(of: "Hello")
+        let utf16NSRange = (string as NSString).range(of: "Hello")
 
-        guard let range = string.range(from: nsRange) else {
+        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
             XCTFail("Range conversion failed!")
             return
         }
 
+        let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
 
         XCTAssertEqual(nsRange, finalNSRange)
@@ -195,13 +196,14 @@ class StringRangeConversionTests: XCTestCase {
     ///
     func testNSRangeFromRange2() {
         let string = "Hello world!"
-        let nsRange = (string as NSString).range(of: "world")
+        let utf16NSRange = (string as NSString).range(of: "world")
 
-        guard let range = string.range(from: nsRange) else {
+        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
             XCTFail("Range conversion failed!")
             return
         }
 
+        let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
 
         XCTAssertEqual(nsRange, finalNSRange)
@@ -219,13 +221,14 @@ class StringRangeConversionTests: XCTestCase {
     ///
     func testNSRangeFromRange3() {
         let string = "Hello 🌎!"
-        let nsRange = (string as NSString).range(of: "🌎")
+        let utf16NSRange = (string as NSString).range(of: "🌎")
 
-        guard let range = string.range(from: nsRange) else {
+        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
             XCTFail("Range conversion failed!")
             return
         }
 
+        let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
 
         XCTAssertEqual(nsRange, finalNSRange)

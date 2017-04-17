@@ -17,56 +17,15 @@ extension NSAttributedString {
     }
 
     // MARK: - Range mapping by character filtering
-
+/*
     func map(range initialRange: NSRange, byFiltering stringToFilter: String) -> NSRange {
-
-        guard let convertedRange = string.range(from: initialRange) else {
-            fatalError("Unexpected problem converting ranges.")
-        }
-
-        let finalRange = map(range: convertedRange, byFiltering: stringToFilter)
-
-        return string.nsRange(from: finalRange)
+        return string.map(range: initialRange, byFiltering: stringToFilter)
     }
 
     func map(range initialRange: Range<String.Index>, byFiltering stringToFilter: String) -> Range<String.Index> {
-
-        let rangeToInspect = string.startIndex ..< initialRange.upperBound
-
-        var finalRange = initialRange
-
-        while let matchRange = string.range(of: stringToFilter, options: .backwards, range: rangeToInspect) {
-
-            if finalRange.clamped(to: matchRange) == finalRange {
-                finalRange = matchRange.lowerBound ..< matchRange.lowerBound
-                continue
-            }
-
-            if matchRange.upperBound <= finalRange.lowerBound {
-                let distance = string.distance(from: matchRange.upperBound, to: matchRange.lowerBound)
-
-                finalRange = string.range(finalRange, offsetBy: distance)
-            } else if matchRange.lowerBound < finalRange.lowerBound && finalRange.lowerBound < matchRange.upperBound {
-                let distance = string.distance(from: matchRange.upperBound, to: finalRange.upperBound)
-
-                let startIndex = matchRange.lowerBound
-                let endIndex = string.index(finalRange.upperBound, offsetBy: distance)
-
-                finalRange = startIndex ..< endIndex
-            } else {
-                let matchRangeLength = string.distance(from: matchRange.lowerBound, to: matchRange.upperBound)
-                let finalRangeLength = string.distance(from: finalRange.lowerBound, to: finalRange.upperBound)
-                let distance = finalRangeLength - matchRangeLength
-
-                let newUpperBound = string.index(finalRange.lowerBound, offsetBy: distance)
-
-                finalRange = finalRange.lowerBound ..< newUpperBound
-            }
-        }
-
-        return finalRange
+        return string.map(range: initialRange, byFiltering: stringToFilter)
     }
-
+*/
     // MARK: - Range mapping by attribute filtering
     
     /// Maps a range by subtracting the length of all instanced of a specified attribute in that
