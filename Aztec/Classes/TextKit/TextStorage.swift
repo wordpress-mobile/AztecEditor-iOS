@@ -256,18 +256,10 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
-
-        guard let unicodeRange = string.nsRange(fromUTF16NSRange: range) else {
-            fatalError()
-        }
-
         beginEditing()
 
         if mustUpdateDOM() {
-            let targetDomRange = map(visualRange: range)
-            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
-
-            dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+            replaceCharactersInDOM(in: range, with: str)
         }
 
         detectAttachmentRemoved(in: range)
@@ -285,17 +277,7 @@ open class TextStorage: NSTextStorage {
         beginEditing()
 
         if mustUpdateDOM() {
-            let targetDomRange = map(visualRange: range)
-            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
-
-            let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
-            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
-
-            if targetDomRange.length != range.length {
-                dom.deleteBlockSeparator(at: targetDomRange.location)
-            }
-
-            applyStylesToDom(from: domString, startingAt: range.location)
+            replaceCharactersInDOM(in: range, with: preprocessedString)
         }
 
         detectAttachmentRemoved(in: range)
@@ -316,6 +298,39 @@ open class TextStorage: NSTextStorage {
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
+    }
+
+    // MARK: - DOM: Replacing Characters
+
+    private func replaceCharactersInDOM(in range: NSRange, with str: String) {
+
+        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
+        let targetDomRange = map(visualRange: swiftRange)
+        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
+
+        dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+    }
+
+    private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
+
+        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
+        let targetDomRange = map(visualRange: swiftRange)
+        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
+
+        let domString = attrString.filter(attributeNamed: VisualOnlyAttributeName)
+        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+
+        if targetDomRange.length != swiftRange.length {
+            dom.deleteBlockSeparator(at: targetDomRange.location)
+        }
+
+        applyStylesToDom(from: domString, startingAt: range.location)
     }
 
     // MARK: - Entry point for calculating style differences
