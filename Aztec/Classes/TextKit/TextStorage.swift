@@ -713,7 +713,8 @@ open class TextStorage: NSTextStorage {
     }
     
     // MARK: - Styles: Toggling
-    @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
+    @discardableResult
+    func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
         let applicationRange = formatter.applicationRange(for: range, in: self)
         if applicationRange.length == 0, !formatter.worksInEmptyRange() {
             return applicationRange

@@ -168,7 +168,7 @@ open class TextView: UITextView {
         storage.undoManager = undoManager
         commonInit()
     }
-    
+
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
@@ -210,6 +210,26 @@ open class TextView: UITextView {
         }
         addGestureRecognizer(attachmentGestureRecognizer)
     }
+
+
+    // MARK: - Overwritten Properties
+    
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the List attributes.
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    override open var typingAttributes: [String: Any] {
+        get {
+            let updatedAttributes = ensureRemovalOfListAttribute(from: super.typingAttributes)
+            super.typingAttributes = updatedAttributes
+
+            return updatedAttributes
+        }
+        set {
+            super.typingAttributes = newValue
+        }
+    }
+
 
     // MARK: - Intercept copy paste operations
 
@@ -267,6 +287,14 @@ open class TextView: UITextView {
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
+
+        /// Insert `\n` characters whenever we're in a Text List, the user presses \n, and we're literally
+        /// at the End of the Document.
+        ///
+        if TextListFormatter.listsOfAnyKindPresent(in: typingAttributes) {
+            ensureInsertionOfNewlineOnEmptyDocuments()
+        }
+
         // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
@@ -497,7 +525,7 @@ open class TextView: UITextView {
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let applicationRange = storage.toggle(formatter: formatter, at: range)        
+        let applicationRange = storage.toggle(formatter: formatter, at: range)
         if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
         } else {
@@ -568,8 +596,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
+        ensureInsertionOfNewlineOnEmptyDocuments()
+
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -579,8 +610,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
+        ensureInsertionOfNewlineOnEmptyDocuments()
+
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -612,9 +646,7 @@ open class TextView: UITextView {
     }()
 
     private lazy var paragraphFormatters: [AttributeFormatter] = [
-        TextListFormatter(style: .ordered),
-        TextListFormatter(style: .unordered),
-        BlockquoteFormatter(),        
+        BlockquoteFormatter(),
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
         HeaderFormatter(headerLevel:.h3),
@@ -635,14 +667,13 @@ open class TextView: UITextView {
         guard deletedText.string == String(.newline) || range.location == 0 else {
             return
         }
+
         for formatter in paragraphFormatters {
             if let locationBefore = storage.string.location(before: range.location),
                 formatter.present(in: textStorage, at: locationBefore) {
                 if range.endLocation < storage.length {
                     formatter.applyAttributes(to: storage, at: range)
                 }
-            } else if formatter.present(in: textStorage, at: range.location) || range.location == 0 {
-                formatter.removeAttributes(from: textStorage, at: range)
             }
         }
     }
@@ -712,15 +743,90 @@ open class TextView: UITextView {
             return false
         }
 
-        let formatters:[AttributeFormatter] = [TextListFormatter(style: .ordered), TextListFormatter(style: .unordered), BlockquoteFormatter()]
+        let formatters:[AttributeFormatter] = [
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered),
+            BlockquoteFormatter()
+        ]
+
+        let atEdgeOfDocument = range.location >= storage.length
+
         for formatter in formatters {
-            if formatter.present(in: textStorage, at: range.location) {
+            if atEdgeOfDocument && formatter.present(in: typingAttributes) {
+                typingAttributes = formatter.remove(from: typingAttributes)
+                return true
+            }
+
+            if !atEdgeOfDocument && formatter.present(in: textStorage, at: range.location) {
                 formatter.removeAttributes(from: textStorage, at: range)
                 return true
             }
         }
 
         return false
+    }
+
+
+    /// Removes the List Attributes from a collection of attributes, whenever:
+    ///
+    ///     A. The selected location is at the very end of the document
+    ///     B. There's a list!
+    ///     C. The previous character is a '\n'
+    ///
+    /// This is necessary because when the caret is at EOF, and the previous `\n` character has
+    /// a textList style, that style will remain in the `typingAttributes`.  We'll only allow the style
+    /// to remain if there are contents in the current line with the textList style (in which case
+    /// this condition won't ever trigger because we'll either no longer be at EOF, or the previous
+    /// character won't be `\n`).
+    ///
+    /// - Parameter attributes: Typing Attributes.
+    ///
+    /// - Returns: Updated Typing Attributes.
+    ///
+    private func ensureRemovalOfListAttribute(from attributes: [String: Any]) -> [String: Any] {
+        guard selectedRange.location == storage.length else {
+            return attributes
+        }
+
+        guard TextListFormatter.listsOfAnyKindPresent(in: attributes) else {
+            return attributes
+        }
+
+        let previousRange = NSRange(location: selectedRange.location - 1, length: 1)
+        let previousString = storage.safeSubstring(at: previousRange) ?? String(.newline)
+        guard previousString == String(.newline) else {
+            return attributes
+        }
+
+
+        let orderedListFormatter = TextListFormatter(style: .ordered)
+        if orderedListFormatter.present(in: attributes) {
+            return orderedListFormatter.remove(from: attributes)
+        }
+
+        let unorderedListFormatter = TextListFormatter(style: .unordered)
+        if unorderedListFormatter.present(in: attributes) {
+            return unorderedListFormatter.remove(from: attributes)
+        }
+
+        return attributes
+    }
+
+
+    /// Inserts an empty line, whenever we're at the end of the document, and there's no selected text.
+    ///
+    private func ensureInsertionOfNewlineOnEmptyDocuments() {
+        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+            return
+        }
+
+        let previousRange = selectedRange
+        let previousStyle = typingAttributes
+
+        super.insertText(String(.newline))
+
+        selectedRange = previousRange
+        typingAttributes = previousStyle
     }
 
 

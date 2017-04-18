@@ -105,7 +105,8 @@ extension AttributeFormatter {
         return result && enumerateAtLeastOnce
     }
 
-    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any] {
+    @discardableResult
+    func toggle(in attributes: [String: Any]) -> [String: Any] {
         if present(in: attributes) {
             return remove(from: attributes)
         } else {
@@ -117,7 +118,8 @@ extension AttributeFormatter {
     ///
     /// - Returns: the full range where the attributes where applied
     ///
-    @discardableResult func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
+    @discardableResult
+    func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         var rangeToApply = applicationRange(for: range, in: text)
 
         if needsEmptyLinePlaceholder() && worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
@@ -139,7 +141,8 @@ extension AttributeFormatter {
     ///
     /// - Returns: the full range where the attributes where removed
     ///
-    @discardableResult func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
+    @discardableResult
+    func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         let rangeToApply = applicationRange(for: range, in: text)
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)

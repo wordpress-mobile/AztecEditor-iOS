@@ -9,7 +9,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     ///
-    var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
 
     /// Blockquote's Background Color
     ///
@@ -108,17 +108,6 @@ private extension LayoutManager {
 
                 self.drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
             }
-
-            // Draw the Last Line's Item
-            guard range.endLocation == textStorage.rangeOfEntireString.endLocation, !extraLineFragmentRect.isEmpty else {
-                return
-            }
-
-            let location = range.endLocation - 1
-            let lineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-            let markerNumber = textStorage.itemNumber(in: list, at: location) + 1
-
-            drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
         }
     }
 
