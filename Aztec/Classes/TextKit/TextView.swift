@@ -769,16 +769,22 @@ open class TextView: UITextView {
 
     /// Removes the List Attributes from a collection of attributes, whenever:
     ///
-    ///     A. The caret is at the very end of the document (+ there is no selected text)
+    ///     A. The selected location is at the very end of the document
     ///     B. There's a list!
     ///     C. The previous character is a '\n'
+    ///
+    /// This is necessary because when the caret is at EOF, and the previous `\n` character has
+    /// a textList style, that style will remain in the `typingAttributes`.  We'll only allow the style
+    /// to remain if there are contents in the current line with the textList style (in which case
+    /// this condition won't ever trigger because we'll either no longer be at EOF, or the previous
+    /// character won't be `\n`).
     ///
     /// - Parameter attributes: Typing Attributes.
     ///
     /// - Returns: Updated Typing Attributes.
     ///
     private func ensureRemovalOfListAttribute(from attributes: [String: Any]) -> [String: Any] {
-        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+        guard selectedRange.location == storage.length else {
             return attributes
         }
 
@@ -792,10 +798,18 @@ open class TextView: UITextView {
             return attributes
         }
 
-        var updatedAttributes = attributes
-        updatedAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
 
-        return updatedAttributes
+        let orderedListFormatter = TextListFormatter(style: .ordered)
+        if orderedListFormatter.present(in: attributes) {
+            return orderedListFormatter.remove(from: attributes)
+        }
+
+        let unorderedListFormatter = TextListFormatter(style: .unordered)
+        if unorderedListFormatter.present(in: attributes) {
+            return unorderedListFormatter.remove(from: attributes)
+        }
+
+        return attributes
     }
 
 
@@ -806,14 +820,13 @@ open class TextView: UITextView {
             return
         }
 
-        // Note: We *really* need to use super, so that we prevent recursive loops.
         let previousRange = selectedRange
-        let previousStyle = super.typingAttributes
+        let previousStyle = typingAttributes
 
         super.insertText(String(.newline))
 
         selectedRange = previousRange
-        super.typingAttributes = previousStyle
+        typingAttributes = previousStyle
     }
 
 
