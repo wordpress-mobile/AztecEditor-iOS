@@ -679,4 +679,68 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
+
+    /// Verifies that New Line Characters get effectively inserted after a Text List.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - \n at the end of the document
+    ///
+    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testNewLinesAreInsertedAfterEmptyList() {
+        let newline = String(.newline)
+        let textView = createTextView(withHTML: "")
+
+        // Toggle List + Move the selection to the EOD
+        textView.toggleOrderedList(range: .zero)
+
+        var expectedLength = textView.text.characters.count
+        textView.selectedRange = NSRange(location: expectedLength, length: 0)
+
+        // Insert Newline
+        textView.insertText(newline)
+        expectedLength += newline.characters.count
+
+        XCTAssertEqual(textView.text.characters.count, expectedLength)
+    }
+
+    /// Verifies that New List Items do get their bulet, even when the ending `\n` character was deleted.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - Text: "First Item"
+    ///     - Selection of the `\n` at the EOD, and backspace
+    ///     - Text: "\nSecond Item"
+    ///
+    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
+        let firstItemText = "First Item"
+        let secondItemText = "Second Item"
+        let newline = String(.newline)
+
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+
+        textView.insertText(firstItemText)
+
+        // Select the end of the document
+        let length = textView.text.characters.count
+        textView.selectedRange = NSRange(location: length, length: 0)
+
+        // Delete + Insert Newline
+        textView.deleteBackward()
+        textView.insertText(newline + secondItemText)
+
+        // Verify it's still present
+        let secondLineIndex = firstItemText.characters.count + newline.characters.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: secondItemText.characters.count)
+
+        let formatter = TextListFormatter(style: .ordered)
+        let present = formatter.present(in: textView.storage, at: secondLineRange)
+
+        XCTAssert(present)
+    }
 }
