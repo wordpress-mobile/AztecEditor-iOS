@@ -787,11 +787,7 @@ open class TextView: UITextView {
         }
 
         let previousRange = NSRange(location: selectedRange.location - 1, length: 1)
-        guard previousRange.endLocation <= storage.length else {
-            return attributes
-        }
-
-        let previousString = storage.attributedSubstring(from: previousRange).string
+        let previousString = storage.safeSubstring(at: previousRange) ?? String(.newline)
         guard previousString == String(.newline) else {
             return attributes
         }
