@@ -287,6 +287,14 @@ open class TextView: UITextView {
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
+
+        /// Insert `\n` characters whenever we're in a Text List, the user presses \n, and we're literally
+        /// at the End of the Document.
+        ///
+        if TextListFormatter.listsOfAnyKindPresent(in: typingAttributes) {
+            ensureInsertionOfNewlineOnEmptyDocuments()
+        }
+
         // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
@@ -774,7 +782,7 @@ open class TextView: UITextView {
             return attributes
         }
 
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, style.textList != nil else {
+        guard TextListFormatter.listsOfAnyKindPresent(in: attributes) else {
             return attributes
         }
 
