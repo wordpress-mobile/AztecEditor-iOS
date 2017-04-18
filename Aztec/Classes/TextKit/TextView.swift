@@ -735,9 +735,21 @@ open class TextView: UITextView {
             return false
         }
 
-        let formatters:[AttributeFormatter] = [TextListFormatter(style: .ordered), TextListFormatter(style: .unordered), BlockquoteFormatter()]
+        let formatters:[AttributeFormatter] = [
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered),
+            BlockquoteFormatter()
+        ]
+
+        let atEdgeOfDocument = range.location >= storage.length
+
         for formatter in formatters {
-            if formatter.present(in: textStorage, at: range.location) {
+            if atEdgeOfDocument && formatter.present(in: typingAttributes) {
+                typingAttributes = formatter.remove(from: typingAttributes)
+                return true
+            }
+
+            if !atEdgeOfDocument && formatter.present(in: textStorage, at: range.location) {
                 formatter.removeAttributes(from: textStorage, at: range)
                 return true
             }
