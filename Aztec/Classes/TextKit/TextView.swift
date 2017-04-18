@@ -763,6 +763,7 @@ open class TextView: UITextView {
     ///
     ///     A. The caret is at the very end of the document (+ there is no selected text)
     ///     B. There's a list!
+    ///     C. The previous character is a '\n'
     ///
     /// - Parameter attributes: Typing Attributes.
     ///
@@ -774,6 +775,16 @@ open class TextView: UITextView {
         }
 
         guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, style.textList != nil else {
+            return attributes
+        }
+
+        let previousRange = NSRange(location: selectedRange.location - 1, length: 1)
+        guard previousRange.endLocation <= storage.length else {
+            return attributes
+        }
+
+        let previousString = storage.attributedSubstring(from: previousRange).string
+        guard previousString == String(.newline) else {
             return attributes
         }
 
