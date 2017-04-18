@@ -815,4 +815,28 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
+
+    /// Verifies that a Text List gets removed, whenever the user types `\n` in an empty line.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - `\n` on the first line
+    ///
+    /// Ref. Scenario Mark IV on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testListGetsRemovedWhenTypingNewLineOnAnEmptyBullet() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+        textView.insertText("\n")
+
+        let formatter = TextListFormatter(style: .ordered)
+        let attributedText = textView.attributedText!
+
+        for location in 0 ..< attributedText.length {
+            XCTAssertFalse(formatter.present(in: attributedText, at: location))
+        }
+
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+    }
 }
