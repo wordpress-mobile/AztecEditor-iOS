@@ -333,7 +333,7 @@ open class TextStorage: NSTextStorage {
         applyStylesToDom(from: domString, startingAt: range.location)
     }
 
-    // MARK: - Entry point for calculating style differences
+    // MARK: - DOM: Applying Styles
 
     /// This method applies the styles in the specified attributes dictionary, to the DOM in the
     /// specified range.  To do so, it calculates the differences and applies them.
@@ -376,6 +376,8 @@ open class TextStorage: NSTextStorage {
             processAttributesDifference(in: domRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
         })
     }
+
+    // MARK: - DOM: Calculating and Applying Style Differences
 
     /// Check the difference in styles and applies the necessary changes to the DOM string.
     ///
@@ -440,8 +442,6 @@ open class TextStorage: NSTextStorage {
             break
         }
     }
-
-    // MARK: - Calculating and applying style differences
 
     /// Processes differences in a font object, and applies them to the DOM in the specified range.
     ///
