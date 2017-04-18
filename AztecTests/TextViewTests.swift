@@ -679,4 +679,17 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
+
+    // MARK: - Unicode tests
+
+    /// Tests that applying bold to a string with unicode characters works.
+    ///
+    func testBoldWithUnicodeCharacter() {
+        let string = "Hello 🌎!"
+        let textView = createTextView(withHTML: string)
+        let swiftRange = NSRange(location: 0, length: string.characters.count)
+        let utf16Range = string.utf16NSRange(from: swiftRange)
+
+        textView.toggleBold(range: utf16Range)
+    }
 }

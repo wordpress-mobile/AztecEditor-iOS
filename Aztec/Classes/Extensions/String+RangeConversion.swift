@@ -5,12 +5,12 @@ import Foundation
 //
 extension String
 {
-    /// Converts a UTF16 NSRange into a `Range<String.Index>` for this string.
+    /// Converts a UTF16 NSRange into a Swift String NSRange for this string.
     ///
     /// - Parameters:
     ///     - nsRange: the UTF16 NSRange to convert.
     ///
-    /// - Returns: the requested `Range<String.Index>`
+    /// - Returns: the requested `Swift String NSRange`
     ///
     func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange? {
         guard let utf16Range = utf16.range(from: nsRange),
@@ -22,6 +22,20 @@ extension String
         let length = distance(from: range.lowerBound, to: range.upperBound)
 
         return NSRange(location: location, length: length)
+    }
+
+    /// Converts a Swift String NSRange into a UTF16 NSRange for this string.
+    ///
+    /// - Parameters:
+    ///     - nsRange: the Swift String NSRange to convert.
+    ///
+    /// - Returns: the requested `UTF16 NSRange`
+    ///
+    func utf16NSRange(from nsRange: NSRange) -> NSRange {
+        let swiftRange = range(from: nsRange)
+        let utf16NSRange = self.utf16NSRange(from: swiftRange)
+
+        return utf16NSRange
     }
 
     /// Converts an NSRange into a `Range<String.Index>` for this string.
