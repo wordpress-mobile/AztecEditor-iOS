@@ -680,13 +680,63 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
 
+
+    /// Verifies that a Text List does not get removed, whenever the user presses backspace
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - "First Item"
+    ///     - Backspace
+    ///
+    /// Ref. Scenario Mark I on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testListDoesNotGetLostAfterPressingBackspace() {
+        let textView = createTextView(withHTML: "")
+
+
+        textView.toggleOrderedList(range: .zero)
+        textView.insertText("First Item")
+        textView.deleteBackward()
+
+        let formatter = TextListFormatter(style: .ordered)
+        let range = textView.storage.rangeOfEntireString
+        let present = formatter.present(in: textView.storage, at: range)
+
+        XCTAssertTrue(present)
+    }
+
+
+    /// Verifies that the Text List does get nuked whenever the only `\n` present in the document is deleted.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - Selection of the EOD
+    ///     - Backspace
+    ///
+    /// Ref. Scenario Mark II on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testEmptyListGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+
+        let length = textView.storage.length
+        textView.selectedRange = NSRange(location: length, length: 0)
+
+        textView.deleteBackward()
+
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssert(textView.storage.length == 0)
+    }
+
+
     /// Verifies that New Line Characters get effectively inserted after a Text List.
     ///
     /// Input:
     ///     - Ordered List
     ///     - \n at the end of the document
     ///
-    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    /// Ref. Scenario Mark III on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesAreInsertedAfterEmptyList() {
         let newline = String(.newline)
@@ -713,7 +763,7 @@ class AztecVisualTextViewTests: XCTestCase {
     ///     - Selection of the `\n` at the EOD, and backspace
     ///     - Text: "\nSecond Item"
     ///
-    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    /// Ref. Scenario Mark IV on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
         let firstItemText = "First Item"
