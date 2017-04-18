@@ -681,6 +681,8 @@ class AztecVisualTextViewTests: XCTestCase {
     }
 
 
+    // MARK: - Lists
+
     /// Verifies that a Text List does not get removed, whenever the user presses backspace
     ///
     /// Input:
@@ -792,5 +794,25 @@ class AztecVisualTextViewTests: XCTestCase {
         let present = formatter.present(in: textView.storage, at: secondLineRange)
 
         XCTAssert(present)
+    }
+
+    /// Verifies that after selecting a newline below a TextList does, TextView wil not render (nor carry over)
+    /// the Text List formatting attributes.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - Selection of the `\n` at the EOD
+    ///
+    /// Ref. Scenario Mark V on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
+    ///
+    func testTypingAttributesLooseTextListWhenSelectingAnEmptyNewlineBelowTextList() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+
+        let length = textView.text.characters.count
+        textView.selectedRange = NSRange(location: length, length: 0)
+
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
 }
