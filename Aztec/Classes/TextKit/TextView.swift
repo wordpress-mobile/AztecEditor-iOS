@@ -802,13 +802,14 @@ open class TextView: UITextView {
             return
         }
 
+        // Note: We *really* need to use super, so that we prevent recursive loops.
         let previousRange = selectedRange
-        let previousStyle = typingAttributes
+        let previousStyle = super.typingAttributes
 
-        insertText(String(.newline))
+        super.insertText(String(.newline))
 
         selectedRange = previousRange
-        typingAttributes = previousStyle
+        super.typingAttributes = previousStyle
     }
 
 
