@@ -638,8 +638,6 @@ open class TextView: UITextView {
     }()
 
     private lazy var paragraphFormatters: [AttributeFormatter] = [
-        TextListFormatter(style: .ordered),
-        TextListFormatter(style: .unordered),
         BlockquoteFormatter(),
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
@@ -661,14 +659,13 @@ open class TextView: UITextView {
         guard deletedText.string == String(.newline) || range.location == 0 else {
             return
         }
+
         for formatter in paragraphFormatters {
             if let locationBefore = storage.string.location(before: range.location),
                 formatter.present(in: textStorage, at: locationBefore) {
                 if range.endLocation < storage.length {
                     formatter.applyAttributes(to: storage, at: range)
                 }
-            } else if formatter.present(in: textStorage, at: range.location) || range.location == 0 {
-                formatter.removeAttributes(from: textStorage, at: range)
             }
         }
     }
