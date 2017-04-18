@@ -13,9 +13,11 @@ extension String
     /// - Returns: the requested `Swift String NSRange`
     ///
     func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange? {
-        guard let utf16Range = utf16.range(from: nsRange),
-            let range = range(from: utf16Range) else {
-                return nil
+
+        let utf16Range = utf16.range(from: nsRange)
+
+        guard let range = range(from: utf16Range) else {
+            return nil
         }
 
         let location = distance(from: startIndex, to: range.lowerBound)

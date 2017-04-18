@@ -682,7 +682,9 @@ class AztecVisualTextViewTests: XCTestCase {
 
     // MARK: - Unicode tests
 
-    /// Tests that applying bold to a string with unicode characters works.
+    /// Tests that applying bold to a string with unicode characters doesn't crash the app.
+    ///
+    /// This test was crashing the app as of 2017/04/18.
     ///
     func testBoldWithUnicodeCharacter() {
         let string = "Hello 🌎!"

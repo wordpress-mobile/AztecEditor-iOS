@@ -9,7 +9,7 @@ extension String.UTF16View {
     ///
     /// - Returns: the requested `Range<String.UTF16View.Index>` or `nil` if the conversion fails.
     ///
-    func range(from nsRange : NSRange) -> Range<String.UTF16View.Index>? {
+    func range(from nsRange : NSRange) -> Range<String.UTF16View.Index> {
         let start = index(startIndex, offsetBy: nsRange.location)
         let end = index(start, offsetBy: nsRange.length)
 

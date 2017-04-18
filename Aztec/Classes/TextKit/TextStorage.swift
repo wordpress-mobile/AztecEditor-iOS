@@ -347,7 +347,15 @@ open class TextStorage: NSTextStorage {
 
             let domRange = map(visualRange: subRange)
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
+            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
+                // This should not be possible, but if this ever happens in production it's better to lose
+                // the style than it is to crash the editor.
+                //
+                assertionFailure("Unexpected range conversion problem.")
+                return
+            }
+
+            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
     }
 
@@ -366,14 +374,27 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let domLocation = map(visualLocation: location)
+        //let domLocation = map(visualLocation: location)
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+            //let domRange = NSRange(location: location + subRange.location, length: subRange.length)
+            let domRange = attributedString.map(range: subRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
+            guard domRange.length > 0 else {
+                return
+            }
+
+            guard let swiftDomRange = attributedString.string.nsRange(fromUTF16NSRange: domRange) else {
+                // This should not be possible, but if this ever happens in production it's better to lose
+                // the style than it is to crash the editor.
+                //
+                assertionFailure("Unexpected range conversion problem.")
+                return
+            }
+
+            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
         })
     }
 
