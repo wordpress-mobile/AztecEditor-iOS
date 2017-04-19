@@ -716,7 +716,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertTrue(present)
     }
 
-    /// Verifies that the Text List does get nuked whenever the only `\n` present in the document is deleted.
+    /// Verifies that the List gets nuked whenever the only `\n` present in the document is deleted.
     ///
     /// Input:
     ///     - Ordered List
@@ -919,58 +919,48 @@ class AztecVisualTextViewTests: XCTestCase {
 
     // MARK: - Blockquotes
 
-    /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
+    /// Verifies that a Blockquote does not get removed whenever the user presses backspace
     ///
     /// Input:
     ///     - Blockquote
+    ///     - Text: Constants.sampleText0
+    ///     - Backspace
     ///
-    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
-    func testTogglingBlockquoteOnEmptyDocumentsInsertsNewline() {
+    func testBlockquoteDoesNotGetLostAfterPressingBackspace() {
         let textView = createTextView(withHTML: "")
-        textView.toggleBlockquote(range: .zero)
 
-        XCTAssertEqual(textView.text, String(.newline))
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText(Constants.sampleText0)
+        textView.deleteBackward()
+
+        let formatter = BlockquoteFormatter()
+        let range = textView.storage.rangeOfEntireString
+
+        XCTAssertTrue(formatter.present(in: textView.storage, at: range))
     }
 
-    /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
+    /// Verifies that the Blockquote gets nuked whenever the only `\n` present in the document is deleted.
     ///
     /// Input:
-    ///     - "Something Here"
-    ///     - Selection of the end of document
-    ///     - Ordered List
+    ///     - Blockquote
+    ///     - Selection of the EOD
+    ///     - Backspace
     ///
-    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
-    func testTogglingBlockquoteOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
-        let textView = createTextView(withHTML: Constants.sampleText0)
+    func testEmptyBlockquoteGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
+        let textView = createTextView(withHTML: "")
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
         textView.toggleBlockquote(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
-
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
-        textView.insertText(Constants.sampleText1)
-        textView.insertText(String(.newline))
-        
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
-    }
 
-    /// Verifies that after selecting a newline below a Blockquote, TextView wil not render (nor carry over)
-    /// the Blockquote formatting attributes.
-    ///
-    /// Input:
-    ///     - Blockquote
-    ///     - Selection of the `\n` at the EOD
-    ///
-    func testTypingAttributesLooseBlockquoteWhenSelectingAnEmptyNewlineBelowTextList() {
-        let textView = createTextView(withHTML: "")
+        let formatter = BlockquoteFormatter()
 
-        textView.toggleBlockquote(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
-
-        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssert(textView.storage.length == 0)
     }
 
     /// Verifies that New Line Characters get effectively inserted after a Blockquote.
@@ -978,6 +968,8 @@ class AztecVisualTextViewTests: XCTestCase {
     /// Input:
     ///     - Blockquote
     ///     - \n at the end of the document
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testNewLinesAreInsertedAfterEmptyBlockquote() {
         let newline = String(.newline)
@@ -993,8 +985,68 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.text.characters.count, expectedLength)
     }
 
+    /// Verifies that New List Items do get their bullet, even when the ending `\n` character was deleted.
     ///
-    func testBlockquoteGetsRemovedWhenTypingNewLineOnAnEmptyBullet() {
+    /// Input:
+    ///     - Blockquote
+    ///     - Text: Constants.sampleText0
+    ///     - Selection of the `\n` at the EOD, and backspace
+    ///     - Text: "\n"
+    ///     - Text: Constants.sampleText1
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
+    ///
+    func testNewLinesGetBlockquoteStyleEvenAfterDeletingEndOfDocumentNewline() {
+        let newline = String(.newline)
+
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText(Constants.sampleText0)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        // Delete + Insert Newline
+        textView.deleteBackward()
+        textView.insertText(newline)
+        textView.insertText(Constants.sampleText1)
+
+        // Verify it's still present
+        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+
+        let formatter = BlockquoteFormatter()
+        let present = formatter.present(in: textView.storage, at: secondLineRange)
+        
+        XCTAssert(present)
+    }
+
+    /// Verifies that after selecting a newline below a Blockquote, TextView wil not render (nor carry over)
+    /// the Blockquote formatting attributes.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///     - Selection of the `\n` at the EOD
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
+    ///
+    func testTypingAttributesLooseBlockquoteWhenSelectingAnEmptyNewlineBelowBlockquote() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
+    }
+
+    /// Verifies that Blockquotes get removed whenever the user types `\n` in an empty line.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///     - `\n` on the first line
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
+    ///
+    func testBlockquoteGetsRemovedWhenTypingNewLineOnAnEmptyBlockquoteLine() {
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
@@ -1008,6 +1060,44 @@ class AztecVisualTextViewTests: XCTestCase {
         }
 
         XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+    }
+
+    /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
+    ///
+    func testTogglingBlockquoteOnEmptyDocumentsInsertsNewline() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        XCTAssertEqual(textView.text, String(.newline))
+    }
+
+    /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - "Something Here"
+    ///     - Selection of the end of document
+    ///     - Ordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
+    ///
+    func testTogglingBlockquoteOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
+        let textView = createTextView(withHTML: Constants.sampleText0)
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.toggleBlockquote(range: .zero)
+        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+        textView.insertText(Constants.sampleText1)
+        textView.insertText(String(.newline))
+        
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
 }
 
