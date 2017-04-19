@@ -55,11 +55,6 @@ private extension LayoutManager {
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
                 self.drawBlockquote(in: lineRect, with: context)
             }
-
-            if range.endLocation == textStorage.rangeOfEntireString.endLocation {
-                let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-                drawBlockquote(in: extraLineRect, with: context)
-            }
         }
 
     }
