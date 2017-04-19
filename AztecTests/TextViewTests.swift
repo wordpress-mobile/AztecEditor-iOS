@@ -829,7 +829,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-        textView.insertText("\n")
+        textView.insertText(String(.newline))
 
         let formatter = TextListFormatter(style: .ordered)
         let attributedText = textView.attributedText!
@@ -852,7 +852,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleUnorderedList(range: .zero)
-        XCTAssertEqual(textView.text, "\n")
+        XCTAssertEqual(textView.text, String(.newline))
     }
 
     /// Verifies that toggling an Unordered List, when editing the end of a non empty document, inserts a Newline.
@@ -869,13 +869,14 @@ class AztecVisualTextViewTests: XCTestCase {
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.toggleUnorderedList(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
         textView.insertText(Constants.sampleText1)
+        textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -889,7 +890,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-        XCTAssertEqual(textView.text, "\n")
+        XCTAssertEqual(textView.text, String(.newline))
     }
 
     /// Verifies that toggling an Ordered List, when editing the end of a non empty document, inserts a Newline.
@@ -906,18 +907,18 @@ class AztecVisualTextViewTests: XCTestCase {
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.toggleOrderedList(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
         textView.insertText(Constants.sampleText1)
+        textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
 
 
     // MARK: - Blockquotes
-
 
     /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
     ///
@@ -930,7 +931,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
         textView.toggleBlockquote(range: .zero)
 
-        XCTAssertEqual(textView.text, "\n")
+        XCTAssertEqual(textView.text, String(.newline))
     }
 
     /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
@@ -947,12 +948,13 @@ class AztecVisualTextViewTests: XCTestCase {
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.toggleBlockquote(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
 
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
         textView.insertText(Constants.sampleText1)
+        textView.insertText(String(.newline))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
 }
