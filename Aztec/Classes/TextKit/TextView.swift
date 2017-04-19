@@ -288,12 +288,11 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
-        /// Insert `\n` characters whenever we're in a Text List, the user presses \n, and we're literally
-        /// at the End of the Document.
+        /// Whenever the user is at the end of the document, while editing a [List, Blockquote], we'll need
+        /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
+        /// (or Blockquote's BG).
         ///
-        if TextListFormatter.listsOfAnyKindPresent(in: typingAttributes) {
-            ensureInsertionOfNewlineOnEmptyDocuments()
-        }
+        ensureInsertionOfNewline(beforeInserting: text)
 
         // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
@@ -586,8 +585,11 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -596,7 +598,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineOnEmptyDocuments()
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -610,7 +612,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineOnEmptyDocuments()
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -813,13 +815,49 @@ open class TextView: UITextView {
     }
 
 
-    /// Inserts an empty line, whenever we're at the end of the document, and there's no selected text.
+    /// Inserts an empty line whenever we're at the end of the document
     ///
-    private func ensureInsertionOfNewlineOnEmptyDocuments() {
-        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+    private func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
+        guard selectedRange.location == storage.length else {
             return
         }
 
+        insertNewline()
+    }
+
+
+    /// Inserts an empty line whenever:
+    ///
+    ///     A.  We're about to insert a new line
+    ///     B.  We're at the end of the document
+    ///     C.  There's a List (OR) Blockquote active
+    ///
+    /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
+    /// Blockquote's background.
+    ///
+    private func ensureInsertionOfNewline(beforeInserting text: String) {
+        guard text == String(.newline) else {
+            return
+        }
+
+        guard selectedRange.location == storage.length else {
+            return
+        }
+
+        guard BlockquoteFormatter().present(in: typingAttributes) ||
+            TextListFormatter(style: .ordered).present(in: typingAttributes) ||
+            TextListFormatter(style: .unordered).present(in: typingAttributes)
+        else {
+            return
+        }
+
+        insertNewline()
+    }
+
+
+    /// Inserts a New Line at the current position, while retaining the selectedRange and typingAttributes.
+    ///
+    private func insertNewline() {
         let previousRange = selectedRange
         let previousStyle = typingAttributes
 
