@@ -36,7 +36,7 @@ public protocol TextViewMediaDelegate: class {
     ///
     func textView(
         _ textView: TextView,
-        urlForAttachment attachment: TextAttachment) -> URL
+        urlForAttachment attachment: NSTextAttachment) -> URL
 
 
     /// Called when a attachment is removed from the storage.
@@ -53,7 +53,7 @@ public protocol TextViewMediaDelegate: class {
     ///   - attachment: the attachment that was selected.
     ///   - position: touch position relative to the textview.
     ///
-    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
 
     /// Called when an attachment is deselected with a single tap.
     ///
@@ -62,7 +62,7 @@ public protocol TextViewMediaDelegate: class {
     ///   - attachment: the attachment that was deselected.
     ///   - position: touch position relative to the textView
     ///
-    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
 }
 
 
@@ -1041,13 +1041,13 @@ open class TextView: UITextView {
     ///
     /// - Returns: The associated TextAttachment.
     ///
-    open func attachmentAtPoint(_ point: CGPoint) -> TextAttachment? {
+    open func attachmentAtPoint(_ point: CGPoint) -> NSTextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index < textStorage.length else {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
+        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
@@ -1079,7 +1079,7 @@ open class TextView: UITextView {
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
-        if let attachment = attachmentAtPoint(point) {
+        if let attachment = attachmentAtPoint(point) as? TextAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
             if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
@@ -1220,7 +1220,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(
         _ storage: TextStorage,
-        attachment: TextAttachment,
+        attachment: NSTextAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage {
@@ -1233,11 +1233,11 @@ extension TextView: TextStorageAttachmentsDelegate {
         return placeholderImage
     }
 
-    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
+    func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }
@@ -1326,7 +1326,7 @@ extension TextView: TextStorageAttachmentsDelegate {
             return
         }
 
-        currentSelectedAttachment = attachment
+        currentSelectedAttachment = attachment as? TextAttachment
         textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
     }
 }

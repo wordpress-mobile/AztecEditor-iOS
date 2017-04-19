@@ -170,6 +170,36 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         var attributes = inheritedAttributes
 
+        let attributeValue = parseCustomAttributeValues(forNode: node)
+
+        for (key, formatter) in elementToFormattersMap {
+            if node.isNodeType(key) {
+                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                    let value = attributeValue {
+                    standardValueFormatter.attributeValue = value
+                }
+                attributes = formatter.apply(to: attributes);
+            }
+        }
+
+        if let elementStyle = node.valueForStringAttribute(named: "style") {
+            let styles = parseStyle(style: elementStyle)
+            for (key, (formatter, parser)) in styleToFormattersMap {
+                guard let styleString = styles[key],
+                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                      let value = parser(styleString)
+                    else {
+                        continue
+                    }
+                    standardValueFormatter.attributeValue = value
+                    attributes = standardValueFormatter.apply(to: attributes);
+            }
+        }
+        return attributes
+    }
+
+    public func parseCustomAttributeValues(forNode node: ElementNode) -> Any? {
+
         var attributeValue: Any?
 
         if node.isNodeType(.a) {
@@ -213,30 +243,23 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributeValue = attachment
         }
 
-        for (key, formatter) in elementToFormattersMap {
-            if node.isNodeType(key) {
-                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                    let value = attributeValue {
-                    standardValueFormatter.attributeValue = value
-                }
-                attributes = formatter.apply(to: attributes);
+        if node.isNodeType(.video) {
+            var srcURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                srcURL = URL(string: urlString)
             }
+
+            var posterURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "poster") {
+                posterURL = URL(string: urlString)
+            }
+
+            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
+
+            attributeValue = attachment
         }
 
-        if let elementStyle = node.valueForStringAttribute(named: "style") {
-            let styles = parseStyle(style: elementStyle)
-            for (key, (formatter, parser)) in styleToFormattersMap {
-                guard let styleString = styles[key],
-                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                      let value = parser(styleString)
-                    else {
-                        continue
-                    }
-                    standardValueFormatter.attributeValue = value
-                    attributes = standardValueFormatter.apply(to: attributes);
-            }
-        }
-        return attributes
+        return attributeValue
     }
 
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
@@ -256,7 +279,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .h4: HeaderFormatter(headerLevel: .h4),
         .h5: HeaderFormatter(headerLevel: .h5),
         .h6: HeaderFormatter(headerLevel: .h6),
-        .pre: PreFormatter()
+        .pre: PreFormatter(),
+        .video: VideoFormatter()
     ]
 
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [

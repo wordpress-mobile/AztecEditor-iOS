@@ -61,6 +61,13 @@ class ImageFormatter: StandardAttributeFormatter {
     }
 }
 
+class VideoFormatter: StandardAttributeFormatter {
+    init() {
+        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: VideoAttachment(identifier: NSUUID().uuidString))
+    }
+}
+
+
 class HRFormatter: StandardAttributeFormatter {
     init() {
         super.init(attributeKey: NSAttachmentAttributeName, attributeValue: LineAttachment())

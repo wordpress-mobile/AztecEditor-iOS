@@ -19,12 +19,12 @@ protocol TextStorageAttachmentsDelegate {
     ///
     func storage(
         _ storage: TextStorage,
-        attachment: TextAttachment,
+        attachment: NSTextAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
     
-    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage
+    func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
     /// delegate can specify an URL where that image is available.
@@ -35,7 +35,7 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL
+    func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL
 
     /// Called when a attachment is removed from the storage.
     ///
@@ -49,10 +49,10 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Parameters:
     ///     - storage: The storage that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: NSTextAttachment about to be rendered.
     ///     - lineFragment: Line Fragment in which the glyph would be rendered.
     ///
-    /// - Returns: Rect specifying the Bounds for the comment attachment
+    /// - Returns: Rect specifying the Bounds for the attachment
     ///
     func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
@@ -60,10 +60,10 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Parameters:
     ///     - storage: The storage that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: NSTextAttachment about to be rendered.
     ///     - size: Expected Image Size
     ///
-    /// - Returns: (Optional) UIImage representation of the Comment Attachment.
+    /// - Returns: (Optional) UIImage representation of the attachment.
     ///
     func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
@@ -220,6 +220,8 @@ open class TextStorage: NSTextStorage {
             case let attachment as HTMLAttachment:
                 attachment.delegate = self
             case let attachment as TextAttachment:
+                attachment.delegate = self
+            case let attachment as VideoAttachment:
                 attachment.delegate = self
             default:
                 guard let image = textAttachment.image else {
@@ -897,6 +899,9 @@ open class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+        textStore.enumerateAttachmentsOfType(VideoAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
@@ -922,11 +927,25 @@ extension TextStorage: TextAttachmentDelegate {
         assert(attachmentsDelegate != nil)
         return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
+}
 
+extension TextStorage: VideoAttachmentDelegate {
+
+    func videoAttachment(
+        _ videoAttachment: VideoAttachment,
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) -> UIImage
+    {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, attachment: videoAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
+    }
+    
 }
 
 
-// MARK: - TextStorage: CommentAttachmentDelegate Methods
+
+// MARK: - TextStorage: RenderableAttachmentDelegate Methods
 //
 extension TextStorage: RenderableAttachmentDelegate {
 
