@@ -4,9 +4,16 @@ extension String {
 
     // MARK: - Range mapping by character filtering
 
-    func map(range initialRange: NSRange, byFiltering stringToFilter: String) -> NSRange {
+    func map(utf16NSRange range: NSRange, byFiltering stringToFilter: String) -> NSRange {
+        let convertedUTF16Range = utf16.range(from: range)
+        let convertedRange = self.range(from: convertedUTF16Range)!
+        let finalRange = map(range: convertedRange, byFiltering: stringToFilter)
 
-        let convertedRange = range(from: initialRange)
+        return nsRange(from: finalRange)
+    }
+
+    func map(range: NSRange, byFiltering stringToFilter: String) -> NSRange {
+        let convertedRange = self.range(from: range)
         let finalRange = map(range: convertedRange, byFiltering: stringToFilter)
 
         return nsRange(from: finalRange)

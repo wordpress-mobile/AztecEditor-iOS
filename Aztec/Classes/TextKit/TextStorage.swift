@@ -347,15 +347,7 @@ open class TextStorage: NSTextStorage {
 
             let domRange = map(visualRange: subRange)
 
-            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
-                // This should not be possible, but if this ever happens in production it's better to lose
-                // the style than it is to crash the editor.
-                //
-                assertionFailure("Unexpected range conversion problem.")
-                return
-            }
-
-            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
+            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
     }
 
@@ -374,12 +366,9 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        //let domLocation = map(visualLocation: location)
-
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            //let domRange = NSRange(location: location + subRange.location, length: subRange.length)
             let domRange = NSRange(location: location + subRange.location, length: subRange.length)
             let mappedDomRange = dom.string().map(range: domRange, byFiltering: String(.paragraphSeparator))
 
@@ -694,7 +683,7 @@ open class TextStorage: NSTextStorage {
             && !hasHorizontalLine(at: index)
             && !hasCommentMarker(at: index)
             && !hasUnknownHtmlMarker(at: index)
-            && !hasVisualOnlyElement(at: index)
+            && !hasParagraphSeparator(at: index)
     }
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
@@ -738,20 +727,17 @@ open class TextStorage: NSTextStorage {
         return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
     }
 
-    private func hasVisualOnlyElement(at index: Int) -> Bool {
-        return attribute(VisualOnlyAttributeName, at: index, effectiveRange: nil) != nil
-    }
+    private func hasParagraphSeparator(at offset: Int) -> Bool {
+        let startIndex = string.index(string.startIndex, offsetBy: offset)
+        let endIndex = string.index(string.startIndex, offsetBy: offset + 1)
 
-    private func map(visualLocation: Int) -> Int {
+        let range = startIndex ..< endIndex
 
-        let locationRange = NSRange(location: visualLocation, length: 0)
-        let mappedRange = textStore.map(range: locationRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
-
-        return mappedRange.location
+        return string.substring(with: range) == String(.paragraphSeparator)
     }
 
     private func map(visualRange: NSRange) -> NSRange {
-        return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
+        return textStore.string.map(utf16NSRange: visualRange, byFiltering: String(.paragraphSeparator))
     }
     
     // MARK: - Styles: Toggling
