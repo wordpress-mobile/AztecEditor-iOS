@@ -380,13 +380,14 @@ open class TextStorage: NSTextStorage {
             // The source and target values are inverted since we're enumerating on the new string.
 
             //let domRange = NSRange(location: location + subRange.location, length: subRange.length)
-            let domRange = attributedString.map(range: subRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
+            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
+            let mappedDomRange = dom.string().map(range: domRange, byFiltering: String(.paragraphSeparator))
 
-            guard domRange.length > 0 else {
+            guard mappedDomRange.length > 0 else {
                 return
             }
 
-            guard let swiftDomRange = attributedString.string.nsRange(fromUTF16NSRange: domRange) else {
+            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: mappedDomRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
                 // the style than it is to crash the editor.
                 //
