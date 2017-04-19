@@ -215,12 +215,12 @@ open class TextView: UITextView {
     // MARK: - Overwritten Properties
     
     /// Overwrites Typing Attributes:
-    /// This is the (only) valid hook we've found, in order to (selectively) remove the Blockquote/List attributes.
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
     /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     override open var typingAttributes: [String: Any] {
         get {
-            let updatedAttributes = ensureRemovalOfListAndBlockquoteAttribute(from: super.typingAttributes)
+            let updatedAttributes = ensureRemovalOfParagraphAttributes(from: super.typingAttributes)
             super.typingAttributes = updatedAttributes
 
             return updatedAttributes
@@ -288,7 +288,7 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
-        /// Whenever the user is at the end of the document, while editing a [List, Blockquote], we'll need
+        /// Whenever the user is at the end of the document, while editing a [List, Blockquote, Pre], we'll need
         /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
         /// (or Blockquote's BG).
         ///
@@ -739,16 +739,17 @@ open class TextView: UITextView {
     ///
     /// - Returns: True if ParagraphAttributes were removed. False otherwise!
     ///
-    func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
+    private func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
 
         guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
             return false
         }
 
-        let formatters:[AttributeFormatter] = [
+        let formatters: [AttributeFormatter] = [
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered),
-            BlockquoteFormatter()
+            BlockquoteFormatter(),
+            PreFormatter()
         ]
 
         let atEdgeOfDocument = range.location >= storage.length
@@ -773,10 +774,10 @@ open class TextView: UITextView {
     ///
     ///     A. The selected location is at the very end of the document
     ///     B. The previous character is a '\n'
-    ///     C. There's a list (OR) blockquote.
+    ///     C. There's a List (OR) Blockquote (OR) Pre.
     ///
     /// This is necessary because when the caret is at EOF, and the previous `\n` character has
-    /// a [List, Blockquote] styles, that style will remain in the `typingAttributes`.  We'll only 
+    /// a [List, Blockquote, Pre] styles, that style will remain in the `typingAttributes`.  We'll only
     /// allow the style to remain if there are contents in the current line with the textList style
     /// (in which case this condition won't ever trigger because we'll either no longer be at EOF, 
     /// or the previous character won't be `\n`).
@@ -785,7 +786,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: Updated Typing Attributes.
     ///
-    private func ensureRemovalOfListAndBlockquoteAttribute(from typingAttributes: [String: Any]) -> [String: Any] {
+    private func ensureRemovalOfParagraphAttributes(from typingAttributes: [String: Any]) -> [String: Any] {
         guard selectedRange.location == storage.length else {
             return typingAttributes
         }
@@ -797,9 +798,10 @@ open class TextView: UITextView {
         }
 
         let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(),
             TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered),
-            BlockquoteFormatter()
+            TextListFormatter(style: .unordered)
         ]
 
         for formatter in formatters where formatter.present(in: typingAttributes) {
@@ -825,7 +827,7 @@ open class TextView: UITextView {
     ///
     ///     A.  We're about to insert a new line
     ///     B.  We're at the end of the document
-    ///     C.  There's a List (OR) Blockquote active
+    ///     C.  There's a List (OR) Blockquote (OR) Pre active
     ///
     /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
     /// Blockquote's background.
@@ -841,6 +843,7 @@ open class TextView: UITextView {
 
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
+            PreFormatter(),
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered)
         ]
