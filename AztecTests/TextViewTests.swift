@@ -1101,5 +1101,192 @@ class AztecVisualTextViewTests: XCTestCase {
         
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
+
+
+    // MARK: - Pre
+
+    /// Verifies that a Pre does not get removed whenever the user presses backspace
+    ///
+    /// Input:
+    ///     - Pre
+    ///     - Text: Constants.sampleText0
+    ///     - Backspace
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testPreDoesNotGetLostAfterPressingBackspace() {
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.insertText(Constants.sampleText0)
+        textView.deleteBackward()
+
+        let formatter = PreFormatter()
+        let range = textView.storage.rangeOfEntireString
+
+        XCTAssertTrue(formatter.present(in: textView.storage, at: range))
+    }
+
+    /// Verifies that the Pre Style gets nuked whenever the only `\n` present in the document is deleted.
+    ///
+    /// Input:
+    ///     - Pre
+    ///     - Selection of the EOD
+    ///     - Backspace
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testEmptyPreGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+
+        let formatter = PreFormatter()
+
+        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssert(textView.storage.length == 0)
+    }
+
+    /// Verifies that New Line Characters get effectively inserted after a Pre.
+    ///
+    /// Input:
+    ///     - Pre
+    ///     - \n at the end of the document
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testNewLinesAreInsertedAfterEmptyPre() {
+        let newline = String(.newline)
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        var expectedLength = textView.text.characters.count
+        textView.insertText(newline)
+        expectedLength += newline.characters.count
+
+        XCTAssertEqual(textView.text.characters.count, expectedLength)
+    }
+
+    /// Verifies that New Pre Lines do get their style, even when the ending `\n` character was deleted.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///     - Text: Constants.sampleText0
+    ///     - Selection of the `\n` at the EOD, and backspace
+    ///     - Text: "\n"
+    ///     - Text: Constants.sampleText1
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testNewLinesGetPreStyleEvenAfterDeletingEndOfDocumentNewline() {
+        let newline = String(.newline)
+
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.insertText(Constants.sampleText0)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        // Delete + Insert Newline
+        textView.deleteBackward()
+        textView.insertText(newline)
+        textView.insertText(Constants.sampleText1)
+
+        // Verify it's still present
+        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+
+        let formatter = PreFormatter()
+        let present = formatter.present(in: textView.storage, at: secondLineRange)
+
+        XCTAssert(present)
+    }
+
+    /// Verifies that after selecting a newline below a Pre, TextView wil not render (nor carry over)
+    /// the Pre formatting attributes.
+    ///
+    /// Input:
+    ///     - Pre
+    ///     - Selection of the `\n` at the EOD
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testTypingAttributesLoosePreWhenSelectingAnEmptyNewlineBelowPre() {
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        XCTAssertFalse(PreFormatter().present(in: textView.typingAttributes))
+    }
+
+    /// Verifies that Pre get removed whenever the user types `\n` in an empty line.
+    ///
+    /// Input:
+    ///     - Pre
+    ///     - `\n` on the first line
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testPreGetsRemovedWhenTypingNewLineOnAnEmptyPreLine() {
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        textView.insertText(String(.newline))
+
+        let formatter = PreFormatter()
+        let attributedText = textView.attributedText!
+
+        for location in 0 ..< attributedText.length {
+            XCTAssertFalse(formatter.present(in: attributedText, at: location))
+        }
+
+        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+    }
+
+    /// Verifies that toggling a Pre, when editing an empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Pre
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testTogglingPreOnEmptyDocumentsInsertsNewline() {
+        let textView = createTextView(withHTML: "")
+
+        textView.togglePre(range: .zero)
+        XCTAssertEqual(textView.text, String(.newline))
+    }
+
+    /// Verifies that toggling a Pre, when editing the end of a non empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Text: Constants.sampleText0
+    ///     - Selection of the end of document
+    ///     - Blockquote
+    ///     - Backspace
+    ///     - Text: Constants.sampleText1
+    ///     - Text: newline
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
+    ///
+    func testTogglingPreOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
+        let textView = createTextView(withHTML: Constants.sampleText0)
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.togglePre(range: .zero)
+        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+        textView.insertText(Constants.sampleText1)
+        textView.insertText(String(.newline))
+        
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
+    }
 }
 

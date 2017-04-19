@@ -766,7 +766,7 @@ open class TextView: UITextView {
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered),
             BlockquoteFormatter(),
-            PreFormatter()
+            PreFormatter(placeholderAttributes: self.defaultAttributes)
         ]
 
         let atEdgeOfDocument = range.location >= storage.length
@@ -816,7 +816,7 @@ open class TextView: UITextView {
 
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
-            PreFormatter(),
+            PreFormatter(placeholderAttributes: self.defaultAttributes),
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered)
         ]
@@ -860,7 +860,7 @@ open class TextView: UITextView {
 
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
-            PreFormatter(),
+            PreFormatter(placeholderAttributes: self.defaultAttributes),
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered)
         ]
