@@ -215,12 +215,12 @@ open class TextView: UITextView {
     // MARK: - Overwritten Properties
     
     /// Overwrites Typing Attributes:
-    /// This is the (only) valid hook we've found, in order to (selectively) remove the List attributes.
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the Blockquote/List attributes.
     /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     override open var typingAttributes: [String: Any] {
         get {
-            let updatedAttributes = ensureRemovalOfListAttribute(from: super.typingAttributes)
+            let updatedAttributes = ensureRemovalOfListAndBlockquoteAttribute(from: super.typingAttributes)
             super.typingAttributes = updatedAttributes
 
             return updatedAttributes
@@ -288,12 +288,11 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
-        /// Insert `\n` characters whenever we're in a Text List, the user presses \n, and we're literally
-        /// at the End of the Document.
+        /// Whenever the user is at the end of the document, while editing a [List, Blockquote], we'll need
+        /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
+        /// (or Blockquote's BG).
         ///
-        if TextListFormatter.listsOfAnyKindPresent(in: typingAttributes) {
-            ensureInsertionOfNewlineOnEmptyDocuments()
-        }
+        ensureInsertionOfNewline(beforeInserting: text)
 
         // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
@@ -586,8 +585,11 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -596,7 +598,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineOnEmptyDocuments()
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -610,7 +612,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineOnEmptyDocuments()
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -767,59 +769,97 @@ open class TextView: UITextView {
     }
 
 
-    /// Removes the List Attributes from a collection of attributes, whenever:
+    /// Removes the List Attributes from the Typing Attributes whenever:
     ///
     ///     A. The selected location is at the very end of the document
-    ///     B. There's a list!
-    ///     C. The previous character is a '\n'
+    ///     B. The previous character is a '\n'
+    ///     C. There's a list (OR) blockquote.
     ///
     /// This is necessary because when the caret is at EOF, and the previous `\n` character has
-    /// a textList style, that style will remain in the `typingAttributes`.  We'll only allow the style
-    /// to remain if there are contents in the current line with the textList style (in which case
-    /// this condition won't ever trigger because we'll either no longer be at EOF, or the previous
-    /// character won't be `\n`).
+    /// a [List, Blockquote] styles, that style will remain in the `typingAttributes`.  We'll only 
+    /// allow the style to remain if there are contents in the current line with the textList style
+    /// (in which case this condition won't ever trigger because we'll either no longer be at EOF, 
+    /// or the previous character won't be `\n`).
     ///
     /// - Parameter attributes: Typing Attributes.
     ///
     /// - Returns: Updated Typing Attributes.
     ///
-    private func ensureRemovalOfListAttribute(from attributes: [String: Any]) -> [String: Any] {
+    private func ensureRemovalOfListAndBlockquoteAttribute(from typingAttributes: [String: Any]) -> [String: Any] {
         guard selectedRange.location == storage.length else {
-            return attributes
-        }
-
-        guard TextListFormatter.listsOfAnyKindPresent(in: attributes) else {
-            return attributes
+            return typingAttributes
         }
 
         let previousRange = NSRange(location: selectedRange.location - 1, length: 1)
         let previousString = storage.safeSubstring(at: previousRange) ?? String(.newline)
         guard previousString == String(.newline) else {
-            return attributes
+            return typingAttributes
         }
 
+        let formatters: [AttributeFormatter] = [
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered),
+            BlockquoteFormatter()
+        ]
 
-        let orderedListFormatter = TextListFormatter(style: .ordered)
-        if orderedListFormatter.present(in: attributes) {
-            return orderedListFormatter.remove(from: attributes)
+        for formatter in formatters where formatter.present(in: typingAttributes) {
+            return formatter.remove(from: typingAttributes)
         }
 
-        let unorderedListFormatter = TextListFormatter(style: .unordered)
-        if unorderedListFormatter.present(in: attributes) {
-            return unorderedListFormatter.remove(from: attributes)
-        }
-
-        return attributes
+        return typingAttributes
     }
 
 
-    /// Inserts an empty line, whenever we're at the end of the document, and there's no selected text.
+    /// Inserts an empty line whenever we're at the end of the document
     ///
-    private func ensureInsertionOfNewlineOnEmptyDocuments() {
-        guard selectedRange.location == storage.length && selectedRange.length == 0 else {
+    private func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
+        guard selectedRange.location == storage.length else {
             return
         }
 
+        insertNewline()
+    }
+
+
+    /// Inserts an empty line whenever:
+    ///
+    ///     A.  We're about to insert a new line
+    ///     B.  We're at the end of the document
+    ///     C.  There's a List (OR) Blockquote active
+    ///
+    /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
+    /// Blockquote's background.
+    ///
+    private func ensureInsertionOfNewline(beforeInserting text: String) {
+        guard text == String(.newline) else {
+            return
+        }
+
+        guard selectedRange.location == storage.length else {
+            return
+        }
+
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        let found = formatters.first { formatter in
+            return formatter.present(in: typingAttributes)
+        }
+
+        guard found != nil else {
+            return
+        }
+
+        insertNewline()
+    }
+
+
+    /// Inserts a New Line at the current position, while retaining the selectedRange and typingAttributes.
+    ///
+    private func insertNewline() {
         let previousRange = selectedRange
         let previousStyle = typingAttributes
 

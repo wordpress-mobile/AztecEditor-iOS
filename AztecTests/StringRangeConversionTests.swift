@@ -229,5 +229,21 @@ class StringRangeConversionTests: XCTestCase {
 
         XCTAssertEqual(nsRange, finalNSRange)
     }
-    
+
+    /// Tests that endOfStringNSRange returns a NSRange mapping to the edge of the string. (Also known as
+    /// "after the last character range).
+    ///
+    /// Input:
+    ///     - "Some random content here"
+    ///
+    /// Expected Output:
+    ///     -   NSRange(location: length of input, length: 0)
+    ///
+    func testEndOfStringNSRangeReturnsANSRangeThatStartsAtTheEndOfTheReceiver() {
+        let string = "Some random content here"
+        let endingRange = string.endOfStringNSRange()
+
+        XCTAssert(endingRange.length == 0)
+        XCTAssert(endingRange.location == string.characters.count)
+    }
 }
