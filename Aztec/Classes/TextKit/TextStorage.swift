@@ -76,10 +76,6 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
 
-    // MARK: - Visual only elements
-
-    private let visualOnlyElementFactory = VisualOnlyElementFactory()
-
     // MARK: - Undo Support
     
     public var undoManager: UndoManager? {
@@ -170,10 +166,8 @@ open class TextStorage: NSTextStorage {
                 while newlineRange.location != NSNotFound {
 
                     let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
-                    //let visualOnlyNewline = visualOnlyElementFactory.newline(inheritingAttributes: originalAttributes)
 
                     finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
-                    //finalString.replaceCharacters(in: newlineRange, with: visualOnlyNewline)
 
                     let nextLocation = newlineRange.location + newlineRange.length
                     let nextLength = subRange.length - nextLocation
@@ -323,7 +317,8 @@ open class TextStorage: NSTextStorage {
         let targetDomRange = map(visualRange: swiftRange)
         let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
-        let domString = attrString.filter(attributeNamed: VisualOnlyAttributeName)
+        let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
+
         dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
 
         if targetDomRange.length != swiftRange.length {

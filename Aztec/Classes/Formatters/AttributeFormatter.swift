@@ -180,7 +180,7 @@ private extension AttributeFormatter {
     /// The string to be used when adding attributes to an empty line.
     ///
     func placeholderForEmptyLine(using attributes: [String: Any]?) -> NSAttributedString {
-        return VisualOnlyElementFactory().zeroWidthSpace(inheritingAttributes: attributes)
+        return NSAttributedString(.zeroWidthSpace, attributes: attributes)
     }
 
     /// Helper that indicates whether if we should format the specified range, or not. 
