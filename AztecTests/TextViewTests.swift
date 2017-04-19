@@ -721,16 +721,12 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-
-        let length = textView.storage.length
-        textView.selectedRange = NSRange(location: length, length: 0)
-
+        textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
 
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
         XCTAssert(textView.storage.length == 0)
     }
-
 
     /// Verifies that New Line Characters get effectively inserted after a Text List.
     ///
@@ -779,8 +775,7 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText(firstItemText)
 
         // Select the end of the document
-        let length = textView.text.characters.count
-        textView.selectedRange = NSRange(location: length, length: 0)
+        textView.selectedRange = textView.text.endOfStringNSRange()
 
         // Delete + Insert Newline
         textView.deleteBackward()
@@ -809,9 +804,7 @@ class AztecVisualTextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-
-        let length = textView.text.characters.count
-        textView.selectedRange = NSRange(location: length, length: 0)
+        textView.selectedRange = textView.text.endOfStringNSRange()
 
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
