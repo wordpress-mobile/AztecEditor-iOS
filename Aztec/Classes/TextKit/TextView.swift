@@ -1041,13 +1041,13 @@ open class TextView: UITextView {
     ///
     /// - Returns: The associated TextAttachment.
     ///
-    open func attachmentAtPoint(_ point: CGPoint) -> TextAttachment? {
+    open func attachmentAtPoint(_ point: CGPoint) -> NSTextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index < textStorage.length else {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
+        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
@@ -1079,7 +1079,7 @@ open class TextView: UITextView {
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
-        if let attachment = attachmentAtPoint(point) {
+        if let attachment = attachmentAtPoint(point) as? TextAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
             if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
@@ -1326,7 +1326,7 @@ extension TextView: TextStorageAttachmentsDelegate {
             return
         }
 
-        currentSelectedAttachment = attachment
+        currentSelectedAttachment = attachment as? TextAttachment
         textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
     }
 }

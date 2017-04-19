@@ -4,6 +4,8 @@ import Gridicons
 import Photos
 import UIKit
 import MobileCoreServices
+import AVFoundation
+import AVKit
 
 class EditorDemoController: UIViewController {
 
@@ -785,6 +787,10 @@ extension EditorDemoController: TextViewMediaDelegate {
         if let imgAttachment = attachment as? TextAttachment {
             selected(textAttachment: imgAttachment, atPosition: position)
         }
+
+        if let videoAttachment = attachment as? VideoAttachment {
+            selected(videoAttachment: videoAttachment, atPosition: position)
+        }
     }
 
     func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
@@ -814,6 +820,24 @@ extension EditorDemoController: TextViewMediaDelegate {
     func deselected(textAttachment attachment: TextAttachment, atPosition position: CGPoint) {
         attachment.clearAllOverlays()
         richTextView.refreshLayoutFor(attachment: attachment)
+    }
+
+    func selected(videoAttachment attachment: VideoAttachment, atPosition position: CGPoint) {
+        guard let videoURL = attachment.srcURL else {
+            return
+        }
+        displayVideoPlayer(for: videoURL)
+    }
+
+    func displayVideoPlayer(for videoURL: URL) {
+        let asset = AVURLAsset(url: videoURL)
+        let controller = AVPlayerViewController()
+        let playerItem = AVPlayerItem(asset: asset)
+        let player = AVPlayer(playerItem: playerItem)
+        controller.showsPlaybackControls = true
+        controller.player = player
+        player.play()
+        present(controller, animated:true, completion: nil)
     }
 }
 
