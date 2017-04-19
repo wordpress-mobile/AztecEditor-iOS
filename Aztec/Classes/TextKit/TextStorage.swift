@@ -302,7 +302,7 @@ open class TextStorage: NSTextStorage {
             fatalError()
         }
 
-        let targetDomRange = map(visualRange: swiftRange)
+        let targetDomRange = string.map(visualRange: swiftRange)
         let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
         dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
@@ -314,7 +314,7 @@ open class TextStorage: NSTextStorage {
             fatalError()
         }
 
-        let targetDomRange = map(visualRange: swiftRange)
+        let targetDomRange = string.map(visualRange: swiftRange)
         let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
@@ -340,7 +340,7 @@ open class TextStorage: NSTextStorage {
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
-            let domRange = map(visualRange: subRange)
+            let domRange = string.map(visualRange: subRange)
 
             processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
@@ -365,7 +365,7 @@ open class TextStorage: NSTextStorage {
             // The source and target values are inverted since we're enumerating on the new string.
 
             let domRange = NSRange(location: location + subRange.location, length: subRange.length)
-            let mappedDomRange = dom.string().map(range: domRange, byFiltering: String(.paragraphSeparator))
+            let mappedDomRange = dom.string().map(visualRange: domRange)
 
             guard mappedDomRange.length > 0 else {
                 return
@@ -730,10 +730,6 @@ open class TextStorage: NSTextStorage {
 
         return string.substring(with: range) == String(.paragraphSeparator)
     }
-
-    private func map(visualRange: NSRange) -> NSRange {
-        return textStore.string.map(utf16NSRange: visualRange, byFiltering: String(.paragraphSeparator))
-    }
     
     // MARK: - Styles: Toggling
     @discardableResult func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
@@ -816,7 +812,7 @@ open class TextStorage: NSTextStorage {
         let rangesForAttachment = ranges(forAttachment:attachment)
 
         let domRanges = rangesForAttachment.map { range -> NSRange in
-            map(visualRange: range)
+            string.map(visualRange: range)
         }
         
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
