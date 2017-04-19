@@ -789,7 +789,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         // Verify it's still present
         let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: sampleText1.characters.count)
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
 
         let formatter = TextListFormatter(style: .ordered)
         let present = formatter.present(in: textView.storage, at: secondLineRange)
