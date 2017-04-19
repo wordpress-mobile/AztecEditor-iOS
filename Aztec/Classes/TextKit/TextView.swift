@@ -576,6 +576,23 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
     }
 
+    /// Adds or removes a Pre style from the specified range.
+    /// Pre are applied to an entire paragrah regardless of the range.
+    /// If the range spans multiple paragraphs, the style is applied to all
+    /// affected paragraphs.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to edit.
+    ///
+    open func togglePre(range: NSRange) {
+        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+
+        let formatter = PreFormatter(placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+
+        forceRedrawCursorAfterDelay()
+    }
+
     /// Adds or removes a blockquote style from the specified range.
     /// Blockquotes are applied to an entire paragrah regardless of the range.
     /// If the range spans multiple paragraphs, the style is applied to all
