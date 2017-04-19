@@ -66,9 +66,5 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
         return style?.blockquote != nil
     }
-
-    func needsEmptyLinePlaceholder() -> Bool {
-        return false
-    }
 }
 

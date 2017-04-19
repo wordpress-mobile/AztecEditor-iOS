@@ -71,10 +71,6 @@ class TextListFormatter: ParagraphAttributeFormatter {
         return list.style == listStyle
     }
 
-    func needsEmptyLinePlaceholder() -> Bool {
-        return false
-    }
-
     static func listsOfAnyKindPresent(in attributes: [String: Any]) -> Bool {
         let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
         return style?.textList != nil
