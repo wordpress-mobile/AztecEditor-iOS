@@ -1,14 +1,25 @@
 import Foundation
 import UIKit
 
+
+// MARK: - Blockquote Formatter
+//
 class BlockquoteFormatter: ParagraphAttributeFormatter {
 
+    /// Attributes to be added by default
+    ///
     let placeholderAttributes: [String : Any]?
 
+
+    /// Designated Initializer
+    ///
     init(placeholderAttributes: [String : Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
+
+    // MARK: - Overwriten Methods
+    
     func apply(to attributes: [String : Any]) -> [String: Any] {
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
