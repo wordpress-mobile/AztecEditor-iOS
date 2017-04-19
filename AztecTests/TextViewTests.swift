@@ -3,7 +3,12 @@ import XCTest
 import Gridicons
 
 class AztecVisualTextViewTests: XCTestCase {
-    
+
+    struct Constants {
+        static let sampleText0 = "Lorem ipsum sarasum naradum taradum insumun"
+        static let sampleText1 = " patronum sitanum elanum zoipancoiamum."
+    }
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -13,6 +18,7 @@ class AztecVisualTextViewTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
+
 
     // MARK: - TextView construction
 
@@ -138,6 +144,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssert(identifiers.count == 0)
     }
 
+
     // MARK: - Toggle Attributes
 
     func testToggleBold() {
@@ -260,6 +267,7 @@ class AztecVisualTextViewTests: XCTestCase {
         // The test not crashing would be successful.
     }
 
+
     // MARK: - Test Attributes Exist
 
     func check(textView: TextView, range:NSRange, forIndentifier identifier: FormattingIdentifier) -> Bool {
@@ -381,6 +389,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+
     // MARK: - Adding newlines
 
     /// Tests that entering a newline in an empty editor does not crash it.
@@ -404,6 +413,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.text, "Testing bold newlines\n")
     }
+
 
     // MARK: - Deleting newlines
 
@@ -653,7 +663,6 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
     }
 
-
     /// Tests that there is no HTML Corruption when editing text, after toggling H1 and entering two lines of text.
     ///
     /// Input:
@@ -706,7 +715,6 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertTrue(present)
     }
-
 
     /// Verifies that the Text List does get nuked whenever the only `\n` present in the document is deleted.
     ///
@@ -908,4 +916,43 @@ class AztecVisualTextViewTests: XCTestCase {
     }
 
 
+    // MARK: - Blockquotes
+
+
+    /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingBlockquoteOnEmptyDocumentsInsertsNewline() {
+        let textView = createTextView(withHTML: "")
+        textView.toggleBlockquote(range: .zero)
+
+        XCTAssertEqual(textView.text, "\n")
+    }
+
+    /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - "Something Here"
+    ///     - Selection of the end of document
+    ///     - Ordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingBlockquoteOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
+        let textView = createTextView(withHTML: Constants.sampleText0)
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.toggleBlockquote(range: .zero)
+        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+        textView.insertText(Constants.sampleText1)
+        
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+    }
 }
