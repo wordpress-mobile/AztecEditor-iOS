@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import Gridicons
 
 protocol VideoAttachmentDelegate: class {
     func videoAttachment(
@@ -127,6 +128,8 @@ open class VideoAttachment: NSTextAttachment
         self.posterURL = posterURL
         
         super.init(data: nil, ofType: nil)
+
+        self.overlayImage = Gridicon.iconOfType(.video)
     }
 
     /// Required Initializer
@@ -264,7 +267,7 @@ open class VideoAttachment: NSTextAttachment
     }
 
     fileprivate func drawOverlay(at origin: CGPoint, size:CGSize) {
-        guard message != nil || progress != nil else {
+        guard message != nil || progress != nil || overlayImage != nil else {
             return
         }
         let box = UIBezierPath()
