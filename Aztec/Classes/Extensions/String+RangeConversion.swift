@@ -43,6 +43,12 @@ extension String
         return NSRange(location: location, length: length)
     }
 
+    /// Returns a NSRange with a starting location at the very end of the string
+    ///
+    func endOfStringNSRange() -> NSRange {
+        return NSRange(location: characters.count, length: 0)
+    }
+
     func indexFromLocation(_ location: Int) -> String.Index? {
         guard
             let unicodeLocation = utf16.index(utf16.startIndex, offsetBy: location, limitedBy: utf16.endIndex),
