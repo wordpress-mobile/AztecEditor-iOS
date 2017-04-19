@@ -764,33 +764,32 @@ class AztecVisualTextViewTests: XCTestCase {
     ///
     /// Input:
     ///     - Ordered List
-    ///     - Text: "First Item"
+    ///     - Text: Constants.sampleText0
     ///     - Selection of the `\n` at the EOD, and backspace
-    ///     - Text: "\nSecond Item"
+    ///     - Text: "\n"
+    ///     - Text: Constants.sampleText1
     ///
     /// Ref. Scenario Mark IV on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
-        let firstItemText = "First Item"
-        let secondItemText = "Second Item"
         let newline = String(.newline)
 
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
 
-        textView.insertText(firstItemText)
+        textView.insertText(Constants.sampleText0)
 
         // Select the end of the document
         textView.selectedRange = textView.text.endOfStringNSRange()
 
         // Delete + Insert Newline
         textView.deleteBackward()
-        textView.insertText(newline + secondItemText)
+        textView.insertText(newline + Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = firstItemText.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: secondItemText.characters.count)
+        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: sampleText1.characters.count)
 
         let formatter = TextListFormatter(style: .ordered)
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -985,7 +984,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.text.characters.count, expectedLength)
     }
 
-    /// Verifies that New List Items do get their bullet, even when the ending `\n` character was deleted.
+    /// Verifies that New Blockquote Lines do get their style, even when the ending `\n` character was deleted.
     ///
     /// Input:
     ///     - Blockquote
@@ -1079,9 +1078,12 @@ class AztecVisualTextViewTests: XCTestCase {
     /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
     ///
     /// Input:
-    ///     - "Something Here"
+    ///     - Text: Constants.sampleText0
     ///     - Selection of the end of document
-    ///     - Ordered List
+    ///     - Blockquote
+    ///     - Backspace
+    ///     - Text: Constants.sampleText1
+    ///     - Text: newline
     ///
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
