@@ -839,4 +839,80 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
+
+    /// Verifies that toggling an Unordered List, when editing an empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Unordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingUnorderedListsOnEmptyDocumentsInsertsNewline() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleUnorderedList(range: .zero)
+        XCTAssertEqual(textView.text, "\n")
+    }
+
+    /// Verifies that toggling an Unordered List, when editing the end of a non empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - "Something Here"
+    ///     - Selection of the end of document
+    ///     - Unordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingUnorderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
+        let textView = createTextView(withHTML: Constants.sampleText0)
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.toggleUnorderedList(range: .zero)
+        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+        textView.insertText(Constants.sampleText1)
+
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+    }
+
+    /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - Ordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingOrderedListsOnEmptyDocumentsInsertsNewline() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+        XCTAssertEqual(textView.text, "\n")
+    }
+
+    /// Verifies that toggling an Ordered List, when editing the end of a non empty document, inserts a Newline.
+    ///
+    /// Input:
+    ///     - "Something Here"
+    ///     - Selection of the end of document
+    ///     - Ordered List
+    ///
+    /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    func testTogglingOrderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
+        let textView = createTextView(withHTML: Constants.sampleText0)
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.toggleOrderedList(range: .zero)
+        XCTAssertEqual(textView.text, Constants.sampleText0 + "\n")
+
+        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.deleteBackward()
+        textView.insertText(Constants.sampleText1)
+
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + "\n")
+    }
+
+
 }
