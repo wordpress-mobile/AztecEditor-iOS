@@ -36,7 +36,7 @@ public protocol TextViewMediaDelegate: class {
     ///
     func textView(
         _ textView: TextView,
-        urlForAttachment attachment: TextAttachment) -> URL
+        urlForAttachment attachment: NSTextAttachment) -> URL
 
 
     /// Called when a attachment is removed from the storage.
@@ -53,7 +53,7 @@ public protocol TextViewMediaDelegate: class {
     ///   - attachment: the attachment that was selected.
     ///   - position: touch position relative to the textview.
     ///
-    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
 
     /// Called when an attachment is deselected with a single tap.
     ///
@@ -62,7 +62,7 @@ public protocol TextViewMediaDelegate: class {
     ///   - attachment: the attachment that was deselected.
     ///   - position: touch position relative to the textView
     ///
-    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
 }
 
 
@@ -1220,7 +1220,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(
         _ storage: TextStorage,
-        attachment: TextAttachment,
+        attachment: NSTextAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage {
@@ -1233,11 +1233,11 @@ extension TextView: TextStorageAttachmentsDelegate {
         return placeholderImage
     }
 
-    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
+    func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
         guard let mediaDelegate = mediaDelegate else {
             fatalError("This class requires a media delegate to be set.")
         }

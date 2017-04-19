@@ -758,7 +758,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: NSTextAttachment) -> URL {
         
         // TODO: start fake upload process
         if let image = attachment.image {
@@ -772,8 +772,19 @@ extension EditorDemoController: TextViewMediaDelegate {
         print("Attachment \(attachmentID) removed.\n")
     }
 
-    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+        if let imgAttachment = attachment as? TextAttachment {
+            selected(textAttachment: imgAttachment, atPosition: position)
+        }
+    }
 
+    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+        if let imgAttachment = attachment as? TextAttachment {
+            deselected(textAttachment: imgAttachment, atPosition: position)
+        }
+    }
+
+    func selected(textAttachment attachment: TextAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
@@ -791,7 +802,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
     }
 
-    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func deselected(textAttachment attachment: TextAttachment, atPosition position: CGPoint) {
         attachment.clearAllOverlays()
         richTextView.refreshLayoutFor(attachment: attachment)
     }
