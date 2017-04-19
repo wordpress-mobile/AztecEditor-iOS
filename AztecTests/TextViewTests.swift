@@ -750,18 +750,17 @@ class AztecVisualTextViewTests: XCTestCase {
 
         // Toggle List + Move the selection to the EOD
         textView.toggleOrderedList(range: .zero)
-
-        var expectedLength = textView.text.characters.count
-        textView.selectedRange = NSRange(location: expectedLength, length: 0)
+        textView.selectedRange = textView.text.endOfStringNSRange()
 
         // Insert Newline
+        var expectedLength = textView.text.characters.count
         textView.insertText(newline)
         expectedLength += newline.characters.count
 
         XCTAssertEqual(textView.text.characters.count, expectedLength)
     }
 
-    /// Verifies that New List Items do get their bulet, even when the ending `\n` character was deleted.
+    /// Verifies that New List Items do get their bullet, even when the ending `\n` character was deleted.
     ///
     /// Input:
     ///     - Ordered List
@@ -799,7 +798,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssert(present)
     }
 
-    /// Verifies that after selecting a newline below a TextList does, TextView wil not render (nor carry over)
+    /// Verifies that after selecting a newline below a TextList, TextView wil not render (nor carry over)
     /// the Text List formatting attributes.
     ///
     /// Input:
@@ -957,4 +956,58 @@ class AztecVisualTextViewTests: XCTestCase {
         
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
     }
+
+    /// Verifies that after selecting a newline below a Blockquote, TextView wil not render (nor carry over)
+    /// the Blockquote formatting attributes.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///     - Selection of the `\n` at the EOD
+    ///
+    func testTypingAttributesLooseBlockquoteWhenSelectingAnEmptyNewlineBelowTextList() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
+    }
+
+    /// Verifies that New Line Characters get effectively inserted after a Blockquote.
+    ///
+    /// Input:
+    ///     - Blockquote
+    ///     - \n at the end of the document
+    ///
+    func testNewLinesAreInsertedAfterEmptyBlockquote() {
+        let newline = String(.newline)
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        textView.selectedRange = textView.text.endOfStringNSRange()
+
+        var expectedLength = textView.text.characters.count
+        textView.insertText(newline)
+        expectedLength += newline.characters.count
+
+        XCTAssertEqual(textView.text.characters.count, expectedLength)
+    }
+
+    ///
+    func testBlockquoteGetsRemovedWhenTypingNewLineOnAnEmptyBullet() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText(String(.newline))
+
+        let formatter = BlockquoteFormatter()
+        let attributedText = textView.attributedText!
+
+        for location in 0 ..< attributedText.length {
+            XCTAssertFalse(formatter.present(in: attributedText, at: location))
+        }
+
+        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+    }
 }
+
