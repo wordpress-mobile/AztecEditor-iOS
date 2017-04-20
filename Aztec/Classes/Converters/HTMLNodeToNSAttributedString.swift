@@ -227,15 +227,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 url = nil
             }
 
-            let attachment = TextAttachment(identifier: UUID().uuidString, url: url)
+            let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
 
             if let elementClass = node.valueForStringAttribute(named: "class") {
                 let classAttributes = elementClass.components(separatedBy: " ")
                 for classAttribute in classAttributes {
-                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                    if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
                         attachment.alignment = alignment
                     }
-                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                    if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
                         attachment.size = size
                     }
                 }

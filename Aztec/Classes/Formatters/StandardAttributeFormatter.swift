@@ -57,7 +57,7 @@ class LinkFormatter: StandardAttributeFormatter {
 
 class ImageFormatter: StandardAttributeFormatter {
     init() {
-        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: TextAttachment(identifier: NSUUID().uuidString))
+        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: ImageAttachment(identifier: NSUUID().uuidString))
     }
 }
 

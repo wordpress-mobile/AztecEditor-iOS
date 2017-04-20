@@ -102,7 +102,7 @@ class EditorDemoController: UIViewController {
         }
     }    
 
-    fileprivate var currentSelectedAttachment: TextAttachment?
+    fileprivate var currentSelectedAttachment: ImageAttachment?
 
     fileprivate var formatBarAnimatedPeek = false
 
@@ -142,10 +142,10 @@ class EditorDemoController: UIViewController {
 
         richTextView.setHTML(html)
 
-        TextAttachment.appearance.progressColor = UIColor.blue
-        TextAttachment.appearance.progressBackgroundColor = UIColor.lightGray
-        TextAttachment.appearance.progressHeight = 2.0
-        TextAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.appearance.progressColor = UIColor.blue
+        MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.appearance.progressHeight = 2.0
+        MediaAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -784,7 +784,7 @@ extension EditorDemoController: TextViewMediaDelegate {
     }
 
     func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? TextAttachment {
+        if let imgAttachment = attachment as? ImageAttachment {
             selected(textAttachment: imgAttachment, atPosition: position)
         }
 
@@ -794,12 +794,12 @@ extension EditorDemoController: TextViewMediaDelegate {
     }
 
     func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? TextAttachment {
+        if let imgAttachment = attachment as? ImageAttachment {
             deselected(textAttachment: imgAttachment, atPosition: position)
         }
     }
 
-    func selected(textAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func selected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
@@ -817,7 +817,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
     }
 
-    func deselected(textAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func deselected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
         attachment.clearAllOverlays()
         richTextView.refreshLayoutFor(attachment: attachment)
     }
@@ -934,7 +934,7 @@ private extension EditorDemoController
         return attributes
     }
 
-    func displayActions(forAttachment attachment: TextAttachment, position: CGPoint) {
+    func displayActions(forAttachment attachment: ImageAttachment, position: CGPoint) {
         let mediaID = attachment.identifier
         let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
         let message: String? = nil
@@ -972,7 +972,7 @@ private extension EditorDemoController
         present(alertController, animated:true, completion: nil)
     }
 
-    func displayDetailsForAttachment(_ attachment: TextAttachment, position:CGPoint) {
+    func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size, url) in

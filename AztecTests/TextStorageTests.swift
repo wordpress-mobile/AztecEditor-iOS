@@ -310,7 +310,7 @@ class TextStorageTests: XCTestCase
         }
 
         // Nuke
-        storage.removeTextAttachments()
+        storage.removeMediaAttachments()
 
         // Verify the attachments are there
         for identifier in identifiers {
