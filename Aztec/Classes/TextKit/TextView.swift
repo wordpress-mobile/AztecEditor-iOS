@@ -585,11 +585,10 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func togglePre(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = PreFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -602,11 +601,10 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -615,11 +613,10 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -629,11 +626,10 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -1196,10 +1192,12 @@ private extension TextView {
 //
 private extension TextView {
 
-    /// Inserts an empty line whenever we're at the end of the document
+    /// Inserts a newline character, below the selected range, whenever we're at the end of the document.
     ///
-    func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
-        guard selectedRange.location == storage.length else {
+    /// - Parameter location: current location of the cursor.
+    ///
+    func ensureInsertionOfNewline(at location: Int) {
+        guard location == storage.length else {
             return
         }
 
@@ -1211,10 +1209,12 @@ private extension TextView {
     ///
     ///     A.  We're about to insert a new line
     ///     B.  We're at the end of the document
-    ///     C.  There's a List (OR) Blockquote (OR) Pre active
+    ///     C.  There's a Paragraph Formatter Enabled.
     ///
-    /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR)
+    /// Note: We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR)
     /// Blockquote's background.
+    ///
+    /// - Parameter text: String about to be inserted.
     ///
     func ensureInsertionOfNewline(beforeInserting text: String) {
         guard text == String(.newline) else {
