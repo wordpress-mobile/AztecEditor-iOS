@@ -1066,7 +1066,7 @@ open class TextView: UITextView {
 }
 
 
-// MARK: - Cursor Drawing Workaround
+// MARK: - Workarounds: Cursor Drawing
 //
 private extension TextView {
 
@@ -1099,7 +1099,7 @@ private extension TextView {
 }
 
 
-// MARK: - ParagraphFormatters: Style Removal Workarounds
+// MARK: - Workarounds: ParagraphFormatters Removal
 //
 private extension TextView {
 
@@ -1194,7 +1194,7 @@ private extension TextView {
 }
 
 
-// MARK: ParagraphFormatters: Newline Workarounds
+// MARK: Workarounds: ParagraphFormatters + Newline
 //
 private extension TextView {
 
