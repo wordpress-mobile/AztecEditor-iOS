@@ -38,6 +38,8 @@ extension String {
 
         while let matchRange = range(of: stringToFilter, options: .backwards, range: rangeToInspect) {
 
+            rangeToInspect = startIndex ..< matchRange.lowerBound
+
             if finalRange.clamped(to: matchRange) == finalRange {
                 finalRange = matchRange.lowerBound ..< matchRange.lowerBound
                 continue
@@ -63,8 +65,6 @@ extension String {
 
                 finalRange = finalRange.lowerBound ..< newUpperBound
             }
-
-            rangeToInspect = startIndex ..< matchRange.lowerBound
         }
 
         return finalRange.lowerBound ..< finalRange.upperBound

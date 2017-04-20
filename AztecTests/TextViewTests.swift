@@ -247,7 +247,7 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssert(!textView.formatIdentifiersAtIndex(0).contains(.unorderedlist))
         XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
     }
-/*
+
     /// This test was created to prevent regressions related to this issue:
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/350
     ///
@@ -259,7 +259,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         // The test not crashing would be successful.
     }
-*/
+
     // MARK: - Test Attributes Exist
 
     func check(textView: TextView, range:NSRange, forIndentifier identifier: FormattingIdentifier) -> Bool {
@@ -406,7 +406,7 @@ class AztecVisualTextViewTests: XCTestCase {
     }
 
     // MARK: - Deleting newlines
-/*
+
     /// Tests that deleting a newline works by merging the component around it.
     ///
     /// Input:
@@ -428,7 +428,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
     }
-
+/*
     /// Tests that deleting a newline works by merging the component around it.
     ///
     /// Input:
