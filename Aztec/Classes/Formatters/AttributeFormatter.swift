@@ -64,8 +64,6 @@ protocol AttributeFormatter {
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 
     func worksInEmptyRange() -> Bool
-
-    func needsEmptyLinePlaceholder() -> Bool
 }
 
 
@@ -120,15 +118,9 @@ extension AttributeFormatter {
     ///
     @discardableResult
     func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
-        var rangeToApply = applicationRange(for: range, in: text)
+        let rangeToApply = applicationRange(for: range, in: text)
 
-        if needsEmptyLinePlaceholder() && worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
-            let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
-            text.insert(placeholder, at: rangeToApply.location)
-            rangeToApply = NSMakeRange(rangeToApply.location, placeholder.length)
-        }
-
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, _) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
             let attributes = apply(to: currentAttributes)
             text.addAttributes(attributes, range: range)
@@ -180,12 +172,6 @@ extension AttributeFormatter {
 //
 private extension AttributeFormatter {
 
-    /// The string to be used when adding attributes to an empty line.
-    ///
-    func placeholderForEmptyLine(using attributes: [String: Any]?) -> NSAttributedString {
-        return VisualOnlyElementFactory().zeroWidthSpace(inheritingAttributes: attributes)
-    }
-
     /// Helper that indicates whether if we should format the specified range, or not. 
     /// -   Note: For convenience reasons, whenever the Text is empty, this helper will return *true*.
     ///
@@ -215,10 +201,6 @@ extension CharacterAttributeFormatter {
     func worksInEmptyRange() -> Bool {
         return false
     }
-
-    func needsEmptyLinePlaceholder() -> Bool {
-        return false
-    }
 }
 
 
@@ -234,10 +216,6 @@ extension ParagraphAttributeFormatter {
     }
 
     func worksInEmptyRange() -> Bool {
-        return true
-    }
-
-    func needsEmptyLinePlaceholder() -> Bool {
         return true
     }
 }
