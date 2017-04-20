@@ -292,7 +292,6 @@ open class TextView: UITextView {
         ///
         ensureInsertionOfNewline(beforeInserting: text)
 
-        // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
