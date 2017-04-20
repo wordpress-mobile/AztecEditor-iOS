@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 import Gridicons
 
-class AztecVisualTextViewTests: XCTestCase {
+class TextViewTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -428,7 +428,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
     }
-/*
+
     /// Tests that deleting a newline works by merging the component around it.
     ///
     /// Input:
@@ -597,7 +597,7 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.deleteBackward()
 
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
-    }*/
+    }
 
     // MARK: - Insert links
 
@@ -622,7 +622,7 @@ class AztecVisualTextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
-/*
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
         let textView = createEmptyTextView()
 
@@ -631,7 +631,7 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.deleteBackward()
         // The test not crashing would be successful.
     }
-*/
+
     /// Tests that there is no content loss, when switching to HTML mode, after toggling H1 Style.
     ///
     /// Input:
