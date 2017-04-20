@@ -1,8 +1,13 @@
 import Foundation
 import UIKit
 
+
+// MARK: - Header Formatter
+//
 open class HeaderFormatter: ParagraphAttributeFormatter {
 
+    /// Available Heading Types
+    ///
     public enum HeaderType: Int {
         case none = 0
         case h1 = 1
@@ -37,14 +42,24 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         }
     }
 
+    /// Heading Level of this formatter
+    ///
     let headerLevel: HeaderType
 
+    /// Attributes to be added by default
+    ///
     let placeholderAttributes: [String : Any]?
 
+
+    /// Designated Initializer
+    ///
     init(headerLevel: HeaderType = .h1, placeholderAttributes: [String : Any]? = nil) {
         self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
+
+
+    // MARK: - Overwriten Methods
 
     func apply(to attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
@@ -95,10 +110,6 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
             return paragraphStyle.headerLevel == headerLevel.rawValue
         }
-        return false
-    }
-
-    func needsEmptyLinePlaceholder() -> Bool {
         return false
     }
 }

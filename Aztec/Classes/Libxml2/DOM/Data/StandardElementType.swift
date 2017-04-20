@@ -47,6 +47,7 @@ extension Libxml2 {
         case tr = "tr"
         case u = "u"
         case ul = "ul"
+        case video = "video"
 
         /// Returns an array with all block-level elements.
         ///
@@ -84,6 +85,8 @@ extension Libxml2 {
         func implicitRepresentation(withAttributes attributes: [String:Any]) -> NSAttributedString? {
             switch self {
             case .img:
+                return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+            case .video:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
                 return NSAttributedString(.newline, attributes: attributes)

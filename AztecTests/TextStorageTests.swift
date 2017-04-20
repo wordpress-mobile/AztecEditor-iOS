@@ -106,15 +106,15 @@ class TextStorageTests: XCTestCase
             deletedAttachmendIDCalledWithString = attachmentID
         }
 
-        func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
+        func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
             return UIImage()
         }
 
@@ -310,7 +310,7 @@ class TextStorageTests: XCTestCase
         }
 
         // Nuke
-        storage.removeTextAttachments()
+        storage.removeMediaAttachments()
 
         // Verify the attachments are there
         for identifier in identifiers {

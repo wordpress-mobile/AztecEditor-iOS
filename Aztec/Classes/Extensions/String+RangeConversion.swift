@@ -120,7 +120,6 @@ extension String
         return NSRange(location: location, length: length)
     }
 
-
     /// Converts a `Range<String.UnicodeScalarView.Index>` into an Unicod Scalar `NSRange`.
     ///
     /// - Parameters:
@@ -133,6 +132,12 @@ extension String
         let length = unicodeScalars.distance(from: range.lowerBound, to: range.upperBound)
 
         return NSRange(location: location, length: length)
+    }
+
+    /// Returns a NSRange with a starting location at the very end of the string
+    ///
+    func endOfStringNSRange() -> NSRange {
+        return NSRange(location: characters.count, length: 0)
     }
 
     func indexFromLocation(_ location: Int) -> String.Index? {

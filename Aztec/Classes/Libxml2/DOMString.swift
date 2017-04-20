@@ -609,7 +609,7 @@ extension Libxml2 {
         
         // MARK: - Candidates for removal
         
-        func updateImage(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
+        func updateImage(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
@@ -617,7 +617,7 @@ extension Libxml2 {
         
         // MARK: - Candidates for removal: Synchronously
         
-        private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: TextAttachment.Size, alignment: TextAttachment.Alignment) {
+        private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             
             for range in ranges {
                 let element = self.rootNode.lowestElementNodeWrapping(range)
@@ -627,7 +627,7 @@ extension Libxml2 {
                     if let currentAttributes = element.valueForStringAttribute(named: "class") {
                         components = currentAttributes.components(separatedBy: CharacterSet.whitespaces)
                         components = components.filter({ (value) -> Bool in
-                            return TextAttachment.Alignment.fromHTML(string: value.lowercased()) == nil && TextAttachment.Size.fromHTML(string: value.lowercased()) == nil
+                            return ImageAttachment.Alignment.fromHTML(string: value.lowercased()) == nil && ImageAttachment.Size.fromHTML(string: value.lowercased()) == nil
                         })
 
                     }

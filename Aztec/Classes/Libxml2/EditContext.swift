@@ -42,7 +42,8 @@ extension Libxml2 {
             .strike,
             .strong,
             .u,
-            .ul
+            .ul,
+            .video
         ]
     }
 }

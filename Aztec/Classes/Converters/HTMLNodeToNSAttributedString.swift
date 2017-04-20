@@ -166,48 +166,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         var attributes = inheritedAttributes
 
-        var attributeValue: Any?
-
-        if node.isNodeType(.a) {
-            var linkURL: URL?
-
-            if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
-                let attribute = node.attributes[attributeIndex] as? StringAttribute {
-
-                linkURL = URL(string: attribute.value)
-            } else {
-                // We got a link tag without an HREF attribute
-                //
-                linkURL = URL(string: "")
-            }
-
-            attributeValue = linkURL
-        }
-
-        if node.isNodeType(.img) {
-            let url: URL?
-
-            if let urlString = node.valueForStringAttribute(named: "src") {
-                url = URL(string: urlString)
-            } else {
-                url = nil
-            }
-
-            let attachment = TextAttachment(identifier: UUID().uuidString, url: url)
-
-            if let elementClass = node.valueForStringAttribute(named: "class") {
-                let classAttributes = elementClass.components(separatedBy: " ")
-                for classAttribute in classAttributes {
-                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
-                        attachment.alignment = alignment
-                    }
-                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
-                        attachment.size = size
-                    }
-                }
-            }
-            attributeValue = attachment
-        }
+        let attributeValue = parseCustomAttributeValues(forNode: node)
 
         for (key, formatter) in elementToFormattersMap {
             if node.isNodeType(key) {
@@ -235,6 +194,70 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         return attributes
     }
 
+    public func parseCustomAttributeValues(forNode node: ElementNode) -> Any? {
+
+        var attributeValue: Any?
+
+        if node.isNodeType(.a) {
+            var linkURL: URL?
+
+            if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
+                let attribute = node.attributes[attributeIndex] as? StringAttribute {
+
+                linkURL = URL(string: attribute.value)
+            } else {
+                // We got a link tag without an HREF attribute
+                //
+                linkURL = URL(string: "")
+            }
+
+            attributeValue = linkURL
+        }
+
+        if node.isNodeType(.img) {
+            let url: URL?
+
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                url = URL(string: urlString)
+            } else {
+                url = nil
+            }
+
+            let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+
+            if let elementClass = node.valueForStringAttribute(named: "class") {
+                let classAttributes = elementClass.components(separatedBy: " ")
+                for classAttribute in classAttributes {
+                    if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attachment.alignment = alignment
+                    }
+                    if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
+                        attachment.size = size
+                    }
+                }
+            }
+            attributeValue = attachment
+        }
+
+        if node.isNodeType(.video) {
+            var srcURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                srcURL = URL(string: urlString)
+            }
+
+            var posterURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "poster") {
+                posterURL = URL(string: urlString)
+            }
+
+            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
+
+            attributeValue = attachment
+        }
+
+        return attributeValue
+    }
+
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
         .ol: TextListFormatter(style: .ordered),
         .ul: TextListFormatter(style: .unordered),
@@ -252,7 +275,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .h4: HeaderFormatter(headerLevel: .h4),
         .h5: HeaderFormatter(headerLevel: .h5),
         .h6: HeaderFormatter(headerLevel: .h6),
-        .pre: PreFormatter()
+        .pre: PreFormatter(),
+        .video: VideoFormatter()
     ]
 
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
