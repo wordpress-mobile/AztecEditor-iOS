@@ -1166,44 +1166,40 @@ private extension TextView {
     /// Removes the Paragraph Attributes whenever `mustRemoveParagraphAttributes(beforeInserting: at)` returns true.
     ///
     /// - Parameters:
-    ///     - text: String that's about to be inserted.
-    ///     - range: Range in which the string will be inserted.
+    ///     - text: (Optional) String that's about to be inserted.
+    ///     - selectedRange: TextView's Selected Range.
     ///
     /// - Returns: true if ParagraphAttributes were removed. false otherwise!
     ///
     @discardableResult
-    func ensureRemovalOfParagraphAttributes(beforeInserting text: String, at range: NSRange) -> Bool {
-        guard mustRemoveParagraphAttributes(beforeInserting: text, at: range.location) else {
+    func ensureRemovalOfParagraphAttributes(beforeInserting text: String? = nil, at selectedRange: NSRange) -> Bool {
+        guard mustRemoveParagraphAttributes(beforeInserting: text, at: selectedRange.location) else {
             return false
         }
 
-        return removeParagraphAttributes(at: range)
+        return removeParagraphAttributes(at: selectedRange)
     }
 
 
-    /// Removes the Paragraph Attributes whenever `mustRemoveParagraphAttributes(at:)` returns true.
+    /// Analyzes whether the Paragraph Attributes should be removed at a specified location, or not.
+    /// This is necessary in two different scenarios:
     ///
-    /// - Parameter range: Editing Range
+    /// Scenario A:
     ///
-    /// - Returns: true if ParagraphAttributes were removed. false otherwise!
+    ///     A. We're at the end of the document
+    ///     B. Below there's an empty line.
+    ///     C. The user pressed Arrow Down
     ///
-    @discardableResult
-    func ensureRemovalOfParagraphAttributes(at range: NSRange) -> Bool {
-        guard mustRemoveParagraphAttributes(at: range.location) else {
-            return false
-        }
-
-        return removeParagraphAttributes(at: range)
-    }
-
-
-    /// Indicates whether ParagraphStyles should be removed before inserting a given string, at a specified location.
-    /// This is valid whenever:
+    ///     Why: We only want to extend the `Paragraph Attribute` if a Newline is explicitly entered.
     ///
-    ///     A. The user just typed a new line
-    ///     B. The previous character contains just a newline (OR) there is no previous character
-    ///     C. The next character is a newline (or we're at the end of the text storage)
-    ///     D. We're at the beginning of a new line
+    /// Scenario B:
+    ///
+    ///     A. The user enters a newline
+    ///     B. The next character is a newline (OR) there is no next character
+    ///     C. The previous character is a newline (OR) there is no previous character
+    ///
+    ///     Why: We wanna take care of removing [Lists, Pre, Blockquotes] if the user hits return on an empty line.
+    ///
     ///
     /// - Parameters:
     ///     - text: String that is about to be inserted.
@@ -1211,8 +1207,8 @@ private extension TextView {
     ///
     /// - Returns: true if we should remove the paragraph attributes. false otherwise!
     ///
-    func mustRemoveParagraphAttributes(beforeInserting text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
+    func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
+        guard text == String(.newline) || location == storage.length else {
             return false
         }
 
@@ -1222,32 +1218,7 @@ private extension TextView {
         let beforeRange = NSRange(location: location - 1, length: 1)
         let beforeString = storage.safeSubstring(at: beforeRange) ?? String(.newline)
 
-        return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
-    }
-
-
-    /// Analyzes whether the Paragraph Attributes should be removed at a specified location. This is true *IF*:
-    ///
-    ///     A. The selected location is at the very end of the document
-    ///     B. AND The previous character is a '\n'
-    ///
-    /// This is necessary in the scenario in which: there's a `Paragraph Attribute`, and below, an empty line.
-    /// We want to remove the Paragraph Attributes whenever the user presses "Arrow Down" / "Taps the screen below",
-    /// and we only want to extend such attributes if a Newline is explicitly entered.
-    ///
-    /// - Parameter location: Location at which we need to determine if Paragraph Attributes must go.
-    ///
-    /// - Returns: true if the Paragraph Attributes must be removed. false otherwise!
-    ///
-    func mustRemoveParagraphAttributes(at location: Int) -> Bool {
-        guard location == storage.length else {
-            return false
-        }
-
-        let beforeRange = NSRange(location: location - 1, length: 1)
-        let beforeString = storage.safeSubstring(at: beforeRange) ?? String(.newline)
-
-        return beforeString == String(.newline)
+        return beforeString == String(.newline) && afterString == String(.newline)
     }
 
 
