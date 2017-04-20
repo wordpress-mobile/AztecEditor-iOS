@@ -799,34 +799,6 @@ open class TextView: UITextView {
     }
 
 
-    /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
-    /// This method was meant as a workaround for Issue #144.
-    ///
-    func ensureCursorRedraw(afterEditing text: String) {
-        guard text == String(.newline) else {
-            return
-        }
-
-        forceRedrawCursorAfterDelay()
-    }
-
-
-    /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
-    /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
-    ///
-    func forceRedrawCursorAfterDelay() {
-        let delay = 0.05
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let pristine = self.selectedRange
-            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
-            let beforeTypingAttributes = self.typingAttributes
-            self.selectedRange = updated
-            self.selectedRange = pristine
-            self.typingAttributes = beforeTypingAttributes
-        }
-    }
-
-
     // MARK: - Links
 
     /// Adds a link to the designated url on the specified range.
@@ -1092,6 +1064,40 @@ open class TextView: UITextView {
         return attachment
     }
 }
+
+
+// MARK: - Cursor Drawing Workaround
+//
+private extension TextView {
+
+    /// Force the SDK to Redraw the cursor, asynchronously, if the edited text [inserted (OR) deleted] is a newline.
+    /// This method was meant as a workaround for Issue #144.
+    ///
+    func ensureCursorRedraw(afterEditing text: String) {
+        guard text == String(.newline) else {
+            return
+        }
+
+        forceRedrawCursorAfterDelay()
+    }
+
+
+    /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
+    /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
+    ///
+    func forceRedrawCursorAfterDelay() {
+        let delay = 0.05
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            let pristine = self.selectedRange
+            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            let beforeTypingAttributes = self.typingAttributes
+            self.selectedRange = updated
+            self.selectedRange = pristine
+            self.typingAttributes = beforeTypingAttributes
+        }
+    }
+}
+
 
 // MARK: - ParagraphFormatters: Style Removal Workarounds
 //
