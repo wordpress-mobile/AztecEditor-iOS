@@ -1031,7 +1031,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
-    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
+    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
@@ -1041,11 +1041,11 @@ open class TextView: UITextView {
     }
 
 
-    /// Returns the TextAttachment instance with the matching identifier
+    /// Returns the MediaAttachment instance with the matching identifier
     ///
     /// - Parameter id: Identifier of the text attachment to be retrieved
     ///
-    open func attachment(withId id: String) -> TextAttachment? {
+    open func attachment(withId id: String) -> MediaAttachment? {
         return storage.attachment(withId: id)
     }
 
@@ -1061,7 +1061,7 @@ open class TextView: UITextView {
     /// Removes all of the text attachments contained within the storage
     ///
     open func removeTextAttachments() {
-        storage.removeTextAttachments()
+        storage.removeMediaAttachments()
         delegate?.textViewDidChange?(self)
     }
 
@@ -1119,7 +1119,7 @@ open class TextView: UITextView {
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
-        if let attachment = attachmentAtPoint(point) as? TextAttachment {
+        if let attachment = attachmentAtPoint(point) as? MediaAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
             if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
@@ -1213,9 +1213,9 @@ open class TextView: UITextView {
     /// - parameter size:       the size value
     /// - parameter url:        the attachment url
     ///
-    open func update(attachment: TextAttachment,
-                     alignment: TextAttachment.Alignment,
-                     size: TextAttachment.Size,
+    open func update(attachment: ImageAttachment,
+                     alignment: ImageAttachment.Alignment,
+                     size: ImageAttachment.Size,
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
         layoutManager.invalidateLayoutForAttachment(attachment)
@@ -1227,7 +1227,7 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayoutFor(attachment: TextAttachment) {
+    open func refreshLayoutFor(attachment: MediaAttachment) {
         layoutManager.invalidateLayoutForAttachment(attachment)
     }
 
@@ -1319,7 +1319,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
 {
     let textView: TextView
-    fileprivate var currentSelectedAttachment: TextAttachment?
+    fileprivate var currentSelectedAttachment: ImageAttachment?
 
     public init(textView: TextView) {
         self.textView = textView
@@ -1366,7 +1366,7 @@ extension TextView: TextStorageAttachmentsDelegate {
             return
         }
 
-        currentSelectedAttachment = attachment as? TextAttachment
+        currentSelectedAttachment = attachment as? ImageAttachment
         textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
     }
 }

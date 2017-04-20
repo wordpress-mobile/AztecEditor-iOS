@@ -1,9 +1,9 @@
 import Foundation
 import UIKit
 
-protocol TextAttachmentDelegate: class {
-    func textAttachment(
-        _ textAttachment: TextAttachment,
+protocol MediaAttachmentDelegate: class {
+    func mediaAttachment(
+        _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
@@ -11,7 +11,7 @@ protocol TextAttachmentDelegate: class {
 
 /// Custom text attachment.
 ///
-open class TextAttachment: NSTextAttachment
+open class MediaAttachment: NSTextAttachment
 {
     public struct Appearance {
         public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
@@ -46,26 +46,6 @@ open class TextAttachment: NSTextAttachment
     open var url: URL?
     fileprivate var lastRequestedURL: URL?
 
-    /// Attachment Alignment
-    ///
-    open var alignment: Alignment = .center {
-        willSet {
-            if newValue != alignment {
-                glyphImage = nil
-            }
-        }
-    }
-
-    /// Attachment Size
-    ///
-    open var size: Size = .full {
-        willSet {
-            if newValue != size {
-                glyphImage = nil
-            }
-        }
-    }
-
     /// A progress value that indicates the progress of an attachment. It can be set between values 0 and 1
     ///
     open var progress: Double? = nil {
@@ -79,22 +59,22 @@ open class TextAttachment: NSTextAttachment
 
     /// The color to use when drawing the background overlay for messages, icons, and progress
     ///
-    open var overlayColor: UIColor = TextAttachment.appearance.overlayColor
+    open var overlayColor: UIColor = MediaAttachment.appearance.overlayColor
 
     /// The height of the progress bar for progress indicators
-    open var progressHeight: CGFloat = TextAttachment.appearance.progressHeight
+    open var progressHeight: CGFloat = MediaAttachment.appearance.progressHeight
 
     /// The color to use when drawing the backkground of the progress indicators
     ///
-    open var progressBackgroundColor: UIColor = TextAttachment.appearance.progressBackgroundColor
+    open var progressBackgroundColor: UIColor = MediaAttachment.appearance.progressBackgroundColor
 
     /// The color to use when drawing progress indicators
     ///
-    open var progressColor: UIColor = TextAttachment.appearance.progressColor
+    open var progressColor: UIColor = MediaAttachment.appearance.progressColor
 
     /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
     ///
-    open var imageMargin: CGFloat = TextAttachment.appearance.imageMargin
+    open var imageMargin: CGFloat = MediaAttachment.appearance.imageMargin
 
     /// A message to display overlaid on top of the image
     ///
@@ -116,7 +96,6 @@ open class TextAttachment: NSTextAttachment
         }
     }
 
-
     /// Clears all overlay information that is applied to the attachment
     ///
     open func clearAllOverlays() {
@@ -125,17 +104,17 @@ open class TextAttachment: NSTextAttachment
         overlayImage = nil
     }
 
-    fileprivate var glyphImage: UIImage?
+    internal var glyphImage: UIImage?
 
-    weak var delegate: TextAttachmentDelegate?
+    weak var delegate: MediaAttachmentDelegate?
     
     var isFetchingImage: Bool = false
 
     /// Creates a new attachment
     ///
-    /// - parameter identifier: An unique identifier for the attachment
-    ///
-    /// - returns: self, initilized with the identifier a with kind = .MissingImage
+    /// - Parameters:
+    ///   - identifier: An unique identifier for the attachment
+    ///   - url: the url that represents the image
     ///
     required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
@@ -156,18 +135,6 @@ open class TextAttachment: NSTextAttachment
         if aDecoder.containsValue(forKey: EncodeKeys.url.rawValue) {
             url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
         }
-        if aDecoder.containsValue(forKey: EncodeKeys.alignment.rawValue) {
-            let alignmentRaw = aDecoder.decodeInteger(forKey: EncodeKeys.alignment.rawValue)
-            if let alignment = Alignment(rawValue:alignmentRaw) {
-                self.alignment = alignment
-            }
-        }
-        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue) {
-            let sizeRaw = aDecoder.decodeInteger(forKey: EncodeKeys.size.rawValue)
-            if let size = Size(rawValue:sizeRaw) {
-                self.size = size
-            }
-        }
     }
 
     override init(data contentData: Data?, ofType uti: String?) {
@@ -177,10 +144,10 @@ open class TextAttachment: NSTextAttachment
     }
 
     fileprivate func setupDefaultAppearance() {
-        progressHeight = TextAttachment.appearance.progressHeight
-        progressBackgroundColor = TextAttachment.appearance.progressBackgroundColor
-        progressColor = TextAttachment.appearance.progressColor
-        overlayColor = TextAttachment.appearance.overlayColor
+        progressHeight = MediaAttachment.appearance.progressHeight
+        progressBackgroundColor = MediaAttachment.appearance.progressBackgroundColor
+        progressColor = MediaAttachment.appearance.progressColor
+        overlayColor = MediaAttachment.appearance.overlayColor
     }
 
     override open func encode(with aCoder: NSCoder) {
@@ -189,32 +156,19 @@ open class TextAttachment: NSTextAttachment
         if let url = self.url {
             aCoder.encode(url, forKey: EncodeKeys.url.rawValue)
         }
-        aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
-        aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
     }
 
     fileprivate enum EncodeKeys: String {
         case identifier
         case url
-        case alignment
-        case size
     }
-    // MARK: - Origin calculation
 
-    fileprivate func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
-        let imageWidth = onScreenWidth(containerWidth)
-
-        switch (alignment) {
-        case .center:
-            return CGFloat(floor((containerWidth - imageWidth) / 2))
-        case .right:
-            return CGFloat(floor(containerWidth - imageWidth))
-        default:
+    // MARK: - Position and size calculation
+    func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
             return 0
-        }
     }
 
-    fileprivate func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
@@ -225,14 +179,9 @@ open class TextAttachment: NSTextAttachment
         }
     }
 
-    fileprivate func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
         if let image = image {
-            switch (size) {	
-            case .full:
-                return floor(min(image.size.width, containerWidth))
-            default:
-                return floor(min(min(image.size.width,size.width), containerWidth))
-            }
+            return floor(min(image.size.width, containerWidth))
         } else {
             return 0
         }
@@ -267,35 +216,8 @@ open class TextAttachment: NSTextAttachment
 
         image.draw(in: CGRect(origin: origin, size: size))
 
-        if message != nil || progress != nil {
-            let box = UIBezierPath()
-            box.move(to: CGPoint(x:origin.x, y:origin.y))
-            box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
-            box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y + size.height))
-            box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
-            box.addLine(to: CGPoint(x: origin.x, y: origin.y))
-            box.lineWidth = 2.0
-            overlayColor.setFill()
-            box.fill()
-        }
-
-        if let progress = progress {
-            let lineY = origin.y + (progressHeight / 2.0)
-
-            let backgroundPath = UIBezierPath()
-            backgroundPath.lineWidth = progressHeight
-            progressBackgroundColor.setStroke()
-            backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
-            backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
-            backgroundPath.stroke()
-
-            let path = UIBezierPath()
-            path.lineWidth = progressHeight
-            progressColor.setStroke()
-            path.move(to: CGPoint(x:origin.x, y: lineY))
-            path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
-            path.stroke()
-        }
+        drawOverlay(at: origin, size: size)
+        drawProgress(at: origin, size: size)
 
         var imagePadding: CGFloat = 0
         if let overlayImage = overlayImage {
@@ -321,6 +243,42 @@ open class TextAttachment: NSTextAttachment
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return result;
+    }
+
+    fileprivate func drawOverlay(at origin: CGPoint, size:CGSize) {
+        guard message != nil || progress != nil || overlayImage != nil else {
+            return
+        }
+        let box = UIBezierPath()
+        box.move(to: CGPoint(x:origin.x, y:origin.y))
+        box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
+        box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y + size.height))
+        box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
+        box.addLine(to: CGPoint(x: origin.x, y: origin.y))
+        box.lineWidth = 2.0
+        overlayColor.setFill()
+        box.fill()
+    }
+
+    fileprivate func drawProgress(at origin: CGPoint, size:CGSize) {
+        guard let progress = progress else {
+            return
+        }
+        let lineY = origin.y + (progressHeight / 2.0)
+
+        let backgroundPath = UIBezierPath()
+        backgroundPath.lineWidth = progressHeight
+        progressBackgroundColor.setStroke()
+        backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
+        backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
+        backgroundPath.stroke()
+
+        let path = UIBezierPath()
+        path.lineWidth = progressHeight
+        progressColor.setStroke()
+        path.move(to: CGPoint(x:origin.x, y: lineY))
+        path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
+        path.stroke()
     }
 
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
@@ -354,7 +312,7 @@ open class TextAttachment: NSTextAttachment
         
         isFetchingImage = true
         
-        let image = delegate.textAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
+        let image = delegate.mediaAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
                 guard let strongSelf = self else {
                     return
                 }
@@ -379,94 +337,5 @@ open class TextAttachment: NSTextAttachment
     
     fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
-    }
-}
-
-
-
-/// Nested Types
-///
-extension TextAttachment
-{
-    /// Alignment
-    ///
-    public enum Alignment: Int {
-        case none
-        case left
-        case center
-        case right
-
-        func htmlString() -> String {
-            switch self {
-                case .center:
-                    return "aligncenter"
-                case .left:
-                    return "alignleft"
-                case .right:
-                    return "alignright"
-                case .none:
-                    return "alignnone"
-            }
-        }
-
-        static let mappedValues:[String:Alignment] = [
-            Alignment.none.htmlString():.none,
-            Alignment.left.htmlString():.left,
-            Alignment.center.htmlString():.center,
-            Alignment.right.htmlString():.right
-        ]
-
-        static func fromHTML(string value:String) -> Alignment? {
-            return mappedValues[value]
-        }
-    }
-
-    /// Size Onscreen!
-    ///
-    public enum Size: Int {
-        case thumbnail
-        case medium
-        case large
-        case full
-
-        func htmlString() -> String {
-            switch self {
-            case .thumbnail:
-                return "size-thumbnail"
-            case .medium:
-                return "size-medium"
-            case .large:
-                return "size-large"
-            case .full:
-                return "size-full"
-            }
-        }
-
-        static let mappedValues:[String:Size] = [
-            Size.thumbnail.htmlString():.thumbnail,
-            Size.medium.htmlString():.medium,
-            Size.large.htmlString():.large,
-            Size.full.htmlString():.full
-        ]
-
-        static func fromHTML(string value:String) -> Size? {
-            return mappedValues[value]
-        }
-
-        var width: CGFloat {
-            switch self {
-            case .thumbnail: return Settings.thumbnail
-            case .medium: return Settings.medium
-            case .large: return Settings.large
-            case .full: return Settings.maximum
-            }
-        }
-
-        fileprivate struct Settings {
-            static let thumbnail = CGFloat(135)
-            static let medium = CGFloat(270)
-            static let large = CGFloat(360)
-            static let maximum = CGFloat.greatestFiniteMagnitude
-        }
     }
 }

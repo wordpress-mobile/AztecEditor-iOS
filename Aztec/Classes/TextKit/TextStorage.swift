@@ -118,11 +118,11 @@ open class TextStorage: NSTextStorage {
 
     var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
-    open func TextAttachments() -> [TextAttachment] {
+    open func MediaAttachments() -> [MediaAttachment] {
         let range = NSMakeRange(0, length)
-        var attachments = [TextAttachment]()
+        var attachments = [MediaAttachment]()
         enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
-            if let attachment = object as? TextAttachment {
+            if let attachment = object as? MediaAttachment {
                 attachments.append(attachment)
             }
         }
@@ -130,11 +130,11 @@ open class TextStorage: NSTextStorage {
         return attachments
     }
 
-    open func range(forAttachment attachment: TextAttachment) -> NSRange? {
+    open func range(forAttachment attachment: MediaAttachment) -> NSRange? {
 
         var range: NSRange?
 
-        textStore.enumerateAttachmentsOfType(TextAttachment.self) { (currentAttachment, currentRange, stop) in
+        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.pointee = true
@@ -219,7 +219,7 @@ open class TextStorage: NSTextStorage {
                 attachment.delegate = self
             case let attachment as HTMLAttachment:
                 attachment.delegate = self
-            case let attachment as TextAttachment:
+            case let attachment as ImageAttachment:
                 attachment.delegate = self
             case let attachment as VideoAttachment:
                 attachment.delegate = self
@@ -232,7 +232,7 @@ open class TextStorage: NSTextStorage {
                     return
                 }
 
-                let replacementAttachment = TextAttachment()
+                let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
                 replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
@@ -245,7 +245,7 @@ open class TextStorage: NSTextStorage {
     }
 
     fileprivate func detectAttachmentRemoved(in range:NSRange) {
-        textStore.enumerateAttachmentsOfType(TextAttachment.self, range: range) { (attachment, range, stop) in
+        textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
             self.attachmentsDelegate.storage(self, deletedAttachmentWithID: attachment.identifier)
         }
     }
@@ -404,8 +404,8 @@ open class TextStorage: NSTextStorage {
 
             processHtmlAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSAttachmentAttributeName:
-            let sourceAttachment = sourceValue as? TextAttachment
-            let targetAttachment = targetValue as? TextAttachment
+            let sourceAttachment = sourceValue as? ImageAttachment
+            let targetAttachment = targetValue as? ImageAttachment
 
             processAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSParagraphStyleAttributeName:
@@ -466,7 +466,7 @@ open class TextStorage: NSTextStorage {
     ///   - original: the original attachment existing in the range if any.
     ///   - new: the new attachment to apply to the range if any.
     ///
-    private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: TextAttachment?, andNew new: TextAttachment?) {
+    private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: ImageAttachment?, andNew new: ImageAttachment?) {
 
         let originalUrl = original?.url
         let newUrl = new?.url
@@ -733,8 +733,8 @@ open class TextStorage: NSTextStorage {
     ///
     /// - returns: the attachment object that was created and inserted on the text
     ///
-    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> TextAttachment {
-        let attachment = TextAttachment(identifier: identifier)
+    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> ImageAttachment {
+        let attachment = ImageAttachment(identifier: identifier)
         attachment.delegate = self
         attachment.url = url
         attachment.image = placeHolderImage
@@ -766,9 +766,9 @@ open class TextStorage: NSTextStorage {
     /// - Parameter id: the unique id of the attachment
     /// - Returns: the attachment object
     ///
-    open func attachment(withId id: String) -> TextAttachment? {
-        var foundAttachment: TextAttachment? = nil
-        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
+    open func attachment(withId id: String) -> MediaAttachment? {
+        var foundAttachment: MediaAttachment? = nil
+        enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
             if attachment.identifier == id {
                 foundAttachment = attachment
                 stop.pointee = true
@@ -786,9 +786,9 @@ open class TextStorage: NSTextStorage {
     ///   - size: the size to use
     ///   - url: the image URL for the image
     ///
-    open func update(attachment: TextAttachment,
-                                  alignment: TextAttachment.Alignment,
-                                  size: TextAttachment.Size,
+    open func update(attachment: ImageAttachment,
+                                  alignment: ImageAttachment.Alignment,
+                                  size: ImageAttachment.Size,
                                   url: URL) {
         attachment.alignment = alignment
         attachment.size = size
@@ -807,7 +807,7 @@ open class TextStorage: NSTextStorage {
     /// - Parameter attachmentID: the unique id of the attachment
     ///
     open func remove(attachmentID: String) {
-        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, stop) in
+        enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
             if attachment.identifier == attachmentID {
                 self.replaceCharacters(in: range, with: NSAttributedString(string: ""))
                 stop.pointee = true
@@ -817,9 +817,9 @@ open class TextStorage: NSTextStorage {
 
     /// Removes all of the TextAttachments from the storage
     ///
-    open func removeTextAttachments() {
+    open func removeMediaAttachments() {
         var ranges = [NSRange]()
-        enumerateAttachmentsOfType(TextAttachment.self) { (attachment, range, _) in
+        enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, _) in
             ranges.append(range)
         }
 
@@ -896,7 +896,7 @@ open class TextStorage: NSTextStorage {
         
         let originalLength = textStore.length
         textStore = NSMutableAttributedString(attributedString: attributedString)
-        textStore.enumerateAttachmentsOfType(TextAttachment.self) { [weak self] (attachment, _, _) in
+        textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
         textStore.enumerateAttachmentsOfType(VideoAttachment.self) { [weak self] (attachment, _, _) in
@@ -916,16 +916,16 @@ open class TextStorage: NSTextStorage {
 
 // MARK: - TextStorage: TextAttachmentDelegate Methods
 //
-extension TextStorage: TextAttachmentDelegate {
+extension TextStorage: MediaAttachmentDelegate {
 
-    func textAttachment(
-        _ textAttachment: TextAttachment,
+    func mediaAttachment(
+        _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: textAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
+        return attachmentsDelegate.storage(self, attachment: mediaAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
     }
 }
 
