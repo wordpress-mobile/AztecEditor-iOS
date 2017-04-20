@@ -321,7 +321,6 @@ open class TextView: UITextView {
         restoreDefaultFontIfNeeded()
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
-        ensureRemovalOfVisualOnlyTypingAttribute()
 
         super.insertText(text)
 
@@ -820,13 +819,6 @@ open class TextView: UITextView {
         }
 
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
-    }
-
-    /// Ensures the removal of visual-only typing attributes.  Visual-only elements can never
-    /// be introduced by keyboard input.
-    ///
-    private func ensureRemovalOfVisualOnlyTypingAttribute() {
-        typingAttributes[VisualOnlyAttributeName] = nil
     }
 
 
