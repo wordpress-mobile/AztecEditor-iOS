@@ -90,6 +90,7 @@
 		F18B81EB1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18B81EA1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift */; };
 		F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */; };
 		F19587CF1EA7ECEE0078DD9C /* String+VisualRangeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19587CE1EA7ECEE0078DD9C /* String+VisualRangeMapping.swift */; };
+		F19587D11EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19587D01EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift */; };
 		F1A218151E02D5B3000AF5EB /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A218141E02D5B3000AF5EB /* UndoManager.swift */; };
 		F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B981E37F99D007510EA /* Character+Name.swift */; };
 		F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */; };
@@ -237,6 +238,7 @@
 		F18B81EA1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StringUnicodeScalarView+RangeConversion.swift"; sourceTree = "<group>"; };
 		F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StringUTF16+RangeConversion.swift"; sourceTree = "<group>"; };
 		F19587CE1EA7ECEE0078DD9C /* String+VisualRangeMapping.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+VisualRangeMapping.swift"; sourceTree = "<group>"; };
+		F19587D01EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringVisualRangeMappingTests.swift; sourceTree = "<group>"; };
 		F1A218141E02D5B3000AF5EB /* UndoManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
 		F1C05B981E37F99D007510EA /* Character+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Character+Name.swift"; sourceTree = "<group>"; };
 		F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CharacterName.swift"; sourceTree = "<group>"; };
@@ -646,6 +648,7 @@
 				F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */,
 				FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */,
 				F18B81E81EA543BB00885F43 /* StringRangeMappingTests.swift */,
+				F19587D01EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift */,
 				FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */,
 			);
 			name = Extensions;
@@ -897,6 +900,7 @@
 				F1FFB2A11E6058930015ACB8 /* DOMStringTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				594C9D721D8BE6BC00D74542 /* OutNodeConverterTests.swift in Sources */,
+				F19587D11EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				599F25951D8BDCFC002871D6 /* TextViewTests.swift in Sources */,
 				594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */,

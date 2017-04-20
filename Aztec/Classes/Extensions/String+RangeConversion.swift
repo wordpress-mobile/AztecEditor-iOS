@@ -79,6 +79,14 @@ extension String
         return lowerBound ..< upperBound
     }
 
+    func nsRange(of string: String) -> NSRange? {
+        guard let range = self.range(of: string) else {
+            return nil
+        }
+
+        return nsRange(from: range)
+    }
+
     /// Converts a `Range<String.Index>` into an UTF16 NSRange.
     ///
     /// - Parameters:
