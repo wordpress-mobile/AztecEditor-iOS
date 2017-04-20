@@ -1088,11 +1088,21 @@ open class TextView: UITextView {
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
-    ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
+    ///   - location: the location in the text to insert the video
+    ///   - sourceURL: the video source URL
+    ///   - posterURL: the video poster image URL
+    ///   - placeHolderImage: an image to use has an placeholder while the video poster is being loaded
+    ///   - identifier: an unique indentifier for the video
     ///
-    open func insertVideo(_ index: Int, params: [String: AnyObject]) {
-        print("video")
+    /// - Returns: the video attachment object that was inserted.
+    ///
+    open func insertVideo(atLocation location: Int, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let attachment = storage.insertVideo(sourceURL: sourceURL, posterURL: posterURL, atPosition: location, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
+        let length = NSAttributedString.lengthOfTextAttachment
+        textStorage.addAttributes(typingAttributes, range: NSMakeRange(location, length))
+        selectedRange = NSMakeRange(location+length, 0)
+        delegate?.textViewDidChange?(self)
+        return attachment
     }
 
     /// Returns the associated TextAttachment, at a given point, if any.

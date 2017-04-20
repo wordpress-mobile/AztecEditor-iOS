@@ -514,7 +514,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            dom.replace(range, with: urlToAdd)
+            dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL)
         } else if removeImageUrl {
             dom.removeVideo(spanning: range)
         }
@@ -771,6 +771,28 @@ open class TextStorage: NSTextStorage {
         let attachment = ImageAttachment(identifier: identifier)
         attachment.delegate = self
         attachment.url = url
+        attachment.image = placeHolderImage
+
+        // Inject the Attachment and Layout
+        let insertionRange = NSMakeRange(position, 0)
+        let attachmentString = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: insertionRange, with: attachmentString)
+
+        return attachment
+    }
+
+    /// Insert Video Element at the specified range using url as source
+    ///
+    /// - parameter sourceURL: the source URL of the video
+    /// - parameter posterURL: an URL pointing to a frame/thumbnail of the video
+    /// - parameter position: the position to insert the image
+    /// - parameter placeHolderImage: an image to display while the image from sourceURL is being prepared
+    ///
+    /// - returns: the attachment object that was created and inserted on the text
+    ///
+    func insertVideo(sourceURL: URL, posterURL: URL?, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
+        attachment.delegate = self
         attachment.image = placeHolderImage
 
         // Inject the Attachment and Layout

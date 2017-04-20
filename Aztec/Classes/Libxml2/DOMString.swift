@@ -539,6 +539,33 @@ extension Libxml2 {
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
 
+        // MARK: - Videos
+
+        /// Replaces the specified range with a given image.
+        ///
+        /// - Parameters:
+        ///   - range: the range to insert the image
+        ///   - videoURL: the URL for the video src attribute
+        ///   - posterURL: the URL for ther video poster attribute
+        ///
+        func replace(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+            performAsyncUndoable { [weak self] in
+                self?.replaceSynchronously(range, withVideoURL: videoURL, posterURL: posterURL)
+            }
+        }
+
+        private func replaceSynchronously(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+            let videoURLString = videoURL.absoluteString
+
+            var attributes = [Libxml2.StringAttribute(name:"src", value: videoURLString)]
+            if let posterURLString = posterURL?.absoluteString {
+                attributes.append(Libxml2.StringAttribute(name:"poster", value: posterURLString))
+            }
+            let descriptor = ElementNodeDescriptor(elementType: .video, attributes: attributes)
+
+            rootNode.replaceCharacters(in: range, with: descriptor)
+        }
+
         /// Replaces the specified range with a Horizontal Ruler Style.
         ///
         /// - Parameters:

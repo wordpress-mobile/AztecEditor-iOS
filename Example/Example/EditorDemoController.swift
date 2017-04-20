@@ -851,14 +851,30 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         dismiss(animated: true, completion: nil)
-
-        guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+        richTextView.becomeFirstResponder()
+        guard let mediaType =  info[UIImagePickerControllerMediaType] as? String else {
             return
         }
+        let typeImage = kUTTypeImage as String
+        let typeMovie = kUTTypeMovie as String
 
-        // Insert Image + Reclaim Focus
-        insertImage(image)
-        richTextView.becomeFirstResponder()
+        switch mediaType {
+        case typeImage:
+            guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+                return
+            }
+
+            // Insert Image + Reclaim Focus
+            insertImage(image)
+
+        case typeMovie:
+            guard let videoURL = info[UIImagePickerControllerMediaURL] as? URL else {
+                return
+            }
+            insertVideo(videoURL)
+        default:
+            print("Media type not supported: \(mediaType)")
+        }
     }
 }
 
@@ -892,6 +908,26 @@ private extension EditorDemoController
         let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
         progress.totalUnitCount = 100
         
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
+    }
+
+    func insertVideo(_ videoURL: URL) {
+
+        let index = richTextView.positionForCursor()
+
+        let asset = AVURLAsset(url: videoURL, options: nil)
+        let imgGenerator = AVAssetImageGenerator(asset: asset)
+        imgGenerator.appliesPreferredTrackTransform = true
+        guard let cgImage = try? imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil) else {
+            return
+        }
+        let posterImage = UIImage(cgImage: cgImage)
+        let posterURL = saveToDisk(image: posterImage)
+        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: videoURL, posterURL: posterURL, placeHolderImage: posterImage)
+        let imageID = attachment.identifier
+        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
+        progress.totalUnitCount = 100
+
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
     }
 
