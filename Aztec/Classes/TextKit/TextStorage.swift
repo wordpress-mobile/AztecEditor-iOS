@@ -371,6 +371,8 @@ open class TextStorage: NSTextStorage {
         let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
         let isHtmlAttachment = sourceValue is HTMLAttachment || targetValue is HTMLAttachment
         let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
+        let isImageAttachment = sourceValue is ImageAttachment || targetValue is ImageAttachment
+        let isVideoAttachment = sourceValue is VideoAttachment || targetValue is VideoAttachment
 
         switch(key) {
         case NSFontAttributeName:
@@ -403,11 +405,16 @@ open class TextStorage: NSTextStorage {
             let targetAttachment = targetValue as? HTMLAttachment
 
             processHtmlAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
-        case NSAttachmentAttributeName:
+        case NSAttachmentAttributeName where isImageAttachment:
             let sourceAttachment = sourceValue as? ImageAttachment
             let targetAttachment = targetValue as? ImageAttachment
 
-            processAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+            processImageAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
+        case NSAttachmentAttributeName where isVideoAttachment:
+            let sourceAttachment = sourceValue as? VideoAttachment
+            let targetAttachment = targetValue as? VideoAttachment
+
+            processVideoAttachmentDifferences(in: domRange, betweenOriginal: sourceAttachment, andNew: targetAttachment)
         case NSParagraphStyleAttributeName:
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
@@ -466,7 +473,7 @@ open class TextStorage: NSTextStorage {
     ///   - original: the original attachment existing in the range if any.
     ///   - new: the new attachment to apply to the range if any.
     ///
-    private func processAttachmentDifferences(in range: NSRange, betweenOriginal original: ImageAttachment?, andNew new: ImageAttachment?) {
+    private func processImageAttachmentDifferences(in range: NSRange, betweenOriginal original: ImageAttachment?, andNew new: ImageAttachment?) {
 
         let originalUrl = original?.url
         let newUrl = new?.url
@@ -483,6 +490,33 @@ open class TextStorage: NSTextStorage {
             dom.replace(range, with: urlToAdd)
         } else if removeImageUrl {
             dom.removeImage(spanning: range)
+        }
+    }
+
+    /// Process difference in attachmente properties, and applies them to the DOM in the specified range
+    ///
+    /// - Parameters:
+    ///   - range: the range in the DOM where the differences must be applied.
+    ///   - original: the original attachment existing in the range if any.
+    ///   - new: the new attachment to apply to the range if any.
+    ///
+    private func processVideoAttachmentDifferences(in range: NSRange, betweenOriginal original: VideoAttachment?, andNew new: VideoAttachment?) {
+
+        let originalUrl = original?.srcURL
+        let newUrl = new?.srcURL
+
+        let addImageUrl = originalUrl == nil && newUrl != nil
+        let removeImageUrl = originalUrl != nil && newUrl == nil
+
+        if addImageUrl {
+            guard let urlToAdd = newUrl else {
+                assertionFailure("This should not be possible.  Review your logic.")
+                return
+            }
+
+            dom.replace(range, with: urlToAdd)
+        } else if removeImageUrl {
+            dom.removeVideo(spanning: range)
         }
     }
 
