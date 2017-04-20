@@ -1190,7 +1190,7 @@ private extension TextView {
     ///     B. Below there's an empty line.
     ///     C. The user pressed Arrow Down
     ///
-    ///     Why: We only want to extend the `Paragraph Attribute` if a Newline is explicitly entered.
+    ///     Why: We only want to carry over the `Paragraph Attribute` if a Newline is explicitly pressed.
     ///
     /// Scenario B:
     ///
@@ -1203,7 +1203,7 @@ private extension TextView {
     ///
     /// - Parameters:
     ///     - text: String that is about to be inserted.
-    ///     - location: Insertion point
+    ///     - location: Selected Range's Location
     ///
     /// - Returns: true if we should remove the paragraph attributes. false otherwise!
     ///
