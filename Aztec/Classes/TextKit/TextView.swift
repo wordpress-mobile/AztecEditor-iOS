@@ -220,10 +220,8 @@ open class TextView: UITextView {
     ///
     override open var typingAttributes: [String: Any] {
         get {
-            let updatedAttributes = ensureRemovalOfParagraphAttributes(from: super.typingAttributes)
-            super.typingAttributes = updatedAttributes
-
-            return updatedAttributes
+            ensureRemovalOfParagraphAttributes(at: selectedRange)
+            return super.typingAttributes
         }
         set {
             super.typingAttributes = newValue
@@ -294,16 +292,18 @@ open class TextView: UITextView {
         ///
         ensureInsertionOfNewline(beforeInserting: text)
 
-        // Note:
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
         // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
-        if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
+        //
+        if ensureRemovalOfParagraphAttributes(beforeInserting: text, at: selectedRange) {
             if self.textStorage.length > 0 {
                 typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
             }
+
             delegate?.textViewDidChangeSelection?(self)
             delegate?.textViewDidChange?(self)
+
             return
         }
 
@@ -660,8 +660,11 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
-    private lazy var defaultAttributes: [String: Any] = {
-        return [NSFontAttributeName: self.defaultFont, NSParagraphStyleAttributeName: ParagraphStyle.default]
+    fileprivate lazy var defaultAttributes: [String: Any] = {
+        return [
+            NSFontAttributeName: self.defaultFont,
+            NSParagraphStyleAttributeName: ParagraphStyle.default
+        ]
     }()
 
     private lazy var paragraphFormatters: [AttributeFormatter] = [
@@ -708,124 +711,6 @@ open class TextView: UITextView {
         }
 
         typingAttributes[NSFontAttributeName] = defaultFont.withSize(activeFont.pointSize)
-    }
-
-
-    /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
-    /// or not. Note that we should remove Paragraph Styles whenever:
-    ///
-    /// -   The previous string contains just a newline
-    /// -   The next string is a newline (or we're at the end of the text storage)
-    /// -   We're at the beginning of a new line
-    /// -   The user just typed a new line
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that was just inserted
-    ///     - at: Location in which the string was just inserted
-    ///
-    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
-    ///
-    private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
-            return false
-        }
-
-        let afterRange = NSRange(location: location, length: 1)
-        let beforeRange = NSRange(location: location - 1, length: 1)
-
-        var afterString = String(.newline)
-        var beforeString = String(.newline)
-        if beforeRange.location >= 0 {
-            beforeString = storage.attributedSubstring(from: beforeRange).string
-        }
-
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
-    }
-
-
-    /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
-    /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that just got inserted.
-    ///     - at: Range in which the string was inserted.
-    ///
-    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
-    ///
-    private func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
-
-        guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
-            return false
-        }
-
-        let formatters: [AttributeFormatter] = [
-            TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered),
-            BlockquoteFormatter(),
-            PreFormatter(placeholderAttributes: self.defaultAttributes)
-        ]
-
-        let atEdgeOfDocument = range.location >= storage.length
-
-        for formatter in formatters {
-            if atEdgeOfDocument && formatter.present(in: typingAttributes) {
-                typingAttributes = formatter.remove(from: typingAttributes)
-                return true
-            }
-
-            if !atEdgeOfDocument && formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
-                return true
-            }
-        }
-
-        return false
-    }
-
-
-    /// Removes the List Attributes from the Typing Attributes whenever:
-    ///
-    ///     A. The selected location is at the very end of the document
-    ///     B. The previous character is a '\n'
-    ///     C. There's a List (OR) Blockquote (OR) Pre.
-    ///
-    /// This is necessary because when the caret is at EOF, and the previous `\n` character has
-    /// a [List, Blockquote, Pre] styles, that style will remain in the `typingAttributes`.  We'll only
-    /// allow the style to remain if there are contents in the current line with the textList style
-    /// (in which case this condition won't ever trigger because we'll either no longer be at EOF, 
-    /// or the previous character won't be `\n`).
-    ///
-    /// - Parameter attributes: Typing Attributes.
-    ///
-    /// - Returns: Updated Typing Attributes.
-    ///
-    private func ensureRemovalOfParagraphAttributes(from typingAttributes: [String: Any]) -> [String: Any] {
-        guard selectedRange.location == storage.length else {
-            return typingAttributes
-        }
-
-        let previousRange = NSRange(location: selectedRange.location - 1, length: 1)
-        let previousString = storage.safeSubstring(at: previousRange) ?? String(.newline)
-        guard previousString == String(.newline) else {
-            return typingAttributes
-        }
-
-        let formatters: [AttributeFormatter] = [
-            BlockquoteFormatter(),
-            PreFormatter(placeholderAttributes: self.defaultAttributes),
-            TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered)
-        ]
-
-        for formatter in formatters where formatter.present(in: typingAttributes) {
-            return formatter.remove(from: typingAttributes)
-        }
-
-        return typingAttributes
     }
 
 
@@ -1273,9 +1158,103 @@ open class TextView: UITextView {
     }
 }
 
+// MARK: - Paragraph Formatters Rendering Workarounds
+//
+private extension TextView {
+
+    /// Removes the Paragraph Attributes whenever `mustRemoveParagraphAttributes(beforeInserting: at)` returns true.
+    ///
+    /// - Parameters:
+    ///     - text: (Optional) String that's about to be inserted.
+    ///     - selectedRange: TextView's Selected Range.
+    ///
+    /// - Returns: true if ParagraphAttributes were removed. false otherwise!
+    ///
+    @discardableResult
+    func ensureRemovalOfParagraphAttributes(beforeInserting text: String? = nil, at selectedRange: NSRange) -> Bool {
+        guard mustRemoveParagraphAttributes(beforeInserting: text, at: selectedRange.location) else {
+            return false
+        }
+
+        return removeParagraphAttributes(at: selectedRange)
+    }
+
+
+    /// Analyzes whether the Paragraph Attributes should be removed at a specified location, or not.
+    /// This is necessary in two different scenarios:
+    ///
+    /// Scenario A:
+    ///
+    ///     A. We're at the end of the document
+    ///     B. Below there's an empty line.
+    ///     C. The user pressed Arrow Down
+    ///
+    ///     Why: We only want to carry over the `Paragraph Attribute` if a Newline is explicitly pressed.
+    ///
+    /// Scenario B:
+    ///
+    ///     A. The user enters a newline
+    ///     B. The next character is a newline (OR) there is no next character
+    ///     C. The previous character is a newline (OR) there is no previous character
+    ///
+    ///     Why: We wanna take care of removing [Lists, Pre, Blockquotes] if the user hits return on an empty line.
+    ///
+    ///
+    /// - Parameters:
+    ///     - text: String that is about to be inserted.
+    ///     - location: Selected Range's Location
+    ///
+    /// - Returns: true if we should remove the paragraph attributes. false otherwise!
+    ///
+    func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
+        guard text == String(.newline) || location == storage.length else {
+            return false
+        }
+
+        let afterRange = NSRange(location: location, length: 1)
+        let afterString = storage.safeSubstring(at: afterRange) ?? String(.newline)
+
+        let beforeRange = NSRange(location: location - 1, length: 1)
+        let beforeString = storage.safeSubstring(at: beforeRange) ?? String(.newline)
+
+        return beforeString == String(.newline) && afterString == String(.newline)
+    }
+
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    /// - Returns: true on success.
+    ///
+    func removeParagraphAttributes(at range: NSRange) -> Bool {
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(placeholderAttributes: defaultAttributes),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        guard range.location >= storage.length else {
+            for formatter in formatters where formatter.present(in: textStorage, at: range.location) {
+                formatter.removeAttributes(from: textStorage, at: range)
+                return true
+            }
+
+            return false
+        }
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            super.typingAttributes = formatter.remove(from: super.typingAttributes)
+            return true
+        }
+        
+        return false
+    }
+}
+
 
 // MARK: - TextStorageImageProvider
-
+//
 extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(
@@ -1334,8 +1313,9 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 }
 
-// MARK: - UIGestureRecognizerDelegate
 
+// MARK: - UIGestureRecognizerDelegate
+//
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
 {
     let textView: TextView
