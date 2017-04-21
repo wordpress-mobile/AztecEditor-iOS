@@ -340,7 +340,7 @@ class ElementNodeTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         let div = ElementNode(name: "div", attributes: [], children: [paragraph])
         
-        let splitLocation = (text1 as NSString).length
+        let splitLocation = text1.characters.count
         paragraph.split(atLocation: splitLocation)
         
         XCTAssertEqual(div.children.count, 2)

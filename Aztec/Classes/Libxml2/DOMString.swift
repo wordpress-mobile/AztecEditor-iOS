@@ -72,6 +72,23 @@ extension Libxml2 {
         deinit {
             stopObservingParentUndoManager()
         }
+
+        // MARK: - String representation
+
+        func string() -> String {
+            var result: String = ""
+
+            domQueue.sync { [weak self] in
+
+                guard let strongSelf = self else {
+                    return
+                }
+
+                result = strongSelf.rootNode.text()
+            }
+
+            return result
+        }
         
         // MARK: - Settings & Getting HTML
         

@@ -26,8 +26,7 @@ extension Libxml2 {
         /// Node length.
         ///
         override func length() -> Int {
-            let nsString = contents as NSString
-            return nsString.length
+            return contents.characters.count
         }
         
         // MARK: - Editing: Atomic Operations
@@ -39,8 +38,7 @@ extension Libxml2 {
         ///     - string: the string to append to the node.
         ///
         private func append(sanitizedString string: String) {
-            let nsString = string as NSString
-            registerUndoForAppend(appendedLength: nsString.length)
+            registerUndoForAppend(appendedLength: string.characters.count)
             contents.append(string)
         }
         
@@ -87,8 +85,7 @@ extension Libxml2 {
         ///     - string: the string to prepend to the node.
         ///
         private func prepend(sanitizedString string: String) {
-            let nsString = string as NSString
-            registerUndoForPrepend(prependedLength: nsString.length)
+            registerUndoForPrepend(prependedLength: string.characters.count)
             contents = "\(string)\(contents)"
         }
         
@@ -126,15 +123,13 @@ extension Libxml2 {
         /// sanitized, which means this method does not perform verifications or cleanups on it.
         ///
         /// - Parameters:
-        ///     - range: the range to replace.
+        ///     - nsRange: the range to replace.
         ///     - string: the string that will replace the specified range.
         ///
-        private func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
+        private func replaceCharacters(inRange nsRange: NSRange, withSanitizedString string: String) {
             
-            guard let range = contents.range(from: range) else {
-                fatalError("The specified range is out of bounds.")
-            }
-            
+            let range = contents.range(from: nsRange)
+
             registerUndoForReplaceCharacters(in: range, withString: string)
             contents.replaceSubrange(range, with: string)
         }
@@ -229,11 +224,9 @@ extension Libxml2 {
             }
         }
 
-        override func deleteCharacters(inRange range: NSRange) {
+        override func deleteCharacters(inRange nsRange: NSRange) {
 
-            guard let range = contents.range(from: range) else {
-                fatalError("The specified range is out of bounds.")
-            }
+            let range = contents.range(from: nsRange)
             
             deleteCharacters(inRange: range)
         }
@@ -321,9 +314,7 @@ extension Libxml2 {
         
         override func split(forRange range: NSRange) {
 
-            guard let swiftRange = contents.range(from: range) else {
-                fatalError("This scenario should not be possible. Review the logic.")
-            }
+            let swiftRange = contents.range(from: range)
 
             guard let parent = parent,
                 let nodeIndex = parent.children.index(of: self) else {

@@ -76,10 +76,6 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
 
-    // MARK: - Visual only elements
-
-    private let visualOnlyElementFactory = VisualOnlyElementFactory()
-
     // MARK: - Undo Support
     
     public var undoManager: UndoManager? {
@@ -170,9 +166,8 @@ open class TextStorage: NSTextStorage {
                 while newlineRange.location != NSNotFound {
 
                     let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
-                    let visualOnlyNewline = visualOnlyElementFactory.newline(inheritingAttributes: originalAttributes)
 
-                    finalString.replaceCharacters(in: newlineRange, with: visualOnlyNewline)
+                    finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
 
                     let nextLocation = newlineRange.location + newlineRange.length
                     let nextLength = subRange.length - nextLocation
@@ -257,20 +252,16 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with str: String) {
-
         beginEditing()
 
         if mustUpdateDOM() {
-            let targetDomRange = map(visualRange: range)
-            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
-
-            dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+            replaceCharactersInDOM(in: range, with: str)
         }
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
-        let nsString = str as NSString
-        edited(.editedCharacters, range: range, changeInLength:  nsString.length - range.length)
+
+        edited(.editedCharacters, range: range, changeInLength: string.characters.count - range.length)
         
         endEditing()
     }
@@ -282,17 +273,7 @@ open class TextStorage: NSTextStorage {
         beginEditing()
 
         if mustUpdateDOM() {
-            let targetDomRange = map(visualRange: range)
-            let preferLeftNode = doesPreferLeftNode(atCaretPosition: range.location)
-
-            let domString = preprocessedString.filter(attributeNamed: VisualOnlyAttributeName)
-            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
-
-            if targetDomRange.length != range.length {
-                dom.deleteBlockSeparator(at: targetDomRange.location)
-            }
-
-            applyStylesToDom(from: domString, startingAt: range.location)
+            replaceCharactersInDOM(in: range, with: preprocessedString)
         }
 
         detectAttachmentRemoved(in: range)
@@ -315,7 +296,41 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    // MARK: - Entry point for calculating style differences
+    // MARK: - DOM: Replacing Characters
+
+    private func replaceCharactersInDOM(in range: NSRange, with str: String) {
+
+        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
+        let targetDomRange = string.map(visualUTF16Range: swiftRange)
+        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
+
+        dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+    }
+
+    private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
+
+        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
+        let targetDomRange = string.map(visualUTF16Range: swiftRange)
+        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
+
+        let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
+
+        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+
+        if targetDomRange.length != swiftRange.length {
+            dom.deleteBlockSeparator(at: targetDomRange.location)
+        }
+
+        applyStylesToDom(from: domString, startingAt: range.location)
+    }
+
+    // MARK: - DOM: Applying Styles
 
     /// This method applies the styles in the specified attributes dictionary, to the DOM in the
     /// specified range.  To do so, it calculates the differences and applies them.
@@ -327,7 +342,7 @@ open class TextStorage: NSTextStorage {
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
-            let domRange = map(visualRange: subRange)
+            let domRange = textStore.string.map(visualUTF16Range: subRange)
 
             processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
@@ -348,16 +363,26 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let domLocation = map(visualLocation: location)
+        let location = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
+            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
+                // This should not be possible, but if this ever happens in production it's better to lose
+                // the style than it is to crash the editor.
+                //
+                assertionFailure("Unexpected range conversion problem.")
+                return
+            }
+
+            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
         })
     }
+
+    // MARK: - DOM: Calculating and Applying Style Differences
 
     /// Check the difference in styles and applies the necessary changes to the DOM string.
     ///
@@ -429,8 +454,6 @@ open class TextStorage: NSTextStorage {
             break
         }
     }
-
-    // MARK: - Calculating and applying style differences
 
     /// Processes differences in a font object, and applies them to the DOM in the specified range.
     ///
@@ -688,7 +711,7 @@ open class TextStorage: NSTextStorage {
             && !hasHorizontalLine(at: index)
             && !hasCommentMarker(at: index)
             && !hasUnknownHtmlMarker(at: index)
-            && !hasVisualOnlyElement(at: index)
+            && !hasParagraphSeparator(at: index)
     }
 
     private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
@@ -732,20 +755,13 @@ open class TextStorage: NSTextStorage {
         return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
     }
 
-    private func hasVisualOnlyElement(at index: Int) -> Bool {
-        return attribute(VisualOnlyAttributeName, at: index, effectiveRange: nil) != nil
-    }
+    private func hasParagraphSeparator(at offset: Int) -> Bool {
+        let startIndex = string.index(string.startIndex, offsetBy: offset)
+        let endIndex = string.index(string.startIndex, offsetBy: offset + 1)
 
-    private func map(visualLocation: Int) -> Int {
+        let range = startIndex ..< endIndex
 
-        let locationRange = NSRange(location: visualLocation, length: 0)
-        let mappedRange = textStore.map(range: locationRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
-
-        return mappedRange.location
-    }
-
-    private func map(visualRange: NSRange) -> NSRange {
-        return textStore.map(range: visualRange, bySubtractingAttributeNamed: VisualOnlyAttributeName)
+        return string.substring(with: range) == String(.paragraphSeparator)
     }
     
     // MARK: - Styles: Toggling
@@ -852,7 +868,7 @@ open class TextStorage: NSTextStorage {
         let rangesForAttachment = ranges(forAttachment:attachment)
 
         let domRanges = rangesForAttachment.map { range -> NSRange in
-            map(visualRange: range)
+            string.map(visualUTF16Range: range)
         }
         
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)

@@ -934,6 +934,7 @@
 				CC400F211E9EC04200859AB4 /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

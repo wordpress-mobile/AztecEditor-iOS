@@ -2,7 +2,7 @@ import XCTest
 @testable import Aztec
 import Gridicons
 
-class AztecVisualTextViewTests: XCTestCase {
+class TextViewTests: XCTestCase {
 
     struct Constants {
         static let sampleText0 = "Lorem ipsum sarasum naradum taradum insumun"
@@ -411,7 +411,7 @@ class AztecVisualTextViewTests: XCTestCase {
     func testNewlineRenderedAtTheCorrectPosition() {
         let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
 
-        XCTAssertEqual(textView.text, "Testing bold newlines\n")
+        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))")
     }
 
 
@@ -689,6 +689,20 @@ class AztecVisualTextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
     }
 
+    // MARK: - Unicode tests
+
+    /// Tests that applying bold to a string with unicode characters doesn't crash the app.
+    ///
+    /// This test was crashing the app as of 2017/04/18.
+    ///
+    func testBoldWithUnicodeCharacter() {
+        let string = "Hello 🌎!"
+        let textView = createTextView(withHTML: string)
+        let swiftRange = NSRange(location: 0, length: string.characters.count)
+        let utf16Range = string.utf16NSRange(from: swiftRange)
+
+        textView.toggleBold(range: utf16Range)
+    }
 
     // MARK: - Lists
 
@@ -874,7 +888,7 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -912,7 +926,7 @@ class AztecVisualTextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 
 

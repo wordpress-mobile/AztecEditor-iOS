@@ -321,7 +321,6 @@ open class TextView: UITextView {
         restoreDefaultFontIfNeeded()
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
-        ensureRemovalOfVisualOnlyTypingAttribute()
 
         super.insertText(text)
 
@@ -686,7 +685,7 @@ open class TextView: UITextView {
     ///     - range: Position in which the deletedText was present in the storage.
     ///
     private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        guard deletedText.string == String(.newline) || range.location == 0 else {
+        guard deletedText.string.isEndOfLine() || range.location == 0 else {
             return
         }
 
@@ -774,31 +773,6 @@ open class TextView: UITextView {
         typingAttributes = previousStyle
     }
 
-
-    /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that was just inserted
-    ///     - at: Location in which the string was just inserted
-    ///
-    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
-    ///
-    private func isNewEmptyParagraphAfter(insertedText text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
-            return false
-        }
-
-        let afterRange = NSRange(location: location, length: 1)
-        var afterString = String(.newline)
-
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
-    }
-
-
     /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
     /// the NSLinkAttribute. Meaning that:
     ///
@@ -822,13 +796,6 @@ open class TextView: UITextView {
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
 
-    /// Ensures the removal of visual-only typing attributes.  Visual-only elements can never
-    /// be introduced by keyboard input.
-    ///
-    private func ensureRemovalOfVisualOnlyTypingAttribute() {
-        typingAttributes[VisualOnlyAttributeName] = nil
-    }
-
 
     private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
         HeaderFormatter(headerLevel:.h1),
@@ -849,7 +816,7 @@ open class TextView: UITextView {
     ///
     @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
 
-        guard isNewEmptyParagraphAfter(insertedText: text, at: range.location) else {
+        guard textStorage.string.isEmptyParagraph(at: range.location) else {
             return false
         }
 
@@ -1228,17 +1195,11 @@ private extension TextView {
     /// - Returns: true if we should remove the paragraph attributes. false otherwise!
     ///
     func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
-        guard text == String(.newline) || location == storage.length else {
+        guard text?.isEndOfLine() == true || location == storage.length else {
             return false
         }
 
-        let afterRange = NSRange(location: location, length: 1)
-        let afterString = storage.safeSubstring(at: afterRange) ?? String(.newline)
-
-        let beforeRange = NSRange(location: location - 1, length: 1)
-        let beforeString = storage.safeSubstring(at: beforeRange) ?? String(.newline)
-
-        return beforeString == String(.newline) && afterString == String(.newline)
+        return storage.string.isEmptyParagraph(at: location)
     }
 
 
