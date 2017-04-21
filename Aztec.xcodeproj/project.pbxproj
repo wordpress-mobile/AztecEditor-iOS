@@ -69,6 +69,8 @@
 		E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */; };
 		E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */; };
 		E1C163A51DB6056B00E66A83 /* BlockquoteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */; };
+		F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */; };
+		F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */; };
 		F10BE6181EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */; };
 		F10BE61A1EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */; };
 		F10BE61C1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */; };
@@ -214,6 +216,8 @@
 		E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatterTests.swift; sourceTree = "<group>"; };
 		E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
 		E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatter.swift; sourceTree = "<group>"; };
+		F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+EndOfLine.swift"; sourceTree = "<group>"; };
+		F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringEndOfLineTests.swift; sourceTree = "<group>"; };
 		F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
 		F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
 		F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
@@ -447,6 +451,7 @@
 				F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */,
 				F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */,
 				F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */,
+				F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */,
 				599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */,
 				F18B81E61EA542BC00885F43 /* String+RangeMapping.swift */,
 				F19587CE1EA7ECEE0078DD9C /* String+VisualRangeMapping.swift */,
@@ -632,6 +637,7 @@
 				F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */,
 				F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */,
 				F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */,
+				F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */,
 				FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */,
 				F18B81E81EA543BB00885F43 /* StringRangeMappingTests.swift */,
 				F19587D01EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift */,
@@ -813,6 +819,7 @@
 				E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */,
+				F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */,
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
@@ -887,6 +894,7 @@
 				F19587D11EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				599F25951D8BDCFC002871D6 /* TextViewTests.swift in Sources */,
+				F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */,
 				594C9D711D8BE6B800D74542 /* OutAttributeConverterTests.swift in Sources */,
 				F18B81E91EA543BB00885F43 /* StringRangeMappingTests.swift in Sources */,
 				59FEA06F1D8BDFA700D138DF /* OutHTMLConverterTests.swift in Sources */,

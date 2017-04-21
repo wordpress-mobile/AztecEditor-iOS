@@ -6,21 +6,6 @@ import UIKit
 //
 extension NSAttributedString
 {
-    /// Check if the location passed is the beggining of a new line.
-    ///
-    /// - Parameter location: the position to check
-    /// - Returns: true if beggining of a new line false otherwise
-    ///
-    func isStartOfNewLine(atLocation location: Int) -> Bool {
-        var isStartOfLine = length == 0 || location == 0
-        if length > 0 && location > 0 {
-            let previousRange = NSRange(location: location - 1, length: 1)
-            let previousString = attributedSubstring(from: previousRange).string
-            isStartOfLine = previousString == String(.newline)
-        }
-        return isStartOfLine
-    }
-
     /// Check if the location passed is the beggining of a new list line.
     ///
     /// - Parameter location: the position to check

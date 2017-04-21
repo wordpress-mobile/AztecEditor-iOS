@@ -774,30 +774,6 @@ open class TextView: UITextView {
     }
 
 
-    /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that was just inserted
-    ///     - at: Location in which the string was just inserted
-    ///
-    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
-    ///
-    private func isNewEmptyParagraphAfter(insertedText text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
-            return false
-        }
-
-        let afterRange = NSRange(location: location, length: 1)
-        var afterString = String(.newline)
-
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
-    }
-
-
     /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
     /// the NSLinkAttribute. Meaning that:
     ///
@@ -841,7 +817,7 @@ open class TextView: UITextView {
     ///
     @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
 
-        guard isNewEmptyParagraphAfter(insertedText: text, at: range.location) else {
+        guard textStorage.string.isEmptyParagraph(at: range.location) else {
             return false
         }
 
