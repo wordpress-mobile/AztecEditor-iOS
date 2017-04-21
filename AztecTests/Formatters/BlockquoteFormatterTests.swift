@@ -2,7 +2,10 @@ import XCTest
 import Gridicons
 @testable import Aztec
 
+// MARK: - BlockquoteFormatterTests Tests
+//
 class BlockquoteFormatterTests: XCTestCase {
+
     func testApplyingBlockquoteOnFirstParagraph() {
         let textView = testTextView
         let storage = textView.storage

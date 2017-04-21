@@ -1,15 +1,16 @@
 import Foundation
 import UIKit
 
+
 /// Custom horizontal line drawing attachment.
 ///
-open class LineAttachment: NSTextAttachment
-{
+open class LineAttachment: NSTextAttachment {
+
     fileprivate var glyphImage: UIImage?
 
     /// The color to use when drawing progress indicators
     ///
-    open var color: UIColor = UIColor.gray
+    open var color = UIColor.gray
 
     // MARK: - NSTextAttachmentContainer
 

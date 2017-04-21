@@ -131,7 +131,7 @@ extension Libxml2 {
         ///
         private func replaceCharacters(inRange range: NSRange, withSanitizedString string: String) {
             
-            guard let range = contents.rangeFromNSRange(range) else {
+            guard let range = contents.range(from: range) else {
                 fatalError("The specified range is out of bounds.")
             }
             
@@ -231,7 +231,7 @@ extension Libxml2 {
 
         override func deleteCharacters(inRange range: NSRange) {
 
-            guard let range = contents.rangeFromNSRange(range) else {
+            guard let range = contents.range(from: range) else {
                 fatalError("The specified range is out of bounds.")
             }
             
@@ -321,7 +321,7 @@ extension Libxml2 {
         
         override func split(forRange range: NSRange) {
 
-            guard let swiftRange = contents.rangeFromNSRange(range) else {
+            guard let swiftRange = contents.range(from: range) else {
                 fatalError("This scenario should not be possible. Review the logic.")
             }
 

@@ -54,16 +54,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
 
-        if let textNode = node as? TextNode {
+        switch node {
+        case let textNode as TextNode:
             return convertTextNode(textNode, inheritingAttributes: attributes)
-        } else if let commentNode = node as? CommentNode {
+        case let commentNode as CommentNode:
             return convertCommentNode(commentNode, inheritingAttributes: attributes)
-        } else {
-            guard let elementNode = node as? ElementNode else {
-                fatalError("Nodes can be either text or element nodes.")
-            }
-
+        case let elementNode as ElementNode:
             return convertElementNode(elementNode, inheritingAttributes: attributes)
+        default:
+            fatalError("Nodes can be either text, comment or element nodes.")
         }
     }
 
@@ -112,8 +111,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
-        return stringForNode(node, inheritingAttributes: attributes)
+    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+        guard !node.isSupportedByEditor() else {
+            return stringForNode(node, inheritingAttributes: attributes)
+        }
+
+        let converter = Libxml2.Out.HTMLConverter()
+        let attachment = HTMLAttachment()
+
+        attachment.rootTagName = node.name
+        attachment.rawHTML = converter.convert(node)
+
+        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
     // MARK: - Node Styling
@@ -136,7 +145,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             
             return implicitRepresentation
         }
-        
+
         let content = NSMutableAttributedString()
         
         for child in node.children {
@@ -160,6 +169,36 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> [String:Any] {
 
         var attributes = inheritedAttributes
+
+        let attributeValue = parseCustomAttributeValues(forNode: node)
+
+        for (key, formatter) in elementToFormattersMap {
+            if node.isNodeType(key) {
+                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                    let value = attributeValue {
+                    standardValueFormatter.attributeValue = value
+                }
+                attributes = formatter.apply(to: attributes);
+            }
+        }
+
+        if let elementStyle = node.valueForStringAttribute(named: "style") {
+            let styles = parseStyle(style: elementStyle)
+            for (key, (formatter, parser)) in styleToFormattersMap {
+                guard let styleString = styles[key],
+                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
+                      let value = parser(styleString)
+                    else {
+                        continue
+                    }
+                    standardValueFormatter.attributeValue = value
+                    attributes = standardValueFormatter.apply(to: attributes);
+            }
+        }
+        return attributes
+    }
+
+    public func parseCustomAttributeValues(forNode node: ElementNode) -> Any? {
 
         var attributeValue: Any?
 
@@ -188,15 +227,15 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 url = nil
             }
 
-            let attachment = TextAttachment(identifier: UUID().uuidString, url: url)
+            let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
 
             if let elementClass = node.valueForStringAttribute(named: "class") {
                 let classAttributes = elementClass.components(separatedBy: " ")
                 for classAttribute in classAttributes {
-                    if let alignment = TextAttachment.Alignment.fromHTML(string: classAttribute) {
+                    if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
                         attachment.alignment = alignment
                     }
-                    if let size = TextAttachment.Size.fromHTML(string: classAttribute) {
+                    if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
                         attachment.size = size
                     }
                 }
@@ -204,30 +243,23 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             attributeValue = attachment
         }
 
-        for (key, formatter) in elementToFormattersMap {
-            if node.isNodeType(key) {
-                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                    let value = attributeValue {
-                    standardValueFormatter.attributeValue = value
-                }
-                attributes = formatter.apply(to: attributes);
+        if node.isNodeType(.video) {
+            var srcURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "src") {
+                srcURL = URL(string: urlString)
             }
+
+            var posterURL: URL?
+            if let urlString = node.valueForStringAttribute(named: "poster") {
+                posterURL = URL(string: urlString)
+            }
+
+            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
+
+            attributeValue = attachment
         }
 
-        if let elementStyle = node.valueForStringAttribute(named: "style") {
-            let styles = parseStyle(style: elementStyle)
-            for (key, (formatter, parser)) in styleToFormattersMap {
-                guard let styleString = styles[key],
-                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                      let value = parser(styleString)
-                    else {
-                        continue
-                    }
-                    standardValueFormatter.attributeValue = value
-                    attributes = standardValueFormatter.apply(to: attributes);
-            }
-        }
-        return attributes
+        return attributeValue
     }
 
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
@@ -247,7 +279,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         .h4: HeaderFormatter(headerLevel: .h4),
         .h5: HeaderFormatter(headerLevel: .h5),
         .h6: HeaderFormatter(headerLevel: .h6),
-        .pre: PreFormatter()
+        .pre: PreFormatter(),
+        .video: VideoFormatter()
     ]
 
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [

@@ -103,7 +103,8 @@ extension AttributeFormatter {
         return result && enumerateAtLeastOnce
     }
 
-    @discardableResult func toggle(in attributes: [String: Any]) -> [String: Any] {
+    @discardableResult
+    func toggle(in attributes: [String: Any]) -> [String: Any] {
         if present(in: attributes) {
             return remove(from: attributes)
         } else {
@@ -115,16 +116,11 @@ extension AttributeFormatter {
     ///
     /// - Returns: the full range where the attributes where applied
     ///
-    @discardableResult func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
-        var rangeToApply = applicationRange(for: range, in: text)
+    @discardableResult
+    func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
+        let rangeToApply = applicationRange(for: range, in: text)
 
-        if worksInEmptyRange() && ( rangeToApply.length == 0 || text.length == 0)   {
-            let placeholder = placeholderForEmptyLine(using: placeholderAttributes)
-            text.insert(placeholder, at: rangeToApply.location)
-            rangeToApply = NSMakeRange(rangeToApply.location, placeholder.length)
-        }
-
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
+        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, _) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
             let attributes = apply(to: currentAttributes)
             text.addAttributes(attributes, range: range)
@@ -137,7 +133,8 @@ extension AttributeFormatter {
     ///
     /// - Returns: the full range where the attributes where removed
     ///
-    @discardableResult func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
+    @discardableResult
+    func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         let rangeToApply = applicationRange(for: range, in: text)
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
@@ -174,12 +171,6 @@ extension AttributeFormatter {
 // MARK: - Private Helpers
 //
 private extension AttributeFormatter {
-
-    /// The string to be used when adding attributes to an empty line.
-    ///
-    func placeholderForEmptyLine(using attributes: [String: Any]?) -> NSAttributedString {
-        return VisualOnlyElementFactory().zeroWidthSpace(inheritingAttributes: attributes)
-    }
 
     /// Helper that indicates whether if we should format the specified range, or not. 
     /// -   Note: For convenience reasons, whenever the Text is empty, this helper will return *true*.

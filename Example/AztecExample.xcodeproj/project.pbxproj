@@ -20,6 +20,9 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1C81E82D332008CF41E /* MoreAttachmentRenderer.swift */; };
 		B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */; };
+		B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */; };
+		CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F191E9EC04200859AB4 /* AztecUITests.swift */; };
+		CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
@@ -53,6 +56,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
 			remoteInfo = "WordPress-Aztec-iOS";
+		};
+		CC400F1C1E9EC04200859AB4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
+			remoteInfo = AztecExample;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -97,6 +107,11 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B570B1C81E82D332008CF41E /* MoreAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreAttachmentRenderer.swift; sourceTree = "<group>"; };
 		B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachmentRenderer.swift; sourceTree = "<group>"; };
+		B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentRenderer.swift; sourceTree = "<group>"; };
+		CC400F171E9EC04200859AB4 /* AztecUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC400F191E9EC04200859AB4 /* AztecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AztecUITests.swift; sourceTree = "<group>"; };
+		CC400F1B1E9EC04200859AB4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
@@ -112,6 +127,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		607FACE21AFB9204008FA782 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC400F141E9EC04200859AB4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -160,6 +182,7 @@
 			children = (
 				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
 				607FACE81AFB9204008FA782 /* Tests */,
+				CC400F181E9EC04200859AB4 /* AztecUITests */,
 				02ECB379638AE0CDEAB24BEC /* Frameworks */,
 				607FACD11AFB9204008FA782 /* Products */,
 				599F257B1D8BD058002871D6 /* Dependencies */,
@@ -171,6 +194,7 @@
 			children = (
 				607FACD01AFB9204008FA782 /* AztecExample.app */,
 				607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */,
+				CC400F171E9EC04200859AB4 /* AztecUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,8 +248,19 @@
 			children = (
 				B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */,
 				B570B1C81E82D332008CF41E /* MoreAttachmentRenderer.swift */,
+				B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */,
 			);
 			name = Renders;
+			sourceTree = "<group>";
+		};
+		CC400F181E9EC04200859AB4 /* AztecUITests */ = {
+			isa = PBXGroup;
+			children = (
+				CC400F191E9EC04200859AB4 /* AztecUITests.swift */,
+				CC400F1B1E9EC04200859AB4 /* Info.plist */,
+				CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */,
+			);
+			path = AztecUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -269,13 +304,31 @@
 			productReference = 607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		CC400F161E9EC04200859AB4 /* AztecUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC400F231E9EC04200859AB4 /* Build configuration list for PBXNativeTarget "AztecUITests" */;
+			buildPhases = (
+				CC400F131E9EC04200859AB4 /* Sources */,
+				CC400F141E9EC04200859AB4 /* Frameworks */,
+				CC400F151E9EC04200859AB4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC400F1D1E9EC04200859AB4 /* PBXTargetDependency */,
+			);
+			name = AztecUITests;
+			productName = AztecUITests;
+			productReference = CC400F171E9EC04200859AB4 /* AztecUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		607FACC81AFB9204008FA782 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0720;
+				LastSwiftUpdateCheck = 0830;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Automattic Inc.";
 				TargetAttributes = {
@@ -289,6 +342,11 @@
 						CreatedOnToolsVersion = 6.3.1;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Manual;
+						TestTargetID = 607FACCF1AFB9204008FA782;
+					};
+					CC400F161E9EC04200859AB4 = {
+						CreatedOnToolsVersion = 8.3.1;
+						ProvisioningStyle = Automatic;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 				};
@@ -314,6 +372,7 @@
 			targets = (
 				607FACCF1AFB9204008FA782 /* AztecExample */,
 				607FACE41AFB9204008FA782 /* AztecExample-Tests */,
+				CC400F161E9EC04200859AB4 /* AztecUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -356,6 +415,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC400F151E9EC04200859AB4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -367,6 +433,7 @@
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
 				B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */,
+				B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */,
@@ -377,6 +444,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC400F131E9EC04200859AB4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */,
+				CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +468,11 @@
 			isa = PBXTargetDependency;
 			target = 607FACCF1AFB9204008FA782 /* AztecExample */;
 			targetProxy = 607FACE61AFB9204008FA782 /* PBXContainerItemProxy */;
+		};
+		CC400F1D1E9EC04200859AB4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 607FACCF1AFB9204008FA782 /* AztecExample */;
+			targetProxy = CC400F1C1E9EC04200859AB4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -577,6 +658,72 @@
 				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
+		};
+		CC400F1E1E9EC04200859AB4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				INFOPLIST_FILE = AztecUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = WP.AztecUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = AztecExample;
+			};
+			name = Debug;
+		};
+		CC400F1F1E9EC04200859AB4 /* Release-Alpha */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				INFOPLIST_FILE = AztecUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = WP.AztecUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = AztecExample;
+			};
+			name = "Release-Alpha";
+		};
+		CC400F201E9EC04200859AB4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				INFOPLIST_FILE = AztecUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = WP.AztecUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = AztecExample;
+			};
+			name = Release;
+		};
+		CC400F211E9EC04200859AB4 /* Profiling */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				INFOPLIST_FILE = AztecUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = WP.AztecUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = AztecExample;
+			};
+			name = Profiling;
 		};
 		F111A10D1DA7E77500294FD3 /* Profiling */ = {
 			isa = XCBuildConfiguration;
@@ -777,6 +924,16 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		CC400F231E9EC04200859AB4 /* Build configuration list for PBXNativeTarget "AztecUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC400F1E1E9EC04200859AB4 /* Debug */,
+				CC400F1F1E9EC04200859AB4 /* Release-Alpha */,
+				CC400F201E9EC04200859AB4 /* Release */,
+				CC400F211E9EC04200859AB4 /* Profiling */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

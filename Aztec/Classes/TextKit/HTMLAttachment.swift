@@ -2,9 +2,9 @@ import Foundation
 import UIKit
 
 
-/// Comment Attachments: Represents an HTML Comment
+/// HTML Attachments: Represents unknown HTML
 ///
-open class CommentAttachment: NSTextAttachment {
+open class HTMLAttachment: NSTextAttachment {
 
     /// Internal Cached Image
     ///
@@ -14,9 +14,17 @@ open class CommentAttachment: NSTextAttachment {
     ///
     weak var delegate: RenderableAttachmentDelegate?
 
-    /// A message to display overlaid on top of the image
+    /// Name of the Root "Unknown" Tag
     ///
-    open var text: String = "" {
+    open var rootTagName: String = "" {
+        didSet {
+            glyphImage = nil
+        }
+    }
+
+    /// Raw Unknown HTML to be rendered
+    ///
+    open var rawHTML: String = "" {
         didSet {
             glyphImage = nil
         }
@@ -32,11 +40,14 @@ open class CommentAttachment: NSTextAttachment {
     public required init?(coder aDecoder: NSCoder) {
         super.init(data: nil, ofType: nil)
 
-        guard let text = aDecoder.decodeObject(forKey: Keys.text) as? String else {
-            return
+        guard let rootTagName = aDecoder.decodeObject(forKey: Keys.rootTagName) as? String,
+            let rawHTML = aDecoder.decodeObject(forKey: Keys.rawHTML) as? String
+            else {
+                return
         }
 
-        self.text = text
+        self.rootTagName = rootTagName
+        self.rawHTML = rawHTML
     }
 
 
@@ -45,7 +56,8 @@ open class CommentAttachment: NSTextAttachment {
     open override func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
 
-        aCoder.encode(text, forKey: Keys.text)
+        aCoder.encode(rootTagName, forKey: Keys.rootTagName)
+        aCoder.encode(rawHTML, forKey: Keys.rawHTML)
     }
 
 
@@ -64,7 +76,7 @@ open class CommentAttachment: NSTextAttachment {
 
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         guard let bounds = delegate?.attachment(self, boundsForLineFragment: lineFrag) else {
-            assertionFailure("Could not determine Comment Attachment Size")
+            assertionFailure("Could not determine HTML Attachment Size")
             return .zero
         }
 
@@ -75,9 +87,10 @@ open class CommentAttachment: NSTextAttachment {
 
 // MARK: - Private Helpers
 //
-private extension CommentAttachment {
+private extension HTMLAttachment {
 
     struct Keys {
-        static let text = "text"
+        static let rootTagName  = "rootTagName"
+        static let rawHTML      = "rawHTML"
     }
 }

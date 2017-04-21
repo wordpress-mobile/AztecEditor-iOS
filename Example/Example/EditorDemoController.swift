@@ -4,9 +4,10 @@ import Gridicons
 import Photos
 import UIKit
 import MobileCoreServices
+import AVFoundation
+import AVKit
 
 class EditorDemoController: UIViewController {
-
 
     fileprivate var mediaErrorMode = false
 
@@ -21,7 +22,7 @@ class EditorDemoController: UIViewController {
         textView.delegate = self
         textView.formattingDelegate = self
         textView.mediaDelegate = self
-        textView.commentsDelegate = self
+        textView.accessibilityIdentifier = "richContentView"
 
         return textView
     }()
@@ -36,6 +37,7 @@ class EditorDemoController: UIViewController {
 
         textView.isHidden = true
         textView.delegate = self
+        textView.accessibilityIdentifier = "HTMLContentView"
 
         return textView
     }()
@@ -100,7 +102,7 @@ class EditorDemoController: UIViewController {
         }
     }    
 
-    fileprivate var currentSelectedAttachment: TextAttachment?
+    fileprivate var currentSelectedAttachment: ImageAttachment?
 
     fileprivate var formatBarAnimatedPeek = false
 
@@ -120,13 +122,15 @@ class EditorDemoController: UIViewController {
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
 
-        view.backgroundColor = UIColor.white
+
+        view.backgroundColor = .white
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
         view.addSubview(titleTextField)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
         configureConstraints()
+        registerAttachmentImageProviders()
 
         let html: String
 
@@ -138,10 +142,10 @@ class EditorDemoController: UIViewController {
 
         richTextView.setHTML(html)
 
-        TextAttachment.appearance.progressColor = UIColor.blue
-        TextAttachment.appearance.progressBackgroundColor = UIColor.lightGray
-        TextAttachment.appearance.progressHeight = 2.0
-        TextAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.appearance.progressColor = UIColor.blue
+        MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.appearance.progressHeight = 2.0
+        MediaAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -247,6 +251,18 @@ class EditorDemoController: UIViewController {
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    private func registerAttachmentImageProviders() {
+        let providers: [TextViewAttachmentImageProvider] = [
+            MoreAttachmentRenderer(),
+            CommentAttachmentRenderer(font: Constants.defaultContentFont),
+            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
+        ]
+
+        for provider in providers {
+            richTextView.registerAttachmentImageProvider(provider)
+        }
     }
 
 
@@ -669,6 +685,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     // MARK: -
 
+    func makeToolbarButton(identifier: FormattingIdentifier) -> FormatBarItem {
+        let button = FormatBarItem(image: identifier.iconImage, identifier: identifier)
+        button.accessibilityLabel = identifier.accessibilityLabel
+        button.accessibilityIdentifier = identifier.accessibilityIdentifier
+        return button
+    }
+
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
         let scrollableItems = scrollableItemsForToolbar
@@ -700,55 +723,27 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     var scrollableItemsForToolbar: [FormatBarItem] {
         return [
-            FormatBarItem(image: Gridicon.iconOfType(.addImage), identifier: .media),
-            FormatBarItem(image: Gridicon.iconOfType(.heading), identifier: .header),
-            FormatBarItem(image: Gridicon.iconOfType(.bold), identifier: .bold),
-            FormatBarItem(image: Gridicon.iconOfType(.italic), identifier: .italic),
-            FormatBarItem(image: Gridicon.iconOfType(.underline), identifier: .underline),
-            FormatBarItem(image: Gridicon.iconOfType(.strikethrough), identifier: .strikethrough),
-            FormatBarItem(image: Gridicon.iconOfType(.quote), identifier: .blockquote),
-            FormatBarItem(image: Gridicon.iconOfType(.listUnordered), identifier: .unorderedlist),
-            FormatBarItem(image: Gridicon.iconOfType(.listOrdered), identifier: .orderedlist),
-            FormatBarItem(image: Gridicon.iconOfType(.link), identifier: .link),
-            FormatBarItem(image: Gridicon.iconOfType(.minusSmall), identifier: .horizontalruler),
-            FormatBarItem(image: Gridicon.iconOfType(.readMore), identifier: .more)
+            makeToolbarButton(identifier: .media),
+            makeToolbarButton(identifier: .header),
+            makeToolbarButton(identifier: .bold),
+            makeToolbarButton(identifier: .italic),
+            makeToolbarButton(identifier: .underline),
+            makeToolbarButton(identifier: .strikethrough),
+            makeToolbarButton(identifier: .blockquote),
+            makeToolbarButton(identifier: .unorderedlist),
+            makeToolbarButton(identifier: .orderedlist),
+            makeToolbarButton(identifier: .link),
+            makeToolbarButton(identifier: .horizontalruler),
+            makeToolbarButton(identifier: .more)
         ]
     }
 
     var fixedItemsForToolbar: [FormatBarItem] {
         return [
-            FormatBarItem(image: Gridicon.iconOfType(.code), identifier: .sourcecode)
+            makeToolbarButton(identifier: .sourcecode)
         ]
     }
 
-}
-
-
-extension EditorDemoController: TextViewCommentsDelegate {
-
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        if let render = MoreAttachmentRenderer(attachment: attachment) {
-            return render.textView(textView, imageForComment: attachment, with: size)
-        }
-
-        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
-            return render.textView(textView, imageForComment: attachment, with: size)
-        }
-
-        return nil
-    }
-
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        if let render = MoreAttachmentRenderer(attachment: attachment) {
-            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
-        }
-
-        if let render = CommentAttachmentRenderer(font: Constants.defaultContentFont) {
-            return render.textView(textView, boundsForComment: attachment, with: lineFragment)
-        }
-
-        return .zero
-    }
 }
 
 
@@ -774,7 +769,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForAttachment attachment: TextAttachment) -> URL {
+    func textView(_ textView: TextView, urlForAttachment attachment: NSTextAttachment) -> URL {
         
         // TODO: start fake upload process
         if let image = attachment.image {
@@ -788,8 +783,23 @@ extension EditorDemoController: TextViewMediaDelegate {
         print("Attachment \(attachmentID) removed.\n")
     }
 
-    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+        if let imgAttachment = attachment as? ImageAttachment {
+            selected(textAttachment: imgAttachment, atPosition: position)
+        }
 
+        if let videoAttachment = attachment as? VideoAttachment {
+            selected(videoAttachment: videoAttachment, atPosition: position)
+        }
+    }
+
+    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+        if let imgAttachment = attachment as? ImageAttachment {
+            deselected(textAttachment: imgAttachment, atPosition: position)
+        }
+    }
+
+    func selected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
@@ -807,9 +817,27 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
     }
 
-    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint) {
+    func deselected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
         attachment.clearAllOverlays()
         richTextView.refreshLayoutFor(attachment: attachment)
+    }
+
+    func selected(videoAttachment attachment: VideoAttachment, atPosition position: CGPoint) {
+        guard let videoURL = attachment.srcURL else {
+            return
+        }
+        displayVideoPlayer(for: videoURL)
+    }
+
+    func displayVideoPlayer(for videoURL: URL) {
+        let asset = AVURLAsset(url: videoURL)
+        let controller = AVPlayerViewController()
+        let playerItem = AVPlayerItem(asset: asset)
+        let player = AVPlayer(playerItem: playerItem)
+        controller.showsPlaybackControls = true
+        controller.player = player
+        player.play()
+        present(controller, animated:true, completion: nil)
     }
 }
 
@@ -906,7 +934,7 @@ private extension EditorDemoController
         return attributes
     }
 
-    func displayActions(forAttachment attachment: TextAttachment, position: CGPoint) {
+    func displayActions(forAttachment attachment: ImageAttachment, position: CGPoint) {
         let mediaID = attachment.identifier
         let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
         let message: String? = nil
@@ -944,7 +972,7 @@ private extension EditorDemoController
         present(alertController, animated:true, completion: nil)
     }
 
-    func displayDetailsForAttachment(_ attachment: TextAttachment, position:CGPoint) {
+    func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
@@ -972,5 +1000,138 @@ extension EditorDemoController {
         static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let margin = CGFloat(20)
         static let moreAttachmentText = "more"
+    }
+}
+
+extension FormattingIdentifier {
+
+    var iconImage: UIImage {
+
+        switch(self) {
+        case .media:
+            return Gridicon.iconOfType(.addImage)
+        case .header:
+            return Gridicon.iconOfType(.heading)
+        case .bold:
+            return Gridicon.iconOfType(.bold)
+        case .italic:
+            return Gridicon.iconOfType(.italic)
+        case .underline:
+            return Gridicon.iconOfType(.underline)
+        case .strikethrough:
+            return Gridicon.iconOfType(.strikethrough)
+        case .blockquote:
+            return Gridicon.iconOfType(.quote)
+        case .orderedlist:
+            return Gridicon.iconOfType(.listOrdered)
+        case .unorderedlist:
+            return Gridicon.iconOfType(.listUnordered)
+        case .link:
+            return Gridicon.iconOfType(.link)
+        case .horizontalruler:
+            return Gridicon.iconOfType(.minusSmall)
+        case .sourcecode:
+            return Gridicon.iconOfType(.code)
+        case .more:
+            return Gridicon.iconOfType(.readMore)
+        case .header1:
+            return Gridicon.iconOfType(.heading)
+        case .header2:
+            return Gridicon.iconOfType(.heading)
+        case .header3:
+            return Gridicon.iconOfType(.heading)
+        case .header4:
+            return Gridicon.iconOfType(.heading)
+        case .header5:
+            return Gridicon.iconOfType(.heading)
+        case .header6:
+            return Gridicon.iconOfType(.heading)
+        }
+    }
+
+    var accessibilityIdentifier: String {
+        switch(self) {
+        case .media:
+            return "formatToolbarInsertMedia"
+        case .header:
+            return "formatToolbarSelectParagraphStyle"
+        case .bold:
+            return "formatToolbarToggleBold"
+        case .italic:
+            return "formatToolbarToggleItalic"
+        case .underline:
+            return "formatToolbarToggleUnderline"
+        case .strikethrough:
+            return "formatToolbarToggleStrikethrough"
+        case .blockquote:
+            return "formatToolbarToggleBlockquote"
+        case .orderedlist:
+            return "formatToolbarToggleListOrdered"
+        case .unorderedlist:
+            return "formatToolbarToggleListUnordered"
+        case .link:
+            return "formatToolbarInsertLink"
+        case .horizontalruler:
+            return "formatToolbarInsertHorizontalRuler"
+        case .sourcecode:
+            return "formatToolbarToggleHtmlView"
+        case .more:
+            return "formatToolbarInsertMore"
+        case .header1:
+            return "formatToolbarToggleH1"
+        case .header2:
+            return "formatToolbarToggleH2"
+        case .header3:
+            return "formatToolbarToggleH3"
+        case .header4:
+            return "formatToolbarToggleH4"
+        case .header5:
+            return "formatToolbarToggleH5"
+        case .header6:
+            return "formatToolbarToggleH6"
+        }
+    }
+
+    var accessibilityLabel: String {
+        switch(self) {
+        case .media:
+            return NSLocalizedString("Insert media", comment: "Accessibility label for insert media button on formatting toolbar.")
+        case .header:
+            return NSLocalizedString("Select paragraph style", comment: "Accessibility label for selecting paragraph style button on formatting toolbar.")
+        case .bold:
+            return NSLocalizedString("Bold", comment: "Accessibility label for bold button on formatting toolbar.")
+        case .italic:
+            return NSLocalizedString("Italic", comment: "Accessibility label for italic button on formatting toolbar.")
+        case .underline:
+            return NSLocalizedString("Underline", comment: "Accessibility label for underline button on formatting toolbar.")
+        case .strikethrough:
+            return NSLocalizedString("Strike Through", comment: "Accessibility label for strikethrough button on formatting toolbar.")
+        case .blockquote:
+            return NSLocalizedString("Block Quote", comment: "Accessibility label for block quote button on formatting toolbar.")
+        case .orderedlist:
+            return NSLocalizedString("Ordered List", comment: "Accessibility label for Ordered list button on formatting toolbar.")
+        case .unorderedlist:
+            return NSLocalizedString("Unordered List", comment: "Accessibility label for unordered list button on formatting toolbar.")
+        case .link:
+            return NSLocalizedString("Insert Link", comment: "Accessibility label for insert link button on formatting toolbar.")
+        case .horizontalruler:
+            return NSLocalizedString("Insert Horizontal Ruler", comment: "Accessibility label for insert horizontal ruler button on formatting toolbar.")
+        case .sourcecode:
+            return NSLocalizedString("HTML", comment:"Accessibility label for HTML button on formatting toolbar.")
+        case .more:
+            return NSLocalizedString("More", comment:"Accessibility label for the More button on formatting toolbar.")
+        case .header1:
+            return NSLocalizedString("Header 1", comment: "Accessibility label for selecting h1 paragraph style button on the formatting toolbar.")
+        case .header2:
+            return NSLocalizedString("Header 2", comment: "Accessibility label for selecting h2 paragraph style button on the formatting toolbar.")
+        case .header3:
+            return NSLocalizedString("Header 3", comment: "Accessibility label for selecting h3 paragraph style button on the formatting toolbar.")
+        case .header4:
+            return NSLocalizedString("Header 4", comment: "Accessibility label for selecting h4 paragraph style button on the formatting toolbar.")
+        case .header5:
+            return NSLocalizedString("Header 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
+        case .header6:
+            return NSLocalizedString("Header 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
+        }
     }
 }

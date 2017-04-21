@@ -106,23 +106,23 @@ class TextStorageTests: XCTestCase
             deletedAttachmendIDCalledWithString = attachmentID
         }
 
-        func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
+        func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: TextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+        func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
             return .zero
         }
 
-        func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+        func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
             return UIImage()
         }
     }
@@ -224,6 +224,29 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "Apply a header")
     }
 
+    /// This test ensures that when applying a header style on top of another style the replacement occurs correctly.
+    ///
+    func testSwitchHeaderStyleToggle() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.append(NSAttributedString(string: "Apply a header"))
+        let formatterH1 = HeaderFormatter(headerLevel: .h1)
+        let formatterH2 = HeaderFormatter(headerLevel: .h2)
+        storage.toggle(formatter: formatterH1, at: storage.rangeOfEntireString)
+
+        var html = storage.getHTML()
+
+        XCTAssertEqual(html, "<h1>Apply a header</h1>")
+
+        storage.toggle(formatter:formatterH2, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "<h2>Apply a header</h2>")
+    }
+
 
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
     ///
@@ -287,7 +310,7 @@ class TextStorageTests: XCTestCase
         }
 
         // Nuke
-        storage.removeTextAttachments()
+        storage.removeMediaAttachments()
 
         // Verify the attachments are there
         for identifier in identifiers {

@@ -1,15 +1,29 @@
 import Foundation
 import UIKit
 
+
+// MARK: - Pre Formatter
+//
 open class PreFormatter: ParagraphAttributeFormatter {
 
+    /// Font to be used
+    ///
     let monospaceFont: UIFont
+
+    /// Attributes to be added by default
+    ///
     let placeholderAttributes: [String : Any]?
 
-    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12) ,placeholderAttributes: [String : Any]? = nil) {
+
+    /// Designated Initializer
+    ///
+    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [String : Any]? = nil) {
         self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
+
+
+    // MARK: - Overwriten Methods
 
     func apply(to attributes: [String : Any]) -> [String: Any] {
         var resultingAttributes = attributes
@@ -21,21 +35,21 @@ open class PreFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
-        var resultingAttributes = attributes
+    func remove(from attributes: [String: Any]) -> [String: Any] {
+        guard let placeholderAttributes = placeholderAttributes else {
+            return attributes
+        }
 
-        if let attributes = placeholderAttributes {
-            resultingAttributes = attributes
+        var resultingAttributes = attributes
+        for (key, value) in placeholderAttributes {
+            resultingAttributes[key] = value
         }
 
         return resultingAttributes
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        if let font = attributes[NSFontAttributeName] as? UIFont {
-            return font == monospaceFont
-        }
-        return false
+        let font = attributes[NSFontAttributeName] as? UIFont
+        return font == monospaceFont
     }
 }
-
