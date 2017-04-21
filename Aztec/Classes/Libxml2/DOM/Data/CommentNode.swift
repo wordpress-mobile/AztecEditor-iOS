@@ -26,14 +26,13 @@ extension Libxml2 {
         /// Node length.
         ///
         override func length() -> Int {
-            let nsString = text() as NSString
-            return nsString.length
+            return text().characters.count
         }
         
         // MARK: - LeafNode
         
         override func text() -> String {
-            return String(.newline)
+            return String(.paragraphSeparator)
         }
 
         override func deleteCharacters(inRange range: NSRange) {

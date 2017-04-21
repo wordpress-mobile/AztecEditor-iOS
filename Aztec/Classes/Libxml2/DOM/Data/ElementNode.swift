@@ -69,8 +69,7 @@ extension Libxml2 {
                 return defaultLengthForUnsupportedElements
             }
 
-            let nsString = text() as NSString
-            return nsString.length
+            return text().characters.count
         }
 
         // MARK: - Node Queries
@@ -806,7 +805,7 @@ extension Libxml2 {
             
             for textNodeAndRange in textNodesAndRanges {
                 let nodeText = textNodeAndRange.node.text()
-                let range = nodeText.range(from: textNodeAndRange.range)!
+                let range = nodeText.range(from: textNodeAndRange.range)
                 
                 text = text + nodeText.substring(with: range)
             }

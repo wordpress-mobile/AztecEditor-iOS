@@ -53,7 +53,7 @@ private extension LayoutManager {
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                self.drawBlockquote(in: lineRect, with: context)
+                self.drawBlockquote(in: lineRect.integral, with: context)
             }
         }
 
@@ -94,7 +94,7 @@ private extension LayoutManager {
             // Draw Paragraph Markers
             enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let location = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil).location
-                guard textStorage.isStartOfNewLine(atLocation: location) else {
+                guard textStorage.string.isStartOfNewLine(at: location) else {
                     return
                 }
 

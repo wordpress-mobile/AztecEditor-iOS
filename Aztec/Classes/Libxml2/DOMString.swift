@@ -72,6 +72,23 @@ extension Libxml2 {
         deinit {
             stopObservingParentUndoManager()
         }
+
+        // MARK: - String representation
+
+        func string() -> String {
+            var result: String = ""
+
+            domQueue.sync { [weak self] in
+
+                guard let strongSelf = self else {
+                    return
+                }
+
+                result = strongSelf.rootNode.text()
+            }
+
+            return result
+        }
         
         // MARK: - Settings & Getting HTML
         
@@ -269,7 +286,7 @@ extension Libxml2 {
             }
         }
 
-        /// Disables an image from the specified range.
+        /// Removes an image from the specified range.
         ///
         /// - Parameters:
         ///     - range: the range to remove the style from.
@@ -277,6 +294,17 @@ extension Libxml2 {
         func removeImage(spanning range: NSRange) {
             performAsyncUndoable { [weak self] in
                 self?.removeImageSynchronously(spanning: range)
+            }
+        }
+
+        /// Removes an video from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeVideo(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeVideoSynchronously(spanning: range)
             }
         }
 
@@ -356,6 +384,10 @@ extension Libxml2 {
 
         private func removeImageSynchronously(spanning range: NSRange) {
             domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.img.equivalentNames)
+        }
+
+        private func removeVideoSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.video.equivalentNames)
         }
         
         private func removeItalicSynchronously(spanning range: NSRange) {
@@ -529,6 +561,33 @@ extension Libxml2 {
 
             let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
             let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
+
+            rootNode.replaceCharacters(in: range, with: descriptor)
+        }
+
+        // MARK: - Videos
+
+        /// Replaces the specified range with a given image.
+        ///
+        /// - Parameters:
+        ///   - range: the range to insert the image
+        ///   - videoURL: the URL for the video src attribute
+        ///   - posterURL: the URL for ther video poster attribute
+        ///
+        func replace(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+            performAsyncUndoable { [weak self] in
+                self?.replaceSynchronously(range, withVideoURL: videoURL, posterURL: posterURL)
+            }
+        }
+
+        private func replaceSynchronously(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+            let videoURLString = videoURL.absoluteString
+
+            var attributes = [Libxml2.StringAttribute(name:"src", value: videoURLString)]
+            if let posterURLString = posterURL?.absoluteString {
+                attributes.append(Libxml2.StringAttribute(name:"poster", value: posterURLString))
+            }
+            let descriptor = ElementNodeDescriptor(elementType: .video, attributes: attributes)
 
             rootNode.replaceCharacters(in: range, with: descriptor)
         }

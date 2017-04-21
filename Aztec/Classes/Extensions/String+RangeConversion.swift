@@ -5,6 +5,55 @@ import Foundation
 //
 extension String
 {
+    /// Converts a UTF16 NSRange into a Swift String NSRange for this string.
+    ///
+    /// - Parameters:
+    ///     - nsRange: the UTF16 NSRange to convert.
+    ///
+    /// - Returns: the requested `Swift String NSRange`
+    ///
+    func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange? {
+
+        let utf16Range = utf16.range(from: nsRange)
+
+        guard let range = range(from: utf16Range) else {
+            return nil
+        }
+
+        let location = distance(from: startIndex, to: range.lowerBound)
+        let length = distance(from: range.lowerBound, to: range.upperBound)
+
+        return NSRange(location: location, length: length)
+    }
+
+    /// Converts a Swift String NSRange into a UTF16 NSRange for this string.
+    ///
+    /// - Parameters:
+    ///     - nsRange: the Swift String NSRange to convert.
+    ///
+    /// - Returns: the requested `UTF16 NSRange`
+    ///
+    func utf16NSRange(from nsRange: NSRange) -> NSRange {
+        let swiftRange = range(from: nsRange)
+        let utf16NSRange = self.utf16NSRange(from: swiftRange)
+
+        return utf16NSRange
+    }
+
+    /// Converts an NSRange into a `Range<String.Index>` for this string.
+    ///
+    /// - Parameters:
+    ///     - nsRange: the NSRange to convert.
+    ///
+    /// - Returns: the requested `Range<String.Index>`
+    ///
+    func range(from nsRange: NSRange) -> Range<String.Index> {
+        let lowerBound = index(startIndex, offsetBy: nsRange.location)
+        let upperBound = index(lowerBound, offsetBy: nsRange.length)
+
+        return lowerBound ..< upperBound
+    }
+
     /// Converts a UTF16 NSRange into a `Range<String.Index>` for this string.
     ///
     /// - Parameters:
@@ -12,17 +61,30 @@ extension String
     ///
     /// - Returns: the requested `Range<String.Index>`
     ///
-    func range(from nsRange : NSRange) -> Range<String.Index>? {
-        let utf16Start = utf16.index(utf16.startIndex, offsetBy: nsRange.location)
-        let utf16End = utf16.index(utf16Start, offsetBy: nsRange.length)
-
-        guard
-            let start = utf16Start.samePosition(in: self),
-            let end = utf16End.samePosition(in: self) else {
+    func range(from utf16Range: Range<String.UTF16View.Index>) -> Range<String.Index>? {
+        guard let start = utf16Range.lowerBound.samePosition(in: self),
+            let end = utf16Range.upperBound.samePosition(in: self) else {
                 return nil
         }
 
         return start ..< end
+    }
+
+    func range(from unicodeNSRange: Range<String.UnicodeScalarView.Index>) -> Range<String.Index>? {
+        guard let lowerBound = unicodeNSRange.lowerBound.samePosition(in: self),
+            let upperBound = unicodeNSRange.upperBound.samePosition(in: self) else {
+                return nil
+        }
+
+        return lowerBound ..< upperBound
+    }
+
+    func nsRange(of string: String) -> NSRange? {
+        guard let range = self.range(of: string) else {
+            return nil
+        }
+
+        return nsRange(from: range)
     }
 
     /// Converts a `Range<String.Index>` into an UTF16 NSRange.
@@ -34,11 +96,40 @@ extension String
     ///
     func nsRange(from range: Range<String.Index>) -> NSRange {
 
+        let location = distance(from: startIndex, to: range.lowerBound)
+        let length = distance(from: range.lowerBound, to: range.upperBound)
+
+        return NSRange(location: location, length: length)
+    }
+
+    /// Converts a `Range<String.Index>` into an UTF16 NSRange.
+    ///
+    /// - Parameters:
+    ///     - range: the range to convert.
+    ///
+    /// - Returns: the requested `NSRange`.
+    ///
+    func utf16NSRange(from range: Range<String.Index>) -> NSRange {
+
         let lowerBound = range.lowerBound.samePosition(in: utf16)
         let upperBound = range.upperBound.samePosition(in: utf16)
 
         let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
         let length = utf16.distance(from: lowerBound, to: upperBound)
+
+        return NSRange(location: location, length: length)
+    }
+
+    /// Converts a `Range<String.UnicodeScalarView.Index>` into an Unicod Scalar `NSRange`.
+    ///
+    /// - Parameters:
+    ///     - range: the range to convert.
+    ///
+    /// - Returns: the requested `NSRange`.
+    ///
+    func nsRange(from range: Range<String.UnicodeScalarView.Index>) -> NSRange {
+        let location = unicodeScalars.distance(from: unicodeScalars.startIndex, to: range.lowerBound)
+        let length = unicodeScalars.distance(from: range.lowerBound, to: range.upperBound)
 
         return NSRange(location: location, length: length)
     }
@@ -83,5 +174,13 @@ extension String
         let beforeIndex = index(before: currentIndex)
         let before16 = beforeIndex.samePosition(in: utf16)
         return utf16.distance(from: utf16.startIndex, to: before16)
+    }
+
+    func range(_ range: Range<String.Index>, offsetBy offset: String.IndexDistance) -> Range<String.Index> {
+
+        let startIndex = index(range.lowerBound, offsetBy: offset)
+        let endIndex = index(range.upperBound, offsetBy: offset)
+
+        return startIndex ..< endIndex
     }
 }
