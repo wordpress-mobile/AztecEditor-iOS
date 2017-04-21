@@ -789,14 +789,15 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
 
         if let videoAttachment = attachment as? VideoAttachment {
+            if let imageAttachment = currentSelectedAttachment {
+                deselected(textAttachment: imageAttachment, atPosition: position)
+            }
             selected(videoAttachment: videoAttachment, atPosition: position)
         }
     }
 
     func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? ImageAttachment {
-            deselected(textAttachment: imgAttachment, atPosition: position)
-        }
+        deselected(textAttachment: attachment, atPosition: position)
     }
 
     func selected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
@@ -817,9 +818,12 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
     }
 
-    func deselected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
-        attachment.clearAllOverlays()
-        richTextView.refreshLayoutFor(attachment: attachment)
+    func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+        currentSelectedAttachment = nil
+        if let mediaAttachment = attachment as? MediaAttachment {
+            mediaAttachment.clearAllOverlays()
+            richTextView.refreshLayoutFor(attachment: mediaAttachment)
+        }
     }
 
     func selected(videoAttachment attachment: VideoAttachment, atPosition position: CGPoint) {
