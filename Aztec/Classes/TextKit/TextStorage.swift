@@ -505,17 +505,17 @@ open class TextStorage: NSTextStorage {
         let originalUrl = original?.srcURL
         let newUrl = new?.srcURL
 
-        let addImageUrl = originalUrl == nil && newUrl != nil
-        let removeImageUrl = originalUrl != nil && newUrl == nil
+        let addVideoUrl = originalUrl == nil && newUrl != nil
+        let removeVideoUrl = originalUrl != nil && newUrl == nil
 
-        if addImageUrl {
+        if addVideoUrl {
             guard let urlToAdd = newUrl else {
                 assertionFailure("This should not be possible.  Review your logic.")
                 return
             }
 
             dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL)
-        } else if removeImageUrl {
+        } else if removeVideoUrl {
             dom.removeVideo(spanning: range)
         }
     }
