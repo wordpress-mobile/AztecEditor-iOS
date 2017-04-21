@@ -76,6 +76,8 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
 
+    private var allowFixingDOMAttributes = true
+
     // MARK: - Undo Support
     
     public var undoManager: UndoManager? {
@@ -280,13 +282,15 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: preprocessedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
+        allowFixingDOMAttributes = false
         endEditing()
+        allowFixingDOMAttributes = true
     }
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM(), let attributes = attrs {
+        if mustUpdateDOM() && allowFixingDOMAttributes, let attributes = attrs {
             applyStylesToDom(attributes: attributes, in: range)
         }
 
