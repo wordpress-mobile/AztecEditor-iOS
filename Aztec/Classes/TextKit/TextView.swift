@@ -685,7 +685,7 @@ open class TextView: UITextView {
     ///     - range: Position in which the deletedText was present in the storage.
     ///
     private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        guard deletedText.string == String(.newline) || range.location == 0 else {
+        guard deletedText.string.isEndOfLine() || range.location == 0 else {
             return
         }
 

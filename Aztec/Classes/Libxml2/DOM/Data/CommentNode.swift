@@ -32,7 +32,7 @@ extension Libxml2 {
         // MARK: - LeafNode
         
         override func text() -> String {
-            return String(.newline)
+            return String(.paragraphSeparator)
         }
 
         override func deleteCharacters(inRange range: NSRange) {
