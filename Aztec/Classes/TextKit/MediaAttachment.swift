@@ -296,7 +296,9 @@ open class MediaAttachment: NSTextAttachment
         let padding = textContainer?.lineFragmentPadding ?? 0
         let width = lineFrag.width - padding * 2
 
-        return CGRect(origin: CGPoint.zero, size: CGSize(width: width, height: onScreenHeight(width)))
+        let size = CGSize(width: width, height: onScreenHeight(width))
+        
+        return CGRect(origin: CGPoint.zero, size: size)
     }
 
     func updateImage(inTextContainer textContainer: NSTextContainer? = nil) {

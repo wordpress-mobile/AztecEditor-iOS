@@ -990,11 +990,11 @@ open class TextView: UITextView {
         return attachment
     }
 
-    /// Returns the associated TextAttachment, at a given point, if any.
+    /// Returns the associated NSTextAttachment, at a given point, if any.
     ///
     /// - Parameter point: The point on screen to check for attachments.
     ///
-    /// - Returns: The associated TextAttachment.
+    /// - Returns: The associated NSTextAttachment.
     ///
     open func attachmentAtPoint(_ point: CGPoint) -> NSTextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
@@ -1002,7 +1002,18 @@ open class TextView: UITextView {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment else {
+            return nil
+        }
+
+        let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
+        let bounds = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
+
+        if bounds.contains(point) {
+            return attachment
+        }
+
+        return nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
