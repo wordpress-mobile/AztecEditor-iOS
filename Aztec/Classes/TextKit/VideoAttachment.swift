@@ -22,11 +22,11 @@ open class VideoAttachment: MediaAttachment
     ///
     open var posterURL: URL? {
         get {
-            return self.srcURL
+            return self.url
         }
 
         set {
-            self.srcURL = newValue
+            self.url = newValue
         }
     }
 

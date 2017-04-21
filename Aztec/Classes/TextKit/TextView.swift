@@ -973,18 +973,28 @@ open class TextView: UITextView {
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
-    ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
+    ///   - location: the location in the text to insert the video
+    ///   - sourceURL: the video source URL
+    ///   - posterURL: the video poster image URL
+    ///   - placeHolderImage: an image to use has an placeholder while the video poster is being loaded
+    ///   - identifier: an unique indentifier for the video
     ///
-    open func insertVideo(_ index: Int, params: [String: AnyObject]) {
-        print("video")
+    /// - Returns: the video attachment object that was inserted.
+    ///
+    open func insertVideo(atLocation location: Int, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let attachment = storage.insertVideo(sourceURL: sourceURL, posterURL: posterURL, atPosition: location, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
+        let length = NSAttributedString.lengthOfTextAttachment
+        textStorage.addAttributes(typingAttributes, range: NSMakeRange(location, length))
+        selectedRange = NSMakeRange(location+length, 0)
+        delegate?.textViewDidChange?(self)
+        return attachment
     }
 
-    /// Returns the associated TextAttachment, at a given point, if any.
+    /// Returns the associated NSTextAttachment, at a given point, if any.
     ///
     /// - Parameter point: The point on screen to check for attachments.
     ///
-    /// - Returns: The associated TextAttachment.
+    /// - Returns: The associated NSTextAttachment.
     ///
     open func attachmentAtPoint(_ point: CGPoint) -> NSTextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
@@ -992,7 +1002,18 @@ open class TextView: UITextView {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment else {
+            return nil
+        }
+
+        let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
+        let bounds = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
+
+        if bounds.contains(point) {
+            return attachment
+        }
+
+        return nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
