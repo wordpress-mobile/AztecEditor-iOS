@@ -150,5 +150,59 @@ class StringEndOfLineTests: XCTestCase {
         }
     }
 
+    // MARK: - isStartOfNewline()
 
+    func testIsStartOfNewline1() {
+        for separator in endOfLineSeparators {
+            let string = "\(separator)"
+            let index = string.startIndex
+
+            XCTAssertTrue(string.isStartOfNewLine(at: index))
+        }
+    }
+
+    func testIsStartOfNewline2() {
+        for separator in endOfLineSeparators {
+            let string = "\(separator)"
+            let index = string.endIndex
+
+            XCTAssertTrue(string.isStartOfNewLine(at: index))
+        }
+    }
+
+    func testIsStartOfNewline3() {
+        for separator in endOfLineSeparators {
+            let string = "🌎\(separator)"
+            let index = string.range(of: "🌎")!.lowerBound
+
+            XCTAssertTrue(string.isStartOfNewLine(at: index))
+        }
+    }
+
+    func testIsStartOfNewline4() {
+        for separator in endOfLineSeparators {
+            let string = "🌎\(separator)"
+            let index = string.range(of: "🌎")!.upperBound
+
+            XCTAssertFalse(string.isStartOfNewLine(at: index))
+        }
+    }
+
+    func testIsStartOfNewline5() {
+        for separator in endOfLineSeparators {
+            let string = "\(separator)🌎"
+            let index = string.range(of: "🌎")!.lowerBound
+
+            XCTAssertTrue(string.isStartOfNewLine(at: index))
+        }
+    }
+
+    func testIsStartOfNewline6() {
+        for separator in endOfLineSeparators {
+            let string = "\(separator)🌎"
+            let index = string.range(of: "🌎")!.upperBound
+
+            XCTAssertFalse(string.isStartOfNewLine(at: index))
+        }
+    }
 }

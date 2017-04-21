@@ -45,6 +45,14 @@ extension String {
         return isEndOfLine(at: nextIndex)
     }
 
+    func isEndOfLine(before index: String.Index) -> Bool {
+        assert(index != startIndex)
+
+        let previousIndex = self.index(before: index)
+
+        return isEndOfLine(at: previousIndex)
+    }
+
     func isEndOfLine(at index: String.Index) -> Bool {
         return index == endIndex || substring(with: index ..< self.index(after: index)).isEndOfLine()
     }
@@ -62,11 +70,7 @@ extension String {
             return true
         }
 
-        let lowerBound = self.index(before: index)
-        let upperBound = self.index(lowerBound, offsetBy: 1)
-        let previousString = substring(with: lowerBound ..< upperBound)
-
-        return previousString.isEndOfLine()
+        return isEndOfLine(before: index)
     }
 
     /// Checks if the location passed is the beggining of a new line.
