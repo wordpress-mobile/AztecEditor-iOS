@@ -585,11 +585,10 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func togglePre(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = PreFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -602,11 +601,10 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -615,11 +613,10 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -629,11 +626,10 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
-
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
-        toggle(formatter: formatter, atRange: range)
 
+        ensureInsertionOfNewline(at: selectedRange.location)
+        toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
@@ -711,67 +707,6 @@ open class TextView: UITextView {
         }
 
         typingAttributes[NSFontAttributeName] = defaultFont.withSize(activeFont.pointSize)
-    }
-
-
-    /// Inserts an empty line whenever we're at the end of the document
-    ///
-    private func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
-        guard selectedRange.location == storage.length else {
-            return
-        }
-
-        insertNewline()
-    }
-
-
-    /// Inserts an empty line whenever:
-    ///
-    ///     A.  We're about to insert a new line
-    ///     B.  We're at the end of the document
-    ///     C.  There's a List (OR) Blockquote (OR) Pre active
-    ///
-    /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
-    /// Blockquote's background.
-    ///
-    private func ensureInsertionOfNewline(beforeInserting text: String) {
-        guard text == String(.newline) else {
-            return
-        }
-
-        guard selectedRange.location == storage.length else {
-            return
-        }
-
-        let formatters: [AttributeFormatter] = [
-            BlockquoteFormatter(),
-            PreFormatter(placeholderAttributes: self.defaultAttributes),
-            TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered)
-        ]
-
-        let found = formatters.first { formatter in
-            return formatter.present(in: typingAttributes)
-        }
-
-        guard found != nil else {
-            return
-        }
-
-        insertNewline()
-    }
-
-
-    /// Inserts a New Line at the current position, while retaining the selectedRange and typingAttributes.
-    ///
-    private func insertNewline() {
-        let previousRange = selectedRange
-        let previousStyle = typingAttributes
-
-        super.insertText(String(.newline))
-
-        selectedRange = previousRange
-        typingAttributes = previousStyle
     }
 
 
@@ -1179,7 +1114,7 @@ open class TextView: UITextView {
     }
 }
 
-// MARK: - Paragraph Formatters Rendering Workarounds
+// MARK: - ParagraphFormatters: Style Removal Workarounds
 //
 private extension TextView {
 
@@ -1227,7 +1162,7 @@ private extension TextView {
     ///
     /// - Returns: true if we should remove the paragraph attributes. false otherwise!
     ///
-    func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
+    private func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
         guard text == String(.newline) || location == storage.length else {
             return false
         }
@@ -1247,7 +1182,7 @@ private extension TextView {
     ///
     /// - Returns: true on success.
     ///
-    func removeParagraphAttributes(at range: NSRange) -> Bool {
+    private func removeParagraphAttributes(at range: NSRange) -> Bool {
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
             PreFormatter(placeholderAttributes: defaultAttributes),
@@ -1270,6 +1205,76 @@ private extension TextView {
         }
         
         return false
+    }
+}
+
+
+// MARK: ParagraphFormatters: Newline Workarounds
+//
+private extension TextView {
+
+    /// Inserts a newline character, below the selected range, whenever we're at the end of the document.
+    ///
+    /// - Parameter location: current location of the cursor.
+    ///
+    func ensureInsertionOfNewline(at location: Int) {
+        guard location == storage.length else {
+            return
+        }
+
+        insertNewlineBelowSelectedRange()
+    }
+
+
+    /// Inserts an empty line whenever:
+    ///
+    ///     A.  We're about to insert a new line
+    ///     B.  We're at the end of the document
+    ///     C.  There's a Paragraph Formatter Enabled.
+    ///
+    /// Note: We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR)
+    /// Blockquote's background.
+    ///
+    /// - Parameter text: String about to be inserted.
+    ///
+    func ensureInsertionOfNewline(beforeInserting text: String) {
+        guard text == String(.newline) else {
+            return
+        }
+
+        guard selectedRange.location == storage.length else {
+            return
+        }
+
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(placeholderAttributes: self.defaultAttributes),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        let found = formatters.first { formatter in
+            return formatter.present(in: typingAttributes)
+        }
+
+        guard found != nil else {
+            return
+        }
+
+        insertNewlineBelowSelectedRange()
+    }
+
+
+    /// Inserts a Newline *below* the cursor, while retaining the selectedRange and typingAttributes.
+    ///
+    private func insertNewlineBelowSelectedRange() {
+        let previousRange = selectedRange
+        let previousStyle = typingAttributes
+
+        super.insertText(String(.newline))
+
+        selectedRange = previousRange
+        typingAttributes = previousStyle
     }
 }
 
