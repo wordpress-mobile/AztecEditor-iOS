@@ -53,7 +53,7 @@ private extension LayoutManager {
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                self.drawBlockquote(in: lineRect, with: context)
+                self.drawBlockquote(in: lineRect.integral, with: context)
             }
         }
 
