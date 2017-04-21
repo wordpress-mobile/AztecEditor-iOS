@@ -52,7 +52,15 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (void)loadData
 {
-    [self.tableView reloadData];
+    [self.dataSource loadDataWithSuccess:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
+    }];
 }
 
 #pragma mark - UITableViewDataSource methods

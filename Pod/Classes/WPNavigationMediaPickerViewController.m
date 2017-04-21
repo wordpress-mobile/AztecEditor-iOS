@@ -65,7 +65,11 @@ static NSString *const ArrowDown = @"\u25be";
     vc.mediaPickerDelegate = self.delegate;
     self.mediaPicker = vc;
 
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
+    groupViewController.delegate = self;
+    groupViewController.dataSource = self.dataSource;
+
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController: groupViewController];
     nav.delegate = self;
 
     [nav willMoveToParentViewController:self];
