@@ -773,7 +773,6 @@ open class TextView: UITextView {
         typingAttributes = previousStyle
     }
 
-
     /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
     /// the NSLinkAttribute. Meaning that:
     ///
@@ -1175,17 +1174,11 @@ private extension TextView {
     /// - Returns: true if we should remove the paragraph attributes. false otherwise!
     ///
     func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
-        guard text == String(.newline) || location == storage.length else {
+        guard text?.isEndOfLine() == true || location == storage.length else {
             return false
         }
 
-        let afterRange = NSRange(location: location, length: 1)
-        let afterString = storage.safeSubstring(at: afterRange) ?? String(.newline)
-
-        let beforeRange = NSRange(location: location - 1, length: 1)
-        let beforeString = storage.safeSubstring(at: beforeRange) ?? String(.newline)
-
-        return beforeString == String(.newline) && afterString == String(.newline)
+        return storage.string.isEmptyParagraph(at: location)
     }
 
 
