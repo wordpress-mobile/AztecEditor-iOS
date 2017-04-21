@@ -510,8 +510,9 @@
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
     fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:self.mediaType];
-
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] lastObject];
+    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    fetchOptions.fetchLimit = 1;
+    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] firstObject];
     return [posterAsset imageWithSize:size completionHandler:completionHandler];
 }
 
