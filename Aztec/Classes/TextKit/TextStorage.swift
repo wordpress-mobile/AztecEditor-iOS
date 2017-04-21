@@ -342,7 +342,7 @@ open class TextStorage: NSTextStorage {
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
-            let domRange = string.map(visualUTF16Range: subRange)
+            let domRange = textStore.string.map(visualUTF16Range: subRange)
 
             processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
@@ -363,17 +363,14 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
+        let location = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
+
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
             let domRange = NSRange(location: location + subRange.location, length: subRange.length)
-            let mappedDomRange = dom.string().map(visualUTF16Range: domRange)
 
-            guard mappedDomRange.length > 0 else {
-                return
-            }
-
-            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: mappedDomRange) else {
+            guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
                 // the style than it is to crash the editor.
                 //
