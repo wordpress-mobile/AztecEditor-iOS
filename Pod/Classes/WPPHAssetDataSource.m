@@ -384,8 +384,8 @@
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
-    options.resizeMode = PHImageRequestOptionsResizeModeExact;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.resizeMode = PHImageRequestOptionsResizeModeFast;
     options.networkAccessAllowed = YES;
     CGSize requestSize = size;
     if (CGSizeEqualToSize(requestSize, CGSizeZero)) {
