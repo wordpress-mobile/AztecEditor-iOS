@@ -767,7 +767,7 @@ open class TextView: UITextView {
         let previousRange = selectedRange
         let previousStyle = typingAttributes
 
-        super.insertText(String(.newline))
+        super.insertText(String(.paragraphSeparator))
 
         selectedRange = previousRange
         typingAttributes = previousStyle

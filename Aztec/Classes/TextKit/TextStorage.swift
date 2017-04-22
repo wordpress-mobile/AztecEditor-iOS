@@ -76,6 +76,11 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
 
+    // MARK: - Workarounds support
+
+    /// To know more about why we need this flag, check the documentation of our `endEditing()`
+    /// override.
+    ///
     private var allowFixingDOMAttributes = true
 
     // MARK: - Undo Support
@@ -143,6 +148,12 @@ open class TextStorage: NSTextStorage {
     }
     
     // MARK: - NSAttributedString preprocessing
+
+    private func preprocessStringForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+        let stringWithFixedNewlines = NSAttributedString(with: attributedString, replacingOcurrencesOf: "\n", with: String(.paragraphSeparator))
+
+        return preprocessAttributesForInsertion(stringWithFixedNewlines)
+    }
 
     private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
@@ -270,7 +281,7 @@ open class TextStorage: NSTextStorage {
 
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
 
-        let preprocessedString = preprocessAttributesForInsertion(attrString)
+        let preprocessedString = preprocessStringForInsertion(attrString)
 
         beginEditing()
 
@@ -282,9 +293,7 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: preprocessedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
-        allowFixingDOMAttributes = false
         endEditing()
-        allowFixingDOMAttributes = true
     }
 
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
@@ -300,6 +309,19 @@ open class TextStorage: NSTextStorage {
         endEditing()
 
         print("Style: \(dom.getHTML())")
+    }
+
+    /// This override exists to prevent text replacement from propagating style-changes to the DOM
+    /// This should not be a problem in our logic because the DOM is smart enough to update its
+    /// style after text modifications.
+    ///
+    /// This was causing issues specifically with lists.  To understand why, just comment this
+    /// method and run the unit tests.
+    ///
+    override open func endEditing() {
+        allowFixingDOMAttributes = false
+        super.endEditing()
+        allowFixingDOMAttributes = true
     }
 
     // MARK: - DOM: Replacing Characters
@@ -333,7 +355,9 @@ open class TextStorage: NSTextStorage {
         }
 
         print("Pre: \(dom.getHTML())")
-        applyStylesToDom(from: domString, startingAt: range.location)
+        if domString.length > 0 {
+            applyStylesToDom(from: domString, startingAt: range.location)
+        }
         print("Pos: \(dom.getHTML())")
     }
 
