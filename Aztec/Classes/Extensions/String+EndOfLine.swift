@@ -69,6 +69,16 @@ extension String {
         return index == endIndex || substring(with: index ..< self.index(after: index)).isEndOfLine()
     }
 
+    func isEndOfLine(atUTF16Offset utf16Offset: Int) -> Bool {
+        let utf16Index = utf16.index(utf16.startIndex, offsetBy: utf16Offset)
+
+        guard let index = utf16Index.samePosition(in: self) else {
+            fatalError("This should not be possible, review your logic.")
+        }
+
+        return isEndOfLine(at: index)
+    }
+
     /// Checks if the location passed is the beggining of a new line.
     ///
     /// - Parameters:
@@ -95,6 +105,24 @@ extension String {
     func isStartOfNewLine(at offset: Int) -> Bool {
 
         let index = self.index(startIndex, offsetBy: offset)
+
+        return isStartOfNewLine(at: index)
+    }
+
+    /// Checks if the location passed is the beggining of a new line.
+    ///
+    /// - Parameters:
+    ///     - offset: the receiver's offset to check
+    ///
+    /// - Returns: true if beggining of a new line false otherwise
+    ///
+    func isStartOfNewLine(atUTF16Offset utf16Offset: Int) -> Bool {
+
+        let utf16Index = utf16.index(utf16.startIndex, offsetBy: utf16Offset)
+
+        guard let index = utf16Index.samePosition(in: self) else {
+            fatalError("This should not be possible, review your logic.")
+        }
 
         return isStartOfNewLine(at: index)
     }

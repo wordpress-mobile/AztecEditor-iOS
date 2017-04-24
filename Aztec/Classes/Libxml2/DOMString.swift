@@ -341,6 +341,28 @@ extension Libxml2 {
             }
         }
 
+        /// Disables unordered list from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeOrderedList(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeOrderedListSynchronously(spanning: range)
+            }
+        }
+
+        /// Disables unordered list from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeUnorderedList(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeUnorderedListSynchronously(spanning: range)
+            }
+        }
+
         /// Disables blockquote from the specified range.
         ///
         /// - Parameters:
@@ -415,6 +437,16 @@ extension Libxml2 {
         
         private func removeUnderlineSynchronously(spanning range: NSRange) {
             domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
+        }
+
+        private func removeOrderedListSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ol.equivalentNames)
+        }
+
+        private func removeUnorderedListSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ul.equivalentNames)
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
@@ -501,13 +533,23 @@ extension Libxml2 {
             }
         }
 
-        func applyOrderedList(spanning range: NSRange) {
+        func applyOrderedList(spanning range: NSRange, canMergeLeft: Bool, canMergeRight: Bool) {
             performAsyncUndoable { [weak self] in
 
-                let liDescriptor = ElementNodeDescriptor(elementType: .li)
+                let liDescriptor = ElementNodeDescriptor(elementType: .li, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
                 let olDescriptor = ElementNodeDescriptor(elementType: .ol, childDescriptor: liDescriptor)
 
                 self?.applyElementDescriptor(olDescriptor, spanning: range)
+            }
+        }
+
+        func applyUnorderedList(spanning range: NSRange, canMergeLeft: Bool, canMergeRight: Bool) {
+            performAsyncUndoable { [weak self] in
+
+                let liDescriptor = ElementNodeDescriptor(elementType: .li, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+                let ulDescriptor = ElementNodeDescriptor(elementType: .ul, childDescriptor: liDescriptor)
+
+                self?.applyElementDescriptor(ulDescriptor, spanning: range)
             }
         }
 

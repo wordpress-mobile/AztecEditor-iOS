@@ -1520,12 +1520,6 @@ extension Libxml2 {
 
             var childrenToWrap = selectedChildren
 
-            if let childElementDescriptor = elementDescriptor.childDescriptor {
-                let newChild = wrap(children: selectedChildren, inElement: childElementDescriptor)
-
-                childrenToWrap = [newChild]
-            }
-
             guard selectedChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
                 return ElementNode(descriptor: elementDescriptor, editContext: editContext)
@@ -1550,39 +1544,43 @@ extension Libxml2 {
             // First get the right sibling because if we do it the other round, lastNodeIndex will
             // be modified before we access it.
             //
-            let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
-            let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
+            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
 
-            var result: ElementNode?
+            var wrapperElement: ElementNode?
             
             if let sibling = rightSibling {
                 sibling.prepend(childrenToWrap)
                 childrenToWrap = sibling.children
                 
-                result = sibling
+                wrapperElement = sibling
             }
             
             if let sibling = leftSibling {
                 sibling.append(childrenToWrap)
                 childrenToWrap = sibling.children
                 
-                result = sibling
+                wrapperElement = sibling
                 
                 if let rightSibling = rightSibling, rightSibling.children.count == 0 {
                     rightSibling.removeFromParent()
                 }
             }
 
-            if let result = result {
-                return result
-            } else {
+            let finalWrapper = wrapperElement ?? { () -> ElementNode in
                 let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
-                
+
                 children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
-                
+
                 return newNode
+            }()
+
+            if let childElementDescriptor = elementDescriptor.childDescriptor {
+                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
             }
+
+            return finalWrapper
         }
 
         // MARK: - Editing behavior

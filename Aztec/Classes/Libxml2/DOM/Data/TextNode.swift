@@ -222,7 +222,7 @@ extension Libxml2 {
             if components.count == 1 {
                 append(sanitizedString: string)
             } else {
-                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 
@@ -245,7 +245,7 @@ extension Libxml2 {
             if components.count == 1 {
                 prepend(sanitizedString: string)
             } else {
-                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 
@@ -279,7 +279,7 @@ extension Libxml2 {
             if components.count == 1 {
                 replaceCharacters(inRange: range, withSanitizedString: string)
             } else {
-                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 

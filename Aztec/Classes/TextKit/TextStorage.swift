@@ -368,6 +368,10 @@ open class TextStorage: NSTextStorage {
     ///     - range: the range to apply the styles to.
     ///
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
+
+        let canMergeLeft = range.location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: range.location) : false
+        let canMergeRight = range.location + range.length < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: range.location + range.length) : false
+
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
             let domRange = textStore.string.map(visualUTF16Range: subRange)
@@ -376,7 +380,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
+            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -395,12 +399,15 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = [String:Any]()
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let location = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
+        let domLocation = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
+
+        let canMergeLeft = location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: location) : false
+        let canMergeRight = location < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: location) : false
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
+            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
 
             guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
@@ -410,7 +417,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
+            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -424,7 +431,14 @@ open class TextStorage: NSTextStorage {
     ///   - sourceValue: the original value of the attribute
     ///   - targetValue: the new value of the attribute
     ///
-    private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+    private func processAttributesDifference(
+        in domRange: NSRange,
+        key: String,
+        sourceValue: Any?,
+        targetValue: Any?,
+        canMergeLeft: Bool = true,
+        canMergeRight: Bool = true) {
+
         let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
         let isHtmlAttachment = sourceValue is HTMLAttachment || targetValue is HTMLAttachment
         let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
@@ -477,7 +491,7 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? ParagraphStyle
 
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
-            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList)
+            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
             processHTMLParagraphDifferences(in: domRange, betweenOriginal: sourceStyle?.htmlParagraph, andNew: targetStyle?.htmlParagraph)
         case NSLinkAttributeName:
@@ -721,15 +735,30 @@ open class TextStorage: NSTextStorage {
     ///     - originalStyle: the original TextList object if any.
     ///     - newStyle: the new Blockquote object.
     ///
-    private func processListDifferences(in range: NSRange, betweenOriginal originalStyle: TextList?, andNew newStyle: TextList?) {
+    private func processListDifferences(in range: NSRange, betweenOriginal originalStyle: TextList?, andNew newStyle: TextList?, canMergeLeft: Bool = false, canMergeRight: Bool = false) {
 
-        let addStyle = originalStyle == nil && newStyle != nil
-        let removeStyle = originalStyle != nil && newStyle == nil
+        let original = originalStyle?.style
+        let new = newStyle?.style
 
-        if addStyle {
-            dom.applyOrderedList(spanning: range)
-        } else if removeStyle {
-            dom.removeBlockquote(spanning: range)
+        guard original != new else {
+            return
+        }
+
+        let removeOrdered = original == .ordered
+        let removeUnordered = original == .unordered
+        let addOrdered = new == .ordered
+        let addUnordered = new == .unordered
+
+        if removeOrdered {
+            dom.removeOrderedList(spanning: range)
+        } else if removeUnordered {
+            dom.removeUnorderedList(spanning: range)
+        }
+
+        if addOrdered {
+            dom.applyOrderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+        } else if addUnordered {
+            dom.applyUnorderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         }
     }
 
