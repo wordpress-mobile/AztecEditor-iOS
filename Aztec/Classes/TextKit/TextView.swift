@@ -287,7 +287,7 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
-        guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
+        guard !ensureRemovalOfTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
         }
 
@@ -334,11 +334,9 @@ open class TextView: UITextView {
 
         super.deleteBackward()
 
-        if storage.string.isEmpty {
-            return
-        }
+        //refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
+        ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
 
-        refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -795,15 +793,6 @@ open class TextView: UITextView {
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
     }
 
-    private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
-        HeaderFormatter(headerLevel:.h1),
-        HeaderFormatter(headerLevel:.h2),
-        HeaderFormatter(headerLevel:.h3),
-        HeaderFormatter(headerLevel:.h4),
-        HeaderFormatter(headerLevel:.h5),
-        HeaderFormatter(headerLevel:.h6),
-    ]
-
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
@@ -1167,7 +1156,7 @@ private extension TextView {
             HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
         ]
 
-        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+        for formatter in formatters where formatter.present(in: typingAttributes) {
             typingAttributes = formatter.remove(from: typingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
@@ -1177,15 +1166,13 @@ private extension TextView {
 
     // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
 
-    /// Removes paragraph attributes after a selection change.  The logic that defines if the
-    /// attributes must be removed is located in
-    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    /// Removes text list attributes after pressing enter in an empty paragraph.
     ///
     /// - Parameters:
     ///     - input: the user's input.  This method must be called before the input is processed.
     ///
-    func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
-        guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
+    func ensureRemovalOfTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        guard mustRemoveTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
             return false
         }
 
@@ -1194,14 +1181,53 @@ private extension TextView {
         return true
     }
 
-    /// Analyzes whether paragraph attributes should be removed from the specified
-    /// location, or not, after the selection range is changed.
+    /// Analyzes whether text list attributes should be removed after pressing enter in an empty
+    /// paragraph.
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+    func mustRemoveTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
         return input.isEndOfLine()
             && storage.string.isEmptyParagraph(at: selectedRange.location)
+            && TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
+    }
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeTextListAttributes(at range: NSRange) {
+        let formatters: [AttributeFormatter] = [
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+
+    // MARK: - Remove paragraph styles when pressing backspace and removing the last character
+
+    /// Removes paragraph attributes after pressing backspace, if the resulting document is empty.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() {
+        guard mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after pressing backspace.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() -> Bool {
+        return storage.length == 0
     }
 
     // MARK: - WORKAROUND: removing styles at EOF due to selection change
