@@ -726,7 +726,9 @@ open class TextView: UITextView {
             return
         }
 
-        if selectedRangeForSwift.location == textStorage.length {
+        if selectedRangeForSwift.location == textStorage.length
+            && textStorage.string.isEmptyParagraph(at: selectedRangeForSwift.location) {
+
             insertEndOfLineCharacter()
         }
     }
