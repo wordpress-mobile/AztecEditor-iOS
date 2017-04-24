@@ -764,7 +764,7 @@ class TextViewTests: XCTestCase {
 
         // Toggle List + Move the selection to the EOD
         textView.toggleOrderedList(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         // Insert Newline
         var expectedLength = textView.text.characters.count
@@ -824,7 +824,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
@@ -864,10 +864,11 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleUnorderedList(range: .zero)
-        XCTAssertEqual(textView.text, String(.newline))
+        XCTAssert(textView.text.isEndOfLine())
     }
 
-    /// Verifies that toggling an Unordered List, when editing the end of a non empty document, inserts a Newline.
+    /// Verifies that toggling an Unordered List, when editing the end of a non empty line should
+    /// never insert a newline, but that a newline is inserted for an empty line.
     ///
     /// Input:
     ///     - "Something Here"
@@ -879,12 +880,11 @@ class TextViewTests: XCTestCase {
     func testTogglingUnorderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
         let textView = createTextView(withHTML: Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleUnorderedList(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
-        textView.deleteBackward()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
@@ -902,7 +902,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-        XCTAssertEqual(textView.text, String(.newline))
+        XCTAssert(textView.text.isEndOfLine())
     }
 
     /// Verifies that toggling an Ordered List, when editing the end of a non empty document, inserts a Newline.
@@ -917,12 +917,11 @@ class TextViewTests: XCTestCase {
     func testTogglingOrderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
         let textView = createTextView(withHTML: Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleOrderedList(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
-        textView.deleteBackward()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
@@ -989,7 +988,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         var expectedLength = textView.text.characters.count
         textView.insertText(newline)
@@ -1046,7 +1045,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
     }
@@ -1086,7 +1085,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
-        XCTAssertEqual(textView.text, String(.newline))
+        XCTAssertEqual(textView.text, String(.paragraphSeparator))
     }
 
     /// Verifies that toggling a Blockquote, when editing the end of a non empty document, inserts a Newline.
@@ -1104,16 +1103,15 @@ class TextViewTests: XCTestCase {
     func testTogglingBlockquoteOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
         let textView = createTextView(withHTML: Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleBlockquote(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
-        textView.deleteBackward()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
-        
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
+
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 
 
@@ -1176,7 +1174,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.togglePre(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         var expectedLength = textView.text.characters.count
         textView.insertText(newline)
@@ -1233,7 +1231,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.togglePre(range: .zero)
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         XCTAssertFalse(PreFormatter().present(in: textView.typingAttributes))
     }
@@ -1273,7 +1271,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.togglePre(range: .zero)
-        XCTAssertEqual(textView.text, String(.newline))
+        XCTAssertEqual(textView.text, String(.paragraphSeparator))
     }
 
     /// Verifies that toggling a Pre, when editing the end of a non empty document, inserts a Newline.

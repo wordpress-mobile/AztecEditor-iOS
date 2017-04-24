@@ -287,7 +287,7 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
-        guard !ensureRemovalOfTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
+        guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
         }
 
@@ -1166,13 +1166,13 @@ private extension TextView {
 
     // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
 
-    /// Removes text list attributes after pressing enter in an empty paragraph.
+    /// Removes paragraph attributes after pressing enter in an empty paragraph.
     ///
     /// - Parameters:
     ///     - input: the user's input.  This method must be called before the input is processed.
     ///
-    func ensureRemovalOfTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
-        guard mustRemoveTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
+    func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
             return false
         }
 
@@ -1181,15 +1181,17 @@ private extension TextView {
         return true
     }
 
-    /// Analyzes whether text list attributes should be removed after pressing enter in an empty
+    /// Analyzes whether paragraph attributes should be removed after pressing enter in an empty
     /// paragraph.
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveTextListAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
         return input.isEndOfLine()
             && storage.string.isEmptyParagraph(at: selectedRange.location)
-            && TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
+            && (BlockquoteFormatter().present(in: typingAttributes)
+                || TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
+                || PreFormatter().present(in: typingAttributes))
     }
 
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
@@ -1197,6 +1199,8 @@ private extension TextView {
     ///
     func removeTextListAttributes(at range: NSRange) {
         let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(),
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered)
         ]
