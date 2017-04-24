@@ -1289,16 +1289,15 @@ class TextViewTests: XCTestCase {
     func testTogglingPreOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
         let textView = createTextView(withHTML: Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.togglePre(range: .zero)
-        XCTAssertEqual(textView.text, Constants.sampleText0 + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0)
 
-        textView.selectedRange = textView.text.endOfStringNSRange()
-        textView.deleteBackward()
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.newline))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 }
 
