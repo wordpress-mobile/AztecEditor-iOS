@@ -291,6 +291,12 @@ open class TextView: UITextView {
             return
         }
 
+        /// Whenever the user is at the end of the document, while editing a [List, Blockquote, Pre], we'll need
+        /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
+        /// (or Blockquote's BG).
+        ///
+        ensureInsertionOfEndOfLine(beforeInserting: text)
+
         // Emoji Fix:
         // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
         // We do this twice (before and after inserting text), in order to properly handle two scenarios:
