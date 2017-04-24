@@ -27,6 +27,18 @@ extension String {
         return isEmptyParagraph(at: index)
     }
 
+    /// Checks if the receiver has an empty paragraph at the specified offset and if the offset
+    /// corresponds to EOF (end-of-file).
+    ///
+    /// - Parameters:
+    ///     - offset: the receiver's offset to check
+    ///
+    /// - Returns: `true` if the specified offset is in an empty paragraph, `false` otherwise.
+    ///
+    func isEmptyParagraphAtEndOfFile(at offset: Int) -> Bool {
+        return offset == characters.count && isEmptyParagraph(at: offset)
+    }
+
     /// This methods verifies if the receiver string is an end-of-line character.
     ///
     /// - Returns: `true` if the receiver is an end-of-line character.
