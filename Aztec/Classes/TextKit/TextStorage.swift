@@ -329,7 +329,9 @@ open class TextStorage: NSTextStorage {
 
         let targetDomRange = string.map(visualUTF16Range: swiftRange)
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: str)
+        if targetDomRange.length > 0 || str.characters.count > 0 {
+            dom.replaceCharacters(inRange: targetDomRange, withString: str)
+        }
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
@@ -341,7 +343,9 @@ open class TextStorage: NSTextStorage {
 
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
+        if targetDomRange.length > 0 || domString.length > 0 {
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
+        }
 
         if targetDomRange.length != swiftRange.length {
             dom.deleteBlockSeparator(at: targetDomRange.location)

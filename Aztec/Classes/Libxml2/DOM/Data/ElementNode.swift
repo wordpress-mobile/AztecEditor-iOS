@@ -1261,50 +1261,17 @@ extension Libxml2 {
         ///
         func insert(_ string: String, atLocation location: Int) {
 
-            let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
+            let textNode = TextNode(text: "", editContext: editContext)
+            let childrenBefore = splitChildren(before: location)
+            insert(textNode, at: childrenBefore.count)
 
-            guard blockLevelElementsAndIntersections.count != 0 else {
-                if location == 0 {
-                    // It's not great having to set empty text and then append text to it.  The reason
-                    // we're doing it here is that if the text contains line-breaks, they will only
-                    // be processed as BR tags if the text is set after construction.
-                    //
-                    // This code can be improved but this "hack" will allow us to postpone the necessary
-                    // code restructuration.
-                    //
-                    let textNode = TextNode(text: "", editContext: editContext)
-                    append(textNode)
-                    textNode.append(string)
-                } else {
-                    fatalError("If there are no child nodes, the insert location has to be zero.")
-                }
+            // WORKAROUND: For the time being we need to append the text to properly parse <br/> nodes.
+            // It's also important to do this AFTER the node has been inserted in the DOM since it
+            // needs its parent to be set.
+            //
+            textNode.append(string)
 
-                return
-            }
-
-            let element = blockLevelElementsAndIntersections[0].element
-            let intersection = blockLevelElementsAndIntersections[0].intersection
-            
-            let indexAndIntersection = element.indexOf(childNodeIntersecting: intersection.location)
-            
-            let childIndex = indexAndIntersection.index
-            let childIntersection = indexAndIntersection.intersection
-            
-            let child = element.children[childIndex]
-            var insertionIndex: Int
-            
-            if childIntersection == 0 {
-                insertionIndex = childIndex
-            } else {
-                
-                if childIntersection < child.length() {
-                    child.split(atLocation: childIntersection)
-                }
-                
-                insertionIndex = childIndex + 1
-            }
-            
-            element.insert(string, atNodeIndex: insertionIndex)
+            return
         }
 
         override func replaceCharacters(inRange range: NSRange, withString string: String) {
