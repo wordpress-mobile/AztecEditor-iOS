@@ -287,6 +287,10 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
+        guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
+            return
+        }
+
         // Emoji Fix:
         // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
         // We do this twice (before and after inserting text), in order to properly handle two scenarios:
@@ -304,7 +308,7 @@ open class TextView: UITextView {
 
         super.insertText(text)
 
-        ensureRemovalOfSingleLineParagraphAttributes(afterInserting: text)
+        ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
         restoreDefaultFontIfNeeded()
 
@@ -1111,7 +1115,7 @@ open class TextView: UITextView {
 }
 
 
-// MARK: - Paragraph Formatter Rendering Workarounds
+// MARK: - Single line attributes removal
 
 private extension TextView {
 
@@ -1122,8 +1126,8 @@ private extension TextView {
     /// - Parameters:
     ///     - text: the text that was just inserted into the TextView.
     ///
-    func ensureRemovalOfSingleLineParagraphAttributes(afterInserting text: String) {
-        guard mustRemoveSingleLineParagraphAttributes(afterInserting: text) else {
+    func ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: String) {
+        guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
             return
         }
 
@@ -1138,8 +1142,8 @@ private extension TextView {
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveSingleLineParagraphAttributes(afterInserting text: String) -> Bool {
-        return text.isEndOfLine()
+    func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
+        return input.isEndOfLine()
     }
 
 
@@ -1163,13 +1167,38 @@ private extension TextView {
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
         }
-
     }
-}
 
-// MARK: - Paragraph Formatter Rendering Workarounds
+    // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
 
-private extension TextView {
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    ///
+    /// - Parameters:
+    ///     - input: the user's input.  This method must be called before the input is processed.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
+            return false
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+
+        return true
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        return input.isEndOfLine()
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
+    }
+
+    // MARK: - WORKAROUND: removing styles at EOF due to selection change
 
     /// Removes paragraph attributes after a selection change.  The logic that defines if the
     /// attributes must be removed is located in
@@ -1205,17 +1234,11 @@ private extension TextView {
             TextListFormatter(style: .unordered)
         ]
 
-        guard range.location >= storage.length else {
-            for formatter in formatters where formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
-                return
-            }
-
-            return
-        }
-
         for formatter in formatters where formatter.present(in: super.typingAttributes) {
             typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
         }
     }
 }
