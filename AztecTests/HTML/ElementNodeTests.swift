@@ -1148,7 +1148,7 @@ class ElementNodeTests: XCTestCase {
     /// - New String: "link!"
     ///
     /// Expected results:
-    /// - Output: `<div><p>Click on this link!</p></div>`
+    /// - Output: `<div><p>Click on this </p>link!</div>`
     ///
     func testReplaceCharactersInRangeWithString3() {
         let text1 = "Click on this "
@@ -1164,20 +1164,20 @@ class ElementNodeTests: XCTestCase {
         let finalText = "\(text1)\(text2)!"
         
         div.replaceCharacters(inRange: range, withString: newString)
-        
-        XCTAssertEqual(div.children.count, 1)
+
+        XCTAssertEqual(div.text(), finalText)
+        XCTAssertEqual(div.children.count, 2)
         
         guard let newParagraph = div.children[0] as? ElementNode, newParagraph.name == "p" else {
                 XCTFail("Expected a paragraph.")
                 return
         }
+
+        XCTAssertEqual(newParagraph.text(), text1)
         
-        XCTAssertEqual(newParagraph.children.count, 1)
-        
-        guard let textNode = newParagraph.children[0] as? TextNode, textNode.text() == finalText else {
-                
-                XCTFail("Expected a text node, with the full text.")
-                return
+        guard let textNode = div.children[1] as? TextNode, textNode.text() == newString else {
+            XCTFail("Expected a text node, with the full text.")
+            return
         }
     }
 
