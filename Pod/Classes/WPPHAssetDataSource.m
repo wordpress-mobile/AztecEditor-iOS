@@ -7,7 +7,8 @@
 @property (nonatomic, strong) PHAssetCollection *activeAssetsCollection;
 @property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
-@property (nonatomic, strong) PHFetchResult * albums;
+@property (nonatomic, strong) PHFetchResult *albums;
+@property (nonatomic, strong) NSMutableArray<PHAssetCollectionForWPMediaGroup *> *cachedCollections;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
@@ -37,6 +38,7 @@
     _mediaTypeFilter = WPMediaTypeVideoOrImage;
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
+    _cachedCollections = [[NSMutableArray alloc] init];
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     return self;
 }
@@ -169,9 +171,13 @@
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
+    [self.cachedCollections removeAllObjects];
+    for (PHAssetCollection *assetColletion in self.assetsCollections) {
+        [self.cachedCollections addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
+    }
     if (self.assetsCollections.count > 0){
         if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
-            self.activeAssetsCollection = self.assetsCollections[0];
+            self.activeAssetsCollection = [self.assetsCollections firstObject];
         }
         if (successBlock) {
             successBlock();
@@ -221,12 +227,12 @@
 
 - (NSInteger)numberOfGroups
 {
-    return self.assetsCollections.count;
+    return self.cachedCollections.count;
 }
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
 {
-    return [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.assetsCollections[index] mediaType:self.mediaTypeFilter];
+    return self.cachedCollections[index];
 }
 
 - (id<WPMediaGroup>)selectedGroup
@@ -484,6 +490,7 @@
 @interface PHAssetCollectionForWPMediaGroup()
 
 @property(nonatomic, strong) PHAssetCollection *collection;
+@property(nonatomic, strong) PHFetchResult *fetchResult;
 @property(nonatomic, assign) WPMediaType mediaType;
 
 @end
@@ -537,11 +544,17 @@
 
 - (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];
+    NSInteger count = self.collection.estimatedAssetCount;
+    if (count != NSNotFound) {
+        return count;
+    }
+    if (!self.fetchResult){
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];        
+        self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions];
+    }
+    count = self.fetchResult.count;
 
-    NSInteger count = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] count];
-    
     return count;
 }
 
