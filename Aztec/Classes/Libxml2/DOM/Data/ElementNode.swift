@@ -856,7 +856,7 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
-        func prepend(_ child: Node, tryToMergeWithSiblings: Bool) {
+        func prepend(_ child: Node, tryToMergeWithSiblings: Bool = true) {
             insert(child, at: 0, tryToMergeWithSiblings: tryToMergeWithSiblings)
         }
 

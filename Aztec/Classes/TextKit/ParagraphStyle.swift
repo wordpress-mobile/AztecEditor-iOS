@@ -1,7 +1,15 @@
 import Foundation
 import UIKit
 
-open class ParagraphStyle: NSMutableParagraphStyle {
+open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["blockquote": blockquote as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": textList as Any])
+        }
+    }
 
     private enum EncodingKeys: String {
         case headerLevel
@@ -49,9 +57,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
         super.setParagraphStyle(obj)
         if let paragrahStyle = obj as? ParagraphStyle {
-            textList = paragrahStyle.textList
             blockquote = paragrahStyle.blockquote
             headerLevel = paragrahStyle.headerLevel
+            htmlParagraph = paragrahStyle.htmlParagraph
+            textList = paragrahStyle.textList
         }
     }
 
@@ -77,15 +86,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-        if textList != otherParagraph.textList {
-            return false
-        }
-
-        if blockquote != otherParagraph.blockquote {
-            return false
-        }
-
-        if headerLevel != otherParagraph.headerLevel {
+        if blockquote != otherParagraph.blockquote
+            || headerLevel != otherParagraph.headerLevel
+            || htmlParagraph != otherParagraph.htmlParagraph
+            || textList != otherParagraph.textList {
             return false
         }
         
@@ -100,9 +104,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let originalCopy = super.copy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
-        copy.textList = textList
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
+        copy.htmlParagraph = htmlParagraph
+        copy.textList = textList
 
         return copy
     }
@@ -111,9 +116,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
-        copy.textList = textList
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
+        copy.htmlParagraph = htmlParagraph
+        copy.textList = textList
 
         return copy
     }
@@ -135,7 +141,7 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         return description
     }
 
-    open override var description:String {
-        return super.description + "\nTextList:\(String(describing: textList?.style))\nBlockquote:\(String(describing:blockquote))\nHeaderLevel:\(headerLevel)"
+    open override var description: String {
+        return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextList: \(String(describing: textList?.style))"
     }
 }
