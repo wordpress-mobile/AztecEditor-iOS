@@ -423,9 +423,9 @@
  */
 - (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler
 {
-    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];    
     options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
     return [[WPPHAssetDataSource sharedImageManager] requestAVAssetForVideo:self
                                                                   options:options
                                                             resultHandler:^(AVAsset *result, AVAudioMix *audioMix, NSDictionary *info) {
