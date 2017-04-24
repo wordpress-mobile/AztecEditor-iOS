@@ -351,11 +351,11 @@ open class TextStorage: NSTextStorage {
             dom.deleteBlockSeparator(at: targetDomRange.location)
         }
 
-        print("Pre: \(dom.getHTML())")
+        //print("Pre: \(dom.getHTML())")
         if domString.length > 0 {
             applyStylesToDom(from: domString, startingAt: range.location)
         }
-        print("Pos: \(dom.getHTML())")
+        //print("Pos: \(dom.getHTML())")
     }
 
     // MARK: - DOM: Applying Styles

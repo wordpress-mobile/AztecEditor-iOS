@@ -151,20 +151,18 @@ open class TextView: UITextView {
 
     // MARK: - Overwritten Properties
 
-    /// This is currently triggered when the text selection changes, which makes it great for
-    /// updating typingAttributes for selection changes only (and not for text insertion).
-    ///
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
     /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
-    open override var selectedTextRange: UITextRange? {
-        set {
-            super.selectedTextRange = newValue
-
+    override open var typingAttributes: [String: Any] {
+        get {
             ensureRemovalOfParagraphAttributesAfterSelectionChange()
+            return super.typingAttributes
         }
 
-        get {
-            return super.selectedTextRange
+        set {
+            super.typingAttributes = newValue
         }
     }
 
@@ -1272,7 +1270,7 @@ private extension TextView {
         ]
 
         for formatter in formatters where formatter.present(in: super.typingAttributes) {
-            typingAttributes = formatter.remove(from: typingAttributes)
+            super.typingAttributes = formatter.remove(from: super.typingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
