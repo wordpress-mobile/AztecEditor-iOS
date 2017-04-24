@@ -1214,7 +1214,7 @@ class ElementNodeTests: XCTestCase {
 
         let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
 
-        rootNode.replaceCharacters(inRange: replaceRange, withString: "everyone", preferLeftNode: true)
+        rootNode.replaceCharacters(inRange: replaceRange, withString: "everyone")
 
         XCTAssertEqual(rootNode.children.count, 2)
         XCTAssertEqual(rootNode.children[0], boldNode)

@@ -21,10 +21,10 @@ class DOMStringTests: XCTestCase {
     func testReplaceCharactersWithStringEffectivelyInsertsTheNewString() {
         let string = DOMString()
 
-        string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n", preferLeftNode: true)
+        string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n")
         XCTAssertEqual(string.getHTML(), "Hello<br>")
 
-        string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!", preferLeftNode: false)
+        string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!")
         XCTAssertEqual(string.getHTML(), "Hello<br>World!")
     }
 
