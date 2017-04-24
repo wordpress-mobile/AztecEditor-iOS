@@ -158,13 +158,13 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             
             let domHasModifications = range.length > 0 || !string.isEmpty
 
             if domHasModifications {
                 performAsyncUndoable { [weak self] in
-                    self?.replaceCharactersSynchronously(inRange: range, withString: string, preferLeftNode: preferLeftNode)
+                    self?.replaceCharactersSynchronously(inRange: range, withString: string)
                 }
             }
         }
@@ -186,8 +186,8 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
-            rootNode.replaceCharacters(inRange: range, withString: string, preferLeftNode: preferLeftNode)
+        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
+            rootNode.replaceCharacters(inRange: range, withString: string)
         }
         
         // MARK: - Undo Manager

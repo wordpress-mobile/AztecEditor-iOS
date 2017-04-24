@@ -107,13 +107,6 @@ extension Libxml2 {
             let firstChild = childNodesAndRanges[0].child
             let firstChildIntersection = childNodesAndRanges[0].intersection
 
-            if childNodesAndRanges.count == 1,
-                let elementNode = firstChild as? ElementNode {
-
-                forceWrapChildren(of: elementNode, intersecting: firstChildIntersection, inElement: elementDescriptor)
-                return
-            }
-
             if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
                 firstChild.split(forRange: firstChildIntersection)
             }

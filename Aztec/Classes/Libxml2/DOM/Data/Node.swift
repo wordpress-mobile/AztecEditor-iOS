@@ -195,7 +195,7 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             assertionFailure("This method should always be overridden.")
         }
 

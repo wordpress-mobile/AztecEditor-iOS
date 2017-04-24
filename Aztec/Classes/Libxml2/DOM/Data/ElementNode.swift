@@ -172,7 +172,7 @@ extension Libxml2 {
             return standardName.isBlockLevelNodeName()
         }
 
-        func isNodeType(_ type:StandardElementType) -> Bool {
+        func isNodeType(_ type: StandardElementType) -> Bool {
             return type.equivalentNames.contains(name.lowercased())
         }
 
@@ -494,6 +494,11 @@ extension Libxml2 {
                 return
             }
 
+            guard children.count > 0 else {
+                matchNotFound?(targetRange)
+                return
+            }
+
             var rangeWithoutMatch: NSRange?
             var offset = Int(0)
 
@@ -526,7 +531,6 @@ extension Libxml2 {
                     if isMatch(child) {
                         processMatchFound(child, intersection)
                     } else if let childElement = child as? ElementNode {
-
                         let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
 
                         childElement.enumerateFirstDescendants(
@@ -691,13 +695,20 @@ extension Libxml2 {
             guard childIndex >= 0 && childIndex < children.count else {
                 fatalError("Out of bounds!")
             }
-            
-            guard childIndex > 0,
-                let sibling = children[childIndex - 1] as? T else {
-                    return nil
+
+            guard childIndex > 0 else {
+                return nil
             }
-            
-            return sibling
+
+            let siblingNode = children[childIndex - 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(leftOf: childIndex - 1)
+            }
+
+            return siblingNode as? T
         }
         
         /// Retrieves the right-side sibling of the child at the specified index.
@@ -714,12 +725,19 @@ extension Libxml2 {
                 fatalError("Out of bounds!")
             }
             
-            guard childIndex < children.count - 1,
-                let sibling = children[childIndex + 1] as? T else {
-                    return nil
+            guard childIndex < children.count - 1 else {
+                return nil
             }
-            
-            return sibling
+
+            let siblingNode = children[childIndex + 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(rightOf: childIndex + 1)
+            }
+
+            return siblingNode as? T
         }
         
         /// Finds any left-side descendant with any of the specified names.
@@ -822,8 +840,15 @@ extension Libxml2 {
         ///
         func append(_ child: Node) {
             child.removeFromParent()
-            children.append(child)
-            child.parent = self
+
+            if let lastChild = children.last as? TextNode,
+                let newChildTextNode = child as? TextNode {
+
+                lastChild.append(newChildTextNode.text())
+            } else {
+                children.append(child)
+                child.parent = self
+            }
         }
         
         /// Appends a node to the list of children for this element.
@@ -1184,7 +1209,7 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         override func deleteCharacters(inRange range: NSRange) {
-            if range.location == 0 && range.length == length() {
+            if  range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
                 let childrenAndIntersections = childNodes(intersectingRange: range)
@@ -1282,65 +1307,14 @@ extension Libxml2 {
             element.insert(string, atNodeIndex: insertionIndex)
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
-            let childrenAndIntersections = childNodes(intersectingRange: range)
-            let preferRightNode = !preferLeftNode
-            var textInserted = false
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
 
-            assert(range.location == 0 || childrenAndIntersections.count > 0)
-
-            guard childrenAndIntersections.count > 0 else {
-                insert(string, atLocation: 0)
-                return
+            if range.length > 0 {
+                deleteCharacters(inRange: range)
             }
 
-            for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
-                let child = childAndIntersection.child
-                let intersection = childAndIntersection.intersection
-
-                guard !textInserted else {
-                    child.deleteCharacters(inRange: intersection)
-                    continue
-                }
-
-                if intersection.location == 0 {
-                    guard index == 0 || preferRightNode else {
-                        if intersection.length > 0 {
-                            child.deleteCharacters(inRange: intersection)
-                        }
-                        continue
-                    }
-
-                    if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
-                        let childIndex = indexOf(childNode: child)
-
-                        child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: childIndex)
-                    } else {
-                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                    }
-                } else if intersection.location + intersection.length == child.length() {
-                    guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
-                        if intersection.length > 0 {
-                            child.deleteCharacters(inRange: intersection)
-                        }
-                        continue
-                    }
-
-                    if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
-                        let childIndex = indexOf(childNode: child) + 1
-
-                        child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: childIndex)
-                    } else {
-                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                    }
-                } else {
-                    child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                }
-
-                textInserted = true
-            }
+            insert(string, atLocation: range.location)
+            return
         }
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
@@ -1678,6 +1652,14 @@ extension Libxml2 {
         }
 
         // MARK: - Overriden Methods
+
+        override func deleteCharacters(inRange range: NSRange) {
+            let childrenAndIntersections = childNodes(intersectingRange: range)
+
+            for (child, intersection) in childrenAndIntersections {
+                child.deleteCharacters(inRange: intersection)
+            }
+        }
 
         override func isSupportedByEditor() -> Bool {
             return true

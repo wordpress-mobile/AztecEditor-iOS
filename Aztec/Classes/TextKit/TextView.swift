@@ -290,7 +290,7 @@ open class TextView: UITextView {
         /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
         /// (or Blockquote's BG).
         ///
-        ensureInsertionOfNewline(beforeInserting: text)
+        //ensureInsertionOfEndOfLine(beforeInserting: text)
 
         // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
         // text insertion to happen. Thus, we won't call super.insertText.
@@ -584,7 +584,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func togglePre(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = PreFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -601,7 +601,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -614,7 +614,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -628,7 +628,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -713,18 +713,25 @@ open class TextView: UITextView {
     }
 
 
-    /// Inserts an empty line whenever we're at the end of the document
+    /// Inserts an end-of-line character whenever we're at end-of-file, in an
+    /// empty paragraph. This is useful when attempting to apply a paragraph-level style at EOF,
+    /// since it won't be possible without the paragraph having any characters.
     ///
-    private func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
-        guard selectedRange.location == storage.length else {
+    /// Call this method before applying the formatter.
+    ///
+    private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile() {
+
+        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: selectedRange) else {
+            assertionFailure("This should never happen.  Review the logic!")
             return
         }
 
-        insertNewline()
+        if textStorage.string.isEmptyParagraph(at: selectedRangeForSwift.location) {
+            insertEndOfLineCharacter()
+        }
     }
 
-
-    /// Inserts an empty line whenever:
+    /// Inserts an end-of-line chracter whenever:
     ///
     ///     A.  We're about to insert a new line
     ///     B.  We're at the end of the document
@@ -733,7 +740,7 @@ open class TextView: UITextView {
     /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
     /// Blockquote's background.
     ///
-    private func ensureInsertionOfNewline(beforeInserting text: String) {
+    private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
         guard text == String(.newline) else {
             return
         }
@@ -757,13 +764,13 @@ open class TextView: UITextView {
             return
         }
 
-        insertNewline()
+        insertEndOfLineCharacter()
     }
 
-
-    /// Inserts a New Line at the current position, while retaining the selectedRange and typingAttributes.
+    /// Inserts a end-of-line character at the current position, while retaining the selectedRange
+    /// and typingAttributes.
     ///
-    private func insertNewline() {
+    private func insertEndOfLineCharacter() {
         let previousRange = selectedRange
         let previousStyle = typingAttributes
 

@@ -149,12 +149,6 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - NSAttributedString preprocessing
 
-    private func preprocessStringForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        let stringWithFixedNewlines = NSAttributedString(with: attributedString, replacingOcurrencesOf: "\n", with: String(.paragraphSeparator))
-
-        return preprocessAttributesForInsertion(stringWithFixedNewlines)
-    }
-
     private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
         let stringWithParagraphs = preprocessParagraphsForInsertion(stringWithAttachments)
@@ -263,8 +257,9 @@ open class TextStorage: NSTextStorage {
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
         return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
-
+ 
     override open func replaceCharacters(in range: NSRange, with str: String) {
+
         beginEditing()
 
         if mustUpdateDOM() {
@@ -281,7 +276,7 @@ open class TextStorage: NSTextStorage {
 
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
 
-        let preprocessedString = preprocessStringForInsertion(attrString)
+        let preprocessedString = preprocessAttributesForInsertion(attrString)
 
         beginEditing()
 
@@ -299,7 +294,7 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM() && allowFixingDOMAttributes, let attributes = attrs {
+        if mustUpdateDOM() && allowFixingDOMAttributes && range.length > 0, let attributes = attrs {
             applyStylesToDom(attributes: attributes, in: range)
         }
 
@@ -333,9 +328,8 @@ open class TextStorage: NSTextStorage {
         }
 
         let targetDomRange = string.map(visualUTF16Range: swiftRange)
-        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+        dom.replaceCharacters(inRange: targetDomRange, withString: str)
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
@@ -344,11 +338,10 @@ open class TextStorage: NSTextStorage {
         }
 
         let targetDomRange = string.map(visualUTF16Range: swiftRange)
-        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
 
         if targetDomRange.length != swiftRange.length {
             dom.deleteBlockSeparator(at: targetDomRange.location)
@@ -375,6 +368,10 @@ open class TextStorage: NSTextStorage {
 
             let domRange = textStore.string.map(visualUTF16Range: subRange)
 
+            guard domRange.length > 0 else {
+                return
+            }
+
             processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
         })
     }
@@ -391,7 +388,7 @@ open class TextStorage: NSTextStorage {
     ///         It's the offset this method will use to apply the styles found in the source string.
     ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
-        let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
+        let originalAttributes = [String:Any]()
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
         let location = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
@@ -754,69 +751,9 @@ open class TextStorage: NSTextStorage {
             dom.removeLink(spanning: range)
         }
     }
-
-
-    // MARK: - Range Mapping: Visual vs HTML
-
-    private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
-        return !hasNewLine(at: index)
-            && !hasHorizontalLine(at: index)
-            && !hasCommentMarker(at: index)
-            && !hasUnknownHtmlMarker(at: index)
-            && !hasParagraphSeparator(at: index)
-    }
-
-    private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
-        guard caretPosition != 0,
-            let previousLocation = textStore.string.location(before:caretPosition) else {
-            return false
-        }
-
-        return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
-    }
-
-    private func hasHorizontalLine(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is LineAttachment
-    }
-
-    private func hasCommentMarker(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is CommentAttachment
-    }
-
-    private func hasUnknownHtmlMarker(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is HTMLAttachment
-    }
-
-    private func hasNewLine(at index: Int) -> Bool {
-        if index >= textStore.length || index < 0 {
-            return false
-        }
-        let nsString = string as NSString
-        return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
-    }
-
-    private func hasParagraphSeparator(at offset: Int) -> Bool {
-        let startIndex = string.index(string.startIndex, offsetBy: offset)
-        let endIndex = string.index(string.startIndex, offsetBy: offset + 1)
-
-        let range = startIndex ..< endIndex
-
-        return string.substring(with: range) == String(.paragraphSeparator)
-    }
     
     // MARK: - Styles: Toggling
+
     @discardableResult
     func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
         let applicationRange = formatter.applicationRange(for: range, in: self)
