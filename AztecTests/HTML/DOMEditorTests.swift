@@ -22,8 +22,7 @@ class DOMEditorTests: XCTestCase {
         let text2 = " there!"
         let fullText = "\(text1)\(text2)"
         let textNode = TextNode(text: fullText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [paragraph])
+        let rootNode = RootNode(children: [textNode])
 
         let editor = DOMEditor(with: rootNode)
 
@@ -32,16 +31,16 @@ class DOMEditorTests: XCTestCase {
         let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
         editor.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
 
-        XCTAssertEqual(paragraph.children.count, 2)
+        XCTAssertEqual(rootNode.children.count, 2)
 
-        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
+        guard let newBoldNode = rootNode.children[0] as? ElementNode, newBoldNode.name == "b" else {
             XCTFail("Expected a bold node.")
             return
         }
 
         XCTAssertEqual(newBoldNode.text(), text1)
 
-        guard let newTextNode = paragraph.children[1] as? TextNode else {
+        guard let newTextNode = rootNode.children[1] as? TextNode else {
             XCTFail("Expected a text node.")
             return
         }
@@ -292,14 +291,14 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(boldNode.text(), newBoldNode.text())
     }
 
-    /// Tests that `findSiblings(separatedAt:)` works properly.
+    /// Tests that `mergeBlockLevelElementRight(endingAt:)` works properly.
     ///
     /// - Input:
     ///     - HTML: "<root><p>Hello</p><blockquote>world!</blockquote></root>"
-    ///     - Separation location: 4
+    ///     - Separation location: length of "Hello"
     ///
     /// - Expected results:
-    ///     - Both the bold and italic nodes should be returned.
+    ///     - HTML: "<root><p>Helloworld!</p></root>"
     ///
     func testMergeSiblings() {
         let text1 = "Hello"
@@ -314,7 +313,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        //editor.mergeSiblings(separatedAt: textNode1.length())
         editor.mergeBlockLevelElementRight(endingAt: textNode1.length())
 
         XCTAssertEqual(rootNode.children.count, 1)
@@ -338,10 +336,9 @@ class DOMEditorTests: XCTestCase {
         ///
         /// XCTAssertEqual(newTextNode.text(), "\(text1)\(text2)")
 
-        XCTAssertEqual(newParagraph.children.count, 2)
+        XCTAssertEqual(newParagraph.children.count, 1)
         XCTAssert(newParagraph.children[0] is TextNode)
-        XCTAssert(newParagraph.children[1] is TextNode)
-        XCTAssertEqual(newParagraph.text(), "\(text1)\(text2)")
+        XCTAssertEqual(newParagraph.children[0].text(), "\(text1)\(text2)")
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.

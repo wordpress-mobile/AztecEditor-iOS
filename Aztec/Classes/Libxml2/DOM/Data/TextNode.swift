@@ -329,14 +329,14 @@ extension Libxml2 {
                 let newNode = TextNode(text: contents.substring(with: postRange), editContext: editContext)
 
                 deleteCharacters(inRange: postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
             }
             
             if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange), editContext: editContext)
 
                 deleteCharacters(inRange: preRange)
-                parent.insert(newNode, at: nodeIndex)
+                parent.insert(newNode, at: nodeIndex, tryToMergeWithSiblings: false)
             }
         }
 

@@ -27,14 +27,11 @@ class ElementNodeTests: XCTestCase {
     /// Tests that `prepend(_ child:)` works.
     ///
     /// Inputs:
-    ///     - Original node contents: "Hello there!"
-    ///     - Range: (loc: 6, len: 6)
-    ///     - New string: "-"
+    ///     - HTML: "<b> world!</b>"
+    ///     - String to prepend: "Hello"
     ///
     /// Verifications:
-    ///     - Check that the undo event is properly registered.
-    ///     - Check that after editing the text node, its content is: "Hello -"
-    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
+    ///     - HTML: "<b>Hello world!</b>
     ///
     func testPrepend() {
         let text1 = "Hello"
@@ -51,9 +48,8 @@ class ElementNodeTests: XCTestCase {
         
         boldNode.prepend(textNode1)
         
-        XCTAssertEqual(boldNode.children.count, 2)
-        XCTAssertEqual(boldNode.children[0], textNode1)
-        XCTAssertEqual(boldNode.children[1], textNode2)
+        XCTAssertEqual(boldNode.children.count, 1)
+        XCTAssertEqual(boldNode.children[0].text(), fullText)
         XCTAssertEqual(boldNode.text(), fullText)
     }
     
@@ -1150,7 +1146,6 @@ class ElementNodeTests: XCTestCase {
     /// Input HTML: `<div><p>Click on this <a href="http://www.wordpress.com">link</a></p></div>`
     /// - Range: the range of the full contents of the `<a>` node.
     /// - New String: "link!"
-    /// - Inherit Style: false
     ///
     /// Expected results:
     /// - Output: `<div><p>Click on this link!</p></div>`

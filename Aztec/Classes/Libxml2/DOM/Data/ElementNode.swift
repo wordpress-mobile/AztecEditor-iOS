@@ -689,7 +689,6 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
-        
         func sibling<T: Node>(leftOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
@@ -718,7 +717,6 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
-        
         func sibling<T: Node>(rightOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
@@ -887,11 +885,70 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to insert.
         ///     - index: the position where to insert the node.
+        ///     - mergeSiblings: if true, this method will attempt to merge the inserted node with
+        ///         similar siblings.
         ///
-        func insert(_ child: Node, at index: Int) {
+        func insert(_ child: Node, at index: Int, tryToMergeWithSiblings: Bool = true) {
             child.removeFromParent()
-            children.insert(child, at: index)
-            child.parent = self
+
+            if tryToMergeWithSiblings && index > 0,
+                let previousChild = children[index - 1] as? TextNode,
+                let newChildTextNode = child as? TextNode {
+
+                previousChild.append(newChildTextNode.text())
+            } else if tryToMergeWithSiblings && index < children.count,
+                let nextChild = children[index] as? TextNode,
+                let newChildTextNode = child as? TextNode {
+
+                nextChild.prepend(newChildTextNode.text())
+            } else {
+                children.insert(child, at: index)
+                child.parent = self
+            }
+        }
+
+        /// Prepends children to the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - children: the nodes to prepend.
+        ///
+        func insert(_ children: [Node], at index: Int) {
+            for child in children.reversed() {
+                insert(child, at: index, tryToMergeWithSiblings: false)
+            }
+
+            fixChildrenTextNodes()
+        }
+
+        func fixChildrenTextNodes() {
+            for child in children {
+                let index = indexOf(childNode: child)
+                let nextIndex = index + 1
+
+                if nextIndex < children.count,
+                    let currentTextNode = child as? TextNode,
+                    let nextTextNode = children[nextIndex] as? TextNode {
+
+                    nextTextNode.prepend(currentTextNode.text())
+                    remove(currentTextNode)
+                }
+            }
+        }
+
+        func nodesRepresenting(_ string: String) -> [Node] {
+            let separatorElement = ElementNodeDescriptor(elementType: .br)
+            let components = string.components(separatedBy: String(.newline))
+            var nodes = [Node]()
+
+            for (index, component) in components.enumerated() {
+                nodes.append(TextNode(text: component, editContext: editContext))
+
+                if index != components.count - 1 {
+                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: editContext))
+                }
+            }
+
+            return nodes
         }
 
         /// Replaces the specified node with several new nodes.
@@ -1261,15 +1318,9 @@ extension Libxml2 {
         ///
         func insert(_ string: String, atLocation location: Int) {
 
-            let textNode = TextNode(text: "", editContext: editContext)
+            let nodesToInsert = nodesRepresenting(string)
             let childrenBefore = splitChildren(before: location)
-            insert(textNode, at: childrenBefore.count)
-
-            // WORKAROUND: For the time being we need to append the text to properly parse <br/> nodes.
-            // It's also important to do this AFTER the node has been inserted in the DOM since it
-            // needs its parent to be set.
-            //
-            textNode.append(string)
+            insert(nodesToInsert, at: childrenBefore.count)
 
             return
         }
