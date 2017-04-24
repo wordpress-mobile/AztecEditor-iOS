@@ -149,6 +149,25 @@ open class TextView: UITextView {
         return textStorage as! TextStorage
     }
 
+    // MARK: - Overwritten Properties
+
+    /// This is currently triggered when the text selection changes, which makes it great for
+    /// updating typingAttributes for selection changes only (and not for text insertion).
+    ///
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    open override var selectedTextRange: UITextRange? {
+        set {
+            super.selectedTextRange = newValue
+
+            ensureRemovalOfParagraphAttributesAfterSelectionChange()
+        }
+
+        get {
+            return super.selectedTextRange
+        }
+    }
+
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
@@ -209,26 +228,6 @@ open class TextView: UITextView {
             gesture.require(toFail: attachmentGestureRecognizer)
         }
         addGestureRecognizer(attachmentGestureRecognizer)
-    }
-
-
-    // MARK: - Overwritten Properties
-
-    /// This is currently triggered when the text selection changes, which makes it great for
-    /// updating typingAttributes for selection changes only (and not for text insertion).
-    ///
-    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
-    ///
-    open override var selectedTextRange: UITextRange? {
-        set {
-            super.selectedTextRange = newValue
-
-            ensureRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
-        }
-
-        get {
-            return super.selectedTextRange
-        }
     }
 
     // MARK: - Intercept copy paste operations
@@ -304,6 +303,8 @@ open class TextView: UITextView {
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
         super.insertText(text)
+
+        ensureRemovalOfSingleLineParagraphAttributes(afterInserting: text)
 
         restoreDefaultFontIfNeeded()
 
@@ -1109,36 +1110,85 @@ open class TextView: UITextView {
     }
 }
 
-// MARK: - Paragraph Formatters Rendering Workarounds
-//
+
+// MARK: - Paragraph Formatter Rendering Workarounds
+
 private extension TextView {
 
-    /// Removes single-line paragraph attributes after a selection change.
-    /// The logic that defines if the attributes must be removes is located in
-    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributes()`.
     ///
     /// - Parameters:
-    ///     - text: (Optional) String that's about to be inserted.
-    ///     - selectedRange: TextView's Selected Range.
+    ///     - text: the text that was just inserted into the TextView.
     ///
-    /// - Returns: true if ParagraphAttributes were removed. false otherwise!
-    ///
-    @discardableResult
-    func ensureRemovalOfSingleLineParagraphAttributesAfterSelectionChange() -> Bool {
-        guard mustRemoveSingleLineParagraphAttributesAfterSelectionChange() else {
-            return false
+    func ensureRemovalOfSingleLineParagraphAttributes(afterInserting text: String) {
+        guard mustRemoveSingleLineParagraphAttributes(afterInserting: text) else {
+            return
         }
 
-        return removeSingleLineParagraphAttributes(at: selectedRange)
+        removeSingleLineParagraphAttributes(at: selectedRange)
     }
 
-    /// Analyzes whether single-line paragraph attributes should be removed from the specified
+    /// Analyzes whether paragraph attributes should be removed from the specified
     /// location, or not, after the selection range is changed.
     ///
-    /// - Returns: `true` if we should remove single-line paragraph attributes, otherwise it
-    ///     returns `false`.
+    /// - Parameters:
+    ///     - text: the text that was just inserted into the TextView.
     ///
-    func mustRemoveSingleLineParagraphAttributesAfterSelectionChange() -> Bool {
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveSingleLineParagraphAttributes(afterInserting text: String) -> Bool {
+        return text.isEndOfLine()
+    }
+
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeSingleLineParagraphAttributes(at range: NSRange) {
+
+        let formatters: [AttributeFormatter] = [
+            HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
+        ]
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+
+    }
+}
+
+// MARK: - Paragraph Formatter Rendering Workarounds
+
+private extension TextView {
+
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    ///
+    func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
+        guard mustRemoveParagraphAttributesAfterSelectionChange() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
         return selectedRange.location == storage.length
             && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
@@ -1147,9 +1197,7 @@ private extension TextView {
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
     /// is beyond the storage's contents, the typingAttributes will be modified
     ///
-    /// - Returns: true on success.
-    ///
-    func removeSingleLineParagraphAttributes(at range: NSRange) -> Bool {
+    func removeParagraphAttributes(at range: NSRange) {
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
             PreFormatter(placeholderAttributes: defaultAttributes),
@@ -1160,18 +1208,15 @@ private extension TextView {
         guard range.location >= storage.length else {
             for formatter in formatters where formatter.present(in: textStorage, at: range.location) {
                 formatter.removeAttributes(from: textStorage, at: range)
-                return true
+                return
             }
 
-            return false
+            return
         }
 
         for formatter in formatters where formatter.present(in: super.typingAttributes) {
-            super.typingAttributes = formatter.remove(from: super.typingAttributes)
-            return true
+            typingAttributes = formatter.remove(from: typingAttributes)
         }
-        
-        return false
     }
 }
 

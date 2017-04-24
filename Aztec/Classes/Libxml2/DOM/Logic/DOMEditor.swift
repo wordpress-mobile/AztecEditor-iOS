@@ -53,7 +53,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        private func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             forceWrap(element: rootNode, range: targetRange, inElement: elementDescriptor)
         }
 
@@ -68,7 +68,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func forceWrap(element: ElementNode, range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        private func forceWrap(element: ElementNode, range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
             if NSEqualRanges(targetRange, element.range())
                 && canWrap(node: element, in: elementDescriptor) {

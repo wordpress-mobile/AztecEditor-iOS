@@ -111,8 +111,8 @@ extension Libxml2 {
                     let textNode = TextNode(text: component, editContext: editContext)
                     let separator = ElementNode(descriptor: separatorDescriptor)
                     
-                    parent.insert(textNode, at: insertionIndex)
-                    parent.insert(separator, at: insertionIndex + 1)
+                    parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
+                    parent.insert(separator, at: insertionIndex + 1, tryToMergeWithSiblings: false)
                     
                     insertionIndex = insertionIndex + 2
                 }
@@ -191,7 +191,7 @@ extension Libxml2 {
                         
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
-                        parent.insert(separator, at: insertionIndex)
+                        parent.insert(separator, at: insertionIndex, tryToMergeWithSiblings: false)
                         insertionIndex = insertionIndex + 1
                     } else if index == components.count - 1 {
                         rightNode.prepend(sanitizedString: component)
@@ -199,12 +199,14 @@ extension Libxml2 {
                         let textNode = TextNode(text: component, editContext: editContext)
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
-                        parent.insert(textNode, at: insertionIndex)
-                        parent.insert(separator, at: insertionIndex + 1)
+                        parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
+                        parent.insert(separator, at: insertionIndex + 1, tryToMergeWithSiblings: false)
                         
                         insertionIndex = insertionIndex + 2
                     }
                 }
+
+                parent.fixChildrenTextNodes()
             }
         }
 
@@ -308,7 +310,7 @@ extension Libxml2 {
                 let newNode = TextNode(text: text().substring(with: postRange), editContext: editContext)
                 
                 deleteCharacters(inRange: postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
             }
         }
         
