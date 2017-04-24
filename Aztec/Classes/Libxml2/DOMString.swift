@@ -367,6 +367,17 @@ extension Libxml2 {
                 self?.removeHeaderSynchronously(headerLevel: headerLevel, spanning: range)
             }
         }
+
+        /// Disables HTML paragraph from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeHTMLParagraph(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeHTMLParagraphSynchronously(spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -376,6 +387,10 @@ extension Libxml2 {
             }
 
             domEditor.unwrap(range: range, fromElementsNamed: element.equivalentNames)
+        }
+
+        private func removeBlockquoteSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
 
         private func removeBoldSynchronously(spanning range: NSRange) {
@@ -402,15 +417,15 @@ extension Libxml2 {
             domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
 
-        private func removeBlockquoteSynchronously(spanning range: NSRange) {
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
-        }
-
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
             guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
             domEditor.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
+        }
+
+        private func removeHTMLParagraphSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.p.equivalentNames)
         }
         
         // MARK: - Apply Styles
@@ -502,6 +517,17 @@ extension Libxml2 {
             }
             performAsyncUndoable { [weak self] in
                 self?.applyElement(elementType, spanning: range)
+            }
+        }
+
+        /// Applies an HTML paragraph to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func applyHTMLParagraph(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.p, spanning: range)
             }
         }
 

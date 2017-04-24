@@ -479,6 +479,7 @@ open class TextStorage: NSTextStorage {
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
             processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList)
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
+            processHTMLParagraphDifferences(in: domRange, betweenOriginal: sourceStyle?.htmlParagraph, andNew: targetStyle?.htmlParagraph)
         case NSLinkAttributeName:
             let sourceStyle = sourceValue as? URL
             let targetStyle = targetValue as? URL
@@ -595,6 +596,26 @@ open class TextStorage: NSTextStorage {
         }
 
         dom.replace(range, withRawHTML: html)
+    }
+
+    /// Processes differences in blockquote styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original Blockquote object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processHTMLParagraphDifferences(in range: NSRange, betweenOriginal originalStyle: HTMLParagraph?, andNew newStyle: HTMLParagraph?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyHTMLParagraph(spanning: range)
+        } else if removeStyle {
+            dom.removeHTMLParagraph(spanning: range)
+        }
     }
 
 

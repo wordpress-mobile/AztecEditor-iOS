@@ -7,8 +7,10 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         case headerLevel
     }
 
-    var textList: TextList?
     var blockquote: Blockquote?
+    var htmlParagraph: HTMLParagraph?
+    var textList: TextList?
+    
     var headerLevel: Int = 0
 
     override init() {

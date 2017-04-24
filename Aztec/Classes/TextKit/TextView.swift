@@ -422,6 +422,7 @@ open class TextView: UITextView {
         .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
         .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
         .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
+        .p: HTMLParagraphFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
