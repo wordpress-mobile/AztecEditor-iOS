@@ -836,17 +836,8 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ child: Node) {
-            child.removeFromParent()
-
-            if let lastChild = children.last as? TextNode,
-                let newChildTextNode = child as? TextNode {
-
-                lastChild.append(newChildTextNode.text())
-            } else {
-                children.append(child)
-                child.parent = self
-            }
+        func append(_ child: Node, tryToMergeWithSiblings: Bool = true) {
+            insert(child, at: children.count, tryToMergeWithSiblings: tryToMergeWithSiblings)
         }
         
         /// Appends a node to the list of children for this element.
@@ -854,9 +845,9 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ children: [Node]) {
+        func append(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
             for child in children {
-                append(child)
+                append(child, tryToMergeWithSiblings: tryToMergeWithSiblings)
             }
         }
 
@@ -865,8 +856,8 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
-        func prepend(_ child: Node) {
-            insert(child, at: 0)
+        func prepend(_ child: Node, tryToMergeWithSiblings: Bool) {
+            insert(child, at: 0, tryToMergeWithSiblings: tryToMergeWithSiblings)
         }
 
         /// Prepends children to the list of children for this element.
@@ -874,9 +865,9 @@ extension Libxml2 {
         /// - Parameters:
         ///     - children: the nodes to prepend.
         ///
-        func prepend(_ children: [Node]) {
+        func prepend(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
             for index in stride(from: (children.count - 1), through: 0, by: -1) {
-                prepend(children[index])
+                prepend(children[index], tryToMergeWithSiblings: tryToMergeWithSiblings)
             }
         }
         
@@ -1550,14 +1541,14 @@ extension Libxml2 {
             var wrapperElement: ElementNode?
             
             if let sibling = rightSibling {
-                sibling.prepend(childrenToWrap)
+                sibling.prepend(childrenToWrap, tryToMergeWithSiblings: false)
                 childrenToWrap = sibling.children
                 
                 wrapperElement = sibling
             }
             
             if let sibling = leftSibling {
-                sibling.append(childrenToWrap)
+                sibling.append(childrenToWrap, tryToMergeWithSiblings: false)
                 childrenToWrap = sibling.children
                 
                 wrapperElement = sibling
