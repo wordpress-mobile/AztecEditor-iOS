@@ -347,6 +347,10 @@ open class TextStorage: NSTextStorage {
             dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
         }
 
+        if attrString.string == String(.paragraphSeparator) {
+            dom.addBlockSeparator(at: targetDomRange.location)
+        }
+
         if targetDomRange.length != swiftRange.length {
             dom.deleteBlockSeparator(at: targetDomRange.location)
         }

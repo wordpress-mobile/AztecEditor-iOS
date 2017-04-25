@@ -3,6 +3,26 @@ extension Libxml2 {
     ///
     class DOMInspector: DOMLogic {
 
+        // MARK: - Parent
+
+        /// Call this method whenever you node the specified node MUST have a parent set.
+        /// This method will interrupt program execution if a parent isn't set.
+        ///
+        /// - Parameters:
+        ///     - node: the node you want to get the parent of.
+        ///
+        /// - Returns: the parent element.
+        ///
+        func parent(of node: Node) -> ElementNode {
+            guard let parent = node.parent else {
+                fatalError("This method should only be called whenever you are sure a parent is set.")
+            }
+
+            return parent
+        }
+
+        // MARK: - Siblings
+
         func rightSibling(of node: Node) -> Node? {
             guard let parent = node.parent else {
                 assertionFailure("Shouldn't call this method in a node without a parent.")
@@ -17,6 +37,8 @@ extension Libxml2 {
 
             return parent.children[nextIndex]
         }
+
+        // MARK: - Finding nodes
 
         /// Finds a node ending at the specified location.
         ///

@@ -288,6 +288,26 @@ extension Libxml2 {
             }
         }
 
+        // MARK: - Splitting Nodes
+
+        func splitLowestBlockLevelElement(at location: Int) {
+
+            let range = NSRange(location: location, length: 0)
+            let elementsAndIntersections = rootNode.lowestBlockLevelElements(intersectingRange: range)
+
+            guard let elementAndIntersection = elementsAndIntersections.first else {
+                // If there's no block-level element to break, we simply add a line separator
+                //
+                rootNode.replaceCharacters(inRange: range, withString: String(.lineSeparator))
+                return
+            }
+
+            let elementToSplit = elementAndIntersection.element
+            let intersection = elementAndIntersection.intersection
+
+            elementToSplit.split(atLocation: intersection.location)
+        }
+
         // MARK: - Merging Nodes
 
         /// Merges the siblings found separated at the specified location.  Since the DOM is a tree

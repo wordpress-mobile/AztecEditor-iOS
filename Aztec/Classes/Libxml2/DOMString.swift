@@ -141,6 +141,17 @@ extension Libxml2 {
         
         // MARK: - Editing
 
+        /// Adds a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to add.
+        ///
+        func addBlockSeparator(at location: Int) {
+            performAsyncUndoable { [weak self] in
+                self?.addBlockSeparatorSynchronously(at: location)
+            }
+        }
+
         /// Deletes a block-level elements separator at the specified location.
         ///
         /// - Parameters:
@@ -170,6 +181,15 @@ extension Libxml2 {
         }
         
         // MARK: - Editing: Synchronously
+
+        /// Adds a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to add.
+        ///
+        private func addBlockSeparatorSynchronously(at location: Int) {
+            domEditor.splitLowestBlockLevelElement(at: location)
+        }
 
         /// Deletes a block-level elements separator at the specified location.
         ///
