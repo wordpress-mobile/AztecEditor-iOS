@@ -172,7 +172,7 @@ extension Libxml2 {
             return standardName.isBlockLevelNodeName()
         }
 
-        func isNodeType(_ type:StandardElementType) -> Bool {
+        func isNodeType(_ type: StandardElementType) -> Bool {
             return type.equivalentNames.contains(name.lowercased())
         }
 
@@ -494,6 +494,11 @@ extension Libxml2 {
                 return
             }
 
+            guard children.count > 0 else {
+                matchNotFound?(targetRange)
+                return
+            }
+
             var rangeWithoutMatch: NSRange?
             var offset = Int(0)
 
@@ -526,7 +531,6 @@ extension Libxml2 {
                     if isMatch(child) {
                         processMatchFound(child, intersection)
                     } else if let childElement = child as? ElementNode {
-
                         let intersectionInChildCoordinates = NSRange(location: intersection.location - offset, length: intersection.length)
 
                         childElement.enumerateFirstDescendants(
@@ -685,19 +689,25 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
-        
         func sibling<T: Node>(leftOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
                 fatalError("Out of bounds!")
             }
-            
-            guard childIndex > 0,
-                let sibling = children[childIndex - 1] as? T else {
-                    return nil
+
+            guard childIndex > 0 else {
+                return nil
             }
-            
-            return sibling
+
+            let siblingNode = children[childIndex - 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(leftOf: childIndex - 1)
+            }
+
+            return siblingNode as? T
         }
         
         /// Retrieves the right-side sibling of the child at the specified index.
@@ -707,19 +717,25 @@ extension Libxml2 {
         ///
         /// - Returns: the requested sibling, or `nil` if there's none.
         ///
-        
         func sibling<T: Node>(rightOf childIndex: Int) -> T? {
             
             guard childIndex >= 0 && childIndex < children.count else {
                 fatalError("Out of bounds!")
             }
             
-            guard childIndex < children.count - 1,
-                let sibling = children[childIndex + 1] as? T else {
-                    return nil
+            guard childIndex < children.count - 1 else {
+                return nil
             }
-            
-            return sibling
+
+            let siblingNode = children[childIndex + 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(rightOf: childIndex + 1)
+            }
+
+            return siblingNode as? T
         }
         
         /// Finds any left-side descendant with any of the specified names.
@@ -820,10 +836,8 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ child: Node) {
-            child.removeFromParent()
-            children.append(child)
-            child.parent = self
+        func append(_ child: Node, tryToMergeWithSiblings: Bool = true) {
+            insert(child, at: children.count, tryToMergeWithSiblings: tryToMergeWithSiblings)
         }
         
         /// Appends a node to the list of children for this element.
@@ -831,9 +845,9 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to append.
         ///
-        func append(_ children: [Node]) {
+        func append(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
             for child in children {
-                append(child)
+                append(child, tryToMergeWithSiblings: tryToMergeWithSiblings)
             }
         }
 
@@ -842,8 +856,8 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to prepend.
         ///
-        func prepend(_ child: Node) {
-            insert(child, at: 0)
+        func prepend(_ child: Node, tryToMergeWithSiblings: Bool = true) {
+            insert(child, at: 0, tryToMergeWithSiblings: tryToMergeWithSiblings)
         }
 
         /// Prepends children to the list of children for this element.
@@ -851,9 +865,9 @@ extension Libxml2 {
         /// - Parameters:
         ///     - children: the nodes to prepend.
         ///
-        func prepend(_ children: [Node]) {
+        func prepend(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
             for index in stride(from: (children.count - 1), through: 0, by: -1) {
-                prepend(children[index])
+                prepend(children[index], tryToMergeWithSiblings: tryToMergeWithSiblings)
             }
         }
         
@@ -862,11 +876,70 @@ extension Libxml2 {
         /// - Parameters:
         ///     - child: the node to insert.
         ///     - index: the position where to insert the node.
+        ///     - mergeSiblings: if true, this method will attempt to merge the inserted node with
+        ///         similar siblings.
         ///
-        func insert(_ child: Node, at index: Int) {
+        func insert(_ child: Node, at index: Int, tryToMergeWithSiblings: Bool = true) {
             child.removeFromParent()
-            children.insert(child, at: index)
-            child.parent = self
+
+            if tryToMergeWithSiblings && index > 0,
+                let previousChild = children[index - 1] as? TextNode,
+                let newChildTextNode = child as? TextNode {
+
+                previousChild.append(newChildTextNode.text())
+            } else if tryToMergeWithSiblings && index < children.count,
+                let nextChild = children[index] as? TextNode,
+                let newChildTextNode = child as? TextNode {
+
+                nextChild.prepend(newChildTextNode.text())
+            } else {
+                children.insert(child, at: index)
+                child.parent = self
+            }
+        }
+
+        /// Prepends children to the list of children for this element.
+        ///
+        /// - Parameters:
+        ///     - children: the nodes to prepend.
+        ///
+        func insert(_ children: [Node], at index: Int) {
+            for child in children.reversed() {
+                insert(child, at: index, tryToMergeWithSiblings: false)
+            }
+
+            fixChildrenTextNodes()
+        }
+
+        func fixChildrenTextNodes() {
+            for child in children {
+                let index = indexOf(childNode: child)
+                let nextIndex = index + 1
+
+                if nextIndex < children.count,
+                    let currentTextNode = child as? TextNode,
+                    let nextTextNode = children[nextIndex] as? TextNode {
+
+                    nextTextNode.prepend(currentTextNode.text())
+                    remove(currentTextNode)
+                }
+            }
+        }
+
+        func nodesRepresenting(_ string: String) -> [Node] {
+            let separatorElement = ElementNodeDescriptor(elementType: .br)
+            let components = string.components(separatedBy: String(.newline))
+            var nodes = [Node]()
+
+            for (index, component) in components.enumerated() {
+                nodes.append(TextNode(text: component, editContext: editContext))
+
+                if index != components.count - 1 {
+                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: editContext))
+                }
+            }
+
+            return nodes
         }
 
         /// Replaces the specified node with several new nodes.
@@ -1184,7 +1257,7 @@ extension Libxml2 {
         // MARK: - EditableNode
 
         override func deleteCharacters(inRange range: NSRange) {
-            if range.location == 0 && range.length == length() {
+            if  range.location == 0 && range.length == length() {
                 removeFromParent()
             } else {
                 let childrenAndIntersections = childNodes(intersectingRange: range)
@@ -1236,111 +1309,21 @@ extension Libxml2 {
         ///
         func insert(_ string: String, atLocation location: Int) {
 
-            let blockLevelElementsAndIntersections = lowestBlockLevelElements(intersectingRange: NSRange(location: location, length: 0))
+            let nodesToInsert = nodesRepresenting(string)
+            let childrenBefore = splitChildren(before: location)
+            insert(nodesToInsert, at: childrenBefore.count)
 
-            guard blockLevelElementsAndIntersections.count != 0 else {
-                if location == 0 {
-                    // It's not great having to set empty text and then append text to it.  The reason
-                    // we're doing it here is that if the text contains line-breaks, they will only
-                    // be processed as BR tags if the text is set after construction.
-                    //
-                    // This code can be improved but this "hack" will allow us to postpone the necessary
-                    // code restructuration.
-                    //
-                    let textNode = TextNode(text: "", editContext: editContext)
-                    append(textNode)
-                    textNode.append(string)
-                } else {
-                    fatalError("If there are no child nodes, the insert location has to be zero.")
-                }
-
-                return
-            }
-
-            let element = blockLevelElementsAndIntersections[0].element
-            let intersection = blockLevelElementsAndIntersections[0].intersection
-            
-            let indexAndIntersection = element.indexOf(childNodeIntersecting: intersection.location)
-            
-            let childIndex = indexAndIntersection.index
-            let childIntersection = indexAndIntersection.intersection
-            
-            let child = element.children[childIndex]
-            var insertionIndex: Int
-            
-            if childIntersection == 0 {
-                insertionIndex = childIndex
-            } else {
-                
-                if childIntersection < child.length() {
-                    child.split(atLocation: childIntersection)
-                }
-                
-                insertionIndex = childIndex + 1
-            }
-            
-            element.insert(string, atNodeIndex: insertionIndex)
+            return
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool = true) {
-            let childrenAndIntersections = childNodes(intersectingRange: range)
-            let preferRightNode = !preferLeftNode
-            var textInserted = false
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
 
-            assert(range.location == 0 || childrenAndIntersections.count > 0)
-
-            guard childrenAndIntersections.count > 0 else {
-                insert(string, atLocation: 0)
-                return
+            if range.length > 0 {
+                deleteCharacters(inRange: range)
             }
 
-            for (index, childAndIntersection) in childrenAndIntersections.enumerated() {
-                let child = childAndIntersection.child
-                let intersection = childAndIntersection.intersection
-
-                guard !textInserted else {
-                    child.deleteCharacters(inRange: intersection)
-                    continue
-                }
-
-                if intersection.location == 0 {
-                    guard index == 0 || preferRightNode else {
-                        if intersection.length > 0 {
-                            child.deleteCharacters(inRange: intersection)
-                        }
-                        continue
-                    }
-
-                    if preferLeftNode || mustInterruptStyleAtEdges(forNode: child) {
-                        let childIndex = indexOf(childNode: child)
-
-                        child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: childIndex)
-                    } else {
-                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                    }
-                } else if intersection.location + intersection.length == child.length() {
-                    guard index == childrenAndIntersections.count - 1 || preferLeftNode else {
-                        if intersection.length > 0 {
-                            child.deleteCharacters(inRange: intersection)
-                        }
-                        continue
-                    }
-
-                    if preferRightNode || mustInterruptStyleAtEdges(forNode: child) {
-                        let childIndex = indexOf(childNode: child) + 1
-
-                        child.deleteCharacters(inRange: intersection)
-                        insert(string, atNodeIndex: childIndex)
-                    } else {
-                        child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                    }
-                } else {
-                    child.replaceCharacters(inRange: intersection, withString: string, preferLeftNode: preferLeftNode)
-                }
-
-                textInserted = true
-            }
+            insert(string, atLocation: range.location)
+            return
         }
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
@@ -1526,16 +1509,18 @@ extension Libxml2 {
         @discardableResult
         func wrap(children selectedChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
 
+            var childrenToWrap = selectedChildren
+
             guard selectedChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
                 return ElementNode(descriptor: elementDescriptor, editContext: editContext)
             }
 
-            guard let firstNodeIndex = children.index(of: selectedChildren[0]) else {
+            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
-            guard let lastNodeIndex = children.index(of: selectedChildren[selectedChildren.count - 1]) else {
+            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
             
@@ -1550,40 +1535,43 @@ extension Libxml2 {
             // First get the right sibling because if we do it the other round, lastNodeIndex will
             // be modified before we access it.
             //
-            let rightSibling = pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
-            let leftSibling = pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation)
+            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
 
-            var childrenToWrap = selectedChildren
-            var result: ElementNode?
+            var wrapperElement: ElementNode?
             
             if let sibling = rightSibling {
-                sibling.prepend(childrenToWrap)
+                sibling.prepend(childrenToWrap, tryToMergeWithSiblings: false)
                 childrenToWrap = sibling.children
                 
-                result = sibling
+                wrapperElement = sibling
             }
             
             if let sibling = leftSibling {
-                sibling.append(childrenToWrap)
+                sibling.append(childrenToWrap, tryToMergeWithSiblings: false)
                 childrenToWrap = sibling.children
                 
-                result = sibling
+                wrapperElement = sibling
                 
                 if let rightSibling = rightSibling, rightSibling.children.count == 0 {
                     rightSibling.removeFromParent()
                 }
             }
 
-            if let result = result {
-                return result
-            } else {
+            let finalWrapper = wrapperElement ?? { () -> ElementNode in
                 let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
-                
+
                 children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
-                
+
                 return newNode
+            }()
+
+            if let childElementDescriptor = elementDescriptor.childDescriptor {
+                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
             }
+
+            return finalWrapper
         }
 
         // MARK: - Editing behavior
@@ -1671,6 +1659,14 @@ extension Libxml2 {
         }
 
         // MARK: - Overriden Methods
+
+        override func deleteCharacters(inRange range: NSRange) {
+            let childrenAndIntersections = childNodes(intersectingRange: range)
+
+            for (child, intersection) in childrenAndIntersections {
+                child.deleteCharacters(inRange: intersection)
+            }
+        }
 
         override func isSupportedByEditor() -> Bool {
             return true

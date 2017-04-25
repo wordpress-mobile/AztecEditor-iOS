@@ -141,6 +141,17 @@ extension Libxml2 {
         
         // MARK: - Editing
 
+        /// Adds a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to add.
+        ///
+        func addBlockSeparator(at location: Int) {
+            performAsyncUndoable { [weak self] in
+                self?.addBlockSeparatorSynchronously(at: location)
+            }
+        }
+
         /// Deletes a block-level elements separator at the specified location.
         ///
         /// - Parameters:
@@ -158,18 +169,27 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             
             let domHasModifications = range.length > 0 || !string.isEmpty
 
             if domHasModifications {
                 performAsyncUndoable { [weak self] in
-                    self?.replaceCharactersSynchronously(inRange: range, withString: string, preferLeftNode: preferLeftNode)
+                    self?.replaceCharactersSynchronously(inRange: range, withString: string)
                 }
             }
         }
         
         // MARK: - Editing: Synchronously
+
+        /// Adds a block-level elements separator at the specified location.
+        ///
+        /// - Parameters:
+        ///     - location: the location of the block-level element separation we want to add.
+        ///
+        private func addBlockSeparatorSynchronously(at location: Int) {
+            domEditor.splitLowestBlockLevelElement(at: location)
+        }
 
         /// Deletes a block-level elements separator at the specified location.
         ///
@@ -186,8 +206,8 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
-            rootNode.replaceCharacters(inRange: range, withString: string, preferLeftNode: preferLeftNode)
+        private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
+            rootNode.replaceCharacters(inRange: range, withString: string)
         }
         
         // MARK: - Undo Manager
@@ -341,6 +361,28 @@ extension Libxml2 {
             }
         }
 
+        /// Disables unordered list from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeOrderedList(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeOrderedListSynchronously(spanning: range)
+            }
+        }
+
+        /// Disables unordered list from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeUnorderedList(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeUnorderedListSynchronously(spanning: range)
+            }
+        }
+
         /// Disables blockquote from the specified range.
         ///
         /// - Parameters:
@@ -367,6 +409,17 @@ extension Libxml2 {
                 self?.removeHeaderSynchronously(headerLevel: headerLevel, spanning: range)
             }
         }
+
+        /// Disables HTML paragraph from the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to remove the style from.
+        ///
+        func removeHTMLParagraph(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.removeHTMLParagraphSynchronously(spanning: range)
+            }
+        }
         
         // MARK: - Remove Styles: Synchronously
         private func removeSynchronously(element: StandardElementType, at range: NSRange) {
@@ -376,6 +429,10 @@ extension Libxml2 {
             }
 
             domEditor.unwrap(range: range, fromElementsNamed: element.equivalentNames)
+        }
+
+        private func removeBlockquoteSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
         }
 
         private func removeBoldSynchronously(spanning range: NSRange) {
@@ -402,8 +459,14 @@ extension Libxml2 {
             domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
 
-        private func removeBlockquoteSynchronously(spanning range: NSRange) {
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.blockquote.equivalentNames)
+        private func removeOrderedListSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ol.equivalentNames)
+        }
+
+        private func removeUnorderedListSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ul.equivalentNames)
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
@@ -411,6 +474,10 @@ extension Libxml2 {
                 return
             }
             domEditor.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
+        }
+
+        private func removeHTMLParagraphSynchronously(spanning range: NSRange) {
+            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.p.equivalentNames)
         }
         
         // MARK: - Apply Styles
@@ -486,13 +553,25 @@ extension Libxml2 {
             }
         }
 
-        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
-            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
-                return nil
+        func applyOrderedList(spanning range: NSRange, canMergeLeft: Bool, canMergeRight: Bool) {
+            performAsyncUndoable { [weak self] in
+
+                let liDescriptor = ElementNodeDescriptor(elementType: .li, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+                let olDescriptor = ElementNodeDescriptor(elementType: .ol, childDescriptor: liDescriptor)
+
+                self?.applyElementDescriptor(olDescriptor, spanning: range)
             }
-            return DOMString.headerLevels[headerLevel - 1]
         }
 
+        func applyUnorderedList(spanning range: NSRange, canMergeLeft: Bool, canMergeRight: Bool) {
+            performAsyncUndoable { [weak self] in
+
+                let liDescriptor = ElementNodeDescriptor(elementType: .li, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+                let ulDescriptor = ElementNodeDescriptor(elementType: .ul, childDescriptor: liDescriptor)
+
+                self?.applyElementDescriptor(ulDescriptor, spanning: range)
+            }
+        }
 
         func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
             guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
@@ -503,6 +582,25 @@ extension Libxml2 {
             }
         }
 
+        /// Applies an HTML paragraph to the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range to apply the style to.
+        ///
+        func applyHTMLParagraph(spanning range: NSRange) {
+            performAsyncUndoable { [weak self] in
+                self?.applyElement(.p, spanning: range)
+            }
+        }
+
+        // MARK: - Header types
+
+        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+                return nil
+            }
+            return DOMString.headerLevels[headerLevel - 1]
+        }
 
         // MARK: - Raw HTML
 
@@ -531,7 +629,6 @@ extension Libxml2 {
                 fatalError("Could not replace range with raw HTML: \(rawHTML).")
             }
         }
-
 
         // MARK: - Images
 
@@ -646,6 +743,10 @@ extension Libxml2 {
         fileprivate func applyElement(_ elementName: String, spanning range: NSRange, equivalentElementNames: [String], attributes: [Attribute] = []) {
             
             let elementDescriptor = ElementNodeDescriptor(name: elementName, attributes: attributes, matchingNames: equivalentElementNames)
+            applyElementDescriptor(elementDescriptor, spanning: range)
+        }
+
+        private func applyElementDescriptor(_ elementDescriptor: ElementNodeDescriptor, spanning range: NSRange) {
             domEditor.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
         }
         

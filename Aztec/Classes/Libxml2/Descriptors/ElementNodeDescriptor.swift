@@ -9,8 +9,11 @@ extension Libxml2 {
     ///
     class ElementNodeDescriptor: NodeDescriptor {
         let attributes: [Attribute]
+        let childDescriptor: ElementNodeDescriptor?
         let matchingNames: [String]
-        
+        let canMergeLeft: Bool
+        let canMergeRight: Bool
+
         // MARK: - CustomReflectable
         
         public override var customMirror: Mirror {
@@ -19,14 +22,17 @@ extension Libxml2 {
             }
         }
         
-        init(name: String, attributes: [Attribute] = [], matchingNames: [String] = []) {
+        init(name: String, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], matchingNames: [String] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
             self.attributes = attributes
+            self.canMergeLeft = canMergeLeft
+            self.canMergeRight = canMergeRight
+            self.childDescriptor = childDescriptor
             self.matchingNames = matchingNames
             super.init(name: name)
         }
 
-        convenience init(elementType: StandardElementType, attributes: [Attribute] = []) {
-            self.init(name: elementType.rawValue, attributes: attributes, matchingNames: elementType.equivalentNames)
+        convenience init(elementType: StandardElementType, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
+            self.init(name: elementType.rawValue, childDescriptor: childDescriptor, attributes: attributes, matchingNames: elementType.equivalentNames, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         }
         
         // MARK: - Introspection

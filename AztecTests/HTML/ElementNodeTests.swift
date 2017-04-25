@@ -27,14 +27,11 @@ class ElementNodeTests: XCTestCase {
     /// Tests that `prepend(_ child:)` works.
     ///
     /// Inputs:
-    ///     - Original node contents: "Hello there!"
-    ///     - Range: (loc: 6, len: 6)
-    ///     - New string: "-"
+    ///     - HTML: "<b> world!</b>"
+    ///     - String to prepend: "Hello"
     ///
     /// Verifications:
-    ///     - Check that the undo event is properly registered.
-    ///     - Check that after editing the text node, its content is: "Hello -"
-    ///     - Check that after undoing the text node edit, its content is: "Hello there!"
+    ///     - HTML: "<b>Hello world!</b>
     ///
     func testPrepend() {
         let text1 = "Hello"
@@ -51,9 +48,8 @@ class ElementNodeTests: XCTestCase {
         
         boldNode.prepend(textNode1)
         
-        XCTAssertEqual(boldNode.children.count, 2)
-        XCTAssertEqual(boldNode.children[0], textNode1)
-        XCTAssertEqual(boldNode.children[1], textNode2)
+        XCTAssertEqual(boldNode.children.count, 1)
+        XCTAssertEqual(boldNode.children[0].text(), fullText)
         XCTAssertEqual(boldNode.text(), fullText)
     }
     
@@ -1150,10 +1146,9 @@ class ElementNodeTests: XCTestCase {
     /// Input HTML: `<div><p>Click on this <a href="http://www.wordpress.com">link</a></p></div>`
     /// - Range: the range of the full contents of the `<a>` node.
     /// - New String: "link!"
-    /// - Inherit Style: false
     ///
     /// Expected results:
-    /// - Output: `<div><p>Click on this link!</p></div>`
+    /// - Output: `<div><p>Click on this </p>link!</div>`
     ///
     func testReplaceCharactersInRangeWithString3() {
         let text1 = "Click on this "
@@ -1169,20 +1164,20 @@ class ElementNodeTests: XCTestCase {
         let finalText = "\(text1)\(text2)!"
         
         div.replaceCharacters(inRange: range, withString: newString)
-        
-        XCTAssertEqual(div.children.count, 1)
+
+        XCTAssertEqual(div.text(), finalText)
+        XCTAssertEqual(div.children.count, 2)
         
         guard let newParagraph = div.children[0] as? ElementNode, newParagraph.name == "p" else {
                 XCTFail("Expected a paragraph.")
                 return
         }
+
+        XCTAssertEqual(newParagraph.text(), text1)
         
-        XCTAssertEqual(newParagraph.children.count, 1)
-        
-        guard let textNode = newParagraph.children[0] as? TextNode, textNode.text() == finalText else {
-                
-                XCTFail("Expected a text node, with the full text.")
-                return
+        guard let textNode = div.children[1] as? TextNode, textNode.text() == newString else {
+            XCTFail("Expected a text node, with the full text.")
+            return
         }
     }
 
@@ -1214,7 +1209,7 @@ class ElementNodeTests: XCTestCase {
 
         let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
 
-        rootNode.replaceCharacters(inRange: replaceRange, withString: "everyone", preferLeftNode: true)
+        rootNode.replaceCharacters(inRange: replaceRange, withString: "everyone")
 
         XCTAssertEqual(rootNode.children.count, 2)
         XCTAssertEqual(rootNode.children[0], boldNode)

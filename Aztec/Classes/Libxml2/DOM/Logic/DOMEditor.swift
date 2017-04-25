@@ -53,7 +53,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        private func forceWrap(range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
             forceWrap(element: rootNode, range: targetRange, inElement: elementDescriptor)
         }
 
@@ -68,7 +68,7 @@ extension Libxml2 {
         ///     - targetRange: the range that must be wrapped.
         ///     - elementDescriptor: the descriptor for the element to wrap the range in.
         ///
-        func forceWrap(element: ElementNode, range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
+        private func forceWrap(element: ElementNode, range targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
             if NSEqualRanges(targetRange, element.range())
                 && canWrap(node: element, in: elementDescriptor) {
@@ -106,13 +106,6 @@ extension Libxml2 {
 
             let firstChild = childNodesAndRanges[0].child
             let firstChildIntersection = childNodesAndRanges[0].intersection
-
-            if childNodesAndRanges.count == 1,
-                let elementNode = firstChild as? ElementNode {
-
-                forceWrapChildren(of: elementNode, intersecting: firstChildIntersection, inElement: elementDescriptor)
-                return
-            }
 
             if !NSEqualRanges(firstChild.range(), firstChildIntersection) {
                 firstChild.split(forRange: firstChildIntersection)
@@ -293,6 +286,26 @@ extension Libxml2 {
 
                 unwrap(childElement, range: range, fromElementsNamed: elementNames)
             }
+        }
+
+        // MARK: - Splitting Nodes
+
+        func splitLowestBlockLevelElement(at location: Int) {
+
+            let range = NSRange(location: location, length: 0)
+            let elementsAndIntersections = rootNode.lowestBlockLevelElements(intersectingRange: range)
+
+            guard let elementAndIntersection = elementsAndIntersections.first else {
+                // If there's no block-level element to break, we simply add a line separator
+                //
+                rootNode.replaceCharacters(inRange: range, withString: String(.lineSeparator))
+                return
+            }
+
+            let elementToSplit = elementAndIntersection.element
+            let intersection = elementAndIntersection.intersection
+
+            elementToSplit.split(atLocation: intersection.location)
         }
 
         // MARK: - Merging Nodes

@@ -149,6 +149,23 @@ open class TextView: UITextView {
         return textStorage as! TextStorage
     }
 
+    // MARK: - Overwritten Properties
+
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    override open var typingAttributes: [String: Any] {
+        get {
+            ensureRemovalOfParagraphAttributesAfterSelectionChange()
+            return super.typingAttributes
+        }
+
+        set {
+            super.typingAttributes = newValue
+        }
+    }
+
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
@@ -211,24 +228,6 @@ open class TextView: UITextView {
         addGestureRecognizer(attachmentGestureRecognizer)
     }
 
-
-    // MARK: - Overwritten Properties
-    
-    /// Overwrites Typing Attributes:
-    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
-    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
-    ///
-    override open var typingAttributes: [String: Any] {
-        get {
-            ensureRemovalOfParagraphAttributes(at: selectedRange)
-            return super.typingAttributes
-        }
-        set {
-            super.typingAttributes = newValue
-        }
-    }
-
-
     // MARK: - Intercept copy paste operations
 
     open override func cut(_ sender: Any?) {
@@ -286,26 +285,15 @@ open class TextView: UITextView {
 
     open override func insertText(_ text: String) {
 
+        guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
+            return
+        }
+
         /// Whenever the user is at the end of the document, while editing a [List, Blockquote, Pre], we'll need
         /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
         /// (or Blockquote's BG).
         ///
-        ensureInsertionOfNewline(beforeInserting: text)
-
-        // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
-        // text insertion to happen. Thus, we won't call super.insertText.
-        // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
-        //
-        if ensureRemovalOfParagraphAttributes(beforeInserting: text, at: selectedRange) {
-            if self.textStorage.length > 0 {
-                typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
-            }
-
-            delegate?.textViewDidChangeSelection?(self)
-            delegate?.textViewDidChange?(self)
-
-            return
-        }
+        ensureInsertionOfEndOfLine(beforeInserting: text)
 
         // Emoji Fix:
         // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
@@ -324,9 +312,9 @@ open class TextView: UITextView {
 
         super.insertText(text)
 
-        restoreDefaultFontIfNeeded()
+        ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
-        ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
+        restoreDefaultFontIfNeeded()
 
         ensureCursorRedraw(afterEditing: text)
     }
@@ -344,11 +332,9 @@ open class TextView: UITextView {
 
         super.deleteBackward()
 
-        if storage.string.isEmpty {
-            return
-        }
+        //refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
+        ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
 
-        refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -434,6 +420,7 @@ open class TextView: UITextView {
         .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
         .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
         .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
+        .p: HTMLParagraphFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -584,7 +571,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func togglePre(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = PreFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -601,7 +588,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -614,7 +601,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -628,7 +615,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -713,18 +700,27 @@ open class TextView: UITextView {
     }
 
 
-    /// Inserts an empty line whenever we're at the end of the document
+    /// Inserts an end-of-line character whenever we're at end-of-file, in an
+    /// empty paragraph. This is useful when attempting to apply a paragraph-level style at EOF,
+    /// since it won't be possible without the paragraph having any characters.
     ///
-    private func ensureInsertionOfNewlineWhenEditingEdgeOfTheDocument() {
-        guard selectedRange.location == storage.length else {
+    /// Call this method before applying the formatter.
+    ///
+    private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile() {
+
+        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: selectedRange) else {
+            assertionFailure("This should never happen.  Review the logic!")
             return
         }
 
-        insertNewline()
+        if selectedRangeForSwift.location == textStorage.length
+            && textStorage.string.isEmptyParagraph(at: selectedRangeForSwift.location) {
+
+            insertEndOfLineCharacter()
+        }
     }
 
-
-    /// Inserts an empty line whenever:
+    /// Inserts an end-of-line chracter whenever:
     ///
     ///     A.  We're about to insert a new line
     ///     B.  We're at the end of the document
@@ -733,7 +729,7 @@ open class TextView: UITextView {
     /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
     /// Blockquote's background.
     ///
-    private func ensureInsertionOfNewline(beforeInserting text: String) {
+    private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
         guard text == String(.newline) else {
             return
         }
@@ -757,17 +753,17 @@ open class TextView: UITextView {
             return
         }
 
-        insertNewline()
+        insertEndOfLineCharacter()
     }
 
-
-    /// Inserts a New Line at the current position, while retaining the selectedRange and typingAttributes.
+    /// Inserts a end-of-line character at the current position, while retaining the selectedRange
+    /// and typingAttributes.
     ///
-    private func insertNewline() {
+    private func insertEndOfLineCharacter() {
         let previousRange = selectedRange
         let previousStyle = typingAttributes
 
-        super.insertText(String(.newline))
+        super.insertText(String(.paragraphSeparator))
 
         selectedRange = previousRange
         typingAttributes = previousStyle
@@ -794,40 +790,6 @@ open class TextView: UITextView {
         }
 
         typingAttributes.removeValue(forKey: NSLinkAttributeName)
-    }
-
-
-    private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
-        HeaderFormatter(headerLevel:.h1),
-        HeaderFormatter(headerLevel:.h2),
-        HeaderFormatter(headerLevel:.h3),
-        HeaderFormatter(headerLevel:.h4),
-        HeaderFormatter(headerLevel:.h5),
-        HeaderFormatter(headerLevel:.h6),
-    ]
-    /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
-    /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that just got inserted.
-    ///     - at: Range in which the string was inserted.
-    ///
-    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
-    ///
-    @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
-
-        guard textStorage.string.isEmptyParagraph(at: range.location) else {
-            return false
-        }
-
-        for formatter in formattersThatBreakAfterEnter {
-            if formatter.present(in: typingAttributes) {
-                typingAttributes = formatter.remove(from: typingAttributes)
-                return true
-            }
-        }
-
-        return false
     }
 
 
@@ -1146,69 +1108,160 @@ open class TextView: UITextView {
     }
 }
 
-// MARK: - Paragraph Formatters Rendering Workarounds
-//
+
+// MARK: - Single line attributes removal
+
 private extension TextView {
 
-    /// Removes the Paragraph Attributes whenever `mustRemoveParagraphAttributes(beforeInserting: at)` returns true.
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributes()`.
     ///
     /// - Parameters:
-    ///     - text: (Optional) String that's about to be inserted.
-    ///     - selectedRange: TextView's Selected Range.
+    ///     - text: the text that was just inserted into the TextView.
     ///
-    /// - Returns: true if ParagraphAttributes were removed. false otherwise!
-    ///
-    @discardableResult
-    func ensureRemovalOfParagraphAttributes(beforeInserting text: String? = nil, at selectedRange: NSRange) -> Bool {
-        guard mustRemoveParagraphAttributes(beforeInserting: text, at: selectedRange.location) else {
-            return false
+    func ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: String) {
+        guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
+            return
         }
 
-        return removeParagraphAttributes(at: selectedRange)
+        removeSingleLineParagraphAttributes(at: selectedRange)
     }
 
-
-    /// Analyzes whether the Paragraph Attributes should be removed at a specified location, or not.
-    /// This is necessary in two different scenarios:
-    ///
-    /// Scenario A:
-    ///
-    ///     A. We're at the end of the document
-    ///     B. Below there's an empty line.
-    ///     C. The user pressed Arrow Down
-    ///
-    ///     Why: We only want to carry over the `Paragraph Attribute` if a Newline is explicitly pressed.
-    ///
-    /// Scenario B:
-    ///
-    ///     A. The user enters a newline
-    ///     B. The next character is a newline (OR) there is no next character
-    ///     C. The previous character is a newline (OR) there is no previous character
-    ///
-    ///     Why: We wanna take care of removing [Lists, Pre, Blockquotes] if the user hits return on an empty line.
-    ///
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
     ///
     /// - Parameters:
-    ///     - text: String that is about to be inserted.
-    ///     - location: Selected Range's Location
+    ///     - text: the text that was just inserted into the TextView.
     ///
-    /// - Returns: true if we should remove the paragraph attributes. false otherwise!
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveParagraphAttributes(beforeInserting text: String? = nil, at location: Int) -> Bool {
-        guard text?.isEndOfLine() == true || location == storage.length else {
-            return false
-        }
-
-        return storage.string.isEmptyParagraph(at: location)
+    func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
+        return input.isEndOfLine()
     }
 
 
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
     /// is beyond the storage's contents, the typingAttributes will be modified
     ///
-    /// - Returns: true on success.
+    func removeSingleLineParagraphAttributes(at range: NSRange) {
+
+        let formatters: [AttributeFormatter] = [
+            HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
+        ]
+
+        for formatter in formatters where formatter.present(in: typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+
+    // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
+
+    /// Removes paragraph attributes after pressing enter in an empty paragraph.
     ///
-    func removeParagraphAttributes(at range: NSRange) -> Bool {
+    /// - Parameters:
+    ///     - input: the user's input.  This method must be called before the input is processed.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
+            return false
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+
+        return true
+    }
+
+    /// Analyzes whether paragraph attributes should be removed after pressing enter in an empty
+    /// paragraph.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        return input.isEndOfLine()
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
+            && (BlockquoteFormatter().present(in: typingAttributes)
+                || TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
+                || PreFormatter().present(in: typingAttributes))
+    }
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeTextListAttributes(at range: NSRange) {
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+
+    // MARK: - Remove paragraph styles when pressing backspace and removing the last character
+
+    /// Removes paragraph attributes after pressing backspace, if the resulting document is empty.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() {
+        guard mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after pressing backspace.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() -> Bool {
+        return storage.length == 0
+    }
+
+    // MARK: - WORKAROUND: removing styles at EOF due to selection change
+
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    ///
+    func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
+        guard mustRemoveParagraphAttributesAfterSelectionChange() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
+        return selectedRange.location == storage.length
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
+    }
+
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeParagraphAttributes(at range: NSRange) {
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
             PreFormatter(placeholderAttributes: defaultAttributes),
@@ -1216,21 +1269,12 @@ private extension TextView {
             TextListFormatter(style: .unordered)
         ]
 
-        guard range.location >= storage.length else {
-            for formatter in formatters where formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
-                return true
-            }
-
-            return false
-        }
-
         for formatter in formatters where formatter.present(in: super.typingAttributes) {
             super.typingAttributes = formatter.remove(from: super.typingAttributes)
-            return true
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
         }
-        
-        return false
     }
 }
 

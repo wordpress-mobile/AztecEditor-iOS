@@ -320,7 +320,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: 0, length: helloText.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: byeText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: byeText)
         
         XCTAssertEqual(paragraphNode.children.count, 1)
         XCTAssertEqual(paragraphNode.children[0], textNode)
@@ -351,7 +351,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: cityText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: cityText)
         
         XCTAssertEqual(paragraphNode.children.count, 1)
         XCTAssertEqual(paragraphNode.children[0], textNode)
@@ -380,7 +380,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: 0, length: helloText.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: helloAndBreakText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: helloAndBreakText)
         
         XCTAssertEqual(paragraphNode.children.count, 3)
         
@@ -426,7 +426,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: helloText.characters.count, length: worldText.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: breakAndWorldText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakAndWorldText)
         
         XCTAssertEqual(paragraphNode.children.count, 3)
         
@@ -474,7 +474,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: breakText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: breakText)
         
         XCTAssertEqual(paragraphNode.children.count, 3)
         
@@ -522,7 +522,7 @@ class TextNodeTests: XCTestCase {
         
         let replaceRange = NSRange(location: helloText.characters.count, length: space.characters.count)
         
-        textNode.replaceCharacters(inRange: replaceRange, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: replaceRange, withString: newText)
         
         XCTAssertEqual(paragraphNode.children.count, 5)
         
@@ -830,7 +830,7 @@ class TextNodeTests: XCTestCase {
         
         let textNode = TextNode(text: fullText, editContext: editContext)
         
-        textNode.replaceCharacters(inRange: range, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
         
         undoManager.undo()
@@ -865,7 +865,7 @@ class TextNodeTests: XCTestCase {
         
         let textNode = TextNode(text: fullText, editContext: editContext)
         
-        textNode.replaceCharacters(inRange: range, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
         
         undoManager.undo()
@@ -900,7 +900,7 @@ class TextNodeTests: XCTestCase {
         
         let textNode = TextNode(text: fullText, editContext: editContext)
         
-        textNode.replaceCharacters(inRange: range, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
         
         undoManager.undo()
@@ -934,7 +934,7 @@ class TextNodeTests: XCTestCase {
         
         let textNode = TextNode(text: fullText, editContext: editContext)
         
-        textNode.replaceCharacters(inRange: range, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newText)
         
         undoManager.undo()
@@ -968,7 +968,7 @@ class TextNodeTests: XCTestCase {
         
         let textNode = TextNode(text: fullText, editContext: editContext)
         
-        textNode.replaceCharacters(inRange: range, withString: newText, preferLeftNode: true)
+        textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newText)
         
         undoManager.undo()

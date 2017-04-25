@@ -76,6 +76,13 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate let dom = Libxml2.DOMString()
 
+    // MARK: - Workarounds support
+
+    /// To know more about why we need this flag, check the documentation of our `endEditing()`
+    /// override.
+    ///
+    private var allowFixingDOMAttributes = true
+
     // MARK: - Undo Support
     
     public var undoManager: UndoManager? {
@@ -250,8 +257,9 @@ open class TextStorage: NSTextStorage {
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
         return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
     }
-
+ 
     override open func replaceCharacters(in range: NSRange, with str: String) {
+
         beginEditing()
 
         if mustUpdateDOM() {
@@ -265,7 +273,7 @@ open class TextStorage: NSTextStorage {
         
         endEditing()
     }
-    
+
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
 
         let preprocessedString = preprocessAttributesForInsertion(attrString)
@@ -286,7 +294,7 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
         beginEditing()
 
-        if mustUpdateDOM(), let attributes = attrs {
+        if mustUpdateDOM() && allowFixingDOMAttributes && range.length > 0, let attributes = attrs {
             applyStylesToDom(attributes: attributes, in: range)
         }
 
@@ -294,6 +302,21 @@ open class TextStorage: NSTextStorage {
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
+
+        print("Style: \(dom.getHTML())")
+    }
+
+    /// This override exists to prevent text replacement from propagating style-changes to the DOM
+    /// This should not be a problem in our logic because the DOM is smart enough to update its
+    /// style after text modifications.
+    ///
+    /// This was causing issues specifically with lists.  To understand why, just comment this
+    /// method and run the unit tests.
+    ///
+    override open func endEditing() {
+        allowFixingDOMAttributes = false
+        super.endEditing()
+        allowFixingDOMAttributes = true
     }
 
     // MARK: - DOM: Replacing Characters
@@ -305,29 +328,38 @@ open class TextStorage: NSTextStorage {
         }
 
         let targetDomRange = string.map(visualUTF16Range: swiftRange)
-        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: str, preferLeftNode: preferLeftNode)
+        if targetDomRange.length > 0 || str.characters.count > 0 {
+            dom.replaceCharacters(inRange: targetDomRange, withString: str)
+        }
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
-
         guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
             fatalError()
         }
 
         let targetDomRange = string.map(visualUTF16Range: swiftRange)
-        let preferLeftNode = doesPreferLeftNode(atCaretPosition: swiftRange.location)
 
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
 
-        dom.replaceCharacters(inRange: targetDomRange, withString: domString.string, preferLeftNode: preferLeftNode)
+        if targetDomRange.length > 0 || domString.length > 0 {
+            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
+        }
+
+        if attrString.string == String(.paragraphSeparator) {
+            dom.addBlockSeparator(at: targetDomRange.location)
+        }
 
         if targetDomRange.length != swiftRange.length {
             dom.deleteBlockSeparator(at: targetDomRange.location)
         }
 
-        applyStylesToDom(from: domString, startingAt: range.location)
+        print("Pre: \(dom.getHTML())")
+        if domString.length > 0 {
+            applyStylesToDom(from: domString, startingAt: range.location)
+        }
+        print("Pos: \(dom.getHTML())")
     }
 
     // MARK: - DOM: Applying Styles
@@ -340,11 +372,19 @@ open class TextStorage: NSTextStorage {
     ///     - range: the range to apply the styles to.
     ///
     private func applyStylesToDom(attributes: [String : Any], in range: NSRange) {
+
+        let canMergeLeft = range.location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: range.location) : false
+        let canMergeRight = range.location + range.length < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: range.location + range.length) : false
+
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
             let domRange = textStore.string.map(visualUTF16Range: subRange)
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue)
+            guard domRange.length > 0 else {
+                return
+            }
+
+            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -360,15 +400,18 @@ open class TextStorage: NSTextStorage {
     ///         It's the offset this method will use to apply the styles found in the source string.
     ///
     private func applyStylesToDom(from attributedString: NSAttributedString, startingAt location: Int) {
-        let originalAttributes = location < textStore.length ? textStore.attributes(at: location, effectiveRange: nil) : [:]
+        let originalAttributes = [String:Any]()
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let location = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
+        let domLocation = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
+
+        let canMergeLeft = location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: location) : false
+        let canMergeRight = location < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: location) : false
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
+            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
 
             guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
@@ -378,7 +421,7 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue)
+            processAttributesDifference(in: swiftDomRange, key: key, sourceValue: targetValue, targetValue: sourceValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -392,7 +435,14 @@ open class TextStorage: NSTextStorage {
     ///   - sourceValue: the original value of the attribute
     ///   - targetValue: the new value of the attribute
     ///
-    private func processAttributesDifference(in domRange: NSRange, key: String, sourceValue: Any?, targetValue: Any?) {
+    private func processAttributesDifference(
+        in domRange: NSRange,
+        key: String,
+        sourceValue: Any?,
+        targetValue: Any?,
+        canMergeLeft: Bool = true,
+        canMergeRight: Bool = true) {
+
         let isCommentAttachment = sourceValue is CommentAttachment || targetValue is CommentAttachment
         let isHtmlAttachment = sourceValue is HTMLAttachment || targetValue is HTMLAttachment
         let isLineAttachment = sourceValue is LineAttachment || targetValue is LineAttachment
@@ -443,9 +493,11 @@ open class TextStorage: NSTextStorage {
         case NSParagraphStyleAttributeName:
             let sourceStyle = sourceValue as? ParagraphStyle
             let targetStyle = targetValue as? ParagraphStyle
-            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
 
+            processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
+            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
+            processHTMLParagraphDifferences(in: domRange, betweenOriginal: sourceStyle?.htmlParagraph, andNew: targetStyle?.htmlParagraph)
         case NSLinkAttributeName:
             let sourceStyle = sourceValue as? URL
             let targetStyle = targetValue as? URL
@@ -564,6 +616,26 @@ open class TextStorage: NSTextStorage {
         dom.replace(range, withRawHTML: html)
     }
 
+    /// Processes differences in blockquote styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original Blockquote object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processHTMLParagraphDifferences(in range: NSRange, betweenOriginal originalStyle: HTMLParagraph?, andNew newStyle: HTMLParagraph?) {
+
+        let addStyle = originalStyle == nil && newStyle != nil
+        let removeStyle = originalStyle != nil && newStyle == nil
+
+        if addStyle {
+            dom.applyHTMLParagraph(spanning: range)
+        } else if removeStyle {
+            dom.removeHTMLParagraph(spanning: range)
+        }
+    }
+
 
     /// Processes differences in the italic trait of two font objects, and applies them to the DOM
     /// in the specified range.
@@ -659,6 +731,41 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    /// Processes differences in list styles, and applies them to the DOM in the specified
+    /// range.
+    ///
+    /// - Parameters:
+    ///     - range: the range in the DOM where the differences must be applied.
+    ///     - originalStyle: the original TextList object if any.
+    ///     - newStyle: the new Blockquote object.
+    ///
+    private func processListDifferences(in range: NSRange, betweenOriginal originalStyle: TextList?, andNew newStyle: TextList?, canMergeLeft: Bool = false, canMergeRight: Bool = false) {
+
+        let original = originalStyle?.style
+        let new = newStyle?.style
+
+        guard original != new else {
+            return
+        }
+
+        let removeOrdered = original == .ordered
+        let removeUnordered = original == .unordered
+        let addOrdered = new == .ordered
+        let addUnordered = new == .unordered
+
+        if removeOrdered {
+            dom.removeOrderedList(spanning: range)
+        } else if removeUnordered {
+            dom.removeUnorderedList(spanning: range)
+        }
+
+        if addOrdered {
+            dom.applyOrderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+        } else if addUnordered {
+            dom.applyUnorderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+        }
+    }
+
     /// Processes differences in header styles, and applies them to the DOM in the specified
     /// range.
     ///
@@ -702,69 +809,9 @@ open class TextStorage: NSTextStorage {
             dom.removeLink(spanning: range)
         }
     }
-
-
-    // MARK: - Range Mapping: Visual vs HTML
-
-    private func canAppendToNodeRepresentedByCharacter(atIndex index: Int) -> Bool {
-        return !hasNewLine(at: index)
-            && !hasHorizontalLine(at: index)
-            && !hasCommentMarker(at: index)
-            && !hasUnknownHtmlMarker(at: index)
-            && !hasParagraphSeparator(at: index)
-    }
-
-    private func doesPreferLeftNode(atCaretPosition caretPosition: Int) -> Bool {
-        guard caretPosition != 0,
-            let previousLocation = textStore.string.location(before:caretPosition) else {
-            return false
-        }
-
-        return canAppendToNodeRepresentedByCharacter(atIndex: previousLocation)
-    }
-
-    private func hasHorizontalLine(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is LineAttachment
-    }
-
-    private func hasCommentMarker(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is CommentAttachment
-    }
-
-    private func hasUnknownHtmlMarker(at index: Int) -> Bool {
-        guard let attachment = attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) else {
-            return false
-        }
-
-        return attachment is HTMLAttachment
-    }
-
-    private func hasNewLine(at index: Int) -> Bool {
-        if index >= textStore.length || index < 0 {
-            return false
-        }
-        let nsString = string as NSString
-        return nsString.substring(from: index).hasPrefix(String(Character(.newline)))        
-    }
-
-    private func hasParagraphSeparator(at offset: Int) -> Bool {
-        let startIndex = string.index(string.startIndex, offsetBy: offset)
-        let endIndex = string.index(string.startIndex, offsetBy: offset + 1)
-
-        let range = startIndex ..< endIndex
-
-        return string.substring(with: range) == String(.paragraphSeparator)
-    }
     
     // MARK: - Styles: Toggling
+
     @discardableResult
     func toggle(formatter: AttributeFormatter, at range: NSRange) -> NSRange {
         let applicationRange = formatter.applicationRange(for: range, in: self)

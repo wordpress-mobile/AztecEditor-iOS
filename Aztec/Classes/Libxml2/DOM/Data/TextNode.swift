@@ -111,8 +111,8 @@ extension Libxml2 {
                     let textNode = TextNode(text: component, editContext: editContext)
                     let separator = ElementNode(descriptor: separatorDescriptor)
                     
-                    parent.insert(textNode, at: insertionIndex)
-                    parent.insert(separator, at: insertionIndex + 1)
+                    parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
+                    parent.insert(separator, at: insertionIndex + 1, tryToMergeWithSiblings: false)
                     
                     insertionIndex = insertionIndex + 2
                 }
@@ -191,7 +191,7 @@ extension Libxml2 {
                         
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
-                        parent.insert(separator, at: insertionIndex)
+                        parent.insert(separator, at: insertionIndex, tryToMergeWithSiblings: false)
                         insertionIndex = insertionIndex + 1
                     } else if index == components.count - 1 {
                         rightNode.prepend(sanitizedString: component)
@@ -199,12 +199,14 @@ extension Libxml2 {
                         let textNode = TextNode(text: component, editContext: editContext)
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
-                        parent.insert(textNode, at: insertionIndex)
-                        parent.insert(separator, at: insertionIndex + 1)
+                        parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
+                        parent.insert(separator, at: insertionIndex + 1, tryToMergeWithSiblings: false)
                         
                         insertionIndex = insertionIndex + 2
                     }
                 }
+
+                parent.fixChildrenTextNodes()
             }
         }
 
@@ -220,7 +222,7 @@ extension Libxml2 {
             if components.count == 1 {
                 append(sanitizedString: string)
             } else {
-                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                append(components: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 
@@ -243,7 +245,7 @@ extension Libxml2 {
             if components.count == 1 {
                 prepend(sanitizedString: string)
             } else {
-                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                prepend(components: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 
@@ -267,7 +269,7 @@ extension Libxml2 {
             return hasAncestor(ofType: .pre)
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String, preferLeftNode: Bool) {
+        override func replaceCharacters(inRange range: NSRange, withString string: String) {
             guard shouldSanitizeText() else {
                 replaceCharacters(inRange: range, withSanitizedString: string)
                 return
@@ -277,7 +279,7 @@ extension Libxml2 {
             if components.count == 1 {
                 replaceCharacters(inRange: range, withSanitizedString: string)
             } else {
-                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br))
+                replaceCharacters(inRange: range, withComponents: components, separatedBy: ElementNodeDescriptor(elementType: .br, canMergeLeft: false, canMergeRight: false))
             }
         }
 
@@ -308,7 +310,7 @@ extension Libxml2 {
                 let newNode = TextNode(text: text().substring(with: postRange), editContext: editContext)
                 
                 deleteCharacters(inRange: postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
             }
         }
         
@@ -329,14 +331,14 @@ extension Libxml2 {
                 let newNode = TextNode(text: contents.substring(with: postRange), editContext: editContext)
 
                 deleteCharacters(inRange: postRange)
-                parent.insert(newNode, at: nodeIndex + 1)
+                parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
             }
             
             if !preRange.isEmpty {
                 let newNode = TextNode(text: contents.substring(with: preRange), editContext: editContext)
 
                 deleteCharacters(inRange: preRange)
-                parent.insert(newNode, at: nodeIndex)
+                parent.insert(newNode, at: nodeIndex, tryToMergeWithSiblings: false)
             }
         }
 

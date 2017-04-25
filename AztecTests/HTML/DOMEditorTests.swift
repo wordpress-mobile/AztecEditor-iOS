@@ -10,110 +10,6 @@ class DOMEditorTests: XCTestCase {
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
 
-    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
-    ///
-    /// HTML String: <div>Hello there!</div>
-    /// Wrap range: (0...5)
-    ///
-    /// The result should be: <p><b>Hello</b> there!</p>
-    ///
-    func testForceWrapChildren() {
-        let text1 = "Hello"
-        let text2 = " there!"
-        let fullText = "\(text1)\(text2)"
-        let textNode = TextNode(text: fullText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [paragraph])
-
-        let editor = DOMEditor(with: rootNode)
-
-        let wrapRange = NSRange(location: 0, length: text1.characters.count)
-
-        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
-        editor.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
-
-        XCTAssertEqual(paragraph.children.count, 2)
-
-        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
-            XCTFail("Expected a bold node.")
-            return
-        }
-
-        XCTAssertEqual(newBoldNode.text(), text1)
-
-        guard let newTextNode = paragraph.children[1] as? TextNode else {
-            XCTFail("Expected a text node.")
-            return
-        }
-
-        XCTAssertEqual(newTextNode.text(), text2)
-    }
-
-    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
-    ///
-    /// HTML String: <p>Hello there!</p>
-    /// Wrap range: full text length
-    ///
-    /// The result should be: <p><b>Hello there!</b></p>
-    ///
-    func testForceWrapChildren2() {
-        let fullText = "Hello there!"
-        let textNode = TextNode(text: fullText)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [paragraph])
-
-        let editor = DOMEditor(with: rootNode)
-
-        let wrapRange = NSRange(location: 0, length: fullText.characters.count)
-
-        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
-        editor.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
-
-        XCTAssertEqual(paragraph.children.count, 1)
-
-        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
-            XCTFail("Expected a bold node.")
-            return
-        }
-
-        XCTAssertEqual(newBoldNode.text(), fullText)
-    }
-
-    /// Tests force-wrapping child nodes intersecting a certain range in a new node.
-    ///
-    /// HTML String: <div><b>Hello</b> there!</div>
-    /// Wrap range: (loc: 5, len: 7)
-    ///
-    /// The result should be: <p><b>Hello there!</b></p>
-    ///
-    func testForceWrapChildren3() {
-        let text1 = "Hello"
-        let text2 = " there!"
-        let textNode1 = TextNode(text: text1)
-        let textNode2 = TextNode(text: text2)
-        let boldNode = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [boldNode, textNode2])
-        let rootNode = RootNode(children: [paragraph])
-
-        let editor = DOMEditor(with: rootNode)
-
-        let wrapRange = NSRange(location: text1.characters.count, length: text2.characters.count)
-
-        let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
-        editor.forceWrap(range: wrapRange, inElement: boldElementDescriptor)
-
-        XCTAssertEqual(paragraph.children.count, 1)
-
-        guard let newBoldNode = paragraph.children[0] as? ElementNode, newBoldNode.name == "b" else {
-            XCTFail("Expected a bold node.")
-            return
-        }
-
-        let fullText = "\(text1)\(text2)"
-        XCTAssertEqual(newBoldNode.text(), fullText)
-    }
-
-
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
     /// HTML String: <div><em>Hello </em>there!</div>
@@ -143,20 +39,20 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
 
-        guard let newEmNode = div.children[0] as? ElementNode, newEmNode.name == em.name else {
-            XCTFail("Expected an em node here.")
-            return
-        }
-
-        XCTAssertEqual(newEmNode.children.count, 1)
-
-        guard let newBoldNode = newEmNode.children[0] as? ElementNode, newBoldNode.name == boldElementType.rawValue else {
+        guard let newBoldNode = div.children[0] as? ElementNode, newBoldNode.name == boldElementType.rawValue else {
             XCTFail("Expected a bold node here.")
             return
         }
 
         XCTAssertEqual(newBoldNode.children.count, 1)
-        XCTAssertEqual(newBoldNode.children[0], textNode1)
+
+        guard let newEmNode = newBoldNode.children[0] as? ElementNode, newEmNode.name == em.name else {
+            XCTFail("Expected an em node here.")
+            return
+        }
+
+        XCTAssertEqual(newEmNode.children.count, 1)
+        XCTAssertEqual(newEmNode.children[0], textNode1)
     }
 
 
@@ -292,14 +188,14 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(boldNode.text(), newBoldNode.text())
     }
 
-    /// Tests that `findSiblings(separatedAt:)` works properly.
+    /// Tests that `mergeBlockLevelElementRight(endingAt:)` works properly.
     ///
     /// - Input:
     ///     - HTML: "<root><p>Hello</p><blockquote>world!</blockquote></root>"
-    ///     - Separation location: 4
+    ///     - Separation location: length of "Hello"
     ///
     /// - Expected results:
-    ///     - Both the bold and italic nodes should be returned.
+    ///     - HTML: "<root><p>Helloworld!</p></root>"
     ///
     func testMergeSiblings() {
         let text1 = "Hello"
@@ -314,7 +210,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        //editor.mergeSiblings(separatedAt: textNode1.length())
         editor.mergeBlockLevelElementRight(endingAt: textNode1.length())
 
         XCTAssertEqual(rootNode.children.count, 1)
@@ -338,10 +233,9 @@ class DOMEditorTests: XCTestCase {
         ///
         /// XCTAssertEqual(newTextNode.text(), "\(text1)\(text2)")
 
-        XCTAssertEqual(newParagraph.children.count, 2)
+        XCTAssertEqual(newParagraph.children.count, 1)
         XCTAssert(newParagraph.children[0] is TextNode)
-        XCTAssert(newParagraph.children[1] is TextNode)
-        XCTAssertEqual(newParagraph.text(), "\(text1)\(text2)")
+        XCTAssertEqual(newParagraph.children[0].text(), "\(text1)\(text2)")
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
