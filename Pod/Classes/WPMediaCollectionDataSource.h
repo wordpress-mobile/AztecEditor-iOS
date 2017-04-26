@@ -149,6 +149,18 @@ typedef int32_t WPMediaRequestID;
  */
 - (CGSize)pixelSize;
 
+@optional
+
+/**
+ *  @return The filename of this asset. Optional.
+ */
+- (NSString *)filename;
+
+/**
+ *  @return The file extension of this asset (PDF, doc, etc). Optional.
+ */
+- (NSString *)fileExtension;
+
 @end
 
 /**
