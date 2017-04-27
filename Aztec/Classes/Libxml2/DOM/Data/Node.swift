@@ -189,16 +189,6 @@ extension Libxml2 {
             parent?.remove(self)
         }
 
-        /// Replaces the specified range with a new string.
-        ///
-        /// - Parameters:
-        ///     - range: the range of the original string to replace.
-        ///     - string: the new string to replace the original text with.
-        ///
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
-            assertionFailure("This method should always be overridden.")
-        }
-
         /// Should split the node at the specified text location.  The receiver will become the node before the specified
         /// location and a new node will be created to contain whatever comes after it.
         ///

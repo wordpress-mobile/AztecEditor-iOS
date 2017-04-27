@@ -207,7 +207,8 @@ extension Libxml2 {
         ///     - string: the new string to replace the original text with.
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
-            rootNode.replaceCharacters(inRange: range, withString: string)
+
+            domEditor.replaceCharacters(in: range, with: string)
         }
         
         // MARK: - Undo Manager
