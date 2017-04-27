@@ -4,6 +4,7 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeImage,
     WPMediaTypeVideo,
     WPMediaTypeVideoOrImage,
+    WPMediaTypeAudio,
     WPMediaTypeOther,
     WPMediaTypeAll
 };

@@ -196,6 +196,9 @@
         case WPMediaTypeVideo:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
             break;
+        case WPMediaTypeAudio:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeAudio];
+            break;
         case WPMediaTypeOther:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
             break;
@@ -450,6 +453,8 @@
         return WPMediaTypeVideo;
     } else if ([self mediaType] == PHAssetMediaTypeImage) {
         return WPMediaTypeImage;
+    } else if ([self mediaType] == PHAssetMediaTypeAudio) {
+        return WPMediaTypeAudio;
     } else if ([self mediaType] == PHAssetMediaTypeUnknown) {
         return WPMediaTypeOther;
     }

@@ -96,6 +96,8 @@
         cell.countLabel.text = @"Image";
     } else if ([asset assetType] == WPMediaTypeVideo) {
         cell.countLabel.text = @"Video";
+    } else if ([asset assetType] == WPMediaTypeAudio) {
+        cell.countLabel.text = @"Audio";
     } else {
         cell.countLabel.text = @"Other";
     }
@@ -188,6 +190,11 @@
     if (picker == self.mediaInputViewController.mediaPicker) {
         return nil;
     }
+
+    if (asset.assetType == WPMediaTypeAudio) {
+        return nil;
+    }
+
     if ([self.options[MediaPickerOptionsCustomPreview] boolValue]) {
         return [[CustomPreviewViewController alloc] initWithAsset:asset];
     }
