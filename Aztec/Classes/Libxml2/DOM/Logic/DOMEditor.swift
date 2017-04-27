@@ -42,11 +42,92 @@ extension Libxml2 {
 
         // MARK: - Editing Text Contents
 
+        /// Deletes the characters in `rootNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(spanning range: NSRange) {
+            let childrenAndIntersections = rootNode.childNodes(intersectingRange: range)
+
+            for (child, intersection) in childrenAndIntersections {
+                deleteCharacters(in: child, spanning: intersection)
+            }
+        }
+
+        /// Deletes the characters in the specified node spanning the specified range.
+        ///
+        /// - Note: this method should not be called on a `RootNode`.  Call
+        ///     `deleteCharacters(inRange:)` instead.
+        ///
+        /// - Parameters:
+        ///     - node: the node containing the character-range so delete.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(in node: Node, spanning range: NSRange) {
+            assert(!(node is RootNode))
+
+            if let commentNode = node as? CommentNode {
+                deleteCharacters(in: commentNode, spanning: range)
+            } else if let element = node as? ElementNode {
+                deleteCharacters(in: element, spanning: range)
+            } else if let textNode = node as? TextNode {
+                deleteCharacters(in: textNode, spanning: range)
+            }
+        }
+
+        /// Deletes the characters in the specified `CommentNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - commentNode: the `CommentNode` containing the character-range so delete.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(in commentNode: CommentNode, spanning range: NSRange) {
+            guard range.location == 0 && range.length == commentNode.length() else {
+                return
+            }
+
+            commentNode.removeFromParent()
+        }
+
+        /// Deletes the characters in the specified `ElementNode` spanning the specified range.
+        ///
+        /// - Note: this method should not be called on a `RootNode`.  Call
+        ///     `deleteCharacters(inRange:)` instead.
+        ///
+        /// - Parameters:
+        ///     - element: the `ElementNode` containing the character-range so delete.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(in element: ElementNode, spanning range: NSRange) {
+            assert(!(element is RootNode))
+
+            if range.location == 0 && range.length == element.length() {
+                element.removeFromParent()
+            } else {
+                let childrenAndIntersections = element.childNodes(intersectingRange: range)
+
+                for (child, intersection) in childrenAndIntersections {
+                    deleteCharacters(in: child, spanning: intersection)
+                }
+            }
+        }
+
+        /// Deletes the characters in the specified `TextNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - element: the `ElementNode` containing the character-range so delete.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(in textNode: TextNode, spanning range: NSRange) {
+            textNode.deleteCharacters(inRange: range)
+        }
+
         /// Inserts the specified string at the specified location.
         ///
         private func insert(_ string: String, atLocation location: Int) {
 
-            let nodesToInsert = rootNode.nodesRepresenting(string)
+            let nodesToInsert = nodes(for: string)
             let childrenBefore = rootNode.splitChildren(before: location)
             rootNode.insert(nodesToInsert, at: childrenBefore.count)
         }
@@ -59,10 +140,36 @@ extension Libxml2 {
         ///
         func replaceCharacters(in range: NSRange, with string: String) {
             if range.length > 0 {
-                rootNode.deleteCharacters(inRange: range)
+                deleteCharacters(spanning: range)
             }
 
             insert(string, atLocation: range.location)
+        }
+
+        // MARK: - String to Nodes
+
+        /// Creates several nodes to represent a specified string.  This method currently splits a
+        /// string by their newlines into components and returns an array of TextNodes and BR nodes.
+        ///
+        /// - Parameters:
+        ///     - string: the string to represent using nodes.
+        ///
+        /// - Returns: an array of `TextNode`s and `BR` nodes.
+        ///
+        private func nodes(for string: String) -> [Node] {
+            let separatorElement = ElementNodeDescriptor(elementType: .br)
+            let components = string.components(separatedBy: String(.newline))
+            var nodes = [Node]()
+
+            for (index, component) in components.enumerated() {
+                nodes.append(TextNode(text: component, editContext: rootNode.editContext))
+
+                if index != components.count - 1 {
+                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: rootNode.editContext))
+                }
+            }
+
+            return nodes
         }
 
         // MARK: - Wrapping Nodes

@@ -5,7 +5,7 @@ extension Libxml2 {
     ///
     class TextNode: Node, LeafNode {
 
-        fileprivate var contents: String
+        var contents: String
 
         // MARK: - CustomReflectable
         
@@ -226,7 +226,7 @@ extension Libxml2 {
             }
         }
 
-        override func deleteCharacters(inRange nsRange: NSRange) {
+        func deleteCharacters(inRange nsRange: NSRange) {
 
             let range = contents.range(from: nsRange)
             

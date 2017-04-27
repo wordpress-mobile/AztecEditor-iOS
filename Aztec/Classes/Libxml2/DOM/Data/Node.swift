@@ -177,12 +177,6 @@ extension Libxml2 {
 
         // MARK: - DOM Modification
 
-        /// Deletes all characters in the specified range.
-        ///
-        func deleteCharacters(inRange range: NSRange) {
-            assertionFailure("This method should always be overridden.")
-        }
-
         /// Removes this node from its parent, if it has one.
         ///
         func removeFromParent() {
