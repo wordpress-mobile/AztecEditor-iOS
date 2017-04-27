@@ -10,7 +10,7 @@ class DOMEditorTests: XCTestCase {
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
 
-    // MARK: - insertCharacters(_:atLocation:)
+    // MARK: - replaceCharacters(inRange:with:)
 
     /// Test that inserting a new line after a DIV tag doesn't crash
     /// See https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90
@@ -23,18 +23,18 @@ class DOMEditorTests: XCTestCase {
     ///
     func testInsertNewlineAfterDivShouldNotCrash() {
         let text1 = "🇮🇳 This is a paragraph in a div"
-        let text2 = "\nThis is some unwrapped text"
+        let text2 = "\(String(.newline))This is some unwrapped text"
         let divText = TextNode(text: text1)
         let div = ElementNode(name: "div", attributes: [], children: [divText])
         let unwrappedText = TextNode(text: text2)
         let rootNode = RootNode(children: [div, unwrappedText])
         let editor = DOMEditor(with: rootNode)
-        let location = (text1 as NSString).length
+        let range = NSRange(location: text1.characters.count, length: 0)
 
-        editor.insert("\n", atLocation: location)
+        editor.replaceCharacters(in: range, with: String(.newline))
+
+        XCTAssertEqual(rootNode.text(), "\(text1)\(String(.newline))\(text2)")
     }
-
-    // MARK: - replaceCharacters(inRange:with:)
 
     /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
     /// more than once in the past.

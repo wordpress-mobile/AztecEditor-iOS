@@ -44,7 +44,7 @@ extension Libxml2 {
 
         /// Inserts the specified string at the specified location.
         ///
-        func insert(_ string: String, atLocation location: Int) {
+        private func insert(_ string: String, atLocation location: Int) {
 
             let nodesToInsert = rootNode.nodesRepresenting(string)
             let childrenBefore = rootNode.splitChildren(before: location)
