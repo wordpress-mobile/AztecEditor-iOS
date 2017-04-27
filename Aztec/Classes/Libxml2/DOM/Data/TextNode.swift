@@ -269,7 +269,7 @@ extension Libxml2 {
             return hasAncestor(ofType: .pre)
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             guard shouldSanitizeText() else {
                 replaceCharacters(inRange: range, withSanitizedString: string)
                 return

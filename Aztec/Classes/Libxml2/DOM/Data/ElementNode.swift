@@ -1315,7 +1315,7 @@ extension Libxml2 {
 
             return
         }
-
+/*
         override func replaceCharacters(inRange range: NSRange, withString string: String) {
 
             if range.length > 0 {
@@ -1325,7 +1325,7 @@ extension Libxml2 {
             insert(string, atLocation: range.location)
             return
         }
-
+*/
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
         ///
         /// - parameter targetRange: The range to replace
