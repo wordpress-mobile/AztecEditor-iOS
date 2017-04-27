@@ -10,7 +10,31 @@ class DOMEditorTests: XCTestCase {
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
 
-    // MARK: - replaceCharactersInRange
+    // MARK: - insertCharacters(_:atLocation:)
+
+    /// Test that inserting a new line after a DIV tag doesn't crash
+    /// See https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90
+    ///
+    /// Input HTML: `<div>This is a paragraph in a div</div>\nThis is some unwrapped text`
+    /// - location: the location after the div tag.
+    ///
+    /// Expected results:
+    /// - Output: `<div>This is a paragraph in a div</div>\n\nThis is some unwrapped text`
+    ///
+    func testInsertNewlineAfterDivShouldNotCrash() {
+        let text1 = "🇮🇳 This is a paragraph in a div"
+        let text2 = "\nThis is some unwrapped text"
+        let divText = TextNode(text: text1)
+        let div = ElementNode(name: "div", attributes: [], children: [divText])
+        let unwrappedText = TextNode(text: text2)
+        let rootNode = RootNode(children: [div, unwrappedText])
+        let editor = DOMEditor(with: rootNode)
+        let location = (text1 as NSString).length
+
+        editor.insert("\n", atLocation: location)
+    }
+
+    // MARK: - replaceCharacters(inRange:with:)
 
     /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
     /// more than once in the past.
@@ -22,9 +46,9 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [textNode])
         let editor = DOMEditor(with: rootNode)
 
-        editor.replaceCharacters(inRange: NSRange(location: 0, length: 0), withString: "a")
-        editor.replaceCharacters(inRange: NSRange(location: 1, length: 0), withString: "b")
-        editor.replaceCharacters(inRange: NSRange(location: 2, length: 0), withString: "c")
+        editor.replaceCharacters(in: NSRange(location: 0, length: 0), with: "a")
+        editor.replaceCharacters(in: NSRange(location: 1, length: 0), with: "b")
+        editor.replaceCharacters(in: NSRange(location: 2, length: 0), with: "c")
 
         XCTAssertEqual(rootNode.children.count, 1)
         XCTAssert(rootNode.children[0] is TextNode)
@@ -51,7 +75,7 @@ class DOMEditorTests: XCTestCase {
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
 
-        editor.replaceCharacters(inRange: range, withString: newString)
+        editor.replaceCharacters(in: range, with: newString)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -86,7 +110,7 @@ class DOMEditorTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
 
-        editor.replaceCharacters(inRange: range, withString: newString)
+        editor.replaceCharacters(in: range, with: newString)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -120,7 +144,7 @@ class DOMEditorTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
 
-        editor.replaceCharacters(inRange: range, withString: newString)
+        editor.replaceCharacters(in: range, with: newString)
 
         XCTAssertEqual(rootNode.text(), finalText)
         XCTAssertEqual(rootNode.children.count, 2)
@@ -167,7 +191,7 @@ class DOMEditorTests: XCTestCase {
 
         let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
 
-        editor.replaceCharacters(inRange: replaceRange, withString: "everyone")
+        editor.replaceCharacters(in: replaceRange, with: "everyone")
 
         XCTAssertEqual(rootNode.children.count, 2)
         XCTAssertEqual(rootNode.children[0], boldNode)

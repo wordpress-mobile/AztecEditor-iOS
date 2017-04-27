@@ -1048,7 +1048,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested nodes.
         ///
-        fileprivate func splitChildren(before splitLocation: Int) -> [Node] {
+        func splitChildren(before splitLocation: Int) -> [Node] {
             
             var result = [Node]()
             var childOffset = Int(0)
@@ -1304,7 +1304,7 @@ extension Libxml2 {
                 textNode.append(string)
             }
         }
-
+/*
         /// Inserts the specified string at the specified location.
         ///
         func insert(_ string: String, atLocation location: Int) {
@@ -1312,10 +1312,8 @@ extension Libxml2 {
             let nodesToInsert = nodesRepresenting(string)
             let childrenBefore = splitChildren(before: location)
             insert(nodesToInsert, at: childrenBefore.count)
-
-            return
         }
-        
+        */
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
         ///
         /// - parameter targetRange: The range to replace

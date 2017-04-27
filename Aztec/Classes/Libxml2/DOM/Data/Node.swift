@@ -188,7 +188,7 @@ extension Libxml2 {
         func removeFromParent() {
             parent?.remove(self)
         }
-        
+
         /// Should split the node at the specified text location.  The receiver will become the node before the specified
         /// location and a new node will be created to contain whatever comes after it.
         ///

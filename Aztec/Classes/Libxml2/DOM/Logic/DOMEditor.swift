@@ -40,7 +40,16 @@ extension Libxml2 {
             return canWrapReceiverInNewNode
         }
 
-        // MARK: - Editing Characters
+        // MARK: - Editing Text Contents
+
+        /// Inserts the specified string at the specified location.
+        ///
+        func insert(_ string: String, atLocation location: Int) {
+
+            let nodesToInsert = rootNode.nodesRepresenting(string)
+            let childrenBefore = rootNode.splitChildren(before: location)
+            rootNode.insert(nodesToInsert, at: childrenBefore.count)
+        }
 
         /// Replaces the characters in the specified range with the specified string.
         ///
@@ -48,12 +57,12 @@ extension Libxml2 {
         ///     - range: the range of the characters to replace.
         ///     - string: the string to replace the range with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(in range: NSRange, with string: String) {
             if range.length > 0 {
                 rootNode.deleteCharacters(inRange: range)
             }
 
-            rootNode.insert(string, atLocation: range.location)
+            insert(string, atLocation: range.location)
         }
 
         // MARK: - Wrapping Nodes
@@ -314,7 +323,7 @@ extension Libxml2 {
             guard let elementAndIntersection = elementsAndIntersections.first else {
                 // If there's no block-level element to break, we simply add a line separator
                 //
-                replaceCharacters(inRange: range, withString: String(.lineSeparator))
+                replaceCharacters(in: range, with: String(.lineSeparator))
                 return
             }
 
