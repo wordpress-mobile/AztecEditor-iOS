@@ -101,7 +101,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     _placeholderImageView = [UIImageView new];
     _placeholderImageView.contentMode = UIViewContentModeCenter;
-    _placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
     [_placeholderStackView addArrangedSubview:_placeholderImageView];
     [_placeholderStackView addArrangedSubview:_documentExtensionLabel];
@@ -119,6 +118,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
 
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
     if ([self.asset respondsToSelector:@selector(filename)]) {
         [self setCaption:[self.asset filename]];
     }
@@ -129,14 +130,55 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     }
 }
 
+- (void)displayAudioAssetTypePlaceholder
+{
+    self.placeholderStackView.hidden = NO;
+    self.imageView.hidden = YES;
+
+    self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+    NSTimeInterval audioDuration = [self.asset duration];
+    [self setCaption:[self stringFromTimeInterval:audioDuration]];
+}
+
 - (void)setAsset:(id<WPMediaAsset>)asset {
     _asset = asset;
 
-    if (asset.assetType == WPMediaTypeOther) {
-        [self displayOtherAssetTypePlaceholder];
-        return;
+    NSString *label = @"";
+    NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
+
+    WPMediaType assetType = _asset.assetType;
+    switch (assetType) {
+        case WPMediaTypeImage:
+            [self fetchAssetImage];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
+        break;
+        case WPMediaTypeVideo:
+            [self fetchAssetImage];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
+            NSTimeInterval videoDuration = [asset duration];
+            [self setCaption:[self stringFromTimeInterval:videoDuration]];
+            break;
+        case WPMediaTypeAudio:
+            [self displayAudioAssetTypePlaceholder];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
+            break;
+        case WPMediaTypeOther:
+            [self displayOtherAssetTypePlaceholder];
+            break;
+        default:
+        break;
     }
 
+    self.imageView.accessibilityLabel = label;
+}
+
+- (void)fetchAssetImage
+{
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     CGFloat scale = [[UIScreen mainScreen] scale];
@@ -163,25 +205,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         }
     }];
     self.tag = requestKey;
-    NSString *label = @"";
-    NSString *caption = @"";
-    WPMediaType assetType = _asset.assetType;
-    switch (assetType) {
-        case WPMediaTypeImage:
-            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."),
-                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
-        break;
-        case WPMediaTypeVideo:
-            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."),
-                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
-            NSTimeInterval duration = [asset duration];
-            caption = [self stringFromTimeInterval:duration];
-        break;
-        default:
-        break;
-    }
-    self.imageView.accessibilityLabel = label;
-    [self setCaption:caption];
 }
 
 + (NSDateFormatter *) dateFormatter {
