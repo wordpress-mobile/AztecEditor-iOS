@@ -1304,16 +1304,7 @@ extension Libxml2 {
                 textNode.append(string)
             }
         }
-/*
-        /// Inserts the specified string at the specified location.
-        ///
-        func insert(_ string: String, atLocation location: Int) {
 
-            let nodesToInsert = nodesRepresenting(string)
-            let childrenBefore = splitChildren(before: location)
-            insert(nodesToInsert, at: childrenBefore.count)
-        }
-        */
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
         ///
         /// - parameter targetRange: The range to replace
