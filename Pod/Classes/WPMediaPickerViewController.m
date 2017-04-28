@@ -3,6 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
+#import "WPPHAssetDataSource.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -770,6 +771,11 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
 {
+    // We can't preview PHAssets that are audio files
+    if ([self.dataSource isKindOfClass:[WPPHAssetDataSource class]] && asset.assetType == WPMediaTypeAudio) {
+        return nil;
+    }
+
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;
