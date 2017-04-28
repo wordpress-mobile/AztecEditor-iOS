@@ -5,7 +5,7 @@ extension Libxml2 {
     ///
     class TextNode: Node, LeafNode {
 
-        fileprivate var contents: String
+        var contents: String
 
         // MARK: - CustomReflectable
         
@@ -226,7 +226,7 @@ extension Libxml2 {
             }
         }
 
-        override func deleteCharacters(inRange nsRange: NSRange) {
+        func deleteCharacters(inRange nsRange: NSRange) {
 
             let range = contents.range(from: nsRange)
             
@@ -269,7 +269,7 @@ extension Libxml2 {
             return hasAncestor(ofType: .pre)
         }
 
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, withString string: String) {
             guard shouldSanitizeText() else {
                 replaceCharacters(inRange: range, withSanitizedString: string)
                 return

@@ -34,13 +34,5 @@ extension Libxml2 {
         override func text() -> String {
             return String(.paragraphSeparator)
         }
-
-        override func deleteCharacters(inRange range: NSRange) {
-            guard range.location == 0 && range.length == length() else {
-                return
-            }
-
-            removeFromParent()
-        }
     }
 }

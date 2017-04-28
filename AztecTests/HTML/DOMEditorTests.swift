@@ -10,6 +10,251 @@ class DOMEditorTests: XCTestCase {
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
 
+    // MARK: - replaceCharacters(inRange:with:)
+
+    /// Test that inserting a new line after a DIV tag doesn't crash
+    /// See https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90
+    ///
+    /// Input HTML: `<div>This is a paragraph in a div</div>\nThis is some unwrapped text`
+    /// - location: the location after the div tag.
+    ///
+    /// Expected results:
+    /// - Output: `<div>This is a paragraph in a div</div>\n\nThis is some unwrapped text`
+    ///
+    func testInsertNewlineAfterDivShouldNotCrash() {
+        let text1 = "🇮🇳 This is a paragraph in a div"
+        let text2 = "\(String(.newline))This is some unwrapped text"
+        let divText = TextNode(text: text1)
+        let div = ElementNode(name: "div", attributes: [], children: [divText])
+        let unwrappedText = TextNode(text: text2)
+        let rootNode = RootNode(children: [div, unwrappedText])
+        let editor = DOMEditor(with: rootNode)
+        let range = NSRange(location: text1.characters.count, length: 0)
+
+        editor.replaceCharacters(in: range, with: String(.newline))
+
+        XCTAssertEqual(rootNode.text(), "\(text1)\(String(.newline))\(text2)")
+    }
+
+    /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
+    /// more than once in the past.
+    ///
+    /// This test tries to make sure we don't have regressions causing `TextNode` fragmentation.
+    ///
+    func testInsertingTextDoesntFragmentTextNodes() {
+        let textNode = TextNode(text: "")
+        let rootNode = RootNode(children: [textNode])
+        let editor = DOMEditor(with: rootNode)
+
+        editor.replaceCharacters(in: NSRange(location: 0, length: 0), with: "a")
+        editor.replaceCharacters(in: NSRange(location: 1, length: 0), with: "b")
+        editor.replaceCharacters(in: NSRange(location: 2, length: 0), with: "c")
+
+        XCTAssertEqual(rootNode.children.count, 1)
+        XCTAssert(rootNode.children[0] is TextNode)
+    }
+
+
+    /// Tests `replaceCharacters(inRange:withString:)`.
+    ///
+    /// Input HTML: `<rootNode>Click on this <a href="http://www.wordpress.com">link</a></rootNode>`
+    /// - Range: the range of the full contents of the `<a>` node.
+    /// - New String: "link!"
+    ///
+    /// Expected results:
+    /// - Output: `<rootNode>Click on this link!</rootNode>`
+    ///
+    func testReplaceCharactersInRangeWithString() {
+        let linkText = TextNode(text: "link")
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
+        let preLinkText = "Click on this "
+        let preLinkTextNode = TextNode(text: preLinkText)
+        let rootNode = RootNode(children: [preLinkTextNode, linkElement])
+        let editor = DOMEditor(with: rootNode)
+
+        let range = NSRange(location: 14, length: 4)
+        let newString = "link!"
+
+        editor.replaceCharacters(in: range, with: newString)
+
+        XCTAssertEqual(rootNode.children.count, 1)
+
+        guard let textNode = rootNode.children[0] as? TextNode else {
+            XCTFail("Expected a child text node")
+            return
+        }
+
+        XCTAssertEqual(textNode.text(), "\(preLinkText)\(newString)")
+    }
+
+    /// Tests `replaceCharacters(inRange:withString:)`.
+    ///
+    /// Input HTML: `<rootNode>Click on this <a href="http://www.wordpress.com">link</a></rootNode>`
+    /// - Range: the range of the full contents of the `<a>` node.
+    /// - New String: "link!"
+    /// - Inherit Style: false
+    ///
+    /// Expected results:
+    /// - Output: `<rootNode>Click on this link!</rootNode>`
+    ///
+    func testReplaceCharactersInRangeWithString2() {
+        let text1 = "Click on this "
+        let text2 = "link"
+        let linkText = TextNode(text: text2)
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
+        let preLinkText = TextNode(text: text1)
+        let rootNode = RootNode(children: [preLinkText, linkElement])
+        let editor = DOMEditor(with: rootNode)
+
+        let range = NSRange(location: 14, length: 4)
+        let newString = "link!"
+        let finalText = "\(text1)\(text2)!"
+
+        editor.replaceCharacters(in: range, with: newString)
+
+        XCTAssertEqual(rootNode.children.count, 1)
+
+        guard let textNode = rootNode.children[0] as? TextNode, textNode.text() == finalText else {
+
+            XCTFail("Expected a text node, with the full text.")
+            return
+        }
+    }
+
+    /// Tests `replaceCharacters(inRange:withString:)`.
+    ///
+    /// Input HTML: `<rootNode><p>Click on this <a href="http://www.wordpress.com">link</a></p></rootNode>`
+    /// - Range: the range of the full contents of the `<a>` node.
+    /// - New String: "link!"
+    ///
+    /// Expected results:
+    /// - Output: `<div><p>Click on this </p>link!</div>`
+    ///
+    func testReplaceCharactersInRangeWithString3() {
+        let text1 = "Click on this "
+        let text2 = "link"
+        let linkText = TextNode(text: text2)
+        let linkElement = ElementNode(name: "a", attributes: [], children: [linkText])
+        let preLinkText = TextNode(text: text1)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
+        let rootNode = RootNode(children: [paragraph])
+        let editor = DOMEditor(with: rootNode)
+
+        let range = NSRange(location: 14, length: 4)
+        let newString = "link!"
+        let finalText = "\(text1)\(text2)!"
+
+        editor.replaceCharacters(in: range, with: newString)
+
+        XCTAssertEqual(rootNode.text(), finalText)
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        guard let newParagraph = rootNode.children[0] as? ElementNode, newParagraph.name == "p" else {
+            XCTFail("Expected a paragraph.")
+            return
+        }
+
+        XCTAssertEqual(newParagraph.text(), text1)
+
+        guard let textNode = rootNode.children[1] as? TextNode, textNode.text() == newString else {
+            XCTFail("Expected a text node, with the full text.")
+            return
+        }
+    }
+
+
+    /// Tests `replaceCharacters(inRange:withString:)`.
+    ///
+    /// Input HTML: `<rootNode><b>Hello</b> there!</rootNode>`
+    /// - Range: the range of "there"
+    /// - New String: "everyone"
+    /// - Prefer left node: true
+    ///
+    /// Expected results:
+    /// - Output: `<rootNode><b>Hello</b> everyone!</rootNode>`
+    ///
+    func testReplaceCharactersInRangeWithString4() {
+
+        let text1 = "Hello"
+        let space = " "
+        let textToReplace = "there"
+        let text2 = "\(space)\(textToReplace)!"
+
+        let textToInsert = "everyone"
+        let textToVerify = "\(space)\(textToInsert)!"
+
+        let textNode1 = TextNode(text: text1)
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode1])
+        let textNode2 = TextNode(text: text2)
+        let rootNode = RootNode(children: [boldNode, textNode2])
+        let editor = DOMEditor(with: rootNode)
+
+        let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
+
+        editor.replaceCharacters(in: replaceRange, with: "everyone")
+
+        XCTAssertEqual(rootNode.children.count, 2)
+        XCTAssertEqual(rootNode.children[0], boldNode)
+
+        guard let textNode = rootNode.children[1] as? TextNode, textNode.text() == textToVerify else {
+
+            XCTFail("Expected a text node, with the full text.")
+            return
+        }
+    }
+
+
+    /// Tests `replaceCharacters(inRange:withNodeName:withAttributes)`.
+    ///
+    /// Input HTML: `<p>Look at this photo:image.It's amazing</p>`
+    /// - Range: the range of the image string.
+    /// - New Node: <img>
+    /// - Attributes:
+    ///
+    /// Expected results:
+    /// - Output: `<p>Look at this photo:<img src="https://httpbin.org/image/jpeg.It's amazing" /></p>`
+    ///
+    func testReplaceCharactersInRangeWithNodeDescriptor() {
+        let startText = "Look at this photo:"
+        let middleText = "image"
+        let endText = ".It's amazing"
+        let paragraphText = TextNode(text: startText + middleText + endText)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [paragraphText])
+
+        let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
+        let imgSrc = "https://httpbin.org/image/jpeg"
+
+        let elementType = StandardElementType.img
+        let imgNodeName = elementType.rawValue
+        let attributes = [Libxml2.StringAttribute(name:"src", value: imgSrc)]
+        let descriptor = ElementNodeDescriptor(elementType: elementType, attributes: attributes)
+
+        paragraph.replaceCharacters(in: range, with: descriptor)
+
+        XCTAssertEqual(paragraph.children.count, 3)
+
+        guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
+
+            XCTFail("Expected a text node")
+            return
+        }
+
+        guard let imgNode = paragraph.children[1] as? ElementNode, imgNode.name == imgNodeName else {
+
+            XCTFail("Expected a img node")
+            return
+        }
+
+        guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
+            
+            XCTFail("Expected a text node")
+            return
+        }
+    }
+
+
+    // MARK: - Wrapping Nodes
+
     /// Tests wrapping child nodes intersecting a certain range in a new `b` node.
     ///
     /// HTML String: <div><em>Hello </em>there!</div>
@@ -187,6 +432,8 @@ class DOMEditorTests: XCTestCase {
         XCTAssertNotNil(newBoldNode.children[0] as? TextNode)
         XCTAssertEqual(boldNode.text(), newBoldNode.text())
     }
+
+    // MARK: - Merging Siblings
 
     /// Tests that `mergeBlockLevelElementRight(endingAt:)` works properly.
     ///

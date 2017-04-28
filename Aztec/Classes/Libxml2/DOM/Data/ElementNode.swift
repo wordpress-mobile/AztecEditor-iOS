@@ -926,22 +926,6 @@ extension Libxml2 {
             }
         }
 
-        func nodesRepresenting(_ string: String) -> [Node] {
-            let separatorElement = ElementNodeDescriptor(elementType: .br)
-            let components = string.components(separatedBy: String(.newline))
-            var nodes = [Node]()
-
-            for (index, component) in components.enumerated() {
-                nodes.append(TextNode(text: component, editContext: editContext))
-
-                if index != components.count - 1 {
-                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: editContext))
-                }
-            }
-
-            return nodes
-        }
-
         /// Replaces the specified node with several new nodes.
         ///
         /// - Parameters:
@@ -1048,7 +1032,7 @@ extension Libxml2 {
         ///
         /// - Returns: the requested nodes.
         ///
-        fileprivate func splitChildren(before splitLocation: Int) -> [Node] {
+        func splitChildren(before splitLocation: Int) -> [Node] {
             
             var result = [Node]()
             var childOffset = Int(0)
@@ -1255,18 +1239,6 @@ extension Libxml2 {
         }
 
         // MARK: - EditableNode
-
-        override func deleteCharacters(inRange range: NSRange) {
-            if  range.location == 0 && range.length == length() {
-                removeFromParent()
-            } else {
-                let childrenAndIntersections = childNodes(intersectingRange: range)
-
-                for (child, intersection) in childrenAndIntersections {
-                    child.deleteCharacters(inRange: intersection)
-                }
-            }
-        }
         
         /// Inserts the specified text in a new `TextNode` at the specified index.  If any of the siblings are
         /// of class `TextNode`, this method will append or prepend the text to them instead.
@@ -1303,27 +1275,6 @@ extension Libxml2 {
                 insert(textNode, at: index)
                 textNode.append(string)
             }
-        }
-
-        /// Inserts the specified string at the specified location.
-        ///
-        func insert(_ string: String, atLocation location: Int) {
-
-            let nodesToInsert = nodesRepresenting(string)
-            let childrenBefore = splitChildren(before: location)
-            insert(nodesToInsert, at: childrenBefore.count)
-
-            return
-        }
-
-        override func replaceCharacters(inRange range: NSRange, withString string: String) {
-
-            if range.length > 0 {
-                deleteCharacters(inRange: range)
-            }
-
-            insert(string, atLocation: range.location)
-            return
         }
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
@@ -1659,14 +1610,6 @@ extension Libxml2 {
         }
 
         // MARK: - Overriden Methods
-
-        override func deleteCharacters(inRange range: NSRange) {
-            let childrenAndIntersections = childNodes(intersectingRange: range)
-
-            for (child, intersection) in childrenAndIntersections {
-                child.deleteCharacters(inRange: intersection)
-            }
-        }
 
         override func isSupportedByEditor() -> Bool {
             return true
