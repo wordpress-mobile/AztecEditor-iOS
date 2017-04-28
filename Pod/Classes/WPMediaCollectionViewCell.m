@@ -193,8 +193,17 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
         if (error) {
             self.image = nil;
+            self.imageView.contentMode = UIViewContentModeCenter;
+            self.imageView.backgroundColor = [UIColor blackColor];
+            if (_asset.assetType == WPMediaTypeImage) {
+                self.image = [WPMediaPickerResources imageNamed:@"camera" withExtension:@"png"];
+            } else if (_asset.assetType == WPMediaTypeVideo) {
+                self.image = [WPMediaPickerResources imageNamed:@"video" withExtension:@"png"];
+            }
             return;
         }
+        self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+        self.imageView.backgroundColor = self.backgroundColor;
         // Did this request changed meanwhile
         if (requestKey != self.tag) {
             return;
