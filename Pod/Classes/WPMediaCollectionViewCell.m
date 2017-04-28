@@ -135,7 +135,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
 
-    self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        NSString *extension = [[self.asset fileExtension] uppercaseString];
+        self.documentExtensionLabel.text = extension;
+    } else {
+        self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+    }
+
     self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
     NSTimeInterval audioDuration = [self.asset duration];
