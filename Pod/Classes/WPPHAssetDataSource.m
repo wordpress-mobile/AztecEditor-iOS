@@ -71,9 +71,8 @@
             return;
         }
 
-        if (groupChangeDetails || albumChangeDetails){
-            [self loadGroupsWithSuccess:nil failure:nil];
-        }
+        [self loadGroupsWithSuccess:nil failure:nil];
+        
         BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
         // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
         // The adjustedIndex depends on the *old* asset count.
