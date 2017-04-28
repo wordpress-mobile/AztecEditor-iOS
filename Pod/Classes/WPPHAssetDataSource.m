@@ -202,6 +202,9 @@
         case WPMediaTypeVideo:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
             break;
+        case WPMediaTypeAudio:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeAudio];
+            break;
         case WPMediaTypeOther:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
             break;
@@ -429,9 +432,9 @@
  */
 - (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler
 {
-    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];    
     options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
     return [[WPPHAssetDataSource sharedImageManager] requestAVAssetForVideo:self
                                                                   options:options
                                                             resultHandler:^(AVAsset *result, AVAudioMix *audioMix, NSDictionary *info) {
@@ -456,6 +459,8 @@
         return WPMediaTypeVideo;
     } else if ([self mediaType] == PHAssetMediaTypeImage) {
         return WPMediaTypeImage;
+    } else if ([self mediaType] == PHAssetMediaTypeAudio) {
+        return WPMediaTypeAudio;
     } else if ([self mediaType] == PHAssetMediaTypeUnknown) {
         return WPMediaTypeOther;
     }

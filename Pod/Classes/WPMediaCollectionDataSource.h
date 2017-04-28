@@ -4,6 +4,7 @@ typedef NS_ENUM(NSInteger, WPMediaType){
     WPMediaTypeImage,
     WPMediaTypeVideo,
     WPMediaTypeVideoOrImage,
+    WPMediaTypeAudio,
     WPMediaTypeOther,
     WPMediaTypeAll
 };
@@ -148,6 +149,18 @@ typedef int32_t WPMediaRequestID;
  *  @return The size, in pixels, of the asset’s image or video data.
  */
 - (CGSize)pixelSize;
+
+@optional
+
+/**
+ *  @return The filename of this asset. Optional.
+ */
+- (NSString *)filename;
+
+/**
+ *  @return The file extension of this asset (PDF, doc, etc). Optional.
+ */
+- (NSString *)fileExtension;
 
 @end
 

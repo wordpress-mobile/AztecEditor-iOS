@@ -3,6 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
+#import "WPPHAssetDataSource.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -124,20 +125,43 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (void)setupLayout
 {
-    CGFloat minWidth = MIN (self.view.frame.size.width, self.view.frame.size.height);
+    CGFloat frameWidth = self.view.frame.size.width;
+    CGFloat frameHeight = self.view.frame.size.height;
+    CGFloat minFrameWidth = MIN(frameWidth, frameHeight);
+
     // Configure collection view layout
     CGFloat numberOfPhotosForLine = 4;
-    CGFloat spaceBetweenPhotos = 1.0f;
-    CGFloat leftRightInset = 0;
+    CGFloat photoSpacing = 1.0f;
     CGFloat topBottomInset = 5;
-    
-    CGFloat width = floorf((minWidth - (((numberOfPhotosForLine -1) * spaceBetweenPhotos)) + (2*leftRightInset)) / numberOfPhotosForLine);
-    
-    self.layout.itemSize = CGSizeMake(width, width);
-    self.layout.minimumInteritemSpacing = spaceBetweenPhotos;
-    self.layout.minimumLineSpacing = spaceBetweenPhotos;
-    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, leftRightInset, topBottomInset, leftRightInset);
 
+    CGFloat cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                              photoSpacing:photoSpacing
+                                                frameWidth:minFrameWidth];
+
+    // Check the actual width of the content based on the computed cell size
+    // How many photos are we actually fitting per line?
+    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
+    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
+
+    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
+
+    // If we have gaps in our layout, adjust to fit
+    if (contentWidth < frameWidth) {
+        cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                          photoSpacing:photoSpacing
+                                            frameWidth:frameWidth];
+    }
+
+    self.layout.itemSize = CGSizeMake(cellSize, cellSize);
+    self.layout.minimumInteritemSpacing = photoSpacing;
+    self.layout.minimumLineSpacing = photoSpacing;
+    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, 0, topBottomInset, 0);
+}
+
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth
+{
+    CGFloat totalSpacing = (photosPerLine - 1) * photoSpacing;
+    return floorf((frameWidth - totalSpacing) / photosPerLine);
 }
 
 - (void)viewWillLayoutSubviews {
@@ -593,6 +617,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
 
     }];
@@ -769,6 +794,11 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
 {
+    // We can't preview PHAssets that are audio files
+    if ([self.dataSource isKindOfClass:[WPPHAssetDataSource class]] && asset.assetType == WPMediaTypeAudio) {
+        return nil;
+    }
+
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;

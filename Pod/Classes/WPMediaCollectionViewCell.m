@@ -1,4 +1,5 @@
 #import "WPMediaCollectionViewCell.h"
+#import "WPMediaPickerResources.h"
 
 static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
@@ -9,6 +10,10 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 @property (nonatomic, strong) UIView *selectionFrame;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UILabel *captionLabel;
+
+@property (nonatomic, strong) UIStackView *placeholderStackView;
+@property (nonatomic, strong) UIImageView *placeholderImageView;
+@property (nonatomic, strong) UILabel *documentExtensionLabel;
 
 @end
 
@@ -43,6 +48,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setCaption:@""];
     [self setPosition:NSNotFound];
     [self setSelected:NO];
+
+    self.placeholderStackView.hidden = YES;
+    self.documentExtensionLabel.text = nil;
 }
 
 - (void)commonInit
@@ -78,10 +86,105 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _captionLabel.font = [UIFont systemFontOfSize:counterTextSize - 2];
     _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
     [self.contentView addSubview:_captionLabel];
+
+    _placeholderStackView = [UIStackView new];
+    _placeholderStackView.hidden = YES;
+    _placeholderStackView.axis = UILayoutConstraintAxisVertical;
+    _placeholderStackView.alignment = UIStackViewAlignmentCenter;
+    _placeholderStackView.distribution = UIStackViewDistributionEqualSpacing;
+    _placeholderStackView.spacing = 8.0;
+
+    _documentExtensionLabel = [UILabel new];
+    _documentExtensionLabel.textAlignment = NSTextAlignmentCenter;
+    _documentExtensionLabel.font = [UIFont boldSystemFontOfSize:[UIFont smallSystemFontSize]];
+    _documentExtensionLabel.textColor = _placeholderTintColor;
+
+    _placeholderImageView = [UIImageView new];
+    _placeholderImageView.contentMode = UIViewContentModeCenter;
+
+    [_placeholderStackView addArrangedSubview:_placeholderImageView];
+    [_placeholderStackView addArrangedSubview:_documentExtensionLabel];
+
+    UIStackView *wrapper = [[UIStackView alloc] initWithFrame:self.bounds];
+    wrapper.axis = UILayoutConstraintAxisHorizontal;
+    wrapper.alignment = UIStackViewAlignmentCenter;
+    [self.contentView addSubview:wrapper];
+    wrapper.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [wrapper addArrangedSubview:_placeholderStackView];
+}
+
+- (void)displayOtherAssetTypePlaceholder
+{
+    self.placeholderStackView.hidden = NO;
+    self.imageView.hidden = YES;
+
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+    if ([self.asset respondsToSelector:@selector(filename)]) {
+        [self setCaption:[self.asset filename]];
+    }
+
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        NSString *extension = [[self.asset fileExtension] uppercaseString];
+        self.documentExtensionLabel.text = extension;
+    }
+}
+
+- (void)displayAudioAssetTypePlaceholder
+{
+    self.placeholderStackView.hidden = NO;
+    self.imageView.hidden = YES;
+
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        NSString *extension = [[self.asset fileExtension] uppercaseString];
+        self.documentExtensionLabel.text = extension;
+    } else {
+        self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+    }
+
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+    NSTimeInterval audioDuration = [self.asset duration];
+    [self setCaption:[self stringFromTimeInterval:audioDuration]];
 }
 
 - (void)setAsset:(id<WPMediaAsset>)asset {
     _asset = asset;
+
+    NSString *label = @"";
+    NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
+
+    WPMediaType assetType = _asset.assetType;
+    switch (assetType) {
+        case WPMediaTypeImage:
+            [self fetchAssetImage];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
+        break;
+        case WPMediaTypeVideo:
+            [self fetchAssetImage];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
+            NSTimeInterval videoDuration = [asset duration];
+            [self setCaption:[self stringFromTimeInterval:videoDuration]];
+            break;
+        case WPMediaTypeAudio:
+            [self displayAudioAssetTypePlaceholder];
+
+            label = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
+            break;
+        case WPMediaTypeOther:
+            [self displayOtherAssetTypePlaceholder];
+            break;
+        default:
+        break;
+    }
+
+    self.imageView.accessibilityLabel = label;
+}
+
+- (void)fetchAssetImage
+{
     __block WPMediaRequestID requestKey = 0;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     CGFloat scale = [[UIScreen mainScreen] scale];
@@ -108,25 +211,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         }
     }];
     self.tag = requestKey;
-    NSString *label = @"";
-    NSString *caption = @"";
-    WPMediaType assetType = _asset.assetType;
-    switch (assetType) {
-        case WPMediaTypeImage:
-            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."),
-                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
-        break;
-        case WPMediaTypeVideo:
-            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."),
-                     [[[self class] dateFormatter] stringFromDate:_asset.date]];
-            NSTimeInterval duration = [asset duration];
-            caption = [self stringFromTimeInterval:duration];
-        break;
-        default:
-        break;
-    }
-    self.imageView.accessibilityLabel = label;
-    [self setCaption:caption];
 }
 
 + (NSDateFormatter *) dateFormatter {
@@ -188,6 +272,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 {
     self.captionLabel.hidden = !(caption.length > 0);
     self.captionLabel.text = caption;
+}
+
+- (void)setPlaceholderTintColor:(UIColor *)placeholderTintColor
+{
+    _placeholderTintColor = placeholderTintColor;
+    _placeholderImageView.tintColor = placeholderTintColor;
+    _documentExtensionLabel.textColor = placeholderTintColor;
 }
 
 - (void)setSelected:(BOOL)selected
