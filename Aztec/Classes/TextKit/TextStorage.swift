@@ -335,11 +335,12 @@ open class TextStorage: NSTextStorage {
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
+
+        let targetDomRange = string.map(visualUTF16Range: range)
+
         guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
             fatalError()
         }
-
-        let targetDomRange = string.map(visualUTF16Range: swiftRange)
 
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
 
