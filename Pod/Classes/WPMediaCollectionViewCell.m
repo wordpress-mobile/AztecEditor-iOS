@@ -172,9 +172,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         break;
         case WPMediaTypeVideo:
             [self fetchAssetImage];
-            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
-            NSTimeInterval videoDuration = [asset duration];
-            [self setCaption:[self stringFromTimeInterval:videoDuration]];
+            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];            
             break;
         case WPMediaTypeAudio:
             label = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
