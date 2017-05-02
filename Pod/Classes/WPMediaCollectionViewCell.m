@@ -15,6 +15,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 @property (nonatomic, strong) UIImageView *placeholderImageView;
 @property (nonatomic, strong) UILabel *documentExtensionLabel;
 
+@property (nonatomic, assign) WPMediaRequestID requestKey;
+
 @end
 
 @implementation WPMediaCollectionViewCell
@@ -40,10 +42,10 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    if (self.tag != 0) {
-        [self.asset cancelImageRequest:(WPMediaRequestID)self.tag];
+    if (self.requestKey != 0) {
+        [self.asset cancelImageRequest:self.requestKey];
     }
-    self.tag = 0;
+    self.requestKey = 0;
     [self setImage:nil animated:NO];
     [self setCaption:@""];
     [self setPosition:NSNotFound];
@@ -167,7 +169,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setAsset:(id<WPMediaAsset>)asset {
     _asset = asset;
-
     WPMediaType assetType = _asset.assetType;
     switch (assetType) {
         case WPMediaTypeImage:
@@ -182,9 +183,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     }
 }
 
-- (void)updateCellWithImage:(UIImage *)image error:(NSError *)error timestamp:(NSTimeInterval)timestamp {
+- (void)updateCellWithImage:(UIImage *)image error:(NSError *)error timestamp:(NSTimeInterval)timestamp requestKey:(WPMediaRequestID)requestKey{
     if (error || image == nil) {
         [self displayAssetTypePlaceholder];
+        return;
+    }
+    // Did this request changed meanwhile
+    if (requestKey != self.requestKey) {
         return;
     }
     if (_asset.assetType == WPMediaTypeVideo || _asset.assetType == WPMediaTypeAudio) {
@@ -206,19 +211,15 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
     __weak __typeof__(self) weakSelf = self;
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
-        // Did this request changed meanwhile
-        if (requestKey != weakSelf.tag) {
-            return;
-        }
         if ([NSThread isMainThread]){
-            [weakSelf updateCellWithImage:result error:error timestamp:timestamp];
+            [weakSelf updateCellWithImage:result error:error timestamp:timestamp requestKey:requestKey];
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf updateCellWithImage:result error:error timestamp:timestamp];
+                [weakSelf updateCellWithImage:result error:error timestamp:timestamp requestKey:requestKey];
             });
         }
     }];
-    self.tag = requestKey;
+    self.requestKey = requestKey;
 }
 
 + (NSDateFormatter *) dateFormatter {
