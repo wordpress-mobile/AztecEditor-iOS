@@ -180,8 +180,22 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         default:
         break;
     }
+}
 
-
+- (void)updateCellWithImage:(UIImage *)image error:(NSError *)error timestamp:(NSTimeInterval)timestamp {
+    if (error || image == nil) {
+        [self displayAssetTypePlaceholder];
+        return;
+    }
+    if (_asset.assetType == WPMediaTypeVideo || _asset.assetType == WPMediaTypeAudio) {
+        NSString *caption = [self stringFromTimeInterval:[self.asset duration]];
+        [self setCaption:caption];
+    }
+    self.imageView.hidden = NO;
+    self.placeholderStackView.hidden = YES;
+    BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
+    [self setImage:image
+          animated:animated];
 }
 
 - (void)fetchAssetImage
@@ -190,30 +204,17 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
-
+    __weak __typeof__(self) weakSelf = self;
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
-        if (error || result == nil) {
-            [self displayAssetTypePlaceholder];
-            return;
-        }
         // Did this request changed meanwhile
-        if (requestKey != self.tag) {
+        if (requestKey != weakSelf.tag) {
             return;
         }
-        if (_asset.assetType == WPMediaTypeVideo || _asset.assetType == WPMediaTypeAudio) {
-            NSString *caption = [self stringFromTimeInterval:[self.asset duration]];
-            [self setCaption:caption];
-        }
-        self.imageView.hidden = NO;
-        self.placeholderStackView.hidden = YES;
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
         if ([NSThread isMainThread]){
-            [self setImage:result
-                  animated:animated];
+            [weakSelf updateCellWithImage:result error:error timestamp:timestamp];
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self setImage:result
-                      animated:animated];
+                [weakSelf updateCellWithImage:result error:error timestamp:timestamp];
             });
         }
     }];
