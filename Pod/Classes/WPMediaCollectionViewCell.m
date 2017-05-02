@@ -115,77 +115,46 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [wrapper addArrangedSubview:_placeholderStackView];
 }
 
-- (void)displayOtherAssetTypePlaceholder
+- (void)displayAssetTypePlaceholder
 {
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
+    UIImage * iconImage = nil;
+    NSString *caption = nil;
+    NSString *extension = nil;
     if ([self.asset respondsToSelector:@selector(filename)]) {
-        [self setCaption:[self.asset filename]];
+        caption = [self.asset filename];
     }
 
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
+    switch (self.asset.assetType) {
+        case WPMediaTypeImage:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"];
+            extension = NSLocalizedString(@"IMAGE", @"Label displayed on audio media items.");
+            break;
+        case WPMediaTypeVideo:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
+            extension = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
+            caption = [self stringFromTimeInterval:[self.asset duration]];
+            break;
+        case WPMediaTypeAudio:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"];
+            extension = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+            caption = [self stringFromTimeInterval:[self.asset duration]];
+            break;
+        case WPMediaTypeOther:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"];
+            break;
+        default:
+            break;
     }
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        extension = [[self.asset fileExtension] uppercaseString];
+    }
+    self.placeholderImageView.image = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [self setCaption:caption];
+    self.documentExtensionLabel.text = extension;
 }
 
-- (void)displayAudioAssetTypePlaceholder
-{
-    self.placeholderStackView.hidden = NO;
-    self.imageView.hidden = YES;
-
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
-    } else {
-        self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
-    }
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
-    NSTimeInterval audioDuration = [self.asset duration];
-    [self setCaption:[self stringFromTimeInterval:audioDuration]];
-}
-
-- (void)displayVideoAssetTypePlaceholder
-{
-    self.placeholderStackView.hidden = NO;
-    self.imageView.hidden = YES;
-
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
-    } else {
-        self.documentExtensionLabel.text = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
-    }
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
-    NSTimeInterval duration = [self.asset duration];
-    [self setCaption:[self stringFromTimeInterval:duration]];
-}
-
-- (void)displayImageAssetTypePlaceholder
-{
-    self.placeholderStackView.hidden = NO;
-    self.imageView.hidden = YES;
-
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
-    } else {
-        self.documentExtensionLabel.text = NSLocalizedString(@"PHOTO", @"Label displayed on audio media items.");
-    }
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
-    if ([self.asset respondsToSelector:@selector(filename)]) {
-        [self setCaption:[self.asset filename]];
-    }
-}
 
 
 - (void)setAsset:(id<WPMediaAsset>)asset {
@@ -195,32 +164,29 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
 
     WPMediaType assetType = _asset.assetType;
+    [self displayAssetTypePlaceholder];
     switch (assetType) {
         case WPMediaTypeImage:
-            [self displayImageAssetTypePlaceholder];
             [self fetchAssetImage];
             label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
         break;
         case WPMediaTypeVideo:
-            [self displayVideoAssetTypePlaceholder];
             [self fetchAssetImage];
             label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
             NSTimeInterval videoDuration = [asset duration];
             [self setCaption:[self stringFromTimeInterval:videoDuration]];
             break;
         case WPMediaTypeAudio:
-            [self displayAudioAssetTypePlaceholder];
-
             label = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
             break;
         case WPMediaTypeOther:
-            [self displayOtherAssetTypePlaceholder];
+            label = [NSString stringWithFormat:NSLocalizedString(@"Document: %@", @"Accessibility label for other media items in the media collection view. The parameter is the filename file."), [_asset filename]];
             break;
         default:
         break;
     }
 
-    self.imageView.accessibilityLabel = label;
+    self.accessibilityLabel = label;
 }
 
 - (void)fetchAssetImage
