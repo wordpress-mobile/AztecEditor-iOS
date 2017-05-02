@@ -196,9 +196,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
             self.imageView.contentMode = UIViewContentModeCenter;
             self.imageView.backgroundColor = [UIColor blackColor];
             if (_asset.assetType == WPMediaTypeImage) {
-                self.image = [WPMediaPickerResources imageNamed:@"camera" withExtension:@"png"];
+                self.image = [WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"];
             } else if (_asset.assetType == WPMediaTypeVideo) {
-                self.image = [WPMediaPickerResources imageNamed:@"video" withExtension:@"png"];
+                self.image = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
             }
             return;
         }
