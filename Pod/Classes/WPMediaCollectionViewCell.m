@@ -48,6 +48,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setCaption:@""];
     [self setPosition:NSNotFound];
     [self setSelected:NO];
+    self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    self.imageView.backgroundColor = self.backgroundColor;
 
     self.placeholderStackView.hidden = YES;
     self.documentExtensionLabel.text = nil;
@@ -148,6 +150,44 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setCaption:[self stringFromTimeInterval:audioDuration]];
 }
 
+- (void)displayVideoAssetTypePlaceholder
+{
+    self.placeholderStackView.hidden = NO;
+    self.imageView.hidden = YES;
+
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        NSString *extension = [[self.asset fileExtension] uppercaseString];
+        self.documentExtensionLabel.text = extension;
+    } else {
+        self.documentExtensionLabel.text = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
+    }
+
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+    NSTimeInterval duration = [self.asset duration];
+    [self setCaption:[self stringFromTimeInterval:duration]];
+}
+
+- (void)displayImageAssetTypePlaceholder
+{
+    self.placeholderStackView.hidden = NO;
+    self.imageView.hidden = YES;
+
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        NSString *extension = [[self.asset fileExtension] uppercaseString];
+        self.documentExtensionLabel.text = extension;
+    } else {
+        self.documentExtensionLabel.text = NSLocalizedString(@"PHOTO", @"Label displayed on audio media items.");
+    }
+
+    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+
+    if ([self.asset respondsToSelector:@selector(filename)]) {
+        [self setCaption:[self.asset filename]];
+    }
+}
+
+
 - (void)setAsset:(id<WPMediaAsset>)asset {
     _asset = asset;
 
@@ -157,13 +197,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     WPMediaType assetType = _asset.assetType;
     switch (assetType) {
         case WPMediaTypeImage:
+            [self displayImageAssetTypePlaceholder];
             [self fetchAssetImage];
-
             label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
         break;
         case WPMediaTypeVideo:
+            [self displayVideoAssetTypePlaceholder];
             [self fetchAssetImage];
-
             label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
             NSTimeInterval videoDuration = [asset duration];
             [self setCaption:[self stringFromTimeInterval:videoDuration]];
@@ -191,23 +231,15 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
 
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
-        if (error) {
-            self.image = nil;
-            self.imageView.contentMode = UIViewContentModeCenter;
-            self.imageView.backgroundColor = [UIColor blackColor];
-            if (_asset.assetType == WPMediaTypeImage) {
-                self.image = [WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"];
-            } else if (_asset.assetType == WPMediaTypeVideo) {
-                self.image = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
-            }
+        if (error || result == nil) {
             return;
         }
-        self.imageView.contentMode = UIViewContentModeScaleAspectFill;
-        self.imageView.backgroundColor = self.backgroundColor;
         // Did this request changed meanwhile
         if (requestKey != self.tag) {
             return;
         }
+        self.imageView.hidden = NO;
+        self.placeholderStackView.hidden = YES;
         BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
         if ([NSThread isMainThread]){
             [self setImage:result
