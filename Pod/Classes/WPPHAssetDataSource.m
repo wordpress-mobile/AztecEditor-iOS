@@ -555,9 +555,7 @@
         fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];        
         self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions];
     }
-    count = self.fetchResult.count;
-
-    return count;
+    return self.fetchResult.count;
 }
 
 @end
