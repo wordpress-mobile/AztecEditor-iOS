@@ -91,6 +91,7 @@ class EditorDemoController: UIViewController {
             switch editingMode {
             case .html:
                 htmlTextView.text = richTextView.getHTML()
+                htmlTextView.textStorage.colorizeHTML(font: Constants.defaultContentFont)
                 htmlTextView.becomeFirstResponder()
             case .richText:
                 richTextView.setHTML(htmlTextView.text)
@@ -383,9 +384,14 @@ extension EditorDemoController : UITextViewDelegate {
     }
 
     func textViewDidChange(_ textView: UITextView) {
-        if textView == titleTextField {
+        switch textView {
+        case titleTextField:
             updateTitleHeight()
             updateTitlePlaceholderVisibility()
+        case htmlTextView:
+            htmlTextView.textStorage.colorizeHTML(font: Constants.defaultContentFont)
+        default:
+            break
         }
     }
 
