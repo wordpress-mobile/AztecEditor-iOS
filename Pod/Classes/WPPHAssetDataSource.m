@@ -16,7 +16,9 @@
 
 @end
 
-@implementation WPPHAssetDataSource
+@implementation WPPHAssetDataSource {
+    id<WPMediaGroup> _selectedGroup;
+}
 
 + (instancetype)sharedInstance
 {
@@ -225,6 +227,14 @@
     }
 }
 
+- (void)setActiveAssetsCollection:(PHAssetCollection *)activeAssetsCollection
+{
+    if (_activeAssetsCollection != activeAssetsCollection) {
+        _activeAssetsCollection = activeAssetsCollection;
+        _selectedGroup = nil;
+    }
+}
+
 #pragma mark - WPMediaCollectionDataSource
 
 - (NSInteger)numberOfGroups
@@ -239,7 +249,12 @@
 
 - (id<WPMediaGroup>)selectedGroup
 {
-    return [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.activeAssetsCollection mediaType:self.mediaTypeFilter];
+    if (!_selectedGroup) {
+        _selectedGroup = [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.activeAssetsCollection
+                                                                            mediaType:self.mediaTypeFilter];
+    }
+
+    return _selectedGroup;
 }
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
