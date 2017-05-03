@@ -54,6 +54,7 @@
 		B577DC671E7B18F80012A1F8 /* CommentNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */; };
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
+		B5A99DF11EBA28AC00DED081 /* Libtidy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A99DF01EBA28AC00DED081 /* Libtidy.swift */; };
 		B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */; };
 		B5B86D3C1DA41A550083DB3F /* TextListFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */; };
@@ -204,6 +205,9 @@
 		B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommentNodeDescriptor.swift; path = Descriptors/CommentNodeDescriptor.swift; sourceTree = "<group>"; };
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
+		B5A99DED1EBA280300DED081 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		B5A99DEE1EBA282C00DED081 /* libtidy-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libtidy-umbrella.h"; sourceTree = "<group>"; };
+		B5A99DF01EBA28AC00DED081 /* Libtidy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Libtidy.swift; sourceTree = "<group>"; };
 		B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderableAttachmentDelegate.swift; sourceTree = "<group>"; };
 		B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatter.swift; sourceTree = "<group>"; };
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
@@ -360,6 +364,7 @@
 				599F25241D8BC9A1002871D6 /* Extensions */,
 				B5B86D3A1DA41A550083DB3F /* Formatters */,
 				599F25281D8BC9A1002871D6 /* GUI */,
+				B5A99DEF1EBA288E00DED081 /* Libtidy */,
 				599F25071D8BC9A1002871D6 /* Libxml2 */,
 				599F252E1D8BC9A1002871D6 /* TextKit */,
 			);
@@ -515,6 +520,7 @@
 		599F25551D8BCA01002871D6 /* Modulemaps */ = {
 			isa = PBXGroup;
 			children = (
+				B5A99DEC1EBA27F700DED081 /* libtidy */,
 				599F25561D8BCA01002871D6 /* libxml2 */,
 			);
 			path = Modulemaps;
@@ -579,6 +585,23 @@
 				59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */,
 			);
 			path = Importer;
+			sourceTree = "<group>";
+		};
+		B5A99DEC1EBA27F700DED081 /* libtidy */ = {
+			isa = PBXGroup;
+			children = (
+				B5A99DEE1EBA282C00DED081 /* libtidy-umbrella.h */,
+				B5A99DED1EBA280300DED081 /* module.modulemap */,
+			);
+			path = libtidy;
+			sourceTree = "<group>";
+		};
+		B5A99DEF1EBA288E00DED081 /* Libtidy */ = {
+			isa = PBXGroup;
+			children = (
+				B5A99DF01EBA28AC00DED081 /* Libtidy.swift */,
+			);
+			path = Libtidy;
 			sourceTree = "<group>";
 		};
 		B5B86D3A1DA41A550083DB3F /* Formatters */ = {
@@ -823,6 +846,7 @@
 				F1FA0E841E6EF514009D98EE /* LeafNode.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F1288BB01DD0B1EF00E67ABC /* HTMLToAttributedString.swift in Sources */,
+				B5A99DF11EBA28AC00DED081 /* Libtidy.swift in Sources */,
 				E11B77641DBA6ADC0024E455 /* AttributeFormatter.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */,
@@ -1048,7 +1072,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2 $(PROJECT_DIR)/Aztec/Modulemaps/libtidy";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1075,7 +1099,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2 $(PROJECT_DIR)/Aztec/Modulemaps/libtidy";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1188,7 +1212,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2 $(PROJECT_DIR)/Aztec/Modulemaps/libtidy";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1288,7 +1312,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2 $(PROJECT_DIR)/Aztec/Modulemaps/libtidy";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
