@@ -241,36 +241,6 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "Apply a header")
     }
 
-    /// Tests toggling blockquote three times.
-    ///
-    func testToggleBlockquoteThrice() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        storage.append(NSAttributedString(string: "Apply a blockquote"))
-
-        let formatter = BlockquoteFormatter()
-
-        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
-
-        var html = storage.getHTML()
-
-        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
-
-        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
-
-        html = storage.getHTML()
-
-        XCTAssertEqual(html, "Apply a blockquote<br>")
-
-        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
-
-        html = storage.getHTML()
-
-        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
-    }
-
     /// This test ensures that when applying a header style on top of another style the replacement occurs correctly.
     ///
     func testSwitchHeaderStyleToggle() {

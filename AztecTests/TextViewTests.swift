@@ -602,14 +602,14 @@ class TextViewTests: XCTestCase {
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
     ///
     /// Input:
-    ///     - Initial HTML: "<h1>Header</h1>\n"
+    ///     - Initial HTML: "<h1>Header</h1><br>"
     ///     - Deletion range: (loc: 5, len 1)
     ///
     /// Output:
     ///     - Final HTML: "<h1>Header</h1>"
     ///
     func testDeleteNewlineAtEndOfText() {
-        let html = "<h1>Header</h1>\n"
+        let html = "<h1>Header</h1><br>"
         let textView = createTextView(withHTML: html)
 
         let range = NSRange(location: textView.text.characters.count, length:0)
