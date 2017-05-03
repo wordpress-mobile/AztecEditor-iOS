@@ -17,6 +17,10 @@ open class Libtidy {
     ///
     ///
     open func prettify(html input: String) -> String? {
+        guard input.isEmpty == false else {
+            return nil
+        }
+
         guard let document = tidyCreate() else {
             return nil
         }
@@ -60,9 +64,9 @@ private extension Libtidy {
             throw TidySetupErrors.output
         }
 
-        guard tidyOptSetInt(document, TidyIndentContent, UInt(TidyAutoState.rawValue)) == yes else {
-            throw TidySetupErrors.indent
-        }
+//        guard tidyOptSetInt(document, TidyIndentContent, UInt(TidyAutoState.rawValue)) == yes else {
+//            throw TidySetupErrors.indent
+//        }
 
         guard tidySetInCharEncoding(document, TidyConstants.utf8) >= 0 else {
             throw TidySetupErrors.encoding
