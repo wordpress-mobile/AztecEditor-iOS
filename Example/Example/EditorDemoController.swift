@@ -28,7 +28,14 @@ class EditorDemoController: UIViewController {
     }()
 
     fileprivate(set) lazy var htmlTextView: UITextView = {
-        let textView = UITextView()
+        let storage = HTMLStorage(defaultFont: Constants.defaultContentFont)
+        let layoutManager = NSLayoutManager()
+        let container = NSTextContainer()
+
+        storage.addLayoutManager(layoutManager)
+        layoutManager.addTextContainer(container)
+
+        let textView = UITextView(frame: .zero, textContainer: container)
 
         let toolbar = self.createToolbar(htmlMode: true)
 
@@ -383,9 +390,12 @@ extension EditorDemoController : UITextViewDelegate {
     }
 
     func textViewDidChange(_ textView: UITextView) {
-        if textView == titleTextField {
+        switch textView {
+        case titleTextField:
             updateTitleHeight()
             updateTitlePlaceholderVisibility()
+        default:
+            break
         }
     }
 
