@@ -487,6 +487,11 @@
     return CGSizeMake((CGFloat)self.pixelWidth, (CGFloat)self.pixelHeight);
 }
 
+- (NSString *)fileExtension
+{
+    return [[[[PHAssetResource assetResourcesForAsset:self] firstObject] originalFilename] pathExtension];
+}
+
 @end
 
 #pragma mark - WPPHAssetCollection

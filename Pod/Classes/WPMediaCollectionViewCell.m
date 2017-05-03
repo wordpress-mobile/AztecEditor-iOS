@@ -15,6 +15,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 @property (nonatomic, strong) UIImageView *placeholderImageView;
 @property (nonatomic, strong) UILabel *documentExtensionLabel;
 
+@property (nonatomic, assign) WPMediaRequestID requestKey;
+
 @end
 
 @implementation WPMediaCollectionViewCell
@@ -40,14 +42,16 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    if (self.tag != 0) {
-        [self.asset cancelImageRequest:(WPMediaRequestID)self.tag];
+    if (self.requestKey != 0) {
+        [self.asset cancelImageRequest:self.requestKey];
     }
-    self.tag = 0;
+    self.requestKey = 0;
     [self setImage:nil animated:NO];
     [self setCaption:@""];
     [self setPosition:NSNotFound];
     [self setSelected:NO];
+    self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    self.imageView.backgroundColor = self.backgroundColor;
 
     self.placeholderStackView.hidden = YES;
     self.documentExtensionLabel.text = nil;
@@ -113,74 +117,90 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [wrapper addArrangedSubview:_placeholderStackView];
 }
 
-- (void)displayOtherAssetTypePlaceholder
+- (void)displayAssetTypePlaceholder
 {
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
+    UIImage * iconImage = nil;
+    NSString *caption = nil;
+    NSString *extension = nil;
+    NSString *accessibilityLabel = @"";
+    NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
     if ([self.asset respondsToSelector:@selector(filename)]) {
-        [self setCaption:[self.asset filename]];
+        caption = [self.asset filename];
     }
 
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
+    switch (self.asset.assetType) {
+        case WPMediaTypeImage:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"];
+            extension = NSLocalizedString(@"IMAGE", @"Label displayed on audio media items.");
+            caption = nil;
+            accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
+            break;
+        case WPMediaTypeVideo:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
+            extension = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
+            caption = [self stringFromTimeInterval:[self.asset duration]];
+            accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
+            break;
+        case WPMediaTypeAudio:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"];
+            extension = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+            caption = [self stringFromTimeInterval:[self.asset duration]];
+            accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
+            break;
+        case WPMediaTypeOther:
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"];
+            accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Document: %@", @"Accessibility label for other media items in the media collection view. The parameter is the filename file."), [_asset filename]];
+            break;
+        default:
+            break;
     }
+    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
+        extension = [[self.asset fileExtension] uppercaseString];
+    }
+    self.placeholderImageView.image = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [self setCaption:caption];
+    self.documentExtensionLabel.text = extension;
+    self.accessibilityLabel = accessibilityLabel;
 }
 
-- (void)displayAudioAssetTypePlaceholder
-{
-    self.placeholderStackView.hidden = NO;
-    self.imageView.hidden = YES;
 
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        NSString *extension = [[self.asset fileExtension] uppercaseString];
-        self.documentExtensionLabel.text = extension;
-    } else {
-        self.documentExtensionLabel.text = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
-    }
-
-    self.placeholderImageView.image = [[WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
-    NSTimeInterval audioDuration = [self.asset duration];
-    [self setCaption:[self stringFromTimeInterval:audioDuration]];
-}
 
 - (void)setAsset:(id<WPMediaAsset>)asset {
     _asset = asset;
-
-    NSString *label = @"";
-    NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
-
     WPMediaType assetType = _asset.assetType;
     switch (assetType) {
         case WPMediaTypeImage:
-            [self fetchAssetImage];
-
-            label = [NSString stringWithFormat:NSLocalizedString(@"Image, %@", @"Accessibility label for image thumbnails in the media collection view. The parameter is the creation date of the image."), formattedDate];
-        break;
         case WPMediaTypeVideo:
             [self fetchAssetImage];
-
-            label = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
-            NSTimeInterval videoDuration = [asset duration];
-            [self setCaption:[self stringFromTimeInterval:videoDuration]];
             break;
         case WPMediaTypeAudio:
-            [self displayAudioAssetTypePlaceholder];
-
-            label = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
-            break;
         case WPMediaTypeOther:
-            [self displayOtherAssetTypePlaceholder];
-            break;
+            [self displayAssetTypePlaceholder];
         default:
         break;
     }
+}
 
-    self.imageView.accessibilityLabel = label;
+- (void)updateCellWithImage:(UIImage *)image error:(NSError *)error timestamp:(NSTimeInterval)timestamp requestKey:(WPMediaRequestID)requestKey{
+    if (error || image == nil) {
+        [self displayAssetTypePlaceholder];
+        return;
+    }
+    // Did this request changed meanwhile
+    if (requestKey != self.requestKey) {
+        return;
+    }
+    if (_asset.assetType == WPMediaTypeVideo || _asset.assetType == WPMediaTypeAudio) {
+        NSString *caption = [self stringFromTimeInterval:[self.asset duration]];
+        [self setCaption:caption];
+    }
+    self.imageView.hidden = NO;
+    self.placeholderStackView.hidden = YES;
+    BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
+    [self setImage:image
+          animated:animated];
 }
 
 - (void)fetchAssetImage
@@ -189,28 +209,17 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize requestSize = CGSizeApplyAffineTransform(self.frame.size, CGAffineTransformMakeScale(scale, scale));
-
+    __weak __typeof__(self) weakSelf = self;
     requestKey = [_asset imageWithSize:requestSize completionHandler:^(UIImage *result, NSError *error) {
-        if (error) {
-            self.image = nil;
-            return;
-        }
-        // Did this request changed meanwhile
-        if (requestKey != self.tag) {
-            return;
-        }
-        BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
         if ([NSThread isMainThread]){
-            [self setImage:result
-                  animated:animated];
+            [weakSelf updateCellWithImage:result error:error timestamp:timestamp requestKey:requestKey];
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self setImage:result
-                      animated:animated];
+                [weakSelf updateCellWithImage:result error:error timestamp:timestamp requestKey:requestKey];
             });
         }
     }];
-    self.tag = requestKey;
+    self.requestKey = requestKey;
 }
 
 + (NSDateFormatter *) dateFormatter {

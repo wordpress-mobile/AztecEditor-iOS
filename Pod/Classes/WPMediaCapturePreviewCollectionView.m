@@ -33,8 +33,9 @@
     _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_previewView];
     
-    UIImage *cameraImage = [WPMediaPickerResources imageNamed:@"camera" withExtension:@"png"];
+    UIImage *cameraImage = [[WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:cameraImage];
+    imageView.tintColor = [UIColor whiteColor];
     imageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2.0, CGRectGetHeight(self.frame) / 2.0);
     imageView.contentMode = UIViewContentModeScaleAspectFill;
     imageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
