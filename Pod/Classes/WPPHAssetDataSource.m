@@ -499,7 +499,8 @@
 @interface PHAssetCollectionForWPMediaGroup()
 
 @property(nonatomic, strong) PHAssetCollection *collection;
-@property(nonatomic, strong) PHFetchResult *fetchResult;
+@property(nonatomic) NSUInteger assetCount;
+@property(nonatomic, strong) PHAsset *posterAsset;
 @property(nonatomic, assign) WPMediaType mediaType;
 
 @end
@@ -512,6 +513,14 @@
     if (self) {
         _collection = collection;
         _mediaType = mediaType;
+
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
+        PHFetchResult *result = [PHAsset fetchKeyAssetsInAssetCollection:_collection options:fetchOptions];
+        _posterAsset = [result lastObject];
+
+        _assetCount = [[PHAsset fetchAssetsInAssetCollection:_collection options:fetchOptions] count];
+
     }
     return self;
 }
@@ -524,19 +533,12 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:self.mediaType];
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] lastObject];
-    return [posterAsset imageWithSize:size completionHandler:completionHandler];
+    return [self.posterAsset imageWithSize:size completionHandler:completionHandler];
 }
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:self.mediaType];
-
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] lastObject];
-    [posterAsset cancelImageRequest:requestID];
+    [self.posterAsset cancelImageRequest:requestID];
 }
 
 - (id)baseGroup
@@ -555,12 +557,8 @@
     if (count != NSNotFound) {
         return count;
     }
-    if (!self.fetchResult){
-        PHFetchOptions *fetchOptions = [PHFetchOptions new];
-        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];        
-        self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions];
-    }
-    return self.fetchResult.count;
+
+    return self.assetCount;
 }
 
 @end

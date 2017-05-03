@@ -108,6 +108,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
+
     return cell;
 }
 
