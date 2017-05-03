@@ -15,13 +15,21 @@ open class Libtidy {
     public init() {
 
     }
+
+
     ///
     ///
     open func tidy(string input: String) -> String? {
-        NSLog("IN \(input)")
-        NSLog("IN \(input)")
         guard let document = tidyCreate() else {
             return nil
+        }
+
+        var buffer = TidyBuffer()
+        tidyBufInit(UnsafeMutablePointer<TidyBuffer>(&buffer))
+
+        defer {
+            tidyBufFree(UnsafeMutablePointer<TidyBuffer>(&buffer))
+            tidyRelease(document)
         }
 
         guard tidyOptSetBool(document, TidyXmlTags, yes) == Success else {
@@ -48,13 +56,9 @@ open class Libtidy {
             return nil
         }
 
-        var buffer = TidyBuffer()
-        tidyBufInit(UnsafeMutablePointer<TidyBuffer>(&buffer))
-
         guard tidySetErrorBuffer(document, UnsafeMutablePointer<TidyBuffer>(&buffer)) == 0 else {
             return nil
         }
-
 
         guard let inString = input.data(using: .utf8) else {
             return nil
@@ -65,14 +69,14 @@ open class Libtidy {
             return tidyParseString(document, inString)
         }
 
-        guard parseResult == 0 else {
+//        let test =         NSString(bytes: buffer.bp, length: Int(buffer.size), encoding: String.Encoding.utf8.rawValue)
+//        NSLog("Error: \(test)")
+
+        guard parseResult >= 0 else {
             return nil
         }
 
-        //    // Parse the data.
-        //    theResultCode = tidyParseString(theTidyDocument, [inString UTF8String]);
-        //    if (theResultCode < 0)
-        //    {
+
         //        if (outError)
         //        {
         //            NSDictionary *theUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -81,19 +85,17 @@ open class Libtidy {
         //            *outError = [NSError errorWithDomain:@"TODO_DOMAIN" code:theResultCode userInfo:theUserInfo];
         //        }
         //        return(NULL);
-        //    }
 
-        guard tidyCleanAndRepair(document) == 0 else {
+        guard tidyCleanAndRepair(document) >= 0 else {
             return nil
         }
 
-        guard tidyRunDiagnostics(document) == 0 else {
+        guard tidyRunDiagnostics(document) >= 0 else {
             return nil
         }
 
         var length = uint(0)
         tidySaveString(document, nil, UnsafeMutablePointer<uint>(&length) )
-
 
         guard let mutableData = NSMutableData(length: Int(length)) else {
             return nil
@@ -101,7 +103,7 @@ open class Libtidy {
 
         let data = mutableData.mutableBytes.bindMemory(to: Int8.self, capacity: Int(length))
 
-        guard tidySaveString(document, data, UnsafeMutablePointer<uint>(&length)) == 0 else {
+        guard tidySaveString(document, data, UnsafeMutablePointer<uint>(&length)) >= 0 else {
             return nil
         }
 
@@ -115,9 +117,6 @@ open class Libtidy {
         ////        *outDiagnostics = [[NSString alloc] initWithData:theErrorData encoding:NSUTF8StringEncoding];
         //    }
 
-        tidyBufFree(UnsafeMutablePointer<TidyBuffer>(&buffer))
-
-        tidyRelease(document)
 
         return string
     }
