@@ -1,0 +1,6 @@
+module libtidy {
+    link "tidy"
+    umbrella header "libtidy-umbrella.h"
+    export *
+    module * { export * }
+}
