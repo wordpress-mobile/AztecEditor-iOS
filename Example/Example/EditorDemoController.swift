@@ -28,7 +28,14 @@ class EditorDemoController: UIViewController {
     }()
 
     fileprivate(set) lazy var htmlTextView: UITextView = {
-        let textView = UITextView()
+        let storage = HTMLStorage(defaultFont: Constants.defaultContentFont)
+        let layoutManager = NSLayoutManager()
+        let container = NSTextContainer()
+
+        storage.addLayoutManager(layoutManager)
+        layoutManager.addTextContainer(container)
+
+        let textView = UITextView(frame: .zero, textContainer: container)
 
         let toolbar = self.createToolbar(htmlMode: true)
 
@@ -91,7 +98,6 @@ class EditorDemoController: UIViewController {
             switch editingMode {
             case .html:
                 htmlTextView.text = richTextView.getHTML()
-                htmlTextView.textStorage.colorizeHTML(font: Constants.defaultContentFont)
                 htmlTextView.becomeFirstResponder()
             case .richText:
                 richTextView.setHTML(htmlTextView.text)
@@ -388,8 +394,6 @@ extension EditorDemoController : UITextViewDelegate {
         case titleTextField:
             updateTitleHeight()
             updateTitlePlaceholderVisibility()
-        case htmlTextView:
-            htmlTextView.textStorage.colorizeHTML(font: Constants.defaultContentFont)
         default:
             break
         }
