@@ -16,7 +16,7 @@ open class Libtidy {
 
     ///
     ///
-    open func tidy(string input: String) -> String? {
+    open func prettify(html input: String) -> String? {
         guard let document = tidyCreate() else {
             return nil
         }
