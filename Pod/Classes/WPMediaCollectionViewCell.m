@@ -126,7 +126,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     NSString *caption = nil;
     NSString *extension = nil;
     NSString *accessibilityLabel = @"";
-    NSString *formattedDate = [[[self class] dateFormatter] stringFromDate:_asset.date];
+    NSString *formattedDate = [NSString stringWithFormat:@"%@ %@",[WPDateTimeHelpers userFriendlyStringDateFromDate:_asset.date], [WPDateTimeHelpers userFriendlyStringTimeFromDate:_asset.date]];
     if ([self.asset respondsToSelector:@selector(filename)]) {
         caption = [self.asset filename];
     }
@@ -221,18 +221,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         }
     }];
     self.requestKey = requestKey;
-}
-
-+ (NSDateFormatter *) dateFormatter {
-    static NSDateFormatter *_dateFormatter = nil;
-    static dispatch_once_t _onceToken;
-    dispatch_once(&_onceToken, ^{
-        _dateFormatter = [[NSDateFormatter alloc] init];
-        _dateFormatter.dateStyle = NSDateFormatterMediumStyle;
-        _dateFormatter.timeStyle = NSDateFormatterMediumStyle;
-    });
-    
-    return _dateFormatter;
 }
 
 - (void)setImage:(UIImage *)image
