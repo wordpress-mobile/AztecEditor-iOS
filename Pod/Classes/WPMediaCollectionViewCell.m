@@ -1,5 +1,6 @@
 #import "WPMediaCollectionViewCell.h"
 #import "WPMediaPickerResources.h"
+#import "WPDateTimeHelpers.h"
 
 static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
@@ -140,13 +141,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         case WPMediaTypeVideo:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
             extension = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
-            caption = [self stringFromTimeInterval:[self.asset duration]];
+            caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Video, %@", @"Accessibility label for video thumbnails in the media collection view. The parameter is the creation date of the video."), formattedDate];
             break;
         case WPMediaTypeAudio:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"];
             extension = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
-            caption = [self stringFromTimeInterval:[self.asset duration]];
+            caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Audio, %@", @"Accessibility label for audio items in the media collection view. The parameter is the creation date of the audio."), formattedDate];
             break;
         case WPMediaTypeOther:
@@ -193,7 +194,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         return;
     }
     if (_asset.assetType == WPMediaTypeVideo || _asset.assetType == WPMediaTypeAudio) {
-        NSString *caption = [self stringFromTimeInterval:[self.asset duration]];
+        NSString *caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
         [self setCaption:caption];
     }
     self.imageView.hidden = NO;
@@ -232,19 +233,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     });
     
     return _dateFormatter;
-}
-
-- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
-{
-    NSInteger roundedHours = floor(timeInterval / 3600);
-    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
-    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
-    
-    if (roundedHours > 0)
-        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
-    
-    else
-        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
 }
 
 - (void)setImage:(UIImage *)image

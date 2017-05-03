@@ -6,4 +6,6 @@
 
 + (NSString *)userFriendlyStringTimeFromDate:(NSDate *)date;
 
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval;
+
 @end
