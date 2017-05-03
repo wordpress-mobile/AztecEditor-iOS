@@ -753,16 +753,18 @@ open class TextStorage: NSTextStorage {
         let addOrdered = new == .ordered
         let addUnordered = new == .unordered
 
+        var rangeForAddingStyle = range
+
         if removeOrdered {
-            dom.removeOrderedList(spanning: range)
+            rangeForAddingStyle = dom.removeOrderedList(spanning: range)
         } else if removeUnordered {
-            dom.removeUnorderedList(spanning: range)
+            rangeForAddingStyle = dom.removeUnorderedList(spanning: range)
         }
 
         if addOrdered {
-            dom.applyOrderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            dom.applyOrderedList(spanning: rangeForAddingStyle, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         } else if addUnordered {
-            dom.applyUnorderedList(spanning: range, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            dom.applyUnorderedList(spanning: rangeForAddingStyle, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         }
     }
 

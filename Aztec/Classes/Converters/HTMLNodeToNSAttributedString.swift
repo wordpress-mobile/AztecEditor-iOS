@@ -77,7 +77,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
 
-        if node.isLastInBlockLevelElement() {
+        if node.needsClosingParagraphSeparator() {
             content.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
         }
 

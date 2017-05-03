@@ -13,28 +13,31 @@ extension Libxml2 {
         let matchingNames: [String]
         let canMergeLeft: Bool
         let canMergeRight: Bool
+        let endsWithVisualNewline: Bool
 
         // MARK: - CustomReflectable
-        
+
         public override var customMirror: Mirror {
             get {
                 return Mirror(self, children: ["name": name, "attributes": attributes, "matchingNames": matchingNames])
             }
         }
-        
-        init(name: String, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], matchingNames: [String] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
+
+        init(name: String, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], matchingNames: [String] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true, endsWithVisualNewline: Bool = false) {
             self.attributes = attributes
             self.canMergeLeft = canMergeLeft
             self.canMergeRight = canMergeRight
             self.childDescriptor = childDescriptor
             self.matchingNames = matchingNames
+            self.endsWithVisualNewline = endsWithVisualNewline
+
             super.init(name: name)
         }
 
-        convenience init(elementType: StandardElementType, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
-            self.init(name: elementType.rawValue, childDescriptor: childDescriptor, attributes: attributes, matchingNames: elementType.equivalentNames, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+        convenience init(elementType: StandardElementType, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true, endsWithVisualNewline: Bool = false) {
+            self.init(name: elementType.rawValue, childDescriptor: childDescriptor, attributes: attributes, matchingNames: elementType.equivalentNames, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight, endsWithVisualNewline: endsWithVisualNewline)
         }
-        
+
         // MARK: - Introspection
         
         func isBlockLevel() -> Bool {

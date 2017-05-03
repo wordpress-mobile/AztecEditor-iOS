@@ -153,26 +153,74 @@ extension Libxml2 {
             return element.isBlockLevelElement() && element.children.last == self
         }
 
-        func isLastInBlockLevelElement() -> Bool {
+        func isLastInParent() -> Bool {
+
+            guard let parent = parent else {
+                return true
+            }
+
+            // We are filtering empty text nodes from being considered the last node in our
+            // parent node.
+            //
+            let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
+                guard let textNode = node as? TextNode,
+                    textNode.length() == 0 else {
+                        return true
+                }
+
+                return false
+            })
+
+            return self === lastMatchingChildInParent
+        }
+
+        func isLastInTree() -> Bool {
+
+            guard let parent = parent else {
+                return true
+            }
+
+            return isLastInParent() && parent.isLastInTree()
+        }
+
+        func isLastInBlockLevelAncestor() -> Bool {
+
             guard let parent = parent else {
                 return false
             }
 
-            guard !isLastIn(blockLevelElement: parent) else {
-                return true
+            return isLastInParent() &&
+                (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
+        }
+
+        func rightSibling() -> ElementNode? {
+
+            guard let parent = parent else {
+                return nil
             }
 
             let index = parent.indexOf(childNode: self)
 
-            if let sibling = parent.sibling(rightOf: index) {
-                if let siblingElement = sibling as? ElementNode {
-                    return siblingElement.isBlockLevelElement()
-                } else {
-                    return false
-                }
-            } else {
-                return parent.isLastInBlockLevelElement()
+            guard let sibling = parent.sibling(rightOf: index) else {
+                return nil
             }
+
+            return sibling as? ElementNode
+        }
+
+        // MARK: - Paragraph Separation Logic
+
+        /// Checks if the specified node requires a closing paragraph separator.
+        ///
+        func needsClosingParagraphSeparator() -> Bool {
+
+            if let rightSibling = rightSibling(),
+                rightSibling.isBlockLevelElement() {
+
+                return true
+            }
+
+            return !isLastInTree() && isLastInBlockLevelAncestor()
         }
 
         // MARK: - DOM Modification

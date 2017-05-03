@@ -35,9 +35,17 @@ extension Libxml2.Out {
             let xmlNodePtr = Libxml2.Out.NodeConverter().convert(rawNode)
 
             xmlDocSetRootElement(xmlDocPtr, xmlNodePtr)
-            htmlNodeDumpFormatOutput(outputBuffer, xmlDocPtr, xmlNodePtr, nil, 0)
+            htmlNodeDumpFormatOutput(outputBuffer, xmlDocPtr, xmlNodePtr, "UTF-8", 0)
 
-            let htmlDumpString = String(cString: xmlBufContent(outputBuffer.pointee.buffer))
+            let buffer = xmlBufContent(outputBuffer.pointee.buffer)!
+
+            let finalBuffer = buffer.withMemoryRebound(to: CChar.self, capacity: 10) { ptr -> UnsafePointer<CChar> in
+                return UnsafePointer<CChar>(ptr)
+            }
+
+            let htmlDumpString = String(utf8String: finalBuffer)!
+
+            //let htmlDumpString = String(cString: xmlBufContent(outputBuffer.pointee.buffer))
 
             let finalString = htmlDumpString.replacingOccurrences(of: "<\(RootNode.name)>", with: "").replacingOccurrences(of: "</\(RootNode.name)>", with: "")
 

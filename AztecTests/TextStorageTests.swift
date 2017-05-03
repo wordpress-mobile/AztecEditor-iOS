@@ -164,7 +164,7 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
-    func testBlockquoteToggle() {
+    func testBlockquoteToggle1() {
         let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
         storage.attachmentsDelegate = mockDelegate
@@ -176,11 +176,28 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
 
-        storage.toggle(formatter:blockquoteFormatter, at: storage.rangeOfEntireString)
+        storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
         html = storage.getHTML()
 
         XCTAssertEqual(html, "Apply a blockquote")
+    }
+
+    func testBlockquoteToggle2() {
+        let mockDelegate = MockAttachmentsDelegate()
+        let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
+        storage.append(NSAttributedString(string: "Hello 🌎!\nApply a blockquote!"))
+        let blockquoteFormatter = BlockquoteFormatter()
+
+        let range = NSRange(location: 9, length: 19)
+        let utf16Range = storage.string.utf16NSRange(from: range)
+
+        storage.toggle(formatter: blockquoteFormatter, at: utf16Range)
+
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "Hello &#x1F30E;!<br><blockquote>Apply a blockquote!</blockquote>")
     }
 
     func testLinkInsert() {
@@ -222,6 +239,36 @@ class TextStorageTests: XCTestCase
         html = storage.getHTML()
 
         XCTAssertEqual(html, "Apply a header")
+    }
+
+    /// Tests toggling blockquote three times.
+    ///
+    func testToggleBlockquoteThrice() {
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.append(NSAttributedString(string: "Apply a blockquote"))
+
+        let formatter = BlockquoteFormatter()
+
+        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
+
+        var html = storage.getHTML()
+
+        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
+
+        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "Apply a blockquote<br>")
+
+        storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
+
+        html = storage.getHTML()
+
+        XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
     }
 
     /// This test ensures that when applying a header style on top of another style the replacement occurs correctly.

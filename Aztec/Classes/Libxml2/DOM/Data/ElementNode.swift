@@ -176,6 +176,10 @@ extension Libxml2 {
             return type.equivalentNames.contains(name.lowercased())
         }
 
+        func lastChild(matching filter: (Node) -> Bool) -> Node? {
+            return children.filter(filter).last
+        }
+
         // MARK: - DOM Queries
         
         /// Returns the index of the specified child node.  This method should only be called when

@@ -403,15 +403,23 @@ class TextViewTests: XCTestCase {
         textView.insertText("\n")
     }
 
+    /// Tests that a visual newline is not added at EoF
+    ///
+    func testNewlineNotAddedAtEof() {
+        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+
+        XCTAssertEqual(textView.text, "Testing bold newlines")
+    }
+
     /// Tests that the visual newline is shown at the correct position.
     ///
     /// Added to avoid regressions to the bug reported here:
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/387
     ///
     func testNewlineRenderedAtTheCorrectPosition() {
-        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>Hey!")
 
-        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))")
+        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))Hey!")
     }
 
 
@@ -429,6 +437,8 @@ class TextViewTests: XCTestCase {
     func testDeleteNewline() {
 
         let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
+
+        print(textView.storage.getHTML())
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
