@@ -176,6 +176,13 @@ extension Libxml2 {
             return type.equivalentNames.contains(name.lowercased())
         }
 
+        /// Retrieves the last child matching a specific filtering closure.
+        ///
+        /// - Parameters:
+        ///     - filter: the filtering closure.
+        ///
+        /// - Returns: the requested node, or `nil` if there are no nodes matching the request.
+        ///
         func lastChild(matching filter: (Node) -> Bool) -> Node? {
             return children.filter(filter).last
         }
