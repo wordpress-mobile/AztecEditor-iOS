@@ -153,6 +153,9 @@ extension Libxml2 {
             return element.isBlockLevelElement() && element.children.last == self
         }
 
+        /// Checks if the receiver is the last node in its parent.
+        /// Empty text nodes are filtered to avoid false positives.
+        ///
         func isLastInParent() -> Bool {
 
             guard let parent = parent else {
