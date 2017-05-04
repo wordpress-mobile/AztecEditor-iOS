@@ -113,15 +113,17 @@
             }
             return;
         }
-        if (self.refreshGroups) {
-            [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-            [self loadGroupsWithSuccess:^{
-                self.refreshGroups = NO;
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            if (self.refreshGroups) {
+                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
+                [self loadGroupsWithSuccess:^{
+                    self.refreshGroups = NO;
+                    [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                } failure:failureBlock];
+            } else {
                 [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-            } failure:failureBlock];
-        } else {
-            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-        }
+            }
+        });
     }];
 }
 
