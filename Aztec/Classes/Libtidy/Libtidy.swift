@@ -4,7 +4,7 @@ import libtidy
 
 // MARK: - Tidy Wrapper
 //
-open class Libtidy {
+class Libtidy {
 
     /// Indicates whether we want the output string to be indented, or not
     ///
@@ -13,7 +13,7 @@ open class Libtidy {
 
     // MARK: - Initializers
 
-    public init() {
+    init() {
         // No Op
     }
 
@@ -24,7 +24,7 @@ open class Libtidy {
     ///
     /// - Returns: Pretty string, on success, or nil, on failure
     ///
-    open func prettify(html input: String) -> String? {
+    func prettify(html input: String) -> String? {
         guard input.isEmpty == false else {
             return nil
         }
