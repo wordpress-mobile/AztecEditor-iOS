@@ -177,6 +177,11 @@ extension Libxml2 {
             return self === lastMatchingChildInParent
         }
 
+        /// Checks if the receiver is the last node in the tree.
+        ///
+        /// - Note: The verification excludes all child nodes, since this method only cares about
+        ///     siblings and parents in the tree.
+        ///
         func isLastInTree() -> Bool {
 
             guard let parent = parent else {
@@ -186,6 +191,11 @@ extension Libxml2 {
             return isLastInParent() && parent.isLastInTree()
         }
 
+        /// Checks if the receiver is the last node in a block-level ancestor.
+        ///
+        /// - Note: The verification excludes all child nodes, since this method only cares about
+        ///     siblings and parents in the tree.
+        ///
         func isLastInBlockLevelAncestor() -> Bool {
 
             guard let parent = parent else {
@@ -196,6 +206,10 @@ extension Libxml2 {
                 (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
         }
 
+        /// Retrieves the right sibling for a node.
+        ///
+        /// - Returns: the right sibling, or `nil` if none exists.
+        ///
         func rightSibling() -> ElementNode? {
 
             guard let parent = parent else {
