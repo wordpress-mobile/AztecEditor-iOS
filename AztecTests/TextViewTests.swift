@@ -436,7 +436,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<p>HelloWorld!</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -458,7 +458,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "HelloWorld!")
+        XCTAssertEqual(textView.getHTML(prettify: false), "HelloWorld!")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -480,7 +480,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<blockquote>HelloWorld!</blockquote>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<blockquote>HelloWorld!</blockquote>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -502,7 +502,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<p>HelloWorld!</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -526,7 +526,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirst<ul><li>second</li><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "Listfirst<ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -534,7 +534,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirstsecond<ul><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "Listfirstsecond<ul><li>third</li></ul>")
 
         let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
         let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
@@ -542,7 +542,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range3, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirstsecondthird")
+        XCTAssertEqual(textView.getHTML(prettify: false), "Listfirstsecondthird")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -564,7 +564,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -586,7 +586,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -606,7 +606,7 @@ class TextViewTests: XCTestCase {
         textView.selectedRange = range
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header</h1>")
     }
 
     // MARK: - Insert links
@@ -630,7 +630,7 @@ class TextViewTests: XCTestCase {
 
         textView.setLink(url, title: linkTitle, inRange: insertionRange)
 
-        XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
 
     func testToggleBlockquoteWriteOneCharAndDelete() {
@@ -660,7 +660,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("e")
         textView.insertText("r")
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header</h1>")
     }
 
     /// Tests that there is no HTML Corruption when editing text, after toggling H1 and entering two lines of text.
@@ -686,7 +686,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header<br></h1>1")
     }
 
     // MARK: - Unicode tests
