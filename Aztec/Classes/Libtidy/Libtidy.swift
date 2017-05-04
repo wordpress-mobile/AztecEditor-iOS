@@ -6,6 +6,10 @@ import libtidy
 //
 open class Libtidy {
 
+    /// Indicates whether we want the output string to be indented, or not
+    ///
+    var indentHtmlTags = false
+
 
     // MARK: - Initializers
 
@@ -14,7 +18,11 @@ open class Libtidy {
     }
 
 
+    /// Returns a pretty version of the input HTML string/
     ///
+    /// - Parameter html: HTML to-be-prettified
+    ///
+    /// - Returns: Pretty string, on success, or nil, on failure
     ///
     open func prettify(html input: String) -> String? {
         guard input.isEmpty == false else {
@@ -64,9 +72,11 @@ private extension Libtidy {
             throw TidySetupErrors.output
         }
 
-//        guard tidyOptSetInt(document, TidyIndentContent, UInt(TidyAutoState.rawValue)) == yes else {
-//            throw TidySetupErrors.indent
-//        }
+        if indentHtmlTags {
+            guard tidyOptSetInt(document, TidyIndentContent, UInt(TidyAutoState.rawValue)) == yes else {
+                throw TidySetupErrors.indent
+            }
+        }
 
         guard tidySetInCharEncoding(document, TidyConstants.utf8) >= 0 else {
             throw TidySetupErrors.encoding

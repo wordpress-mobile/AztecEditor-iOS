@@ -371,9 +371,9 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML(shouldPrettify: Bool = true) -> String {
+    open func getHTML(prettify: Bool = true) -> String {
         let rawHTML = storage.getHTML()
-        guard shouldPrettify, let prettified = Libtidy().prettify(html: rawHTML) else {
+        guard prettify, let prettified = Libtidy().prettify(html: rawHTML) else {
             return rawHTML
         }
 
