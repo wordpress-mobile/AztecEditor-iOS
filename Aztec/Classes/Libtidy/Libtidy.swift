@@ -2,7 +2,7 @@ import Foundation
 import libtidy
 
 
-// MARK: -
+// MARK: - Tidy Wrapper
 //
 open class Libtidy {
 
@@ -10,7 +10,7 @@ open class Libtidy {
     // MARK: - Initializers
 
     public init() {
-
+        // No Op
     }
 
 
@@ -45,11 +45,11 @@ open class Libtidy {
 }
 
 
-// MARK: -
+// MARK: - Private Helpers
 //
 private extension Libtidy {
 
-    ///
+    /// Sets up a Tidy Document + Buffer
     ///
     func setup(document: TidyDoc, buffer: inout TidyBuffer) throws {
         guard tidyOptSetBool(document, TidyXmlTags, yes) == yes else {
@@ -81,7 +81,7 @@ private extension Libtidy {
         }
     }
 
-    ///
+    /// Parses a plain String
     ///
     func parse(string: String, document: TidyDoc) throws {
         guard let utf8String = string.data(using: .utf8) else {
@@ -105,7 +105,7 @@ private extension Libtidy {
         }
     }
 
-    ///
+    /// Exports a Tidy Document into an UTF8 Encoded String
     ///
     func export(document: TidyDoc) throws -> String? {
         var length = uint(0)
@@ -125,7 +125,7 @@ private extension Libtidy {
 }
 
 
-// MARK: -
+// MARK: - Helpers
 //
 extension Libtidy {
 
@@ -153,6 +153,3 @@ extension Libtidy {
         case buffer
     }
 }
-
-// let test = NSString(bytes: buffer.bp, length: Int(buffer.size), encoding: String.Encoding.utf8.rawValue)
-// NSLog("Error: \(test)")
