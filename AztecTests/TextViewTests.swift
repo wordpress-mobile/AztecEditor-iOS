@@ -619,6 +619,27 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
     }
 
+    // MARK: - Backspace
+
+    /// Makes sure that backspacing in the middle of a paragraph doesn't cause any issues with the
+    /// paragraph.
+    ///
+    /// Introduced to avoid regressions with:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/457
+    ///
+    func testBackspaceInMiddleOfParagraph() {
+        let html = "<p>Hello 🌎 there!</p>"
+        let textView = createTextView(withHTML: html)
+
+        let newSelectedRange = NSRange(location: 6, length: 1)
+
+        textView.selectedRange = textView.text.utf16NSRange(from: newSelectedRange)
+        textView.deleteBackward()
+        textView.deleteBackward()
+
+        XCTAssertEqual(textView.getHTML(), "<p>Hello there!</p>")
+    }
+
     // MARK: - Insert links
 
     /// Tests that inserting a link on an empty textView works.  Also that it doesn't crash the

@@ -1333,8 +1333,9 @@ extension Libxml2 {
                 deleteCharacters(inRange: range)
             }
 
-            insert(string, atLocation: range.location)
-            return
+            if string.characters.count > 0 {
+                insert(string, atLocation: range.location)
+            }
         }
 
         /// Replace characters in targetRange by a node with the name in nodeName and attributes
