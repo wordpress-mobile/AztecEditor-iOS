@@ -275,11 +275,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
             [self.refreshControl beginRefreshing];
-        }
-        // NOTE: Sergio Estevao (2015-11-19)
-        // Clean all assets and refresh collection view when the group was changed
-        // This avoid to see data from previous group while the new one is loading.
-        [self.collectionView reloadData];
+        }        
     }
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
