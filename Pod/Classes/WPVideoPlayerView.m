@@ -1,6 +1,7 @@
 #import "WPVideoPlayerView.h"
 
 @import AVFoundation;
+#import "WPDateTimeHelpers.h"
 
 static NSString *playerItemContext = @"ItemStatusContext";
 
@@ -213,22 +214,9 @@ static CGFloat toolbarHeight = 44;
     }
     double totalSeconds = CMTimeGetSeconds(playerItem.duration);
     double currentSeconds = CMTimeGetSeconds(playerItem.currentTime);
-    NSString *totalDuration = [self stringFromTimeInterval:totalSeconds];
-    NSString *currentDuration = [self stringFromTimeInterval:currentSeconds];
+    NSString *totalDuration = [WPDateTimeHelpers stringFromTimeInterval:totalSeconds];
+    NSString *currentDuration = [WPDateTimeHelpers stringFromTimeInterval:currentSeconds];
     self.videoDurationLabel.text = [NSString stringWithFormat:timeFormatString, currentDuration, totalDuration];
-}
-
-- (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
-{
-    NSInteger roundedHours = floor(timeInterval / 3600);
-    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
-    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
-
-    if (roundedHours > 0) {
-        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
-    } else {
-        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
-    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath

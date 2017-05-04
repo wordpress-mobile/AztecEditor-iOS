@@ -54,4 +54,30 @@
     return _sharedDateWeekFormatter;
 }
 
++ (NSDateComponentsFormatter *)sharedDateComponentsFormatter {
+    static NSDateComponentsFormatter *_sharedDateComponentsFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedDateComponentsFormatter = [NSDateComponentsFormatter new];
+        _sharedDateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+        _sharedDateComponentsFormatter.allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    });
+
+    return _sharedDateComponentsFormatter;
+}
+
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSTimeInterval interval = ceil(timeInterval);
+    NSInteger hours = (interval / 3600);
+
+    if (hours > 0) {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    } else {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitMinute | NSCalendarUnitSecond);
+    }
+
+    return [[[self class] sharedDateComponentsFormatter] stringFromTimeInterval:interval];
+}
+
 @end
