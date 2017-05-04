@@ -54,18 +54,30 @@
     return _sharedDateWeekFormatter;
 }
 
-+ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
-{
-    NSInteger roundedHours = floor(timeInterval / 3600);
-    NSInteger roundedMinutes = floor((timeInterval - (3600 * roundedHours)) / 60);
-    NSInteger roundedSeconds = round(timeInterval - (roundedHours * 60 * 60) - (roundedMinutes * 60));
++ (NSDateComponentsFormatter *)sharedDateComponentsFormatter {
+    static NSDateComponentsFormatter *_sharedDateComponentsFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedDateComponentsFormatter = [NSDateComponentsFormatter new];
+        _sharedDateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+        _sharedDateComponentsFormatter.allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    });
 
-    if (roundedHours > 0) {
-        return [NSString stringWithFormat:@"%ld:%02ld:%02ld", (long)roundedHours, (long)roundedMinutes, (long)roundedSeconds];
-    } else {
-        return [NSString stringWithFormat:@"%ld:%02ld", (long)roundedMinutes, (long)roundedSeconds];
-    }
+    return _sharedDateComponentsFormatter;
 }
 
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSTimeInterval interval = ceil(timeInterval);
+    NSInteger hours = (interval / 3600);
+
+    if (hours > 0) {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    } else {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitMinute | NSCalendarUnitSecond);
+    }
+
+    return [[[self class] sharedDateComponentsFormatter] stringFromTimeInterval:interval];
+}
 
 @end
