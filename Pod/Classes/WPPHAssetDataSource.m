@@ -514,9 +514,10 @@
 @interface PHAssetCollectionForWPMediaGroup()
 
 @property(nonatomic, strong) PHAssetCollection *collection;
-@property(nonatomic) NSUInteger assetCount;
+@property(nonatomic) NSInteger assetCount;
 @property(nonatomic, strong) PHAsset *posterAsset;
 @property(nonatomic, assign) WPMediaType mediaType;
+@property(nonatomic, strong) PHFetchResult *fetchResult;
 
 @end
 
@@ -529,13 +530,8 @@
         _collection = collection;
         _mediaType = mediaType;
 
-        PHFetchOptions *fetchOptions = [PHFetchOptions new];
-        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
-        PHFetchResult *result = [PHAsset fetchKeyAssetsInAssetCollection:_collection options:fetchOptions];
-        _posterAsset = [result lastObject];
-
-        _assetCount = [[PHAsset fetchAssetsInAssetCollection:_collection options:fetchOptions] count];
-
+        _assetCount = NSNotFound;
+        _posterAsset = nil;
     }
     return self;
 }
@@ -573,7 +569,29 @@
         return count;
     }
 
+    if (self.assetCount == NSNotFound) {
+        self.assetCount = [self.fetchResult count];
+    }
+
     return self.assetCount;
+}
+
+- (PHFetchResult *)fetchResult {
+    if (!_fetchResult) {
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
+        _fetchResult = [PHAsset fetchAssetsInAssetCollection:_collection options:fetchOptions];
+
+    }
+    return _fetchResult;
+}
+
+- (PHAsset *)posterAsset {
+    if (!_posterAsset) {
+        _posterAsset = [[self fetchResult] lastObject];
+    }
+
+    return _posterAsset;
 }
 
 @end
