@@ -1101,7 +1101,10 @@ extension Libxml2 {
 
                     guard element.standardName != .br else {
                         remove(element)
-                        splitLocations.append(offset)
+
+                        if offset > 0 && offset < length() {
+                            splitLocations.append(offset)
+                        }
 
                         continue
                     }
