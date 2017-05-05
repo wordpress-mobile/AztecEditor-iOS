@@ -443,13 +443,15 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
        (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
     {
-        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
-        if (self.captureCell.gestureRecognizers == nil) {
-            UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
-            [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+        if (!self.captureCell) {
+            self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
+            if (self.captureCell.gestureRecognizers == nil) {
+                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+                [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+            }
+            self.captureCell.preferFrontCamera = self.preferFrontCamera;
+            [self.captureCell startCapture];
         }
-        self.captureCell.preferFrontCamera = self.preferFrontCamera;
-        [self.captureCell startCapture];
         return self.captureCell;
     }
 
