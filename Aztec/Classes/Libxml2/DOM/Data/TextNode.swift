@@ -28,6 +28,18 @@ extension Libxml2 {
         override func length() -> Int {
             return contents.characters.count
         }
+
+        // MARK: - Node
+
+        /// Checks if the specified node requires a closing paragraph separator.
+        ///
+        override func needsClosingParagraphSeparator() -> Bool {
+            guard length() > 0 else {
+                return false
+            }
+
+            return super.needsClosingParagraphSeparator()
+        }
         
         // MARK: - Editing: Atomic Operations
         
