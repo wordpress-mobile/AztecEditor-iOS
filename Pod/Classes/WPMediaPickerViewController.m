@@ -169,6 +169,16 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self setupLayout];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [self.captureCell stopCaptureOnCompletion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.captureCell startCapture];
+}
+
 #pragma mark - Actions
 
 - (void)pullToRefresh:(id)sender
@@ -275,11 +285,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
             [self.refreshControl beginRefreshing];
-        }
-        // NOTE: Sergio Estevao (2015-11-19)
-        // Clean all assets and refresh collection view when the group was changed
-        // This avoid to see data from previous group while the new one is loading.
-        [self.collectionView reloadData];
+        }        
     }
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
@@ -447,13 +453,15 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
        (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
     {
-        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
-        if (self.captureCell.gestureRecognizers == nil) {
-            UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
-            [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+        if (!self.captureCell) {
+            self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
+            if (self.captureCell.gestureRecognizers == nil) {
+                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+                [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+            }
+            self.captureCell.preferFrontCamera = self.preferFrontCamera;
+            [self.captureCell startCapture];
         }
-        self.captureCell.preferFrontCamera = self.preferFrontCamera;
-        [self.captureCell startCapture];
         return self.captureCell;
     }
 
@@ -572,22 +580,6 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
 }
 
-- (void)animateCaptureCellSelection:(UIView *)cell completion:(void (^)())completionBlock
-{
-    [UIView animateKeyframesWithDuration:0.5 delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
-        [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:1 animations:^{
-            CGRect frame = self.view.frame;
-            frame.origin.x += self.collectionView.contentOffset.x;
-            frame.origin.y += self.collectionView.contentOffset.y;
-            cell.frame = frame;
-        }];
-    } completion:^(BOOL finished) {
-        if(completionBlock){
-            completionBlock();
-        }
-    }];
-}
-
 #pragma mark - Media Capture
 
 - (BOOL)isMediaDeviceAvailable
@@ -618,9 +610,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
-    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
-
-    }];
+    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 - (UIImagePickerControllerCameraDevice)cameraDevice
@@ -740,8 +730,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [picker dismissViewControllerAnimated:YES completion:^{
-    }];
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)setGroup:(id<WPMediaGroup>)group {
