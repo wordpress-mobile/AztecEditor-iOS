@@ -122,7 +122,11 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)configureAccessibility
 {
     NSString *accessibilityLabel = @"";
-    NSString *formattedDate = [NSString stringWithFormat:@"%@ %@",[WPDateTimeHelpers userFriendlyStringDateFromDate:_asset.date], [WPDateTimeHelpers userFriendlyStringTimeFromDate:_asset.date]];
+    NSString *formattedDate = NSLocalizedString(@"Unknow creation date", @"Label to use when creation date from media asset is not know.");
+    NSDate *assetDate = _asset.date;
+    if (assetDate) {
+        formattedDate = [NSString stringWithFormat:@"%@ %@",[WPDateTimeHelpers userFriendlyStringDateFromDate:assetDate], [WPDateTimeHelpers userFriendlyStringTimeFromDate:assetDate]];
+    }
 
     switch (self.asset.assetType) {
         case WPMediaTypeImage:
