@@ -50,5 +50,8 @@
     XCTAssertEqualObjects(@"1:01:07", result);
 }
 
+- (void)testUserFriendlyStringDateFromDate {    
+    XCTAssertThrows([WPDateTimeHelpers userFriendlyStringDateFromDate:nil]);
+}
 @end
 

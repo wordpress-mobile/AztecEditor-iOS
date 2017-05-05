@@ -3,6 +3,7 @@
 @implementation WPDateTimeHelpers
 
 + (NSString *)userFriendlyStringDateFromDate:(NSDate *)date {
+    NSAssert(date != nil, @"Date cannot be nil");
     NSDate *now = [NSDate date];
     NSString *dateString = [[[self class] sharedDateFormatter] stringFromDate:date];
 
@@ -19,6 +20,7 @@
 }
 
 + (NSString *)userFriendlyStringTimeFromDate:(NSDate *)date {
+    NSAssert(date != nil, @"Date cannot be nil");
     return [[[self class] sharedTimeFormatter] stringFromDate:date];
 }
 
