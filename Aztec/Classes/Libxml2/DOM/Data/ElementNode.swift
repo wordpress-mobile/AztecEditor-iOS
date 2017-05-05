@@ -31,6 +31,7 @@ extension Libxml2 {
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
+        static let elementsThatSpanASingleLine: [StandardElementType] = [.li]
         
         // MARK: - Initializers
 
@@ -1085,6 +1086,42 @@ extension Libxml2 {
             return result
         }
 
+        /// Splits this node wherever there's a break.  Propagates to children.
+        ///
+        /// - Returns: the locations where this node was split.
+        ///
+        @discardableResult
+        private func splitAtBreaks() -> [Int] {
+
+            var offset = 0
+            var splitLocations = [Int]()
+
+            for node in children {
+                if let element = node as? ElementNode {
+
+                    guard element.standardName != .br else {
+                        remove(element)
+                        splitLocations.append(offset)
+
+                        continue
+                    }
+
+                    let childSplitLocations = element.splitAtBreaks()
+                    splitLocations.append(contentsOf: childSplitLocations)
+                }
+
+                offset = offset + node.length()
+            }
+
+            // We need to split starting at the last position to avoid going out of bounds.
+            //
+            for splitLocation in splitLocations.reversed() {
+                split(atLocation: splitLocation)
+            }
+
+            return splitLocations
+        }
+
         /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
         /// node, inserting all the receivers children to it, and adding the receiver to its
         /// grandparent node.
@@ -1581,6 +1618,12 @@ extension Libxml2 {
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
                 finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
+            }
+
+            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
+                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
+
+                finalWrapper.splitAtBreaks()
             }
 
             return finalWrapper
