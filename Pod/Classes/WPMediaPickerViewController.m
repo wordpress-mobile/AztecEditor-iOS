@@ -570,22 +570,6 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
 }
 
-- (void)animateCaptureCellSelection:(UIView *)cell completion:(void (^)())completionBlock
-{
-    [UIView animateKeyframesWithDuration:0.5 delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
-        [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:1 animations:^{
-            CGRect frame = self.view.frame;
-            frame.origin.x += self.collectionView.contentOffset.x;
-            frame.origin.y += self.collectionView.contentOffset.y;
-            cell.frame = frame;
-        }];
-    } completion:^(BOOL finished) {
-        if(completionBlock){
-            completionBlock();
-        }
-    }];
-}
-
 #pragma mark - Media Capture
 
 - (BOOL)isMediaDeviceAvailable
