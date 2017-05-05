@@ -3,7 +3,26 @@ All notable changes to this project will be documented in this file.
 `WPMediaPicker` adheres to [Semantic Versioning](http://semver.org/).
 
 #### 0.x Releases
+- `0.16` Releases - [0.16](#16)
 - `0.15` Releases - [0.15](#15)
+
+---
+
+## [0.16](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.16)
+Released on 2017-05-04. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.16).
+
+#### Added
+- A title to the default asset preview view controller, showing the date of the asset.
+- The media picker can now handle non-image and non-video assets, such as PDFs. The cells in the picker will show a placeholder icon, the file type, and filename.
+- The media picker will show a placeholder icon if an image or video fails to load.
+
+### Fixed
+- Video is now captured in high quality.
+- The picker's layout is now improved on iPad, for more consistent cell spacing.
+- The group picker should now be much faster to load and scroll for PHAssetCollections.
+- Date / time formatting code has been refactored / cleaned up a little, and should now better handle different locales.
+- Optimized the loading and caching of group thumbnails.
 
 ---
 
