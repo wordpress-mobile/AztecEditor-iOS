@@ -55,16 +55,22 @@
 - (void)stopCaptureOnCompletion:(void (^)(void))block
 {
     if (!self.session) {
-        dispatch_async(dispatch_get_main_queue(), block);
+        if (block) {
+            dispatch_async(dispatch_get_main_queue(), block);
+        }
         return;
     }
-    self.captureVideoPreviewLayer.connection.enabled = NO;
+
     dispatch_async(self.sessionQueue, ^{
         if ([self.session isRunning]){
             [self.session stopRunning];
             self.session = nil;
+            [self.captureVideoPreviewLayer removeFromSuperlayer];
+            self.captureVideoPreviewLayer = nil;
         }
-        dispatch_async(dispatch_get_main_queue(), block);
+        if (block) {
+            dispatch_async(dispatch_get_main_queue(), block);
+        }
     });
 }
 
@@ -93,16 +99,18 @@
                 return;
             }
         }
-        if (!self.session.isRunning){
+        if (!self.session.isRunning ||  !self.captureVideoPreviewLayer.connection.enabled){
             [self.session startRunning];
-            self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.captureVideoPreviewLayer removeFromSuperlayer];
-                CALayer *viewLayer = self.previewView.layer;
-                self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-                self.captureVideoPreviewLayer.frame = viewLayer.bounds;
-                self.captureVideoPreviewLayer.connection.videoOrientation = [self videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-                [viewLayer addSublayer:_captureVideoPreviewLayer];
+                if (!self.captureVideoPreviewLayer || !self.captureVideoPreviewLayer.connection.enabled) {
+                    [self.captureVideoPreviewLayer removeFromSuperlayer];
+                    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+                    CALayer *viewLayer = self.previewView.layer;
+                    self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+                    self.captureVideoPreviewLayer.frame = viewLayer.bounds;
+                    self.captureVideoPreviewLayer.connection.videoOrientation = [self videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                    [viewLayer addSublayer:_captureVideoPreviewLayer];
+                }
             });
         }
     });
