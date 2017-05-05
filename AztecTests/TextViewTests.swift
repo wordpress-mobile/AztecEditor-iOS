@@ -717,7 +717,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>1")
     }
 
     // MARK: - Unicode tests
@@ -1142,7 +1142,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 
 
@@ -1328,7 +1328,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 }
 

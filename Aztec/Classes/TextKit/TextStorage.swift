@@ -163,25 +163,23 @@ open class TextStorage: NSTextStorage {
 
         attributedString.enumerateAttribute(NSParagraphStyleAttributeName, in: fullRange, options: []) { (value, subRange, stop) in
 
-            guard let paragraphStyle = value as? ParagraphStyle else {
+            guard value is ParagraphStyle else {
                 return
             }
 
-            if paragraphStyle.textList != nil {
-                var newlineRange = finalString.mutableString.range(of: String(.newline))
+            var newlineRange = finalString.mutableString.range(of: String(.newline))
 
-                while newlineRange.location != NSNotFound {
+            while newlineRange.location != NSNotFound {
 
-                    let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
+                let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
 
-                    finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
+                finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
 
-                    let nextLocation = newlineRange.location + newlineRange.length
-                    let nextLength = subRange.length - nextLocation
-                    let nextRange = NSRange(location: nextLocation, length: nextLength)
+                let nextLocation = newlineRange.location + newlineRange.length
+                let nextLength = subRange.length - nextLocation
+                let nextRange = NSRange(location: nextLocation, length: nextLength)
 
-                    newlineRange = finalString.mutableString.range(of: String(.newline), options: [], range: nextRange)
-                }
+                newlineRange = finalString.mutableString.range(of: String(.newline), options: [], range: nextRange)
             }
         }
 
@@ -254,8 +252,18 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Overriden Methods
 
+    /// Retrieves the attributes for the requested character location.
+    ///
+    /// - Important: please note that this method returns the style at the character location, and
+    ///     NOT at the caret location.  For N characters we always have N+1 character locations.
+    ///
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
-        return textStore.length == 0 ? [:] : textStore.attributes(at: location, effectiveRange: range)
+
+        guard textStore.length > 0 else {
+            return [:]
+        }
+
+        return textStore.attributes(at: location, effectiveRange: range)
     }
  
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -269,7 +277,7 @@ open class TextStorage: NSTextStorage {
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
 
-        edited(.editedCharacters, range: range, changeInLength: string.characters.count - range.length)
+        edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
         endEditing()
     }
