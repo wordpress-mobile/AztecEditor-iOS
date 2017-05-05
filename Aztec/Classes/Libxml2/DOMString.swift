@@ -94,7 +94,7 @@ extension Libxml2 {
         
         /// Gets the HTML representation of the DOM.
         ///
-        func getHTML() -> String {
+        func getHTML(prettify: Bool = true) -> String {
             
             var result: String = ""
             
@@ -103,9 +103,12 @@ extension Libxml2 {
                 guard let strongSelf = self else {
                     return
                 }
-                
-                let converter = Libxml2.Out.HTMLConverter()
-                result = converter.convert(strongSelf.rootNode)
+
+                if prettify {
+                    result = Libxml2.Out.HTMLPrettyConverter().convert(strongSelf.rootNode)
+                } else {
+                    result = Libxml2.Out.HTMLConverter().convert(strongSelf.rootNode)
+                }
             }
             
             return result

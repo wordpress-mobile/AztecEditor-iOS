@@ -369,8 +369,8 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML() -> String {
-        return storage.getHTML()
+    open func getHTML(prettify: Bool = true) -> String {
+        return storage.getHTML(prettify: prettify)
     }
 
 
