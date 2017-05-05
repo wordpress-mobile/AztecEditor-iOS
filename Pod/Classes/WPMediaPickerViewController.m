@@ -601,7 +601,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
-
+        [self.captureCell stopCaptureOnCompletion:nil];
     }];
 }
 
@@ -717,12 +717,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     [picker dismissViewControllerAnimated:YES completion:^{
         [self processMediaCaptured:info];
+        [self.captureCell startCapture];
     }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [picker dismissViewControllerAnimated:YES completion:^{
+        [self.captureCell startCapture];
     }];
 }
 
