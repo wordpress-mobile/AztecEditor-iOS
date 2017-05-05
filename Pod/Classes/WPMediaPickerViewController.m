@@ -169,6 +169,16 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self setupLayout];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [self.captureCell stopCaptureOnCompletion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.captureCell startCapture];
+}
+
 #pragma mark - Actions
 
 - (void)pullToRefresh:(id)sender
@@ -600,9 +610,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
-    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
-        [self.captureCell stopCaptureOnCompletion:nil];
-    }];
+    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 - (UIImagePickerControllerCameraDevice)cameraDevice
@@ -717,15 +725,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     [picker dismissViewControllerAnimated:YES completion:^{
         [self processMediaCaptured:info];
-        [self.captureCell startCapture];
     }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [picker dismissViewControllerAnimated:YES completion:^{
-        [self.captureCell startCapture];
-    }];
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)setGroup:(id<WPMediaGroup>)group {
