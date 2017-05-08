@@ -342,17 +342,15 @@ open class TextStorage: NSTextStorage {
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
 
-        let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
-
-        if range.length > 0 || domString.length > 0 {
-            dom.replaceCharacters(inRange: range, withString: domString.string)
+        if range.length > 0 || attrString.length > 0 {
+            dom.replaceCharacters(inRange: range, withString: attrString.string)
         }
 
         print("Pre: \(dom.getHTML())")
-        if domString.length > 0 {
-            applyStylesToDom(from: domString, startingAt: range.location)
+        if attrString.length > 0 {
+            applyStylesToDom(from: attrString, startingAt: range.location)
         }
-        print("Pos: \(dom.getHTML())")
+        print("Post: \(dom.getHTML())")
     }
 
     // MARK: - DOM: Applying Styles
