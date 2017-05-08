@@ -66,9 +66,9 @@ extension Libxml2 {
         private lazy var domEditor: DOMEditor = {
             return DOMEditor(with: self.rootNode)
         }()
-        
+
         // MARK: - Init & deinit
-        
+
         deinit {
             stopObservingParentUndoManager()
         }
@@ -89,7 +89,7 @@ extension Libxml2 {
 
             return result
         }
-        
+
         // MARK: - Settings & Getting HTML
         
         /// Gets the HTML representation of the DOM.

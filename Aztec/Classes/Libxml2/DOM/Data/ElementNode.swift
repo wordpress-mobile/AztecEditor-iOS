@@ -66,10 +66,6 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            guard isSupportedByEditor() else {
-                return defaultLengthForUnsupportedElements
-            }
-
             return text().characters.count
         }
 
@@ -817,7 +813,11 @@ extension Libxml2 {
         }
         
         override func text() -> String {
-            
+
+            guard isSupportedByEditor() else {
+                return String(.objectReplacement)
+            }
+
             if let nodeType = standardName,
                 let implicitRepresentation = nodeType.implicitRepresentation() {
                 
