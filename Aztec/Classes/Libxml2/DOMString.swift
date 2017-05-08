@@ -232,6 +232,26 @@ extension Libxml2 {
                 strongSelf.domUndoManager.endUndoGrouping()
             }
         }
+
+        /// We have some special setup we need to take care of before registering undo operations.
+        /// This method takes care of hooking up an undo operation in the client-provided undo
+        /// manager with an undo operation in the DOM undo manager.
+        ///
+        /// Parameters:
+        ///     - task: the task to execute that contains undo operations.
+        ///
+        private func performSyncUndoable(task: @escaping () -> ()) {
+            domQueue.sync { [weak self] in
+
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.domUndoManager.beginUndoGrouping()
+                task()
+                strongSelf.domUndoManager.endUndoGrouping()
+            }
+        }
         
         /// Make our private undo manager start observing the parent undo manager.  This means
         /// our private undo manager will basically be connected to the parent one to know when
@@ -367,10 +387,15 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        func removeOrderedList(spanning range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.removeOrderedListSynchronously(spanning: range)
+        func removeOrderedList(spanning range: NSRange) -> NSRange {
+
+            var finalRange = range
+
+            performSyncUndoable { [unowned self] in
+                finalRange = self.removeOrderedListSynchronously(spanning: range)
             }
+
+            return finalRange
         }
 
         /// Disables unordered list from the specified range.
@@ -378,10 +403,15 @@ extension Libxml2 {
         /// - Parameters:
         ///     - range: the range to remove the style from.
         ///
-        func removeUnorderedList(spanning range: NSRange) {
-            performAsyncUndoable { [weak self] in
-                self?.removeUnorderedListSynchronously(spanning: range)
+        func removeUnorderedList(spanning range: NSRange) -> NSRange {
+
+            var finalRange = range
+
+            performSyncUndoable { [unowned self] in
+                finalRange = self.removeUnorderedListSynchronously(spanning: range)
             }
+
+            return finalRange
         }
 
         /// Disables blockquote from the specified range.
@@ -460,14 +490,14 @@ extension Libxml2 {
             domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.u.equivalentNames)
         }
 
-        private func removeOrderedListSynchronously(spanning range: NSRange) {
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ol.equivalentNames)
+        private func removeOrderedListSynchronously(spanning range: NSRange) -> NSRange {
+            let intermediateRange = domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ol.equivalentNames)
+            return domEditor.unwrap(range: intermediateRange, fromElementsNamed: StandardElementType.li.equivalentNames)
         }
 
-        private func removeUnorderedListSynchronously(spanning range: NSRange) {
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.li.equivalentNames)
-            domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ul.equivalentNames)
+        private func removeUnorderedListSynchronously(spanning range: NSRange) -> NSRange {
+            let intermediateRange = domEditor.unwrap(range: range, fromElementsNamed: StandardElementType.ul.equivalentNames)
+            return domEditor.unwrap(range: intermediateRange, fromElementsNamed: StandardElementType.li.equivalentNames)
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
