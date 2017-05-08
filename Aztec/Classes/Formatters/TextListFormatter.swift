@@ -31,10 +31,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if newParagraphStyle.textLists.last == nil {
-            newParagraphStyle.headIndent += Metrics.listTextIndentation
-            newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
-        }
+        newParagraphStyle.headIndent += Metrics.listTextIndentation
+        newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
 
         newParagraphStyle.textLists.append(TextList(style: self.listStyle))
 
