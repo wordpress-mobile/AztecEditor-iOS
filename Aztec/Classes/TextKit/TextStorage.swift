@@ -335,33 +335,17 @@ open class TextStorage: NSTextStorage {
             fatalError()
         }
 
-        let targetDomRange = string.map(visualUTF16Range: swiftRange)
-
-        if targetDomRange.length > 0 || str.characters.count > 0 {
-            dom.replaceCharacters(inRange: targetDomRange, withString: str)
+        if swiftRange.length > 0 || str.characters.count > 0 {
+            dom.replaceCharacters(inRange: swiftRange, withString: str)
         }
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
 
-        let targetDomRange = string.map(visualUTF16Range: range)
-
-        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
-            fatalError()
-        }
-
         let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
 
-        if targetDomRange.length > 0 || domString.length > 0 {
-            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
-        }
-
-        if attrString.string == String(.paragraphSeparator) {
-            dom.addBlockSeparator(at: targetDomRange.location)
-        }
-
-        if targetDomRange.length != swiftRange.length {
-            dom.deleteBlockSeparator(at: targetDomRange.location)
+        if range.length > 0 || domString.length > 0 {
+            dom.replaceCharacters(inRange: range, withString: domString.string)
         }
 
         print("Pre: \(dom.getHTML())")
@@ -387,13 +371,11 @@ open class TextStorage: NSTextStorage {
 
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
-            let domRange = textStore.string.map(visualUTF16Range: subRange)
-
-            guard domRange.length > 0 else {
+            guard subRange.length > 0 else {
                 return
             }
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            processAttributesDifference(in: subRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -412,15 +394,13 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = [String:Any]()
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let domLocation = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
-
         let canMergeLeft = location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: location) : false
         let canMergeRight = location < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: location) : false
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
 
             guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
@@ -924,12 +904,8 @@ open class TextStorage: NSTextStorage {
         attachment.size = size
         attachment.url = url
         let rangesForAttachment = ranges(forAttachment:attachment)
-
-        let domRanges = rangesForAttachment.map { range -> NSRange in
-            string.map(visualUTF16Range: range)
-        }
         
-        dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
+        dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
     }
 
     /// Removes the attachments that match the attachament identifier provided from the storage

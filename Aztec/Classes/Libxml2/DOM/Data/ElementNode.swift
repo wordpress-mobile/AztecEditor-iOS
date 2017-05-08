@@ -823,11 +823,17 @@ extension Libxml2 {
                 
                 return implicitRepresentation.string
             }
-            
+
             var text = ""
+
             for child in children {
                 text = text + child.text()
             }
+
+            if isBlockLevelElement() {
+                text.append(String(.paragraphSeparator))
+            }
+
             return text
         }
 
@@ -849,6 +855,10 @@ extension Libxml2 {
             }
 
             return text
+        }
+
+        func visualText() {
+            
         }
 
         // MARK: - DOM modification
