@@ -280,10 +280,17 @@ open class TextView: UITextView {
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
-
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
+
+        // For some reason the text view is allowing the attachment style to be set in
+        // typingAttributes.  That's simply not acceptable.
+        //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
+        typingAttributes[NSAttachmentAttributeName] = nil
 
         guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
