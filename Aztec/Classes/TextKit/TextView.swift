@@ -287,6 +287,9 @@ open class TextView: UITextView {
         // For some reason the text view is allowing the attachment style to be set in
         // typingAttributes.  That's simply not acceptable.
         //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
         typingAttributes[NSAttachmentAttributeName] = nil
 
         guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
