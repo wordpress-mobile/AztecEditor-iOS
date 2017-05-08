@@ -66,7 +66,7 @@ extension NSAttributedString
         let targetRange = rangeOfEntireString
         guard
             let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-            let foundList = paragraphStyle.textList,
+            let foundList = paragraphStyle.textLists.last,
             foundList == list
         else {
             return nil
@@ -78,7 +78,7 @@ extension NSAttributedString
         while resultRange.location > 0 {
             if
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textList,
+                let foundList = paragraphStyle.textLists.last,
                 foundList == list {
                 resultRange = resultRange.union(withRange: effectiveRange)
             } else {
@@ -88,7 +88,7 @@ extension NSAttributedString
         while resultRange.endLocation < self.length {
             if
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textList,
+                let foundList = paragraphStyle.textLists.last,
                 foundList == list {
                 resultRange = resultRange.union(withRange: effectiveRange)
             } else {
@@ -177,7 +177,7 @@ extension NSAttributedString
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.textList
+        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.textLists.last
     }
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
@@ -196,7 +196,7 @@ extension NSAttributedString
 
         enumerateAttribute(NSParagraphStyleAttributeName, in: range, options: []) { (attribute, range, stop) in
             if let paragraphStyle = attribute as? ParagraphStyle {
-                list = paragraphStyle.textList
+                list = paragraphStyle.textLists.last
             }
             stop.pointee = true
         }
