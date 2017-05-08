@@ -100,11 +100,18 @@ extension Libxml2 {
         ///     - range: the range of text to delete.
         ///
         private func deleteCharacters(in element: ElementNode, spanning range: NSRange) {
+
             assert(!(element is RootNode))
+            assert(range.length > 0)
 
             if range.location == 0 && range.length == element.length() {
                 element.removeFromParent()
             } else {
+
+                if element.isBlockLevelElement() && range.location + range.length == element.length() {
+                    mergeRight(element)
+                }
+
                 let childrenAndIntersections = element.childNodes(intersectingRange: range)
 
                 for (child, intersection) in childrenAndIntersections {
