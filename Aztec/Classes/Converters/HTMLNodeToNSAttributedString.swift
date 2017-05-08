@@ -50,6 +50,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
 
+        let string = convertContents(of: node, inheritingAttributes: attributes)
+
+        guard node.needsClosingParagraphSeparator() else {
+            return string
+        }
+
+        return appendParagraphSeparator(to: string, inheritingAttributes: attributes)
+    }
+
+    private func convertContents(of node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return convertTextNode(textNode, inheritingAttributes: attributes)
@@ -75,13 +85,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             return NSAttributedString()
         }
 
-        let content = NSMutableAttributedString(string: node.text(), attributes: inheritedAttributes)
-
-        if node.isLastInBlockLevelElement() {
-            content.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
-        }
-
-        return content
+        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -120,6 +124,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }
+
+    // MARK: - Paragraph Separator
+
+    private func appendParagraphSeparator(to string: NSAttributedString, inheritingAttributes inheritedAttributes: [String: Any]) -> NSAttributedString {
+
+        let stringWithSeparator = NSMutableAttributedString(attributedString: string)
+
+        stringWithSeparator.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
+
+        return NSAttributedString(attributedString: stringWithSeparator)
+    }
+
 
     // MARK: - Node Styling
 

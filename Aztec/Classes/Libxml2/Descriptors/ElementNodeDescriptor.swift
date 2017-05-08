@@ -15,26 +15,27 @@ extension Libxml2 {
         let canMergeRight: Bool
 
         // MARK: - CustomReflectable
-        
+
         public override var customMirror: Mirror {
             get {
                 return Mirror(self, children: ["name": name, "attributes": attributes, "matchingNames": matchingNames])
             }
         }
-        
+
         init(name: String, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], matchingNames: [String] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
             self.attributes = attributes
             self.canMergeLeft = canMergeLeft
             self.canMergeRight = canMergeRight
             self.childDescriptor = childDescriptor
             self.matchingNames = matchingNames
+
             super.init(name: name)
         }
 
-        convenience init(elementType: StandardElementType, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true) {
+        convenience init(elementType: StandardElementType, childDescriptor: ElementNodeDescriptor? = nil, attributes: [Attribute] = [], canMergeLeft: Bool = true, canMergeRight: Bool = true, endsWithVisualNewline: Bool = false) {
             self.init(name: elementType.rawValue, childDescriptor: childDescriptor, attributes: attributes, matchingNames: elementType.equivalentNames, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         }
-        
+
         // MARK: - Introspection
         
         func isBlockLevel() -> Bool {

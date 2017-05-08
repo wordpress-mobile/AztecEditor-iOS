@@ -69,8 +69,12 @@ class BlockquoteFormatterTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
         let original = textView.storage.copy() as! NSAttributedString
-        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
-        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
+
+        let toggleRange = NSUnionRange(paragraphs[0], paragraphs[1])
+
+        formatter.toggle(in: storage, at: toggleRange)
+        formatter.toggle(in: storage, at: toggleRange)
+
         XCTAssertTrue(original.isEqual(to: textView.storage))
     }
 

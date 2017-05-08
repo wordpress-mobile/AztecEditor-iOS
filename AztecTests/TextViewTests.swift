@@ -403,15 +403,23 @@ class TextViewTests: XCTestCase {
         textView.insertText("\n")
     }
 
+    /// Tests that a visual newline is not added at EoF
+    ///
+    func testNewlineNotAddedAtEof() {
+        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+
+        XCTAssertEqual(textView.text, "Testing bold newlines")
+    }
+
     /// Tests that the visual newline is shown at the correct position.
     ///
     /// Added to avoid regressions to the bug reported here:
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/387
     ///
     func testNewlineRenderedAtTheCorrectPosition() {
-        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>Hey!")
 
-        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))")
+        XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))Hey!")
     }
 
 
@@ -429,6 +437,8 @@ class TextViewTests: XCTestCase {
     func testDeleteNewline() {
 
         let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
+
+        print(textView.storage.getHTML())
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -592,14 +602,14 @@ class TextViewTests: XCTestCase {
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
     ///
     /// Input:
-    ///     - Initial HTML: "<h1>Header</h1>\n"
+    ///     - Initial HTML: "<h1>Header</h1><br>"
     ///     - Deletion range: (loc: 5, len 1)
     ///
     /// Output:
     ///     - Final HTML: "<h1>Header</h1>"
     ///
     func testDeleteNewlineAtEndOfText() {
-        let html = "<h1>Header</h1>\n"
+        let html = "<h1>Header</h1><br>"
         let textView = createTextView(withHTML: html)
 
         let range = NSRange(location: textView.text.characters.count, length:0)
@@ -707,7 +717,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header<br></h1>1")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>1")
     }
 
     // MARK: - Unicode tests
@@ -1132,7 +1142,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 
 
@@ -1318,7 +1328,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.newline))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 }
 
