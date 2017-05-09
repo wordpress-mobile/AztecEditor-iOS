@@ -84,7 +84,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     ///
     private func export(textNode node: TextNode) -> String {
-        return node.text()
+        return node.text().htmlEncoded
     }
 
     ///
@@ -103,7 +103,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     func export(attribute: Attribute) -> String {
         switch attribute {
-        case let stringAttribute as StringAttribute:
+        case let stringAttribute as StringAttribute where !isBooleanAttribute(name: attribute.name):
             return export(stringAttribute: stringAttribute)
         default:
             return export(rawAttribute: attribute)
@@ -121,6 +121,12 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     private func export(rawAttribute: Attribute) -> String {
         return rawAttribute.name
     }
+
+    /// HTMLTree.c // htmlIsBooleanAttr() // Used by htmlAttrDumpOutput
+    ///
+    private func isBooleanAttribute(name: String) -> Bool {
+        return Constants.booleanAttributes.contains(name)
+    }
 }
 
 
@@ -132,6 +138,29 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
         /// Ref. http://w3c.github.io/html/syntax.html#void-elements
         ///
-        static let voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
+        static let voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+                                   "meta", "param", "source", "track", "wbr"]
+
+        /// Ref. https://opensource.apple.com/tarballs/libxml2/libxml2-8.tar.gz
+        ///
+        static let booleanAttributes = ["checked", "compact", "declare", "defer", "disabled", "ismap",
+                                        "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
+                                        "selected"]
+    }
+}
+
+
+//
+//
+extension String {
+
+    ///
+    ///
+    public var htmlEncoded: String {
+        return replacingOccurrences(of: "&", with: "&amp;")
+                .replacingOccurrences(of: "<", with: "&lt;")
+                .replacingOccurrences(of: ">", with: "&gt;")
+                .replacingOccurrences(of: "\"", with: "&quot;")
+                .replacingOccurrences(of: "\'", with: "&apos;")
     }
 }
