@@ -96,22 +96,23 @@ extension Libxml2 {
         ///
         func getHTML(prettify: Bool = true) -> String {
             
-            var result: String = ""
+            var output = ""
             
             domQueue.sync { [weak self] in
-                
-                guard let strongSelf = self else {
+
+                guard let rootNode = self?.rootNode else {
                     return
                 }
 
-                if prettify {
-                    result = Libxml2.Out.HTMLPrettyConverter().convert(strongSelf.rootNode)
-                } else {
-                    result = Libxml2.Out.HTMLConverter().convert(strongSelf.rootNode)
+                guard prettify else {
+                    output = Libxml2.Out.HTMLConverter().convert(rootNode)
+                    return
                 }
+
+                output = Libxml2.Out.HTMLPrettyConverter().convert(rootNode)
             }
             
-            return result
+            return output
         }
         
         /// Sets the HTML for the DOM.
