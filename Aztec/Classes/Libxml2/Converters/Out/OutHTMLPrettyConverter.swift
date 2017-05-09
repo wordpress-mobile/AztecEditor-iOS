@@ -84,7 +84,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     ///
     private func export(textNode node: TextNode) -> String {
-        return node.text().htmlEncoded
+        return node.text().escapeHtmlEntities().encodeUnicodeCharactersAsHexadecimal()
     }
 
     ///
@@ -146,21 +146,5 @@ private extension Libxml2.Out.HTMLPrettyConverter {
         static let booleanAttributes = ["checked", "compact", "declare", "defer", "disabled", "ismap",
                                         "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
                                         "selected"]
-    }
-}
-
-
-//
-//
-extension String {
-
-    ///
-    ///
-    public var htmlEncoded: String {
-        return replacingOccurrences(of: "&", with: "&amp;")
-                .replacingOccurrences(of: "<", with: "&lt;")
-                .replacingOccurrences(of: ">", with: "&gt;")
-                .replacingOccurrences(of: "\"", with: "&quot;")
-                .replacingOccurrences(of: "\'", with: "&apos;")
     }
 }
