@@ -1,10 +1,14 @@
 import Foundation
 import libxml2
 
+
+// MARK: - HTML Prettifier!
+//
 extension Libxml2.Out {
     class HTMLPrettyConverter: Converter {
 
         typealias Attribute = Libxml2.Attribute
+        typealias StringAttribute = Libxml2.StringAttribute
         typealias ElementNode = Libxml2.ElementNode
         typealias Node = Libxml2.Node
         typealias TextNode = Libxml2.TextNode
@@ -19,7 +23,6 @@ extension Libxml2.Out {
             // No Op
         }
 
-
         ///
         ///
         func convert(_ rawNode: Node) -> String {
@@ -31,7 +34,7 @@ extension Libxml2.Out {
 }
 
 
-// MARK: - Private
+// MARK: - Export: Nodes
 //
 private extension Libxml2.Out.HTMLPrettyConverter {
 
@@ -40,11 +43,11 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     func export(node: Node) -> String {
         switch node {
         case let commentNode as CommentNode:
-            return "\n" + createCommentNode(commentNode)
+            return export(commentNode: commentNode)
         case let elementNode as ElementNode:
-            return "\n" + createElementNode(elementNode)
+            return export(elementNode: elementNode)
         case let textNode as TextNode:
-            return createTextNode(textNode)
+            return export(textNode: textNode)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
@@ -52,36 +55,83 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     ///
     ///
-    func createElementNode(_ rawNode: ElementNode) -> String {
-        guard rawNode.children.isEmpty == false else {
-            return "<" + rawNode.name + " />"
+    private func export(commentNode node: CommentNode) -> String {
+        return "<!--" + node.comment + "-->"
+    }
+
+    ///
+    ///
+    private func export(elementNode node: ElementNode) -> String {
+        var attributes = ""
+        for attribute in node.attributes {
+            attributes += String(.space) + export(attribute: attribute)
         }
 
-        var string = "<" + rawNode.name + ">"
-//        let attributeConverter = AttributeConverter(forNode: node)
+        var html = "<" + node.name + attributes + ">"
+        guard !isVoidElementNode(elementNode: node) else {
+            return html
+        }
+
+        for child in node.children {
+            html += export(node: child)
+        }
+
+        html += "</" + node.name + ">"
+
+        return html
+    }
+
+    ///
+    ///
+    private func export(textNode node: TextNode) -> String {
+        return node.text()
+    }
+
+    ///
+    ///
+    private func isVoidElementNode(elementNode node: ElementNode) -> Bool {
+        return Constants.voidElements.contains(node.name)
+    }
+}
+
+
+// MARK: - Export: Attributes
 //
-//        for rawAttribute in rawNode.attributes {
-//            let _ = attributeConverter.convert(rawAttribute)
-//        }
+private extension Libxml2.Out.HTMLPrettyConverter {
 
-        for child in rawNode.children {
-            string += export(node: child)
+    ///
+    ///
+    func export(attribute: Attribute) -> String {
+        switch attribute {
+        case let stringAttribute as StringAttribute:
+            return export(stringAttribute: stringAttribute)
+        default:
+            return export(rawAttribute: attribute)
         }
-
-        string += "</" + rawNode.name + ">"
-
-        return string
     }
 
     ///
     ///
-    func createTextNode(_ rawNode: TextNode) -> String {
-        return rawNode.text()
+    private func export(stringAttribute attribute: StringAttribute) -> String {
+        return attribute.name + "=\"" + attribute.value + "\""
     }
 
     ///
     ///
-    func createCommentNode(_ rawNode: CommentNode) -> String {
-        return "<!--" + rawNode.comment + "-->"
+    private func export(rawAttribute: Attribute) -> String {
+        return rawAttribute.name
+    }
+}
+
+
+// MARK: - Private
+//
+private extension Libxml2.Out.HTMLPrettyConverter {
+
+    struct Constants {
+
+        /// Ref. http://w3c.github.io/html/syntax.html#void-elements
+        ///
+        static let voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
     }
 }
