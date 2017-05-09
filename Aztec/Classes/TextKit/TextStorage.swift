@@ -504,7 +504,7 @@ open class TextStorage: NSTextStorage {
             let targetStyle = targetValue as? ParagraphStyle
 
             processBlockquoteDifferences(in: domRange, betweenOriginal: sourceStyle?.blockquote, andNew: targetStyle?.blockquote)
-            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textList, andNew: targetStyle?.textList, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            processListDifferences(in: domRange, betweenOriginal: sourceStyle?.textLists.last, andNew: targetStyle?.textLists.last, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
             processHeaderDifferences(in: domRange, betweenOriginal: sourceStyle?.headerLevel, andNew: targetStyle?.headerLevel)
             processHTMLParagraphDifferences(in: domRange, betweenOriginal: sourceStyle?.htmlParagraph, andNew: targetStyle?.htmlParagraph)
         case NSLinkAttributeName:
