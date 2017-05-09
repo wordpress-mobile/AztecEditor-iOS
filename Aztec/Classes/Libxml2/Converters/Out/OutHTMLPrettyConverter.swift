@@ -144,12 +144,6 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
         /// List of Boolean Attributes, that are not expected to have an actual value
         ///
-        /// Ref. https://opensource.apple.com/tarballs/libxml2/libxml2-8.tar.gz
-        ///
-        /// -   Source: HTMLTree.c 
-        /// -   Method: htmlIsBooleanAttr()
-        /// -   UsedBy: htmlAttrDumpOutput()
-        ///
         static let booleanAttributes = ["checked", "compact", "declare", "defer", "disabled", "ismap",
                                         "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
                                         "selected"]
