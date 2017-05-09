@@ -14,12 +14,15 @@ class TextListFormatter: ParagraphAttributeFormatter {
     ///
     let placeholderAttributes: [String : Any]?
 
+    /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
+    let increaseDepth: Bool
 
     /// Designated Initializer
     ///
-    init(style: TextList.Style, placeholderAttributes: [String : Any]? = nil) {
+    init(style: TextList.Style, placeholderAttributes: [String : Any]? = nil, increaseDepth: Bool = false) {
         self.listStyle = style
         self.placeholderAttributes = placeholderAttributes
+        self.increaseDepth = increaseDepth
     }
 
 
@@ -31,10 +34,14 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.headIndent += Metrics.listTextIndentation
-        newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
-
-        newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+        if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
+            newParagraphStyle.headIndent += Metrics.listTextIndentation
+            newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
+            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+        } else {
+            newParagraphStyle.textLists.removeLast()
+            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+        }
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
