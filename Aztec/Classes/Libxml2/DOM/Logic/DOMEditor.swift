@@ -40,6 +40,30 @@ extension Libxml2 {
             return canWrapReceiverInNewNode
         }
 
+        // MARK: - Range Mapping to Children
+
+        /// Maps the specified range to the child nodes.
+        ///
+        private func mapToChildren(range: NSRange, of element: ElementNode) -> NSRange {
+
+            assert(range.length > 0)
+
+            guard element.isBlockLevelElement() && range.location + range.length == element.length() else {
+                return range
+            }
+
+            // Whenever the last child element is also block-level, it'll take care of mapping the
+            // range on its own.
+            //
+            if let lastChild = element.children.last as? ElementNode {
+                guard !lastChild.isBlockLevelElement() else {
+                    return range
+                }
+            }
+
+            return NSRange(location: range.location, length: range.length - 1)
+        }
+
         // MARK: - Editing Text Contents
 
         /// Deletes the characters in `rootNode` spanning the specified range.
@@ -107,15 +131,15 @@ extension Libxml2 {
             if range.location == 0 && range.length == element.length() {
                 element.removeFromParent()
             } else {
-
-                if element.isBlockLevelElement() && range.location + range.length == element.length() {
-                    mergeRight(element)
-                }
-
-                let childrenAndIntersections = element.childNodes(intersectingRange: range)
+                let rangeForChildren = mapToChildren(range: range, of: element)
+                let childrenAndIntersections = element.childNodes(intersectingRange: rangeForChildren)
 
                 for (child, intersection) in childrenAndIntersections {
                     deleteCharacters(in: child, spanning: intersection)
+                }
+
+                if rangeForChildren.length != range.length {
+                    mergeRight(element)
                 }
             }
         }
@@ -132,11 +156,29 @@ extension Libxml2 {
 
         /// Inserts the specified string at the specified location.
         ///
+        /// - Parameters:
+        ///     - string: the string to insert.
+        ///     - location: the location the string will be inserted at.
+        ///
         private func insert(_ string: String, atLocation location: Int) {
+            insert(string, into: rootNode, atLocation: location)
+        }
+
+        /// Inserts the specified string into the specified element, at the specified location.
+        ///
+        /// - Parameters:
+        ///     - string: the string to insert.
+        ///     - element: the element the string will be inserted into.
+        ///     - location: the location the string will be inserted at.
+        ///
+        private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
+            let (matchElement, matchLocation) = inspector.findLeftmostLowestElementDescendant(of: element, intersecting: location)
+            let childrenBefore = matchElement.splitChildren(before: matchLocation)
 
             let nodesToInsert = nodes(for: string)
-            let childrenBefore = rootNode.splitChildren(before: location)
-            rootNode.insert(nodesToInsert, at: childrenBefore.count)
+
+            element.insert(nodesToInsert, at: childrenBefore.count)
+            element.fixChildrenTextNodes()
         }
 
         /// Replaces the characters in the specified range with the specified string.
