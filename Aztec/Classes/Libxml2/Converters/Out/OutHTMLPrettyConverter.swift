@@ -78,19 +78,11 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     private func convert(element node: ElementNode, level: Int) -> String {
         // Prefixes + Posfixes
-        var indentForOpeningTag = ""
-        var indentForClosingTag = ""
-        var prefixForOpeningTag = ""
-        var prefixForClosingTag = ""
-        var posfixForClosingTag = ""
-
-        if prettyPrintEnabled {
-            indentForOpeningTag = requiresOpeningTagPrefix(node) ? indentationString(for: level) : ""
-            indentForClosingTag = requiresClosingTagPrefix(node) ? indentationString(for: level) : ""
-            prefixForOpeningTag = requiresOpeningTagPrefix(node) ? String(.newline) : ""
-            prefixForClosingTag = requiresClosingTagPrefix(node) ? String(.newline) : ""
-            posfixForClosingTag = requiresClosingTagPosfix(node) ? String(.newline) : ""
-        }
+        let indentForOpeningTag = requiresOpeningTagPrefix(node) ? indentationString(for: level) : ""
+        let indentForClosingTag = requiresClosingTagPrefix(node) ? indentationString(for: level) : ""
+        let prefixForOpeningTag = requiresOpeningTagPrefix(node) ? String(.newline) : ""
+        let prefixForClosingTag = requiresClosingTagPrefix(node) ? String(.newline) : ""
+        let posfixForClosingTag = requiresClosingTagPosfix(node) ? String(.newline) : ""
 
         // Serialize Attributes
         var attributes = ""
@@ -134,7 +126,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
-        return node.isBlockLevelElement()
+        return node.isBlockLevelElement() && prettyPrintEnabled
     }
 
     /// ClosingTag Prefix: Required whenever one of the children is a blocklevel element
@@ -142,7 +134,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
             let elementChild = child as? ElementNode
-            return elementChild?.isBlockLevelElement() == true
+            return elementChild?.isBlockLevelElement() == true && prettyPrintEnabled
         }
     }
 
@@ -153,7 +145,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             return false
         }
 
-        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement()
+        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrintEnabled
     }
 
     /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
