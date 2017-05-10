@@ -22,9 +22,9 @@ extension Libxml2.Out {
         ///
         var minimumIndentationLevel = 1
 
-        /// Indentation Character to be applied
+        /// Indentation String to be applied
         ///
-        var indentationCharacter = " "
+        var indentationString = "  "
 
         /// Indicates whether we want Pretty Print or not
         ///
@@ -77,27 +77,39 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     /// Serializes an ElementNode into it's HTML String Representation
     ///
     private func print(element node: ElementNode, level: Int) -> String {
+        // Prefixes + Posfixes
+        var indentForOpeningTag = ""
+        var indentForClosingTag = ""
+        var prefixForOpeningTag = ""
+        var prefixForClosingTag = ""
+        var posfixForClosingTag = ""
+
+        if prettyPrintEnabled {
+            indentForOpeningTag = requiresOpeningTagPrefix(node) ? indentationString(for: level) : ""
+            indentForClosingTag = requiresClosingTagPrefix(node) ? indentationString(for: level) : ""
+            prefixForOpeningTag = requiresOpeningTagPrefix(node) ? String(.newline) : ""
+            prefixForClosingTag = requiresClosingTagPrefix(node) ? String(.newline) : ""
+            posfixForClosingTag = requiresClosingTagPosfix(node) ? String(.newline) : ""
+        }
+
+        // Serialize Attributes
         var attributes = ""
         for attribute in node.attributes {
             attributes += String(.space) + print(attribute: attribute)
         }
 
-        let indentForOpeningTag = requiresOpeningTagPrefixNewline(node) ? indentationString(for: level) : ""
-        let indentForClosingTag = requiresClosingTagPrefixNewline(node) ? indentationString(for: level) : ""
-        let prefixForOpeningTag = requiresOpeningTagPrefixNewline(node) ? String(.newline) : ""
-        let prefixForClosingTag = requiresClosingTagPrefixNewline(node) ? String(.newline) : ""
-        let posfixForClosingTag = requiresClosingTagPosfixNewline(node) ? String(.newline) : ""
-
+        // Opening Tag
         var html = prefixForOpeningTag + indentForOpeningTag + "<" + node.name + attributes + ">"
-
         guard requiresClosingTag(node) else {
             return html
         }
 
+        // Child Tags
         for child in node.children {
             html += print(node: child, level: level + 1)
         }
 
+        // Closing Tags
         html += prefixForClosingTag + indentForClosingTag + "</" + node.name + ">" + posfixForClosingTag
 
         return html
@@ -110,7 +122,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             return String()
         }
 
-        return String(repeating: indentationCharacter, count: (level - minimumIndentationLevel))
+        return String(repeating: indentationString, count: (level - minimumIndentationLevel))
     }
 
     /// Serializes a TextNode into it's HTML String Representation
@@ -119,24 +131,24 @@ private extension Libxml2.Out.HTMLPrettyConverter {
         return node.text().escapeHtmlEntities().encodeUnicodeCharactersAsHexadecimal()
     }
 
-    /// OpeningTag Prefix Newline: Required whenever the node is a blocklevel element
+    /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
-    private func requiresOpeningTagPrefixNewline(_ node: ElementNode) -> Bool {
+    private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
         return node.isBlockLevelElement()
     }
 
-    /// ClosingTag Prefix Newline: Required whenever one of the children is a blocklevel element
+    /// ClosingTag Prefix: Required whenever one of the children is a blocklevel element
     ///
-    private func requiresClosingTagPrefixNewline(_ node: ElementNode) -> Bool {
+    private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
             let elementChild = child as? ElementNode
             return elementChild?.isBlockLevelElement() == true
         }
     }
 
-    /// ClosingTag Posfix Newline: Required whenever the node is blocklevel, and the right sibling is not
+    /// ClosingTag Posfix: Required whenever the node is blocklevel, and the right sibling is not
     ///
-    private func requiresClosingTagPosfixNewline(_ node: ElementNode) -> Bool {
+    private func requiresClosingTagPosfix(_ node: ElementNode) -> Bool {
         guard let rightSibling = node.rightSibling() else {
             return false
         }
