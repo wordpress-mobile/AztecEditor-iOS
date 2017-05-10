@@ -97,7 +97,7 @@ class EditorDemoController: UIViewController {
 
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                htmlTextView.text = richTextView.getHTML(pretty: true)
                 htmlTextView.becomeFirstResponder()
             case .richText:
                 richTextView.setHTML(htmlTextView.text)

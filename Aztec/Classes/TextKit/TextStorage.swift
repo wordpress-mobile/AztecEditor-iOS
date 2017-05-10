@@ -1005,8 +1005,8 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(prettify: Bool) -> String {
-        return dom.getHTML(prettify: prettify)
+    open func getHTML(pretty: Bool = false) -> String {
+        return dom.getHTML(pretty: pretty)
     }
 
     func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {

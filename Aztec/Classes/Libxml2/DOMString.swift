@@ -94,7 +94,9 @@ extension Libxml2 {
         
         /// Gets the HTML representation of the DOM.
         ///
-        func getHTML(prettify: Bool = true) -> String {
+        /// - Parameter pretty: Indicates if the output should be pretty printed, or not.
+        ///
+        func getHTML(pretty: Bool = false) -> String {
             
             var output = ""
             
@@ -104,7 +106,7 @@ extension Libxml2 {
                     return
                 }
 
-                guard prettify else {
+                guard pretty else {
                     output = Libxml2.Out.HTMLConverter().convert(rootNode)
                     return
                 }
