@@ -17,11 +17,6 @@ extension Libxml2.Out {
         typealias CommentNode       = Libxml2.CommentNode
         typealias RootNode          = Libxml2.RootNode
 
-        /// Minimum Indentation Level to be effectively printed. Useful to avoid indenting everything under
-        /// the Root Node.
-        ///
-        var minimumIndentationLevel = 1
-
         /// Indentation String to be applied
         ///
         var indentationString = "  "
@@ -40,10 +35,7 @@ extension Libxml2.Out {
         /// Converts a Node into it's HTML String Representation
         ///
         func convert(_ rawNode: Node) -> String {
-            return convert(node: rawNode)
-                .replacingOccurrences(of: "<\(RootNode.name)>", with: "")
-                .replacingOccurrences(of: "</\(RootNode.name)>", with: "")
-                .trimmingCharacters(in: CharacterSet.newlines)
+            return convert(node: rawNode).trimmingCharacters(in: CharacterSet.newlines)
         }
     }
 }
@@ -57,6 +49,8 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     func convert(node: Node, level: Int = 0) -> String {
         switch node {
+        case let node as RootNode:
+            return convert(root: node)
         case let node as CommentNode:
             return convert(comment: node)
         case let node as ElementNode:
@@ -65,6 +59,14 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             return convert(text: node)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
+        }
+    }
+
+    /// Serializes a RootNode into it's HTML String Representation
+    ///
+    private func convert(root node: RootNode) -> String {
+        return node.children.reduce("") { (result, node) in
+            return result + convert(node: node)
         }
     }
 
@@ -110,11 +112,11 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     /// Returns the Indentation String for the specified level
     ///
     private func indentationString(for level: Int) -> String {
-        guard level > minimumIndentationLevel else {
+        guard level > 0 else {
             return String()
         }
 
-        return String(repeating: indentationString, count: (level - minimumIndentationLevel))
+        return String(repeating: indentationString, count: level)
     }
 
     /// Serializes a TextNode into it's HTML String Representation
