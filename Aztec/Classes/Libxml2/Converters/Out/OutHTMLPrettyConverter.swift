@@ -28,6 +28,7 @@ extension Libxml2.Out {
             return export(node: rawNode)
                 .replacingOccurrences(of: "<\(RootNode.name)>", with: "")
                 .replacingOccurrences(of: "</\(RootNode.name)>", with: "")
+                .trimmingCharacters(in: CharacterSet.newlines)
         }
     }
 }
@@ -66,7 +67,12 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             attributes += String(.space) + export(attribute: attribute)
         }
 
-        var html = "<" + node.name + attributes + ">"
+        let prefixForOpeningTag = node.isBlockLevelElement() ? String(.newline) : ""
+        let prefixForClosingTag = containsBlockLevelChildren(elementNode: node) ? String(.newline) : ""
+        let posfixForClosingTag = rightSideElement(of: node)?.isBlockLevelElement() == false && node.isBlockLevelElement() ? "\n" : ""
+
+        var html = prefixForOpeningTag + "<" + node.name + attributes + ">"
+
         guard !isVoidElementNode(elementNode: node) else {
             return html
         }
@@ -75,7 +81,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             html += export(node: child)
         }
 
-        html += "</" + node.name + ">"
+        html += prefixForClosingTag + "</" + node.name + ">" + posfixForClosingTag
 
         return html
     }
@@ -84,6 +90,28 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     private func export(textNode node: TextNode) -> String {
         return node.text().escapeHtmlEntities().encodeUnicodeCharactersAsHexadecimal()
+    }
+
+    ///
+    ///
+    private func rightSideElement(of node: Node) -> ElementNode? {
+        guard let nodeIndex = node.parent?.indexOf(childNode: node) else {
+            return nil
+        }
+
+        return node.parent?.sibling(rightOf: nodeIndex) as? ElementNode
+    }
+
+    ///
+    ///
+    private func containsBlockLevelChildren(elementNode node: ElementNode) -> Bool {
+        return node.children.contains { child in
+            guard let elementChild = child as? ElementNode else {
+                return false
+            }
+
+            return elementChild.isBlockLevelElement()
+        }
     }
 
     /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
