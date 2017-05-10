@@ -106,12 +106,9 @@ extension Libxml2 {
                     return
                 }
 
-                guard pretty else {
-                    output = Libxml2.Out.HTMLConverter().convert(rootNode)
-                    return
-                }
-
-                output = Libxml2.Out.HTMLPrettyConverter().convert(rootNode)
+                let converter = Libxml2.Out.HTMLPrettyConverter()
+                converter.prettyPrintEnabled = pretty
+                output = converter.convert(rootNode)
             }
             
             return output

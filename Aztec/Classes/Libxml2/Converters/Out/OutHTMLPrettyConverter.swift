@@ -7,6 +7,8 @@ import libxml2
 extension Libxml2.Out {
     class HTMLPrettyConverter: Converter {
 
+        // MARK: - Typealiases
+
         typealias Attribute         = Libxml2.Attribute
         typealias StringAttribute   = Libxml2.StringAttribute
         typealias ElementNode       = Libxml2.ElementNode
@@ -14,6 +16,19 @@ extension Libxml2.Out {
         typealias TextNode          = Libxml2.TextNode
         typealias CommentNode       = Libxml2.CommentNode
         typealias RootNode          = Libxml2.RootNode
+
+        /// Minimum Indentation Level to be effectively printed. Useful to avoid indenting everything under
+        /// the Root Node.
+        ///
+        var minimumIndentationLevel = 1
+
+        /// Indentation Character to be applied
+        ///
+        var indentationCharacter = " "
+
+        /// Indicates whether we want Pretty Print or not
+        ///
+        var prettyPrintEnabled = false
 
 
         // MARK: - Initializers
@@ -40,12 +55,12 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
-    func print(node: Node) -> String {
+    func print(node: Node, level: Int = 0) -> String {
         switch node {
         case let node as CommentNode:
             return print(comment: node)
         case let node as ElementNode:
-            return print(element: node)
+            return print(element: node, level: level)
         case let node as TextNode:
             return print(text: node)
         default:
@@ -61,29 +76,41 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes an ElementNode into it's HTML String Representation
     ///
-    private func print(element node: ElementNode) -> String {
+    private func print(element node: ElementNode, level: Int) -> String {
         var attributes = ""
         for attribute in node.attributes {
             attributes += String(.space) + print(attribute: attribute)
         }
 
+        let indentForOpeningTag = requiresOpeningTagPrefixNewline(node) ? indentationString(for: level) : ""
+        let indentForClosingTag = requiresClosingTagPrefixNewline(node) ? indentationString(for: level) : ""
         let prefixForOpeningTag = requiresOpeningTagPrefixNewline(node) ? String(.newline) : ""
         let prefixForClosingTag = requiresClosingTagPrefixNewline(node) ? String(.newline) : ""
         let posfixForClosingTag = requiresClosingTagPosfixNewline(node) ? String(.newline) : ""
 
-        var html = prefixForOpeningTag + "<" + node.name + attributes + ">"
+        var html = prefixForOpeningTag + indentForOpeningTag + "<" + node.name + attributes + ">"
 
         guard requiresClosingTag(node) else {
             return html
         }
 
         for child in node.children {
-            html += print(node: child)
+            html += print(node: child, level: level + 1)
         }
 
-        html += prefixForClosingTag + "</" + node.name + ">" + posfixForClosingTag
+        html += prefixForClosingTag + indentForClosingTag + "</" + node.name + ">" + posfixForClosingTag
 
         return html
+    }
+
+    /// Returns the Indentation String for the specified level
+    ///
+    private func indentationString(for level: Int) -> String {
+        guard level > minimumIndentationLevel else {
+            return String()
+        }
+
+        return String(repeating: indentationCharacter, count: (level - minimumIndentationLevel))
     }
 
     /// Serializes a TextNode into it's HTML String Representation
