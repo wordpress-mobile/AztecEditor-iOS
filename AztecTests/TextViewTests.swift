@@ -720,6 +720,29 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>1")
     }
 
+    /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
+    ///
+    /// Input:
+    ///     - "Header Header"
+    ///     - "\n" inserted in between the two words
+    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/466
+    ///
+    func testInsertingNewlineAtTheMiddleOfHeaderDoesNotLooseHeaderStyleOnNewline() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleHeader(.h1, range: .zero)
+        textView.insertText("Header Header")
+
+        textView.selectedRange = NSMakeRange("Header".characters.count, 0)
+        textView.insertText("\n")
+
+        let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
+        XCTAssert(identifiers.contains(.header1))
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><h1> Header</h1>")
+    }
+
+
     // MARK: - Unicode tests
 
     /// Tests that applying bold to a string with unicode characters doesn't crash the app.
@@ -1331,4 +1354,3 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
 }
-
