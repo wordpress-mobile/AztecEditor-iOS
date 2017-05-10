@@ -40,7 +40,7 @@ extension Libxml2.Out {
         /// Converts a Node into it's HTML String Representation
         ///
         func convert(_ rawNode: Node) -> String {
-            return print(node: rawNode)
+            return convert(node: rawNode)
                 .replacingOccurrences(of: "<\(RootNode.name)>", with: "")
                 .replacingOccurrences(of: "</\(RootNode.name)>", with: "")
                 .trimmingCharacters(in: CharacterSet.newlines)
@@ -55,14 +55,14 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
-    func print(node: Node, level: Int = 0) -> String {
+    func convert(node: Node, level: Int = 0) -> String {
         switch node {
         case let node as CommentNode:
-            return print(comment: node)
+            return convert(comment: node)
         case let node as ElementNode:
-            return print(element: node, level: level)
+            return convert(element: node, level: level)
         case let node as TextNode:
-            return print(text: node)
+            return convert(text: node)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
@@ -70,13 +70,13 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a CommentNode into it's HTML String Representation
     ///
-    private func print(comment node: CommentNode) -> String {
+    private func convert(comment node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
     /// Serializes an ElementNode into it's HTML String Representation
     ///
-    private func print(element node: ElementNode, level: Int) -> String {
+    private func convert(element node: ElementNode, level: Int) -> String {
         // Prefixes + Posfixes
         var indentForOpeningTag = ""
         var indentForClosingTag = ""
@@ -95,7 +95,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
         // Serialize Attributes
         var attributes = ""
         for attribute in node.attributes {
-            attributes += String(.space) + print(attribute: attribute)
+            attributes += String(.space) + convert(attribute: attribute)
         }
 
         // Opening Tag
@@ -106,7 +106,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
         // Child Tags
         for child in node.children {
-            html += print(node: child, level: level + 1)
+            html += convert(node: child, level: level + 1)
         }
 
         // Closing Tags
@@ -127,7 +127,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a TextNode into it's HTML String Representation
     ///
-    private func print(text node: TextNode) -> String {
+    private func convert(text node: TextNode) -> String {
         return node.text().escapeHtmlEntities().encodeHtmlEntities()
     }
 
@@ -170,24 +170,24 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes an Attribute into it's corresponding String Value, depending on the actual Attribute subclass.
     ///
-    func print(attribute: Attribute) -> String {
+    func convert(attribute: Attribute) -> String {
         switch attribute {
         case let stringAttribute as StringAttribute where !isBooleanAttribute(name: attribute.name):
-            return print(stringAttribute: stringAttribute)
+            return convert(stringAttribute: stringAttribute)
         default:
-            return print(rawAttribute: attribute)
+            return convert(rawAttribute: attribute)
         }
     }
 
     /// Serializes a given StringAttribute.
     ///
-    private func print(stringAttribute attribute: StringAttribute) -> String {
+    private func convert(stringAttribute attribute: StringAttribute) -> String {
         return attribute.name + "=\"" + attribute.value + "\""
     }
 
     /// Serializes a given Attribute
     ///
-    private func print(rawAttribute: Attribute) -> String {
+    private func convert(rawAttribute: Attribute) -> String {
         return rawAttribute.name
     }
 
