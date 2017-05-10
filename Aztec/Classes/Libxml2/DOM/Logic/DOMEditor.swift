@@ -143,7 +143,9 @@ extension Libxml2 {
                 deleteCharacters(spanning: range)
             }
 
-            insert(string, atLocation: range.location)
+            if string.characters.count > 0 {
+                insert(string, atLocation: range.location)
+            }
         }
 
         // MARK: - String to Nodes
@@ -348,8 +350,9 @@ extension Libxml2 {
         ///         modify this to be able to do more complex lookups.  For instance we'll want
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
-        func unwrap(range: NSRange, fromElementsNamed elementNames: [String]) {
-            unwrap(rootNode, range: range, fromElementsNamed: elementNames)
+        @discardableResult
+        func unwrap(range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
+            return unwrap(rootNode, range: range, fromElementsNamed: elementNames)
         }
 
         /// Unwraps the specified range from nodes with the specified name.  If there are multiple
@@ -364,13 +367,13 @@ extension Libxml2 {
         ///         modify this to be able to do more complex lookups.  For instance we'll want
         ///         to be able to unwrapp CSS attributes, not just nodes by name.
         ///
-        func unwrap(_ element: ElementNode, range: NSRange, fromElementsNamed elementNames: [String]) {
+        func unwrap(_ element: ElementNode, range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
 
             guard element.children.count > 0 else {
-                return
+                return range
             }
 
-            unwrapChildren(of: element, intersecting: range, fromElementsNamed: elementNames)
+            var resultingRange = unwrapChildren(of: element, intersecting: range, fromElementsNamed: elementNames)
 
             if elementNames.contains(element.name) {
 
@@ -391,9 +394,19 @@ extension Libxml2 {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
                     wrap(element, range: postRange, inElement: elementDescriptor)
                 }
-                
+
+                if element.needsClosingParagraphSeparator() {
+                    let br = ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
+
+                    element.append(br)
+
+                    resultingRange = NSRange(location: resultingRange.location, length: resultingRange.length + br.length())
+                }
+
                 element.unwrapChildren()
             }
+
+            return resultingRange
         }
 
         /// Unwraps all child nodes from elements with the specified names.
@@ -403,21 +416,31 @@ extension Libxml2 {
         ///     - range: the range we want to unwrap.
         ///     - elementNames: the name of the elements we want to unwrap the nodes from.
         ///
-        func unwrapChildren(of element: ElementNode, intersecting range: NSRange, fromElementsNamed elementNames: [String]) {
-            if element.isBlockLevelElement() && element.text().isLastValidLocation(range.location) {
-                return
-            }
+        /// - Returns: the provided range after the unwrapping (since it may be modified by newlines
+        ///     being added).
+        ///
+        func unwrapChildren(of element: ElementNode, intersecting range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
 
             let childNodesAndRanges = element.childNodes(intersectingRange: range)
             assert(childNodesAndRanges.count > 0)
 
-            for (child, range) in childNodesAndRanges {
+            var resultingRange = range
+
+            for (child, childRange) in childNodesAndRanges {
                 guard let childElement = child as? ElementNode else {
                     continue
                 }
 
-                unwrap(childElement, range: range, fromElementsNamed: elementNames)
+                let newRange = unwrap(childElement, range: childRange, fromElementsNamed: elementNames)
+
+                if newRange.length != childRange.length {
+                    let diff = childRange.length - newRange.length
+
+                    resultingRange = NSRange(location: resultingRange.location, length: resultingRange.length - diff)
+                }
             }
+
+            return resultingRange
         }
 
         // MARK: - Splitting Nodes

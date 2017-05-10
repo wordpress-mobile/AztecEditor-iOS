@@ -164,7 +164,7 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
-    func testBlockquoteToggle() {
+    func testBlockquoteToggle1() {
         let mockDelegate = MockAttachmentsDelegate()
         let storage = TextStorage()
         storage.attachmentsDelegate = mockDelegate
@@ -176,11 +176,28 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
 
-        storage.toggle(formatter:blockquoteFormatter, at: storage.rangeOfEntireString)
+        storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
         html = storage.getHTML()
 
         XCTAssertEqual(html, "Apply a blockquote")
+    }
+
+    func testBlockquoteToggle2() {
+        let mockDelegate = MockAttachmentsDelegate()
+        let storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
+        storage.append(NSAttributedString(string: "Hello 🌎!\nApply a blockquote!"))
+        let blockquoteFormatter = BlockquoteFormatter()
+
+        let range = NSRange(location: 9, length: 19)
+        let utf16Range = storage.string.utf16NSRange(from: range)
+
+        storage.toggle(formatter: blockquoteFormatter, at: utf16Range)
+
+        let html = storage.getHTML()
+
+        XCTAssertEqual(html, "Hello &#x1F30E;!<br><blockquote>Apply a blockquote!</blockquote>")
     }
 
     func testLinkInsert() {

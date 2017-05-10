@@ -31,6 +31,7 @@ extension Libxml2 {
         // MARK: - Editing behavior configuration
 
         static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
+        static let elementsThatSpanASingleLine: [StandardElementType] = [.li]
         
         // MARK: - Initializers
 
@@ -65,11 +66,17 @@ extension Libxml2 {
         /// Node length.  Calculated by adding the length of all child nodes.
         ///
         override func length() -> Int {
-            guard isSupportedByEditor() else {
-                return defaultLengthForUnsupportedElements
+            return text().characters.count
+        }
+
+        /// Checks if the specified node requires a closing paragraph separator.
+        ///
+        override func needsClosingParagraphSeparator() -> Bool {
+            guard children.count == 0 && standardName != .br else {
+                return false
             }
 
-            return text().characters.count
+            return super.needsClosingParagraphSeparator()
         }
 
         // MARK: - Node Queries
@@ -174,6 +181,17 @@ extension Libxml2 {
 
         func isNodeType(_ type: StandardElementType) -> Bool {
             return type.equivalentNames.contains(name.lowercased())
+        }
+
+        /// Retrieves the last child matching a specific filtering closure.
+        ///
+        /// - Parameters:
+        ///     - filter: the filtering closure.
+        ///
+        /// - Returns: the requested node, or `nil` if there are no nodes matching the request.
+        ///
+        func lastChild(matching filter: (Node) -> Bool) -> Node? {
+            return children.filter(filter).last
         }
 
         // MARK: - DOM Queries
@@ -795,7 +813,11 @@ extension Libxml2 {
         }
         
         override func text() -> String {
-            
+
+            guard isSupportedByEditor() else {
+                return String(.objectReplacement)
+            }
+
             if let nodeType = standardName,
                 let implicitRepresentation = nodeType.implicitRepresentation() {
                 
@@ -1056,6 +1078,45 @@ extension Libxml2 {
             }
             
             return result
+        }
+
+        /// Splits this node wherever there's a break.  Propagates to children.
+        ///
+        /// - Returns: the locations where this node was split.
+        ///
+        @discardableResult
+        private func splitAtBreaks() -> [Int] {
+
+            var offset = 0
+            var splitLocations = [Int]()
+
+            for node in children {
+                if let element = node as? ElementNode {
+
+                    guard element.standardName != .br else {
+                        remove(element)
+
+                        if offset > 0 && offset < length() {
+                            splitLocations.append(offset)
+                        }
+
+                        continue
+                    }
+
+                    let childSplitLocations = element.splitAtBreaks()
+                    splitLocations.append(contentsOf: childSplitLocations)
+                }
+
+                offset = offset + node.length()
+            }
+
+            // We need to split starting at the last position to avoid going out of bounds.
+            //
+            for splitLocation in splitLocations.reversed() {
+                split(atLocation: splitLocation)
+            }
+
+            return splitLocations
         }
 
         /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
@@ -1520,6 +1581,12 @@ extension Libxml2 {
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
                 finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
+            }
+
+            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
+                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
+
+                finalWrapper.splitAtBreaks()
             }
 
             return finalWrapper

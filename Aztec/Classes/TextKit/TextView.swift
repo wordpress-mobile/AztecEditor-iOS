@@ -280,10 +280,25 @@ open class TextView: UITextView {
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
-
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
+        
+        // For some reason the text view is allowing the attachment style to be set in
+        // typingAttributes.  That's simply not acceptable.
+        //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
+        typingAttributes[NSAttachmentAttributeName] = nil
+
+        // For some reason the text view is allowing the attachment style to be set in
+        // typingAttributes.  That's simply not acceptable.
+        //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
+        typingAttributes[NSAttachmentAttributeName] = nil
 
         guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
@@ -573,7 +588,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func togglePre(range: NSRange) {
-        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
         let formatter = PreFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -590,7 +605,7 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
-        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -603,7 +618,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
-        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -617,7 +632,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
-        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile()
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
@@ -702,15 +717,18 @@ open class TextView: UITextView {
     }
 
 
-    /// Inserts an end-of-line character whenever we're at end-of-file, in an
+    /// Inserts an end-of-line character whenever the provided range is at end-of-file, in an
     /// empty paragraph. This is useful when attempting to apply a paragraph-level style at EOF,
     /// since it won't be possible without the paragraph having any characters.
     ///
     /// Call this method before applying the formatter.
     ///
-    private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile() {
+    /// - Parameters:
+    ///     - range: the range where the formatter will be applied.
+    ///
+    private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange range: NSRange) {
 
-        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: selectedRange) else {
+        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: range) else {
             assertionFailure("This should never happen.  Review the logic!")
             return
         }

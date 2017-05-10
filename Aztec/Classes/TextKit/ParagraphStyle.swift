@@ -7,7 +7,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquote": blockquote as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": textList as Any])
+            return Mirror(self, children: ["blockquote": blockquote as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": textLists as Any])
         }
     }
 
@@ -17,7 +17,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     var blockquote: Blockquote?
     var htmlParagraph: HTMLParagraph?
-    var textList: TextList?
+    var textLists: [TextList] = []
     
     var headerLevel: Int = 0
 
@@ -26,11 +26,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        if aDecoder.containsValue(forKey: String(describing: TextList.self)) {
-            let styleRaw = aDecoder.decodeInteger(forKey: String(describing: TextList.self))
-            if let style = TextList.Style(rawValue:styleRaw) {
-                textList = TextList(style: style)
-            }
+        if let encodedLists = aDecoder.decodeObject(forKey:String(describing: TextList.self)) as? [TextList] {
+            textLists = encodedLists
         }
         if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
             blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
@@ -43,9 +40,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
-        if let textListSet = textList {
-            aCoder.encode(textListSet.style.rawValue, forKey: String(describing: TextList.self))
-        }
+
+        aCoder.encode(textLists, forKey: String(describing: TextList.self))
 
         if let blockquote = self.blockquote {
             aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
@@ -60,7 +56,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             blockquote = paragrahStyle.blockquote
             headerLevel = paragrahStyle.headerLevel
             htmlParagraph = paragrahStyle.htmlParagraph
-            textList = paragrahStyle.textList
+            textLists = paragrahStyle.textLists
         }
     }
 
@@ -89,7 +85,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         if blockquote != otherParagraph.blockquote
             || headerLevel != otherParagraph.headerLevel
             || htmlParagraph != otherParagraph.htmlParagraph
-            || textList != otherParagraph.textList {
+            || textLists != otherParagraph.textLists {
             return false
         }
         
@@ -107,7 +103,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
         copy.htmlParagraph = htmlParagraph
-        copy.textList = textList
+        copy.textLists = textLists
 
         return copy
     }
@@ -119,7 +115,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
         copy.htmlParagraph = htmlParagraph
-        copy.textList = textList
+        copy.textLists = textLists
 
         return copy
     }
@@ -129,8 +125,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         if blockquote != nil {
             hash = hash ^ String(describing: Blockquote.self).hashValue
         }
-        if let listStyle = textList?.style {
-            hash = hash ^ listStyle.hashValue
+        for list in textLists {
+            hash = hash ^ list.style.hashValue
         }
 
         hash = hash ^ headerLevel.hashValue
@@ -142,6 +138,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextList: \(String(describing: textList?.style))"
+        return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(textLists)"
     }
 }
