@@ -15,7 +15,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         outputConverter.prettyPrintEnabled = false
     }
 
-    ///
+    /// Verifies that single level lists gets properly prettified and indented.
     ///
     func testConverterProperlyIndentsSingleLevelList() {
         let sample = "<ul><li>Item</li><li>Item</li></ul>"
@@ -33,7 +33,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         }
     }
 
-    ///
+    /// Verifies that multilevel lists gets properly prettified and indented.
     ///
     func testConverterProperlyIndentsMultilevelList() {
         let sample = "<ul><li><ol><li>Nested 1</li><li>Nested 2</li></ol></li><li>Regular</li></ul>"
@@ -52,7 +52,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that unknown tags do not get dropped, and closed, if needed.
     ///
     func testConverterDoesNotDropUnknownTags() {
         let sample = "something something <something>"
@@ -70,7 +70,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         }
     }
 
-    ///
+    /// Verifies that unknown TAG Attributes do not get removed.
     ///
     func testConverterDoesNotDropProprietaryAttributes() {
         let sample = "something something <img unknown=\"true\">"
@@ -88,7 +88,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         }
     }
 
-    ///
+    /// Verifies that closing tags get added, when originally missing.
     ///
     func testConverterAddsClosingTagWhenMissing() {
         let sample = "<h1><i>italic heading</h1>"
@@ -104,7 +104,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         }
     }
 
-    ///
+    /// Verifies that simple HTML gets exported, exactly the way it was initially imported.
     ///
     func testConverterProperlySerializesImportedHtml() {
         let html = "<bold><i>Hello!</i></bold>"
@@ -119,7 +119,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         }
     }
 
-    ///
+    /// Verifies that Comment HTML does not get lost during I/O Conversions.
     ///
     func testConverterProperlySerializesImportedHtmlWithComments() {
         let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
