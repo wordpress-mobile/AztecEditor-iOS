@@ -128,7 +128,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     /// Serializes a TextNode into it's HTML String Representation
     ///
     private func convert(text node: TextNode) -> String {
-        return node.text().escapeHtmlEntities().encodeHtmlEntities()
+        return node.text().encodeHtmlEntities()
     }
 
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element

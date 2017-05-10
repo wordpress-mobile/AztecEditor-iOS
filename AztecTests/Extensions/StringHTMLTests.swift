@@ -20,18 +20,27 @@ class StringHTMLTests: XCTestCase {
 
     /// Verifies that HTML Entities get properly escaped.
     ///
-    func testEscapeHtmlEntitiesEffectivelyEscapesAllOfTheHtmlEntities() {
+    func testEncodeHtmlEntitiesEffectivelyEscapesAllOfTheHtmlNamedEntities() {
         let original = "&<>\"' Some Text Here"
         let expected = "&amp;&lt;&gt;&quot;&apos; Some Text Here"
 
-        XCTAssertEqual(original.escapeHtmlEntities(), expected)
+        XCTAssertEqual(original.encodeHtmlEntities(), expected)
+    }
+
+    /// Verifies that HTML Entities do not get escaped, when the `allowNamedEntities` parameter is set to `false`.
+    ///
+    func testEncodeHtmlEntitiesDoesNotEncodeNamedEntitiesWhenNeeded() {
+        let original = "&<>\"' Some Text Here"
+        let expected = original
+
+        XCTAssertEqual(original.encodeHtmlEntities(allowNamedEntities: false), expected)
     }
 
     /// Verifies that strings that do not contain HTML Entities remain pristine.
     ///
-    func testEscapeHtmlEntitiesDoesNotAlterAnythingIfThereWereNoHtmlEntities() {
+    func testEncodeHtmlEntitiesDoesNotAlterAnythingIfThereWereNoHtmlEntities() {
         let original = "This should be a super long text, that is expected to remain unmodified"
 
-        XCTAssertEqual(original.escapeHtmlEntities(), original)
+        XCTAssertEqual(original.encodeHtmlEntities(), original)
     }
 }

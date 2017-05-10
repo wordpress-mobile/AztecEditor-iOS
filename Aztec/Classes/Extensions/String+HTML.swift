@@ -5,10 +5,13 @@ import Foundation
 //
 extension String {
 
-    /// Encodes all of the Unicode Characters as Hexa.
+    /// Encodes all of the HTML Entities: Unicode Characters will be expressed as hexadecimal.
+    /// Named Entities will also be replaced, whenever `allowNamedEntities` is set to `true`.
     ///
-    public func encodeHtmlEntities() -> String {
-        return unicodeScalars.reduce("") { (out: String, char: UnicodeScalar) in
+    public func encodeHtmlEntities(allowNamedEntities: Bool = true) -> String {
+        let theString = allowNamedEntities ? escapeHtmlNamedEntities() : self
+
+        return theString.unicodeScalars.reduce("") { (out: String, char: UnicodeScalar) in
             let encoded = char.isASCII ? char.description: String(format: "&#x%2X;", char.value)
             return out + encoded
         }
@@ -16,7 +19,7 @@ extension String {
 
     /// Escapes the following HTML entities: [&, <, >, ', "]
     ///
-    public func escapeHtmlEntities() -> String {
+    private func escapeHtmlNamedEntities() -> String {
         return replacingOccurrences(of: "&", with: "&amp;")
                 .replacingOccurrences(of: "<", with: "&lt;")
                 .replacingOccurrences(of: ">", with: "&gt;")
