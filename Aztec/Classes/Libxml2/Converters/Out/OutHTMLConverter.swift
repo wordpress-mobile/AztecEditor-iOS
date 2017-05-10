@@ -5,7 +5,7 @@ import libxml2
 // MARK: - HTML Prettifier!
 //
 extension Libxml2.Out {
-    class HTMLPrettyConverter: Converter {
+    class HTMLConverter: Converter {
 
         // MARK: - Typealiases
 
@@ -23,7 +23,7 @@ extension Libxml2.Out {
 
         /// Indicates whether we want Pretty Print or not
         ///
-        var prettyPrintEnabled = false
+        var prettyPrint = false
 
 
         // MARK: - Initializers
@@ -43,7 +43,7 @@ extension Libxml2.Out {
 
 // MARK: - Export: Nodes
 //
-private extension Libxml2.Out.HTMLPrettyConverter {
+private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
@@ -128,7 +128,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
-        return node.isBlockLevelElement() && prettyPrintEnabled
+        return node.isBlockLevelElement() && prettyPrint
     }
 
     /// ClosingTag Prefix: Required whenever one of the children is a blocklevel element
@@ -136,7 +136,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
             let elementChild = child as? ElementNode
-            return elementChild?.isBlockLevelElement() == true && prettyPrintEnabled
+            return elementChild?.isBlockLevelElement() == true && prettyPrint
         }
     }
 
@@ -147,7 +147,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
             return false
         }
 
-        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrintEnabled
+        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrint
     }
 
     /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
@@ -160,7 +160,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
 // MARK: - Print: Attributes
 //
-private extension Libxml2.Out.HTMLPrettyConverter {
+private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes an Attribute into it's corresponding String Value, depending on the actual Attribute subclass.
     ///
@@ -195,7 +195,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
 // MARK: - Private Constants
 //
-private extension Libxml2.Out.HTMLPrettyConverter {
+private extension Libxml2.Out.HTMLConverter {
 
     struct Constants {
 
