@@ -1155,7 +1155,7 @@ private extension TextView {
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
-        return input.isEndOfLine()
+        return input.isEndOfLine() && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
 
 
