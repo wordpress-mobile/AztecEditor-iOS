@@ -1,9 +1,10 @@
 import XCTest
 
-class OutHTMLPrettyConverterTests: XCTestCase {
 
-///
-///
+// MARK: - OutHTMLPrettyConverterTests
+//
+class OutHTMLPrettyConverterTests: XCTestCase {
+//
 //    func testPrettifyUnclosedTagDoesNotCauseDataLoss() {
 //        let sample = "test<br>"
 //        let expected = "test<br />\n"

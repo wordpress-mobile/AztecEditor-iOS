@@ -25,7 +25,7 @@ extension Libxml2.Out {
         /// Converts a Node into it's HTML String Representation
         ///
         func convert(_ rawNode: Node) -> String {
-            return export(node: rawNode)
+            return print(node: rawNode)
                 .replacingOccurrences(of: "<\(RootNode.name)>", with: "")
                 .replacingOccurrences(of: "</\(RootNode.name)>", with: "")
                 .trimmingCharacters(in: CharacterSet.newlines)
@@ -40,14 +40,14 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
-    func export(node: Node) -> String {
+    func print(node: Node) -> String {
         switch node {
         case let node as CommentNode:
-            return export(comment: node)
+            return print(comment: node)
         case let node as ElementNode:
-            return export(element: node)
+            return print(element: node)
         case let node as TextNode:
-            return export(text: node)
+            return print(text: node)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
@@ -55,16 +55,16 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a CommentNode into it's HTML String Representation
     ///
-    private func export(comment node: CommentNode) -> String {
+    private func print(comment node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
     /// Serializes an ElementNode into it's HTML String Representation
     ///
-    private func export(element node: ElementNode) -> String {
+    private func print(element node: ElementNode) -> String {
         var attributes = ""
         for attribute in node.attributes {
-            attributes += String(.space) + export(attribute: attribute)
+            attributes += String(.space) + print(attribute: attribute)
         }
 
         let prefixForOpeningTag = requiresOpeningTagPrefixNewline(node) ? String(.newline) : ""
@@ -78,7 +78,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
         }
 
         for child in node.children {
-            html += export(node: child)
+            html += print(node: child)
         }
 
         html += prefixForClosingTag + "</" + node.name + ">" + posfixForClosingTag
@@ -88,7 +88,7 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a TextNode into it's HTML String Representation
     ///
-    private func export(text node: TextNode) -> String {
+    private func print(text node: TextNode) -> String {
         return node.text().escapeHtmlEntities().encodeUnicodeCharactersAsHexadecimal()
     }
 
@@ -125,30 +125,30 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 }
 
 
-// MARK: - Export: Attributes
+// MARK: - Print: Attributes
 //
 private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes an Attribute into it's corresponding String Value, depending on the actual Attribute subclass.
     ///
-    func export(attribute: Attribute) -> String {
+    func print(attribute: Attribute) -> String {
         switch attribute {
         case let stringAttribute as StringAttribute where !isBooleanAttribute(name: attribute.name):
-            return export(stringAttribute: stringAttribute)
+            return print(stringAttribute: stringAttribute)
         default:
-            return export(rawAttribute: attribute)
+            return print(rawAttribute: attribute)
         }
     }
 
     /// Serializes a given StringAttribute.
     ///
-    private func export(stringAttribute attribute: StringAttribute) -> String {
+    private func print(stringAttribute attribute: StringAttribute) -> String {
         return attribute.name + "=\"" + attribute.value + "\""
     }
 
     /// Serializes a given Attribute
     ///
-    private func export(rawAttribute: Attribute) -> String {
+    private func print(rawAttribute: Attribute) -> String {
         return rawAttribute.name
     }
 
