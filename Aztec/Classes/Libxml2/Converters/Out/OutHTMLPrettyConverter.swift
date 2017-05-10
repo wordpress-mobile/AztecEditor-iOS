@@ -42,12 +42,12 @@ private extension Libxml2.Out.HTMLPrettyConverter {
     ///
     func export(node: Node) -> String {
         switch node {
-        case let commentNode as CommentNode:
-            return export(commentNode: commentNode)
-        case let elementNode as ElementNode:
-            return export(elementNode: elementNode)
-        case let textNode as TextNode:
-            return export(textNode: textNode)
+        case let node as CommentNode:
+            return export(comment: node)
+        case let node as ElementNode:
+            return export(element: node)
+        case let node as TextNode:
+            return export(text: node)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
@@ -55,25 +55,25 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a CommentNode into it's HTML String Representation
     ///
-    private func export(commentNode node: CommentNode) -> String {
+    private func export(comment node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
     /// Serializes an ElementNode into it's HTML String Representation
     ///
-    private func export(elementNode node: ElementNode) -> String {
+    private func export(element node: ElementNode) -> String {
         var attributes = ""
         for attribute in node.attributes {
             attributes += String(.space) + export(attribute: attribute)
         }
 
-        let prefixForOpeningTag = node.isBlockLevelElement() ? String(.newline) : ""
-        let prefixForClosingTag = containsBlockLevelChildren(elementNode: node) ? String(.newline) : ""
-        let posfixForClosingTag = rightSideElement(of: node)?.isBlockLevelElement() == false && node.isBlockLevelElement() ? "\n" : ""
+        let prefixForOpeningTag = requiresOpeningTagPrefixNewline(node) ? String(.newline) : ""
+        let prefixForClosingTag = requiresClosingTagPrefixNewline(node) ? String(.newline) : ""
+        let posfixForClosingTag = requiresClosingTagPosfixNewline(node) ? String(.newline) : ""
 
         var html = prefixForOpeningTag + "<" + node.name + attributes + ">"
 
-        guard !isVoidElementNode(elementNode: node) else {
+        guard requiresClosingTag(node) else {
             return html
         }
 
@@ -88,36 +88,39 @@ private extension Libxml2.Out.HTMLPrettyConverter {
 
     /// Serializes a TextNode into it's HTML String Representation
     ///
-    private func export(textNode node: TextNode) -> String {
+    private func export(text node: TextNode) -> String {
         return node.text().escapeHtmlEntities().encodeUnicodeCharactersAsHexadecimal()
     }
 
+    /// OpeningTag Prefix Newline: Required whenever the node is a blocklevel element
     ///
-    ///
-    private func rightSideElement(of node: Node) -> ElementNode? {
-        guard let nodeIndex = node.parent?.indexOf(childNode: node) else {
-            return nil
-        }
-
-        return node.parent?.sibling(rightOf: nodeIndex) as? ElementNode
+    private func requiresOpeningTagPrefixNewline(_ node: ElementNode) -> Bool {
+        return node.isBlockLevelElement()
     }
 
+    /// ClosingTag Prefix Newline: Required whenever one of the children is a blocklevel element
     ///
-    ///
-    private func containsBlockLevelChildren(elementNode node: ElementNode) -> Bool {
+    private func requiresClosingTagPrefixNewline(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
-            guard let elementChild = child as? ElementNode else {
-                return false
-            }
-
-            return elementChild.isBlockLevelElement()
+            let elementChild = child as? ElementNode
+            return elementChild?.isBlockLevelElement() == true
         }
+    }
+
+    /// ClosingTag Posfix Newline: Required whenever the node is blocklevel, and the right sibling is not
+    ///
+    private func requiresClosingTagPosfixNewline(_ node: ElementNode) -> Bool {
+        guard let rightSibling = node.rightSibling() else {
+            return false
+        }
+
+        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement()
     }
 
     /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
     ///
-    private func isVoidElementNode(elementNode node: ElementNode) -> Bool {
-        return Constants.voidElements.contains(node.name)
+    private func requiresClosingTag(_ node: ElementNode) -> Bool {
+        return Constants.voidElements.contains(node.name) == false
     }
 }
 
