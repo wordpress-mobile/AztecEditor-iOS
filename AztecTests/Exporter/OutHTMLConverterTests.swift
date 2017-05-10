@@ -2,17 +2,17 @@ import XCTest
 @testable import Aztec
 
 
-// MARK: - OutHTMLPrettyConverterTests
+// MARK: - OutHTMLConverterTests
 //
-class OutHTMLPrettyConverterTests: XCTestCase {
+class OutHTMLConverterTests: XCTestCase {
 
     let inputConverter = Libxml2.In.HTMLConverter()
-    let outputConverter = Libxml2.Out.HTMLPrettyConverter()
+    let outputConverter = Libxml2.Out.HTMLConverter()
 
 
     override func setUp() {
         super.setUp()
-        outputConverter.prettyPrintEnabled = false
+        outputConverter.prettyPrint = false
     }
 
     /// Verifies that single level lists gets properly prettified and indented.
@@ -22,7 +22,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>Item</li>\n  <li>Item</li>\n</ul>"
 
         do {
-            outputConverter.prettyPrintEnabled = true
+            outputConverter.prettyPrint = true
 
             let inNode = try inputConverter.convert(sample)
             let outHtml = outputConverter.convert(inNode)
@@ -40,7 +40,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>\n    <ol>\n      <li>Nested 1</li>\n      <li>Nested 2</li>\n    </ol>\n  </li>\n  <li>Regular</li>\n</ul>"
 
         do {
-            outputConverter.prettyPrintEnabled = true
+            outputConverter.prettyPrint = true
 
             let inNode = try inputConverter.convert(sample)
             let outHtml = outputConverter.convert(inNode)
@@ -59,7 +59,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         let expected = "something something <something></something>"
 
         do {
-            outputConverter.prettyPrintEnabled = true
+            outputConverter.prettyPrint = true
 
             let inNode = try inputConverter.convert(sample)
             let outHtml = outputConverter.convert(inNode)
@@ -77,7 +77,7 @@ class OutHTMLPrettyConverterTests: XCTestCase {
         let expected =  "something something <img unknown=\"true\">"
 
         do {
-            outputConverter.prettyPrintEnabled = true
+            outputConverter.prettyPrint = true
 
             let inNode = try inputConverter.convert(sample)
             let outHtml = outputConverter.convert(inNode)
