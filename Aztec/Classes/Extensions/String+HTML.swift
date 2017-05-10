@@ -7,7 +7,7 @@ extension String {
 
     /// Encodes all of the Unicode Characters as Hexa.
     ///
-    public func encodeUnicodeCharactersAsHexadecimal() -> String {
+    public func encodeHtmlEntities() -> String {
         return unicodeScalars.reduce("") { (out: String, char: UnicodeScalar) in
             let encoded = char.isASCII ? char.description: String(format: "&#x%2X;", char.value)
             return out + encoded

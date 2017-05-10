@@ -8,14 +8,14 @@ class StringHTMLTests: XCTestCase {
 
     /// Verifies that Emoji Characters get properly encoded as Hexadecimal Entities.
     ///
-    func testEncodeUnicodeCharactersEffectivelyEncodeEmojiCharacters() {
+    func testEncodeHtmlEntitiesEffectivelyEncodeEmojiCharacters() {
         let original = "😘☺️🍱🥈🍣😄 Some Text Here 😆😂😍😭😊👌🏻🙀☠️👾"
 
         let expected = "&#x1F618;&#x263A;&#xFE0F;&#x1F371;&#x1F948;&#x1F363;&#x1F604; " +
                         "Some Text Here &#x1F606;&#x1F602;&#x1F60D;&#x1F62D;&#x1F60A;" +
                         "&#x1F44C;&#x1F3FB;&#x1F640;&#x2620;&#xFE0F;&#x1F47E;"
 
-        XCTAssertEqual(original.encodeUnicodeCharactersAsHexadecimal(), expected)
+        XCTAssertEqual(original.encodeHtmlEntities(), expected)
     }
 
     /// Verifies that HTML Entities get properly escaped.
