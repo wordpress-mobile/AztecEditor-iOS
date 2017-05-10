@@ -45,6 +45,8 @@ class EditorDemoController: UIViewController {
         textView.isHidden = true
         textView.delegate = self
         textView.accessibilityIdentifier = "HTMLContentView"
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
 
         return textView
     }()
