@@ -6,14 +6,9 @@ import XCTest
 //
 class OutHTMLConverterTests: XCTestCase {
 
-    let inputConverter = Libxml2.In.HTMLConverter()
-    let outputConverter = Libxml2.Out.HTMLConverter()
+    typealias InConverter   = Libxml2.In.HTMLConverter
+    typealias OutConverter  = Libxml2.Out.HTMLConverter
 
-
-    override func setUp() {
-        super.setUp()
-        outputConverter.prettyPrint = false
-    }
 
     /// Verifies that single level lists gets properly prettified and indented.
     ///
@@ -22,10 +17,8 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>Item</li>\n  <li>Item</li>\n</ul>"
 
         do {
-            outputConverter.prettyPrint = true
-
-            let inNode = try inputConverter.convert(sample)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
             XCTAssertEqual(outHtml, expected)
         } catch {
@@ -40,10 +33,8 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>\n    <ol>\n      <li>Nested 1</li>\n      <li>Nested 2</li>\n    </ol>\n  </li>\n  <li>Regular</li>\n</ul>"
 
         do {
-            outputConverter.prettyPrint = true
-
-            let inNode = try inputConverter.convert(sample)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
             XCTAssertEqual(outHtml, expected)
         } catch {
@@ -59,10 +50,8 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "something something <something></something>"
 
         do {
-            outputConverter.prettyPrint = true
-
-            let inNode = try inputConverter.convert(sample)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
             XCTAssertEqual(outHtml, expected)
         } catch {
@@ -77,10 +66,8 @@ class OutHTMLConverterTests: XCTestCase {
         let expected =  "something something <img unknown=\"true\">"
 
         do {
-            outputConverter.prettyPrint = true
-
-            let inNode = try inputConverter.convert(sample)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
             XCTAssertEqual(outHtml, expected)
         } catch {
@@ -95,8 +82,8 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<h1><i>italic heading</i></h1>"
 
         do {
-            let inNode = try inputConverter.convert(sample)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter().convert(inNode)
 
             XCTAssertEqual(outHtml, expected)
         } catch {
@@ -110,8 +97,8 @@ class OutHTMLConverterTests: XCTestCase {
         let html = "<bold><i>Hello!</i></bold>"
 
         do {
-            let inNode = try inputConverter.convert(html)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(html)
+            let outHtml = OutConverter().convert(inNode)
 
             XCTAssertEqual(outHtml, html)
         } catch {
@@ -125,8 +112,8 @@ class OutHTMLConverterTests: XCTestCase {
         let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
 
         do {
-            let inNode = try inputConverter.convert(html)
-            let outHtml = outputConverter.convert(inNode)
+            let inNode = try InConverter().convert(html)
+            let outHtml = OutConverter().convert(inNode)
 
             XCTAssertEqual(outHtml, html)
         } catch {

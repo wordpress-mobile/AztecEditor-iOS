@@ -17,19 +17,27 @@ extension Libxml2.Out {
         typealias CommentNode       = Libxml2.CommentNode
         typealias RootNode          = Libxml2.RootNode
 
-        /// Indentation String to be applied
+        /// Indentation Spaces to be applied
         ///
-        var indentationString = "  "
+        let indentationSpaces: Int
 
         /// Indicates whether we want Pretty Print or not
         ///
-        var prettyPrint = false
+        let prettyPrint: Bool
 
 
         // MARK: - Initializers
 
-        init() {
-            // No Op
+
+        /// Default Initializer
+        ///
+        /// - Parameters:
+        ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
+        ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
+        ///
+        init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
+            self.indentationSpaces = indentationSpaces
+            self.prettyPrint = prettyPrint
         }
 
         /// Converts a Node into it's HTML String Representation
@@ -80,11 +88,15 @@ private extension Libxml2.Out.HTMLConverter {
     ///
     private func convert(element node: ElementNode, level: Int) -> String {
         // Prefixes + Posfixes
-        let indentForOpeningTag = requiresOpeningTagPrefix(node) ? indentationString(for: level) : ""
-        let indentForClosingTag = requiresClosingTagPrefix(node) ? indentationString(for: level) : ""
-        let prefixForOpeningTag = requiresOpeningTagPrefix(node) ? String(.newline) : ""
-        let prefixForClosingTag = requiresClosingTagPrefix(node) ? String(.newline) : ""
-        let posfixForClosingTag = requiresClosingTagPosfix(node) ? String(.newline) : ""
+        let needsOpeningTagPrefix = requiresOpeningTagPrefix(node)
+        let needsClosingTagPrefix = requiresClosingTagPrefix(node)
+        let needsClosingTagPosfix = requiresClosingTagPosfix(node)
+
+        let indentForOpeningTag = needsOpeningTagPrefix ? indentationString(for: level) : ""
+        let indentForClosingTag = needsClosingTagPrefix ? indentationString(for: level) : ""
+        let prefixForOpeningTag = needsOpeningTagPrefix ? String(.newline) : ""
+        let prefixForClosingTag = needsClosingTagPrefix ? String(.newline) : ""
+        let posfixForClosingTag = needsClosingTagPosfix ? String(.newline) : ""
 
         // Serialize Attributes
         var attributes = ""
@@ -116,7 +128,7 @@ private extension Libxml2.Out.HTMLConverter {
             return String()
         }
 
-        return String(repeating: indentationString, count: level)
+        return String(repeating: String(.space), count: level * indentationSpaces)
     }
 
     /// Serializes a TextNode into it's HTML String Representation

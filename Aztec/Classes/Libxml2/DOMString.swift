@@ -106,8 +106,7 @@ extension Libxml2 {
                     return
                 }
 
-                let converter = Libxml2.Out.HTMLConverter()
-                converter.prettyPrint = prettyPrint
+                let converter = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
                 output = converter.convert(rootNode)
             }
             
