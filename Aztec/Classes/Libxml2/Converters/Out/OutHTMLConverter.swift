@@ -26,9 +26,6 @@ extension Libxml2.Out {
         let prettyPrint: Bool
 
 
-        // MARK: - Initializers
-
-
         /// Default Initializer
         ///
         /// - Parameters:
@@ -40,6 +37,7 @@ extension Libxml2.Out {
             self.prettyPrint = prettyPrint
         }
 
+
         /// Converts a Node into it's HTML String Representation
         ///
         func convert(_ rawNode: Node) -> String {
@@ -49,7 +47,7 @@ extension Libxml2.Out {
 }
 
 
-// MARK: - Export: Nodes
+// MARK: - Nodes: Serialization
 //
 private extension Libxml2.Out.HTMLConverter {
 
@@ -70,6 +68,7 @@ private extension Libxml2.Out.HTMLConverter {
         }
     }
 
+
     /// Serializes a RootNode into it's HTML String Representation
     ///
     private func convert(root node: RootNode) -> String {
@@ -78,70 +77,89 @@ private extension Libxml2.Out.HTMLConverter {
         }
     }
 
+
     /// Serializes a CommentNode into it's HTML String Representation
     ///
     private func convert(comment node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
+
     /// Serializes an ElementNode into it's HTML String Representation
     ///
     private func convert(element node: ElementNode, level: Int) -> String {
-        // Prefixes + Posfixes
-        let needsOpeningTagPrefix = requiresOpeningTagPrefix(node)
-        let needsClosingTagPrefix = requiresClosingTagPrefix(node)
-        let needsClosingTagPosfix = requiresClosingTagPosfix(node)
+        let opening = openingTag(for: node, at: level)
 
-        let indentForOpeningTag = needsOpeningTagPrefix ? indentationString(for: level) : ""
-        let indentForClosingTag = needsClosingTagPrefix ? indentationString(for: level) : ""
-        let prefixForOpeningTag = needsOpeningTagPrefix ? String(.newline) : ""
-        let prefixForClosingTag = needsClosingTagPrefix ? String(.newline) : ""
-        let posfixForClosingTag = needsClosingTagPosfix ? String(.newline) : ""
-
-        // Serialize Attributes
-        var attributes = ""
-        for attribute in node.attributes {
-            attributes += String(.space) + convert(attribute: attribute)
+        guard let closing = closingTag(for: node, at: level) else {
+            return opening
         }
 
-        // Opening Tag
-        var html = prefixForOpeningTag + indentForOpeningTag + "<" + node.name + attributes + ">"
-        guard requiresClosingTag(node) else {
-            return html
+        let children = node.children.reduce("") { (html, child)in
+            return html + convert(node: child, level: level + 1)
         }
 
-        // Child Tags
-        for child in node.children {
-            html += convert(node: child, level: level + 1)
-        }
-
-        // Closing Tags
-        html += prefixForClosingTag + indentForClosingTag + "</" + node.name + ">" + posfixForClosingTag
-
-        return html
+        return opening + children + closing
     }
 
-    /// Returns the Indentation String for the specified level
-    ///
-    private func indentationString(for level: Int) -> String {
-        guard level > 0 else {
-            return String()
-        }
-
-        return String(repeating: String(.space), count: level * indentationSpaces)
-    }
 
     /// Serializes a TextNode into it's HTML String Representation
     ///
     private func convert(text node: TextNode) -> String {
         return node.text().encodeHtmlEntities()
     }
+}
+
+
+
+// MARK: - ElementNode: Helpers
+//
+private extension Libxml2.Out.HTMLConverter {
+
+    /// Returns the Opening Tag for a given Element Node
+    ///
+    func openingTag(for node: ElementNode, at level: Int) -> String {
+        let prefix = requiresOpeningTagPrefix(node) ? prefixForTag(at: level) : ""
+        let attributes = convert(attributes: node.attributes)
+
+        return prefix + "<" + node.name + attributes + ">"
+    }
+
+
+    /// Returns the Closing Tag for a given Element Node, if its even required
+    ///
+    func closingTag(for node: ElementNode, at level: Int) -> String? {
+        guard requiresClosingTag(node) else {
+            return nil
+        }
+
+        let prefix = requiresClosingTagPrefix(node) ? prefixForTag(at: level) : ""
+        let posfix = requiresClosingTagPosfix(node) ? posfixForTag() : ""
+
+        return prefix + "</" + node.name + ">" + posfix
+    }
+
+
+    /// Returns the Tag Prefix String at the specified level
+    ///
+    private func prefixForTag(at level: Int) -> String {
+        let indentation = level > 0 ? String(repeating: String(.space), count: level * indentationSpaces) : ""
+        return String(.newline) + indentation
+    }
+
+
+    /// Returns the Tag Posfix String
+    ///
+    private func posfixForTag() -> String {
+        return String(.newline)
+    }
+
 
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
         return node.isBlockLevelElement() && prettyPrint
     }
+
 
     /// ClosingTag Prefix: Required whenever one of the children is a blocklevel element
     ///
@@ -151,6 +169,7 @@ private extension Libxml2.Out.HTMLConverter {
             return elementChild?.isBlockLevelElement() == true && prettyPrint
         }
     }
+
 
     /// ClosingTag Posfix: Required whenever the node is blocklevel, and the right sibling is not
     ///
@@ -162,6 +181,7 @@ private extension Libxml2.Out.HTMLConverter {
         return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrint
     }
 
+
     /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
     ///
     private func requiresClosingTag(_ node: ElementNode) -> Bool {
@@ -170,13 +190,23 @@ private extension Libxml2.Out.HTMLConverter {
 }
 
 
-// MARK: - Print: Attributes
+
+// MARK: - Attributes: Serialization
 //
 private extension Libxml2.Out.HTMLConverter {
 
+    /// Serializes a collection of Attributes into their HTML Form
+    ///
+    func convert(attributes: [Attribute]) -> String {
+        return attributes.reduce("") { (html, attribute) in
+            return html + String(.space) + convert(attribute: attribute)
+        }
+    }
+
+
     /// Serializes an Attribute into it's corresponding String Value, depending on the actual Attribute subclass.
     ///
-    func convert(attribute: Attribute) -> String {
+    private func convert(attribute: Attribute) -> String {
         switch attribute {
         case let stringAttribute as StringAttribute where !isBooleanAttribute(name: attribute.name):
             return convert(stringAttribute: stringAttribute)
@@ -185,11 +215,13 @@ private extension Libxml2.Out.HTMLConverter {
         }
     }
 
+
     /// Serializes a given StringAttribute.
     ///
     private func convert(stringAttribute attribute: StringAttribute) -> String {
         return attribute.name + "=\"" + attribute.value + "\""
     }
+
 
     /// Serializes a given Attribute
     ///
@@ -197,12 +229,14 @@ private extension Libxml2.Out.HTMLConverter {
         return rawAttribute.name
     }
 
+
     /// Indicates whether if an Attribute is expected to have a value, or not.
     ///
     private func isBooleanAttribute(name: String) -> Bool {
         return Constants.booleanAttributes.contains(name)
     }
 }
+
 
 
 // MARK: - Private Constants
