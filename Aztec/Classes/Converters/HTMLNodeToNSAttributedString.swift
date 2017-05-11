@@ -275,8 +275,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     }
 
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
-        .ol: TextListFormatter(style: .ordered),
-        .ul: TextListFormatter(style: .unordered),
+        .ol: TextListFormatter(style: .ordered, increaseDepth: true),
+        .ul: TextListFormatter(style: .unordered, increaseDepth: true),
         .blockquote: BlockquoteFormatter(),
         .strong: BoldFormatter(),
         .em: ItalicFormatter(),
