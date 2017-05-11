@@ -15,7 +15,7 @@ class ShortCodeParserTests: XCTestCase {
         let shortCodeParser = ShortcodeProcessor(tag:"wpvideo", replacer:{ (shortcode) in
             var html = "<video "
             if let src = shortcode.attributes.unamedAttributes.first {
-                html += "source=\"videopress://\(src)\" "
+                html += "src=\"videopress://\(src)\" "
             }
             if let width = shortcode.attributes.namedAttributes["w"] {
                 html += "width=\(width) "
@@ -28,7 +28,7 @@ class ShortCodeParserTests: XCTestCase {
         })
         let sampleText = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true] Some Text [wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true]"
         let parsedText = shortCodeParser.process(text: sampleText)
-        XCTAssertEqual(parsedText, "<video source=\"videopress://OcobLTqC\" width=640 height=400 \\> Some Text <video source=\"videopress://OcobLTqC\" width=640 height=400 \\>")
+        XCTAssertEqual(parsedText, "<video src=\"videopress://OcobLTqC\" width=640 height=400 \\> Some Text <video src=\"videopress://OcobLTqC\" width=640 height=400 \\>")
     }
 
     func testParserOfWordPressVideoCode() {
