@@ -20,51 +20,119 @@ extension Libxml2 {
             super.init(with: rootNode)
         }
 
-        // MARK: - Node Introspection
+        // MARK: - Inserting Characters
 
-        func canWrap(node: Node, in elementDescriptor: ElementNodeDescriptor) -> Bool {
-
-            guard let element = node as? ElementNode else {
-                return true
-            }
-
-            guard !(element is RootNode) else {
-                return false
-            }
-
-            let receiverIsBlockLevel = element.isBlockLevelElement()
-            let newNodeIsBlockLevel = elementDescriptor.isBlockLevel()
-
-            let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
-
-            return canWrapReceiverInNewNode
-        }
-
-        // MARK: - Range Mapping to Children
-
-        /// Maps the specified range to the child nodes.
+        /// Inserts the specified string at the specified location.
         ///
-        private func mapToChildren(range: NSRange, of element: ElementNode) -> NSRange {
-
-            assert(range.length > 0)
-
-            guard element.isBlockLevelElement() && range.location + range.length == element.length() else {
-                return range
-            }
-
-            // Whenever the last child element is also block-level, it'll take care of mapping the
-            // range on its own.
-            //
-            if let lastChild = element.children.last as? ElementNode {
-                guard !lastChild.isBlockLevelElement() else {
-                    return range
-                }
-            }
-
-            return NSRange(location: range.location, length: range.length - 1)
+        /// - Parameters:
+        ///     - string: the string to insert.
+        ///     - location: the location the string will be inserted at.
+        ///
+        func insert(_ string: String, atLocation location: Int) {
+            insert(string, into: rootNode, atLocation: location)
         }
 
-        // MARK: - Editing Text Contents
+        /// Inserts the specified string into the specified element, at the specified location.
+        ///
+        /// - NOTE: this method processes paragraph separators found, in order to break block-level
+        ///         elements if necessary.  To insert raw strings without processing newlines, call
+        ///         `insert(rawString:into:atLocation:)` instead.
+        ///
+        /// - Parameters:
+        ///     - string: the string to insert.
+        ///     - element: the element the string will be inserted into.
+        ///     - location: the location the string will be inserted at.
+        ///
+        private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
+
+            let (insertionElement, insertionLocation)
+                = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevelOnly: true)
+
+            if insertionElement.isBlockLevelElement() {
+                let paragraphs = string.components(separatedBy: String(.paragraphSeparator))
+
+                insert(paragraphs: paragraphs, into: insertionElement, atLocation: insertionLocation)
+            } else {
+                insert(rawString: string, into: insertionElement, atLocation: insertionLocation)
+            }
+        }
+
+        /// Inserts the specified raw string (without processing it for the different newline types)
+        /// into the specified element, at the specified location.
+        ///
+        /// - Parameters:
+        ///     - string: the string to insert.
+        ///     - element: the element the string will be inserted into.
+        ///     - location: the location the string will be inserted at.
+        ///
+        private func insert(rawString string: String, into element: ElementNode, atLocation location: Int) {
+
+            guard string.characters.count > 0 else {
+                return
+            }
+
+            let (matchElement, matchLocation) = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location)
+            let childrenBefore = matchElement.splitChildren(before: matchLocation)
+
+            let nodesToInsert = nodes(for: string)
+
+            element.insert(nodesToInsert, at: childrenBefore.count)
+            element.fixChildrenTextNodes()
+        }
+
+        // MARK: - Inserting Paragraphs
+
+        /// Inserts the specified paragraph into the specified block-level element, at the
+        /// specified location, interrupting the element at the end of the paragraph.
+        ///
+        /// - Parameters:
+        ///     - paragraph: the paragraph to insert.
+        ///     - blockLevelElement: the block-level element the paragraph will be inserted into.
+        ///     - location: the location the paragraph will be inserted at.
+        ///
+        ///
+        private func insert(paragraph: String, into blockLevelElement: ElementNode, atLocation location: Int) {
+            assert(blockLevelElement.isBlockLevelElement())
+
+            insert(rawString: paragraph, into: blockLevelElement, atLocation: location)
+            blockLevelElement.split(atLocation: location + paragraph.characters.count)
+        }
+
+        /// Inserts the specified paragraphs into the specified block-level element, at the
+        /// specified location.  Paragraphs will break the lowest block-level element they can find.
+        ///
+        /// - Parameters:
+        ///     - paragraphs: the paragraphs to insert.  The last element in this array will NOT
+        ///             close a paragraph.  If that's necessary, the caller should add an empty
+        ///             paragraph as the last element.  This method was designed to work directly
+        ///             with the results of calling `string.components(separatedBy: String(.paragraphSeparator))`
+        ///     - blockLevelElement: the block-level element the paragraphs will be inserted into.
+        ///     - location: the location the paragraphs will be inserted at.
+        ///
+        private func insert(paragraphs: [String], into blockLevelElement: ElementNode, atLocation location: Int) {
+            assert(blockLevelElement.isBlockLevelElement())
+
+            let (insertionElement, insertionLocation)
+                = inspector.findLeftmostLowestDescendantElement(of: blockLevelElement, intersecting: location, blockLevelOnly: true)
+
+            var currentElement = insertionElement
+            var currentLocation = insertionLocation
+
+            for (index, paragraph) in paragraphs.enumerated() {
+
+                guard index != paragraphs.count else {
+                    insert(rawString: paragraph, into: currentElement, atLocation: currentLocation)
+                    continue
+                }
+
+                insert(paragraph: paragraph, into: currentElement, atLocation: currentLocation)
+
+                currentElement = inspector.rightSibling(of: insertionElement) as! ElementNode
+                currentLocation = currentLocation + 1
+            }
+        }
+
+        // MARK: - Deleting Characters
 
         /// Deletes the characters in `rootNode` spanning the specified range.
         ///
@@ -154,32 +222,7 @@ extension Libxml2 {
             textNode.deleteCharacters(inRange: range)
         }
 
-        /// Inserts the specified string at the specified location.
-        ///
-        /// - Parameters:
-        ///     - string: the string to insert.
-        ///     - location: the location the string will be inserted at.
-        ///
-        private func insert(_ string: String, atLocation location: Int) {
-            insert(string, into: rootNode, atLocation: location)
-        }
-
-        /// Inserts the specified string into the specified element, at the specified location.
-        ///
-        /// - Parameters:
-        ///     - string: the string to insert.
-        ///     - element: the element the string will be inserted into.
-        ///     - location: the location the string will be inserted at.
-        ///
-        private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
-            let (matchElement, matchLocation) = inspector.findLeftmostLowestElementDescendant(of: element, intersecting: location)
-            let childrenBefore = matchElement.splitChildren(before: matchLocation)
-
-            let nodesToInsert = nodes(for: string)
-
-            element.insert(nodesToInsert, at: childrenBefore.count)
-            element.fixChildrenTextNodes()
-        }
+        // MARK: - Replacing Characters
 
         /// Replaces the characters in the specified range with the specified string.
         ///
@@ -221,6 +264,48 @@ extension Libxml2 {
             }
 
             return nodes
+        }
+
+        // MARK: - Node Introspection
+
+        func canWrap(node: Node, in elementDescriptor: ElementNodeDescriptor) -> Bool {
+
+            guard let element = node as? ElementNode else {
+                return true
+            }
+
+            guard !(element is RootNode) else {
+                return false
+            }
+
+            let receiverIsBlockLevel = element.isBlockLevelElement()
+            let newNodeIsBlockLevel = elementDescriptor.isBlockLevel()
+
+            let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
+            
+            return canWrapReceiverInNewNode
+        }
+
+        // MARK: - Wrapping Nodes: NEW
+
+        func wrap(_ range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
+            wrap(range, of: rootNode, in: elementDescriptor)
+        }
+
+        func wrap(_ range: NSRange, of element: ElementNode, in elementDescriptor: ElementNodeDescriptor) {
+            guard !elementDescriptor.isBlockLevel() else {
+                wrap(range, of: element, inBlockLevel: elementDescriptor)
+                return
+            }
+
+            
+        }
+
+        func wrap(_ range: NSRange, of element: ElementNode, inBlockLevel elementDescriptor: ElementNodeDescriptor) {
+
+            assert(elementDescriptor.isBlockLevel())
+
+            let targetParent = inspector.findLeftmostLowestDescendantElement(of: <#T##Libxml2.ElementNode#>, intersecting: <#T##Int#>, blockLevelOnly: <#T##Bool#>)
         }
 
         // MARK: - Wrapping Nodes
@@ -631,6 +716,31 @@ extension Libxml2 {
             }
             
             return nodes
+        }
+
+
+        // MARK: - Range Mapping to Children
+
+        /// Maps the specified range to the child nodes.
+        ///
+        private func mapToChildren(range: NSRange, of element: ElementNode) -> NSRange {
+
+            assert(range.length > 0)
+
+            guard element.isBlockLevelElement() && range.location + range.length == element.length() else {
+                return range
+            }
+
+            // Whenever the last child element is also block-level, it'll take care of mapping the
+            // range on its own.
+            //
+            if let lastChild = element.children.last as? ElementNode {
+                guard !lastChild.isBlockLevelElement() else {
+                    return range
+                }
+            }
+
+            return NSRange(location: range.location, length: range.length - 1)
         }
     }
 }
