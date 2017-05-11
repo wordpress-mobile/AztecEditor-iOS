@@ -4,7 +4,6 @@ import libxml2
 extension Libxml2.Out {
     class HTMLConverter: Converter {
         
-        typealias EditContext = Libxml2.EditContext
         typealias Node = Libxml2.Node
         typealias ElementNode = Libxml2.ElementNode
         typealias RootNode = Libxml2.RootNode

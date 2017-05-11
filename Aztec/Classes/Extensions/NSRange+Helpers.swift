@@ -45,6 +45,17 @@ extension NSRange
         }
     }
 
+    /// Offsets the receiver by the specified value.
+    ///
+    /// - Parameters:
+    ///     - offset: the value to apply for the offset operation.
+    ///
+    /// - Returns: the requested range.
+    ///
+    func offset(_ offset: Int) -> NSRange {
+        return NSRange(location: location + offset, length: length)
+    }
+
     /// Returns the union with the specified range.
     ///
     /// This is `NSUnionRange` wrapped as an instance method.

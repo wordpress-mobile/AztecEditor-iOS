@@ -1,6 +1,15 @@
 import UIKit
 
 extension Libxml2 {
+
+    /// TEMPORARY!
+    ///
+    /// This is a temporary solution until we can migrate all of the DOM editing and inspection
+    /// logic to DOMEditor and DOMInspector
+    ///
+    class SharedEditor {
+        static var currentEditor: DOMEditor!
+    }
     
     /// This class takes care of providing an interface for interacting with the DOM as if it Was
     /// a string.
@@ -14,16 +23,12 @@ extension Libxml2 {
     class DOMString {
 
         private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
-
-        private lazy var editContext: EditContext = {
-            return EditContext(undoManager: self.domUndoManager)
-        }()
         
         private lazy var rootNode: RootNode = {
             
-            let textNode = TextNode(text: "", editContext: self.editContext)
+            let textNode = TextNode(text: "")
             
-            return RootNode(children: [textNode], editContext: self.editContext)
+            return RootNode(children: [textNode])
         }()
         
         private var parentUndoManager: UndoManager?
@@ -64,7 +69,11 @@ extension Libxml2 {
         // MARK: - Properties: DOM Logic
 
         private lazy var domEditor: DOMEditor = {
-            return DOMEditor(with: self.rootNode)
+            let editor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
+
+            SharedEditor.currentEditor = editor
+
+            return editor
         }()
 
         // MARK: - Init & deinit
@@ -122,7 +131,7 @@ extension Libxml2 {
         ///
         func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, editContext: editContext)
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
             do {
@@ -133,7 +142,7 @@ extension Libxml2 {
 
             domQueue.sync {
                 self.rootNode = output.rootNode
-                self.domEditor = DOMEditor(with: output.rootNode)
+                self.domEditor = DOMEditor(with: output.rootNode, undoManager: self.domUndoManager)
             }
             
             return output.attributedString
@@ -649,7 +658,7 @@ extension Libxml2 {
 
         private func replaceSynchronously(_ range: NSRange, withRawHTML rawHTML: String) {
             do {
-                let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
+                let htmlToNode = Libxml2.In.HTMLConverter()
                 let parsedRootNode = try htmlToNode.convert(rawHTML)
 
                 guard let firstChild = parsedRootNode.children.first else {

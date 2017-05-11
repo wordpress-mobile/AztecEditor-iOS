@@ -44,7 +44,8 @@ extension Libxml2 {
         }
 
         typealias ElementAndLocation = (element: ElementNode, location: Int)
-        typealias ElementAndRange = (element: ElementNode, range: NSRange)
+        typealias ElementAndIntersection = (element: ElementNode, intersection: NSRange)
+        typealias NodeAndIntersection = (node: Node, intersection: NSRange)
         private typealias EnumerationStep = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> NextStep
 
         /// An enum used for enumerating through a DOM tree.  Defines how enumeration continues
@@ -126,7 +127,7 @@ extension Libxml2 {
             return findLeftmostLowestDescendantElement(of: rootNode, intersecting: location)
         }
 
-        /// Finds the lowest element containing the full specified range.
+        /// Finds the lowest block-level elements spanning the specified range.
         ///
         //// - Parameters:
         ///     - startingElement: the head node of the subtree for the search.
@@ -138,58 +139,84 @@ extension Libxml2 {
         ///         match is found) and the input location relative in the returned element's
         ///         coordinates.
         ///
-        func findLowestElementDescendant(
-            of startingElement: ElementNode,
-            containing range: NSRange,
-            blockLevelOnly: Bool = false) -> ElementAndRange {
+        func findLowestBlockElementDescendants(
+            of element: ElementNode,
+            spanning range: NSRange) -> [ElementAndIntersection] {
 
-            assert(startingElement.range().contains(range: range))
+            assert(element.range().contains(range: range))
 
-            var result = (startingElement, range)
+            guard element.children.count > 0 else {
+                return [(element, range)]
+            }
 
-            navitageDescendants(of: startingElement) { (node, startLocation, endLocation) -> NextStep in
+            var elementsAndRanges = [ElementAndIntersection]()
+            var offset = 0
 
-                guard let element = node as? ElementNode else {
-                    return .stop
+            for child in element.children {
+
+                let childRangeInParent = child.range().offset(offset)
+                
+                guard let intersection = range.intersect(withRange: childRangeInParent) else {
+                    continue
                 }
 
-                let nodeRange = NSRange(location: startLocation, length: endLocation - startLocation)
-
-                if range().contains(range: nodeRange) {
-                    return .continueWithChildren(element: element)
-                } else {
-                    return .stop
+                guard let childElement = child as? ElementNode,
+                    childElement.isBlockLevelElement() else {
+                        elementsAndRanges.append((element, intersection))
+                        continue
                 }
 
-                /// ASDASDASDASDASDSASDS
+                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset))
 
-
-                guard startLocation <= location else {
-                    return .stop
+                for (matchElement, matchIntersection) in childElementsAndRanges {
+                    elementsAndRanges.append((matchElement, matchIntersection))
                 }
 
-                guard location <= endLocation && !isEmptyTextNode(node),
-                    let element = node as? ElementNode,
-                    blockLevelOnly || element.isBlockLevelElement() else {
+                offset = offset + child.length()
+            }
 
-                        return .continueWithSiblings
+            return elementsAndRanges
+        }
+
+        /// Finds the lowest block-level elements spanning the specified range.
+        ///
+        //// - Parameters:
+        ///     - startingElement: the head node of the subtree for the search.
+        ///     - range: the range that must be contained by the element.
+        ///     - blockLevelOnly: flag to specify if the requested element has to be a block-level
+        ///             element.
+        ///
+        /// - Returns: a pair containing the matching element (or `startingElement`, if no better
+        ///         match is found) and the input location relative in the returned element's
+        ///         coordinates.
+        ///
+        func findChildren(
+            of element: ElementNode,
+            spanning range: NSRange) -> [NodeAndIntersection] {
+
+            assert(element.range().contains(range: range))
+
+            guard element.children.count > 0 else {
+                return [(element, range)]
+            }
+
+            var elementsAndRanges = [NodeAndIntersection]()
+            var offset = 0
+
+            for child in element.children {
+
+                let childRangeInParent = child.range().offset(offset)
+
+                guard let intersection = range.intersect(withRange: childRangeInParent) else {
+                    continue
                 }
 
-                let relativeLocation = location - startLocation
-
-                // The current element matches our search.  It may be necessary to go through the
-                // child nodes, but for the time being its our best candidate.
-                //
-                result = (element, relativeLocation)
-
-                if element.children.count > 0 {
-                    return .continueWithChildren(element: element)
-                } else {
-                    return .stop
-                }
+                elementsAndRanges.append((child, intersection))
+                
+                offset = offset + child.length()
             }
             
-            return result
+            return elementsAndRanges
         }
 
         /// Finds the leftmost, lowest descendant element of the refrence element, intersecting a
@@ -212,7 +239,7 @@ extension Libxml2 {
 
             var result = (startingElement, location)
 
-            enumerateDescendants(of: startingElement) { (node, startLocation, endLocation) -> NextStep in
+            navigateDescendants(of: startingElement) { (node, startLocation, endLocation) -> NextStep in
 
                 guard startLocation <= location else {
                     return .stop
@@ -319,33 +346,6 @@ extension Libxml2 {
         ///
         private func firstDescendant(of startingElement: ElementNode, matching test: MatchTest) -> Node? {
 
-            var childStartLocation = 0
-
-            for child in startingElement.children {
-
-                let childEndLocation = childStartLocation + child.length()
-
-                let matchType = test(child, childStartLocation, childEndLocation)
-
-                switch matchType {
-                case .match:
-                    return child
-                case let .descendant(element):
-                    return firstDescendant(of: element, matching: { (descendant, grandChildStartLocation, grandChildEndLocation) -> MatchType in
-                        let absoluteStartLocation = grandChildStartLocation + childStartLocation
-                        let absoluteEndLocation = grandChildEndLocation + childStartLocation
-
-                        return test(descendant, absoluteStartLocation, absoluteEndLocation)
-                    })
-                default:
-                    childStartLocation = childEndLocation
-                }
-            }
-            
-            return nil
-        }
-
-        private func findDescendants(of element: ElementNode, fulfilling test: TestResult) -> [Node]? {
             var childStartLocation = 0
 
             for child in startingElement.children {

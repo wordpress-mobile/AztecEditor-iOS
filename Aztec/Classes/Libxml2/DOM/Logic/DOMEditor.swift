@@ -9,13 +9,19 @@ extension Libxml2 {
         typealias NodeMatchTest = (_ node: Node) -> Bool
 
         private let inspector: DOMInspector
+        let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1,
+                                                    .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li,
+                                                    .ol, .p, .pre, .s, .span, .strike, .strong, .u,
+                                                    .ul, .video]
+        let undoManager: UndoManager
 
-        convenience override init(with rootNode: RootNode) {
-            self.init(with: rootNode, using: DOMInspector(with: rootNode))
+        convenience init(with rootNode: RootNode, undoManager: UndoManager) {
+            self.init(with: rootNode, using: DOMInspector(with: rootNode), undoManager: undoManager)
         }
 
-        init(with rootNode: RootNode, using inspector: DOMInspector) {
+        init(with rootNode: RootNode, using inspector: DOMInspector, undoManager: UndoManager) {
             self.inspector = inspector
+            self.undoManager = undoManager
 
             super.init(with: rootNode)
         }
@@ -256,10 +262,10 @@ extension Libxml2 {
             var nodes = [Node]()
 
             for (index, component) in components.enumerated() {
-                nodes.append(TextNode(text: component, editContext: rootNode.editContext))
+                nodes.append(TextNode(text: component))
 
                 if index != components.count - 1 {
-                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: rootNode.editContext))
+                    nodes.append(ElementNode(descriptor: separatorElement, children: []))
                 }
             }
 
@@ -286,26 +292,147 @@ extension Libxml2 {
             return canWrapReceiverInNewNode
         }
 
-        // MARK: - Wrapping Nodes: NEW
+        // MARK: - Wrapping: Ranges
 
         func wrap(_ range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
             wrap(range, of: rootNode, in: elementDescriptor)
         }
 
         func wrap(_ range: NSRange, of element: ElementNode, in elementDescriptor: ElementNodeDescriptor) {
-            guard !elementDescriptor.isBlockLevel() else {
-                wrap(range, of: element, inBlockLevel: elementDescriptor)
-                return
-            }
 
-            
+            let elementsAndRanges = inspector.findLowestBlockElementDescendants(of: element, spanning: range)
+
+            for (matchElement, matchRange) in elementsAndRanges {
+
+                guard matchElement.range() != matchRange
+                    || matchElement is RootNode
+                    || matchElement.isBlockLevelElement() else {
+
+                        wrap(matchElement, in: elementDescriptor)
+                        return
+                }
+
+                wrapChildren(of: matchElement, spanning: range, in: elementDescriptor)
+            }
         }
 
-        func wrap(_ range: NSRange, of element: ElementNode, inBlockLevel elementDescriptor: ElementNodeDescriptor) {
+        // MARK: - Wrapping: Nodes
 
-            assert(elementDescriptor.isBlockLevel())
+        private func wrap(_ node: Node, in elementDescriptor: ElementNodeDescriptor) {
 
-            let targetParent = inspector.findLeftmostLowestDescendantElement(of: <#T##Libxml2.ElementNode#>, intersecting: <#T##Int#>, blockLevelOnly: <#T##Bool#>)
+            let parent = node.parent!
+            let index = parent.children.index(of: node)!
+
+            let element = ElementNode(descriptor: elementDescriptor, children: [node])
+
+            parent.insert(element, at: index)
+        }
+
+        private func wrapChildren(of element: ElementNode, spanning range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
+
+            assert(range.length > 0)
+            assert(element is RootNode
+                || element.isBlockLevelElement()
+                || !elementDescriptor.isBlockLevel())
+
+            let nodesAndIntersections = inspector.findChildren(of: element, spanning: range)
+
+            let nodes = nodesAndIntersections.map { (nodeAndIntersection) -> Node in
+
+                let node = nodeAndIntersection.node
+                let intersection = nodeAndIntersection.intersection
+
+                if intersection != node.range() {
+                    node.split(forRange: intersection)
+                }
+
+                return node
+            }
+
+            wrapChildren(nodes, of: element, inElement: elementDescriptor)
+        }
+
+        /// Wraps the specified children nodes in a newly created element with the specified name.
+        /// The newly created node will be inserted at the position of `children[0]`.
+        ///
+        /// - Parameters:
+        ///     - children: the children nodes to wrap in a new node.
+        ///     - elementDescriptor: the descriptor for the element to wrap the children in.
+        ///
+        /// - Returns: the newly created `ElementNode`.
+        ///
+        @discardableResult
+        func wrapChildren(_ selectedChildren: [Node], of element: ElementNode, inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
+
+            var childrenToWrap = selectedChildren
+
+            guard selectedChildren.count > 0 else {
+                assertionFailure("Avoid calling this method with no nodes.")
+                return ElementNode(descriptor: elementDescriptor)
+            }
+
+            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
+                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
+            }
+
+            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
+                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
+            }
+
+            let evaluation = { (node: ElementNode) -> Bool in
+                return node.name == elementDescriptor.name
+            }
+
+            let bailEvaluation = { (node: ElementNode) -> Bool in
+                return node.isBlockLevelElement()
+            }
+
+            // First get the right sibling because if we do it the other round, lastNodeIndex will
+            // be modified before we access it.
+            //
+            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+
+            var wrapperElement: ElementNode?
+
+            if let sibling = rightSibling {
+                sibling.prepend(childrenToWrap, tryToMergeWithSiblings: false)
+                childrenToWrap = sibling.children
+
+                wrapperElement = sibling
+            }
+
+            if let sibling = leftSibling {
+                sibling.append(childrenToWrap, tryToMergeWithSiblings: false)
+                childrenToWrap = sibling.children
+
+                wrapperElement = sibling
+
+                if let rightSibling = rightSibling, rightSibling.children.count == 0 {
+                    rightSibling.removeFromParent()
+                }
+            }
+
+            let finalWrapper = wrapperElement ?? { () -> ElementNode in
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap)
+
+                children.insert(newNode, at: firstNodeIndex)
+                newNode.parent = self
+
+                return newNode
+                }()
+
+            if let childElementDescriptor = elementDescriptor.childDescriptor {
+                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
+            }
+
+            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
+                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
+                
+                finalWrapper.splitAtBreaks()
+            }
+            
+            return finalWrapper
         }
 
         // MARK: - Wrapping Nodes

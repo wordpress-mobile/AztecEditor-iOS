@@ -17,10 +17,10 @@ extension Libxml2 {
         
         // MARK: - Initializers
         
-        init(text: String, editContext: EditContext? = nil) {
+        init(text: String) {
             comment = text
 
-            super.init(name: "comment", editContext: editContext)
+            super.init(name: "comment")
         }
 
         /// Node length.

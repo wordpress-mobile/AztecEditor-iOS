@@ -81,7 +81,6 @@
 		F138062A1E3651DC00CFB9ED /* ControlCharacters.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F13806291E3651DC00CFB9ED /* ControlCharacters.rtf */; };
 		F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */; };
-		F15F61C91E0323EC00CD6DD8 /* EditContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F61C81E0323EC00CD6DD8 /* EditContext.swift */; };
 		F181CB381E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F181CB371E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
 		F18B81E71EA542BC00885F43 /* String+RangeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18B81E61EA542BC00885F43 /* String+RangeMapping.swift */; };
@@ -230,7 +229,6 @@
 		F13806291E3651DC00CFB9ED /* ControlCharacters.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = ControlCharacters.rtf; sourceTree = "<group>"; };
 		F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ElementNodeDescriptor.swift; path = Descriptors/ElementNodeDescriptor.swift; sourceTree = "<group>"; };
-		F15F61C81E0323EC00CD6DD8 /* EditContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditContext.swift; sourceTree = "<group>"; };
 		F181CB371E52650F00B256C8 /* NSAttributedString+AttributeDifferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+AttributeDifferences.swift"; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
 		F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSRangeComparisonTests.swift; path = Extensions/NSRangeComparisonTests.swift; sourceTree = "<group>"; };
@@ -385,7 +383,6 @@
 				599F25131D8BC9A1002871D6 /* DOM */,
 				599F251A1D8BC9A1002871D6 /* Libxml2.swift */,
 				F1CF27291DBA8CDB0001C61D /* DOMString.swift */,
-				F15F61C81E0323EC00CD6DD8 /* EditContext.swift */,
 			);
 			path = Libxml2;
 			sourceTree = "<group>";
@@ -818,7 +815,6 @@
 				F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */,
 				B577DC651E7B18E90012A1F8 /* NodeDescriptor.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
-				F15F61C91E0323EC00CD6DD8 /* EditContext.swift in Sources */,
 				F1FA0E731E6EF25A009D98EE /* DOMEditor.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
 				F1FA0E841E6EF514009D98EE /* LeafNode.swift in Sources */,

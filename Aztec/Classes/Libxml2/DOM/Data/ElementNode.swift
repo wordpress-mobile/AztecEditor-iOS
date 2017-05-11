@@ -8,7 +8,7 @@ extension Libxml2 {
     class ElementNode: Node {
 
         fileprivate(set) var attributes = [Attribute]()
-        fileprivate(set) var children: [Node]
+        var children: [Node]
 
         internal var standardName: StandardElementType? {
             get {
@@ -35,11 +35,11 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, attributes: [Attribute], children: [Node], editContext: EditContext? = nil) {
+        init(name: String, attributes: [Attribute], children: [Node]) {
             self.attributes.append(contentsOf: attributes)
             self.children = children
 
-            super.init(name: name, editContext: editContext)
+            super.init(name: name)
 
             for child in children {
 
@@ -51,8 +51,8 @@ extension Libxml2 {
             }
         }
         
-        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], editContext: EditContext? = nil) {
-            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
         }
         
         // MARK: - Node Constructors
@@ -1342,7 +1342,7 @@ extension Libxml2 {
                 // This code can be improved but this "hack" will allow us to postpone the necessary
                 // code restructuration.
                 //
-                let textNode = TextNode(text: "", editContext: editContext)
+                let textNode = TextNode(text: "")
                 insert(textNode, at: index)
                 textNode.append(string)
             }
@@ -1357,9 +1357,9 @@ extension Libxml2 {
 
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
-                node = ElementNode(descriptor: descriptor, editContext: editContext)
+                node = ElementNode(descriptor: descriptor)
             } else if let descriptor = descriptor as? CommentNodeDescriptor {
-                node = CommentNode(text: descriptor.comment, editContext: editContext)
+                node = CommentNode(text: descriptor.comment)
             } else {
                 fatalError("Unsupported Node Descriptor")
             }
@@ -1417,7 +1417,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: location)
             
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
                 
                 parent.insert(newElement, at: nodeIndex + 1)
             }
@@ -1446,7 +1446,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: range.location + range.length)
 
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
 
                 parent.insert(newElement, at: nodeIndex + 1)
             }
@@ -1454,7 +1454,7 @@ extension Libxml2 {
             let preNodes = splitChildren(before: range.location)
 
             if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
 
                 parent.insert(newElement, at: nodeIndex)
             }
@@ -1519,89 +1519,6 @@ extension Libxml2 {
             }
         }
 
-        /// Wraps the specified children nodes in a newly created element with the specified name.
-        /// The newly created node will be inserted at the position of `children[0]`.
-        ///
-        /// - Parameters:
-        ///     - children: the children nodes to wrap in a new node.
-        ///     - elementDescriptor: the descriptor for the element to wrap the children in.
-        ///
-        /// - Returns: the newly created `ElementNode`.
-        ///
-        @discardableResult
-        func wrap(children selectedChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
-
-            var childrenToWrap = selectedChildren
-
-            guard selectedChildren.count > 0 else {
-                assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(descriptor: elementDescriptor, editContext: editContext)
-            }
-
-            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
-                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
-            }
-            
-            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
-                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
-            }
-            
-            let evaluation = { (node: ElementNode) -> Bool in
-                return node.name == elementDescriptor.name
-            }
-            
-            let bailEvaluation = { (node: ElementNode) -> Bool in
-                return node.isBlockLevelElement()
-            }
-            
-            // First get the right sibling because if we do it the other round, lastNodeIndex will
-            // be modified before we access it.
-            //
-            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-
-            var wrapperElement: ElementNode?
-            
-            if let sibling = rightSibling {
-                sibling.prepend(childrenToWrap, tryToMergeWithSiblings: false)
-                childrenToWrap = sibling.children
-                
-                wrapperElement = sibling
-            }
-            
-            if let sibling = leftSibling {
-                sibling.append(childrenToWrap, tryToMergeWithSiblings: false)
-                childrenToWrap = sibling.children
-                
-                wrapperElement = sibling
-                
-                if let rightSibling = rightSibling, rightSibling.children.count == 0 {
-                    rightSibling.removeFromParent()
-                }
-            }
-
-            let finalWrapper = wrapperElement ?? { () -> ElementNode in
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
-
-                children.insert(newNode, at: firstNodeIndex)
-                newNode.parent = self
-
-                return newNode
-            }()
-
-            if let childElementDescriptor = elementDescriptor.childDescriptor {
-                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
-            }
-
-            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
-                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
-
-                finalWrapper.splitAtBreaks()
-            }
-
-            return finalWrapper
-        }
-
         // MARK: - Editing behavior
 
         private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
@@ -1624,17 +1541,12 @@ extension Libxml2 {
         // MARK: - Undo Support
         
         private func registerUndoForRemove(_ child: Node) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
             guard let index = children.index(of: child) else {
                 assertionFailure("The specified node is not one of this node's children.")
                 return
             }
             
-            editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
+            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
         }
@@ -1646,15 +1558,12 @@ extension Libxml2 {
             /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
             /// "Length=1" workaround.
             ///
-            guard let editContext = editContext else {
-                return true
-            }
 
             guard let standardName = standardName else {
                 return false
             }
 
-            return editContext.knownElements.contains(standardName)
+            return SharedEditor.currentEditor.knownElements.contains(standardName)
         }
     }
 
@@ -1682,8 +1591,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(children: [Node], editContext: EditContext? = nil) {
-            super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
+        init(children: [Node]) {
+            super.init(name: type(of: self).name, attributes: [], children: children)
         }
 
         // MARK: - Overriden Methods

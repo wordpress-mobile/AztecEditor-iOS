@@ -31,10 +31,6 @@ extension Libxml2 {
 
         var canEditTextRepresentation: Bool = true
         
-        // MARK: - Properties: Edit Context
-        
-        let editContext: EditContext?
-        
         // MARK: - CustomReflectable
         
         public var customMirror: Mirror {
@@ -45,9 +41,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, editContext: EditContext? = nil) {
+        init(name: String) {
             self.name = name
-            self.editContext = editContext
         }
 
         func range() -> NSRange {
@@ -282,7 +277,7 @@ extension Libxml2 {
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
 
-            let newNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
+            let newNode = ElementNode(descriptor: elementDescriptor)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
@@ -311,13 +306,9 @@ extension Libxml2 {
         ///
         private func registerUndoForParentChange() {
             
-            guard let editContext = editContext else {
-                return
-            }
-            
             let originalParent = rawParent
             
-            editContext.undoManager.registerUndo(withTarget: self) { target in
+            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { target in
                 target.parent = originalParent
             }
         }
