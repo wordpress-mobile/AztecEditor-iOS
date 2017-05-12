@@ -1095,7 +1095,7 @@ extension Libxml2 {
         /// - Returns: the locations where this node was split.
         ///
         @discardableResult
-        private func splitAtBreaks() -> [Int] {
+        func splitAtBreaks() -> [Int] {
 
             var offset = 0
             var splitLocations = [Int]()
@@ -1156,7 +1156,7 @@ extension Libxml2 {
             let originalParent = parent
 
             let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-            wrap(children: children, inElement: parentDescriptor)
+            SharedEditor.currentEditor?.wrapChildren(children, of: self, inElement: parentDescriptor)
 
             let indexOffset = left ? 0 : 1
 
@@ -1183,7 +1183,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(leftOf: childIndex) else {
                 return nil
@@ -1254,7 +1254,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard let theSibling: T = sibling(rightOf: childIndex) else {
                 return nil
@@ -1537,16 +1537,16 @@ extension Libxml2 {
 
             return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
-        
+
         // MARK: - Undo Support
-        
+
         private func registerUndoForRemove(_ child: Node) {
             guard let index = children.index(of: child) else {
                 assertionFailure("The specified node is not one of this node's children.")
                 return
             }
             
-            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { [weak self] target in
+            SharedEditor.currentEditor?.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
         }
@@ -1563,7 +1563,7 @@ extension Libxml2 {
                 return false
             }
 
-            return SharedEditor.currentEditor.knownElements.contains(standardName)
+            return SharedEditor.currentEditor!.knownElements.contains(standardName) ?? false
         }
     }
 

@@ -371,11 +371,11 @@ extension Libxml2 {
                 return ElementNode(descriptor: elementDescriptor)
             }
 
-            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
+            guard let firstNodeIndex = element.children.index(of: childrenToWrap[0]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
 
-            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
+            guard let lastNodeIndex = element.children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
                 fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
             }
 
@@ -390,8 +390,8 @@ extension Libxml2 {
             // First get the right sibling because if we do it the other round, lastNodeIndex will
             // be modified before we access it.
             //
-            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let rightSibling = elementDescriptor.canMergeRight ? element.pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let leftSibling = elementDescriptor.canMergeLeft ? element.pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
 
             var wrapperElement: ElementNode?
 
@@ -416,14 +416,14 @@ extension Libxml2 {
             let finalWrapper = wrapperElement ?? { () -> ElementNode in
                 let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap)
 
-                children.insert(newNode, at: firstNodeIndex)
-                newNode.parent = self
+                element.children.insert(newNode, at: firstNodeIndex)
+                newNode.parent = element
 
                 return newNode
                 }()
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
-                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
+                wrapChildren(selectedChildren, of: element, inElement: childElementDescriptor)
             }
 
             if let elementType = StandardElementType(rawValue: elementDescriptor.name),
@@ -434,7 +434,7 @@ extension Libxml2 {
             
             return finalWrapper
         }
-
+/*
         // MARK: - Wrapping Nodes
 
         /// Force-wraps the specified range inside a node with the specified properties.
@@ -596,7 +596,7 @@ extension Libxml2 {
                         self.forceWrapChildren(of: element, intersecting: targetRange, inElement: elementDescriptor)
                     }
             })
-        }
+        }*/
 
         // MARK: - Unwrapping Nodes
 
@@ -648,12 +648,12 @@ extension Libxml2 {
 
                 if range.location > 0 {
                     let preRange = NSRange(location: 0, length: range.location)
-                    wrap(element, range: preRange, inElement: elementDescriptor)
+                    wrap(preRange, of: element, in: elementDescriptor)
                 }
 
                 if rangeEndLocation < myLength {
                     let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    wrap(element, range: postRange, inElement: elementDescriptor)
+                    wrap(postRange, of: element, in: elementDescriptor)
                 }
 
                 if element.needsClosingParagraphSeparator() {

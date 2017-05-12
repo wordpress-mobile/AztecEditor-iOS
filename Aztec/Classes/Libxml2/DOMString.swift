@@ -143,6 +143,8 @@ extension Libxml2 {
             domQueue.sync {
                 self.rootNode = output.rootNode
                 self.domEditor = DOMEditor(with: output.rootNode, undoManager: self.domUndoManager)
+
+                SharedEditor.currentEditor = self.domEditor
             }
             
             return output.attributedString
@@ -787,19 +789,19 @@ extension Libxml2 {
         }
 
         private func applyElementDescriptor(_ elementDescriptor: ElementNodeDescriptor, spanning range: NSRange) {
-            domEditor.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
+            domEditor.wrap(range, in: elementDescriptor)
         }
-        
+
         // MARK: - Candidates for removal
-        
+
         func updateImage(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
         }
-        
+
         // MARK: - Candidates for removal: Synchronously
-        
+
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             
             for range in ranges {
