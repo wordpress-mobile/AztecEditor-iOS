@@ -41,9 +41,10 @@ public protocol TextViewAttachmentDelegate: class {
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
+    ///
     func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String)
 
-    /// Called when an attachment is selected with a single tap.
+    /// Called after an attachment is selected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
@@ -52,7 +53,7 @@ public protocol TextViewAttachmentDelegate: class {
     ///
     func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint)
 
-    /// Called when an attachment is deselected with a single tap.
+    /// Called after an attachment is deselected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
