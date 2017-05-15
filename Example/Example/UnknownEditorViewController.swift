@@ -7,25 +7,30 @@ import Aztec
 //
 class UnknownEditorViewController: UIViewController {
 
-    ///
+    /// HTML Editor
     ///
     fileprivate(set) var editorView: UITextView!
 
+    /// Raw HTML To Be Edited
     ///
-    ///
-    fileprivate var leftLayoutConstraint: NSLayoutConstraint!
+    fileprivate let htmlAttachment: HTMLAttachment
 
-    ///
-    ///
-    fileprivate var rightLayoutConstraint: NSLayoutConstraint!
 
+    /// Default Initializer
     ///
+    /// - Parameter rawHTML: HTML To Be Edited
     ///
-    fileprivate var topLayoutConstraint: NSLayoutConstraint!
+    init(htmlAttachment: HTMLAttachment) {
+        self.htmlAttachment = htmlAttachment
+        super.init(nibName: nil, bundle: nil)
+    }
 
+
+    /// Overriden Initializers
     ///
-    ///
-    fileprivate var bottomLayoutConstraint: NSLayoutConstraint!
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("You should use the `init(rawHTML:)` initializer!")
+    }
 
 
     // MARK: - View Methods
@@ -33,6 +38,7 @@ class UnknownEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupNavigationBar()
         setupEditorView()
         setupMainView()
         setupConstraints()
@@ -40,14 +46,27 @@ class UnknownEditorViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        startListeningToNotifications()
+        editorView.becomeFirstResponder()
     }
 }
 
 
 // MARK: - Private Helpers
 //
-extension UnknownEditorViewController {
+private extension UnknownEditorViewController {
+
+    func setupNavigationBar() {
+        title = NSLocalizedString("Unknwon HTML", comment: "Title for Unknown HTML Editor")
+
+        let cancelTitle = NSLocalizedString("Cancel", comment: "Cancel Action")
+        let saveTitle = NSLocalizedString("Save", comment: "Save Action")
+
+        let cancelButton = UIBarButtonItem(title: cancelTitle, style: .plain, target: self, action: #selector(cancelWasPressed))
+        let saveButton = UIBarButtonItem(title: saveTitle, style: .plain, target: self, action: #selector(saveWasPressed))
+
+        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.rightBarButtonItem = saveButton
+    }
 
     func setupEditorView() {
         let storage = HTMLStorage(defaultFont: Constants.defaultContentFont)
@@ -61,95 +80,34 @@ extension UnknownEditorViewController {
         editorView.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
         editorView.accessibilityIdentifier = "HTMLContentView"
         editorView.translatesAutoresizingMaskIntoConstraints = false
+        editorView.text = htmlAttachment.prettyHTML()
     }
 
     func setupMainView() {
-        view.backgroundColor = Constants.backgroundColor
         view.addSubview(editorView)
     }
 
     func setupConstraints() {
-        let insets = Constants.defaultEdgeInsets
-
-        bottomLayoutConstraint = editorView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -insets.bottom)
-        topLayoutConstraint = editorView.topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top)
-        leftLayoutConstraint = editorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left)
-        rightLayoutConstraint = editorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -insets.right)
-
-        NSLayoutConstraint.activate([topLayoutConstraint, bottomLayoutConstraint, leftLayoutConstraint, rightLayoutConstraint])
+        NSLayoutConstraint.activate([
+            editorView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            editorView.topAnchor.constraint(equalTo: view.topAnchor),
+            editorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            editorView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
     }
 }
 
 
-// MARK: - Keyboard Handling
+// MARK: - Actions
 //
 extension UnknownEditorViewController {
 
-    func startListeningToNotifications() {
-        let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+    @IBAction func cancelWasPressed() {
+        dismiss(animated: true, completion: nil)
     }
 
-    func keyboardWillShow(_ notification: Notification) {
-        refreshBottomInsetIfNeeded(notification)
-    }
-
-    func keyboardWillHide(_ notification: Notification) {
-        refreshBottomInsetIfNeeded(notification)
-    }
-
-    func refreshBottomInsetIfNeeded(_ notification: Notification) {
-        guard let duration = animationDuration(from: notification),
-            let curve = animationCurve(from: notification),
-            let frame = keyboardFrame(from: notification),
-            let inset = bottomInset(for: frame)
-        else {
-            return
-        }
-
-        guard inset != bottomLayoutConstraint.constant else {
-            return
-        }
-
-        animateBottomInset(curve: curve, duration: duration, inset: inset)
-    }
-
-    private func bottomInset(for keyboardFrame: CGRect) -> CGFloat? {
-        return keyboardFrame.minY - view.frame.maxY - Constants.defaultEdgeInsets.bottom
-    }
-
-    private func keyboardFrame(from notification: Notification) -> CGRect? {
-        let userInfo = notification.userInfo as? [String: AnyObject]
-        let keyboardFrame = userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue
-
-        return keyboardFrame?.cgRectValue
-    }
-
-    private func animationDuration(from notification: Notification) -> TimeInterval? {
-        let duration = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval
-        return duration
-    }
-
-    private func animationCurve(from notification: Notification) -> UIViewAnimationCurve? {
-        guard let rawCurve = notification.userInfo?[UIKeyboardAnimationCurveUserInfoKey] as? Int,
-            let curve = UIViewAnimationCurve(rawValue: rawCurve)
-        else {
-            return nil
-        }
+    @IBAction func saveWasPressed() {
         
-        return curve
-    }
-
-    private func animateBottomInset(curve: UIViewAnimationCurve, duration: TimeInterval, inset: CGFloat) {
-        UIView.beginAnimations(nil, context: nil)
-        UIView.setAnimationCurve(curve)
-        UIView.setAnimationDuration(duration)
-
-        bottomLayoutConstraint.constant = inset
-        view.layoutIfNeeded()
-
-        UIView.commitAnimations()
     }
 }
 
@@ -160,7 +118,5 @@ extension UnknownEditorViewController {
 
     struct Constants {
         static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
-        static let defaultEdgeInsets    = UIEdgeInsetsMake(70, 15, 15, 15)
-        static let backgroundColor      = UIColor(hue: 0x29/255.0, saturation: 0x28/255.0, brightness: 0x29/255.0, alpha: 0x90/255.0)
     }
 }
