@@ -21,7 +21,7 @@ class EditorDemoController: UIViewController {
 
         textView.delegate = self
         textView.formattingDelegate = self
-        textView.mediaDelegate = self
+        textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
 
         return textView
@@ -804,9 +804,9 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 }
 
 
-extension EditorDemoController: TextViewMediaDelegate {
+extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
             DispatchQueue.main.async(execute: {
@@ -826,21 +826,21 @@ extension EditorDemoController: TextViewMediaDelegate {
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForAttachment attachment: NSTextAttachment) -> URL {
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
         
         // TODO: start fake upload process
-        if let image = attachment.image {
+        if let image = imageAttachment.image {
             return saveToDisk(image: image)
         } else {
             return URL(string: "placeholder://")!
         }
     }
 
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
+    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
         print("Attachment \(attachmentID) removed.\n")
     }
 
-    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
         if let imgAttachment = attachment as? ImageAttachment {
             selected(textAttachment: imgAttachment, atPosition: position)
         }
@@ -853,7 +853,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         }
     }
 
-    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint) {
         deselected(textAttachment: attachment, atPosition: position)
     }
 
