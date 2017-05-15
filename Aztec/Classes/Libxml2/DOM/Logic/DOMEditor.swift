@@ -53,7 +53,7 @@ extension Libxml2 {
 
             let (insertionElement, insertionLocation)
                 = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevel: true)
- 
+
             if insertionElement.isBlockLevelElement() {
                 let paragraphs = string.components(separatedBy: String(.paragraphSeparator))
 
@@ -77,8 +77,7 @@ extension Libxml2 {
                 return
             }
 
-            let (matchElement, matchLocation) = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location)
-            let childrenBefore = matchElement.splitChildren(before: matchLocation)
+            let childrenBefore = element.splitChildren(before: location)
 
             let nodesToInsert = nodes(for: string)
 
@@ -300,7 +299,12 @@ extension Libxml2 {
 
         func wrap(_ range: NSRange, of element: ElementNode, in elementDescriptor: ElementNodeDescriptor) {
 
-            let elementsAndRanges = inspector.findLowestBlockElementDescendants(of: element, spanning: range)
+            let elementsAndRanges = inspector.findLowestBlockElementDescendants(
+                of: element,
+                spanning: range,
+                bailCheck: { node in
+                    return elementDescriptor.matchingNames.contains(node.name)
+            })
 
             for (matchElement, matchRange) in elementsAndRanges {
 
@@ -519,7 +523,8 @@ extension Libxml2 {
                 return child
             })
 
-            element.wrap(children: children, inElement: elementDescriptor)
+            //element.wrap(children: children, inElement: elementDescriptor)
+            wrapChildren(children, of: element, inElement: elementDescriptor)
         }
 
         /// Wraps the specified range inside a node with the specified properties.
@@ -596,7 +601,8 @@ extension Libxml2 {
                         self.forceWrapChildren(of: element, intersecting: targetRange, inElement: elementDescriptor)
                     }
             })
-        }*/
+        }
+        */
 
         // MARK: - Unwrapping Nodes
 

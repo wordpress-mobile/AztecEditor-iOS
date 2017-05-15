@@ -141,7 +141,8 @@ extension Libxml2 {
         ///
         func findLowestBlockElementDescendants(
             of element: ElementNode,
-            spanning range: NSRange) -> [ElementAndIntersection] {
+            spanning range: NSRange,
+            bailCheck: (Node) -> Bool = { _ in return false }) -> [ElementAndIntersection] {
 
             assert(element.range().contains(range: range))
 
@@ -153,6 +154,10 @@ extension Libxml2 {
             var offset = 0
 
             for child in element.children {
+
+                guard !bailCheck(child) else {
+                    continue
+                }
 
                 let childRangeInParent = child.range().offset(offset)
                 

@@ -68,13 +68,20 @@ extension Libxml2 {
 
         // MARK: - Properties: DOM Logic
 
-        private lazy var domEditor: DOMEditor = {
-            let editor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
+        private var domEditor: DOMEditor {
+            set {
+                SharedEditor.currentEditor = newValue
+            }
 
-            SharedEditor.currentEditor = editor
+            get {
 
-            return editor
-        }()
+                if SharedEditor.currentEditor == nil {
+                    SharedEditor.currentEditor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
+                }
+
+                return SharedEditor.currentEditor
+            }
+        }
 
         // MARK: - Init & deinit
 
@@ -143,8 +150,6 @@ extension Libxml2 {
             domQueue.sync {
                 self.rootNode = output.rootNode
                 self.domEditor = DOMEditor(with: output.rootNode, undoManager: self.domUndoManager)
-
-                SharedEditor.currentEditor = self.domEditor
             }
             
             return output.attributedString

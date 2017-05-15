@@ -289,16 +289,6 @@ extension Libxml2 {
 
             return newNode
         }
-
-        /// Wraps the specified range in the specified element.
-        ///
-        /// - Parameters:
-        ///     - range: the range to wrap.
-        ///     - elementDescriptor: the element to wrap the range in.
-        ///
-        func wrap(in range: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
-            assertionFailure("This method should always be overridden.")
-        }
         
         // MARK: - Undo support
         
@@ -308,7 +298,7 @@ extension Libxml2 {
             
             let originalParent = rawParent
 
-            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { target in
+            SharedEditor.currentEditor?.undoManager.registerUndo(withTarget: self) { target in
                 target.parent = originalParent
             }
         }
