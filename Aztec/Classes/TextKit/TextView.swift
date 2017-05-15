@@ -36,7 +36,7 @@ public protocol TextViewAttachmentDelegate: class {
     func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL
 
 
-    /// Called when a attachment is removed from the storage.
+    /// Called after a attachment is removed from the storage.
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
