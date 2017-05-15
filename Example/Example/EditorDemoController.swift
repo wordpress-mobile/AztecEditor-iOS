@@ -894,8 +894,24 @@ extension EditorDemoController: UIImagePickerControllerDelegate
     }
 }
 
-// MARK: - Misc
 
+// MARK: - Unknown HTML
+//
+private extension EditorDemoController {
+
+    func displayUnknownHtmlEditor(for htmlAttachment: HTMLAttachment) {
+        let targetVC = UnknownEditorViewController(htmlAttachment: htmlAttachment)
+        let navigation = UINavigationController(rootViewController: targetVC)
+
+        ForcePopoverPresenter.configurePresentationControllerForViewController(navigation, presentingFromView: view)
+
+        present(navigation, animated: true, completion: nil)
+    }
+}
+
+
+// MARK: - Misc
+//
 private extension EditorDemoController
 {
     func saveToDisk(image: UIImage) -> URL {
