@@ -1016,8 +1016,8 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML() -> String {
-        return dom.getHTML()
+    open func getHTML(prettyPrint: Bool = false) -> String {
+        return dom.getHTML(prettyPrint: prettyPrint)
     }
 
     func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {

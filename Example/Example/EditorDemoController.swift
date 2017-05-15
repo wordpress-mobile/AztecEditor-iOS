@@ -45,6 +45,8 @@ class EditorDemoController: UIViewController {
         textView.isHidden = true
         textView.delegate = self
         textView.accessibilityIdentifier = "HTMLContentView"
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
 
         return textView
     }()
@@ -97,10 +99,10 @@ class EditorDemoController: UIViewController {
 
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                htmlTextView.text = richTextView.getHTML(prettyPrint: true)
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                richTextView.setHTML(htmlTextView.text)
+                setHTML(htmlTextView.text)                
                 richTextView.becomeFirstResponder()
             }
 
@@ -114,6 +116,16 @@ class EditorDemoController: UIViewController {
     fileprivate var formatBarAnimatedPeek = false
 
     var loadSampleHTML = false
+
+    fileprivate var shortcodeProcessors = [ShortcodeProcessor]()
+
+    func setHTML(_ html: String) {
+        var processedHTML = html
+        for shortcodeProcessor in shortcodeProcessors {
+            processedHTML = shortcodeProcessor.process(text: processedHTML)
+        }
+        richTextView.setHTML(processedHTML)
+    }
 
 
     // MARK: - Lifecycle Methods
@@ -138,6 +150,7 @@ class EditorDemoController: UIViewController {
         view.addSubview(separatorView)
         configureConstraints()
         registerAttachmentImageProviders()
+        registerShortcodeProcessors()
 
         let html: String
 
@@ -147,7 +160,7 @@ class EditorDemoController: UIViewController {
             html = ""
         }
 
-        richTextView.setHTML(html)
+        setHTML(html)
 
         MediaAttachment.appearance.progressColor = UIColor.blue
         MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
@@ -270,6 +283,38 @@ class EditorDemoController: UIViewController {
         for provider in providers {
             richTextView.registerAttachmentImageProvider(provider)
         }
+    }
+
+    private func registerShortcodeProcessors() {
+        let videoPressProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
+            var html = "<video "
+            if let src = shortcode.attributes.unamedAttributes.first {
+                html += "src=\"videopress://\(src)\" "
+            }
+            if let width = shortcode.attributes.namedAttributes["w"] {
+                html += "width=\(width) "
+            }
+            if let height = shortcode.attributes.namedAttributes["h"] {
+                html += "height=\(height) "
+            }
+            html += "\\>"
+            return html
+        })
+
+        let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
+            var html = "<video "
+            if let src = shortcode.attributes.namedAttributes["src"] {
+                html += "src=\"\(src)\" "
+            }
+            if let poster = shortcode.attributes.namedAttributes["poster"] {
+                html += "poster=\"\(poster)\" "
+            }
+            html += "\\>"
+            return html
+        })
+        
+        shortcodeProcessors.append(videoPressProcessor)
+        shortcodeProcessors.append(wordPressVideoProcessor)
     }
 
 
