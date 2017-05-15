@@ -946,11 +946,25 @@ private extension EditorDemoController {
 
     func displayUnknownHtmlEditor(for htmlAttachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(htmlAttachment: htmlAttachment)
-        let navigation = UINavigationController(rootViewController: targetVC)
 
-        ForcePopoverPresenter.configurePresentationControllerForViewController(navigation, presentingFromView: view)
+        let navigation = UINavigationController(rootViewController: targetVC)
+        navigation.modalPresentationStyle = .popover
+
+        let presentationController = navigation.popoverPresentationController
+        presentationController?.sourceView = view
+        presentationController?.delegate = self
 
         present(navigation, animated: true, completion: nil)
+    }
+}
+
+
+// MARK: - UIPopoverPresentationControllerDelegate
+//
+extension EditorDemoController: UIPopoverPresentationControllerDelegate {
+
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
     }
 }
 
