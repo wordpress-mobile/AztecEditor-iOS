@@ -15,6 +15,17 @@ extension NSRange
     func contains(range: NSRange) -> Bool {
         return intersect(withRange: range) == range
     }
+
+    /// Checks if the receiver contains the specified location.
+    ///
+    /// - Parameters:
+    ///     - range: the location that the receiver may or may not contain.
+    ///
+    /// - Returns: `true` if the receiver contains the specified location, `false` otherwise.
+    ///
+    func contains(offset: Int) -> Bool {
+        return offset >= location && offset <= location + length
+    }
     
     /// Returns the intersection between the receiver and the specified range.
     ///

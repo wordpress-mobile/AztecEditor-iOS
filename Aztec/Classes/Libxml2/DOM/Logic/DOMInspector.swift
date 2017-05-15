@@ -43,9 +43,12 @@ extension Libxml2 {
             case descendant(element: ElementNode)
         }
 
-        typealias ElementAndLocation = (element: ElementNode, location: Int)
         typealias ElementAndIntersection = (element: ElementNode, intersection: NSRange)
+        typealias ElementAndOffset = (element: ElementNode, offset: Int)
+
         typealias NodeAndIntersection = (node: Node, intersection: NSRange)
+        typealias NodeAndOffset = (node: Node, offset: Int)
+        
         private typealias EnumerationStep = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> NextStep
 
         /// An enum used for enumerating through a DOM tree.  Defines how enumeration continues
@@ -67,7 +70,26 @@ extension Libxml2 {
             case continueWithChildren(element: ElementNode)
         }
 
-        // MARK: - Parent
+        // MARK: - Parent & Siblings
+
+        /// Retrieves the right sibling of a specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node to find the right sibling of.
+        ///
+        /// - Returns: the right sibling, or `nil` if there's none.
+        ///
+        func leftSibling(of node: Node) -> Node? {
+
+            let parent = self.parent(of: node)
+            let nextIndex = parent.indexOf(childNode: node) - 1
+
+            guard nextIndex > 0 else {
+                return nil
+            }
+
+            return parent.children[nextIndex]
+        }
 
         /// Call this method whenever you node the specified node MUST have a parent set.
         /// This method will interrupt program execution if a parent isn't set.
@@ -85,20 +107,16 @@ extension Libxml2 {
             return parent
         }
 
-        // MARK: - Node Introspection
-
-        func isEmptyTextNode(_ node: Node) -> Bool {
-            return node is TextNode && node.length() == 0
-        }
-
-        // MARK: - Siblings
-
+        /// Retrieves the right sibling of a specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node to find the right sibling of.
+        ///
+        /// - Returns: the right sibling, or `nil` if there's none.
+        ///
         func rightSibling(of node: Node) -> Node? {
-            guard let parent = node.parent else {
-                assertionFailure("Shouldn't call this method in a node without a parent.")
-                return nil
-            }
 
+            let parent = self.parent(of: node)
             let nextIndex = parent.indexOf(childNode: node) + 1
 
             guard parent.children.count > nextIndex else {
@@ -108,7 +126,13 @@ extension Libxml2 {
             return parent.children[nextIndex]
         }
 
-        // MARK: - Finding nodes
+        // MARK: - Node Introspection
+
+        func isEmptyTextNode(_ node: Node) -> Bool {
+            return node is TextNode && node.length() == 0
+        }
+
+        // MARK: - Finding Nodes
 
         /// Finds a node ending at the specified location.
         ///
@@ -121,67 +145,7 @@ extension Libxml2 {
             return findDescendant(of: rootNode, endingAt: location)
         }
 
-        /// Finds the leftmost and lowest element intersecting the specified location.
-        ///
-        func findLeftmostLowestDescendantElement(intersecting location: Int) -> ElementAndLocation {
-            return findLeftmostLowestDescendantElement(of: rootNode, intersecting: location)
-        }
-
-        /// Finds the lowest block-level elements spanning the specified range.
-        ///
-        //// - Parameters:
-        ///     - startingElement: the head node of the subtree for the search.
-        ///     - range: the range that must be contained by the element.
-        ///     - blockLevelOnly: flag to specify if the requested element has to be a block-level
-        ///             element.
-        ///
-        /// - Returns: a pair containing the matching element (or `startingElement`, if no better
-        ///         match is found) and the input location relative in the returned element's
-        ///         coordinates.
-        ///
-        func findLowestBlockElementDescendants(
-            of element: ElementNode,
-            spanning range: NSRange,
-            bailCheck: (Node) -> Bool = { _ in return false }) -> [ElementAndIntersection] {
-
-            assert(element.range().contains(range: range))
-
-            guard element.children.count > 0 else {
-                return [(element, range)]
-            }
-
-            var elementsAndRanges = [ElementAndIntersection]()
-            var offset = 0
-
-            for child in element.children {
-
-                guard !bailCheck(child) else {
-                    continue
-                }
-
-                let childRangeInParent = child.range().offset(offset)
-                
-                guard let intersection = range.intersect(withRange: childRangeInParent) else {
-                    continue
-                }
-
-                guard let childElement = child as? ElementNode,
-                    childElement.isBlockLevelElement() else {
-                        elementsAndRanges.append((element, intersection))
-                        continue
-                }
-
-                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset))
-
-                for (matchElement, matchIntersection) in childElementsAndRanges {
-                    elementsAndRanges.append((matchElement, matchIntersection))
-                }
-
-                offset = offset + child.length()
-            }
-
-            return elementsAndRanges
-        }
+        // MARK: - Finding Nodes: Children
 
         /// Finds the lowest block-level elements spanning the specified range.
         ///
@@ -217,10 +181,111 @@ extension Libxml2 {
                 }
 
                 elementsAndRanges.append((child, intersection))
-                
+
                 offset = offset + child.length()
             }
             
+            return elementsAndRanges
+        }
+
+        /// Finds the leftmost child intersecting the specified location.
+        ///
+        //// - Parameters:
+        ///     - element: the element to find the child of.
+        ///     - location: the location the child node should intersect
+        ///
+        /// - Returns: The leftmost child intersecting the specified location, or
+        ///         `nil` if no intersection is found.
+        ///
+        func findLeftmostChild(
+            of element: ElementNode,
+            intersecting offset: Int) -> NodeAndOffset? {
+
+            assert(element.range().length > offset)
+
+            guard element.children.count > 0 else {
+                return nil
+            }
+
+            var childOffset = 0
+
+            for child in element.children {
+
+                let childRangeInParent = child.range().offset(childOffset)
+
+                if childRangeInParent.contains(offset: childOffset) {
+                    return (node: child, offset: offset - childOffset)
+                }
+
+                childOffset = childOffset + child.length()
+            }
+            
+            return nil
+        }
+
+        // MARK: - Finding Nodes: Descendants
+
+        /// Finds the leftmost and lowest element intersecting the specified location.
+        ///
+        func findLeftmostLowestDescendantElement(intersecting location: Int) -> ElementAndOffset {
+            return findLeftmostLowestDescendantElement(of: rootNode, intersecting: location)
+        }
+
+        /// Finds the lowest block-level elements spanning the specified range.
+        ///
+        //// - Parameters:
+        ///     - startingElement: the head node of the subtree for the search.
+        ///     - range: the range that must be contained by the element.
+        ///     - blockLevelOnly: flag to specify if the requested element has to be a block-level
+        ///             element.
+        ///
+        /// - Returns: a pair containing the matching element (or `startingElement`, if no better
+        ///         match is found) and the input location relative in the returned element's
+        ///         coordinates.
+        ///
+        func findLowestBlockElementDescendants(
+            of element: ElementNode,
+            spanning range: NSRange,
+            bailCheck: (Node) -> Bool = { _ in return false }) -> [ElementAndIntersection] {
+
+            assert(element.range().contains(range: range))
+
+            guard element.children.count > 0 else {
+                return [(element, range)]
+            }
+
+            var elementsAndRanges = [ElementAndIntersection]()
+            var offset = 0
+
+            for child in element.children {
+
+                defer {
+                    offset = offset + child.length()
+                }
+
+                guard !bailCheck(child) else {
+                    continue
+                }
+
+                let childRangeInParent = child.range().offset(offset)
+                
+                guard let intersection = range.intersect(withRange: childRangeInParent) else {
+                    continue
+                }
+
+                guard let childElement = child as? ElementNode,
+                    childElement.isBlockLevelElement() else {
+                        elementsAndRanges.append((element, intersection))
+                        continue
+                }
+
+                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset))
+
+                for (matchElement, matchIntersection) in childElementsAndRanges {
+                    elementsAndRanges.append((matchElement, matchIntersection))
+                }
+            }
+
             return elementsAndRanges
         }
 
@@ -239,7 +304,7 @@ extension Libxml2 {
         func findLeftmostLowestDescendantElement(
             of startingElement: ElementNode,
             intersecting location: Int,
-            blockLevel: Bool = false) -> ElementAndLocation {
+            blockLevel: Bool = false) -> ElementAndOffset {
 
             var result = (startingElement, location)
 
@@ -302,7 +367,49 @@ extension Libxml2 {
             })
         }
 
-        // MARK: - Finding Node: Core Methods
+        // MARK: - Finding Nodes: Siblings
+
+        /// Finds all the left siblings of the specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node.
+        ///     - includeReferenceNode: whether the reference node must be included in the results.
+        ///
+        /// - Returns: the left siblings of the reference node.
+        ///
+        func findLeftSiblings(of node: Node, includingReferenceNode includeReferenceNode: Bool = false) -> [Node] {
+
+            let parent = self.parent(of: node)
+            let referenceIndex = parent.indexOf(childNode: node)
+
+            if includeReferenceNode {
+                return [Node](parent.children.prefix(through: referenceIndex))
+            } else {
+                return [Node](parent.children.prefix(upTo: referenceIndex))
+            }
+        }
+
+        /// Finds all the right siblings of the specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node.
+        ///     - includeReferenceNode: whether the reference node must be included in the results.
+        ///
+        /// - Returns: the right siblings of the reference node.
+        ///
+        func findRightSiblings(of node: Node, includingReferenceNode includeReferenceNode: Bool = false) -> [Node] {
+
+            let parent = self.parent(of: node)
+            let referenceIndex = parent.indexOf(childNode: node)
+
+            if includeReferenceNode {
+                return [Node](parent.children.suffix(from: referenceIndex))
+            } else {
+                return [Node](parent.children.suffix(from: referenceIndex + 1))
+            }
+        }
+
+        // MARK: - Finding Nodes: Core Methods
 
         /// Navigates the descendants of a provided element.
         ///
