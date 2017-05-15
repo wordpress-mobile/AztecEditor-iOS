@@ -841,15 +841,18 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     }
 
     func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? ImageAttachment {
-            selected(textAttachment: imgAttachment, atPosition: position)
-        }
-
-        if let videoAttachment = attachment as? VideoAttachment {
+        switch attachment {
+        case let attachment as HTMLAttachment:
+            displayUnknownHtmlEditor(for: attachment)
+        case let attachment as ImageAttachment:
+            selected(textAttachment: attachment, atPosition: position)
+        case let attachment as VideoAttachment:
             if let imageAttachment = currentSelectedAttachment {
                 deselected(textAttachment: imageAttachment, atPosition: position)
             }
-            selected(videoAttachment: videoAttachment, atPosition: position)
+            selected(videoAttachment: attachment, atPosition: position)
+        default:
+            break
         }
     }
 
