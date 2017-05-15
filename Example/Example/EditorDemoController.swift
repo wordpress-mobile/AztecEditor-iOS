@@ -45,6 +45,8 @@ class EditorDemoController: UIViewController {
         textView.isHidden = true
         textView.delegate = self
         textView.accessibilityIdentifier = "HTMLContentView"
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
 
         return textView
     }()
@@ -97,7 +99,7 @@ class EditorDemoController: UIViewController {
 
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                htmlTextView.text = richTextView.getHTML(prettyPrint: true)
                 htmlTextView.becomeFirstResponder()
             case .richText:
                 setHTML(htmlTextView.text)                

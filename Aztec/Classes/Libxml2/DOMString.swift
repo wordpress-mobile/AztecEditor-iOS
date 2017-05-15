@@ -94,21 +94,23 @@ extension Libxml2 {
         
         /// Gets the HTML representation of the DOM.
         ///
-        func getHTML() -> String {
+        /// - Parameter prettyPrint: Indicates if the output should be pretty printed, or not.
+        ///
+        func getHTML(prettyPrint: Bool = false) -> String {
             
-            var result: String = ""
+            var output = ""
             
             domQueue.sync { [weak self] in
-                
-                guard let strongSelf = self else {
+
+                guard let rootNode = self?.rootNode else {
                     return
                 }
-                
-                let converter = Libxml2.Out.HTMLConverter()
-                result = converter.convert(strongSelf.rootNode)
+
+                let converter = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
+                output = converter.convert(rootNode)
             }
             
-            return result
+            return output
         }
         
         /// Sets the HTML for the DOM.
