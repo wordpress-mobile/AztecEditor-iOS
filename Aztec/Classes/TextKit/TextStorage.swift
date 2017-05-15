@@ -31,11 +31,11 @@ protocol TextStorageAttachmentsDelegate {
     ///
     /// - Parameters:
     ///     - storage: The storage that is requesting the image.
-    ///     - image: The image that was added to the storage.
+    ///     - imageAttachment: The image that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL
+    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL
 
     /// Called when a attachment is removed from the storage.
     ///
@@ -235,7 +235,7 @@ open class TextStorage: NSTextStorage {
                 let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
-                replacementAttachment.url = attachmentsDelegate.storage(self, urlForAttachment: replacementAttachment)
+                replacementAttachment.url = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
 
                 finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
             }
