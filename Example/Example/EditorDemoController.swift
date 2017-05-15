@@ -960,6 +960,7 @@ private extension EditorDemoController {
 
     func displayAsPopover(viewController: UIViewController) {
         viewController.modalPresentationStyle = .popover
+        viewController.preferredContentSize = view.frame.size
 
         let presentationController = viewController.popoverPresentationController
         presentationController?.sourceView = view
