@@ -21,7 +21,7 @@ class EditorDemoController: UIViewController {
 
         textView.delegate = self
         textView.formattingDelegate = self
-        textView.mediaDelegate = self
+        textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
 
         return textView
@@ -806,7 +806,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
             DispatchQueue.main.async(execute: {
@@ -826,17 +826,17 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForAttachment attachment: NSTextAttachment) -> URL {
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
         
         // TODO: start fake upload process
-        if let image = attachment.image {
+        if let image = imageAttachment.image {
             return saveToDisk(image: image)
         } else {
             return URL(string: "placeholder://")!
         }
     }
 
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
+    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
         print("Attachment \(attachmentID) removed.\n")
     }
 

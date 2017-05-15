@@ -102,19 +102,19 @@ class TextStorageTests: XCTestCase
 
         var deletedAttachmendIDCalledWithString: String?
 
-        func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
+        func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
             deletedAttachmendIDCalledWithString = attachmentID
         }
 
-        func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
+        func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
             return UIImage()
         }
 

@@ -20,11 +20,11 @@ protocol TextStorageAttachmentsDelegate {
     func storage(
         _ storage: TextStorage,
         attachment: NSTextAttachment,
-        imageForURL url: URL,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
     
-    func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage
+    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
     /// delegate can specify an URL where that image is available.
@@ -43,7 +43,7 @@ protocol TextStorageAttachmentsDelegate {
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
     ///
-    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String)
+    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String)
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
@@ -246,7 +246,7 @@ open class TextStorage: NSTextStorage {
 
     fileprivate func detectAttachmentRemoved(in range:NSRange) {
         textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
-            self.attachmentsDelegate.storage(self, deletedAttachmentWithID: attachment.identifier)
+            self.attachmentsDelegate.storage(self, deletedAttachmentWith: attachment.identifier)
         }
     }
 
@@ -1055,7 +1055,7 @@ extension TextStorage: MediaAttachmentDelegate {
         onFailure failure: @escaping () -> ()) -> UIImage
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: mediaAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
+        return attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -1068,7 +1068,7 @@ extension TextStorage: VideoAttachmentDelegate {
         onFailure failure: @escaping () -> ()) -> UIImage
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: videoAttachment, imageForURL: url, onSuccess: success, onFailure: failure)
+        return attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
     
 }
