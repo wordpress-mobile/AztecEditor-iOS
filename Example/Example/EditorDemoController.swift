@@ -946,15 +946,26 @@ private extension EditorDemoController {
 
     func displayUnknownHtmlEditor(for htmlAttachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(htmlAttachment: htmlAttachment)
+        targetVC.onDidSave = { [weak self] html in
+// TODO: Save
+            self?.dismiss(animated: true, completion: nil)
+        }
+        targetVC.onDidCancel = { [weak self] in
+            self?.dismiss(animated: true, completion: nil)
+        }
 
-        let navigation = UINavigationController(rootViewController: targetVC)
-        navigation.modalPresentationStyle = .popover
+        let navigationController = UINavigationController(rootViewController: targetVC)
+        displayAsPopover(viewController: navigationController)
+    }
 
-        let presentationController = navigation.popoverPresentationController
+    func displayAsPopover(viewController: UIViewController) {
+        viewController.modalPresentationStyle = .popover
+
+        let presentationController = viewController.popoverPresentationController
         presentationController?.sourceView = view
         presentationController?.delegate = self
 
-        present(navigation, animated: true, completion: nil)
+        present(viewController, animated: true, completion: nil)
     }
 }
 
