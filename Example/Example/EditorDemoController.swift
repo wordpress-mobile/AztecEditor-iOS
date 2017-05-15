@@ -840,7 +840,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         print("Attachment \(attachmentID) removed.\n")
     }
 
-    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
         if let imgAttachment = attachment as? ImageAttachment {
             selected(textAttachment: imgAttachment, atPosition: position)
         }
@@ -853,7 +853,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         }
     }
 
-    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint) {
         deselected(textAttachment: attachment, atPosition: position)
     }
 

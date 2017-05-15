@@ -50,7 +50,7 @@ public protocol TextViewAttachmentDelegate: class {
     ///   - attachment: the attachment that was selected.
     ///   - position: touch position relative to the textview.
     ///
-    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint)
 
     /// Called when an attachment is deselected with a single tap.
     ///
@@ -59,7 +59,7 @@ public protocol TextViewAttachmentDelegate: class {
     ///   - attachment: the attachment that was deselected.
     ///   - position: touch position relative to the textView
     ///
-    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint)
 }
 
 
@@ -1378,7 +1378,7 @@ extension TextView: TextStorageAttachmentsDelegate {
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
             // if we have a current selected attachment let's notify of deselection
             if let selectedAttachment = currentSelectedAttachment {
-                textView.textAttachmentDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return false
@@ -1402,14 +1402,14 @@ extension TextView: TextStorageAttachmentsDelegate {
 
         if textView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
-                textView.textAttachmentDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return
         }
 
         currentSelectedAttachment = attachment as? ImageAttachment
-        textView.textAttachmentDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
+        textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
     }
 }
 
