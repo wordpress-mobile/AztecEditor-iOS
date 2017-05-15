@@ -804,7 +804,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 }
 
 
-extension EditorDemoController: TextViewMediaDelegate {
+extension EditorDemoController: TextViewAttachmentDelegate {
 
     func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 

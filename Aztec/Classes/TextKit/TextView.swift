@@ -6,7 +6,7 @@ import Gridicons
 
 // MARK: - TextViewMediaDelegate
 //
-public protocol TextViewMediaDelegate: class {
+public protocol TextViewAttachmentDelegate: class {
 
     /// This method requests from the delegate the image at the specified URL.
     ///
@@ -128,7 +128,7 @@ open class TextView: UITextView {
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
-    open weak var mediaDelegate: TextViewMediaDelegate?
+    open weak var mediaDelegate: TextViewAttachmentDelegate?
 
     /// Maintains a reference to the user provided Text Attachment Image Providers
     ///
