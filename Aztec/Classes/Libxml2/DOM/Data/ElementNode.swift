@@ -1156,7 +1156,7 @@ extension Libxml2 {
             let originalParent = parent
 
             let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-            SharedEditor.currentEditor?.wrapChildren(children, of: self, inElement: parentDescriptor)
+            SharedEditor.currentEditor.wrapChildren(children, of: self, inElement: parentDescriptor)
 
             let indexOffset = left ? 0 : 1
 
@@ -1546,7 +1546,7 @@ extension Libxml2 {
                 return
             }
             
-            SharedEditor.currentEditor?.undoManager.registerUndo(withTarget: self) { [weak self] target in
+            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
         }
@@ -1563,7 +1563,7 @@ extension Libxml2 {
                 return false
             }
 
-            return SharedEditor.currentEditor!.knownElements.contains(standardName) ?? false
+            return SharedEditor.currentEditor.knownElements.contains(standardName)
         }
     }
 

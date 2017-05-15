@@ -308,7 +308,7 @@ extension Libxml2 {
             
             let originalParent = rawParent
 
-            SharedEditor.currentEditor?.undoManager.registerUndo(withTarget: self) { target in
+            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { target in
                 target.parent = originalParent
             }
         }

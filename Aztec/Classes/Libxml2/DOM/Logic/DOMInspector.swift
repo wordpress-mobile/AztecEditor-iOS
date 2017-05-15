@@ -225,8 +225,7 @@ extension Libxml2 {
         //// - Parameters:
         ///     - startingElement: the head node of the subtree for the search.
         ///     - location: the reference location for the search logic.
-        ///     - blockLevelOnly: flag to specify if the requested element has to be a block-level
-        ///             element.
+        ///     - blockLevel: flag to specify if the requested element should be a block-level element.
         ///
         /// - Returns: a pair containing the matching element (or `startingElement`, if no better
         ///         match is found) and the input location relative in the returned element's
@@ -235,7 +234,7 @@ extension Libxml2 {
         func findLeftmostLowestDescendantElement(
             of startingElement: ElementNode,
             intersecting location: Int,
-            blockLevelOnly: Bool = false) -> ElementAndLocation {
+            blockLevel: Bool = false) -> ElementAndLocation {
 
             var result = (startingElement, location)
 
@@ -247,7 +246,7 @@ extension Libxml2 {
 
                 guard location <= endLocation && !isEmptyTextNode(node),
                     let element = node as? ElementNode,
-                    blockLevelOnly || element.isBlockLevelElement() else {
+                    blockLevel || element.isBlockLevelElement() else {
 
                         return .continueWithSiblings
                 }

@@ -52,8 +52,8 @@ extension Libxml2 {
         private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
 
             let (insertionElement, insertionLocation)
-                = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevelOnly: true)
-
+                = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevel: true)
+ 
             if insertionElement.isBlockLevelElement() {
                 let paragraphs = string.components(separatedBy: String(.paragraphSeparator))
 
@@ -119,7 +119,7 @@ extension Libxml2 {
             assert(blockLevelElement.isBlockLevelElement())
 
             let (insertionElement, insertionLocation)
-                = inspector.findLeftmostLowestDescendantElement(of: blockLevelElement, intersecting: location, blockLevelOnly: true)
+                = inspector.findLeftmostLowestDescendantElement(of: blockLevelElement, intersecting: location, blockLevel: true)
 
             var currentElement = insertionElement
             var currentLocation = insertionLocation
