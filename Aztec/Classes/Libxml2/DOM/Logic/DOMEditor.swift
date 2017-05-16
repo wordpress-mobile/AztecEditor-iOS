@@ -775,7 +775,7 @@ extension Libxml2 {
         ///
         /// - Returns: the nodes at the left and right side of the split.
         ///
-        func split(_ textNode: TextNode, at offset: Int) -> (left: Node?, right: Node?) {
+        func split(_ textNode: TextNode, at offset: Int) -> (left: Node, right: Node) {
 
             assert(offset != 0 && offset != textNode.length())
 
@@ -837,36 +837,43 @@ extension Libxml2 {
         ///
         func splitChildren(of element: ElementNode, for range: NSRange) -> (left: [Node], center: [Node], right: [Node]) {
 
+            assert(element.children.count > 0)
+            assert(element.range().contains(range))
             assert(range.length > 0)
 
-            guard element.range().contains(range) else {
-                fatalError("Specified range is out-of-bounds.")
+            let elementRange = element.range()
+            let splitRangeEndLocation = range.location + range.length
+            let elementRangeEndLocation = elementRange.location + elementRange.length
+
+            var leftNodes = [Node]()
+            var rightNodes = [Node]()
+
+            var centerNodesStartIndex = 0
+            var centerNodesEndIndex = splitRangeEndLocation - 1
+
+            if range.location != 0 {
+                let (leftNode, rightNode) = splitChild(of: element, at: range.location)
+
+                if let leftNode = leftNode {
+                    leftNodes = inspector.findLeftSiblings(of: leftNode, includingReferenceNode: true)
+
+                    // Since the split range can't be zero, the right node in split1 cannot be nil.
+                    //
+                    centerNodesStartIndex = element.indexOf(childNode: rightNode!)
+                }
             }
 
-            let (leftNodeSplit1, rightNodeSplit1) = splitChild(of: element, at: range.location)
-            let (leftNodeSplit2, rightNodeSplit2) = splitChild(of: element, at: range.location + range.length)
+            if splitRangeEndLocation != elementRangeEndLocation {
+                let (leftNode, rightNode) = splitChild(of: element, at: splitRangeEndLocation)
 
-            let leftNodes: [Node]
+                if let rightNode = rightNode {
+                    rightNodes = inspector.findRightSiblings(of: rightNode, includingReferenceNode: true)
 
-            if let leftNodeSplit1 = leftNodeSplit1 {
-                leftNodes = inspector.findLeftSiblings(of: leftNodeSplit1, includingReferenceNode: true)
-            } else {
-                leftNodes = []
+                    // Since the split range can't be zero, the right node in split1 cannot be nil.
+                    //
+                    centerNodesEndIndex = element.indexOf(childNode: leftNode!)
+                }
             }
-
-            let rightNodes: [Node]
-
-            if let rightNodeSplit2 = rightNodeSplit2 {
-                rightNodes = inspector.findRightSiblings(of: rightNodeSplit2, includingReferenceNode: true)
-            } else {
-                rightNodes = []
-            }
-
-            // Since the range can't be zero, and it must fall within the range of this node,
-            // there MUST be nodes in the center.
-            //
-            let centerNodesStartIndex = element.indexOf(childNode: rightNodeSplit1!)
-            let centerNodesEndIndex = element.indexOf(childNode: leftNodeSplit2!)
 
             let centerNodes = element.children.subArray(from: centerNodesStartIndex, through: centerNodesEndIndex)
 
