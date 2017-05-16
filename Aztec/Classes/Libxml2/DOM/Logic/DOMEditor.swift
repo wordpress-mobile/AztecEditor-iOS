@@ -145,11 +145,7 @@ extension Libxml2 {
         ///     - range: the range of text to delete.
         ///
         private func deleteCharacters(spanning range: NSRange) {
-            let childrenAndIntersections = rootNode.childNodes(intersectingRange: range)
-
-            for (child, intersection) in childrenAndIntersections {
-                deleteCharacters(in: child, spanning: intersection)
-            }
+            deleteCharacters(in: rootNode, spanning: range)
         }
 
         /// Deletes the characters in the specified node spanning the specified range.
@@ -189,9 +185,6 @@ extension Libxml2 {
 
         /// Deletes the characters in the specified `ElementNode` spanning the specified range.
         ///
-        /// - Note: this method should not be called on a `RootNode`.  Call
-        ///     `deleteCharacters(inRange:)` instead.
-        ///
         /// - Parameters:
         ///     - element: the `ElementNode` containing the character-range so delete.
         ///     - range: the range of text to delete.
@@ -199,13 +192,15 @@ extension Libxml2 {
         private func deleteCharacters(in element: ElementNode, spanning range: NSRange) {
 
             assert(!(element is RootNode))
+            assert(element.range().contains(range))
             assert(range.length > 0)
 
             if range.location == 0 && range.length == element.length() {
                 element.removeFromParent()
             } else {
                 let rangeForChildren = mapToChildren(range: range, of: element)
-                let childrenAndIntersections = element.childNodes(intersectingRange: rangeForChildren)
+
+                let childrenAndIntersections = inspector.findChildren(of: element, spanning: rangeForChildren)
 
                 for (child, intersection) in childrenAndIntersections {
                     deleteCharacters(in: child, spanning: intersection)
@@ -224,7 +219,29 @@ extension Libxml2 {
         ///     - range: the range of text to delete.
         ///
         private func deleteCharacters(in textNode: TextNode, spanning range: NSRange) {
+
+            assert(textNode.range().contains(range))
+            assert(range.length > 0)
+
             textNode.deleteCharacters(inRange: range)
+        }
+
+        /// Deletes the characters in the specified `RootNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - rootNode: the `RootNode` containing the character-range so delete.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharacters(in rootNode: RootNode, spanning range: NSRange) {
+
+            assert(rootNode.range().contains(range))
+            assert(range.length > 0)
+
+            let childrenAndIntersections = inspector.findChildren(of: rootNode, spanning: range)
+
+            for (child, intersection) in childrenAndIntersections {
+                deleteCharacters(in: child, spanning: intersection)
+            }
         }
 
         // MARK: - Replacing Characters
@@ -506,7 +523,7 @@ extension Libxml2 {
         ///
         func unwrapChildren(of element: ElementNode, intersecting range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
 
-            let childNodesAndRanges = element.childNodes(intersectingRange: range)
+            let childNodesAndRanges = inspector.findChildren(of: element, spanning: range)
             assert(childNodesAndRanges.count > 0)
 
             var resultingRange = range
