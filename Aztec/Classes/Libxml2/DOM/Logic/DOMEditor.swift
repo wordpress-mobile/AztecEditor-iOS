@@ -271,26 +271,6 @@ extension Libxml2 {
             return nodes
         }
 
-        // MARK: - Node Introspection
-
-        func canWrap(node: Node, in elementDescriptor: ElementNodeDescriptor) -> Bool {
-
-            guard let element = node as? ElementNode else {
-                return true
-            }
-
-            guard !(element is RootNode) else {
-                return false
-            }
-
-            let receiverIsBlockLevel = element.isBlockLevelElement()
-            let newNodeIsBlockLevel = elementDescriptor.isBlockLevel()
-
-            let canWrapReceiverInNewNode = newNodeIsBlockLevel || !receiverIsBlockLevel
-            
-            return canWrapReceiverInNewNode
-        }
-
         // MARK: - Wrapping: Ranges
 
         func wrap(_ range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
