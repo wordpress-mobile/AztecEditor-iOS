@@ -849,18 +849,18 @@ extension Libxml2 {
             var rightNodes = [Node]()
 
             var centerNodesStartIndex = 0
-            var centerNodesEndIndex = splitRangeEndLocation - 1
+            var centerNodesEndIndex = element.children.count - 1
 
             if range.location != 0 {
                 let (leftNode, rightNode) = splitChild(of: element, at: range.location)
 
                 if let leftNode = leftNode {
                     leftNodes = inspector.findLeftSiblings(of: leftNode, includingReferenceNode: true)
-
-                    // Since the split range can't be zero, the right node in split1 cannot be nil.
-                    //
-                    centerNodesStartIndex = element.indexOf(childNode: rightNode!)
                 }
+
+                // Since the split range can't be zero, the right node in split1 cannot be nil.
+                //
+                centerNodesStartIndex = element.indexOf(childNode: rightNode!)
             }
 
             if splitRangeEndLocation != elementRangeEndLocation {
@@ -868,11 +868,11 @@ extension Libxml2 {
 
                 if let rightNode = rightNode {
                     rightNodes = inspector.findRightSiblings(of: rightNode, includingReferenceNode: true)
-
-                    // Since the split range can't be zero, the right node in split1 cannot be nil.
-                    //
-                    centerNodesEndIndex = element.indexOf(childNode: leftNode!)
                 }
+
+                // Since the split range can't be zero, the right node in split1 cannot be nil.
+                //
+                centerNodesEndIndex = element.indexOf(childNode: leftNode!)
             }
 
             let centerNodes = element.children.subArray(from: centerNodesStartIndex, through: centerNodesEndIndex)
