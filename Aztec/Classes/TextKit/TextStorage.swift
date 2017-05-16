@@ -133,11 +133,10 @@ open class TextStorage: NSTextStorage {
         return attachments
     }
 
-    open func range(forAttachment attachment: MediaAttachment) -> NSRange? {
-
+    func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
 
-        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { (currentAttachment, currentRange, stop) in
+        textStore.enumerateAttachmentsOfType(T.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.pointee = true
@@ -896,7 +895,7 @@ open class TextStorage: NSTextStorage {
     /// - Parameter id: the unique id of the attachment
     /// - Returns: the attachment object
     ///
-    open func attachment(withId id: String) -> MediaAttachment? {
+    func attachment(withId id: String) -> MediaAttachment? {
         var foundAttachment: MediaAttachment? = nil
         enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
             if attachment.identifier == id {
@@ -916,10 +915,10 @@ open class TextStorage: NSTextStorage {
     ///   - size: the size to use
     ///   - url: the image URL for the image
     ///
-    open func update(attachment: ImageAttachment,
-                     alignment: ImageAttachment.Alignment,
-                     size: ImageAttachment.Size,
-                     url: URL) {
+    func update(attachment: ImageAttachment,
+                alignment: ImageAttachment.Alignment,
+                size: ImageAttachment.Size,
+                url: URL) {
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
