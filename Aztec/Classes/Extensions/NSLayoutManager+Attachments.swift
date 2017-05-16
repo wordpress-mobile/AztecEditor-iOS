@@ -7,9 +7,14 @@ extension NSLayoutManager
         guard let ranges = textStorage?.ranges(forAttachment: attachment) else {
             return
         }
+
         for range in ranges {
             invalidateLayout(forCharacterRange: range, actualCharacterRange: nil)
             invalidateDisplay(forCharacterRange: range)
+        }
+
+        for textContainer in textContainers {
+            ensureLayout(for: textContainer)
         }
     }
 }
