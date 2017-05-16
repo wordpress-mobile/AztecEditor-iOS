@@ -954,7 +954,10 @@ open class TextView: UITextView {
             return nil
         }
 
-        let bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
+        var bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
+        bounds.origin.x += textContainerInset.left
+        bounds.origin.y += textContainerInset.top
+
         if bounds.contains(point) {
             return attachment
         }
