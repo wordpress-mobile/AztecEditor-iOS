@@ -947,12 +947,13 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 //
 private extension EditorDemoController {
 
-    func displayUnknownHtmlEditor(for htmlAttachment: HTMLAttachment) {
-        let targetVC = UnknownEditorViewController(htmlAttachment: htmlAttachment)
+    func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
+        let targetVC = UnknownEditorViewController(htmlAttachment: attachment)
         targetVC.onDidSave = { [weak self] html in
 // TODO: Save
             self?.dismiss(animated: true, completion: nil)
         }
+
         targetVC.onDidCancel = { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }
