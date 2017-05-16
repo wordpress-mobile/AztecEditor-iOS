@@ -917,13 +917,13 @@ open class TextStorage: NSTextStorage {
     ///   - url: the image URL for the image
     ///
     open func update(attachment: ImageAttachment,
-                                  alignment: ImageAttachment.Alignment,
-                                  size: ImageAttachment.Size,
-                                  url: URL) {
+                     alignment: ImageAttachment.Alignment,
+                     size: ImageAttachment.Size,
+                     url: URL) {
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
-        let rangesForAttachment = ranges(forAttachment:attachment)
+        let rangesForAttachment = ranges(forAttachment: attachment)
 
         let domRanges = rangesForAttachment.map { range -> NSRange in
             string.map(visualUTF16Range: range)
