@@ -950,7 +950,7 @@ private extension EditorDemoController {
     func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
-// TODO: Save
+            self?.richTextView.update(attachment: attachment, html: html)
             self?.dismiss(animated: true, completion: nil)
         }
 

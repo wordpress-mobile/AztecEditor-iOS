@@ -931,6 +931,20 @@ open class TextStorage: NSTextStorage {
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
     }
 
+    /// Updates the specified HTMLAttachment with new HTML contents
+    ///
+    func update(attachment: HTMLAttachment, html: String) {
+        guard let range = range(for: attachment) else {
+            assertionFailure("Couldn't determine the range for an Attachment")
+            return
+        }
+
+        attachment.rawHTML = html
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+    }
+    
     /// Removes the attachments that match the attachament identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
