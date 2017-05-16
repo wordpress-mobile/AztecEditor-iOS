@@ -102,9 +102,11 @@ private extension UnknownEditorViewController {
         editorView = UITextView(frame: .zero, textContainer: container)
         editorView.accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
         editorView.accessibilityIdentifier = "HTMLContentView"
+        editorView.autocorrectionType = .no
         editorView.delegate = self
         editorView.translatesAutoresizingMaskIntoConstraints = false
         editorView.text = pristinePrettyHTML
+        editorView.contentInset = Constants.defaultContentInsets
     }
 
     func setupMainView() {
@@ -148,5 +150,6 @@ extension UnknownEditorViewController {
 
     struct Constants {
         static let defaultContentFont = UIFont.systemFont(ofSize: 14)
+        static let defaultContentInsets = UIEdgeInsetsMake(0, 5, 0, 5)
     }
 }
