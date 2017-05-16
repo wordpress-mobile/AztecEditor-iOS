@@ -150,6 +150,6 @@ extension UnknownEditorViewController {
 
     struct Constants {
         static let defaultContentFont = UIFont.systemFont(ofSize: 14)
-        static let defaultContentInsets = UIEdgeInsetsMake(0, 5, 0, 5)
+        static let defaultContentInsets = UIEdgeInsetsMake(0, 5, 0, -5)
     }
 }
