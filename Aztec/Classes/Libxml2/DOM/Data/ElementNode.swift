@@ -504,7 +504,7 @@ extension Libxml2 {
             onMatchFound matchFound: NodeIntersectionReport?,
             onMatchNotFound matchNotFound: RangeReport?) {
 
-            assert(range().contains(range: targetRange))
+            assert(range().contains(targetRange))
             assert(matchFound != nil || matchNotFound != nil)
 
             guard !isMatch(self) else {

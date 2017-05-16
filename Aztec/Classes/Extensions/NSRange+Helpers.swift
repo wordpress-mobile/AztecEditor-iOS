@@ -12,7 +12,7 @@ extension NSRange
     ///
     /// - Returns: `true` if the receiver contains the specified range, `false` otherwise.
     ///
-    func contains(range: NSRange) -> Bool {
+    func contains(_ range: NSRange) -> Bool {
         return intersect(withRange: range) == range
     }
 

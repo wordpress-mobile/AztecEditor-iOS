@@ -340,14 +340,23 @@ extension Libxml2 {
 
         private func wrapChildren(of element: ElementNode, spanning range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
 
+            assert(element.range().contains(range))
             assert(range.length > 0)
             assert(!elementDescriptor.isBlockLevel()
                 || element is RootNode
                 || element.isBlockLevelElement())
 
-            let (_, centerNodes, _) = splitChildren(of: element, for: range)
+            let nodesToWrap: [Node]
 
-            wrapChildren(centerNodes, of: element, inElement: elementDescriptor)
+            if element.range() == range {
+                nodesToWrap = element.children
+            } else {
+                let (_, centerNodes, _) = splitChildren(of: element, for: range)
+
+                nodesToWrap = centerNodes
+            }
+
+            wrapChildren(nodesToWrap, of: element, inElement: elementDescriptor)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -830,7 +839,7 @@ extension Libxml2 {
 
             assert(range.length > 0)
 
-            guard element.range().contains(range: range) else {
+            guard element.range().contains(range) else {
                 fatalError("Specified range is out-of-bounds.")
             }
 

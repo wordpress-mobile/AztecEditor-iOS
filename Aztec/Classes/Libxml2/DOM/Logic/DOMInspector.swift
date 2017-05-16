@@ -163,7 +163,7 @@ extension Libxml2 {
             of element: ElementNode,
             spanning range: NSRange) -> [NodeAndIntersection] {
 
-            assert(element.range().contains(range: range))
+            assert(element.range().contains(range))
 
             guard element.children.count > 0 else {
                 return [(element, range)]
@@ -248,7 +248,7 @@ extension Libxml2 {
             spanning range: NSRange,
             bailCheck: (Node) -> Bool = { _ in return false }) -> [ElementAndIntersection] {
 
-            assert(element.range().contains(range: range))
+            assert(element.range().contains(range))
 
             guard element.children.count > 0 else {
                 return [(element, range)]
