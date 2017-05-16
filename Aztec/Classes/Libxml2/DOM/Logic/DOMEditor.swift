@@ -341,34 +341,13 @@ extension Libxml2 {
         private func wrapChildren(of element: ElementNode, spanning range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
 
             assert(range.length > 0)
-            assert(element is RootNode
-                || element.isBlockLevelElement()
-                || !elementDescriptor.isBlockLevel())
+            assert(!elementDescriptor.isBlockLevel()
+                || element is RootNode
+                || element.isBlockLevelElement())
 
-            let child = inspector.findLeftmostChild(of: element, intersecting: range.location)
+            let (_, centerNodes, _) = splitChildren(of: element, for: range)
 
-//            splitChildren(before: )
-
-            //element.split(forRange: )
-
-
-            let nodesAndIntersections = inspector.findChildren(of: element, spanning: range)
-
-            let nodes = nodesAndIntersections.map { (nodeAndIntersection) -> Node in
-
-                let node = nodeAndIntersection.node
-                let intersection = nodeAndIntersection.intersection
-
-                if intersection != node.range() {
-                    node.split(forRange: intersection)
-                }
-
-                wrap(node, in: elementDescriptor)
-
-                return node
-            }
-
-//            wrapChildren(nodes, of: element, inElement: elementDescriptor)
+            wrapChildren(centerNodes, of: element, inElement: elementDescriptor)
         }
 
         /// Wraps the specified children nodes in a newly created element with the specified name.
@@ -729,17 +708,18 @@ extension Libxml2 {
 
         /// Splits the specified node at the specified offset.
         ///
-        /// - IMPORTANT: after calling this method, assume the input node is no longer valid.
+        /// - IMPORTANT: after calling this method, assume the input node is no longer valid and
+        ///         use the returned nodes instead.
         ///
         /// - Parameters:
         ///     - node: the node to split.
-        ///     - offset: the offset to split the node at.  Must not be an edge offset.
+        ///     - offset: the offset to split the node at.  Should not be an edge offset.
         ///
-        /// - Returns: the nodes at the left and right side of the split.  These nodes are already
-        ///     replacing the node that was split.
+        /// - Returns: the node at the left and right side of the split.
         ///
-        func split(node: Node, at offset: Int) -> (left: Node, right: Node) {
-            assert(offset > 0 && offset < node.length())
+        func split(_ node: Node, at offset: Int) -> (left: Node, right: Node) {
+
+            assert(offset != 0 && offset != node.length())
 
             if let textNode = node as? TextNode {
                 return split(textNode, at: offset)
@@ -756,44 +736,24 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - element: the element node to split.
-        ///     - offset: the offset to split the node at.  Must not be an edge offset.
+        ///     - offset: the offset to split the node at.  Should not be an edge offset.
         ///
-        /// - Returns: the nodes at the left and right side of the split.  These nodes are already
-        ///     replacing the node that was split.
+        /// - Returns: the nodes at the left and right side of the split.
         ///
         func split(_ element: ElementNode, at offset: Int) -> (left: Node, right: Node) {
-            assert(offset > 0 && offset < element.length())
 
-            element.needsClosingParagraphSeparator()
-
-            var newNodes = [Node]()
+            assert(offset != 0 && offset != element.length())
 
             let parent = inspector.parent(of: element)
 
-            let (leftChild, rightChild) = splitChild(of: element, at: offset)
+            let (leftChildren, rightChildren) = splitChildren(of: element, at: offset)
 
-            if let leftChild = leftChild {
-                let leftSiblings = inspector.findLeftSiblings(of: leftChild, includingReferenceNode: true)
-                let leftElement = ElementNode.init(name: element.name, attributes: element.attributes, children: leftSiblings)
+            let leftElement = ElementNode.init(name: element.name, attributes: element.attributes, children: leftChildren)
+            let rightElement = ElementNode.init(name: element.name, attributes: element.attributes, children: rightChildren)
 
-                newNodes.append(leftElement)
-            }
+            parent.replace(child: element, with: [leftElement, rightElement])
 
-            if let rightChild = rightChild {
-                let rightSiblings = inspector.findRightSiblings(of: rightChild, includingReferenceNode: true)
-                let rightElement = ElementNode.init(name: element.name, attributes: element.attributes, children: rightSiblings)
-
-                newNodes.append(rightElement)
-            } else {
-                let textNode = TextNode(text: "")
-                let rightElement = ElementNode.init(name: element.name, attributes: element.attributes, children: [textNode])
-
-                newNodes.append(rightElement)
-            }
-
-            assert(newNodes.count > 0)
-
-            parent.replace(child: element, with: newNodes)
+            return (leftElement, rightElement)
         }
 
         /// Splits the specified text node at the specified offset.
@@ -802,13 +762,13 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - textNode: the node to split.
-        ///     - offset: the offset to split the node at.  Must not be an edge offset.
+        ///     - offset: the offset to split the node at.  Should not be an edge offset.
         ///
-        /// - Returns: the nodes at the left and right side of the split.  These nodes are already
-        ///     replacing the node that was split.
+        /// - Returns: the nodes at the left and right side of the split.
         ///
-        func split(_ textNode: TextNode, at offset: Int) -> (left: Node, right: Node) {
-            assert(offset > 0 && offset < textNode.length())
+        func split(_ textNode: TextNode, at offset: Int) -> (left: Node?, right: Node?) {
+
+            assert(offset != 0 && offset != textNode.length())
 
             let parent = inspector.parent(of: textNode)
 
@@ -828,59 +788,117 @@ extension Libxml2 {
             return (leftNode, rightNode)
         }
 
+        // MARK: - Splitting Nodes: Children
 
-
-        func splitChildren(of element: ElementNode, for range: NSRange) {
-
-            guard element.range().contains(range: range) else {
-                assertionFailure("Specified range is out-of-bounds.")
-                return
-            }
-
-            let postNodes = splitChildren(after: range.location + range.length)
-
-            if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
-
-                parent.insert(newElement, at: nodeIndex + 1)
-            }
-
-            let preNodes = splitChildren(before: range.location)
-
-            if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
-                
-                parent.insert(newElement, at: nodeIndex)
-            }
-        }
-
-        /// Splits the child of the specified element, intersecting the specified location.
+        /// Splits the child at the specified offset.
         ///
         /// - Parameters:
-        ///     - element: the element to split the children of.
-        ///     - offset: the offset where the split must take place.
+        ///     - element: the reference element.  This is the parent to the node that will be split.
+        ///     - offset: the offset for the split.  Cannot be at the parent edge coordinates, but
+        ///             can be at a child's edge coordinates.
         ///
-        /// - Returns: the node at the left and right side of the split.  If the split offset
-        ///     was at the limit between two nodes, no split will occur but this method will
-        ///     still return the node at the left and right sides of the offset.
+        /// - Returns: the left and right nodes after the split.  If the offset falls at the
+        ///         beginning of a child node, no split will occur and this method will return
+        ///         `(nil, node)`.  If the offset falls at the end of a child node, no split will
+        ///         occur and this method will return `(node, nil)`.
         ///
         func splitChild(of element: ElementNode, at offset: Int) -> (left: Node?, right: Node?) {
 
-            assert(element.range().contains(offset: offset))
+            assert(offset != 0 && offset != element.length())
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
-                return (element, nil)
+                fatalError("Cannot split the children of an element that has no children.")
             }
 
             guard intersection != 0 else {
                 return (nil, child)
             }
 
-            guard intersection < child.length() else {
-                return (child, inspector.rightSibling(of: child))
+            guard intersection != child.length() else {
+                return (child, nil)
             }
 
-            return split(child, at: intersection)
+            let (leftNode, rightNode) = split(child, at: intersection)
+
+            return (leftNode, rightNode)
+        }
+
+        /// Splits the children of the reference node, using a range as reference.
+        ///
+        ///
+        func splitChildren(of element: ElementNode, for range: NSRange) -> (left: [Node], center: [Node], right: [Node]) {
+
+            assert(range.length > 0)
+
+            guard element.range().contains(range: range) else {
+                fatalError("Specified range is out-of-bounds.")
+            }
+
+            let (leftNodeSplit1, rightNodeSplit1) = splitChild(of: element, at: range.location)
+            let (leftNodeSplit2, rightNodeSplit2) = splitChild(of: element, at: range.location + range.length)
+
+            let leftNodes: [Node]
+
+            if let leftNodeSplit1 = leftNodeSplit1 {
+                leftNodes = inspector.findLeftSiblings(of: leftNodeSplit1, includingReferenceNode: true)
+            } else {
+                leftNodes = []
+            }
+
+            let rightNodes: [Node]
+
+            if let rightNodeSplit2 = rightNodeSplit2 {
+                rightNodes = inspector.findRightSiblings(of: rightNodeSplit2, includingReferenceNode: true)
+            } else {
+                rightNodes = []
+            }
+
+            // Since the range can't be zero, and it must fall within the range of this node,
+            // there MUST be nodes in the center.
+            //
+            let centerNodesStartIndex = element.indexOf(childNode: rightNodeSplit1!)
+            let centerNodesEndIndex = element.indexOf(childNode: leftNodeSplit2!)
+
+            let centerNodes = element.children.subArray(from: centerNodesStartIndex, through: centerNodesEndIndex)
+
+            return (leftNodes, centerNodes, rightNodes)
+        }
+
+        /// Splits the children of the specified element at the specified offset (in the reference
+        /// element's coordinates).
+        ///
+        /// - Parameters:
+        ///     - element: the element to split the children of.
+        ///     - offset: the offset where the split must take place.  Cannot be at the reference
+        ///             element's edges, but it can fall within the edges of a child node.
+        ///
+        /// - Returns: the nodes at the left and right side of the split.
+        ///
+        func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
+
+            assert(offset != 0 && offset != element.length())
+            assert(element.range().contains(offset: offset))
+
+            guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
+                fatalError("This should not happen.  Review the logic.")
+            }
+
+            guard intersection != 0 || intersection != child.length() else {
+                let includeInRightNodes = intersection == 0
+                let includeInLeftNodes = !includeInRightNodes
+
+                let leftNodes = inspector.findLeftSiblings(of: child, includingReferenceNode: includeInLeftNodes)
+                let rightNodes = inspector.findRightSiblings(of: child, includingReferenceNode: includeInRightNodes)
+
+                return (leftNodes, rightNodes)
+            }
+
+            let (leftNode, rightNode) = split(child, at: intersection)
+
+            let leftNodes = inspector.findLeftSiblings(of: leftNode, includingReferenceNode: true)
+            let rightNodes = inspector.findRightSiblings(of: rightNode, includingReferenceNode: true)
+
+            return (leftNodes, rightNodes)
         }
 
 /*
@@ -950,6 +968,8 @@ extension Libxml2 {
             return result
         }
  */
+
+        // MARK: - Splitting Nodes: Block-level elements
 
         func splitLowestBlockLevelElement(at location: Int) {
 
