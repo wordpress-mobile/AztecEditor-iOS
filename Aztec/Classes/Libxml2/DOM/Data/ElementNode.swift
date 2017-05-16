@@ -1460,7 +1460,7 @@ extension Libxml2 {
             }
         }
 
-        // MARK: - Wrapping
+        // MARK: - Unwrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
             if elementNames.contains(name) {
