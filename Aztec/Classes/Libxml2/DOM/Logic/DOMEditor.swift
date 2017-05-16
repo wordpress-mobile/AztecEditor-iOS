@@ -198,8 +198,7 @@ extension Libxml2 {
             if range.location == 0 && range.length == element.length() {
                 element.removeFromParent()
             } else {
-                let rangeForChildren = mapToChildren(range: range, of: element)
-
+                let rangeForChildren = inspector.mapToChildren(range: range, of: element)
                 let childrenAndIntersections = inspector.findChildren(of: element, spanning: rangeForChildren)
 
                 for (child, intersection) in childrenAndIntersections {
@@ -956,31 +955,6 @@ extension Libxml2 {
             }
             
             return nodes
-        }
-
-
-        // MARK: - Range Mapping to Children
-
-        /// Maps the specified range to the child nodes.
-        ///
-        private func mapToChildren(range: NSRange, of element: ElementNode) -> NSRange {
-
-            assert(range.length > 0)
-
-            guard element.isBlockLevelElement() && range.location + range.length == element.length() else {
-                return range
-            }
-
-            // Whenever the last child element is also block-level, it'll take care of mapping the
-            // range on its own.
-            //
-            if let lastChild = element.children.last as? ElementNode {
-                guard !lastChild.isBlockLevelElement() else {
-                    return range
-                }
-            }
-
-            return NSRange(location: range.location, length: range.length - 1)
         }
     }
 }
