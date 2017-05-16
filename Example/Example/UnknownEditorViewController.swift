@@ -27,7 +27,7 @@ class UnknownEditorViewController: UIViewController {
 
     /// Raw HTML To Be Edited
     ///
-    fileprivate let htmlAttachment: HTMLAttachment
+    fileprivate let attachment: HTMLAttachment
 
     /// Unmodified HTML Text
     ///
@@ -47,9 +47,9 @@ class UnknownEditorViewController: UIViewController {
     ///
     /// - Parameter rawHTML: HTML To Be Edited
     ///
-    init(htmlAttachment: HTMLAttachment) {
-        self.htmlAttachment = htmlAttachment
-        self.pristinePrettyHTML = htmlAttachment.prettyHTML()
+    init(attachment: HTMLAttachment) {
+        self.attachment = attachment
+        self.pristinePrettyHTML = attachment.prettyHTML()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -84,7 +84,7 @@ class UnknownEditorViewController: UIViewController {
 private extension UnknownEditorViewController {
 
     func setupNavigationBar() {
-        title = NSLocalizedString("Unknwon HTML", comment: "Title for Unknown HTML Editor")
+        title = NSLocalizedString("Unknown HTML", comment: "Title for Unknown HTML Editor")
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
 

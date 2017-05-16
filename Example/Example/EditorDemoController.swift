@@ -948,7 +948,7 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 private extension EditorDemoController {
 
     func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
-        let targetVC = UnknownEditorViewController(htmlAttachment: attachment)
+        let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
 // TODO: Save
             self?.dismiss(animated: true, completion: nil)
