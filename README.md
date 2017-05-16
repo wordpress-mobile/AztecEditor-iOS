@@ -27,6 +27,20 @@ it, simply add the following line to your Podfile:
 pod "WordPress-Aztec-iOS"
 ```
 
+## Usage
+
+After installing Aztec, import the module and use the `Aztec.TextView` view:
+
+```swift
+import Aztec
+
+// ...
+
+let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
+```
+
+Note: Obj-C is not officially supported.
+
 ## License
 
 WordPress-Aztec-iOS is available under the GPLv2 license. See the [LICENSE file](./LICENSE) for more info.
