@@ -277,7 +277,7 @@ class EditorDemoController: UIViewController {
         let providers: [TextViewAttachmentImageProvider] = [
             MoreAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
-            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
+            HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
         ]
 
         for provider in providers {
@@ -1138,11 +1138,12 @@ private extension EditorDemoController
 extension EditorDemoController {
 
     struct Constants {
-        static let defaultContentFont = UIFont.systemFont(ofSize: 14)
-        static let defaultMissingImage = Gridicon.iconOfType(.image)
-        static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
-        static let margin = CGFloat(20)
-        static let moreAttachmentText = "more"
+        static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
+        static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
+        static let defaultMissingImage  = Gridicon.iconOfType(.image)
+        static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let margin               = CGFloat(20)
+        static let moreAttachmentText   = "more"
     }
 }
 
