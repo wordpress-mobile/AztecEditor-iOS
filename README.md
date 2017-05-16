@@ -29,8 +29,6 @@ pod "WordPress-Aztec-iOS"
 
 ## Usage
 
-### Swift
-
 After installing Aztec, import the module and use the `Aztec.TextView` view:
 
 ```swift
@@ -41,15 +39,7 @@ import Aztec
 let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 ```
 
-### Obj-C
-
-After installing Aztec, import the Swift-compatibility header and use the `TextView` view:
-
-```objc
-#import "Aztec/Aztec-Swift.h"
-
-TextView *view = [[TextView alloc] initWithDefaultFont:font defaultMissingImage:defaultImage];
-```
+Note: Obj-C is not officially supported.
 
 ## License
 
