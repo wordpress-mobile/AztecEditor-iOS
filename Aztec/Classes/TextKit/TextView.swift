@@ -949,13 +949,12 @@ open class TextView: UITextView {
             return nil
         }
 
-        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment else {
+        var effectiveRange = NSRange()
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
             return nil
         }
 
-        let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
-        let bounds = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
-
+        let bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
         if bounds.contains(point) {
             return attachment
         }
