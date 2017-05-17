@@ -125,7 +125,7 @@ extension Libxml2 {
 
             for (index, paragraph) in paragraphs.enumerated() {
 
-                guard index != paragraphs.count else {
+                guard index != paragraphs.count - 1 else {
                     insert(rawString: paragraph, into: currentElement, atLocation: currentLocation)
                     continue
                 }
@@ -429,10 +429,8 @@ extension Libxml2 {
                 wrapChildren(selectedChildren, of: element, inElement: childElementDescriptor)
             }
 
-            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
-                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
-                
-                finalWrapper.splitAtBreaks()
+            if finalWrapper.isBlockLevelElement() {
+                split(finalWrapper, at: String(.paragraphSeparator))
             }
             
             return finalWrapper
@@ -544,7 +542,7 @@ extension Libxml2 {
             return resultingRange
         }
 
-        // MARK: - Splitting Nodes
+        // MARK: - Splitting Nodes: Ranges and Offsets
 
         /// Splits the specified node at the specified offset.
         ///
@@ -557,6 +555,7 @@ extension Libxml2 {
         ///
         /// - Returns: the node at the left and right side of the split.
         ///
+        @discardableResult
         func split(_ node: Node, at offset: Int) -> (left: Node, right: Node) {
 
             assert(offset != 0 && offset != node.length())
@@ -628,7 +627,7 @@ extension Libxml2 {
             return (leftNode, rightNode)
         }
 
-        // MARK: - Splitting Nodes: Children
+        // MARK: - Splitting Nodes: Nodes
 
         /// Splits the child at the specified offset.
         ///
@@ -834,6 +833,25 @@ extension Libxml2 {
             let intersection = elementAndIntersection.intersection
 
             elementToSplit.split(atLocation: intersection.location)
+        }
+
+        // MARK: - Splitting Nodes: Using Characters
+
+        /// Splits the reference node at each instance of the specified string.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node.
+        ///     - string: the string that will be used to split the reference node.  Each occurrence
+        ///             of this string will be removed as part of the split operation.
+        ///
+        func split(_ node: Node, at string: String) {
+
+            let ranges = inspector.find(string, in: node)
+
+            for range in ranges.reversed() {
+                deleteCharacters(in: node, spanning: range)
+                split(node, at: range.location)
+            }
         }
 
         // MARK: - Merging Nodes

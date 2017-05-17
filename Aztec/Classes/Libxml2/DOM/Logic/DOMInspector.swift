@@ -367,6 +367,59 @@ extension Libxml2 {
             })
         }
 
+        func find(_ text: String, in node: Node) -> [NSRange] {
+            if let element = node as? ElementNode {
+                return find(text, in: element)
+            } else if let textNode = node as? TextNode {
+                return find(text, in: textNode)
+            } else if node is CommentNode {
+                return []
+            } else {
+                assertionFailure("Unsupported node type.")
+                return []
+            }
+        }
+
+        func find(_ text: String, in element: ElementNode) -> [NSRange] {
+
+            var childOffset = 0
+            var ranges = [NSRange]()
+
+            for child in element.children {
+                let rangesInChildCoordinates = find(text, in: child)
+
+                let childRanges = rangesInChildCoordinates.map({ range -> NSRange in
+                    return range.offset(childOffset)
+                })
+
+                ranges.append(contentsOf: childRanges)
+
+                childOffset += child.length()
+            }
+
+            return ranges
+        }
+
+        func find(_ text: String, in textNode: TextNode) -> [NSRange] {
+            var ranges = [NSRange]()
+            let nodeText = textNode.text()
+
+            var currentRange = nodeText.startIndex ..< nodeText.endIndex
+
+            while let range = nodeText.range(of: text, options: [], range: currentRange, locale: nil) {
+
+                currentRange = range.upperBound ..< currentRange.upperBound
+
+                let location = nodeText.distance(from: nodeText.startIndex, to: range.lowerBound)
+                let length = nodeText.distance(from: range.lowerBound, to: range.upperBound)
+                let range = NSRange(location: location, length: length)
+
+                ranges.append(range)
+            }
+
+            return ranges
+        }
+
         // MARK: - Finding Nodes: Siblings
 
         /// Finds all the left siblings of the specified node.

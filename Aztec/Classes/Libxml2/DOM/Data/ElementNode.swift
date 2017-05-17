@@ -1011,45 +1011,6 @@ extension Libxml2 {
             return result
         }
 
-        /// Splits this node wherever there's a break.  Propagates to children.
-        ///
-        /// - Returns: the locations where this node was split.
-        ///
-        @discardableResult
-        func splitAtBreaks() -> [Int] {
-
-            var offset = 0
-            var splitLocations = [Int]()
-
-            for node in children {
-                if let element = node as? ElementNode {
-
-                    guard element.standardName != .br else {
-                        remove(element)
-
-                        if offset > 0 && offset < length() {
-                            splitLocations.append(offset)
-                        }
-
-                        continue
-                    }
-
-                    let childSplitLocations = element.splitAtBreaks()
-                    splitLocations.append(contentsOf: childSplitLocations)
-                }
-
-                offset = offset + node.length()
-            }
-
-            // We need to split starting at the last position to avoid going out of bounds.
-            //
-            for splitLocation in splitLocations.reversed() {
-                split(atLocation: splitLocation)
-            }
-
-            return splitLocations
-        }
-
         /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
         /// node, inserting all the receivers children to it, and adding the receiver to its
         /// grandparent node.
