@@ -9,13 +9,24 @@ extension Libxml2 {
     class DOMEditor: DOMLogic {
 
         enum ParagraphStyle {
-            case ol
-            case ul
             case blockquote
+            case orderedList
             case paragraph
+            case unorderedList
 
             func toNode(children: [Node]) -> ElementNode {
-                return ElementNode(name: "", attributes: [], children: children)
+                switch (self) {
+                case .blockquote:
+                    return ElementNode(name: StandardElementType.blockquote.rawValue, attributes: [], children: children)
+                case .orderedList:
+                    // TODO: add LIs
+                    return ElementNode(name: StandardElementType.ol.rawValue, attributes: [], children: children)
+                case .paragraph:
+                    return ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: children)
+                case .unorderedList:
+                    // TODO: add LIs
+                    return ElementNode(name: StandardElementType.ul.rawValue, attributes: [], children: children)
+                }
             }
         }
 
@@ -46,6 +57,38 @@ extension Libxml2 {
         }
 
         // MARK: - Inserting Characters
+
+        ///
+        ///
+        func insert(
+            _ string: String,
+            at location: Int,
+            paragraphStyles: [ParagraphStyle],
+            styles: [Style],
+            canMergeLeft: Bool,
+            canMergeRight: Bool) {
+
+            let textNode = TextNode(text: string)
+
+            let stylesRoot = styles.reversed().reduce(textNode as Node) { (result, style) -> Node in
+                return style.toNode(children: [result])
+            }
+
+            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
+                return style.toNode(children: [result])
+            }
+
+            let split = splitChild(of: rootNode, at: location)
+
+            if let leftNode = split.left {
+                insertChild(paragraphStylesRoot, in: rootNode, after: leftNode)
+            } else if let rightNode = split.right {
+                insertChild(paragraphStylesRoot, in: rootNode, before: rightNode)
+            } else {
+                fatalError("This should not be possible.  Review the logic!")
+            }
+        }
+
 
         /// Inserts the specified string at the specified location.
         ///
@@ -154,6 +197,25 @@ extension Libxml2 {
                 currentElement = inspector.rightSibling(of: insertionElement) as! ElementNode
                 currentLocation = currentLocation + 1
             }
+        }
+
+        // MARK: - Inserting Nodes
+
+        private func insertChild(_ node: Node, in element: ElementNode, at index: Int) {
+            element.children.insert(node, at: index)
+        }
+
+        private func insertChild(_ node: Node, in element: ElementNode, after referenceNode: Node) {
+            let referenceIndex = element.indexOf(childNode: referenceNode)
+            let insertionIndex = referenceIndex + 1
+
+            insertChild(node, in: element, at: insertionIndex)
+        }
+
+        private func insertChild(_ node: Node, in element: ElementNode, before referenceNode: Node) {
+            let insertionIndex = element.indexOf(childNode: referenceNode)
+
+            insertChild(node, in: element, at: insertionIndex)
         }
 
         // MARK: - Deleting Characters
@@ -280,7 +342,7 @@ extension Libxml2 {
             }
         }
 
-        ///
+        /// Replaces
         ///
         func replaceCharacters(in range: NSRange,
                                with string: String,
@@ -293,49 +355,15 @@ extension Libxml2 {
             }
 
             if string.characters.count > 0 {
-                insertCharacters(string, at: range.location, paragraphStyles: paragraphStyles, styles: styles, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+                insert(
+                    string,
+                    at: range.location,
+                    paragraphStyles: paragraphStyles,
+                    styles: styles,
+                    canMergeLeft: canMergeLeft,
+                    canMergeRight: canMergeRight)
             }
         }
-
-
-        ///
-        ///
-        func insertCharacters(_ string: String,
-                              at location: Int,
-                              paragraphStyles: [ParagraphStyle],
-                              styles: [Style],
-                              canMergeLeft: Bool,
-                              canMergeRight: Bool) {
-            let split = splitChild(of: rootNode, at: location)
-            let textNode = TextNode(text: string)
-
-            let stylesRoot = styles.reversed().reduce(textNode as Node) { (result, style) -> Node in
-                return style.toNode(children: [result])
-            }
-
-            let newNode = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
-                return style.toNode(children: [result])
-            }
-
-            guard let sibling = split.left ?? split.right else {
-                fatalError()
-            }
-
-            let parent = inspector.parent(of: sibling)
-            let targetOffset = sibling == split.left ? 1 : 0
-            let targetIndex = parent.indexOf(childNode: sibling) + targetOffset
-
-            parent.children.insert(newNode, at: targetIndex)
-
-//            if let leftNode = split.left {
-//                insert(child, in: element, after: leftNode)
-//            } else if let rightNode = split.right {
-//                insert(child, in: element, before: rightNode)
-//            } else {
-//                fatalError()
-//            }
-        }
-
 
         // MARK: - String to Nodes
 
