@@ -1,10 +1,29 @@
 import Foundation
+import libxml2
+
 
 extension Libxml2 {
-    
+
     /// Groups all the DOM editing logic.
     ///
     class DOMEditor: DOMLogic {
+
+        enum ParagraphStyle {
+            case ol
+            case ul
+            case blockquote
+            case paragraph
+
+            func toNode(children: [Node]) -> ElementNode {
+                return ElementNode(name: "", attributes: [], children: children)
+            }
+        }
+
+        enum Style {
+            func toNode(children: [Node]) -> ElementNode {
+                return ElementNode(name: "", attributes: [], children: children)
+            }
+        }
 
         typealias NodeMatchTest = (_ node: Node) -> Bool
 
@@ -260,6 +279,63 @@ extension Libxml2 {
                 insert(string, atLocation: range.location)
             }
         }
+
+        ///
+        ///
+        func replaceCharacters(in range: NSRange,
+                               with string: String,
+                               paragraphStyles: [ParagraphStyle],
+                               styles: [Style],
+                               canMergeLeft: Bool,
+                               canMergeRight: Bool) {
+            if range.length > 0 {
+                deleteCharacters(spanning: range)
+            }
+
+            if string.characters.count > 0 {
+                insertCharacters(string, at: range.location, paragraphStyles: paragraphStyles, styles: styles, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            }
+        }
+
+
+        ///
+        ///
+        func insertCharacters(_ string: String,
+                              at location: Int,
+                              paragraphStyles: [ParagraphStyle],
+                              styles: [Style],
+                              canMergeLeft: Bool,
+                              canMergeRight: Bool) {
+            let split = splitChild(of: rootNode, at: location)
+            let textNode = TextNode(text: string)
+
+            let stylesRoot = styles.reversed().reduce(textNode as Node) { (result, style) -> Node in
+                return style.toNode(children: [result])
+            }
+
+            let newNode = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
+                return style.toNode(children: [result])
+            }
+
+            guard let sibling = split.left ?? split.right else {
+                fatalError()
+            }
+
+            let parent = inspector.parent(of: sibling)
+            let targetOffset = sibling == split.left ? 1 : 0
+            let targetIndex = parent.indexOf(childNode: sibling) + targetOffset
+
+            parent.children.insert(newNode, at: targetIndex)
+
+//            if let leftNode = split.left {
+//                insert(child, in: element, after: leftNode)
+//            } else if let rightNode = split.right {
+//                insert(child, in: element, before: rightNode)
+//            } else {
+//                fatalError()
+//            }
+        }
+
 
         // MARK: - String to Nodes
 
