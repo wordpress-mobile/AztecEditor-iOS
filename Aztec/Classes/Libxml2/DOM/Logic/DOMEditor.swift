@@ -13,19 +13,41 @@ extension Libxml2 {
             case orderedList
             case paragraph
             case unorderedList
+            case header1
+            case header2
+            case header3
+            case header4
+            case header5
+            case header6
+            case horizontalRule
+            case preformatted
 
             func toNode(children: [Node]) -> ElementNode {
                 switch (self) {
                 case .blockquote:
-                    return ElementNode(name: StandardElementType.blockquote.rawValue, attributes: [], children: children)
+                    return ElementNode(type: .blockquote, children: children)
                 case .orderedList:
-                    // TODO: add LIs
-                    return ElementNode(name: StandardElementType.ol.rawValue, attributes: [], children: children)
+                    return ElementNode(type: .ol, children: children)
                 case .paragraph:
-                    return ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: children)
+                    return ElementNode(type: .p, children: children)
                 case .unorderedList:
-                    // TODO: add LIs
-                    return ElementNode(name: StandardElementType.ul.rawValue, attributes: [], children: children)
+                    return ElementNode(type: .ul, children: children)
+                case .header1:
+                    return ElementNode(type: .h1, children: children)
+                case .header2:
+                    return ElementNode(type: .h2, children: children)
+                case .header3:
+                    return ElementNode(type: .h3, children: children)
+                case .header4:
+                    return ElementNode(type: .h4, children: children)
+                case .header5:
+                    return ElementNode(type: .h5, children: children)
+                case .header6:
+                    return ElementNode(type: .h6, children: children)
+                case .horizontalRule:
+                    return ElementNode(type: .hr, children: children)
+                case .preformatted:
+                    return ElementNode(type: .pre, children: children)
                 }
             }
         }
