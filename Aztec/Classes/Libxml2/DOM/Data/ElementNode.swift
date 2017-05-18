@@ -50,6 +50,10 @@ extension Libxml2 {
                 child.parent = self
             }
         }
+
+        convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
+            self.init(name: type.rawValue, attributes: attributes, children: children)
+        }
         
         convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
             self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
