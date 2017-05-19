@@ -36,9 +36,7 @@ extension Libxml2 {
             _ string: String,
             at location: Int,
             paragraphStyles: [DOMParagraphStyle],
-            styles: [DOMStyle],
-            canMergeLeft: Bool,
-            canMergeRight: Bool) {
+            styles: [DOMStyle]) {
 
             let textNode = TextNode(text: string)
 
@@ -319,22 +317,16 @@ extension Libxml2 {
         func replaceCharacters(in range: NSRange,
                                with string: String,
                                paragraphStyles: [DOMParagraphStyle],
-                               styles: [DOMStyle],
-                               canMergeLeft: Bool,
-                               canMergeRight: Bool) {
+                               styles: [DOMStyle]) {
             if range.length > 0 {
                 deleteCharacters(spanning: range)
             }
 
-            if string.characters.count > 0 {
-                insert(
-                    string,
-                    at: range.location,
-                    paragraphStyles: paragraphStyles,
-                    styles: styles,
-                    canMergeLeft: canMergeLeft,
-                    canMergeRight: canMergeRight)
+            guard string.characters.count > 0 else {
+                return
             }
+
+            insert(string, at: range.location, paragraphStyles: paragraphStyles, styles: styles)
         }
 
         // MARK: - String to Nodes
