@@ -340,16 +340,9 @@ open class TextStorage: NSTextStorage {
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
-
         if range.length > 0 || attrString.length > 0 {
-            dom.replaceCharacters(inRange: range, withString: attrString.string)
+            dom.replaceCharacters(inRange: range, with: attrString)
         }
-
-        print("Pre: \(dom.getHTML())")
-        if attrString.length > 0 {
-            applyStylesToDom(from: attrString, startingAt: range.location)
-        }
-        print("Post: \(dom.getHTML())")
     }
 
     // MARK: - DOM: Applying Styles
