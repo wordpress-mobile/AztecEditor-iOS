@@ -10,8 +10,8 @@ extension Libxml2 {
 
         enum ParagraphStyle {
             case blockquote
-            case orderedList
             case paragraph
+            case orderedList
             case unorderedList
             case header1
             case header2
@@ -55,13 +55,9 @@ extension Libxml2 {
         enum Style {
             case anchor(url: String)
             case bold
-            case emphasized
             case italics
             case image(url: String)
-            case lineBreak
-            case listItem
             case strike
-            case strong
             case underlined
 
             func toNode(children: [Node]) -> ElementNode {
@@ -71,21 +67,13 @@ extension Libxml2 {
                     return ElementNode(type: .a, attributes: [source])
                 case .bold:
                     return ElementNode(type: .b)
-                case .emphasized:
-                    return ElementNode(type: .em)
                 case .italics:
                     return ElementNode(type: .i)
                 case .image(let url):
                     let source = StringAttribute(name: "src", value: url)
                     return ElementNode(type: .img, attributes: [source])
-                case .lineBreak:
-                    return ElementNode(type: .br)
-                case .listItem:
-                    return ElementNode(type: .li)
                 case .strike:
                     return ElementNode(type: .strike)
-                case .strong:
-                    return ElementNode(type: .strong)
                 case .underlined:
                     return ElementNode(type: .u)
                 }
