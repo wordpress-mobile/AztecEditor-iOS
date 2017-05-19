@@ -60,7 +60,7 @@ open class HTMLAttachment: NSTextAttachment {
             let inNode = try inParser.convert(rawHTML)
             return outParser.convert(inNode)
         } catch {
-            NSLog("Error converting Raw HTML to Pretty Format: \(error)")
+            assertionFailure("Error converting Raw HTML to Pretty Format: \(error)")
         }
 
         return rawHTML
