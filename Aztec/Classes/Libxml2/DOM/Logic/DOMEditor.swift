@@ -31,14 +31,15 @@ extension Libxml2 {
         // MARK: - Inserting Characters
 
         func insert(_ attributedString: NSAttributedString, atLocation location: Int) {
-            if attributedString.string.characters.count > 0 {
-                DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
 
-                    let subString = attributedString.attributedSubstring(from: subRange).string
+            assert(attributedString.length > 0)
 
-                    insert(subString, atLocation: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
-                })
-            }
+            DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
+
+                let subString = attributedString.attributedSubstring(from: subRange).string
+
+                insert(subString, atLocation: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
+            })
         }
 
         ///
@@ -47,6 +48,8 @@ extension Libxml2 {
                             atLocation location: Int,
                             paragraphStyles: [DOMParagraphStyle],
                             styles: [DOMStyle]) {
+
+            assert(string.characters.count > 0)
 
             let textNode = TextNode(text: string)
 
@@ -312,7 +315,7 @@ extension Libxml2 {
         ///     - range: the range of the characters to replace.
         ///     - string: the string to replace the range with.
         ///
-        func replaceCharacters(in range: NSRange, with string: String) {
+        func replace(_ range: NSRange, with string: String) {
             if range.length > 0 {
                 deleteCharacters(spanning: range)
             }
@@ -333,19 +336,17 @@ extension Libxml2 {
 
         /// Replaces
         ///
-        private func replaceCharacters(in range: NSRange,
-                               with string: String,
-                               paragraphStyles: [DOMParagraphStyle],
-                               styles: [DOMStyle]) {
+        private func replace(_ range: NSRange,
+                             with string: String,
+                             paragraphStyles: [DOMParagraphStyle],
+                             styles: [DOMStyle]) {
             if range.length > 0 {
                 deleteCharacters(spanning: range)
             }
 
-            guard string.characters.count > 0 else {
-                return
+            if string.characters.count > 0 {
+                insert(string, atLocation: range.location, paragraphStyles: paragraphStyles, styles: styles)
             }
-
-            insert(string, atLocation: range.location, paragraphStyles: paragraphStyles, styles: styles)
         }
 
         // MARK: - String to Nodes
@@ -912,7 +913,7 @@ extension Libxml2 {
             guard let elementAndIntersection = elementsAndIntersections.first else {
                 // If there's no block-level element to break, we simply add a line separator
                 //
-                replaceCharacters(in: range, with: String(.lineSeparator))
+                replace(range, with: String(.lineSeparator))
                 return
             }
 

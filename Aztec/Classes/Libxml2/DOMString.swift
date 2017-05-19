@@ -243,7 +243,7 @@ extension Libxml2 {
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
 
-            domEditor.replaceCharacters(in: range, with: string)
+            domEditor.replace(range, with: string)
         }
 
         /// Replaces the specified range with a new string.
