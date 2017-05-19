@@ -721,8 +721,7 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - element: the reference element.  This is the parent to the node that will be split.
-        ///     - offset: the offset for the split.  Cannot be at the parent edge coordinates, but
-        ///             can be at a child's edge coordinates.
+        ///     - offset: the offset for the split.  Can be at a child's edge coordinates.
         ///
         /// - Returns: the left and right nodes after the split.  If the offset falls at the
         ///         beginning of a child node, no split will occur and this method will return
@@ -730,8 +729,6 @@ extension Libxml2 {
         ///         occur and this method will return `(node, nil)`.
         ///
         func splitChild(of element: ElementNode, at offset: Int) -> (left: Node?, right: Node?) {
-
-            assert(offset != 0 && offset != element.length())
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
                 fatalError("Cannot split the children of an element that has no children.")

@@ -201,8 +201,6 @@ extension Libxml2 {
             of element: ElementNode,
             intersecting offset: Int) -> NodeAndOffset? {
 
-            assert(element.length() > offset)
-
             guard element.children.count > 0 else {
                 return nil
             }
