@@ -49,6 +49,7 @@
 		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
 		B542D6421E9EB122009D12D3 /* PreFormaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */; };
 		B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */; };
+		B567FF011ECF344C00AC0B6E /* StylesEnumerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B567FF001ECF344C00AC0B6E /* StylesEnumerator.swift */; };
 		B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B572AC271E817CFE008948C2 /* CommentAttachment.swift */; };
 		B577DC651E7B18E90012A1F8 /* NodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */; };
 		B577DC671E7B18F80012A1F8 /* CommentNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */; };
@@ -199,6 +200,7 @@
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreFormaterTests.swift; sourceTree = "<group>"; };
 		B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Emoji.swift"; sourceTree = "<group>"; };
+		B567FF001ECF344C00AC0B6E /* StylesEnumerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StylesEnumerator.swift; sourceTree = "<group>"; };
 		B572AC271E817CFE008948C2 /* CommentAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachment.swift; sourceTree = "<group>"; };
 		B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NodeDescriptor.swift; path = Descriptors/NodeDescriptor.swift; sourceTree = "<group>"; };
 		B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommentNodeDescriptor.swift; path = Descriptors/CommentNodeDescriptor.swift; sourceTree = "<group>"; };
@@ -658,6 +660,7 @@
 				F1FA0E721E6EF25A009D98EE /* DOMEditor.swift */,
 				F1FA0E741E6EF267009D98EE /* DOMLogic.swift */,
 				F1FA0E761E6EF29B009D98EE /* DOMInspector.swift */,
+				B567FF001ECF344C00AC0B6E /* StylesEnumerator.swift */,
 			);
 			path = Logic;
 			sourceTree = "<group>";
@@ -800,6 +803,7 @@
 				F1ABC1B11EAE279D002E52FE /* HTMLParagraphFormatter.swift in Sources */,
 				B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */,
 				F1FA0E861E6EF514009D98EE /* Node.swift in Sources */,
+				B567FF011ECF344C00AC0B6E /* StylesEnumerator.swift in Sources */,
 				599F253C1D8BC9A1002871D6 /* OutHTMLAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
