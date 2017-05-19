@@ -30,13 +30,23 @@ extension Libxml2 {
 
         // MARK: - Inserting Characters
 
+        func insert(_ attributedString: NSAttributedString, atLocation location: Int) {
+            if attributedString.string.characters.count > 0 {
+                DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
+
+                    let subString = attributedString.attributedSubstring(from: subRange).string
+
+                    insert(subString, atLocation: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
+                })
+            }
+        }
+
         ///
         ///
-        func insert(
-            _ string: String,
-            at location: Int,
-            paragraphStyles: [DOMParagraphStyle],
-            styles: [DOMStyle]) {
+        private func insert(_ string: String,
+                            atLocation location: Int,
+                            paragraphStyles: [DOMParagraphStyle],
+                            styles: [DOMStyle]) {
 
             let textNode = TextNode(text: string)
 
@@ -312,20 +322,14 @@ extension Libxml2 {
             }
         }
 
-        func replaceCharacters(in range: NSRange, with attributedString: NSAttributedString) {
+        func replace(_ range: NSRange, with attributedString: NSAttributedString) {
             if range.length > 0 {
                 deleteCharacters(spanning: range)
             }
 
-            if attributedString.string.characters.count > 0 {
-                DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
-
-                    let subString = attributedString.attributedSubstring(from: subRange).string
-
-                    insert(subString, at: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
-                })
-            }
+            insert(attributedString, atLocation: range.location)
         }
+
 
         /// Replaces
         ///
@@ -341,7 +345,7 @@ extension Libxml2 {
                 return
             }
 
-            insert(string, at: range.location, paragraphStyles: paragraphStyles, styles: styles)
+            insert(string, atLocation: range.location, paragraphStyles: paragraphStyles, styles: styles)
         }
 
         // MARK: - String to Nodes

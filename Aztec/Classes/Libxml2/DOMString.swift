@@ -253,7 +253,7 @@ extension Libxml2 {
         ///     - string: the new string to replace the original text with.
         ///
         private func replaceCharactersSynchronously(in range: NSRange, with attributedString: NSAttributedString) {
-            domEditor.replaceCharacters(in: range, with: attributedString)
+            domEditor.replace(range, with: attributedString)
         }
         
         // MARK: - Undo Manager
