@@ -133,11 +133,10 @@ open class TextStorage: NSTextStorage {
         return attachments
     }
 
-    open func range(forAttachment attachment: MediaAttachment) -> NSRange? {
-
+    func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
 
-        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { (currentAttachment, currentRange, stop) in
+        textStore.enumerateAttachmentsOfType(T.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.pointee = true
@@ -896,7 +895,7 @@ open class TextStorage: NSTextStorage {
     /// - Parameter id: the unique id of the attachment
     /// - Returns: the attachment object
     ///
-    open func attachment(withId id: String) -> MediaAttachment? {
+    func attachment(withId id: String) -> MediaAttachment? {
         var foundAttachment: MediaAttachment? = nil
         enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
             if attachment.identifier == id {
@@ -916,14 +915,14 @@ open class TextStorage: NSTextStorage {
     ///   - size: the size to use
     ///   - url: the image URL for the image
     ///
-    open func update(attachment: ImageAttachment,
-                                  alignment: ImageAttachment.Alignment,
-                                  size: ImageAttachment.Size,
-                                  url: URL) {
+    func update(attachment: ImageAttachment,
+                alignment: ImageAttachment.Alignment,
+                size: ImageAttachment.Size,
+                url: URL) {
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
-        let rangesForAttachment = ranges(forAttachment:attachment)
+        let rangesForAttachment = ranges(forAttachment: attachment)
 
         let domRanges = rangesForAttachment.map { range -> NSRange in
             string.map(visualUTF16Range: range)
@@ -932,6 +931,20 @@ open class TextStorage: NSTextStorage {
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
     }
 
+    /// Updates the specified HTMLAttachment with new HTML contents
+    ///
+    func update(attachment: HTMLAttachment, html: String) {
+        guard let range = range(for: attachment) else {
+            assertionFailure("Couldn't determine the range for an Attachment")
+            return
+        }
+
+        attachment.rawHTML = html
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+    }
+    
     /// Removes the attachments that match the attachament identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment

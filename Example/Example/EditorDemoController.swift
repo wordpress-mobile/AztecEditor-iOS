@@ -277,7 +277,7 @@ class EditorDemoController: UIViewController {
         let providers: [TextViewAttachmentImageProvider] = [
             MoreAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
-            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
+            HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
         ]
 
         for provider in providers {
@@ -841,15 +841,18 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     }
 
     func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? ImageAttachment {
-            selected(textAttachment: imgAttachment, atPosition: position)
-        }
-
-        if let videoAttachment = attachment as? VideoAttachment {
+        switch attachment {
+        case let attachment as HTMLAttachment:
+            displayUnknownHtmlEditor(for: attachment)
+        case let attachment as ImageAttachment:
+            selected(textAttachment: attachment, atPosition: position)
+        case let attachment as VideoAttachment:
             if let imageAttachment = currentSelectedAttachment {
                 deselected(textAttachment: imageAttachment, atPosition: position)
             }
-            selected(videoAttachment: videoAttachment, atPosition: position)
+            selected(videoAttachment: attachment, atPosition: position)
+        default:
+            break
         }
     }
 
@@ -863,14 +866,14 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         } else {
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+                richTextView.refreshLayout(for: selectedAttachment)
             }
 
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -879,7 +882,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.clearAllOverlays()
-            richTextView.refreshLayoutFor(attachment: mediaAttachment)
+            richTextView.refreshLayout(for: mediaAttachment)
         }
     }
 
@@ -939,8 +942,51 @@ extension EditorDemoController: UIImagePickerControllerDelegate
     }
 }
 
-// MARK: - Misc
 
+// MARK: - Unknown HTML
+//
+private extension EditorDemoController {
+
+    func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
+        let targetVC = UnknownEditorViewController(attachment: attachment)
+        targetVC.onDidSave = { [weak self] html in
+            self?.richTextView.update(attachment: attachment, html: html)
+            self?.dismiss(animated: true, completion: nil)
+        }
+
+        targetVC.onDidCancel = { [weak self] in
+            self?.dismiss(animated: true, completion: nil)
+        }
+
+        let navigationController = UINavigationController(rootViewController: targetVC)
+        displayAsPopover(viewController: navigationController)
+    }
+
+    func displayAsPopover(viewController: UIViewController) {
+        viewController.modalPresentationStyle = .popover
+        viewController.preferredContentSize = view.frame.size
+
+        let presentationController = viewController.popoverPresentationController
+        presentationController?.sourceView = view
+        presentationController?.delegate = self
+
+        present(viewController, animated: true, completion: nil)
+    }
+}
+
+
+// MARK: - UIPopoverPresentationControllerDelegate
+//
+extension EditorDemoController: UIPopoverPresentationControllerDelegate {
+
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
+    }
+}
+
+
+// MARK: - Misc
+//
 private extension EditorDemoController
 {
     func saveToDisk(image: UIImage) -> URL {
@@ -1012,7 +1058,7 @@ private extension EditorDemoController
                 timer.invalidate()
                 attachment.progress = nil
             }
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
         } else {
             timer.invalidate()
         }
@@ -1042,7 +1088,7 @@ private extension EditorDemoController
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
                                                 attachment.clearAllOverlays()
-                                                self.richTextView.refreshLayoutFor(attachment: attachment)
+                                                self.richTextView.refreshLayout(for: attachment)
                                             }
         })
         alertController.addAction(dismissAction)
@@ -1092,11 +1138,12 @@ private extension EditorDemoController
 extension EditorDemoController {
 
     struct Constants {
-        static let defaultContentFont = UIFont.systemFont(ofSize: 14)
-        static let defaultMissingImage = Gridicon.iconOfType(.image)
-        static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
-        static let margin = CGFloat(20)
-        static let moreAttachmentText = "more"
+        static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
+        static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
+        static let defaultMissingImage  = Gridicon.iconOfType(.image)
+        static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let margin               = CGFloat(20)
+        static let moreAttachmentText   = "more"
     }
 }
 

@@ -51,6 +51,21 @@ open class HTMLAttachment: NSTextAttachment {
     }
 
 
+    /// Returns the Pretty Printed version of the contained HTML
+    ///
+    open func prettyHTML() -> String {
+        let inParser = Libxml2.In.HTMLConverter()
+        let outParser = Libxml2.Out.HTMLConverter(prettyPrint: true)
+        do {
+            let inNode = try inParser.convert(rawHTML)
+            return outParser.convert(inNode)
+        } catch {
+            assertionFailure("Error converting Raw HTML to Pretty Format: \(error)")
+        }
+
+        return rawHTML
+    }
+
     // MARK: - NSCoder Methods
 
     open override func encode(with aCoder: NSCoder) {

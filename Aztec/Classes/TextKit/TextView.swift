@@ -949,12 +949,14 @@ open class TextView: UITextView {
             return nil
         }
 
-        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment else {
+        var effectiveRange = NSRange()
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
             return nil
         }
 
-        let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
-        let bounds = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
+        var bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
+        bounds.origin.x += textContainerInset.left
+        bounds.origin.y += textContainerInset.top
 
         if bounds.contains(point) {
             return attachment
@@ -1081,17 +1083,30 @@ open class TextView: UITextView {
 
     /// Updates the attachment properties to the new values
     ///
-    /// - parameter attachment: the attachment to update
-    /// - parameter alignment:  the alignment value
-    /// - parameter size:       the size value
-    /// - parameter url:        the attachment url
+    /// - Parameters:
+    ///     - attachment: the attachment to update
+    ///     - alignment: the alignment value
+    ///     - size: the size value
+    ///     - url: the attachment url
     ///
     open func update(attachment: ImageAttachment,
                      alignment: ImageAttachment.Alignment,
                      size: ImageAttachment.Size,
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
-        layoutManager.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+    /// Updates the Attachment's HTML contents to the new specified value.
+    ///
+    /// - Parameters:
+    ///     - attachment: The attachment to be updated
+    ///     - html: New *VALID* HTML to be set
+    ///
+    open func update(attachment: HTMLAttachment, html: String) {
+        storage.update(attachment: attachment, html: html)
         delegate?.textViewDidChange?(self)
     }
 
@@ -1100,8 +1115,9 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayoutFor(attachment: MediaAttachment) {
-        layoutManager.invalidateLayoutForAttachment(attachment)
+    open func refreshLayout(for attachment: MediaAttachment) {
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
     }
 
 
