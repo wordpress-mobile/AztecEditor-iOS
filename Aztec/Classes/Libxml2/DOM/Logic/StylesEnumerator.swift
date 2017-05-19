@@ -8,7 +8,7 @@ import libxml2
 //
 extension Libxml2 {
 
-    //
+    // MARK: - DOMParagraphStyle
     //
     enum DOMParagraphStyle {
         case blockquote
@@ -54,7 +54,8 @@ extension Libxml2 {
         }
     }
 
-    //
+
+    // MARK: - DOMStyle
     //
     enum DOMStyle {
         case anchor(url: String)
@@ -85,26 +86,23 @@ extension Libxml2 {
     }
 
 
-    ///
-    ///
+    // MARK: - DOMStylesEnumerator
+    //
     class DOMStylesEnumerator {
 
         ///
         ///
-        func styles(in attrString: NSAttributedString) -> ([DOMParagraphStyle], [DOMStyle]) {
-            var paragraphStyles = [DOMParagraphStyle]()
-            var styles = [DOMStyle]()
-
+        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [DOMParagraphStyle], [DOMStyle]) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 for (key, value) in attrs {
 
-                    paragraphStyles.append(contentsOf: self.paragraphStyles(key: key, value: value))
-                    styles.append(contentsOf: self.styles(key: key, value: value))
+                    let paragraphStyles = self.paragraphStyles(key: key, value: value)
+                    let styles = self.styles(key: key, value: value)
+
+                    block(range, paragraphStyles, styles)
                 }
             }
-
-            return (paragraphStyles, styles)
         }
 
 
@@ -135,9 +133,10 @@ extension Libxml2 {
             return styles
         }
 
+
         ///
         ///
-        func styles(key: String, value: Any) -> [DOMStyle] {
+        private func styles(key: String, value: Any) -> [DOMStyle] {
             var styles = [DOMStyle]()
 
             switch key {
