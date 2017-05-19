@@ -21,7 +21,7 @@ class EditorDemoController: UIViewController {
 
         textView.delegate = self
         textView.formattingDelegate = self
-        textView.mediaDelegate = self
+        textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
 
         return textView
@@ -45,6 +45,8 @@ class EditorDemoController: UIViewController {
         textView.isHidden = true
         textView.delegate = self
         textView.accessibilityIdentifier = "HTMLContentView"
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
 
         return textView
     }()
@@ -97,10 +99,10 @@ class EditorDemoController: UIViewController {
 
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                htmlTextView.text = richTextView.getHTML(prettyPrint: true)
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                richTextView.setHTML(htmlTextView.text)
+                setHTML(htmlTextView.text)                
                 richTextView.becomeFirstResponder()
             }
 
@@ -114,6 +116,16 @@ class EditorDemoController: UIViewController {
     fileprivate var formatBarAnimatedPeek = false
 
     var loadSampleHTML = false
+
+    fileprivate var shortcodeProcessors = [ShortcodeProcessor]()
+
+    func setHTML(_ html: String) {
+        var processedHTML = html
+        for shortcodeProcessor in shortcodeProcessors {
+            processedHTML = shortcodeProcessor.process(text: processedHTML)
+        }
+        richTextView.setHTML(processedHTML)
+    }
 
 
     // MARK: - Lifecycle Methods
@@ -138,6 +150,7 @@ class EditorDemoController: UIViewController {
         view.addSubview(separatorView)
         configureConstraints()
         registerAttachmentImageProviders()
+        registerShortcodeProcessors()
 
         let html: String
 
@@ -147,7 +160,7 @@ class EditorDemoController: UIViewController {
             html = ""
         }
 
-        richTextView.setHTML(html)
+        setHTML(html)
 
         MediaAttachment.appearance.progressColor = UIColor.blue
         MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
@@ -264,12 +277,44 @@ class EditorDemoController: UIViewController {
         let providers: [TextViewAttachmentImageProvider] = [
             MoreAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
-            HTMLAttachmentRenderer(font: Constants.defaultContentFont)
+            HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
         ]
 
         for provider in providers {
             richTextView.registerAttachmentImageProvider(provider)
         }
+    }
+
+    private func registerShortcodeProcessors() {
+        let videoPressProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
+            var html = "<video "
+            if let src = shortcode.attributes.unamedAttributes.first {
+                html += "src=\"videopress://\(src)\" "
+            }
+            if let width = shortcode.attributes.namedAttributes["w"] {
+                html += "width=\(width) "
+            }
+            if let height = shortcode.attributes.namedAttributes["h"] {
+                html += "height=\(height) "
+            }
+            html += "\\>"
+            return html
+        })
+
+        let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
+            var html = "<video "
+            if let src = shortcode.attributes.namedAttributes["src"] {
+                html += "src=\"\(src)\" "
+            }
+            if let poster = shortcode.attributes.namedAttributes["poster"] {
+                html += "poster=\"\(poster)\" "
+            }
+            html += "\\>"
+            return html
+        })
+        
+        shortcodeProcessors.append(videoPressProcessor)
+        shortcodeProcessors.append(wordPressVideoProcessor)
     }
 
 
@@ -759,9 +804,9 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 }
 
 
-extension EditorDemoController: TextViewMediaDelegate {
+extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
             DispatchQueue.main.async(execute: {
@@ -781,34 +826,37 @@ extension EditorDemoController: TextViewMediaDelegate {
         return Gridicon.iconOfType(.image)
     }
     
-    func textView(_ textView: TextView, urlForAttachment attachment: NSTextAttachment) -> URL {
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
         
         // TODO: start fake upload process
-        if let image = attachment.image {
+        if let image = imageAttachment.image {
             return saveToDisk(image: image)
         } else {
             return URL(string: "placeholder://")!
         }
     }
 
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String) {
+    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
         print("Attachment \(attachmentID) removed.\n")
     }
 
-    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
-        if let imgAttachment = attachment as? ImageAttachment {
-            selected(textAttachment: imgAttachment, atPosition: position)
-        }
-
-        if let videoAttachment = attachment as? VideoAttachment {
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
+        switch attachment {
+        case let attachment as HTMLAttachment:
+            displayUnknownHtmlEditor(for: attachment)
+        case let attachment as ImageAttachment:
+            selected(textAttachment: attachment, atPosition: position)
+        case let attachment as VideoAttachment:
             if let imageAttachment = currentSelectedAttachment {
                 deselected(textAttachment: imageAttachment, atPosition: position)
             }
-            selected(videoAttachment: videoAttachment, atPosition: position)
+            selected(videoAttachment: attachment, atPosition: position)
+        default:
+            break
         }
     }
 
-    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint) {
         deselected(textAttachment: attachment, atPosition: position)
     }
 
@@ -818,14 +866,14 @@ extension EditorDemoController: TextViewMediaDelegate {
         } else {
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+                richTextView.refreshLayout(for: selectedAttachment)
             }
 
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -834,7 +882,7 @@ extension EditorDemoController: TextViewMediaDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.clearAllOverlays()
-            richTextView.refreshLayoutFor(attachment: mediaAttachment)
+            richTextView.refreshLayout(for: mediaAttachment)
         }
     }
 
@@ -894,8 +942,51 @@ extension EditorDemoController: UIImagePickerControllerDelegate
     }
 }
 
-// MARK: - Misc
 
+// MARK: - Unknown HTML
+//
+private extension EditorDemoController {
+
+    func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
+        let targetVC = UnknownEditorViewController(attachment: attachment)
+        targetVC.onDidSave = { [weak self] html in
+            self?.richTextView.update(attachment: attachment, html: html)
+            self?.dismiss(animated: true, completion: nil)
+        }
+
+        targetVC.onDidCancel = { [weak self] in
+            self?.dismiss(animated: true, completion: nil)
+        }
+
+        let navigationController = UINavigationController(rootViewController: targetVC)
+        displayAsPopover(viewController: navigationController)
+    }
+
+    func displayAsPopover(viewController: UIViewController) {
+        viewController.modalPresentationStyle = .popover
+        viewController.preferredContentSize = view.frame.size
+
+        let presentationController = viewController.popoverPresentationController
+        presentationController?.sourceView = view
+        presentationController?.delegate = self
+
+        present(viewController, animated: true, completion: nil)
+    }
+}
+
+
+// MARK: - UIPopoverPresentationControllerDelegate
+//
+extension EditorDemoController: UIPopoverPresentationControllerDelegate {
+
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
+    }
+}
+
+
+// MARK: - Misc
+//
 private extension EditorDemoController
 {
     func saveToDisk(image: UIImage) -> URL {
@@ -967,7 +1058,7 @@ private extension EditorDemoController
                 timer.invalidate()
                 attachment.progress = nil
             }
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
         } else {
             timer.invalidate()
         }
@@ -997,7 +1088,7 @@ private extension EditorDemoController
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
                                                 attachment.clearAllOverlays()
-                                                self.richTextView.refreshLayoutFor(attachment: attachment)
+                                                self.richTextView.refreshLayout(for: attachment)
                                             }
         })
         alertController.addAction(dismissAction)
@@ -1047,11 +1138,12 @@ private extension EditorDemoController
 extension EditorDemoController {
 
     struct Constants {
-        static let defaultContentFont = UIFont.systemFont(ofSize: 14)
-        static let defaultMissingImage = Gridicon.iconOfType(.image)
-        static let headers: [HeaderFormatter.HeaderType] = [.none, .h1, .h2, .h3, .h4, .h5, .h6]
-        static let margin = CGFloat(20)
-        static let moreAttachmentText = "more"
+        static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
+        static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
+        static let defaultMissingImage  = Gridicon.iconOfType(.image)
+        static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let margin               = CGFloat(20)
+        static let moreAttachmentText   = "more"
     }
 }
 

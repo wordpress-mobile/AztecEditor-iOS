@@ -102,19 +102,19 @@ class TextStorageTests: XCTestCase
 
         var deletedAttachmendIDCalledWithString: String?
 
-        func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
+        func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
             deletedAttachmendIDCalledWithString = attachmentID
         }
 
-        func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
+        func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageForURL url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
             return UIImage()
         }
 
@@ -162,6 +162,31 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
+    }
+
+    func testUpdateHtmlAttachmentEffectivelyUpdatesTheDom() {
+        let initialHTML = "<unknown>html</unknown>"
+        let updatedHTML = "<updated>NEW HTML</updated>"
+
+        // Setup
+        let storage = TextStorage()
+        let mockDelegate = MockAttachmentsDelegate()
+        storage.attachmentsDelegate = mockDelegate
+
+        storage.setHTML(initialHTML, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 10).fontDescriptor)
+
+        // Find the Attachment
+        var theAttachment: HTMLAttachment!
+        storage.enumerateAttachmentsOfType(HTMLAttachment.self, range: nil) { (attachment, _, _) in
+            theAttachment = attachment
+        }
+
+        // Update
+        XCTAssertNotNil(theAttachment)
+        storage.update(attachment: theAttachment, html: updatedHTML)
+
+        // Verify
+        XCTAssertEqual(storage.getHTML(), updatedHTML)
     }
 
     func testBlockquoteToggle1() {

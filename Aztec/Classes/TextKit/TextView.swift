@@ -4,9 +4,9 @@ import Foundation
 import Gridicons
 
 
-// MARK: - TextViewMediaDelegate
+// MARK: - TextViewAttachmentDelegate
 //
-public protocol TextViewMediaDelegate: class {
+public protocol TextViewAttachmentDelegate: class {
 
     /// This method requests from the delegate the image at the specified URL.
     ///
@@ -19,50 +19,48 @@ public protocol TextViewMediaDelegate: class {
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func textView(
-        _ textView: TextView,
-        imageAtUrl imageURL: URL,
-        onSuccess success: @escaping (UIImage) -> Void,
-        onFailure failure: @escaping (Void) -> Void) -> UIImage
+    func textView(_ textView: TextView,
+                  imageAt url: URL,
+                  onSuccess success: @escaping (UIImage) -> Void,
+                  onFailure failure: @escaping (Void) -> Void) -> UIImage
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the image.
-    ///     - attachment: The attachment that was added to the storage.
+    ///     - imageAttachment: The image attachment that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func textView(
-        _ textView: TextView,
-        urlForAttachment attachment: NSTextAttachment) -> URL
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL
 
 
-    /// Called when a attachment is removed from the storage.
+    /// Called after a attachment is removed from the storage.
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String)
+    ///
+    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String)
 
-    /// Called when an attachment is selected with a single tap.
+    /// Called after an attachment is selected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was selected.
     ///   - position: touch position relative to the textview.
     ///
-    func textView(_ textView: TextView, selectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint)
 
-    /// Called when an attachment is deselected with a single tap.
+    /// Called after an attachment is deselected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was deselected.
     ///   - position: touch position relative to the textView
     ///
-    func textView(_ textView: TextView, deselectedAttachment attachment: NSTextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint)
 }
 
 
@@ -128,7 +126,7 @@ open class TextView: UITextView {
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
-    open weak var mediaDelegate: TextViewMediaDelegate?
+    open weak var textAttachmentDelegate: TextViewAttachmentDelegate?
 
     /// Maintains a reference to the user provided Text Attachment Image Providers
     ///
@@ -382,10 +380,12 @@ open class TextView: UITextView {
 
     /// Converts the current Attributed Text into a raw HTML String
     ///
+    /// - Parameter prettyPrint: Indicates if the output HTML should be pretty printed, or not
+    ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML() -> String {
-        return storage.getHTML()
+    open func getHTML(prettyPrint: Bool = false) -> String {
+        return storage.getHTML(prettyPrint: prettyPrint)
     }
 
 
@@ -949,12 +949,14 @@ open class TextView: UITextView {
             return nil
         }
 
-        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? NSTextAttachment else {
+        var effectiveRange = NSRange()
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
             return nil
         }
 
-        let glyphIndex = layoutManager.glyphIndexForCharacter(at: index)
-        let bounds = layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
+        var bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
+        bounds.origin.x += textContainerInset.left
+        bounds.origin.y += textContainerInset.top
 
         if bounds.contains(point) {
             return attachment
@@ -1081,17 +1083,30 @@ open class TextView: UITextView {
 
     /// Updates the attachment properties to the new values
     ///
-    /// - parameter attachment: the attachment to update
-    /// - parameter alignment:  the alignment value
-    /// - parameter size:       the size value
-    /// - parameter url:        the attachment url
+    /// - Parameters:
+    ///     - attachment: the attachment to update
+    ///     - alignment: the alignment value
+    ///     - size: the size value
+    ///     - url: the attachment url
     ///
     open func update(attachment: ImageAttachment,
                      alignment: ImageAttachment.Alignment,
                      size: ImageAttachment.Size,
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
-        layoutManager.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+    /// Updates the Attachment's HTML contents to the new specified value.
+    ///
+    /// - Parameters:
+    ///     - attachment: The attachment to be updated
+    ///     - html: New *VALID* HTML to be set
+    ///
+    open func update(attachment: HTMLAttachment, html: String) {
+        storage.update(attachment: attachment, html: html)
         delegate?.textViewDidChange?(self)
     }
 
@@ -1100,8 +1115,9 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayoutFor(attachment: MediaAttachment) {
-        layoutManager.invalidateLayoutForAttachment(attachment)
+    open func refreshLayout(for attachment: MediaAttachment) {
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
     }
 
 
@@ -1304,32 +1320,31 @@ extension TextView: TextStorageAttachmentsDelegate {
     func storage(
         _ storage: TextStorage,
         attachment: NSTextAttachment,
-        imageForURL url: URL,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage {
         
-        guard let mediaDelegate = mediaDelegate else {
-            fatalError("This class requires a media delegate to be set.")
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        let placeholderImage = mediaDelegate.textView(self, imageAtUrl: url, onSuccess: success, onFailure: failure)
-        return placeholderImage
+        return textAttachmentDelegate.textView(self, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
-    func storage(_ storage: TextStorage, missingImageForAttachment: NSTextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
         return defaultMissingImage
     }
     
-    func storage(_ storage: TextStorage, urlForAttachment attachment: NSTextAttachment) -> URL {
-        guard let mediaDelegate = mediaDelegate else {
-            fatalError("This class requires a media delegate to be set.")
+    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForAttachment: attachment)
+        return textAttachmentDelegate.textView(self, urlFor: imageAttachment)
     }
 
-    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
-        mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
+    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
+        textAttachmentDelegate?.textView(self, deletedAttachmentWith: attachmentID)
     }
 
     func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
@@ -1380,7 +1395,7 @@ extension TextView: TextStorageAttachmentsDelegate {
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
             // if we have a current selected attachment let's notify of deselection
             if let selectedAttachment = currentSelectedAttachment {
-                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return false
@@ -1404,14 +1419,14 @@ extension TextView: TextStorageAttachmentsDelegate {
 
         if textView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
-                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return
         }
 
         currentSelectedAttachment = attachment as? ImageAttachment
-        textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
+        textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
     }
 }
 

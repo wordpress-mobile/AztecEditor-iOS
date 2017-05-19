@@ -338,6 +338,6 @@ open class MediaAttachment: NSTextAttachment
     }
     
     fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
-        textContainer?.layoutManager?.invalidateLayoutForAttachment(self)
+        textContainer?.layoutManager?.invalidateLayout(for: self)
     }
 }

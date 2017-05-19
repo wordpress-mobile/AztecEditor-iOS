@@ -14,6 +14,10 @@ open class HTMLStorage: NSTextStorage {
     ///
     open var font: UIFont
 
+    /// Color to be applied over HTML Comments
+    ///
+    open var commentColor = Styles.defaultCommentColor
+
     /// Color to be applied over HTML Tags
     ///
     open var tagColor = Styles.defaultTagColor
@@ -113,6 +117,11 @@ private extension HTMLStorage {
                 addAttribute(NSForegroundColorAttributeName, value: quotedColor, range: quote.range)
             }
         }
+
+        let comments = RegExes.comments.matches(in: string, options: [], range: fullStringRange)
+        for comment in comments {
+            addAttribute(NSForegroundColorAttributeName, value: commentColor, range: comment.range)
+        }
     }
 }
 
@@ -124,6 +133,7 @@ private extension HTMLStorage {
     /// Regular Expressions used to match HTML
     ///
     struct RegExes {
+        static let comments = try! NSRegularExpression(pattern: "<!--[^>]+-->", options: .caseInsensitive)
         static let html = try! NSRegularExpression(pattern: "<[^>]+>", options: .caseInsensitive)
         static let quotes = try! NSRegularExpression(pattern: "\".*?\"", options: .caseInsensitive)
     }
@@ -132,6 +142,7 @@ private extension HTMLStorage {
     /// Default Styles
     ///
     struct Styles {
+        static let defaultCommentColor = UIColor.lightGray
         static let defaultTagColor = UIColor(colorLiteralRed: 0x00/255.0, green: 0x75/255.0, blue: 0xB6/255.0, alpha: 0xFF/255.0)
         static let defaultQuotedColor = UIColor(colorLiteralRed: 0x6E/255.0, green: 0x96/255.0, blue: 0xB1/255.0, alpha: 0xFF/255.0)
     }
