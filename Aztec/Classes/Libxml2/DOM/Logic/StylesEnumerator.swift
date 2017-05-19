@@ -80,13 +80,15 @@ extension Libxml2 {
         func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [DOMParagraphStyle], [DOMStyle]) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
+                var paragraphStyles = [DOMParagraphStyle]()
+                var styles = [DOMStyle]()
+
                 for (key, value) in attrs {
-
-                    let paragraphStyles = self.paragraphStyles(key: key, value: value)
-                    let styles = self.styles(key: key, value: value)
-
-                    block(range, paragraphStyles, styles)
+                    paragraphStyles.append(contentsOf: self.paragraphStyles(key: key, value: value))
+                    styles.append(contentsOf: self.styles(key: key, value: value))
                 }
+
+                block(range, paragraphStyles, styles)
             }
         }
 
