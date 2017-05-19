@@ -866,14 +866,14 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         } else {
             if let selectedAttachment = currentSelectedAttachment {
                 selectedAttachment.clearAllOverlays()
-                richTextView.refreshLayoutFor(attachment: selectedAttachment)
+                richTextView.refreshLayout(for: selectedAttachment)
             }
 
             // and mark the newly tapped attachment
             let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -882,7 +882,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.clearAllOverlays()
-            richTextView.refreshLayoutFor(attachment: mediaAttachment)
+            richTextView.refreshLayout(for: mediaAttachment)
         }
     }
 
@@ -1058,7 +1058,7 @@ private extension EditorDemoController
                 timer.invalidate()
                 attachment.progress = nil
             }
-            richTextView.refreshLayoutFor(attachment: attachment)
+            richTextView.refreshLayout(for: attachment)
         } else {
             timer.invalidate()
         }
@@ -1088,7 +1088,7 @@ private extension EditorDemoController
                                             if attachment == self.currentSelectedAttachment {
                                                 self.currentSelectedAttachment = nil
                                                 attachment.clearAllOverlays()
-                                                self.richTextView.refreshLayoutFor(attachment: attachment)
+                                                self.richTextView.refreshLayout(for: attachment)
                                             }
         })
         alertController.addAction(dismissAction)

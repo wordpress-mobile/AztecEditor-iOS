@@ -1094,7 +1094,8 @@ open class TextView: UITextView {
                      size: ImageAttachment.Size,
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
-        layoutManager.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
         delegate?.textViewDidChange?(self)
     }
 
@@ -1114,8 +1115,9 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayoutFor(attachment: MediaAttachment) {
-        layoutManager.invalidateLayoutForAttachment(attachment)
+    open func refreshLayout(for attachment: MediaAttachment) {
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
     }
 
 
