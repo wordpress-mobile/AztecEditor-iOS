@@ -197,6 +197,23 @@ extension Libxml2 {
                 }
             }
         }
+
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - string: the new string to replace the original text with.
+        ///
+        func replaceCharacters(inRange range: NSRange, with attributedString: NSAttributedString) {
+
+            let domHasModifications = range.length > 0 || !attributedString.string.isEmpty
+
+            if domHasModifications {
+                performAsyncUndoable { [weak self] in
+                    self?.replaceCharactersSynchronously(in: range, with: attributedString)
+                }
+            }
+        }
         
         // MARK: - Editing: Synchronously
 
@@ -227,6 +244,16 @@ extension Libxml2 {
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
 
             domEditor.replaceCharacters(in: range, with: string)
+        }
+
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - string: the new string to replace the original text with.
+        ///
+        private func replaceCharactersSynchronously(in range: NSRange, with attributedString: NSAttributedString) {
+            domEditor.replaceCharacters(in: range, with: attributedString)
         }
         
         // MARK: - Undo Manager

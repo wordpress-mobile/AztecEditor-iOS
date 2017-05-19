@@ -312,9 +312,24 @@ extension Libxml2 {
             }
         }
 
+        func replaceCharacters(in range: NSRange, with attributedString: NSAttributedString) {
+            if range.length > 0 {
+                deleteCharacters(spanning: range)
+            }
+
+            if attributedString.string.characters.count > 0 {
+                DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
+
+                    let subString = attributedString.attributedSubstring(from: subRange).string
+
+                    insert(subString, at: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
+                })
+            }
+        }
+
         /// Replaces
         ///
-        func replaceCharacters(in range: NSRange,
+        private func replaceCharacters(in range: NSRange,
                                with string: String,
                                paragraphStyles: [DOMParagraphStyle],
                                styles: [DOMStyle]) {
