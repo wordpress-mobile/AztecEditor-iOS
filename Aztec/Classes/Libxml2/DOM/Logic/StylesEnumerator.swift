@@ -3,7 +3,6 @@ import UIKit
 import libxml2
 
 
-
 // MARK: - StylesEnumerator
 //
 extension Libxml2 {
@@ -12,44 +11,30 @@ extension Libxml2 {
     //
     enum DOMParagraphStyle {
         case blockquote
-        case paragraph
-        case orderedList
-        case unorderedList
-        case header1
-        case header2
-        case header3
-        case header4
-        case header5
-        case header6
+        case header(level: Int)
         case horizontalRule
+        case orderedList
+        case paragraph
         case preformatted
+        case unorderedList
 
         func toNode(children: [Node]) -> ElementNode {
             switch self {
             case .blockquote:
                 return ElementNode(type: .blockquote, children: children)
+            case .header(let level):
+                let header = DOMString.elementTypeForHeaderLevel(level) ?? .h1
+                return ElementNode(type: header, children: children)
+            case .horizontalRule:
+                return ElementNode(type: .hr, children: children)
             case .orderedList:
                 return ElementNode(type: .ol, children: children)
             case .paragraph:
                 return ElementNode(type: .p, children: children)
-            case .unorderedList:
-                return ElementNode(type: .ul, children: children)
-            case .header1:
-                return ElementNode(type: .h1, children: children)
-            case .header2:
-                return ElementNode(type: .h2, children: children)
-            case .header3:
-                return ElementNode(type: .h3, children: children)
-            case .header4:
-                return ElementNode(type: .h4, children: children)
-            case .header5:
-                return ElementNode(type: .h5, children: children)
-            case .header6:
-                return ElementNode(type: .h6, children: children)
-            case .horizontalRule:
-                return ElementNode(type: .hr, children: children)
             case .preformatted:
                 return ElementNode(type: .pre, children: children)
+            case .unorderedList:
+                return ElementNode(type: .ul, children: children)
             }
         }
     }
@@ -106,7 +91,7 @@ extension Libxml2 {
         }
 
 
-        ///
+        /// Converts a NSAttributedString Attribute / Value into an array of DOMParagraphStyle Instances.
         ///
         private func paragraphStyles(key: String, value: Any) -> [DOMParagraphStyle] {
             var styles = [DOMParagraphStyle]()
@@ -121,6 +106,21 @@ extension Libxml2 {
                     styles.append(.blockquote)
                 }
 
+                if paragraph.htmlParagraph != nil {
+                    styles.append(.paragraph)
+                }
+
+                if paragraph.headerLevel > 0 {
+                    styles.append(.header(level: paragraph.headerLevel))
+                }
+
+                for list in paragraph.textLists {
+                    if list.style == .ordered {
+                        styles.append(.orderedList)
+                    } else {
+                        styles.append(.unorderedList)
+                    }
+                }
 
             case NSFontAttributeName:
                 break
@@ -134,7 +134,7 @@ extension Libxml2 {
         }
 
 
-        ///
+        /// Converts a NSAttributedString Attribute / Value into an array of DOMStyle Instances.
         ///
         private func styles(key: String, value: Any) -> [DOMStyle] {
             var styles = [DOMStyle]()
@@ -153,7 +153,17 @@ extension Libxml2 {
                     styles.append(.italics)
                 }
             case NSLinkAttributeName:
-                break
+                guard let url = value as? URL else {
+                    break
+                }
+
+                styles.append(.anchor(url: url.absoluteString))
+            case NSAttachmentAttributeName:
+                guard let image = value as? ImageAttachment, let url = image.url else {
+                    break
+                }
+
+                styles.append(.image(url: url.absoluteString))
             case NSStrikethroughStyleAttributeName:
                 styles.append(.strike)
             case NSUnderlineStyleAttributeName:

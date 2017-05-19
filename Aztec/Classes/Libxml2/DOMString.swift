@@ -517,7 +517,7 @@ extension Libxml2 {
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
-            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+            guard let elementType = DOMString.elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
             domEditor.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
@@ -621,7 +621,7 @@ extension Libxml2 {
         }
 
         func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
-            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+            guard let elementType = DOMString.elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
             performAsyncUndoable { [weak self] in
@@ -642,11 +642,11 @@ extension Libxml2 {
 
         // MARK: - Header types
 
-        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
-            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+        class func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > headerLevels.count {
                 return nil
             }
-            return DOMString.headerLevels[headerLevel - 1]
+            return headerLevels[headerLevel - 1]
         }
 
         // MARK: - Raw HTML
