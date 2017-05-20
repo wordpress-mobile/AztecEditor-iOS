@@ -68,20 +68,11 @@ extension Libxml2 {
 
         // MARK: - Properties: DOM Logic
 
-        private var domEditor: DOMEditor {
-            set {
-                SharedEditor.currentEditor = newValue
-            }
+        private lazy var domEditor: DOMEditor = {
+            SharedEditor.currentEditor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
 
-            get {
-
-                if SharedEditor.currentEditor == nil {
-                    SharedEditor.currentEditor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
-                }
-
-                return SharedEditor.currentEditor
-            }
-        }
+            return SharedEditor.currentEditor
+        }()
 
         // MARK: - Init & deinit
 

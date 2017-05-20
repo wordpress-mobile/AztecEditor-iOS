@@ -186,6 +186,7 @@ extension Libxml2 {
 
         private func insertChild(_ node: Node, in element: ElementNode, at index: Int) {
             element.children.insert(node, at: index)
+            node.parent = element
         }
 
         private func insertChild(_ node: Node, in element: ElementNode, after referenceNode: Node) {
@@ -515,10 +516,6 @@ extension Libxml2 {
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
                 wrapChildren(selectedChildren, of: element, inElement: childElementDescriptor)
-            }
-
-            if finalWrapper.isBlockLevelElement() {
-                split(finalWrapper, at: String(.paragraphSeparator))
             }
             
             return finalWrapper
