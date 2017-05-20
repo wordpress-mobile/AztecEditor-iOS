@@ -17,11 +17,11 @@ extension Libxml2 {
                                                     .ul, .video]
         let undoManager: UndoManager
 
-        convenience init(with rootNode: RootNode, undoManager: UndoManager) {
+        convenience init(with rootNode: RootNode, undoManager: UndoManager = UndoManager()) {
             self.init(with: rootNode, using: DOMInspector(with: rootNode), undoManager: undoManager)
         }
 
-        init(with rootNode: RootNode, using inspector: DOMInspector, undoManager: UndoManager) {
+        init(with rootNode: RootNode, using inspector: DOMInspector, undoManager: UndoManager = UndoManager()) {
             self.inspector = inspector
             self.undoManager = undoManager
 

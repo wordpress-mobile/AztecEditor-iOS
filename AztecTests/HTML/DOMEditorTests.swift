@@ -31,7 +31,7 @@ class DOMEditorTests: XCTestCase {
         let editor = DOMEditor(with: rootNode)
         let range = NSRange(location: text1.characters.count, length: 0)
 
-        editor.replaceCharacters(in: range, with: String(.newline))
+        editor.replace(range, with: String(.newline))
 
         XCTAssertEqual(rootNode.text(), "\(text1)\(String(.newline))\(text2)")
     }
@@ -46,9 +46,9 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [textNode])
         let editor = DOMEditor(with: rootNode)
 
-        editor.replaceCharacters(in: NSRange(location: 0, length: 0), with: "a")
-        editor.replaceCharacters(in: NSRange(location: 1, length: 0), with: "b")
-        editor.replaceCharacters(in: NSRange(location: 2, length: 0), with: "c")
+        editor.replace(NSRange(location: 0, length: 0), with: "a")
+        editor.replace(NSRange(location: 1, length: 0), with: "b")
+        editor.replace(NSRange(location: 2, length: 0), with: "c")
 
         XCTAssertEqual(rootNode.children.count, 1)
         XCTAssert(rootNode.children[0] is TextNode)
@@ -75,7 +75,7 @@ class DOMEditorTests: XCTestCase {
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
 
-        editor.replaceCharacters(in: range, with: newString)
+        editor.replace(range, with: newString)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -110,7 +110,7 @@ class DOMEditorTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
 
-        editor.replaceCharacters(in: range, with: newString)
+        editor.replace(range, with: newString)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -144,7 +144,7 @@ class DOMEditorTests: XCTestCase {
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
 
-        editor.replaceCharacters(in: range, with: newString)
+        editor.replace(range, with: newString)
 
         XCTAssertEqual(rootNode.text(), finalText)
         XCTAssertEqual(rootNode.children.count, 2)
@@ -191,7 +191,7 @@ class DOMEditorTests: XCTestCase {
 
         let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
 
-        editor.replaceCharacters(in: replaceRange, with: "everyone")
+        editor.replace(replaceRange, with: "everyone")
 
         XCTAssertEqual(rootNode.children.count, 2)
         XCTAssertEqual(rootNode.children[0], boldNode)
@@ -279,7 +279,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(elementType: boldElementType))
+        editor.wrap(range, in: ElementNodeDescriptor(elementType: boldElementType))
 
         XCTAssertEqual(div.children.count, 2)
         XCTAssertEqual(div.children[1], textNode2)
@@ -325,7 +325,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.wrapChildren(intersectingRange: div.range(), inElement: ElementNodeDescriptor(name: boldNodeName))
+        editor.wrap(div.range(), in: ElementNodeDescriptor(name: boldNodeName))
 
         XCTAssertEqual(div.children.count, 1)
 
@@ -373,7 +373,7 @@ class DOMEditorTests: XCTestCase {
 
         let range = NSRange(location: 2, length: 8)
 
-        editor.wrapChildren(intersectingRange: range, inElement: ElementNodeDescriptor(name: boldNodeName))
+        editor.wrap(range, in: ElementNodeDescriptor(name: boldNodeName))
 
         XCTAssertEqual(div.children.count, 3)
 
@@ -418,7 +418,7 @@ class DOMEditorTests: XCTestCase {
         let range = NSRange(location: 0, length: 11)
 
         let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
-        editor.wrapChildren(intersectingRange: range, inElement: boldElementDescriptor)
+        editor.wrap(range, in: boldElementDescriptor)
 
         XCTAssertEqual(divNode.children.count, 1)
 

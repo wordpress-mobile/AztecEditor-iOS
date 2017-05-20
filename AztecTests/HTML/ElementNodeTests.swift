@@ -4,7 +4,6 @@ import XCTest
 class ElementNodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
-    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias ElementNodeDescriptor = Libxml2.ElementNodeDescriptor
     typealias RootNode = Libxml2.RootNode
@@ -726,103 +725,6 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(results[1].intersection.location, 6)
         XCTAssertEqual(results[1].intersection.length, 6)
     }
-
-    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
-    ///
-    /// Input HTML: <p>This is a test string.</p>
-    /// Range: (5...0)
-    ///
-    /// Expected results:
-    ///     - should find 1 matching child node (the text node)
-    ///     - the range should be unchanged
-    ///
-    func testChildNodesIntersectingRange1() {
-        let textNode = TextNode(text: "This is a test string.")
-        let rangeLocation = 5
-        XCTAssert(rangeLocation < textNode.length(),
-                  "For this text we need to make sure the range location is inside the test node.")
-
-        let range = NSRange(location: rangeLocation, length: 0)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-
-        let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
-
-        guard childrenAndRanges.count == 1 else {
-            XCTFail("Expected 1 child.")
-            return
-        }
-
-        XCTAssertEqual(childrenAndRanges[0].child, textNode)
-        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
-    }
-
-
-    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
-    ///
-    /// Input HTML: <p>This is a test string.</p>
-    /// Range: (0...0)
-    ///
-    /// Expected results:
-    ///     - should find 1 matching child node (the text node)
-    ///     - the range should be unchanged
-    ///
-    func testChildNodesIntersectingRange2() {
-        let textNode = TextNode(text: "This is a test string.")
-        let rangeLocation = 0
-        XCTAssert(rangeLocation < textNode.length(),
-                  "For this text we need to make sure the range location is inside the test node.")
-
-        let range = NSRange(location: rangeLocation, length: 0)
-        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-
-        let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
-
-        guard childrenAndRanges.count == 1 else {
-            XCTFail("Expected 1 child.")
-            return
-        }
-
-        XCTAssertEqual(childrenAndRanges[0].child, textNode)
-        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
-    }
-
-    /// Tests `childNodes(intersectingRange:)` with a zero-length range.
-    ///
-    /// Input HTML: <p><b>Hello</b><b>Hello again!</b></p>
-    /// Prefer left node: true
-    /// Range: (5...0)
-    ///
-    /// Expected results:
-    ///     - should find 2 matching child nodes
-    ///     - the ranges should be at the end of the first node, and the beginning of the second
-    ///
-    func testChildNodesIntersectingRange3() {
-
-        let textNode1 = TextNode(text: "Hello")
-        let textNode2 = TextNode(text: "Hello again!")
-
-        let rangeLocation = 5
-        XCTAssert(rangeLocation == textNode1.length(),
-                  "For this text we need to make sure the range location is inside the test node.")
-
-        let range = NSRange(location: rangeLocation, length: 0)
-
-        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
-        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
-        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
-
-        let childrenAndRanges = paragraph.childNodes(intersectingRange: range)
-
-        guard childrenAndRanges.count == 2 else {
-            XCTFail("Expected 2 children.")
-            return
-        }
-
-        XCTAssertEqual(childrenAndRanges[0].child, bold1)
-        XCTAssertEqual(childrenAndRanges[1].child, bold2)
-        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
-        XCTAssert(NSEqualRanges(childrenAndRanges[1].intersection, NSRange(location: 0, length: 0)))
-    }
     
     /// Tests `insert(string: String, at index: Int)`.
     ///
@@ -1263,14 +1165,13 @@ class ElementNodeTests: XCTestCase {
     func testUndoRemoveChild() {
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
         undoManager.disableUndoRegistration()
         
-        let textNode1 = TextNode(text: "Hello ", editContext: editContext)
-        let textNode2 = TextNode(text: "world!", editContext: editContext)
-        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2], editContext: editContext)
-        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode], editContext: editContext)
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world!")
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode])
         
         undoManager.enableUndoRegistration()
         
@@ -1309,16 +1210,15 @@ class ElementNodeTests: XCTestCase {
     func testUndoRemoveChildren() {
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
         undoManager.disableUndoRegistration()
         
-        let textNode1 = TextNode(text: "Hello ", editContext: editContext)
-        let textNode2 = TextNode(text: "world!", editContext: editContext)
-        let textNode3 = TextNode(text: "How are you?", editContext: editContext)
-        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2], editContext: editContext)
-        let emNode = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode3], editContext: editContext)
-        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode, emNode], editContext: editContext)
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world!")
+        let textNode3 = TextNode(text: "How are you?")
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2])
+        let emNode = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode3])
+        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode, emNode])
         
         undoManager.enableUndoRegistration()
         
