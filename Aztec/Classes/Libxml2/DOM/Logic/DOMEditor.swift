@@ -263,16 +263,29 @@ extension Libxml2 {
             if range.location == 0 && range.length == element.length() {
                 element.removeFromParent()
             } else {
-                let rangeForChildren = inspector.mapToChildren(range: range, of: element)
-                let childrenAndIntersections = inspector.findChildren(of: element, spanning: rangeForChildren)
+                deleteCharactersFromChildren(of: element, spanning: range)
+            }
+        }
 
-                for (child, intersection) in childrenAndIntersections {
-                    deleteCharacters(in: child, spanning: intersection)
+        /// Deletes the characters in the specified `ElementNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - element: the `ElementNode` containing the children the range will be deleted from.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharactersFromChildren(of element: ElementNode, spanning range: NSRange) {
+            assert(element.range().contains(range))
+            assert(range.length > 0)
+
+            let childrenAndIntersections = inspector.findChildren(of: element, spanning: range)
+
+            for (child, intersection) in childrenAndIntersections {
+
+                guard intersection.length > 0 else {
+                    continue
                 }
 
-                if rangeForChildren.length != range.length {
-                    mergeRight(element)
-                }
+                deleteCharacters(in: child, spanning: intersection)
             }
         }
 
@@ -301,11 +314,7 @@ extension Libxml2 {
             assert(rootNode.range().contains(range))
             assert(range.length > 0)
 
-            let childrenAndIntersections = inspector.findChildren(of: rootNode, spanning: range)
-
-            for (child, intersection) in childrenAndIntersections {
-                deleteCharacters(in: child, spanning: intersection)
-            }
+            deleteCharactersFromChildren(of: rootNode, spanning: range)
         }
 
         // MARK: - Replacing Characters

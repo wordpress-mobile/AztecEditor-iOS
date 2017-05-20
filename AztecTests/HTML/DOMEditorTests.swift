@@ -147,18 +147,20 @@ class DOMEditorTests: XCTestCase {
         editor.replace(range, with: newString)
 
         XCTAssertEqual(rootNode.text(), finalText)
-        XCTAssertEqual(rootNode.children.count, 2)
+        XCTAssertEqual(rootNode.children.count, 1)
 
-        guard let newParagraph = rootNode.children[0] as? ElementNode, newParagraph.name == "p" else {
-            XCTFail("Expected a paragraph.")
-            return
+        guard let outParagraph = rootNode.children[0] as? ElementNode,
+            outParagraph.name == StandardElementType.p.rawValue else {
+                XCTFail("Expected a paragraph node.")
+                return
         }
 
-        XCTAssertEqual(newParagraph.text(), text1)
+        XCTAssertEqual(outParagraph.text(), finalText)
 
-        guard let textNode = rootNode.children[1] as? TextNode, textNode.text() == newString else {
-            XCTFail("Expected a text node, with the full text.")
-            return
+        guard let outTextNode = outParagraph.children[0] as? TextNode,
+            outTextNode.text() == finalText else {
+                XCTFail("Expected a text node, with the full text.")
+                return
         }
     }
 

@@ -176,11 +176,11 @@ extension Libxml2 {
 
                 let childRangeInParent = child.range().offset(offset)
 
-                guard let intersection = range.intersect(withRange: childRangeInParent) else {
+                guard let intersectionInParent = range.intersect(withRange: childRangeInParent) else {
                     continue
                 }
 
-                elementsAndRanges.append((child, intersection))
+                elementsAndRanges.append((child, intersectionInParent.offset(-offset)))
 
                 offset = offset + child.length()
             }

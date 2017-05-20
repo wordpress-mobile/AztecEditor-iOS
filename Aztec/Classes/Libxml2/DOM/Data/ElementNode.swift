@@ -755,7 +755,7 @@ extension Libxml2 {
                 text = text + child.text()
             }
 
-            if isBlockLevelElement() {
+            if needsClosingParagraphSeparator() {
                 text.append(String(.paragraphSeparator))
             }
 
