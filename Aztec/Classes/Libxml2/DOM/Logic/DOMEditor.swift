@@ -722,8 +722,9 @@ extension Libxml2 {
         ///
         /// - Returns: the left and right nodes after the split.  If the offset falls at the
         ///         beginning of a child node, no split will occur and this method will return
-        ///         `(nil, node)`.  If the offset falls at the end of a child node, no split will
-        ///         occur and this method will return `(node, nil)`.
+        ///         `(inspector.leftSibling(of: node), node)`.  If the offset falls at the end of a
+        ///         child node, no split will occur and this method will return
+        ///         `(node, inspector.rightSibling(of: node))`.
         ///
         func splitChild(of element: ElementNode, at offset: Int) -> (left: Node?, right: Node?) {
 
@@ -732,11 +733,11 @@ extension Libxml2 {
             }
 
             guard intersection != 0 else {
-                return (nil, child)
+                return (inspector.leftSibling(of: child), child)
             }
 
             guard intersection != child.length() else {
-                return (child, nil)
+                return (child, inspector.rightSibling(of: child))
             }
 
             let (leftNode, rightNode) = split(child, at: intersection)
