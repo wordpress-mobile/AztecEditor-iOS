@@ -211,7 +211,7 @@ extension Libxml2 {
 
                 let childRangeInParent = child.range().offset(childOffset)
 
-                if childRangeInParent.contains(offset: childOffset) {
+                if childRangeInParent.contains(offset: offset) {
                     return (node: child, offset: offset - childOffset)
                 }
 
