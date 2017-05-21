@@ -122,11 +122,21 @@ extension Libxml2 {
                 return
             }
 
-            let (childrenBefore, _) = splitChildren(of: element, at: location)
+            let insertionIndex: Int
 
+            if location == 0 {
+                insertionIndex = 0
+            } else if location == element.length() {
+                insertionIndex = element.children.count
+            } else {
+                let (childrenBefore, _) = splitChildren(of: element, at: location)
+
+                insertionIndex = childrenBefore.count
+            }
+            
             let nodesToInsert = nodes(for: string)
 
-            element.insert(nodesToInsert, at: childrenBefore.count)
+            element.insert(nodesToInsert, at: insertionIndex)
             element.fixChildrenTextNodes()
         }
 
