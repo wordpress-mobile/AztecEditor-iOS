@@ -95,16 +95,11 @@ extension Libxml2 {
         ///     - location: the location the string will be inserted at.
         ///
         private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
-
-            let (insertionElement, insertionLocation)
-                = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevel: true)
-
-            if insertionElement.isBlockLevelElement() {
+            if element.isBlockLevelElement() {
                 let paragraphs = string.components(separatedBy: String(.paragraphSeparator))
-
-                insert(paragraphs: paragraphs, into: insertionElement, atLocation: insertionLocation)
+                insert(paragraphs: paragraphs, into: element, atLocation: location)
             } else {
-                insert(rawString: string, into: insertionElement, atLocation: insertionLocation)
+                insert(rawString: string, into: element, atLocation: location)
             }
         }
 
@@ -134,7 +129,7 @@ extension Libxml2 {
                 insertionIndex = childrenBefore.count
             }
             
-            let nodesToInsert = nodes(for: string)
+            let nodesToInsert = createNodes(representing: string)
 
             element.insert(nodesToInsert, at: insertionIndex)
             element.fixChildrenTextNodes()
@@ -172,11 +167,12 @@ extension Libxml2 {
         private func insert(paragraphs: [String], into blockLevelElement: ElementNode, atLocation location: Int) {
             assert(blockLevelElement.isBlockLevelElement())
 
-            let (insertionElement, insertionLocation)
-                = inspector.findLeftmostLowestDescendantElement(of: blockLevelElement, intersecting: location, blockLevel: true)
+            if location > 0 && location < blockLevelElement.length() {
+                splitChildren(of: blockLevelElement, at: location)
+            }
 
-            var currentElement = insertionElement
-            var currentLocation = insertionLocation
+            var currentElement = blockLevelElement
+            var currentLocation = location
 
             for (index, paragraph) in paragraphs.enumerated() {
 
@@ -187,8 +183,10 @@ extension Libxml2 {
 
                 insert(paragraph: paragraph, into: currentElement, atLocation: currentLocation)
 
-                currentElement = inspector.rightSibling(of: insertionElement) as! ElementNode
-                currentLocation = currentLocation + 1
+                let (_, nextBlockLevelElement) = split(blockLevelElement, at: location + paragraph.characters.count)
+
+                currentElement = nextBlockLevelElement as! ElementNode
+                currentLocation = 0
             }
         }
 
@@ -379,7 +377,7 @@ extension Libxml2 {
         ///
         /// - Returns: an array of `TextNode`s and `BR` nodes.
         ///
-        private func nodes(for string: String) -> [Node] {
+        private func createNodes(representing string: String) -> [Node] {
             let separatorElement = ElementNodeDescriptor(elementType: .br)
             let components = string.components(separatedBy: String(.newline))
             var nodes = [Node]()
@@ -823,6 +821,7 @@ extension Libxml2 {
         ///
         /// - Returns: the nodes at the left and right side of the split.
         ///
+        @discardableResult
         func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
 
             assert(offset != 0 && offset != element.length())

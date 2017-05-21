@@ -5,15 +5,11 @@ class DOMStringTests: XCTestCase {
 
     typealias DOMString = Aztec.Libxml2.DOMString
 
-    /// This unit test was created due to a bug we found in this method, when first adding text
-    /// with `preferLeftNode == true` and then adding some more with `preferLeftNode == false`.
-    ///
-    /// Link to the original bug report here:
-    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/319
+    /// Tests that inserting text sequentially works fine.
     ///
     /// Input:
-    ///     - Insert "Hello\n" with `preferLeftNode == true`
-    ///     - Insert "World!" with `preferLeftNode == false`
+    ///     - Insert "Hello\n"
+    ///     - Insert "World!" after the previously inserted text.
     ///
     /// Output:
     ///     - Make sure the HTML is updated accordingly at each step.
