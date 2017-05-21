@@ -839,7 +839,7 @@ class ElementNodeTests: XCTestCase {
     }
     
     // MARK: - Undo Support
-    
+    /*
     /// Test that removing a child can be undone perfectly.
     ///
     /// Input:
@@ -935,4 +935,5 @@ class ElementNodeTests: XCTestCase {
         XCTAssertEqual(boldNode.parent, paragraph)
         XCTAssertEqual(emNode.parent, paragraph)
     }
+ */
 }

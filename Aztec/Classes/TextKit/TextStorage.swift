@@ -365,7 +365,12 @@ open class TextStorage: NSTextStorage {
                 return
             }
 
-            processAttributesDifference(in: subRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            guard let swiftSubRange = textStore.string.nsRange(fromUTF16NSRange: subRange) else {
+                assertionFailure("The sub-range is not a valid UTF16 range in TextStore.  Review the logic.")
+                return
+            }
+
+            processAttributesDifference(in: swiftSubRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 

@@ -197,6 +197,8 @@ extension Libxml2 {
         ///
         func replaceCharacters(inRange range: NSRange, with attributedString: NSAttributedString) {
 
+            assert(range.length > 0 || attributedString.length > 0)
+
             let domHasModifications = range.length > 0 || !attributedString.string.isEmpty
 
             if domHasModifications {

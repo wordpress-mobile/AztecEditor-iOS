@@ -348,7 +348,9 @@ extension Libxml2 {
                 deleteCharacters(spanning: range)
             }
 
-            insert(attributedString, atLocation: range.location)
+            if attributedString.length > 0 {
+                insert(attributedString, atLocation: range.location)
+            }
         }
 
 
@@ -831,7 +833,7 @@ extension Libxml2 {
                 fatalError("This should not happen.  Review the logic.")
             }
 
-            guard intersection != 0 || intersection != child.length() else {
+            guard intersection != 0 && intersection != child.length() else {
                 let includeInRightNodes = intersection == 0
                 let includeInLeftNodes = !includeInRightNodes
 
