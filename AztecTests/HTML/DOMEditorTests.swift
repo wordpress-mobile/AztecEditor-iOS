@@ -10,6 +10,14 @@ class DOMEditorTests: XCTestCase {
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
 
+    // MARK: - Setup & Teardown
+
+    override func setUp() {
+        // By default we don't want tests continuing after a failure.
+        //
+        continueAfterFailure = false
+    }
+
     // MARK: - replaceCharacters(inRange:with:)
 
     /// Test that inserting a new line after a DIV tag doesn't crash
@@ -358,7 +366,7 @@ class DOMEditorTests: XCTestCase {
     ///
     func testWrapChildrenInNewBNode3() {
 
-        let boldNodeName = "b"
+        let boldNodeName = StandardElementType.b.rawValue
 
         let textPart1 = "Hello "
         let textPart2 = "there!"
@@ -366,9 +374,9 @@ class DOMEditorTests: XCTestCase {
         let textNode1 = TextNode(text: textPart1)
         let textNode2 = TextNode(text: textPart2)
 
-        let em = ElementNode(name: "em", attributes: [], children: [textNode1])
-        let underline = ElementNode(name: "u", attributes: [], children: [textNode2])
-        let div = ElementNode(name: "div", attributes: [], children: [em, underline])
+        let em = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode1])
+        let underline = ElementNode(name: StandardElementType.u.rawValue, attributes: [], children: [textNode2])
+        let div = ElementNode(name: StandardElementType.div.rawValue, attributes: [], children: [em, underline])
         let rootNode = RootNode(children: [div])
 
         let editor = DOMEditor(with: rootNode)
@@ -377,28 +385,69 @@ class DOMEditorTests: XCTestCase {
 
         editor.wrap(range, in: ElementNodeDescriptor(name: boldNodeName))
 
-        XCTAssertEqual(div.children.count, 3)
+        XCTAssertEqual(rootNode.children.count, 1)
 
-        XCTAssertEqual(div.children[0].name, "em")
-        XCTAssertEqual(div.children[0].length(), 2)
-        XCTAssertEqual(div.children[2].name, "u")
-        XCTAssertEqual(div.children[2].length(), 2)
+        // 1st level nodes
 
-        guard let boldNode = div.children[1] as? ElementNode else {
-            XCTFail("Expected a bold node here.")
+        guard let outDiv = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
             return
         }
 
-        XCTAssertEqual(boldNode.name, boldNodeName)
-        XCTAssertEqual(boldNode.children.count, 2)
-        XCTAssertEqual(boldNode.children[0], em)
-        XCTAssertEqual(boldNode.children[1], underline)
+        XCTAssertEqual(outDiv.name, StandardElementType.div.rawValue)
+        XCTAssertEqual(outDiv.children.count, 3)
 
-        XCTAssertEqual(em.children.count, 1)
-        XCTAssertEqual(em.children[0].length(), 4)
+        // 2nd level nodes
 
-        XCTAssertEqual(underline.children.count, 1)
-        XCTAssertEqual(underline.children[0].length(), 4)
+        guard let outEm = outDiv.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(outEm.name, StandardElementType.em.rawValue)
+        XCTAssertEqual(outEm.children.count, 1)
+        XCTAssert(outEm.children[0] is TextNode)
+        XCTAssertEqual(outEm.text(), "He")
+
+        guard let outB = outDiv.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(outB.name, StandardElementType.b.rawValue)
+        XCTAssertEqual(outB.children.count, 2)
+
+        guard let outU = outDiv.children[2] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(outU.name, StandardElementType.u.rawValue)
+        XCTAssertEqual(outU.children.count, 1)
+        XCTAssert(outU.children[0] is TextNode)
+        XCTAssertEqual(outU.text(), "e!")
+
+        // 3rd level nodes
+
+        guard let outEm2 = outB.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(outEm2.name, StandardElementType.em.rawValue)
+        XCTAssertEqual(outEm2.children.count, 1)
+        XCTAssert(outEm2.children[0] is TextNode)
+        XCTAssertEqual(outEm2.text(), "llo ")
+
+        guard let outU2 = outB.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(outU2.name, StandardElementType.u.rawValue)
+        XCTAssertEqual(outU2.children.count, 1)
+        XCTAssert(outU2.children[0] is TextNode)
+        XCTAssertEqual(outU2.text(), "ther")
     }
 
     /// Tests that wrapping a range in a node already present in that range works.
@@ -575,5 +624,223 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(newBlockquote, blockquote)
         XCTAssertEqual(newBlockquote.text(), text2)
+    }
+
+    // MARK: - Splitting
+
+
+    /// Tests that splitting an element node at a specified text location works fine.
+    ///
+    /// HTML string: <div><p>Hello 🇮🇳 World!</p></div>
+    /// Split target: the paragraph tag
+    /// Split Location: right after the flag
+    ///
+    /// The results should be:
+    ///     - The output should be: <div><p>Hello 🇮🇳</p><p> World!</p></div>
+    ///
+    func testSplitAtLocation() {
+        let text1 = "Hello 🇮🇳"
+        let text2 = " World!"
+
+        let textNode = TextNode(text: "\(text1)\(text2)")
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let div = ElementNode(name: "div", attributes: [], children: [paragraph])
+        let rootNode = RootNode(children: [div])
+        let editor = DOMEditor(with: rootNode)
+
+        // Temporary hack!
+        Libxml2.SharedEditor.currentEditor = editor
+
+        let splitLocation = text1.characters.count
+        editor.split(paragraph, at: splitLocation)
+
+        XCTAssertEqual(div.children.count, 2)
+
+        guard let newParagraph1 = div.children[0] as? ElementNode, newParagraph1.text() == text1 else {
+            XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
+            return
+        }
+
+        guard let newParagraph2 = div.children[1] as? ElementNode, newParagraph2.text() == text2 else {
+            XCTFail("Expected the first new paragraph to exist.")
+            return
+        }
+
+        // Temporary hack!
+        Libxml2.SharedEditor.currentEditor = nil
+    }
+
+    func testSplitWithFullRange() {
+
+        let textNode = TextNode(text: "Some text goes here")
+        let elemNode = ElementNode(name: "SomeNode", attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+        let editor = DOMEditor(with: rootNode)
+
+        let splitRange = NSRange(location: 0, length: textNode.length())
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 1)
+        XCTAssertEqual(rootNode.children[0], elemNode)
+
+        XCTAssertEqual(elemNode.children.count, 1)
+        XCTAssertEqual(elemNode.children[0], textNode)
+    }
+
+    func testSplitWithPartialRange1() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: 0, length: textPart1.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text(), textPart1)
+        XCTAssertEqual(textNode2.text(), textPart2)
+    }
+
+    func testSplitWithPartialRange2() {
+
+        let elemNodeName = "SomeNode"
+        let textPart1 = "Some"
+        let textPart2 = " text goes here"
+        let fullText = "\(textPart1)\(textPart2)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 2)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text(), textPart1)
+        XCTAssertEqual(textNode2.text(), textPart2)
+    }
+
+
+    func testSplitWithPartialRange3() {
+
+        let elemNodeName = "div"
+        let textPart1 = "Some"
+        let textPart2 = " text goes "
+        let textPart3 = "here"
+        let fullText = "\(textPart1)\(textPart2)\(textPart3)"
+
+        let textNode = TextNode(text: fullText)
+        let elemNode = ElementNode(name: elemNodeName, attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [elemNode])
+
+        let splitRange = NSRange(location: textPart1.characters.count, length: textPart2.characters.count)
+
+        elemNode.split(forRange: splitRange)
+
+        XCTAssertEqual(rootNode.children.count, 3)
+
+        XCTAssertEqual(rootNode.children[0].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[1].name, elemNodeName)
+        XCTAssertEqual(rootNode.children[2].name, elemNodeName)
+
+        guard let elemNode1 = rootNode.children[0] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode2 = rootNode.children[1] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        guard let elemNode3 = rootNode.children[2] as? ElementNode else {
+            XCTFail("Expected an element node.")
+            return
+        }
+
+        XCTAssertEqual(elemNode1.children.count, 1)
+        XCTAssertEqual(elemNode2.children.count, 1)
+        XCTAssertEqual(elemNode3.children.count, 1)
+
+        guard let textNode1 = elemNode1.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode2 = elemNode2.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        guard let textNode3 = elemNode3.children[0] as? TextNode else {
+            XCTFail("Expected a text node.")
+            return
+        }
+
+        XCTAssertEqual(textNode1.text(), textPart1)
+        XCTAssertEqual(textNode2.text(), textPart2)
+        XCTAssertEqual(textNode3.text(), textPart3)
     }
 }

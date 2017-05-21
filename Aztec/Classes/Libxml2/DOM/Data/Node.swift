@@ -242,26 +242,6 @@ extension Libxml2 {
         func removeFromParent() {
             parent?.remove(self)
         }
-
-        /// Should split the node at the specified text location.  The receiver will become the node before the specified
-        /// location and a new node will be created to contain whatever comes after it.
-        ///
-        /// - Parameters:
-        ///     - location: the text location to split the node at.
-        ///
-        func split(atLocation location: Int) {
-            assertionFailure("This method should always be overridden.")
-        }
-
-        /// Should split the node for the specified text range.  The receiver will become the node
-        /// at the specified range.
-        ///
-        /// - Parameters:
-        ///     - range: the range to use for splitting the node.
-        ///
-        func split(forRange range: NSRange) {
-            assertionFailure("This method should always be overridden.")
-        }
         
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.

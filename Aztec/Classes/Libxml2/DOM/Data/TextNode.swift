@@ -295,7 +295,7 @@ extension Libxml2 {
             }
         }
 
-        override func split(atLocation location: Int) {
+        func split(atLocation location: Int) {
             
             guard location != 0 && location != length() else {
                 // Nothing to split, move along...
@@ -326,7 +326,7 @@ extension Libxml2 {
             }
         }
         
-        override func split(forRange range: NSRange) {
+        func split(forRange range: NSRange) {
 
             let swiftRange = contents.range(from: range)
 

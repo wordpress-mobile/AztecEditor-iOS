@@ -122,7 +122,7 @@ extension Libxml2 {
                 return
             }
 
-            let childrenBefore = element.splitChildren(before: location)
+            let (childrenBefore, _) = splitChildren(of: element, at: location)
 
             let nodesToInsert = nodes(for: string)
 
@@ -145,7 +145,7 @@ extension Libxml2 {
             assert(blockLevelElement.isBlockLevelElement())
 
             insert(rawString: paragraph, into: blockLevelElement, atLocation: location)
-            blockLevelElement.split(atLocation: location + paragraph.characters.count)
+            split(blockLevelElement, at: location + paragraph.characters.count)
         }
 
         /// Inserts the specified paragraphs into the specified block-level element, at the
@@ -636,7 +636,7 @@ extension Libxml2 {
             return resultingRange
         }
 
-        // MARK: - Splitting Nodes: Ranges and Offsets
+        // MARK: - Splitting Nodes: At Offset
 
         /// Splits the specified node at the specified offset.
         ///
@@ -673,6 +673,7 @@ extension Libxml2 {
         ///
         /// - Returns: the nodes at the left and right side of the split.
         ///
+        @discardableResult
         func split(_ element: ElementNode, at offset: Int) -> (left: Node, right: Node) {
 
             assert(offset != 0 && offset != element.length())
@@ -710,8 +711,8 @@ extension Libxml2 {
             let leftRange = NSRange(location: 0, length: offset)
             let rightRange = NSRange(location: offset, length: text.characters.count - offset)
 
-            let leftSwiftRange = text.range(fromUTF16NSRange: leftRange)
-            let rightSwiftRange = text.range(fromUTF16NSRange: rightRange)
+            let leftSwiftRange = text.range(from: leftRange)
+            let rightSwiftRange = text.range(from: rightRange)
 
             let leftNode = TextNode(text: textNode.text().substring(with: leftSwiftRange))
             let rightNode = TextNode(text: textNode.text().substring(with: rightSwiftRange))
@@ -721,7 +722,7 @@ extension Libxml2 {
             return (leftNode, rightNode)
         }
 
-        // MARK: - Splitting Nodes: Nodes
+        // MARK: - Splitting Nodes: Children
 
         /// Splits the child at the specified offset.
         ///
@@ -839,74 +840,6 @@ extension Libxml2 {
             return (leftNodes, rightNodes)
         }
 
-/*
-        /// Retrieves all child nodes positioned after a specified location.
-        ///
-        /// - Parameters:
-        ///     - splitLocation: marks the split location.
-        ///
-        /// - Returns: the requested nodes.
-        ///
-        fileprivate func splitChildren(after splitLocation: Int) -> [Node] {
-
-            var result = [Node]()
-            var childStartLocation = Int(0)
-
-            for child in children {
-                let childLength = child.length()
-                let childEndLocation = childStartLocation + childLength
-
-                if childStartLocation >= splitLocation {
-                    result.append(child)
-                } else if childStartLocation < splitLocation && childEndLocation > splitLocation {
-
-                    let splitLocationInChild = splitLocation - childStartLocation
-                    let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocation)
-
-                    child.split(forRange: splitRange)
-                    result.append(child)
-                }
-
-                childStartLocation = childEndLocation
-            }
-
-            return result
-        }
-
-        /// Retrieves all child nodes positioned before a specified location.
-        ///
-        /// - Parameters:
-        ///     - splitLocation: marks the split location.
-        ///
-        /// - Returns: the requested nodes.
-        ///
-        func splitChildren(before splitLocation: Int) -> [Node] {
-
-            var result = [Node]()
-            var childOffset = Int(0)
-
-            for child in children {
-                let childLength = child.length()
-                let childEndLocation = childOffset + childLength
-
-                if childEndLocation <= splitLocation {
-                    result.append(child)
-                } else if childOffset < splitLocation && childEndLocation > splitLocation {
-
-                    let splitLocationInChild = splitLocation - childOffset
-                    let splitRange = NSRange(location: 0, length: splitLocationInChild)
-
-                    child.split(forRange: splitRange)
-                    result.append(child)
-                }
-
-                childOffset = childOffset + childLength
-            }
-
-            return result
-        }
- */
-
         // MARK: - Splitting Nodes: Block-level elements
 
         func splitLowestBlockLevelElement(at location: Int) {
@@ -924,7 +857,7 @@ extension Libxml2 {
             let elementToSplit = elementAndIntersection.element
             let intersection = elementAndIntersection.intersection
 
-            elementToSplit.split(atLocation: intersection.location)
+            split(elementToSplit, at: intersection.location)
         }
 
         // MARK: - Splitting Nodes: Using Characters
