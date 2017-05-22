@@ -87,120 +87,7 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
 
-        /// Retrieve all element nodes between the receiver and the root node.
-        /// The root node is included in the results.  The receiver is only included if it's an
-        /// element node.
-        ///
-        /// - Parameters:
-        ///     - interruptAtBlockLevel: whether the method should interrupt if it finds a
-        ///             block-level element.
-        ///
-        /// - Returns: an ordered array of nodes.  Element zero is the receiver if it's an element
-        ///         node, otherwise its the receiver's parent node.  The last element is the root
-        ///         node.
-        ///
-        func elementNodesToRoot(interruptAtBlockLevel: Bool = false) -> [ElementNode] {
-            var nodes = [ElementNode]()
-            var currentNode = self.parent
-
-            if let elementNode = self as? ElementNode {
-                nodes.append(elementNode)
-            }
-
-            while let node = currentNode {
-                nodes.append(node)
-
-                if interruptAtBlockLevel && node.isBlockLevelElement() {
-                    break
-                }
-
-                currentNode = node.parent
-            }
-
-            return nodes
-        }
-
-        /// This method returns the first `ElementNode` in common between the receiver and
-        /// the specified input parameter, going up both branches.
-        ///
-        /// - Parameters:
-        ///     - node: the algorythm will search for the parent nodes of the receiver, and this
-        ///             input `TextNode`.
-        ///     - interruptAtBlockLevel: whether the search should stop when a block-level
-        ///             element has been found.
-        ///
-        /// - Returns: the first element node in common, or `nil` if none was found.
-        ///
-        func firstElementNodeInCommon(withNode node: Node, interruptAtBlockLevel: Bool = false) -> ElementNode? {
-            let myParents = elementNodesToRoot(interruptAtBlockLevel: interruptAtBlockLevel)
-            let hisParents = node.elementNodesToRoot(interruptAtBlockLevel: interruptAtBlockLevel)
-
-            for currentParent in hisParents {
-                if myParents.contains(currentParent) {
-                    return currentParent
-                }
-            }
-
-            return nil
-        }
-
-        func isLastIn(blockLevelElement element: ElementNode) -> Bool {
-            return element.isBlockLevelElement() && element.children.last == self
-        }
-
-        /// Checks if the receiver is the last node in its parent.
-        /// Empty text nodes are filtered to avoid false positives.
-        ///
-        func isLastInParent() -> Bool {
-
-            guard let parent = parent else {
-                return true
-            }
-
-            // We are filtering empty text nodes from being considered the last node in our
-            // parent node.
-            //
-            let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
-                guard let textNode = node as? TextNode,
-                    textNode.length() == 0 else {
-                        return true
-                }
-
-                return false
-            })
-
-            return self === lastMatchingChildInParent
-        }
-
-        /// Checks if the receiver is the last node in the tree.
-        ///
-        /// - Note: The verification excludes all child nodes, since this method only cares about
-        ///     siblings and parents in the tree.
-        ///
-        func isLastInTree() -> Bool {
-
-            guard let parent = parent else {
-                return true
-            }
-
-            return isLastInParent() && parent.isLastInTree()
-        }
-
-        /// Checks if the receiver is the last node in a block-level ancestor.
-        ///
-        /// - Note: The verification excludes all child nodes, since this method only cares about
-        ///     siblings and parents in the tree.
-        ///
-        func isLastInBlockLevelAncestor() -> Bool {
-
-            guard let parent = parent else {
-                return false
-            }
-
-            return isLastInParent() &&
-                (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
-        }
-
+/*
         /// Retrieves the right sibling for a node.
         ///
         /// - Returns: the right sibling, or `nil` if none exists.
@@ -218,10 +105,10 @@ extension Libxml2 {
             }
 
             return sibling as? ElementNode
-        }
+        }*/
 
         // MARK: - Paragraph Separation Logic
-
+/*
         /// Checks if the specified node requires a closing paragraph separator.
         ///
         func needsClosingParagraphSeparator() -> Bool {
@@ -234,15 +121,10 @@ extension Libxml2 {
 
             return !isLastInTree() && isLastInBlockLevelAncestor()
         }
-
+*/
         // MARK: - DOM Modification
 
-        /// Removes this node from its parent, if it has one.
-        ///
-        func removeFromParent() {
-            parent?.remove(self)
-        }
-        
+        /*
         /// Wraps this node in a new node with the specified name.  Also takes care of updating
         /// the parent and child node references.
         ///
@@ -269,18 +151,20 @@ extension Libxml2 {
 
             return newNode
         }
+ */
         
         // MARK: - Undo support
         
         /// Registers an undo operation for an upcoming parent property change.
         ///
         private func registerUndoForParentChange() {
-            
+            /*
             let originalParent = rawParent
 
             SharedEditor.currentEditor?.undoManager.registerUndo(withTarget: self) { target in
                 target.parent = originalParent
             }
+ */
         }
     }
 }

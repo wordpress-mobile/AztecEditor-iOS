@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Groups all the DOM inspection & node lookup logic.
     ///
-    class DOMInspector: DOMLogic {
+    class DOMInspector {
 
         private typealias Test = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> TestResult
 
@@ -79,16 +79,22 @@ extension Libxml2 {
         ///
         /// - Returns: the right sibling, or `nil` if there's none.
         ///
-        func leftSibling(of node: Node) -> Node? {
+        func leftSibling(of node: Node, ignoreEmptyTextNodes: Bool = false) -> Node? {
 
             let parent = self.parent(of: node)
-            let nextIndex = parent.indexOf(childNode: node) - 1
+            let previousIndex = parent.indexOf(childNode: node) - 1
 
-            guard nextIndex > 0 else {
+            guard previousIndex > 0 else {
                 return nil
             }
 
-            return parent.children[nextIndex]
+            let previousNode = parent.children[previousIndex]
+
+            guard !ignoreEmptyTextNodes || !(previousNode is TextNode) || previousNode.length() > 0 else {
+                return leftSibling(of: previousNode, ignoreEmptyTextNodes: ignoreEmptyTextNodes)
+            }
+
+            return previousNode
         }
 
         /// Call this method whenever you node the specified node MUST have a parent set.
@@ -114,7 +120,7 @@ extension Libxml2 {
         ///
         /// - Returns: the right sibling, or `nil` if there's none.
         ///
-        func rightSibling(of node: Node) -> Node? {
+        func rightSibling(of node: Node, ignoreEmptyTextNodes: Bool = false) -> Node? {
 
             let parent = self.parent(of: node)
             let nextIndex = parent.indexOf(childNode: node) + 1
@@ -123,26 +129,166 @@ extension Libxml2 {
                 return nil
             }
 
-            return parent.children[nextIndex]
+            let nextNode = parent.children[nextIndex]
+
+            guard !ignoreEmptyTextNodes || !(nextNode is TextNode) || nextNode.length() > 0 else {
+                return rightSibling(of: nextNode, ignoreEmptyTextNodes: ignoreEmptyTextNodes)
+            }
+
+            return nextNode
+        }
+
+        /// Retrieves the left-side sibling of the child at the specified index.
+        ///
+        /// - Parameters:
+        ///     - index: the index of the child to get the sibling of.
+        ///
+        /// - Returns: the requested sibling, or `nil` if there's none.
+        ///
+        func sibling<T: Node>(leftOf childIndex: Int, in element: ElementNode) -> T? {
+
+            guard childIndex >= 0 && childIndex < element.children.count else {
+                fatalError("Out of bounds!")
+            }
+
+            guard childIndex > 0 else {
+                return nil
+            }
+
+            let siblingNode = element.children[childIndex - 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(leftOf: childIndex - 1, in: element)
+            }
+
+            return siblingNode as? T
+        }
+
+        /// Retrieves the right-side sibling of the child at the specified index.
+        ///
+        /// - Parameters:
+        ///     - index: the index of the child to get the sibling of.
+        ///
+        /// - Returns: the requested sibling, or `nil` if there's none.
+        ///
+        func sibling<T: Node>(rightOf childIndex: Int, in element: ElementNode) -> T? {
+
+            guard childIndex >= 0 && childIndex <= element.children.count - 1 else {
+                fatalError("Out of bounds!")
+            }
+
+            guard childIndex < element.children.count - 1 else {
+                return nil
+            }
+
+            let siblingNode = element.children[childIndex + 1]
+
+            // Ignore empty text nodes.
+            //
+            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+                return sibling(rightOf: childIndex + 1, in: element)
+            }
+            
+            return siblingNode as? T
         }
 
         // MARK: - Node Introspection
+
+        /// Find out if this is a block-level element.
+        ///
+        /// - Returns: `true` if this is a block-level element.  `false` otherwise.
+        ///
+        func isBlockLevelElement(_ element: ElementNode) -> Bool {
+
+            guard let standardName = element.standardName else {
+                // For now we're treating all non-standard element names as non-block-level
+                // elements.
+                //
+                return false
+            }
+
+            return standardName.isBlockLevelNodeName()
+        }
 
         func isEmptyTextNode(_ node: Node) -> Bool {
             return node is TextNode && node.length() == 0
         }
 
-        // MARK: - Finding Nodes
+        /// Checks if the receiver is the last node in a block-level ancestor.
+        ///
+        /// - Note: The verification excludes all child nodes, since this method only cares about
+        ///     siblings and parents in the tree.
+        ///
+        func isLastInBlockLevelAncestor(_ node: Node) -> Bool {
 
-        /// Finds a node ending at the specified location.
+            guard let parent = node.parent else {
+                return false
+            }
+
+            return isLastInParent(node) &&
+                (isBlockLevelElement(parent) || isLastInBlockLevelAncestor(parent))
+        }
+
+
+        /// Checks if the receiver is the last node in its parent.
+        /// Empty text nodes are filtered to avoid false positives.
         ///
-        //// - Parameters:
-        ///     - location: the location where the node is supposed to end.
+        func isLastInParent(_ node: Node) -> Bool {
+
+            guard let parent = node.parent else {
+                return true
+            }
+
+            // We are filtering empty text nodes from being considered the last node in our
+            // parent node.
+            //
+            let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
+                guard let textNode = node as? TextNode,
+                    textNode.length() == 0 else {
+                        return true
+                }
+
+                return false
+            })
+
+            return self === lastMatchingChildInParent
+        }
+
+        /// Checks if the receiver is the last node in the tree.
         ///
-        /// - Returns: the node that ends at the specified location.
+        /// - Note: The verification excludes all child nodes, since this method only cares about
+        ///     siblings and parents in the tree.
         ///
-        func findNode(endingAt location: Int) -> Node? {
-            return findDescendant(of: rootNode, endingAt: location)
+        func isLastInTree(_ node: Node) -> Bool {
+
+            guard let parent = node.parent else {
+                return true
+            }
+
+            return isLastInParent(node) && isLastInTree(parent)
+        }
+
+        func needsClosingParagraphSeparator(_ node: Node) -> Bool {
+
+            if let element = node as? ElementNode {
+                guard element.children.count == 0 && element.standardName != .br else {
+                    return false
+                }
+            } else if let textNode = node as? TextNode {
+                guard textNode.length() > 0 else {
+                    return false
+                }
+            }
+
+            if let rightSiblingElement = rightSibling(of: node, ignoreEmptyTextNodes: true) as? ElementNode,
+                isBlockLevelElement(rightSiblingElement) {
+
+                return true
+            }
+
+            return !isLastInTree(node) && isLastInBlockLevelAncestor(node)
         }
 
         // MARK: - Finding Nodes: Children
@@ -225,12 +371,6 @@ extension Libxml2 {
 
         // MARK: - Finding Nodes: Descendants
 
-        /// Finds the leftmost and lowest element intersecting the specified location.
-        ///
-        func findLeftmostLowestDescendantElement(intersecting location: Int) -> ElementAndOffset {
-            return findLeftmostLowestDescendantElement(of: rootNode, intersecting: location)
-        }
-
         /// Finds the lowest block-level elements spanning the specified range.
         ///
         //// - Parameters:
@@ -274,7 +414,7 @@ extension Libxml2 {
                 }
 
                 guard let childElement = child as? ElementNode,
-                    childElement.isBlockLevelElement() else {
+                    isBlockLevelElement(childElement) else {
                         elementsAndRanges.append((element, intersection))
                         continue
                 }
@@ -316,7 +456,7 @@ extension Libxml2 {
 
                 guard location <= endLocation && !isEmptyTextNode(node),
                     let element = node as? ElementNode,
-                    blockLevel || element.isBlockLevelElement() else {
+                    blockLevel || isBlockLevelElement(element) else {
 
                         return .continueWithSiblings
                 }
@@ -534,30 +674,6 @@ extension Libxml2 {
             }
             
             return nil
-        }
-
-        // MARK: - Range Mapping to Children
-
-        /// Maps the specified range to the child nodes.
-        ///
-        func mapToChildren(range: NSRange, of element: ElementNode) -> NSRange {
-
-            assert(range.length > 0)
-
-            guard element.isBlockLevelElement() && range.location + range.length == element.length() else {
-                return range
-            }
-
-            // Whenever the last child element is also block-level, it'll take care of mapping the
-            // range on its own.
-            //
-            if let lastChild = element.children.last as? ElementNode {
-                guard !lastChild.isBlockLevelElement() else {
-                    return range
-                }
-            }
-
-            return NSRange(location: range.location, length: range.length - 1)
         }
     }
 }

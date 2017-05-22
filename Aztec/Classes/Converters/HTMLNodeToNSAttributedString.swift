@@ -12,6 +12,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias CommentNode = Libxml2.CommentNode
     typealias StandardElementType = Libxml2.StandardElementType
 
+    let inspector = Libxml2.DOMInspector()
+
     /// The default font descriptor that will be used as a base for conversions.
     /// 
     let defaultFontDescriptor: UIFontDescriptor
@@ -26,6 +28,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
         return [NSFontAttributeName: defaultFont]
     }()
+    
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -52,7 +55,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         let string = convertContents(of: node, inheritingAttributes: attributes)
 
-        guard node.needsClosingParagraphSeparator() else {
+        guard inspector.needsClosingParagraphSeparator(node) else {
             return string
         }
 

@@ -73,16 +73,6 @@ extension Libxml2 {
             return text().characters.count
         }
 
-        /// Checks if the specified node requires a closing paragraph separator.
-        ///
-        override func needsClosingParagraphSeparator() -> Bool {
-            guard children.count == 0 && standardName != .br else {
-                return false
-            }
-
-            return super.needsClosingParagraphSeparator()
-        }
-
         // MARK: - Node Queries
 
         func valueForStringAttribute(named attributeName: String) -> String? {
@@ -144,43 +134,6 @@ extension Libxml2 {
             }
             
             return last === self
-        }
-
-        /// Check if the last of this children element is a block level element
-        ///
-        /// - Returns: true if the last child of this element is a block level element, false otherwise
-        ///
-        func isLastChildBlockLevelElement() -> Bool {
-
-            let childrenIgnoringEmptyTextNodes = children.filter { (node) -> Bool in
-                if let textNode = node as? TextNode {
-                    return !textNode.text().isEmpty
-                }
-                return true
-            }
-
-            if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
-               return lastChild.isBlockLevelElement()
-            }
-
-            return false
-        }
-
-
-        /// Find out if this is a block-level element.
-        ///
-        /// - Returns: `true` if this is a block-level element.  `false` otherwise.
-        ///
-        func isBlockLevelElement() -> Bool {
-
-            guard let standardName = standardName else {
-                // For now we're treating all non-standard element names as non-block-level
-                // elements.
-                //
-                return false
-            }
-
-            return standardName.isBlockLevelNodeName()
         }
 
         func isNodeType(_ type: StandardElementType) -> Bool {
@@ -251,7 +204,7 @@ extension Libxml2 {
             
             fatalError("The specified location is out of bounds.")
         }
-
+/*
         /// Returns the lowest block-level child elements intersecting the specified range.
         ///
         /// - Parameters:
@@ -319,7 +272,7 @@ extension Libxml2 {
                 },
                 onMatchNotFound: matchNotFound,
                 onMatchFound: matchFound)
-        }
+        }*/
 
         /// Enumerate the child elements intersecting the specified range and fulfilling a specified
         /// condition.
@@ -625,62 +578,6 @@ extension Libxml2 {
             return results
         }
         
-        /// Retrieves the left-side sibling of the child at the specified index.
-        ///
-        /// - Parameters:
-        ///     - index: the index of the child to get the sibling of.
-        ///
-        /// - Returns: the requested sibling, or `nil` if there's none.
-        ///
-        func sibling<T: Node>(leftOf childIndex: Int) -> T? {
-            
-            guard childIndex >= 0 && childIndex < children.count else {
-                fatalError("Out of bounds!")
-            }
-
-            guard childIndex > 0 else {
-                return nil
-            }
-
-            let siblingNode = children[childIndex - 1]
-
-            // Ignore empty text nodes.
-            //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
-                return sibling(leftOf: childIndex - 1)
-            }
-
-            return siblingNode as? T
-        }
-        
-        /// Retrieves the right-side sibling of the child at the specified index.
-        ///
-        /// - Parameters:
-        ///     - index: the index of the child to get the sibling of.
-        ///
-        /// - Returns: the requested sibling, or `nil` if there's none.
-        ///
-        func sibling<T: Node>(rightOf childIndex: Int) -> T? {
-            
-            guard childIndex >= 0 && childIndex < children.count else {
-                fatalError("Out of bounds!")
-            }
-            
-            guard childIndex < children.count - 1 else {
-                return nil
-            }
-
-            let siblingNode = children[childIndex + 1]
-
-            // Ignore empty text nodes.
-            //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
-                return sibling(rightOf: childIndex + 1)
-            }
-
-            return siblingNode as? T
-        }
-        
         /// Finds any left-side descendant with any of the specified names.
         ///
         /// - Parameters:
@@ -691,8 +588,7 @@ extension Libxml2 {
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
-        
-        fileprivate func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -719,8 +615,7 @@ extension Libxml2 {
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
-        
-        fileprivate func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -782,106 +677,7 @@ extension Libxml2 {
             return text
         }
 
-        func visualText() {
-            
-        }
-
         // MARK: - DOM modification
-
-        /// Appends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to append.
-        ///
-        func append(_ child: Node, tryToMergeWithSiblings: Bool = true) {
-            insert(child, at: children.count, tryToMergeWithSiblings: tryToMergeWithSiblings)
-        }
-        
-        /// Appends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to append.
-        ///
-        func append(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
-            for child in children {
-                append(child, tryToMergeWithSiblings: tryToMergeWithSiblings)
-            }
-        }
-
-        /// Prepends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to prepend.
-        ///
-        func prepend(_ child: Node, tryToMergeWithSiblings: Bool = true) {
-            insert(child, at: 0, tryToMergeWithSiblings: tryToMergeWithSiblings)
-        }
-
-        /// Prepends children to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - children: the nodes to prepend.
-        ///
-        func prepend(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
-            for index in stride(from: (children.count - 1), through: 0, by: -1) {
-                prepend(children[index], tryToMergeWithSiblings: tryToMergeWithSiblings)
-            }
-        }
-        
-        /// Inserts a node into the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to insert.
-        ///     - index: the position where to insert the node.
-        ///     - mergeSiblings: if true, this method will attempt to merge the inserted node with
-        ///         similar siblings.
-        ///
-        func insert(_ child: Node, at index: Int, tryToMergeWithSiblings: Bool = true) {
-            child.removeFromParent()
-
-            if tryToMergeWithSiblings && index > 0,
-                let previousChild = children[index - 1] as? TextNode,
-                let newChildTextNode = child as? TextNode {
-
-                previousChild.append(newChildTextNode.text())
-            } else if tryToMergeWithSiblings && index < children.count,
-                let nextChild = children[index] as? TextNode,
-                let newChildTextNode = child as? TextNode {
-
-                nextChild.prepend(newChildTextNode.text())
-            } else {
-                children.insert(child, at: index)
-                child.parent = self
-            }
-        }
-
-        /// Prepends children to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - children: the nodes to prepend.
-        ///
-        func insert(_ children: [Node], at index: Int) {
-            for child in children.reversed() {
-                insert(child, at: index, tryToMergeWithSiblings: false)
-            }
-
-            fixChildrenTextNodes()
-        }
-
-        func fixChildrenTextNodes() {
-            for child in children {
-                let index = indexOf(childNode: child)
-                let nextIndex = index + 1
-
-                if nextIndex < children.count,
-                    let currentTextNode = child as? TextNode,
-                    let nextTextNode = children[nextIndex] as? TextNode {
-
-                    nextTextNode.prepend(currentTextNode.text())
-                    remove(currentTextNode)
-                }
-            }
-        }
 
         /// Replaces the specified node with several new nodes.
         ///
@@ -949,188 +745,8 @@ extension Libxml2 {
             }
         }
 
-        /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
-        /// node, inserting all the receivers children to it, and adding the receiver to its
-        /// grandparent node.
-        ///
-        /// The result is that the order of the receiver and its parent node will be inverted.
-        ///
-        func pushUp(left: Bool) {
-            guard let parent = parent, let grandParent = parent.parent else {
-                // This is actually an error scenario, as this method should not be called on
-                // nodes that don't have a parent and a grandparent.
-                //
-                // The reason why this would be an error is that we're either trying to push-up
-                // a node without a parent, or we're trying to push up a node to become the root
-                // node.
-                //
-                // The reason why we allow
-                //
-                fatalError("Do not call this method if the node doesn't have a parent and grandparent node.")
-            }
-
-            guard let parentIndex = grandParent.children.index(of: parent) else {
-                fatalError("The grandparent element should contain the parent element.")
-            }
-
-            let originalParent = parent
-
-            let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-            SharedEditor.currentEditor.wrapChildren(children, of: self, inElement: parentDescriptor)
-
-            let indexOffset = left ? 0 : 1
-
-            grandParent.insert(self, at: parentIndex + indexOffset)
-
-            if originalParent.children.count == 0 {
-                originalParent.removeFromParent()
-            }
-        }
-        
-        /// Evaluates the left sibling for a certain condition.  If the condition is met, the
-        /// sibling is returned.  Otherwise this method looks amongst the sibling's right-side
-        /// descendants for any node returning `true` at the evaluation closure.
-        ///
-        /// The search bails if the bail closure returns `true` for either the sibling or its
-        /// descendants before a matching node is found.
-        ///
-        /// When a match is found, it's pushed up to the level of the receiver.
-        ///
-        /// - Parameters:
-        ///     - childIndex: the index of the child to find the sibling of.
-        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
-        ///     - bail: the closure to evaluate if the search must bail.
-        ///
-        /// - Returns: The requested node, if one is found, or `nil`.
-        ///
-        func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let theSibling: T = sibling(leftOf: childIndex) else {
-                return nil
-            }
-
-            if evaluation(theSibling) {
-                return theSibling
-            }
-
-            guard !bail(theSibling) else {
-                return nil
-            }
-            
-            guard let element = theSibling as? ElementNode else {
-                return nil
-            }
-            
-            return element.pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
-        }
-        
-        /// Pushes up to the level of the receiver any left-side descendant that evaluates
-        /// to `true`.
-        ///
-        /// - Parameters:
-        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
-        ///     - bail: the closure that will be used to evaluate if the descendant search must
-        ///             bail.
-        ///
-        /// - Returns: if any matching descendant is found, this method will return the requested
-        ///         node after being pushed all the way up, or `nil` if no matching descendant is
-        ///         found.
-        ///
-        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let element = node as? ElementNode else {
-                return nil
-            }
-
-            guard let finalParent = parent else {
-                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
-                return nil
-            }
-
-            while element.parent != nil && element.parent != finalParent {
-                element.pushUp(left: true)
-            }
-            
-            return node
-        }
-
-        /// Evaluates the right sibling for a certain condition.  If the condition is met, the
-        /// sibling is returned.  Otherwise this method looks amongst the sibling's left-side
-        /// descendants for any node returning `true` at the evaluation closure.
-        ///
-        /// The search bails if the bail closure returns `true` for either the sibling or its
-        /// descendants before a matching node is found.
-        ///
-        /// When a match is found, it's pushed up to the level of the receiver.
-        ///
-        /// - Parameters:
-        ///     - childIndex: the index of the child to find the sibling of.
-        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
-        ///     - bail: the closure to evaluate if the search must bail.
-        ///
-        /// - Returns: The requested node, if one is found, or `nil`.
-        ///
-        func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let theSibling: T = sibling(rightOf: childIndex) else {
-                return nil
-            }
-            
-            if evaluation(theSibling) {
-                return theSibling
-            }
-
-            guard !bail(theSibling) else {
-                return nil
-            }
-
-            guard let element = theSibling as? ElementNode else {
-                return nil
-            }
-            
-            return element.pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
-        }
-        
-        /// Pushes up to the level of the receiver any right-side descendant that evaluates
-        /// to `true`.
-        ///
-        /// - Parameters:
-        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
-        ///     - bail: the closure that will be used to evaluate if the descendant search must
-        ///             bail.
-        ///
-        /// - Returns: if any matching descendant is found, this method will return the requested
-        ///         node after being pushed all the way up, or `nil` if no matching descendant is
-        ///         found.
-        ///
-        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let element = node as? ElementNode else {
-                return nil
-            }
-
-            guard let finalParent = parent else {
-                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
-                return nil
-            }
-
-            while element.parent != nil && element.parent != finalParent {
-                element.pushUp(left: false)
-            }
-
-            return node
-        }
-
         // MARK: - EditableNode
-        
+        /*
         /// Inserts the specified text in a new `TextNode` at the specified index.  If any of the siblings are
         /// of class `TextNode`, this method will append or prepend the text to them instead.
         ///
@@ -1214,31 +830,13 @@ extension Libxml2 {
             textNodeParent.insert(node, at: index)
             textNodeParent.remove(textNode)
         }
+ */
 
         // MARK: - Unwrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
             if elementNames.contains(name) {
                 unwrapChildren()
-            }
-        }
-
-        func unwrapChildren(first amount: Int) {
-            assert(children.count >= amount)
-
-            guard let parent = parent else {
-                assertionFailure("Cannot execute this method if a parent isn't set.")
-                return
-            }
-
-            let myIndex = parent.indexOf(childNode: self)
-
-            for _ in 0...(amount - 1) {
-                parent.insert(children[0], at: myIndex)
-            }
-
-            if children.count == 0 {
-                removeFromParent()
             }
         }
 
@@ -1296,6 +894,7 @@ extension Libxml2 {
         // MARK: - Undo Support
 
         private func registerUndoForRemove(_ child: Node) {
+            /*
             guard let index = children.index(of: child) else {
                 assertionFailure("The specified node is not one of this node's children.")
                 return
@@ -1304,6 +903,7 @@ extension Libxml2 {
             SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
+ */
         }
 
         func isSupportedByEditor() -> Bool {

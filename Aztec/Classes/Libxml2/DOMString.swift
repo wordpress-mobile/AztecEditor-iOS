@@ -178,7 +178,7 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replaceCharacters(inRange range: NSRange, with string: String) {
             
             let domHasModifications = range.length > 0 || !string.isEmpty
 
@@ -193,7 +193,7 @@ extension Libxml2 {
         ///
         /// - Parameters:
         ///     - range: the range of the original string to replace.
-        ///     - string: the new string to replace the original text with.
+        ///     - attributedString: the attributed string to replace the original text with.
         ///
         func replaceCharacters(inRange range: NSRange, with attributedString: NSAttributedString) {
 
@@ -216,7 +216,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to add.
         ///
         private func addBlockSeparatorSynchronously(at location: Int) {
-            domEditor.splitLowestBlockLevelElement(at: location)
+            //domEditor.splitLowestBlockLevelElement(at: location)
         }
 
         /// Deletes a block-level elements separator at the specified location.
@@ -225,7 +225,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to remove.
         ///
         private func deleteBlockSeparatorSynchronously(at location: Int) {
-            domEditor.mergeBlockLevelElementRight(endingAt: location)
+            //domEditor.mergeBlockLevelElementRight(endingAt: location)
         }
 
         /// Replaces the specified range with a new string.
@@ -693,7 +693,9 @@ extension Libxml2 {
                 guard let firstChild = parsedRootNode.children.first else {
                     return
                 }
-                rootNode.replaceCharacters(in: range, with: firstChild)
+
+                domEditor.replace(range, with: firstChild)
+
             } catch {
                 fatalError("Could not replace range with raw HTML: \(rawHTML).")
             }
@@ -717,13 +719,13 @@ extension Libxml2 {
             let imageURLString = imageURL.absoluteString
 
             let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
-            let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
+            let imageNode = ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
 
-            rootNode.replaceCharacters(in: range, with: descriptor)
+            domEditor.replace(range, with: imageNode)
         }
 
         // MARK: - Videos
-
+/*
         /// Replaces the specified range with a given image.
         ///
         /// - Parameters:
@@ -765,6 +767,7 @@ extension Libxml2 {
 
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
+ */
 
         /// Replaces the specified range with a Comment.
         ///
@@ -779,9 +782,9 @@ extension Libxml2 {
         }
 
         private func replaceSynchronously(_ range: NSRange, withComment comment: String) {
-            let descriptor = CommentNodeDescriptor(comment: comment)
+            let commentNode = CommentNode(text: comment)
 
-            rootNode.replaceCharacters(in: range, with: descriptor)
+            domEditor.replace(range, with: commentNode)
         }
 
 

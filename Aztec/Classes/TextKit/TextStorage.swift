@@ -335,7 +335,7 @@ open class TextStorage: NSTextStorage {
         }
 
         if swiftRange.length > 0 || str.characters.count > 0 {
-            dom.replaceCharacters(inRange: swiftRange, withString: str)
+            dom.replaceCharacters(inRange: swiftRange, with: str)
         }
     }
 
@@ -560,7 +560,7 @@ open class TextStorage: NSTextStorage {
     ///   - new: the new attachment to apply to the range if any.
     ///
     private func processVideoAttachmentDifferences(in range: NSRange, betweenOriginal original: VideoAttachment?, andNew new: VideoAttachment?) {
-
+/*
         let originalUrl = original?.srcURL
         let newUrl = new?.srcURL
 
@@ -577,11 +577,12 @@ open class TextStorage: NSTextStorage {
         } else if removeVideoUrl {
             dom.removeVideo(spanning: range)
         }
+ */
     }
 
     private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
 
-        dom.replaceWithHorizontalRuler(range)
+        //dom.replaceWithHorizontalRuler(range)
     }
 
     private func processCommentAttachmentDifferences(in range: NSRange, betweenOriginal original: CommentAttachment?, andNew new: CommentAttachment?) {
@@ -914,8 +915,13 @@ open class TextStorage: NSTextStorage {
 
         attachment.rawHTML = html
 
+        dom.replaceCharacters(inRange: range, with: NSAttributedString(attachment: attachment))
+
+        edited([.editedAttributes], range: range, changeInLength: 0)
+/*
         let stringWithAttachment = NSAttributedString(attachment: attachment)
         replaceCharacters(in: range, with: stringWithAttachment)
+ */
     }
     
     /// Removes the attachments that match the attachament identifier provided from the storage

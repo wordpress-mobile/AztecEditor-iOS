@@ -97,7 +97,6 @@
 		F1DB0B511E6EF5E600FB4C75 /* DOMInspectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DB0B501E6EF5E600FB4C75 /* DOMInspectorTests.swift */; };
 		F1DB0B531E6EF8AE00FB4C75 /* DOMEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DB0B521E6EF8AE00FB4C75 /* DOMEditorTests.swift */; };
 		F1FA0E731E6EF25A009D98EE /* DOMEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E721E6EF25A009D98EE /* DOMEditor.swift */; };
-		F1FA0E751E6EF267009D98EE /* DOMLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E741E6EF267009D98EE /* DOMLogic.swift */; };
 		F1FA0E771E6EF29B009D98EE /* DOMInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E761E6EF29B009D98EE /* DOMInspector.swift */; };
 		F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E791E6EF514009D98EE /* Attribute.swift */; };
 		F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */; };
@@ -245,7 +244,6 @@
 		F1DB0B501E6EF5E600FB4C75 /* DOMInspectorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMInspectorTests.swift; sourceTree = "<group>"; };
 		F1DB0B521E6EF8AE00FB4C75 /* DOMEditorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMEditorTests.swift; sourceTree = "<group>"; };
 		F1FA0E721E6EF25A009D98EE /* DOMEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMEditor.swift; sourceTree = "<group>"; };
-		F1FA0E741E6EF267009D98EE /* DOMLogic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMLogic.swift; sourceTree = "<group>"; };
 		F1FA0E761E6EF29B009D98EE /* DOMInspector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMInspector.swift; sourceTree = "<group>"; };
 		F1FA0E791E6EF514009D98EE /* Attribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentNode.swift; sourceTree = "<group>"; };
@@ -649,7 +647,6 @@
 			isa = PBXGroup;
 			children = (
 				F1FA0E721E6EF25A009D98EE /* DOMEditor.swift */,
-				F1FA0E741E6EF267009D98EE /* DOMLogic.swift */,
 				F1FA0E761E6EF29B009D98EE /* DOMInspector.swift */,
 				B567FF001ECF344C00AC0B6E /* DOMStylesEnumerator.swift */,
 			);
@@ -834,7 +831,6 @@
 				FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
 				FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */,
-				F1FA0E751E6EF267009D98EE /* DOMLogic.swift in Sources */,
 				FF7DCB471E80837D00AB77CB /* UIColor+Parsers.swift in Sources */,
 				FFD436961E300EF800A0E26F /* FontFormatter.swift in Sources */,
 				F18B81E71EA542BC00885F43 /* String+RangeMapping.swift in Sources */,

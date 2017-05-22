@@ -19,11 +19,6 @@ class HTMLToAttributedString: Converter {
         let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
         let rootNode = try htmlToNode.convert(html)
-
-        if rootNode.children.count == 0 {
-            rootNode.append(TextNode(text: html))
-        }
-
         let attributedString = nodeToAttributedString.convert(rootNode)
 
         return (rootNode, attributedString)
