@@ -631,7 +631,7 @@ extension Libxml2 {
                 return nil
             }
         }
-        
+        /*
         override func text() -> String {
 
             guard isSupportedByEditor() else {
@@ -655,7 +655,7 @@ extension Libxml2 {
             }
 
             return text
-        }
+        }*/
 
 
         /// Returns the plain visible text for a specified range.

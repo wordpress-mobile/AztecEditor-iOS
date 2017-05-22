@@ -681,7 +681,7 @@ extension Libxml2 {
                     wrap(postRange, of: element, in: elementDescriptor)
                 }
 
-                if needsClosingParagraphSeparator(element) {
+                if inspector.needsClosingParagraphSeparator(element) {
                     let br = ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
 
                     appendChild(br, to: element)
@@ -836,6 +836,8 @@ extension Libxml2 {
                 insertChild(newElement, in: parent, at: elementIndex + 1)
 
                 right = newElement
+            } else {
+                right = nil
             }
 
             if childIndex > 0 {
@@ -845,6 +847,8 @@ extension Libxml2 {
                 insertChild(newElement, in: parent, at: elementIndex)
 
                 left = newElement
+            } else {
+                left = right
             }
 
             return (left, element, right)
@@ -1001,8 +1005,8 @@ extension Libxml2 {
 
             let parent: ElementNode
 
-            if parent.children.count > 1 {
-                let (_, center, _) = split(parent, around: element)
+            if initialParent.children.count > 1 {
+                let (_, center, _) = split(initialParent, around: element)
 
                 parent = center
             } else {
@@ -1166,7 +1170,8 @@ extension Libxml2 {
         ///     - location: the location that separates the siblings we're looking for.
         ///
         func mergeBlockLevelElementRight(endingAt location: Int) {
-            guard let node = inspector.findNode(endingAt: location) else {
+
+            guard let node = inspector.findDescendant(of: rootNode, endingAt: location) else {
                 return
             }
 

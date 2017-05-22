@@ -291,6 +291,31 @@ extension Libxml2 {
             return !isLastInTree(node) && isLastInBlockLevelAncestor(node)
         }
 
+        func text(for element: ElementNode) -> String {
+
+            guard element.isSupportedByEditor() else {
+                return String(.objectReplacement)
+            }
+
+            if let nodeType = element.standardName,
+                let implicitRepresentation = nodeType.implicitRepresentation() {
+
+                return implicitRepresentation.string
+            }
+
+            var text = ""
+
+            for child in element.children {
+                text = text + child.text()
+            }
+
+            if needsClosingParagraphSeparator(element) {
+                text.append(String(.paragraphSeparator))
+            }
+            
+            return text
+        }
+
         // MARK: - Finding Nodes: Children
 
         /// Finds the lowest block-level elements spanning the specified range.
@@ -486,7 +511,7 @@ extension Libxml2 {
         ///
         /// - Returns: the node that ends at the specified location.
         ///
-        private func findDescendant(of startingElement: ElementNode, endingAt location: Int) -> Node? {
+        func findDescendant(of startingElement: ElementNode, endingAt location: Int) -> Node? {
 
             return firstDescendant(of: startingElement, matching: { (node, startLocation, endLocation) -> MatchType in
                 // Ignore empty nodes
