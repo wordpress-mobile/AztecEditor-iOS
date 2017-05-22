@@ -17,10 +17,10 @@ class DOMStringTests: XCTestCase {
     func testReplaceCharactersWithStringEffectivelyInsertsTheNewString() {
         let string = DOMString()
 
-        string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n")
+        string.replace(NSRange.zero, with: "Hello\n")
         XCTAssertEqual(string.getHTML(), "Hello<br>")
 
-        string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!")
+        string.replace(NSRange(location: 6, length: 0), with: "World!")
         XCTAssertEqual(string.getHTML(), "Hello<br>World!")
     }
 

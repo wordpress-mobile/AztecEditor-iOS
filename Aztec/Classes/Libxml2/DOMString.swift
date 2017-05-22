@@ -1,15 +1,6 @@
 import UIKit
 
 extension Libxml2 {
-
-    /// TEMPORARY!
-    ///
-    /// This is a temporary solution until we can migrate all of the DOM editing and inspection
-    /// logic to DOMEditor and DOMInspector
-    ///
-    class SharedEditor {
-        static var currentEditor: DOMEditor!
-    }
     
     /// This class takes care of providing an interface for interacting with the DOM as if it Was
     /// a string.
@@ -69,9 +60,7 @@ extension Libxml2 {
         // MARK: - Properties: DOM Logic
 
         private lazy var domEditor: DOMEditor = {
-            SharedEditor.currentEditor = DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
-
-            return SharedEditor.currentEditor
+            return DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
         }()
 
         // MARK: - Init & deinit
@@ -178,7 +167,7 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, with string: String) {
+        func replace(_ range: NSRange, with string: String) {
             
             let domHasModifications = range.length > 0 || !string.isEmpty
 
@@ -195,7 +184,7 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - attributedString: the attributed string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, with attributedString: NSAttributedString) {
+        func replace(_ range: NSRange, with attributedString: NSAttributedString) {
 
             assert(range.length > 0 || attributedString.length > 0)
 

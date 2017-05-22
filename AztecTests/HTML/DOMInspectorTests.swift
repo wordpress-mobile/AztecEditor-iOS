@@ -26,9 +26,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findNode(endingAt: textNode1.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length()) else {
             XCTFail("Expected to find a node here.")
             return
         }

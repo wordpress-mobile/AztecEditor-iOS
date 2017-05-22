@@ -38,17 +38,11 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [div, unwrappedText])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let range = NSRange(location: text1.characters.count, length: 0)
 
         editor.replace(range, with: String(.newline))
 
         XCTAssertEqual(rootNode.text(), "\(text1)\(String(.newline))\(text2)")
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
@@ -61,18 +55,12 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [textNode])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         editor.replace(NSRange(location: 0, length: 0), with: "a")
         editor.replace(NSRange(location: 1, length: 0), with: "b")
         editor.replace(NSRange(location: 2, length: 0), with: "c")
 
         XCTAssertEqual(rootNode.children.count, 1)
         XCTAssert(rootNode.children[0] is TextNode)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -93,9 +81,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [preLinkTextNode, linkElement])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
 
@@ -109,9 +94,6 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(textNode.text(), "\(preLinkText)\(newString)")
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// Tests `replaceCharacters(inRange:withString:)`.
@@ -133,9 +115,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [preLinkText, linkElement])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
         let finalText = "\(text1)\(text2)!"
@@ -149,9 +128,6 @@ class DOMEditorTests: XCTestCase {
             XCTFail("Expected a text node, with the full text.")
             return
         }
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// Tests `replaceCharacters(inRange:withString:)`.
@@ -172,9 +148,6 @@ class DOMEditorTests: XCTestCase {
         let paragraph = ElementNode(name: "p", attributes: [], children: [preLinkText, linkElement])
         let rootNode = RootNode(children: [paragraph])
         let editor = DOMEditor(with: rootNode)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
 
         let range = NSRange(location: 14, length: 4)
         let newString = "link!"
@@ -198,9 +171,6 @@ class DOMEditorTests: XCTestCase {
                 XCTFail("Expected a text node, with the full text.")
                 return
         }
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -230,9 +200,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [boldNode, textNode2])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let replaceRange = NSRange(location: text1.characters.count + space.characters.count, length: textToReplace.characters.count)
         editor.replace(replaceRange, with: "everyone")
 
@@ -243,9 +210,6 @@ class DOMEditorTests: XCTestCase {
             XCTFail("Expected a text node, with the full text.")
             return
         }
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -268,9 +232,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [paragraph])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let range = NSRange(location: startText.characters.count, length: middleText.characters.count)
         let imgSrc = "https://httpbin.org/image/jpeg"
 
@@ -284,25 +245,19 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(paragraph.children.count, 3)
 
         guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
-
             XCTFail("Expected a text node")
             return
         }
 
         guard let imgNode = paragraph.children[1] as? ElementNode, imgNode.name == imgNodeName else {
-
             XCTFail("Expected a img node")
             return
         }
 
         guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
-            
             XCTFail("Expected a text node")
             return
         }
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -332,9 +287,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         editor.wrap(range, in: ElementNodeDescriptor(elementType: boldElementType))
 
         XCTAssertEqual(div.children.count, 2)
@@ -354,9 +306,6 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(newEmNode.children.count, 1)
         XCTAssertEqual(newEmNode.children[0], textNode1)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -384,9 +333,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         editor.wrap(div.range(), in: ElementNodeDescriptor(name: boldNodeName))
 
         XCTAssertEqual(div.children.count, 1)
@@ -406,9 +352,6 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(underline.children.count, 1)
         XCTAssertEqual(underline.children[0], textNode2)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
 
@@ -437,9 +380,6 @@ class DOMEditorTests: XCTestCase {
         let editor = DOMEditor(with: rootNode)
 
         let range = NSRange(location: 2, length: 8)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
 
         editor.wrap(range, in: ElementNodeDescriptor(name: boldNodeName))
 
@@ -506,9 +446,6 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(outU2.children.count, 1)
         XCTAssert(outU2.children[0] is TextNode)
         XCTAssertEqual(outU2.text(), "ther")
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// Tests that wrapping a range in a node already present in that range, doesn't duplicate the
@@ -528,9 +465,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let range = NSRange(location: 0, length: 11)
 
         let boldElementDescriptor = ElementNodeDescriptor(elementType: .b)
@@ -547,9 +481,6 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(newBoldNode.children.count, 1)
         XCTAssertNotNil(newBoldNode.children[0] as? TextNode)
         XCTAssertEqual(boldNode.text(), newBoldNode.text())
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     // MARK: - Merging Siblings
@@ -575,9 +506,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [paragraph, blockquote])
 
         let editor = DOMEditor(with: rootNode)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
 
         editor.mergeBlockLevelElementRight(endingAt: textNode1.length())
 
@@ -605,9 +533,6 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(newParagraph.children.count, 1)
         XCTAssert(newParagraph.children[0] is TextNode)
         XCTAssertEqual(newParagraph.children[0].text(), "\(text1)\(text2)")
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
@@ -632,9 +557,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         editor.mergeBlockLevelElementRight(endingAt: 0)
 
         XCTAssertEqual(rootNode.children.count, 2)
@@ -656,9 +578,6 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(newBlockquote, blockquote)
         XCTAssertEqual(newBlockquote.text(), text2)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
@@ -683,9 +602,6 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         editor.mergeBlockLevelElementRight(endingAt: text1.characters.count + text2.characters.count)
 
         XCTAssertEqual(rootNode.children.count, 2)
@@ -707,9 +623,6 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(newBlockquote, blockquote)
         XCTAssertEqual(newBlockquote.text(), text2)
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 
     // MARK: - Splitting
@@ -734,9 +647,6 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [div])
         let editor = DOMEditor(with: rootNode)
 
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = editor
-
         let splitLocation = text1.characters.count
         editor.split(paragraph, at: splitLocation)
 
@@ -751,8 +661,5 @@ class DOMEditorTests: XCTestCase {
             XCTFail("Expected the first new paragraph to exist.")
             return
         }
-
-        // Temporary hack!
-        Libxml2.SharedEditor.currentEditor = nil
     }
 }

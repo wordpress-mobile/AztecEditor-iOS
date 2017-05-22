@@ -335,13 +335,13 @@ open class TextStorage: NSTextStorage {
         }
 
         if swiftRange.length > 0 || str.characters.count > 0 {
-            dom.replaceCharacters(inRange: swiftRange, with: str)
+            dom.replace(swiftRange, with: str)
         }
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
         if range.length > 0 || attrString.length > 0 {
-            dom.replaceCharacters(inRange: range, with: attrString)
+            dom.replace(range, with: attrString)
         }
     }
 
@@ -915,7 +915,7 @@ open class TextStorage: NSTextStorage {
 
         attachment.rawHTML = html
 
-        dom.replaceCharacters(inRange: range, with: NSAttributedString(attachment: attachment))
+        dom.replace(range, with: NSAttributedString(attachment: attachment))
 
         edited([.editedAttributes], range: range, changeInLength: 0)
 /*
