@@ -114,16 +114,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
-        guard !node.isSupportedByEditor() else {
-            return stringForNode(node, inheritingAttributes: attributes)
+    fileprivate func convertElementNode(_ element: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+        guard !inspector.isSupportedByEditor(element) else {
+            return stringForNode(element, inheritingAttributes: attributes)
         }
 
         let converter = Libxml2.Out.HTMLConverter()
         let attachment = HTMLAttachment()
 
-        attachment.rootTagName = node.name
-        attachment.rawHTML = converter.convert(node)
+        attachment.rootTagName = element.name
+        attachment.rawHTML = converter.convert(element)
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }

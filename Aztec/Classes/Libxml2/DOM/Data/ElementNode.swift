@@ -30,7 +30,6 @@ extension Libxml2 {
 
         // MARK: - Editing behavior configuration
 
-        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
         static let elementsThatSpanASingleLine: [StandardElementType] = [.li]
         
         // MARK: - Initializers
@@ -874,23 +873,6 @@ extension Libxml2 {
 
         // MARK: - Editing behavior
 
-        private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
-            guard !(node is TextNode) else {
-                return false
-            }
-
-            guard let elementNode = node as? ElementNode,
-                let elementType = StandardElementType(rawValue: elementNode.name) else {
-                return true
-            }
-
-            guard elementNode.isSupportedByEditor() else {
-                return true
-            }
-
-            return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
-        }
-
         // MARK: - Undo Support
 
         private func registerUndoForRemove(_ child: Node) {
@@ -904,21 +886,6 @@ extension Libxml2 {
                 self?.children.insert(child, at: index)
             }
  */
-        }
-
-        func isSupportedByEditor() -> Bool {
-            /// NOTE:
-            /// ElementNode.length is coupled to the value of this method. Elements not known by the Editor are
-            /// represented by a single character (NSTextAttachment), with a customizable visual representation.
-            /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
-            /// "Length=1" workaround.
-            ///
-
-            guard let standardName = standardName else {
-                return false
-            }
-
-            return SharedEditor.currentEditor.knownElements.contains(standardName)
         }
     }
 
@@ -948,12 +915,6 @@ extension Libxml2 {
 
         init(children: [Node]) {
             super.init(name: type(of: self).name, attributes: [], children: children)
-        }
-
-        // MARK: - Overriden Methods
-
-        override func isSupportedByEditor() -> Bool {
-            return true
         }
     }
 }

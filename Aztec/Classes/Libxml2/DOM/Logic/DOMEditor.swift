@@ -11,10 +11,6 @@ extension Libxml2 {
         typealias NodeMatchTest = (_ node: Node) -> Bool
 
         private let inspector: DOMInspector
-        let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1,
-                                                    .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li,
-                                                    .ol, .p, .pre, .s, .span, .strike, .strong, .u,
-                                                    .ul, .video]
         let rootNode: RootNode
         let undoManager: UndoManager
 
@@ -25,6 +21,8 @@ extension Libxml2 {
         }
 
         // MARK: - Appending Characters
+
+        
 
         // MARK: - Appending Nodes
 

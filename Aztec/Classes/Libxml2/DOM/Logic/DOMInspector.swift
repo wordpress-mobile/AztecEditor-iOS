@@ -5,6 +5,11 @@ extension Libxml2 {
     ///
     class DOMInspector {
 
+        let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1,
+                                                    .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li,
+                                                    .ol, .p, .pre, .s, .span, .strike, .strong, .u,
+                                                    .ul, .video]
+
         private typealias Test = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> TestResult
 
         /// Used as a result type for searching the DOM tree.
@@ -270,6 +275,15 @@ extension Libxml2 {
             return isLastInParent(node) && isLastInTree(parent)
         }
 
+        func isSupportedByEditor(_ element: ElementNode) -> Bool {
+
+            guard let standardName = element.standardName else {
+                return false
+            }
+
+            return knownElements.contains(standardName)
+        }
+
         func needsClosingParagraphSeparator(_ node: Node) -> Bool {
 
             if let element = node as? ElementNode {
@@ -293,7 +307,7 @@ extension Libxml2 {
 
         func text(for element: ElementNode) -> String {
 
-            guard element.isSupportedByEditor() else {
+            guard isSupportedByEditor(element) else {
                 return String(.objectReplacement)
             }
 
