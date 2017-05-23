@@ -299,7 +299,7 @@ class EditorDemoController: UIViewController {
                 html += "height=\(height) "
             }
 
-            html += "\\>"
+            html += "/>"
             return html
         })
 
@@ -311,7 +311,7 @@ class EditorDemoController: UIViewController {
             if let poster = shortcode.attributes.named["poster"] {
                 html += "poster=\"\(poster)\" "
             }
-            html += "\\>"
+            html += "/>"
             return html
         })
         
