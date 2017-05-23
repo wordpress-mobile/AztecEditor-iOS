@@ -29,6 +29,8 @@
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82911ED44A6C0080ACAF /* Processor.swift */; };
 		FF9D82961ED452600080ACAF /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82951ED452600080ACAF /* HTMLAttributes.swift */; };
+		FF9D82981ED455060080ACAF /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82971ED455060080ACAF /* HTMLProcessor.swift */; };
+		FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */; };
 		FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */; };
 		FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */; };
 /* End PBXBuildFile section */
@@ -123,6 +125,8 @@
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FF9D82911ED44A6C0080ACAF /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
 		FF9D82951ED452600080ACAF /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
+		FF9D82971ED455060080ACAF /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
+		FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessorTests.swift; sourceTree = "<group>"; };
 		FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressShortcode.swift; sourceTree = "<group>"; };
 		FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortCodeParserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -244,6 +248,7 @@
 			children = (
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 				FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */,
+				FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -282,6 +287,7 @@
 				FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */,
 				FF9D82911ED44A6C0080ACAF /* Processor.swift */,
 				FF9D82951ED452600080ACAF /* HTMLAttributes.swift */,
+				FF9D82971ED455060080ACAF /* HTMLProcessor.swift */,
 			);
 			name = Processors;
 			sourceTree = "<group>";
@@ -464,6 +470,7 @@
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */,
+				FF9D82981ED455060080ACAF /* HTMLProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,6 +479,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */,
+				FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
