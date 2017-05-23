@@ -39,11 +39,14 @@ public struct HTMLAttributesParser {
     /// 4. a value in single quotes.
     /// 5. An attribute name, that corresponds to...
     /// 6. an unquoted value.
-    /// 7. A numeric attribute in double quotes.
-    /// 8. An unquoted numeric attribute.
+    /// 7. An attribute in double quotes.
+    /// 8. An unquoted attribute.
     ///
     static var attributesRegex: NSRegularExpression = {
-        let attributesPattern: String = "(\\w+)\\s*=\\s*\"([^\"]*)\"(?:\\s|$)|(\\w+)\\s*=\\s*'([^']*)'(?:\\s|$)|(\\w+)\\s*=\\s*([^\\s'\"]+)(?:\\s|$)|\"([^\"]*)\"(?:\\s|$)|(\\S+)(?:\\s|$)"
+        let doubleQuotePattern = "((?:\\w|-)+)\\s*=\\s*\"([^\"]*)\"(?:\\s|$)"
+        let singleQuotePattern = "((?:\\w|-)+)\\s*=\\s*'([^']*)'(?:\\s|$)"
+        let noQuotePattern = "((?:\\w|-)+)\\s*=\\s*([^\\s'\"]+)(?:\\s|$)"
+        let attributesPattern: String = doubleQuotePattern + "|" + singleQuotePattern + "|" + noQuotePattern + "|\"([^\"]*)\"(?:\\s|$)|(\\S+)(?:\\s|$)"
         return try! NSRegularExpression(pattern: attributesPattern, options: .caseInsensitive)
     }()
 
