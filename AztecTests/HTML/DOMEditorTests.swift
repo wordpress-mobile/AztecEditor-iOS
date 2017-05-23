@@ -645,7 +645,7 @@ class DOMEditorTests: XCTestCase {
 
         editor.replace(range, with: String(.newline))
 
-        XCTAssertEqual(rootNode.text(), "\(text1)\(String(.newline))\(text2)")
+        XCTAssertEqual(editor.inspector.text(for: rootNode), "\(text1)\(String(.newline))\(text2)")
     }
 
     /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
@@ -696,7 +696,7 @@ class DOMEditorTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(textNode.text(), "\(preLinkText)\(newString)")
+        XCTAssertEqual(editor.inspector.text(for: textNode), "\(preLinkText)\(newString)")
     }
 
     /// Tests `replaceCharacters(inRange:withString:)`.
@@ -726,7 +726,7 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(rootNode.children.count, 1)
 
-        guard let textNode = rootNode.children[0] as? TextNode, textNode.text() == finalText else {
+        guard let textNode = rootNode.children[0] as? TextNode, editor.inspector.text(for: textNode) == finalText else {
 
             XCTFail("Expected a text node, with the full text.")
             return
@@ -758,7 +758,7 @@ class DOMEditorTests: XCTestCase {
 
         editor.replace(range, with: newString)
 
-        XCTAssertEqual(rootNode.text(), finalText)
+        XCTAssertEqual(editor.inspector.text(for: rootNode), finalText)
         XCTAssertEqual(rootNode.children.count, 1)
 
         guard let outParagraph = rootNode.children[0] as? ElementNode,
@@ -767,10 +767,10 @@ class DOMEditorTests: XCTestCase {
                 return
         }
 
-        XCTAssertEqual(outParagraph.text(), finalText)
+        XCTAssertEqual(editor.inspector.text(for: outParagraph), finalText)
 
         guard let outTextNode = outParagraph.children[0] as? TextNode,
-            outTextNode.text() == finalText else {
+            editor.inspector.text(for: outTextNode) == finalText else {
                 XCTFail("Expected a text node, with the full text.")
                 return
         }
@@ -809,7 +809,7 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(rootNode.children.count, 2)
         XCTAssertEqual(rootNode.children[0], boldNode)
 
-        guard let textNode = rootNode.children[1] as? TextNode, textNode.text() == textToVerify else {
+        guard let textNode = rootNode.children[1] as? TextNode, editor.inspector.text(for: textNode) == textToVerify else {
             XCTFail("Expected a text node, with the full text.")
             return
         }
@@ -847,7 +847,7 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(paragraph.children.count, 3)
 
-        guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
+        guard let startNode = paragraph.children[0] as? TextNode, editor.inspector.text(for: startNode) == startText else {
             XCTFail("Expected a text node")
             return
         }
@@ -857,7 +857,7 @@ class DOMEditorTests: XCTestCase {
             return
         }
 
-        guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
+        guard let endNode = paragraph.children[2] as? TextNode, editor.inspector.text(for: endNode) == endText else {
             XCTFail("Expected a text node")
             return
         }
@@ -894,7 +894,7 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(paragraph.children.count, 3)
 
-        guard let startNode = paragraph.children[0] as? TextNode, startNode.text() == startText else {
+        guard let startNode = paragraph.children[0] as? TextNode, editor.inspector.text(for: startNode) == startText else {
 
             XCTFail("Expected a text node")
             return
@@ -906,7 +906,7 @@ class DOMEditorTests: XCTestCase {
             return
         }
 
-        guard let endNode = paragraph.children[2] as? TextNode, endNode.text() == endText else {
+        guard let endNode = paragraph.children[2] as? TextNode, editor.inspector.text(for: endNode) == endText else {
             
             XCTFail("Expected a text node")
             return
@@ -985,7 +985,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.wrap(div.range(), in: ElementNodeDescriptor(name: boldNodeName))
+        editor.wrap(editor.inspector.range(of: div), in: ElementNodeDescriptor(name: boldNodeName))
 
         XCTAssertEqual(div.children.count, 1)
 
@@ -1057,7 +1057,7 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(outEm.name, StandardElementType.em.rawValue)
         XCTAssertEqual(outEm.children.count, 1)
         XCTAssert(outEm.children[0] is TextNode)
-        XCTAssertEqual(outEm.text(), "He")
+        XCTAssertEqual(editor.inspector.text(for: outEm), "He")
 
         guard let outB = outDiv.children[1] as? ElementNode else {
             XCTFail("Expected an element node.")
@@ -1075,7 +1075,7 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(outU.name, StandardElementType.u.rawValue)
         XCTAssertEqual(outU.children.count, 1)
         XCTAssert(outU.children[0] is TextNode)
-        XCTAssertEqual(outU.text(), "e!")
+        XCTAssertEqual(editor.inspector.text(for: outU), "e!")
 
         // 3rd level nodes
 
@@ -1087,7 +1087,7 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(outEm2.name, StandardElementType.em.rawValue)
         XCTAssertEqual(outEm2.children.count, 1)
         XCTAssert(outEm2.children[0] is TextNode)
-        XCTAssertEqual(outEm2.text(), "llo ")
+        XCTAssertEqual(editor.inspector.text(for: outEm2), "llo ")
 
         guard let outU2 = outB.children[1] as? ElementNode else {
             XCTFail("Expected an element node.")
@@ -1097,7 +1097,7 @@ class DOMEditorTests: XCTestCase {
         XCTAssertEqual(outU2.name, StandardElementType.u.rawValue)
         XCTAssertEqual(outU2.children.count, 1)
         XCTAssert(outU2.children[0] is TextNode)
-        XCTAssertEqual(outU2.text(), "ther")
+        XCTAssertEqual(editor.inspector.text(for: outU2), "ther")
     }
 
     /// Tests that wrapping a range in a node already present in that range, doesn't duplicate the
@@ -1132,7 +1132,7 @@ class DOMEditorTests: XCTestCase {
         
         XCTAssertEqual(newBoldNode.children.count, 1)
         XCTAssertNotNil(newBoldNode.children[0] as? TextNode)
-        XCTAssertEqual(boldNode.text(), newBoldNode.text())
+        XCTAssertEqual(editor.inspector.text(for: boldNode), editor.inspector.text(for: newBoldNode))
     }
 
     // MARK: - Merging Siblings
@@ -1159,7 +1159,7 @@ class DOMEditorTests: XCTestCase {
 
         let editor = DOMEditor(with: rootNode)
 
-        editor.mergeBlockLevelElementRight(endingAt: textNode1.length())
+        editor.mergeBlockLevelElementRight(endingAt: editor.inspector.length(of: textNode1))
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -1184,7 +1184,7 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(newParagraph.children.count, 1)
         XCTAssert(newParagraph.children[0] is TextNode)
-        XCTAssertEqual(newParagraph.children[0].text(), "\(text1)\(text2)")
+        XCTAssertEqual(editor.inspector.text(for: newParagraph.children[0]), "\(text1)\(text2)")
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
@@ -1220,7 +1220,7 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(newParagraph, paragraph)
-        XCTAssertEqual(newParagraph.text(), text1)
+        XCTAssertEqual(editor.inspector.text(for: newParagraph), text1)
 
         guard let newBlockquote = rootNode.children[1] as? ElementNode,
             newBlockquote.name == StandardElementType.blockquote.rawValue else {
@@ -1229,7 +1229,7 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(newBlockquote, blockquote)
-        XCTAssertEqual(newBlockquote.text(), text2)
+        XCTAssertEqual(editor.inspector.text(for: newBlockquote), text2)
     }
 
     /// Tests that `findSiblings(separatedAt:)` works properly.
@@ -1265,7 +1265,7 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(newParagraph, paragraph)
-        XCTAssertEqual(newParagraph.text(), text1)
+        XCTAssertEqual(editor.inspector.text(for: newParagraph), text1)
 
         guard let newBlockquote = rootNode.children[1] as? ElementNode,
             newBlockquote.name == StandardElementType.blockquote.rawValue else {
@@ -1274,7 +1274,7 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(newBlockquote, blockquote)
-        XCTAssertEqual(newBlockquote.text(), text2)
+        XCTAssertEqual(editor.inspector.text(for: newBlockquote), text2)
     }
 
     // MARK: - pushUp(rightSideDescendantEvaluatedBy:)
@@ -1311,7 +1311,7 @@ class DOMEditorTests: XCTestCase {
         }
 
         XCTAssertEqual(result, outBold)
-        XCTAssertEqual(outBold.text(), text1.text())
+        XCTAssertEqual(editor.inspector.text(for: outBold), editor.inspector.text(for: text1))
         XCTAssertEqual(outBold.children.count, 1)
 
         guard let outStrike2 = outBold.children[0] as? ElementNode, outStrike2.name == "strike" else {
@@ -1450,12 +1450,12 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(div.children.count, 2)
 
-        guard let newParagraph1 = div.children[0] as? ElementNode, newParagraph1.text() == text1 else {
+        guard let newParagraph1 = div.children[0] as? ElementNode, editor.inspector.text(for: newParagraph1) == text1 else {
             XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
             return
         }
 
-        guard let newParagraph2 = div.children[1] as? ElementNode, newParagraph2.text() == text2 else {
+        guard let newParagraph2 = div.children[1] as? ElementNode, editor.inspector.text(for: newParagraph2) == text2 else {
             XCTFail("Expected the first new paragraph to exist.")
             return
         }
@@ -1484,7 +1484,7 @@ class DOMEditorTests: XCTestCase {
 
         let (left, right) = editor.split(textNode, at: splitLocation)
 
-        XCTAssertEqual(left.text(), text1)
-        XCTAssertEqual(right.text(), text2)
+        XCTAssertEqual(editor.inspector.text(for: left), text1)
+        XCTAssertEqual(editor.inspector.text(for: right), text2)
     }
 }

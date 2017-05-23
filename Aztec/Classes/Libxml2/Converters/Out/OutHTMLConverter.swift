@@ -106,7 +106,7 @@ private extension Libxml2.Out.HTMLConverter {
     /// Serializes a TextNode into it's HTML String Representation
     ///
     private func convert(text node: TextNode) -> String {
-        return node.text().encodeHtmlEntities()
+        return inspector.text(for: node).encodeHtmlEntities()
     }
 }
 

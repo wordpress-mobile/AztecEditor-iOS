@@ -80,7 +80,10 @@ extension Libxml2 {
                     return
                 }
 
-                result = strongSelf.rootNode.text()
+                let inspector = strongSelf.domEditor.inspector
+                let rootNode = strongSelf.rootNode
+
+                result = inspector.text(for: rootNode)
             }
 
             return result
@@ -822,8 +825,9 @@ extension Libxml2 {
         // MARK: - Candidates for removal: Synchronously
 
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
-            
+            /*
             for range in ranges {
+
                 let element = self.rootNode.lowestElementNodeWrapping(range)
                 
                 if element.name == StandardElementType.img.rawValue {
@@ -844,7 +848,7 @@ extension Libxml2 {
                         element.updateAttribute(named: "src", value: url.absoluteString)
                     }
                 }
-            }
+            }*/
         }
     }
 }

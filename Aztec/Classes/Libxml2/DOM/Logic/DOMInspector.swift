@@ -95,7 +95,7 @@ extension Libxml2 {
 
             let previousNode = parent.children[previousIndex]
 
-            guard !ignoreEmptyTextNodes || !(previousNode is TextNode) || previousNode.length() > 0 else {
+            guard !ignoreEmptyTextNodes || !(previousNode is TextNode) || length(of: previousNode) > 0 else {
                 return leftSibling(of: previousNode, ignoreEmptyTextNodes: ignoreEmptyTextNodes)
             }
 
@@ -136,7 +136,7 @@ extension Libxml2 {
 
             let nextNode = parent.children[nextIndex]
 
-            guard !ignoreEmptyTextNodes || !(nextNode is TextNode) || nextNode.length() > 0 else {
+            guard !ignoreEmptyTextNodes || !(nextNode is TextNode) || length(of: nextNode) > 0 else {
                 return rightSibling(of: nextNode, ignoreEmptyTextNodes: ignoreEmptyTextNodes)
             }
 
@@ -164,7 +164,7 @@ extension Libxml2 {
 
             // Ignore empty text nodes.
             //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+            if let textSibling = siblingNode as? TextNode, length(of: textSibling) == 0 {
                 return sibling(leftOf: childIndex - 1, in: element)
             }
 
@@ -192,7 +192,7 @@ extension Libxml2 {
 
             // Ignore empty text nodes.
             //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
+            if let textSibling = siblingNode as? TextNode, length(of: textSibling) == 0 {
                 return sibling(rightOf: childIndex + 1, in: element)
             }
             
@@ -218,7 +218,7 @@ extension Libxml2 {
         }
 
         func isEmptyTextNode(_ node: Node) -> Bool {
-            return node is TextNode && node.length() == 0
+            return node is TextNode && length(of: node) == 0
         }
 
         /// Checks if the receiver is the last node in a block-level ancestor.
@@ -251,7 +251,7 @@ extension Libxml2 {
             //
             let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
                 guard let textNode = node as? TextNode,
-                    textNode.length() == 0 else {
+                    length(of: textNode) == 0 else {
                         return true
                 }
 
@@ -291,7 +291,7 @@ extension Libxml2 {
                     return false
                 }
             } else if let textNode = node as? TextNode {
-                guard textNode.length() > 0 else {
+                guard length(of: textNode) > 0 else {
                     return false
                 }
             }
@@ -303,6 +303,21 @@ extension Libxml2 {
             }
 
             return !isLastInTree(node) && isLastInBlockLevelAncestor(node)
+        }
+
+        // MARK: - Text
+
+        func text(for node: Node) -> String {
+            if let commentNode = node as? CommentNode {
+                return String(.objectReplacement)
+            } else if let element = node as? ElementNode {
+                return text(for: element)
+            } else if let textNode = node as? TextNode {
+                return text(for: textNode)
+            } else {
+                assertionFailure("Unsupported node type.")
+                return String(.objectReplacement)
+            }
         }
 
         func text(for element: ElementNode) -> String {
@@ -320,7 +335,7 @@ extension Libxml2 {
             var text = ""
 
             for child in element.children {
-                text = text + child.text()
+                text = text + self.text(for: child)
             }
 
             if needsClosingParagraphSeparator(element) {
@@ -328,6 +343,18 @@ extension Libxml2 {
             }
             
             return text
+        }
+
+        func text(for textNode: TextNode) -> String {
+            return textNode.contents
+        }
+
+        func length(of node: Node) -> Int {
+            return text(for: node).characters.count
+        }
+
+        func range(of node: Node) -> NSRange {
+            return NSRange(location: 0, length: length(of: node))
         }
 
         // MARK: - Finding Nodes: Children
@@ -348,7 +375,7 @@ extension Libxml2 {
             of element: ElementNode,
             spanning range: NSRange) -> [NodeAndIntersection] {
 
-            assert(element.range().contains(range))
+            assert(self.range(of: element).contains(range))
 
             guard element.children.count > 0 else {
                 return [(element, range)]
@@ -360,10 +387,10 @@ extension Libxml2 {
             for child in element.children {
 
                 defer {
-                    offset = offset + child.length()
+                    offset = offset + length(of: child)
                 }
 
-                let childRangeInParent = child.range().offset(offset)
+                let childRangeInParent = self.range(of: child).offset(offset)
 
                 guard let intersectionInParent = range.intersect(withRange: childRangeInParent) else {
                     continue
@@ -396,13 +423,13 @@ extension Libxml2 {
 
             for child in element.children {
 
-                let childRangeInParent = child.range().offset(childOffset)
+                let childRangeInParent = range(of: child).offset(childOffset)
 
                 if childRangeInParent.contains(offset: offset) {
                     return (node: child, offset: offset - childOffset)
                 }
 
-                childOffset = childOffset + child.length()
+                childOffset = childOffset + length(of: child)
             }
             
             return nil
@@ -427,7 +454,7 @@ extension Libxml2 {
             spanning range: NSRange,
             bailCheck: (Node) -> Bool = { _ in return false }) -> [ElementAndIntersection] {
 
-            assert(element.range().contains(range))
+            assert(self.range(of: element).contains(range))
 
             guard element.children.count > 0 else {
                 return [(element, range)]
@@ -439,14 +466,14 @@ extension Libxml2 {
             for child in element.children {
 
                 defer {
-                    offset = offset + child.length()
+                    offset = offset + length(of: child)
                 }
 
                 guard !bailCheck(child) else {
                     continue
                 }
 
-                let childRangeInParent = child.range().offset(offset)
+                let childRangeInParent = self.range(of: child).offset(offset)
                 
                 guard let intersection = range.intersect(withRange: childRangeInParent) else {
                     continue
@@ -573,19 +600,19 @@ extension Libxml2 {
 
                 ranges.append(contentsOf: childRanges)
 
-                childOffset += child.length()
+                childOffset += length(of: child)
             }
 
             return ranges
         }
 
-        func find(_ text: String, in textNode: TextNode) -> [NSRange] {
+        func find(_ string: String, in textNode: TextNode) -> [NSRange] {
             var ranges = [NSRange]()
-            let nodeText = textNode.text()
+            let nodeText = text(for: textNode)
 
             var currentRange = nodeText.startIndex ..< nodeText.endIndex
 
-            while let range = nodeText.range(of: text, options: [], range: currentRange, locale: nil) {
+            while let range = nodeText.range(of: string, options: [], range: currentRange, locale: nil) {
 
                 currentRange = range.upperBound ..< currentRange.upperBound
 
@@ -657,7 +684,7 @@ extension Libxml2 {
 
             for child in startingElement.children {
 
-                let childEndLocation = childStartLocation + child.length()
+                let childEndLocation = childStartLocation + length(of: child)
 
                 let nextStep = step(child, childStartLocation, childEndLocation)
 
@@ -693,7 +720,7 @@ extension Libxml2 {
 
             for child in startingElement.children {
 
-                let childEndLocation = childStartLocation + child.length()
+                let childEndLocation = childStartLocation + length(of: child)
 
                 let matchType = test(child, childStartLocation, childEndLocation)
 

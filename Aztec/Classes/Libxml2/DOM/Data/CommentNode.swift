@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Comment nodes use to hold HTML comments like this: <!-- This is a comment -->
     ///
-    class CommentNode: Node, LeafNode {
+    class CommentNode: Node {
 
         var comment: String
 
@@ -21,18 +21,6 @@ extension Libxml2 {
             comment = text
 
             super.init(name: "comment")
-        }
-
-        /// Node length.
-        ///
-        override func length() -> Int {
-            return text().characters.count
-        }
-        
-        // MARK: - LeafNode
-        
-        override func text() -> String {
-            return String(.paragraphSeparator)
         }
     }
 }

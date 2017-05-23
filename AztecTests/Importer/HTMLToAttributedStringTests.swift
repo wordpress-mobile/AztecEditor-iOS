@@ -53,7 +53,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                     return
                 }
 
-                XCTAssertEqual(textNode.text(), nodeText)
+                XCTAssertEqual(textNode.contents, nodeText)
 
             } catch {
                 XCTFail("Unexpected conversion failure.")
@@ -91,9 +91,9 @@ class HTMLToAttributedStringTests: XCTestCase {
                         return
                 }
 
-                XCTAssertEqual(firstTextNode.text(), firstText)
+                XCTAssertEqual(firstTextNode.contents, firstText)
                 XCTAssertEqual(elementNode.name, tagNames[index].lowercased())
-                XCTAssertEqual(thirdTextNode.text(), thirdText)
+                XCTAssertEqual(thirdTextNode.contents, thirdText)
 
                 guard elementNode.children.count == 1,
                     let secondTextNode = elementNode.children[0] as? TextNode else {
@@ -102,7 +102,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                     return
                 }
 
-                XCTAssertEqual(secondTextNode.text(), secondText)
+                XCTAssertEqual(secondTextNode.contents, secondText)
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }
@@ -211,7 +211,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(firstTextNode.parent, firstNode)
-                XCTAssertEqual(firstTextNode.text(), firstText)
+                XCTAssertEqual(firstTextNode.contents, firstText)
 
                 guard let secondNode = firstNode.children[1] as? ElementNode else {
                     XCTFail("Expected to find the second node.")
@@ -228,7 +228,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(secondTextNode.parent, secondNode)
-                XCTAssertEqual(secondTextNode.text(), secondText)
+                XCTAssertEqual(secondTextNode.contents, secondText)
 
                 guard let thirdTextNode = firstNode.children[2] as? TextNode else {
                     XCTFail("Expected to find the third text node.")
@@ -236,7 +236,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(thirdTextNode.parent, firstNode)
-                XCTAssertEqual(thirdTextNode.text(), thirdText)
+                XCTAssertEqual(thirdTextNode.contents, thirdText)
 
             } catch {
                 XCTFail("Unexpected conversion failure.")
@@ -290,7 +290,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(firstTextNode.parent, firstNode)
-                XCTAssertEqual(firstTextNode.text(), firstText)
+                XCTAssertEqual(firstTextNode.contents, firstText)
 
                 guard let secondNode = firstNode.children[1] as? ElementNode else {
                     XCTFail("Expected to find the second node.")
@@ -316,7 +316,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
 
                 XCTAssertEqual(secondTextNode.parent, thirdNode)
-                XCTAssertEqual(secondTextNode.text(), secondText)
+                XCTAssertEqual(secondTextNode.contents, secondText)
 
                 guard let thirdTextNode = firstNode.children[2] as? TextNode else {
                     XCTFail("Expected to find the third text node.")
@@ -324,7 +324,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                 }
                 
                 XCTAssertEqual(thirdTextNode.parent, firstNode)
-                XCTAssertEqual(thirdTextNode.text(), thirdText)
+                XCTAssertEqual(thirdTextNode.contents, thirdText)
             } catch {
                 XCTFail("Unexpected conversion failure.")
             }

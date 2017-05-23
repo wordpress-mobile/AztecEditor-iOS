@@ -28,7 +28,7 @@ class DOMInspectorTests: XCTestCase {
 
         let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: inspector.length(of: textNode1)) else {
             XCTFail("Expected to find a node here.")
             return
         }
@@ -83,7 +83,7 @@ class DOMInspectorTests: XCTestCase {
 
         let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length() + textNode2.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: inspector.length(of: textNode1) + inspector.length(of: textNode2)) else {
             XCTFail("Expected to find a left node here.")
             return
         }
@@ -107,13 +107,14 @@ class DOMInspectorTests: XCTestCase {
     func testFindChildrenSpanningRange1() {
         let textNode = TextNode(text: "This is a test string.")
         let rangeLocation = 5
-        XCTAssert(rangeLocation < textNode.length(),
+
+        let inspector = DOMInspector()
+
+        XCTAssert(rangeLocation < inspector.length(of: textNode),
                   "For this text we need to make sure the range location is inside the test node.")
 
         let range = NSRange(location: rangeLocation, length: 0)
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 
@@ -139,13 +140,14 @@ class DOMInspectorTests: XCTestCase {
     func testFindChildrenSpanningRange2() {
         let textNode = TextNode(text: "This is a test string.")
         let rangeLocation = 0
-        XCTAssert(rangeLocation < textNode.length(),
+
+        let inspector = DOMInspector()
+
+        XCTAssert(rangeLocation < inspector.length(of: textNode),
                   "For this text we need to make sure the range location is inside the test node.")
 
         let range = NSRange(location: rangeLocation, length: 0)
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
-        let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 
@@ -173,8 +175,10 @@ class DOMInspectorTests: XCTestCase {
         let textNode1 = TextNode(text: "Hello")
         let textNode2 = TextNode(text: "Hello again!")
 
+        let inspector = DOMInspector()
+
         let rangeLocation = 5
-        XCTAssert(rangeLocation == textNode1.length(),
+        XCTAssert(rangeLocation == inspector.length(of: textNode1),
                   "For this text we need to make sure the range location is inside the test node.")
 
         let range = NSRange(location: rangeLocation, length: 0)
@@ -183,7 +187,6 @@ class DOMInspectorTests: XCTestCase {
         let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
         let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
         let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 

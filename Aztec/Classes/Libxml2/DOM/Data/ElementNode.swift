@@ -63,14 +63,6 @@ extension Libxml2 {
         static func `break`() -> ElementNode {
             return ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
         }
-        
-        // MARK: - Node Overrides
-        
-        /// Node length.  Calculated by adding the length of all child nodes.
-        ///
-        override func length() -> Int {
-            return text().characters.count
-        }
 
         // MARK: - Node Queries
 
@@ -170,7 +162,7 @@ extension Libxml2 {
             
             return index
         }
-        
+        /*
         /// Returns the index of the child node intersecting the specified location.
         ///
         /// - Parameters:
@@ -203,6 +195,7 @@ extension Libxml2 {
             
             fatalError("The specified location is out of bounds.")
         }
+ */
 /*
         /// Returns the lowest block-level child elements intersecting the specified range.
         ///
@@ -272,7 +265,7 @@ extension Libxml2 {
                 onMatchNotFound: matchNotFound,
                 onMatchFound: matchFound)
         }*/
-
+/*
         /// Enumerate the child elements intersecting the specified range and fulfilling a specified
         /// condition.
         ///
@@ -356,11 +349,11 @@ extension Libxml2 {
                 }
             }
         }
-
+*/
         typealias NodeMatchTest = (_ node: Node) -> Bool
         typealias NodeIntersectionReport = (_ node: Node, _ intersection: NSRange) -> Void
         typealias RangeReport = (_ range: NSRange) -> Void
-
+/*
         /// Enumerates the descendants that match the specified condition, and intersection range
         /// between those descendants and the specified range constraint.
         ///
@@ -521,7 +514,8 @@ extension Libxml2 {
             
             return nil
         }
-
+ */
+/*
         /// Calls this method to obtain all the leaf nodes containing a specified range.
         ///
         /// - Parameters:
@@ -576,6 +570,7 @@ extension Libxml2 {
 
             return results
         }
+ */
         
         /// Finds any left-side descendant with any of the specified names.
         ///
@@ -655,26 +650,6 @@ extension Libxml2 {
 
             return text
         }*/
-
-
-        /// Returns the plain visible text for a specified range.
-        ///
-        /// - Parameters:
-        ///     - range: the range of the text inside this node that we want to retrieve.
-        ///
-        func text(forRange range: NSRange) -> String {
-            let textNodesAndRanges = leafNodesWrapping(range)
-            var text = ""
-            
-            for textNodeAndRange in textNodesAndRanges {
-                let nodeText = textNodeAndRange.node.text()
-                let range = nodeText.range(from: textNodeAndRange.range)
-                
-                text = text + nodeText.substring(with: range)
-            }
-
-            return text
-        }
 
         // MARK: - DOM modification
 

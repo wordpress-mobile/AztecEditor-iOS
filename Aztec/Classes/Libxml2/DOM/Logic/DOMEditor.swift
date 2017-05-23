@@ -10,7 +10,7 @@ extension Libxml2 {
 
         typealias NodeMatchTest = (_ node: Node) -> Bool
 
-        private let inspector: DOMInspector
+        let inspector: DOMInspector
         
         let rootNode: RootNode
         let undoManager: UndoManager
@@ -128,7 +128,7 @@ extension Libxml2 {
 
             if location == 0 {
                 insertionIndex = 0
-            } else if location == element.length() {
+            } else if location == inspector.length(of: element) {
                 insertionIndex = element.children.count
             } else {
                 let (childrenBefore, _) = splitChildren(of: element, at: location)
@@ -172,7 +172,7 @@ extension Libxml2 {
         private func insert(paragraphs: [String], into blockLevelElement: ElementNode, atLocation location: Int) {
             assert(inspector.isBlockLevelElement(blockLevelElement))
 
-            if location > 0 && location < blockLevelElement.length() {
+            if location > 0 && location < inspector.length(of: blockLevelElement) {
                 splitChildren(of: blockLevelElement, at: location)
             }
 
@@ -208,7 +208,7 @@ extension Libxml2 {
 
             if offset == 0 {
                 insertionIndex = 0
-            } else if offset == element.length() {
+            } else if offset == inspector.length(of: element) {
                 insertionIndex = element.children.count
             } else {
                 let (childrenBefore, _) = splitChildren(of: element, at: offset)
@@ -244,7 +244,7 @@ extension Libxml2 {
 
             if offset == 0 {
                 insertionIndex = 0
-            } else if offset == element.length() {
+            } else if offset == inspector.length(of: element) {
                 insertionIndex = element.children.count
             } else {
                 let (childrenBefore, _) = splitChildren(of: element, at: offset)
@@ -294,7 +294,7 @@ extension Libxml2 {
         ///     - range: the range of text to delete.
         ///
         private func deleteCharacters(in commentNode: CommentNode, spanning range: NSRange) {
-            guard range.location == 0 && range.length == commentNode.length() else {
+            guard range.location == 0 && range.length == inspector.length(of: commentNode) else {
                 return
             }
 
@@ -310,10 +310,10 @@ extension Libxml2 {
         private func deleteCharacters(in element: ElementNode, spanning range: NSRange) {
 
             assert(!(element is RootNode))
-            assert(element.range().contains(range))
+            assert(inspector.range(of: element).contains(range))
             assert(range.length > 0)
 
-            if range.location == 0 && range.length == element.length() {
+            if range.location == 0 && range.length == inspector.length(of: element) {
                 element.removeFromParent()
             } else {
                 deleteCharactersFromChildren(of: element, spanning: range)
@@ -328,7 +328,7 @@ extension Libxml2 {
         ///
         private func deleteCharacters(in textNode: TextNode, spanning range: NSRange) {
 
-            assert(textNode.range().contains(range))
+            assert(inspector.range(of: textNode).contains(range))
             assert(range.length > 0)
 
             let originalString = textNode.contents
@@ -350,7 +350,7 @@ extension Libxml2 {
         ///
         private func deleteCharacters(in rootNode: RootNode, spanning range: NSRange) {
 
-            assert(rootNode.range().contains(range))
+            assert(inspector.range(of: rootNode).contains(range))
             assert(range.length > 0)
 
             deleteCharactersFromChildren(of: rootNode, spanning: range)
@@ -363,7 +363,7 @@ extension Libxml2 {
         ///     - range: the range of text to delete.
         ///
         private func deleteCharactersFromChildren(of element: ElementNode, spanning range: NSRange) {
-            assert(element.range().contains(range))
+            assert(inspector.range(of: element).contains(range))
             assert(range.length > 0)
 
             let childrenAndIntersections = inspector.findChildren(of: element, spanning: range)
@@ -496,7 +496,7 @@ extension Libxml2 {
                     continue
                 }
 
-                guard matchElement.range() != matchRange
+                guard inspector.range(of: matchElement) != matchRange
                     || matchElement is RootNode
                     || inspector.isBlockLevelElement(matchElement) else {
 
@@ -522,7 +522,7 @@ extension Libxml2 {
 
         private func wrapChildren(of element: ElementNode, spanning range: NSRange, in elementDescriptor: ElementNodeDescriptor) {
 
-            assert(element.range().contains(range))
+            assert(inspector.range(of: element).contains(range))
             assert(range.length > 0)
             assert(!elementDescriptor.isBlockLevel()
                 || element is RootNode
@@ -530,7 +530,7 @@ extension Libxml2 {
 
             let nodesToWrap: [Node]
 
-            if element.range() == range {
+            if inspector.range(of: element) == range {
                 nodesToWrap = element.children
             } else {
                 let (_, centerNodes, _) = splitChildren(of: element, for: range)
@@ -660,7 +660,7 @@ extension Libxml2 {
 
                 let rangeEndLocation = range.location + range.length
 
-                let myLength = element.length()
+                let myLength = inspector.length(of: element)
                 assert(range.location >= 0 && rangeEndLocation <= myLength,
                        "The specified range is out of bounds.")
 
@@ -681,7 +681,7 @@ extension Libxml2 {
 
                     appendChild(br, to: element)
 
-                    resultingRange = NSRange(location: resultingRange.location, length: resultingRange.length + br.length())
+                    resultingRange = NSRange(location: resultingRange.location, length: resultingRange.length + inspector.length(of: br))
                 }
 
                 element.unwrapChildren()
@@ -740,7 +740,7 @@ extension Libxml2 {
         @discardableResult
         func split(_ node: Node, at offset: Int) -> (left: Node, right: Node) {
 
-            assert(offset != 0 && offset != node.length())
+            assert(offset != 0 && offset != inspector.length(of: node))
 
             if let textNode = node as? TextNode {
                 return split(textNode, at: offset)
@@ -764,7 +764,7 @@ extension Libxml2 {
         @discardableResult
         func split(_ element: ElementNode, at offset: Int) -> (left: Node, right: Node) {
 
-            assert(offset != 0 && offset != element.length())
+            assert(offset != 0 && offset != inspector.length(of: element))
 
             let parent = inspector.parent(of: element)
 
@@ -790,11 +790,10 @@ extension Libxml2 {
         ///
         func split(_ textNode: TextNode, at offset: Int) -> (left: Node, right: Node) {
 
-            assert(offset != 0 && offset != textNode.length())
+            assert(offset != 0 && offset != inspector.length(of: textNode))
 
             let parent = inspector.parent(of: textNode)
-
-            let text = textNode.text()
+            let text = inspector.text(for: textNode)
 
             let leftRange = NSRange(location: 0, length: offset)
             let rightRange = NSRange(location: offset, length: text.characters.count - offset)
@@ -802,8 +801,8 @@ extension Libxml2 {
             let leftSwiftRange = text.range(from: leftRange)
             let rightSwiftRange = text.range(from: rightRange)
 
-            let leftNode = TextNode(text: textNode.text().substring(with: leftSwiftRange))
-            let rightNode = TextNode(text: textNode.text().substring(with: rightSwiftRange))
+            let leftNode = TextNode(text: text.substring(with: leftSwiftRange))
+            let rightNode = TextNode(text: text.substring(with: rightSwiftRange))
 
             parent.replace(child: textNode, with: [leftNode, rightNode])
 
@@ -871,7 +870,7 @@ extension Libxml2 {
                 return (inspector.leftSibling(of: child), child)
             }
 
-            guard intersection != child.length() else {
+            guard intersection != inspector.length(of: child) else {
                 return (child, inspector.rightSibling(of: child))
             }
 
@@ -886,10 +885,10 @@ extension Libxml2 {
         func splitChildren(of element: ElementNode, for range: NSRange) -> (left: [Node], center: [Node], right: [Node]) {
 
             assert(element.children.count > 0)
-            assert(element.range().contains(range))
+            assert(inspector.range(of: element).contains(range))
             assert(range.length > 0)
 
-            let elementRange = element.range()
+            let elementRange = inspector.range(of: element)
             let splitRangeEndLocation = range.location + range.length
             let elementRangeEndLocation = elementRange.location + elementRange.length
 
@@ -941,14 +940,14 @@ extension Libxml2 {
         @discardableResult
         func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
 
-            assert(offset != 0 && offset != element.length())
-            assert(element.range().contains(offset: offset))
+            assert(offset != 0 && offset != inspector.length(of: element))
+            assert(inspector.range(of: element).contains(offset: offset))
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
                 fatalError("This should not happen.  Review the logic.")
             }
 
-            guard intersection != 0 && intersection != child.length() else {
+            guard intersection != 0 && intersection != inspector.length(of: child) else {
                 let includeInRightNodes = intersection == 0
                 let includeInLeftNodes = !includeInRightNodes
 

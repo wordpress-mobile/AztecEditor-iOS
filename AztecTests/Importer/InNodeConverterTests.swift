@@ -66,7 +66,7 @@ class InNodeConverterTests: XCTestCase {
         }
 
         XCTAssertEqual(textNode.name, textNodeName)
-        XCTAssertEqual(textNode.text(), text)
+        XCTAssertEqual(textNode.contents, text)
         XCTAssertEqual(textNode.parent, nil)
     }
 
@@ -105,7 +105,7 @@ class InNodeConverterTests: XCTestCase {
         }
 
         XCTAssertEqual(outTextNode.name, textNodeName)
-        XCTAssertEqual(outTextNode.text(), text)
+        XCTAssertEqual(outTextNode.contents, text)
         XCTAssertEqual(outTextNode.parent, outParentNode)
     }
 }

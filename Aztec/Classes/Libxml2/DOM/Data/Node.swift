@@ -45,26 +45,8 @@ extension Libxml2 {
             self.name = name
         }
 
-        func range() -> NSRange {
-            return NSRange(location: 0, length: length())
-        }
-
         // MARK: - Override in Subclasses
-
-        /// Override.
-        ///
-        func length() -> Int {
-            assertionFailure("This method should always be overridden.")
-            return 0
-        }
-        
-        /// Override.
-        ///
-        func text() -> String {
-            assertionFailure("This method should always be overridden.")
-            return ""
-        }
-
+/*
         /// Finds the absolute location of a node inside a tree.
         func absoluteLocation() -> Int {
             var currentParent = self.parent
@@ -87,7 +69,7 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
 
-/*
+
         /// Retrieves the right sibling for a node.
         ///
         /// - Returns: the right sibling, or `nil` if none exists.
