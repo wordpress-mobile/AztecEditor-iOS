@@ -210,7 +210,7 @@ extension Libxml2 {
         ///
         /// - Returns: the right sibling, or `nil` if none exists.
         ///
-        func rightSibling() -> ElementNode? {
+        func rightSibling() -> Node? {
 
             guard let parent = parent else {
                 return nil
@@ -218,11 +218,7 @@ extension Libxml2 {
 
             let index = parent.indexOf(childNode: self)
 
-            guard let sibling = parent.sibling(rightOf: index) else {
-                return nil
-            }
-
-            return sibling as? ElementNode
+            return parent.sibling(rightOf: index)
         }
 
         // MARK: - Paragraph Separation Logic
@@ -231,8 +227,7 @@ extension Libxml2 {
         ///
         func needsClosingParagraphSeparator() -> Bool {
 
-            if let rightSibling = rightSibling(),
-                rightSibling.isBlockLevelElement() {
+            if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevelElement() {
 
                 return true
             }

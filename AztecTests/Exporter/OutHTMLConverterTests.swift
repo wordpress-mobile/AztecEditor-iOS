@@ -43,6 +43,23 @@ class OutHTMLConverterTests: XCTestCase {
     }
 
 
+    /// Verifies that Blocklevel Elements get a tailing newline
+    ///
+    func testConverterProperlyAddsNewlineAfterBlocklevelElement() {
+        let sample = "<h1>Header</h1>Tail"
+        let expected = "<h1>Header</h1>\nTail"
+
+        do {
+            let inNode = try InConverter().convert(sample)
+            let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+
+            XCTAssertEqual(outHtml, expected)
+        } catch {
+            XCTFail("Unexpected conversion failure.")
+        }
+    }
+
+
     /// Verifies that unknown tags do not get dropped, and closed, if needed.
     ///
     func testConverterDoesNotDropUnknownTags() {
