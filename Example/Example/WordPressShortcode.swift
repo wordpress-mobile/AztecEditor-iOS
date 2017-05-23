@@ -1,6 +1,4 @@
 import Foundation
-
-
 /// Struct to represent a WordPress shortcode
 /// More details here: https://codex.wordpress.org/Shortcode and here: https://en.support.wordpress.com/shortcodes/
 ///
@@ -21,7 +19,6 @@ public struct Shortcode {
 ///
 public struct ShortcodeAttributes {
 
-
     /// Attributes that have a form key=value or key="value" or key='value'
     let namedAttributes: [String: String]
 
@@ -29,16 +26,13 @@ public struct ShortcodeAttributes {
     let unamedAttributes: [String]
 }
 
-
-/// A class that processes a string and replace the desiganted shortcode for the replacement provided strings
+/// A class that processes a string and replace the designated shortcode for the replacement provided strings
 ///
-open class ShortcodeProcessor {
+open class ShortcodeProcessor: RegexProcessor {
 
-    public typealias ReplaceMethod = (Shortcode) -> String
+    public typealias ShortcodeReplacer = (Shortcode) -> String
 
     let tag: String
-
-    let replacer: ReplaceMethod
 
     /// Regular expression to detect attributes
     /// Capture groups:
@@ -51,11 +45,11 @@ open class ShortcodeProcessor {
     /// 6. The closing tag.
     /// 7. An extra `]` to allow for escaping shortcodes with double `[[]]`
     ///
-    lazy var regex: NSRegularExpression = {
-        let pattern = "\\[(\\[?)(\(self.tag))(?![\\w-])([^\\]\\/]*(?:\\/(?!\\])[^\\]\\/]*)*?)(?:(\\/)\\]|\\](?:([^\\[]*(?:\\[(?!\\/\\2\\])[^\\[]*)*)(\\[\\/\\2\\]))?)(\\]?)"
+    static func makeShortcodeRegex(tag: String) -> NSRegularExpression {
+        let pattern = "\\[(\\[?)(\(tag))(?![\\w-])([^\\]\\/]*(?:\\/(?!\\])[^\\]\\/]*)*?)(?:(\\/)\\]|\\](?:([^\\[]*(?:\\[(?!\\/\\2\\])[^\\[]*)*)(\\[\\/\\2\\]))?)(\\]?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         return regex
-    }()
+    }
 
     enum CaptureGroups: Int {
         case all = 0
@@ -68,28 +62,12 @@ open class ShortcodeProcessor {
         case extraClose
     }
 
-    public init(tag: String, replacer: @escaping ReplaceMethod) {
+    public init(tag: String, replacer: @escaping ShortcodeReplacer) {
         self.tag = tag
-        self.replacer = replacer
-    }
-
-    public func process(text: String) -> String {
-        return replace(in: text, with: replacer)
-    }
-
-    /// Replace in text all the matches of the Processor with the string provided by the replacer
-    ///
-    /// - Parameters:
-    ///   - text: the text to process
-    ///   - replacer: the callback function that is invoked each time a shortcode is found to obtain the replacement
-    /// - Returns: the new text after the processing is applied
-    ///
-    func replace(in text: String, with replacer: ReplaceMethod) -> String {
-        let matches = regex.matches(in: text, options: [], range: text.nsRange(from: text.startIndex..<text.endIndex))
-        var replacements = [(NSRange, String)]()
-        for match in matches {
+        let regex = ShortcodeProcessor.makeShortcodeRegex(tag: tag)
+        let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
             guard match.numberOfRanges == 8 else {
-                continue
+                return nil
             }
             var attributes = ShortcodeAttributes(namedAttributes: [:], unamedAttributes: [])
             if let attributesText = match.captureGroup(in:CaptureGroups.arguments.rawValue, text: text) {
@@ -106,32 +84,10 @@ open class ShortcodeProcessor {
             let content: String? = match.captureGroup(in:CaptureGroups.content.rawValue, text: text)
 
             let shortcode = Shortcode(tag: tag, attributes: attributes, type: type, content: content)
-
-            let replacement = replacer(shortcode)
-            replacements.append((match.range, replacement))
+            return replacer(shortcode)
         }
-        let resultText = replace(matches: replacements, in: text)
-        return resultText
-    }
 
-    /// Replaces in text all the matches found in the range with the provided string
-    ///
-    /// - Parameters:
-    ///   - matches: an array with tupples that designated the range of the match and the replacement string to apply
-    ///   - text: the original text to where the replacement will be done
-    /// - Returns: the new string with the replacements done
-    ///
-    func replace(matches: [(NSRange, String)], in text: String) -> String {
-        let mutableString = NSMutableString(string: text)
-        var offset = 0
-        for (range, replacement) in matches {
-            let lengthBefore = mutableString.length
-            let offsetRange = NSRange(location: range.location + offset, length: range.length)
-            mutableString.replaceCharacters(in: offsetRange, with: replacement)
-            let lengthAfter = mutableString.length
-            offset += (lengthAfter - lengthBefore)
-        }
-        return mutableString as String
+        super.init(regex: regex, replacer: regexReplacer)
     }
 }
 

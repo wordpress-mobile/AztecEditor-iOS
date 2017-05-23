@@ -27,6 +27,7 @@
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
+		FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82911ED44A6C0080ACAF /* Processor.swift */; };
 		FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */; };
 		FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */; };
 /* End PBXBuildFile section */
@@ -119,6 +120,7 @@
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
+		FF9D82911ED44A6C0080ACAF /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
 		FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressShortcode.swift; sourceTree = "<group>"; };
 		FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortCodeParserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -222,6 +224,7 @@
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 				FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */,
 				FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */,
+				FF9D82911ED44A6C0080ACAF /* Processor.swift */,
 			);
 			name = "Example for WordPress-Aztec-iOS";
 			path = Example;
@@ -440,6 +443,7 @@
 			files = (
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
+				FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */,
 				FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
