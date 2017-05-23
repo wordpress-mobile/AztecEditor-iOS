@@ -290,6 +290,7 @@ class EditorDemoController: UIViewController {
             var html = "<video "
             if let src = shortcode.attributes.unamed.first {
                 html += "src=\"videopress://\(src)\" "
+                html += "data-wpvideopress=\"\(src)\" "
             }
             if let width = shortcode.attributes.named["w"] {
                 html += "width=\(width) "
