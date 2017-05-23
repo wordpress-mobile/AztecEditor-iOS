@@ -288,25 +288,26 @@ class EditorDemoController: UIViewController {
     private func registerShortcodeProcessors() {
         let videoPressProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.unamedAttributes.first {
+            if let src = shortcode.attributes.unamed.first {
                 html += "src=\"videopress://\(src)\" "
             }
-            if let width = shortcode.attributes.namedAttributes["w"] {
+            if let width = shortcode.attributes.named["w"] {
                 html += "width=\(width) "
             }
-            if let height = shortcode.attributes.namedAttributes["h"] {
+            if let height = shortcode.attributes.named["h"] {
                 html += "height=\(height) "
             }
+
             html += "\\>"
             return html
         })
 
         let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.namedAttributes["src"] {
+            if let src = shortcode.attributes.named["src"] {
                 html += "src=\"\(src)\" "
             }
-            if let poster = shortcode.attributes.namedAttributes["poster"] {
+            if let poster = shortcode.attributes.named["poster"] {
                 html += "poster=\"\(poster)\" "
             }
             html += "\\>"

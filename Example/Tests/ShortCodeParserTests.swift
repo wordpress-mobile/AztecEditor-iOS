@@ -14,13 +14,13 @@ class ShortCodeParserTests: XCTestCase {
     func testParserOfVideoPressCode() {
         let shortCodeParser = ShortcodeProcessor(tag:"wpvideo", replacer:{ (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.unamedAttributes.first {
+            if let src = shortcode.attributes.unamed.first {
                 html += "src=\"videopress://\(src)\" "
             }
-            if let width = shortcode.attributes.namedAttributes["w"] {
+            if let width = shortcode.attributes.named["w"] {
                 html += "width=\(width) "
             }
-            if let height = shortcode.attributes.namedAttributes["h"] {
+            if let height = shortcode.attributes.named["h"] {
                 html += "height=\(height) "
             }
             html += "\\>"
@@ -34,7 +34,7 @@ class ShortCodeParserTests: XCTestCase {
     func testParserOfWordPressVideoCode() {
         let shortCodeParser = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.namedAttributes["src"] {
+            if let src = shortcode.attributes.named["src"] {
                 html += "src=\"\(src)\" "
             }
             html += "\\>"
