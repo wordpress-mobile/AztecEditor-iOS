@@ -308,7 +308,7 @@ extension Libxml2 {
         // MARK: - Text
 
         func text(for node: Node) -> String {
-            if let commentNode = node as? CommentNode {
+            if node is CommentNode {
                 return String(.objectReplacement)
             } else if let element = node as? ElementNode {
                 return text(for: element)

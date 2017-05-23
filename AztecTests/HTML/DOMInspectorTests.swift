@@ -186,7 +186,6 @@ class DOMInspectorTests: XCTestCase {
         let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
         let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
         let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
-        let rootNode = RootNode(children: [paragraph])
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 
