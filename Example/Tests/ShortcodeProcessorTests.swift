@@ -1,7 +1,7 @@
 import XCTest
 @testable import AztecExample
 
-class ShortCodeParserTests: XCTestCase {
+class ShortcodeProcessorTests: XCTestCase {
     
     override func setUp() {
         super.setUp()

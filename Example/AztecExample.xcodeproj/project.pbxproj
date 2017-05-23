@@ -31,8 +31,8 @@
 		FF9D82961ED452600080ACAF /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82951ED452600080ACAF /* HTMLAttributes.swift */; };
 		FF9D82981ED455060080ACAF /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82971ED455060080ACAF /* HTMLProcessor.swift */; };
 		FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */; };
-		FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */; };
-		FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */; };
+		FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */; };
+		FFD06EA71EC474500072AD85 /* ShortcodeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,8 +127,8 @@
 		FF9D82951ED452600080ACAF /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
 		FF9D82971ED455060080ACAF /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
 		FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessorTests.swift; sourceTree = "<group>"; };
-		FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressShortcode.swift; sourceTree = "<group>"; };
-		FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortCodeParserTests.swift; sourceTree = "<group>"; };
+		FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
+		FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,7 +247,7 @@
 			isa = PBXGroup;
 			children = (
 				607FACE91AFB9204008FA782 /* Supporting Files */,
-				FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */,
+				FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */,
 				FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */,
 			);
 			path = Tests;
@@ -284,7 +284,7 @@
 		FF9D82941ED452340080ACAF /* Processors */ = {
 			isa = PBXGroup;
 			children = (
-				FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */,
+				FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */,
 				FF9D82911ED44A6C0080ACAF /* Processor.swift */,
 				FF9D82951ED452600080ACAF /* HTMLAttributes.swift */,
 				FF9D82971ED455060080ACAF /* HTMLProcessor.swift */,
@@ -462,7 +462,7 @@
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */,
 				FF9D82961ED452600080ACAF /* HTMLAttributes.swift in Sources */,
-				FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */,
+				FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
 				B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */,
@@ -478,7 +478,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */,
+				FFD06EA71EC474500072AD85 /* ShortcodeProcessorTests.swift in Sources */,
 				FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
