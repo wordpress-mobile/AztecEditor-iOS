@@ -56,9 +56,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        let leftNode = inspector.findNode(endingAt: 0)
+        let leftNode = inspector.findDescendant(of: rootNode, endingAt: 0)
 
         XCTAssertNil(leftNode)
     }
@@ -81,9 +81,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findNode(endingAt: textNode1.length() + textNode2.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length() + textNode2.length()) else {
             XCTFail("Expected to find a left node here.")
             return
         }
@@ -113,7 +113,7 @@ class DOMInspectorTests: XCTestCase {
         let range = NSRange(location: rangeLocation, length: 0)
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 
@@ -145,7 +145,7 @@ class DOMInspectorTests: XCTestCase {
         let range = NSRange(location: rangeLocation, length: 0)
         let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
         let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 
@@ -183,7 +183,7 @@ class DOMInspectorTests: XCTestCase {
         let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
         let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
         let rootNode = RootNode(children: [paragraph])
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
         let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
 

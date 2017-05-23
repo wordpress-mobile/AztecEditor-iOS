@@ -11,6 +11,7 @@ extension Libxml2 {
         typealias NodeMatchTest = (_ node: Node) -> Bool
 
         private let inspector: DOMInspector
+        
         let rootNode: RootNode
         let undoManager: UndoManager
 
@@ -19,11 +20,7 @@ extension Libxml2 {
             self.undoManager = undoManager
             self.rootNode = rootNode
         }
-
-        // MARK: - Appending Characters
-
         
-
         // MARK: - Appending Nodes
 
         private func appendChild(_ node: Node, to element: ElementNode) {
@@ -323,28 +320,6 @@ extension Libxml2 {
             }
         }
 
-        /// Deletes the characters in the specified `ElementNode` spanning the specified range.
-        ///
-        /// - Parameters:
-        ///     - element: the `ElementNode` containing the children the range will be deleted from.
-        ///     - range: the range of text to delete.
-        ///
-        private func deleteCharactersFromChildren(of element: ElementNode, spanning range: NSRange) {
-            assert(element.range().contains(range))
-            assert(range.length > 0)
-
-            let childrenAndIntersections = inspector.findChildren(of: element, spanning: range)
-
-            for (child, intersection) in childrenAndIntersections {
-
-                guard intersection.length > 0 else {
-                    continue
-                }
-
-                deleteCharacters(in: child, spanning: intersection)
-            }
-        }
-
         /// Deletes the characters in the specified `TextNode` spanning the specified range.
         ///
         /// - Parameters:
@@ -370,7 +345,7 @@ extension Libxml2 {
         /// Deletes the characters in the specified `RootNode` spanning the specified range.
         ///
         /// - Parameters:
-        ///     - rootNode: the `RootNode` containing the character-range so delete.
+        ///     - rootNode: the `RootNode` containing the character-range to delete.
         ///     - range: the range of text to delete.
         ///
         private func deleteCharacters(in rootNode: RootNode, spanning range: NSRange) {
@@ -379,6 +354,28 @@ extension Libxml2 {
             assert(range.length > 0)
 
             deleteCharactersFromChildren(of: rootNode, spanning: range)
+        }
+
+        /// Deletes the characters in the specified `ElementNode` spanning the specified range.
+        ///
+        /// - Parameters:
+        ///     - element: the `ElementNode` containing the children the range will be deleted from.
+        ///     - range: the range of text to delete.
+        ///
+        private func deleteCharactersFromChildren(of element: ElementNode, spanning range: NSRange) {
+            assert(element.range().contains(range))
+            assert(range.length > 0)
+
+            let childrenAndIntersections = inspector.findChildren(of: element, spanning: range)
+
+            for (child, intersection) in childrenAndIntersections {
+
+                guard intersection.length > 0 else {
+                    continue
+                }
+
+                deleteCharacters(in: child, spanning: intersection)
+            }
         }
 
         // MARK: - Replacing Characters
