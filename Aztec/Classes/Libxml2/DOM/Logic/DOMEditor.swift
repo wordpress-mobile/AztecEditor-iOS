@@ -1185,6 +1185,10 @@ extension Libxml2 {
             let rightNodes = extractRightNodesForMerging(after: node)
 
             merge(node, withRightNodes: rightNodes)
+
+            if let element = node as? ElementNode {
+                defragChildren(of: element)
+            }
         }
 
         private func merge(_ node: Node, withRightNodes rightNodes: [Node]) {
