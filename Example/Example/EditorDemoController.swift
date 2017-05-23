@@ -99,7 +99,7 @@ class EditorDemoController: UIViewController {
 
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML(prettyPrint: true)
+                htmlTextView.text = getHTML()
                 htmlTextView.becomeFirstResponder()
             case .richText:
                 setHTML(htmlTextView.text)                
@@ -117,14 +117,24 @@ class EditorDemoController: UIViewController {
 
     var loadSampleHTML = false
 
-    fileprivate var shortcodeProcessors = [ShortcodeProcessor]()
+    fileprivate var shortcodePreProcessors = [Processor]()
 
     func setHTML(_ html: String) {
         var processedHTML = html
-        for shortcodeProcessor in shortcodeProcessors {
+        for shortcodeProcessor in shortcodePreProcessors {
             processedHTML = shortcodeProcessor.process(text: processedHTML)
         }
         richTextView.setHTML(processedHTML)
+    }
+
+    fileprivate var shortcodePostProcessors = [Processor]()
+
+    func getHTML() -> String {
+        var processedHTML = richTextView.getHTML(prettyPrint: true)
+        for shortcodeProcessor in shortcodePostProcessors {
+            processedHTML = shortcodeProcessor.process(text: processedHTML)
+        }
+        return processedHTML
     }
 
 
@@ -315,8 +325,22 @@ class EditorDemoController: UIViewController {
             return html
         })
         
-        shortcodeProcessors.append(videoPressProcessor)
-        shortcodeProcessors.append(wordPressVideoProcessor)
+        shortcodePreProcessors.append(videoPressProcessor)
+        shortcodePreProcessors.append(wordPressVideoProcessor)
+
+        let postWordPressVideoProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
+            var html = "[video "
+            if let src = shortcode.attributes.named["src"] {
+                html += "src=\"\(src)\" "
+            }
+            if let poster = shortcode.attributes.named["poster"] {
+                html += "poster=\"\(poster)\" "
+            }
+            html += "/]"
+            return html
+        })
+
+        shortcodePostProcessors.append(postWordPressVideoProcessor)
     }
 
 
