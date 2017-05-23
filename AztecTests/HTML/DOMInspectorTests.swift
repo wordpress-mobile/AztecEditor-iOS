@@ -26,9 +26,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findNode(endingAt: textNode1.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length()) else {
             XCTFail("Expected to find a node here.")
             return
         }
@@ -56,9 +56,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        let leftNode = inspector.findNode(endingAt: 0)
+        let leftNode = inspector.findDescendant(of: rootNode, endingAt: 0)
 
         XCTAssertNil(leftNode)
     }
@@ -81,9 +81,9 @@ class DOMInspectorTests: XCTestCase {
         let italicNode = ElementNode(name: StandardElementType.i.rawValue, attributes: [], children: [textNode2])
         let rootNode = RootNode(children: [boldNode, italicNode])
 
-        let inspector = DOMInspector(with: rootNode)
+        let inspector = DOMInspector()
 
-        guard let leftNode = inspector.findNode(endingAt: textNode1.length() + textNode2.length()) else {
+        guard let leftNode = inspector.findDescendant(of: rootNode, endingAt: textNode1.length() + textNode2.length()) else {
             XCTFail("Expected to find a left node here.")
             return
         }
@@ -91,5 +91,110 @@ class DOMInspectorTests: XCTestCase {
         let rightNode = inspector.rightSibling(of: leftNode)
 
         XCTAssertNil(rightNode)
+    }
+
+    // MARK: - Find Children
+
+    /// Tests `inspector.findChildren(of:spanning:)` with a zero-length range.
+    ///
+    /// Input HTML: <p>This is a test string.</p>
+    /// Range: (5...0)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the text node)
+    ///     - the range should be unchanged
+    ///
+    func testFindChildrenSpanningRange1() {
+        let textNode = TextNode(text: "This is a test string.")
+        let rangeLocation = 5
+        XCTAssert(rangeLocation < textNode.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [paragraph])
+        let inspector = DOMInspector()
+
+        let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
+
+        guard childrenAndRanges.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].node, textNode)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+    }
+
+
+    /// Tests `inspector.findChildren(of:spanning:)` with a zero-length range.
+    ///
+    /// Input HTML: <p>This is a test string.</p>
+    /// Range: (0...0)
+    ///
+    /// Expected results:
+    ///     - should find 1 matching child node (the text node)
+    ///     - the range should be unchanged
+    ///
+    func testFindChildrenSpanningRange2() {
+        let textNode = TextNode(text: "This is a test string.")
+        let rangeLocation = 0
+        XCTAssert(rangeLocation < textNode.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+        let paragraph = ElementNode(name: "p", attributes: [], children: [textNode])
+        let rootNode = RootNode(children: [paragraph])
+        let inspector = DOMInspector()
+
+        let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
+
+        guard childrenAndRanges.count == 1 else {
+            XCTFail("Expected 1 child.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].node, textNode)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+    }
+
+    /// Tests `inspector.findChildren(of:spanning:)` with a zero-length range.
+    ///
+    /// Input HTML: <p><b>Hello</b><b>Hello again!</b></p>
+    /// Prefer left node: true
+    /// Range: (5...0)
+    ///
+    /// Expected results:
+    ///     - should find 2 matching child nodes
+    ///     - the ranges should be at the end of the first node, and the beginning of the second
+    ///
+    func testFindChildrenSpanningRange3() {
+
+        let textNode1 = TextNode(text: "Hello")
+        let textNode2 = TextNode(text: "Hello again!")
+
+        let rangeLocation = 5
+        XCTAssert(rangeLocation == textNode1.length(),
+                  "For this text we need to make sure the range location is inside the test node.")
+
+        let range = NSRange(location: rangeLocation, length: 0)
+
+        let bold1 = ElementNode(name: "b", attributes: [], children: [textNode1])
+        let bold2 = ElementNode(name: "b", attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: "p", attributes: [], children: [bold1, bold2])
+        let rootNode = RootNode(children: [paragraph])
+        let inspector = DOMInspector()
+
+        let childrenAndRanges = inspector.findChildren(of: paragraph, spanning: range)
+
+        guard childrenAndRanges.count == 2 else {
+            XCTFail("Expected 2 children.")
+            return
+        }
+
+        XCTAssertEqual(childrenAndRanges[0].node, bold1)
+        XCTAssertEqual(childrenAndRanges[1].node, bold2)
+        XCTAssert(NSEqualRanges(childrenAndRanges[0].intersection, range))
+        XCTAssert(NSEqualRanges(childrenAndRanges[1].intersection, NSRange(location: 0, length: 0)))
     }
 }

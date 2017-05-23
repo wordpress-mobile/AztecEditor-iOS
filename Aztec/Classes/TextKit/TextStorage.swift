@@ -334,40 +334,15 @@ open class TextStorage: NSTextStorage {
             fatalError()
         }
 
-        let targetDomRange = string.map(visualUTF16Range: swiftRange)
-
-        if targetDomRange.length > 0 || str.characters.count > 0 {
-            dom.replaceCharacters(inRange: targetDomRange, withString: str)
+        if swiftRange.length > 0 || str.characters.count > 0 {
+            dom.replace(swiftRange, with: str)
         }
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
-
-        let targetDomRange = string.map(visualUTF16Range: range)
-
-        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
-            fatalError()
+        if range.length > 0 || attrString.length > 0 {
+            dom.replace(range, with: attrString)
         }
-
-        let domString = NSAttributedString(with: attrString, replacingOcurrencesOf: String(.paragraphSeparator), with: "")
-
-        if targetDomRange.length > 0 || domString.length > 0 {
-            dom.replaceCharacters(inRange: targetDomRange, withString: domString.string)
-        }
-
-        if attrString.string == String(.paragraphSeparator) {
-            dom.addBlockSeparator(at: targetDomRange.location)
-        }
-
-        if targetDomRange.length != swiftRange.length {
-            dom.deleteBlockSeparator(at: targetDomRange.location)
-        }
-
-        print("Pre: \(dom.getHTML())")
-        if domString.length > 0 {
-            applyStylesToDom(from: domString, startingAt: range.location)
-        }
-        print("Pos: \(dom.getHTML())")
     }
 
     // MARK: - DOM: Applying Styles
@@ -386,13 +361,16 @@ open class TextStorage: NSTextStorage {
 
         textStore.enumerateAttributeDifferences(in: range, against: attributes, do: { (subRange, key, sourceValue, targetValue) in
 
-            let domRange = textStore.string.map(visualUTF16Range: subRange)
-
-            guard domRange.length > 0 else {
+            guard subRange.length > 0 else {
                 return
             }
 
-            processAttributesDifference(in: domRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
+            guard let swiftSubRange = textStore.string.nsRange(fromUTF16NSRange: subRange) else {
+                assertionFailure("The sub-range is not a valid UTF16 range in TextStore.  Review the logic.")
+                return
+            }
+
+            processAttributesDifference(in: swiftSubRange, key: key, sourceValue: sourceValue, targetValue: targetValue, canMergeLeft: canMergeLeft, canMergeRight: canMergeRight)
         })
     }
 
@@ -411,15 +389,13 @@ open class TextStorage: NSTextStorage {
         let originalAttributes = [String:Any]()
         let fullRange = NSRange(location: 0, length: attributedString.length)
 
-        let domLocation = textStore.string.map(visualRange: NSRange(location: location, length: 0)).location
-
         let canMergeLeft = location > 0 ? !textStore.string.isStartOfNewLine(atUTF16Offset: location) : false
         let canMergeRight = location < textStore.length - 1 ? !textStore.string.isEndOfLine(atUTF16Offset: location) : false
 
         attributedString.enumerateAttributeDifferences(in: fullRange, against: originalAttributes, do: { (subRange, key, sourceValue, targetValue) in
             // The source and target values are inverted since we're enumerating on the new string.
 
-            let domRange = NSRange(location: domLocation + subRange.location, length: subRange.length)
+            let domRange = NSRange(location: location + subRange.location, length: subRange.length)
 
             guard let swiftDomRange = dom.string().nsRange(fromUTF16NSRange: domRange) else {
                 // This should not be possible, but if this ever happens in production it's better to lose
@@ -584,7 +560,7 @@ open class TextStorage: NSTextStorage {
     ///   - new: the new attachment to apply to the range if any.
     ///
     private func processVideoAttachmentDifferences(in range: NSRange, betweenOriginal original: VideoAttachment?, andNew new: VideoAttachment?) {
-
+/*
         let originalUrl = original?.srcURL
         let newUrl = new?.srcURL
 
@@ -601,11 +577,12 @@ open class TextStorage: NSTextStorage {
         } else if removeVideoUrl {
             dom.removeVideo(spanning: range)
         }
+ */
     }
 
     private func processLineAttachmentDifferences(in range: NSRange, betweenOriginal original: LineAttachment?, andNew new: LineAttachment?) {
 
-        dom.replaceWithHorizontalRuler(range)
+        //dom.replaceWithHorizontalRuler(range)
     }
 
     private func processCommentAttachmentDifferences(in range: NSRange, betweenOriginal original: CommentAttachment?, andNew new: CommentAttachment?) {
@@ -922,13 +899,10 @@ open class TextStorage: NSTextStorage {
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
-        let rangesForAttachment = ranges(forAttachment: attachment)
 
-        let domRanges = rangesForAttachment.map { range -> NSRange in
-            string.map(visualUTF16Range: range)
-        }
-        
-        dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
+        let rangesForAttachment = ranges(forAttachment:attachment)
+
+        dom.updateImage(spanning: rangesForAttachment, url: url, size: size, alignment: alignment)
     }
 
     /// Updates the specified HTMLAttachment with new HTML contents
@@ -941,8 +915,13 @@ open class TextStorage: NSTextStorage {
 
         attachment.rawHTML = html
 
+        dom.replace(range, with: NSAttributedString(attachment: attachment))
+
+        edited([.editedAttributes], range: range, changeInLength: 0)
+/*
         let stringWithAttachment = NSAttributedString(attachment: attachment)
         replaceCharacters(in: range, with: stringWithAttachment)
+ */
     }
     
     /// Removes the attachments that match the attachament identifier provided from the storage

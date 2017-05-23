@@ -14,16 +14,12 @@ extension Libxml2 {
     class DOMString {
 
         private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
-
-        private lazy var editContext: EditContext = {
-            return EditContext(undoManager: self.domUndoManager)
-        }()
         
         private lazy var rootNode: RootNode = {
             
-            let textNode = TextNode(text: "", editContext: self.editContext)
+            let textNode = TextNode(text: "")
             
-            return RootNode(children: [textNode], editContext: self.editContext)
+            return RootNode(children: [textNode])
         }()
         
         private var parentUndoManager: UndoManager?
@@ -64,7 +60,7 @@ extension Libxml2 {
         // MARK: - Properties: DOM Logic
 
         private lazy var domEditor: DOMEditor = {
-            return DOMEditor(with: self.rootNode)
+            return DOMEditor(with: self.rootNode, undoManager: self.domUndoManager)
         }()
 
         // MARK: - Init & deinit
@@ -124,7 +120,7 @@ extension Libxml2 {
         ///
         func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, editContext: editContext)
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
             do {
@@ -135,7 +131,7 @@ extension Libxml2 {
 
             domQueue.sync {
                 self.rootNode = output.rootNode
-                self.domEditor = DOMEditor(with: output.rootNode)
+                self.domEditor = DOMEditor(with: output.rootNode, undoManager: self.domUndoManager)
             }
             
             return output.attributedString
@@ -171,13 +167,32 @@ extension Libxml2 {
         ///     - range: the range of the original string to replace.
         ///     - string: the new string to replace the original text with.
         ///
-        func replaceCharacters(inRange range: NSRange, withString string: String) {
+        func replace(_ range: NSRange, with string: String) {
             
             let domHasModifications = range.length > 0 || !string.isEmpty
 
             if domHasModifications {
                 performAsyncUndoable { [weak self] in
                     self?.replaceCharactersSynchronously(inRange: range, withString: string)
+                }
+            }
+        }
+
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - attributedString: the attributed string to replace the original text with.
+        ///
+        func replace(_ range: NSRange, with attributedString: NSAttributedString) {
+
+            assert(range.length > 0 || attributedString.length > 0)
+
+            let domHasModifications = range.length > 0 || !attributedString.string.isEmpty
+
+            if domHasModifications {
+                performAsyncUndoable { [weak self] in
+                    self?.replaceCharactersSynchronously(in: range, with: attributedString)
                 }
             }
         }
@@ -190,7 +205,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to add.
         ///
         private func addBlockSeparatorSynchronously(at location: Int) {
-            domEditor.splitLowestBlockLevelElement(at: location)
+            //domEditor.splitLowestBlockLevelElement(at: location)
         }
 
         /// Deletes a block-level elements separator at the specified location.
@@ -199,7 +214,7 @@ extension Libxml2 {
         ///     - location: the location of the block-level element separation we want to remove.
         ///
         private func deleteBlockSeparatorSynchronously(at location: Int) {
-            domEditor.mergeBlockLevelElementRight(endingAt: location)
+            //domEditor.mergeBlockLevelElementRight(endingAt: location)
         }
 
         /// Replaces the specified range with a new string.
@@ -210,7 +225,17 @@ extension Libxml2 {
         ///
         private func replaceCharactersSynchronously(inRange range: NSRange, withString string: String) {
 
-            domEditor.replaceCharacters(in: range, with: string)
+            domEditor.replace(range, with: string)
+        }
+
+        /// Replaces the specified range with a new string.
+        ///
+        /// - Parameters:
+        ///     - range: the range of the original string to replace.
+        ///     - string: the new string to replace the original text with.
+        ///
+        private func replaceCharactersSynchronously(in range: NSRange, with attributedString: NSAttributedString) {
+            domEditor.replace(range, with: attributedString)
         }
         
         // MARK: - Undo Manager
@@ -503,7 +528,7 @@ extension Libxml2 {
         }
 
         private func removeHeaderSynchronously(headerLevel: Int, spanning range: NSRange) {
-            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+            guard let elementType = DOMString.elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
             domEditor.unwrap(range: range, fromElementsNamed: elementType.equivalentNames)
@@ -607,7 +632,7 @@ extension Libxml2 {
         }
 
         func applyHeader(_ headerLevel:Int, spanning range:NSRange) {
-            guard let elementType = elementTypeForHeaderLevel(headerLevel) else {
+            guard let elementType = DOMString.elementTypeForHeaderLevel(headerLevel) else {
                 return
             }
             performAsyncUndoable { [weak self] in
@@ -628,11 +653,11 @@ extension Libxml2 {
 
         // MARK: - Header types
 
-        private func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
-            if headerLevel < 1 && headerLevel > DOMString.headerLevels.count {
+        class func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+            if headerLevel < 1 && headerLevel > headerLevels.count {
                 return nil
             }
-            return DOMString.headerLevels[headerLevel - 1]
+            return headerLevels[headerLevel - 1]
         }
 
         // MARK: - Raw HTML
@@ -651,13 +676,15 @@ extension Libxml2 {
 
         private func replaceSynchronously(_ range: NSRange, withRawHTML rawHTML: String) {
             do {
-                let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
+                let htmlToNode = Libxml2.In.HTMLConverter()
                 let parsedRootNode = try htmlToNode.convert(rawHTML)
 
                 guard let firstChild = parsedRootNode.children.first else {
                     return
                 }
-                rootNode.replaceCharacters(in: range, with: firstChild)
+
+                domEditor.replace(range, with: firstChild)
+
             } catch {
                 fatalError("Could not replace range with raw HTML: \(rawHTML).")
             }
@@ -681,13 +708,13 @@ extension Libxml2 {
             let imageURLString = imageURL.absoluteString
 
             let attributes = [Libxml2.StringAttribute(name:"src", value: imageURLString)]
-            let descriptor = ElementNodeDescriptor(elementType: .img, attributes: attributes)
+            let imageNode = ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
 
-            rootNode.replaceCharacters(in: range, with: descriptor)
+            domEditor.replace(range, with: imageNode)
         }
 
         // MARK: - Videos
-
+/*
         /// Replaces the specified range with a given image.
         ///
         /// - Parameters:
@@ -729,6 +756,7 @@ extension Libxml2 {
 
             rootNode.replaceCharacters(in: range, with: descriptor)
         }
+ */
 
         /// Replaces the specified range with a Comment.
         ///
@@ -743,9 +771,9 @@ extension Libxml2 {
         }
 
         private func replaceSynchronously(_ range: NSRange, withComment comment: String) {
-            let descriptor = CommentNodeDescriptor(comment: comment)
+            let commentNode = CommentNode(text: comment)
 
-            rootNode.replaceCharacters(in: range, with: descriptor)
+            domEditor.replace(range, with: commentNode)
         }
 
 
@@ -780,19 +808,19 @@ extension Libxml2 {
         }
 
         private func applyElementDescriptor(_ elementDescriptor: ElementNodeDescriptor, spanning range: NSRange) {
-            domEditor.wrapChildren(intersectingRange: range, inElement: elementDescriptor)
+            domEditor.wrap(range, in: elementDescriptor)
         }
-        
+
         // MARK: - Candidates for removal
-        
+
         func updateImage(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             performAsyncUndoable { [weak self] in
                 self?.updateImageSynchronously(spanning: ranges, url: url, size: size, alignment: alignment)
             }
         }
-        
+
         // MARK: - Candidates for removal: Synchronously
-        
+
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
             
             for range in ranges {

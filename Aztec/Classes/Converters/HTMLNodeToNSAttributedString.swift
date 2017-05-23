@@ -12,6 +12,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     typealias CommentNode = Libxml2.CommentNode
     typealias StandardElementType = Libxml2.StandardElementType
 
+    let inspector = Libxml2.DOMInspector()
+
     /// The default font descriptor that will be used as a base for conversions.
     /// 
     let defaultFontDescriptor: UIFontDescriptor
@@ -26,6 +28,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
         return [NSFontAttributeName: defaultFont]
     }()
+    
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -52,7 +55,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         let string = convertContents(of: node, inheritingAttributes: attributes)
 
-        guard node.needsClosingParagraphSeparator() else {
+        guard inspector.needsClosingParagraphSeparator(node) else {
             return string
         }
 
@@ -111,16 +114,16 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
-        guard !node.isSupportedByEditor() else {
-            return stringForNode(node, inheritingAttributes: attributes)
+    fileprivate func convertElementNode(_ element: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+        guard !inspector.isSupportedByEditor(element) else {
+            return stringForNode(element, inheritingAttributes: attributes)
         }
 
         let converter = Libxml2.Out.HTMLConverter()
         let attachment = HTMLAttachment()
 
-        attachment.rootTagName = node.name
-        attachment.rawHTML = converter.convert(node)
+        attachment.rootTagName = element.name
+        attachment.rawHTML = converter.convert(element)
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }

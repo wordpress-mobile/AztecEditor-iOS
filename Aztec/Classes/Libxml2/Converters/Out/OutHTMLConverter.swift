@@ -25,6 +25,7 @@ extension Libxml2.Out {
         ///
         let prettyPrint: Bool
 
+        let inspector = Libxml2.DOMInspector()
 
         /// Default Initializer
         ///
@@ -157,7 +158,7 @@ private extension Libxml2.Out.HTMLConverter {
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
-        return node.isBlockLevelElement() && prettyPrint
+        return inspector.isBlockLevelElement(node) && prettyPrint
     }
 
 
@@ -165,8 +166,11 @@ private extension Libxml2.Out.HTMLConverter {
     ///
     private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
-            let elementChild = child as? ElementNode
-            return elementChild?.isBlockLevelElement() == true && prettyPrint
+            guard let elementChild = child as? ElementNode else {
+                return false
+            }
+
+            return inspector.isBlockLevelElement(elementChild) == true && prettyPrint
         }
     }
 
@@ -174,11 +178,12 @@ private extension Libxml2.Out.HTMLConverter {
     /// ClosingTag Posfix: Required whenever the node is blocklevel, and the right sibling is not
     ///
     private func requiresClosingTagPosfix(_ node: ElementNode) -> Bool {
-        guard let rightSibling = node.rightSibling() else {
+
+        guard let rightSiblingElement = inspector.rightSibling(of: node) as? ElementNode else {
             return false
         }
 
-        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrint
+        return !inspector.isBlockLevelElement(rightSiblingElement) && inspector.isBlockLevelElement(node) && prettyPrint
     }
 
 

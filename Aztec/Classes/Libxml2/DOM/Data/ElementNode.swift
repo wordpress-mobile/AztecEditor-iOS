@@ -8,7 +8,7 @@ extension Libxml2 {
     class ElementNode: Node {
 
         fileprivate(set) var attributes = [Attribute]()
-        fileprivate(set) var children: [Node]
+        var children: [Node]
 
         internal var standardName: StandardElementType? {
             get {
@@ -30,16 +30,15 @@ extension Libxml2 {
 
         // MARK: - Editing behavior configuration
 
-        static let elementsThatInterruptStyleAtEdges: [StandardElementType] = [.a, .br, .img, .hr]
         static let elementsThatSpanASingleLine: [StandardElementType] = [.li]
         
         // MARK: - Initializers
 
-        init(name: String, attributes: [Attribute], children: [Node], editContext: EditContext? = nil) {
+        init(name: String, attributes: [Attribute], children: [Node]) {
             self.attributes.append(contentsOf: attributes)
             self.children = children
 
-            super.init(name: name, editContext: editContext)
+            super.init(name: name)
 
             for child in children {
 
@@ -50,9 +49,13 @@ extension Libxml2 {
                 child.parent = self
             }
         }
+
+        convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
+            self.init(name: type.rawValue, attributes: attributes, children: children)
+        }
         
-        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], editContext: EditContext? = nil) {
-            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
         }
         
         // MARK: - Node Constructors
@@ -67,16 +70,6 @@ extension Libxml2 {
         ///
         override func length() -> Int {
             return text().characters.count
-        }
-
-        /// Checks if the specified node requires a closing paragraph separator.
-        ///
-        override func needsClosingParagraphSeparator() -> Bool {
-            guard children.count == 0 && standardName != .br else {
-                return false
-            }
-
-            return super.needsClosingParagraphSeparator()
         }
 
         // MARK: - Node Queries
@@ -140,43 +133,6 @@ extension Libxml2 {
             }
             
             return last === self
-        }
-
-        /// Check if the last of this children element is a block level element
-        ///
-        /// - Returns: true if the last child of this element is a block level element, false otherwise
-        ///
-        func isLastChildBlockLevelElement() -> Bool {
-
-            let childrenIgnoringEmptyTextNodes = children.filter { (node) -> Bool in
-                if let textNode = node as? TextNode {
-                    return !textNode.text().isEmpty
-                }
-                return true
-            }
-
-            if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
-               return lastChild.isBlockLevelElement()
-            }
-
-            return false
-        }
-
-
-        /// Find out if this is a block-level element.
-        ///
-        /// - Returns: `true` if this is a block-level element.  `false` otherwise.
-        ///
-        func isBlockLevelElement() -> Bool {
-
-            guard let standardName = standardName else {
-                // For now we're treating all non-standard element names as non-block-level
-                // elements.
-                //
-                return false
-            }
-
-            return standardName.isBlockLevelNodeName()
         }
 
         func isNodeType(_ type: StandardElementType) -> Bool {
@@ -247,86 +203,7 @@ extension Libxml2 {
             
             fatalError("The specified location is out of bounds.")
         }
-
-        /// Get a list of child nodes intersecting the specified range.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
-        ///             this node's coordinates (the parent node's coordinates, from the children
-        ///             PoV).
-        ///     - preferLeftNode: for zero-length target ranges, this parameter is used to
-        ///             disambiguate if we're referring to the last position in a node, or to the
-        ///             first position in the following node (since both positions have the same
-        ///             offset).  By default this is true.
-        ///
-        /// - Returns: an array of pairs of child nodes and their ranges in child coordinates.
-        ///
-        func childNodes(intersectingRange targetRange: NSRange) -> [(child: Node, intersection: NSRange)] {
-            var results = [(child: Node, intersection: NSRange)]()
-
-            enumerateChildNodes(intersectingRange: targetRange) { (child, intersection) in
-                results.append((child, intersection))
-            }
-
-            return results
-        }
-
-        /// Enumerate the child nodes intersecting the specified range.
-        ///
-        /// - Parameters:
-        ///     - targetRange: the range we're intersecting the child nodes with.  The range is in
-        ///             this node's coordinates (the parent node's coordinates, from the children
-        ///             PoV).
-        ///     - preferLeftNode: for zero-length target ranges, this parameter is used to
-        ///             disambiguate if we're referring to the last position in a node, or to the
-        ///             first position in the following node (since both positions have the same
-        ///             offset).
-        ///     - matchFound: the closure to execute for each child node intersecting
-        ///             `targetRange`.
-        ///
-        /// - Returns: an array of child nodes and their intersection.  The intersection range is in
-        ///         child coordinates.
-        ///
-        func enumerateChildNodes(intersectingRange targetRange: NSRange, onMatchFound matchFound: (_ child: Node, _ intersection: NSRange) -> Void ) {
-
-            var offset = Int(0)
-
-            for child in children {
-
-                let childLength = child.length()
-                let childRange = NSRange(location: offset, length: childLength)
-                let intersectionRange: NSRange
-                let childRangeInterceptsTargetRange: Bool
-
-                if targetRange.length > 0 {
-
-                    intersectionRange = NSIntersectionRange(childRange, targetRange)
-
-                    childRangeInterceptsTargetRange =
-                        (intersectionRange.location > 0 && intersectionRange.length < childLength)
-                        || intersectionRange.length > 0
-                } else {
-                    let targetLocation = targetRange.location
-
-                    childRangeInterceptsTargetRange =
-                        targetLocation == offset
-                        || targetLocation == offset + childLength
-                        || (targetLocation > offset && targetLocation < offset + childLength)
-
-                    intersectionRange = NSRange(location: targetLocation, length: 0)
-                }
-
-                if childRangeInterceptsTargetRange {
-
-                    let intersectionRangeInChildCoordinates = NSRange(location: intersectionRange.location - offset, length: intersectionRange.length)
-
-                    matchFound(child, intersectionRangeInChildCoordinates)
-                }
-
-                offset += childLength
-            }
-        }
-
+/*
         /// Returns the lowest block-level child elements intersecting the specified range.
         ///
         /// - Parameters:
@@ -394,7 +271,7 @@ extension Libxml2 {
                 },
                 onMatchNotFound: matchNotFound,
                 onMatchFound: matchFound)
-        }
+        }*/
 
         /// Enumerate the child elements intersecting the specified range and fulfilling a specified
         /// condition.
@@ -504,7 +381,7 @@ extension Libxml2 {
             onMatchFound matchFound: NodeIntersectionReport?,
             onMatchNotFound matchNotFound: RangeReport?) {
 
-            assert(range().contains(range: targetRange))
+            assert(range().contains(targetRange))
             assert(matchFound != nil || matchNotFound != nil)
 
             guard !isMatch(self) else {
@@ -700,62 +577,6 @@ extension Libxml2 {
             return results
         }
         
-        /// Retrieves the left-side sibling of the child at the specified index.
-        ///
-        /// - Parameters:
-        ///     - index: the index of the child to get the sibling of.
-        ///
-        /// - Returns: the requested sibling, or `nil` if there's none.
-        ///
-        func sibling<T: Node>(leftOf childIndex: Int) -> T? {
-            
-            guard childIndex >= 0 && childIndex < children.count else {
-                fatalError("Out of bounds!")
-            }
-
-            guard childIndex > 0 else {
-                return nil
-            }
-
-            let siblingNode = children[childIndex - 1]
-
-            // Ignore empty text nodes.
-            //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
-                return sibling(leftOf: childIndex - 1)
-            }
-
-            return siblingNode as? T
-        }
-        
-        /// Retrieves the right-side sibling of the child at the specified index.
-        ///
-        /// - Parameters:
-        ///     - index: the index of the child to get the sibling of.
-        ///
-        /// - Returns: the requested sibling, or `nil` if there's none.
-        ///
-        func sibling<T: Node>(rightOf childIndex: Int) -> T? {
-            
-            guard childIndex >= 0 && childIndex < children.count else {
-                fatalError("Out of bounds!")
-            }
-            
-            guard childIndex < children.count - 1 else {
-                return nil
-            }
-
-            let siblingNode = children[childIndex + 1]
-
-            // Ignore empty text nodes.
-            //
-            if let textSibling = siblingNode as? TextNode, textSibling.length() == 0 {
-                return sibling(rightOf: childIndex + 1)
-            }
-
-            return siblingNode as? T
-        }
-        
         /// Finds any left-side descendant with any of the specified names.
         ///
         /// - Parameters:
@@ -766,8 +587,7 @@ extension Libxml2 {
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
-        
-        fileprivate func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func find<T: Node>(leftSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -794,8 +614,7 @@ extension Libxml2 {
         ///
         /// - Returns: the matching element, if any was found, or `nil`.
         ///
-        
-        fileprivate func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func find<T: Node>(rightSideDescendantEvaluatedBy evaluate: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
             
             guard children.count > 0 else {
                 return nil
@@ -811,7 +630,7 @@ extension Libxml2 {
                 return nil
             }
         }
-        
+        /*
         override func text() -> String {
 
             guard isSupportedByEditor() else {
@@ -823,13 +642,19 @@ extension Libxml2 {
                 
                 return implicitRepresentation.string
             }
-            
+
             var text = ""
+
             for child in children {
                 text = text + child.text()
             }
+
+            if needsClosingParagraphSeparator() {
+                text.append(String(.paragraphSeparator))
+            }
+
             return text
-        }
+        }*/
 
 
         /// Returns the plain visible text for a specified range.
@@ -852,101 +677,6 @@ extension Libxml2 {
         }
 
         // MARK: - DOM modification
-
-        /// Appends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to append.
-        ///
-        func append(_ child: Node, tryToMergeWithSiblings: Bool = true) {
-            insert(child, at: children.count, tryToMergeWithSiblings: tryToMergeWithSiblings)
-        }
-        
-        /// Appends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to append.
-        ///
-        func append(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
-            for child in children {
-                append(child, tryToMergeWithSiblings: tryToMergeWithSiblings)
-            }
-        }
-
-        /// Prepends a node to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to prepend.
-        ///
-        func prepend(_ child: Node, tryToMergeWithSiblings: Bool = true) {
-            insert(child, at: 0, tryToMergeWithSiblings: tryToMergeWithSiblings)
-        }
-
-        /// Prepends children to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - children: the nodes to prepend.
-        ///
-        func prepend(_ children: [Node], tryToMergeWithSiblings: Bool = true) {
-            for index in stride(from: (children.count - 1), through: 0, by: -1) {
-                prepend(children[index], tryToMergeWithSiblings: tryToMergeWithSiblings)
-            }
-        }
-        
-        /// Inserts a node into the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - child: the node to insert.
-        ///     - index: the position where to insert the node.
-        ///     - mergeSiblings: if true, this method will attempt to merge the inserted node with
-        ///         similar siblings.
-        ///
-        func insert(_ child: Node, at index: Int, tryToMergeWithSiblings: Bool = true) {
-            child.removeFromParent()
-
-            if tryToMergeWithSiblings && index > 0,
-                let previousChild = children[index - 1] as? TextNode,
-                let newChildTextNode = child as? TextNode {
-
-                previousChild.append(newChildTextNode.text())
-            } else if tryToMergeWithSiblings && index < children.count,
-                let nextChild = children[index] as? TextNode,
-                let newChildTextNode = child as? TextNode {
-
-                nextChild.prepend(newChildTextNode.text())
-            } else {
-                children.insert(child, at: index)
-                child.parent = self
-            }
-        }
-
-        /// Prepends children to the list of children for this element.
-        ///
-        /// - Parameters:
-        ///     - children: the nodes to prepend.
-        ///
-        func insert(_ children: [Node], at index: Int) {
-            for child in children.reversed() {
-                insert(child, at: index, tryToMergeWithSiblings: false)
-            }
-
-            fixChildrenTextNodes()
-        }
-
-        func fixChildrenTextNodes() {
-            for child in children {
-                let index = indexOf(childNode: child)
-                let nextIndex = index + 1
-
-                if nextIndex < children.count,
-                    let currentTextNode = child as? TextNode,
-                    let nextTextNode = children[nextIndex] as? TextNode {
-
-                    nextTextNode.prepend(currentTextNode.text())
-                    remove(currentTextNode)
-                }
-            }
-        }
 
         /// Replaces the specified node with several new nodes.
         ///
@@ -1014,293 +744,8 @@ extension Libxml2 {
             }
         }
 
-        /// Retrieves all child nodes positioned after a specified location.
-        ///
-        /// - Parameters:
-        ///     - splitLocation: marks the split location.
-        ///
-        /// - Returns: the requested nodes.
-        ///
-        fileprivate func splitChildren(after splitLocation: Int) -> [Node] {
-            
-            var result = [Node]()
-            var childStartLocation = Int(0)
-            
-            for child in children {
-                let childLength = child.length()
-                let childEndLocation = childStartLocation + childLength
-                
-                if childStartLocation >= splitLocation {
-                    result.append(child)
-                } else if childStartLocation < splitLocation && childEndLocation > splitLocation {
-                    
-                    let splitLocationInChild = splitLocation - childStartLocation
-                    let splitRange = NSRange(location: splitLocationInChild, length: childEndLocation - splitLocation)
-                    
-                    child.split(forRange: splitRange)
-                    result.append(child)
-                }
-                
-                childStartLocation = childEndLocation
-            }
-            
-            return result
-        }
-        
-        /// Retrieves all child nodes positioned before a specified location.
-        ///
-        /// - Parameters:
-        ///     - splitLocation: marks the split location.
-        ///
-        /// - Returns: the requested nodes.
-        ///
-        func splitChildren(before splitLocation: Int) -> [Node] {
-            
-            var result = [Node]()
-            var childOffset = Int(0)
-            
-            for child in children {
-                let childLength = child.length()
-                let childEndLocation = childOffset + childLength
-                
-                if childEndLocation <= splitLocation {
-                    result.append(child)
-                } else if childOffset < splitLocation && childEndLocation > splitLocation {
-                    
-                    let splitLocationInChild = splitLocation - childOffset
-                    let splitRange = NSRange(location: 0, length: splitLocationInChild)
-                    
-                    child.split(forRange: splitRange)
-                    result.append(child)
-                }
-                
-                childOffset = childOffset + childLength
-            }
-            
-            return result
-        }
-
-        /// Splits this node wherever there's a break.  Propagates to children.
-        ///
-        /// - Returns: the locations where this node was split.
-        ///
-        @discardableResult
-        private func splitAtBreaks() -> [Int] {
-
-            var offset = 0
-            var splitLocations = [Int]()
-
-            for node in children {
-                if let element = node as? ElementNode {
-
-                    guard element.standardName != .br else {
-                        remove(element)
-
-                        if offset > 0 && offset < length() {
-                            splitLocations.append(offset)
-                        }
-
-                        continue
-                    }
-
-                    let childSplitLocations = element.splitAtBreaks()
-                    splitLocations.append(contentsOf: childSplitLocations)
-                }
-
-                offset = offset + node.length()
-            }
-
-            // We need to split starting at the last position to avoid going out of bounds.
-            //
-            for splitLocation in splitLocations.reversed() {
-                split(atLocation: splitLocation)
-            }
-
-            return splitLocations
-        }
-
-        /// Pushes the receiver up in the DOM structure, by wrapping an exact copy of the parent
-        /// node, inserting all the receivers children to it, and adding the receiver to its
-        /// grandparent node.
-        ///
-        /// The result is that the order of the receiver and its parent node will be inverted.
-        ///
-        func pushUp(left: Bool) {
-            guard let parent = parent, let grandParent = parent.parent else {
-                // This is actually an error scenario, as this method should not be called on
-                // nodes that don't have a parent and a grandparent.
-                //
-                // The reason why this would be an error is that we're either trying to push-up
-                // a node without a parent, or we're trying to push up a node to become the root
-                // node.
-                //
-                // The reason why we allow
-                //
-                fatalError("Do not call this method if the node doesn't have a parent and grandparent node.")
-            }
-
-            guard let parentIndex = grandParent.children.index(of: parent) else {
-                fatalError("The grandparent element should contain the parent element.")
-            }
-
-            let originalParent = parent
-
-            let parentDescriptor = ElementNodeDescriptor(name: parent.name, attributes: parent.attributes)
-            wrap(children: children, inElement: parentDescriptor)
-
-            let indexOffset = left ? 0 : 1
-
-            grandParent.insert(self, at: parentIndex + indexOffset)
-
-            if originalParent.children.count == 0 {
-                originalParent.removeFromParent()
-            }
-        }
-        
-        /// Evaluates the left sibling for a certain condition.  If the condition is met, the
-        /// sibling is returned.  Otherwise this method looks amongst the sibling's right-side
-        /// descendants for any node returning `true` at the evaluation closure.
-        ///
-        /// The search bails if the bail closure returns `true` for either the sibling or its
-        /// descendants before a matching node is found.
-        ///
-        /// When a match is found, it's pushed up to the level of the receiver.
-        ///
-        /// - Parameters:
-        ///     - childIndex: the index of the child to find the sibling of.
-        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
-        ///     - bail: the closure to evaluate if the search must bail.
-        ///
-        /// - Returns: The requested node, if one is found, or `nil`.
-        ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let theSibling: T = sibling(leftOf: childIndex) else {
-                return nil
-            }
-
-            if evaluation(theSibling) {
-                return theSibling
-            }
-
-            guard !bail(theSibling) else {
-                return nil
-            }
-            
-            guard let element = theSibling as? ElementNode else {
-                return nil
-            }
-            
-            return element.pushUp(rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
-        }
-        
-        /// Pushes up to the level of the receiver any left-side descendant that evaluates
-        /// to `true`.
-        ///
-        /// - Parameters:
-        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
-        ///     - bail: the closure that will be used to evaluate if the descendant search must
-        ///             bail.
-        ///
-        /// - Returns: if any matching descendant is found, this method will return the requested
-        ///         node after being pushed all the way up, or `nil` if no matching descendant is
-        ///         found.
-        ///
-        func pushUp<T: Node>(leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let node = find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let element = node as? ElementNode else {
-                return nil
-            }
-
-            guard let finalParent = parent else {
-                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
-                return nil
-            }
-
-            while element.parent != nil && element.parent != finalParent {
-                element.pushUp(left: true)
-            }
-            
-            return node
-        }
-
-        /// Evaluates the right sibling for a certain condition.  If the condition is met, the
-        /// sibling is returned.  Otherwise this method looks amongst the sibling's left-side
-        /// descendants for any node returning `true` at the evaluation closure.
-        ///
-        /// The search bails if the bail closure returns `true` for either the sibling or its
-        /// descendants before a matching node is found.
-        ///
-        /// When a match is found, it's pushed up to the level of the receiver.
-        ///
-        /// - Parameters:
-        ///     - childIndex: the index of the child to find the sibling of.
-        ///     - evaluation: the closure that will evaluate the nodes for a matching result.
-        ///     - bail: the closure to evaluate if the search must bail.
-        ///
-        /// - Returns: The requested node, if one is found, or `nil`.
-        ///
-        fileprivate func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let theSibling: T = sibling(rightOf: childIndex) else {
-                return nil
-            }
-            
-            if evaluation(theSibling) {
-                return theSibling
-            }
-
-            guard !bail(theSibling) else {
-                return nil
-            }
-
-            guard let element = theSibling as? ElementNode else {
-                return nil
-            }
-            
-            return element.pushUp(leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
-        }
-        
-        /// Pushes up to the level of the receiver any right-side descendant that evaluates
-        /// to `true`.
-        ///
-        /// - Parameters:
-        ///     - evaluationClosure: the closure that will be used to evaluate all descendants.
-        ///     - bail: the closure that will be used to evaluate if the descendant search must
-        ///             bail.
-        ///
-        /// - Returns: if any matching descendant is found, this method will return the requested
-        ///         node after being pushed all the way up, or `nil` if no matching descendant is
-        ///         found.
-        ///
-        func pushUp<T: Node>(rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
-            
-            guard let node = find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let element = node as? ElementNode else {
-                return nil
-            }
-
-            guard let finalParent = parent else {
-                assertionFailure("Cannot call this method on a node that doesn't have a parent.")
-                return nil
-            }
-
-            while element.parent != nil && element.parent != finalParent {
-                element.pushUp(left: false)
-            }
-
-            return node
-        }
-
         // MARK: - EditableNode
-        
+        /*
         /// Inserts the specified text in a new `TextNode` at the specified index.  If any of the siblings are
         /// of class `TextNode`, this method will append or prepend the text to them instead.
         ///
@@ -1332,7 +777,7 @@ extension Libxml2 {
                 // This code can be improved but this "hack" will allow us to postpone the necessary
                 // code restructuration.
                 //
-                let textNode = TextNode(text: "", editContext: editContext)
+                let textNode = TextNode(text: "")
                 insert(textNode, at: index)
                 textNode.append(string)
             }
@@ -1347,9 +792,9 @@ extension Libxml2 {
 
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
-                node = ElementNode(descriptor: descriptor, editContext: editContext)
+                node = ElementNode(descriptor: descriptor)
             } else if let descriptor = descriptor as? CommentNodeDescriptor {
-                node = CommentNode(text: descriptor.comment, editContext: editContext)
+                node = CommentNode(text: descriptor.comment)
             } else {
                 fatalError("Unsupported Node Descriptor")
             }
@@ -1384,96 +829,13 @@ extension Libxml2 {
             textNodeParent.insert(node, at: index)
             textNodeParent.remove(textNode)
         }
+ */
 
-        override func split(atLocation location: Int) {
-            let length = self.length()
-            
-            guard location != 0 && location != length else {
-                // Nothing to split, move along...
-                return
-            }
-            
-            guard location > 0 && location < length else {
-                assertionFailure("Specified range is out-of-bounds.")
-                return
-            }
-            
-            guard let parent = parent,
-                let nodeIndex = parent.children.index(of: self) else {
-                    assertionFailure("Can't split a node without a parent.")
-                    return
-            }
-            
-            let postNodes = splitChildren(after: location)
-            
-            if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
-                
-                parent.insert(newElement, at: nodeIndex + 1)
-            }
-        }
-
-
-        /// Splits this node according to the specified range.
-        ///
-        /// - Parameters:
-        ///     - range: the range to use for splitting this node.  All nodes before and after the specified range will
-        ///         be inserted in clones of this node.  All child nodes inside the range will be kept inside this node.
-        ///
-        override func split(forRange range: NSRange) {
-
-            guard range.location >= 0 && range.location + range.length <= length() else {
-                assertionFailure("Specified range is out-of-bounds.")
-                return
-            }
-
-            guard let parent = parent,
-                let nodeIndex = parent.children.index(of: self) else {
-                    assertionFailure("Can't split a node without a parent.")
-                    return
-            }
-
-            let postNodes = splitChildren(after: range.location + range.length)
-
-            if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
-
-                parent.insert(newElement, at: nodeIndex + 1)
-            }
-
-            let preNodes = splitChildren(before: range.location)
-
-            if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, editContext: editContext)
-
-                parent.insert(newElement, at: nodeIndex)
-            }
-        }
-
-        // MARK: - Wrapping
+        // MARK: - Unwrapping
 
         func unwrap(fromElementsNamed elementNames: [String]) {
             if elementNames.contains(name) {
                 unwrapChildren()
-            }
-        }
-
-        func unwrapChildren(first amount: Int) {
-            assert(children.count >= amount)
-
-            guard let parent = parent else {
-                assertionFailure("Cannot execute this method if a parent isn't set.")
-                return
-            }
-
-            let myIndex = parent.indexOf(childNode: self)
-
-            for _ in 0...(amount - 1) {
-                parent.insert(children[0], at: myIndex)
-            }
-
-            if children.count == 0 {
-                removeFromParent()
             }
         }
 
@@ -1509,142 +871,21 @@ extension Libxml2 {
             }
         }
 
-        /// Wraps the specified children nodes in a newly created element with the specified name.
-        /// The newly created node will be inserted at the position of `children[0]`.
-        ///
-        /// - Parameters:
-        ///     - children: the children nodes to wrap in a new node.
-        ///     - elementDescriptor: the descriptor for the element to wrap the children in.
-        ///
-        /// - Returns: the newly created `ElementNode`.
-        ///
-        @discardableResult
-        func wrap(children selectedChildren: [Node], inElement elementDescriptor: ElementNodeDescriptor) -> ElementNode {
-
-            var childrenToWrap = selectedChildren
-
-            guard selectedChildren.count > 0 else {
-                assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(descriptor: elementDescriptor, editContext: editContext)
-            }
-
-            guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
-                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
-            }
-            
-            guard let lastNodeIndex = children.index(of: childrenToWrap[childrenToWrap.count - 1]) else {
-                fatalError("A node's parent should contain the node. Review the child/parent updating logic.")
-            }
-            
-            let evaluation = { (node: ElementNode) -> Bool in
-                return node.name == elementDescriptor.name
-            }
-            
-            let bailEvaluation = { (node: ElementNode) -> Bool in
-                return node.isBlockLevelElement()
-            }
-            
-            // First get the right sibling because if we do it the other round, lastNodeIndex will
-            // be modified before we access it.
-            //
-            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-
-            var wrapperElement: ElementNode?
-            
-            if let sibling = rightSibling {
-                sibling.prepend(childrenToWrap, tryToMergeWithSiblings: false)
-                childrenToWrap = sibling.children
-                
-                wrapperElement = sibling
-            }
-            
-            if let sibling = leftSibling {
-                sibling.append(childrenToWrap, tryToMergeWithSiblings: false)
-                childrenToWrap = sibling.children
-                
-                wrapperElement = sibling
-                
-                if let rightSibling = rightSibling, rightSibling.children.count == 0 {
-                    rightSibling.removeFromParent()
-                }
-            }
-
-            let finalWrapper = wrapperElement ?? { () -> ElementNode in
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
-
-                children.insert(newNode, at: firstNodeIndex)
-                newNode.parent = self
-
-                return newNode
-            }()
-
-            if let childElementDescriptor = elementDescriptor.childDescriptor {
-                finalWrapper.wrap(children: selectedChildren, inElement: childElementDescriptor)
-            }
-
-            if let elementType = StandardElementType(rawValue: elementDescriptor.name),
-                ElementNode.elementsThatSpanASingleLine.contains(elementType) {
-
-                finalWrapper.splitAtBreaks()
-            }
-
-            return finalWrapper
-        }
-
         // MARK: - Editing behavior
 
-        private func mustInterruptStyleAtEdges(forNode node: Node) -> Bool {
-            guard !(node is TextNode) else {
-                return false
-            }
-
-            guard let elementNode = node as? ElementNode,
-                let elementType = StandardElementType(rawValue: elementNode.name) else {
-                return true
-            }
-
-            guard elementNode.isSupportedByEditor() else {
-                return true
-            }
-
-            return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
-        }
-        
         // MARK: - Undo Support
-        
+
         private func registerUndoForRemove(_ child: Node) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
+            /*
             guard let index = children.index(of: child) else {
                 assertionFailure("The specified node is not one of this node's children.")
                 return
             }
             
-            editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
+            SharedEditor.currentEditor.undoManager.registerUndo(withTarget: self) { [weak self] target in
                 self?.children.insert(child, at: index)
             }
-        }
-
-        func isSupportedByEditor() -> Bool {
-            /// NOTE:
-            /// ElementNode.length is coupled to the value of this method. Elements not known by the Editor are
-            /// represented by a single character (NSTextAttachment), with a customizable visual representation.
-            /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
-            /// "Length=1" workaround.
-            ///
-            guard let editContext = editContext else {
-                return true
-            }
-
-            guard let standardName = standardName else {
-                return false
-            }
-
-            return editContext.knownElements.contains(standardName)
+ */
         }
     }
 
@@ -1672,14 +913,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(children: [Node], editContext: EditContext? = nil) {
-            super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
-        }
-
-        // MARK: - Overriden Methods
-
-        override func isSupportedByEditor() -> Bool {
-            return true
+        init(children: [Node]) {
+            super.init(name: type(of: self).name, attributes: [], children: children)
         }
     }
 }

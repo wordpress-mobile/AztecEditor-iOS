@@ -5,15 +5,11 @@ class DOMStringTests: XCTestCase {
 
     typealias DOMString = Aztec.Libxml2.DOMString
 
-    /// This unit test was created due to a bug we found in this method, when first adding text
-    /// with `preferLeftNode == true` and then adding some more with `preferLeftNode == false`.
-    ///
-    /// Link to the original bug report here:
-    /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/319
+    /// Tests that inserting text sequentially works fine.
     ///
     /// Input:
-    ///     - Insert "Hello\n" with `preferLeftNode == true`
-    ///     - Insert "World!" with `preferLeftNode == false`
+    ///     - Insert "Hello\n"
+    ///     - Insert "World!" after the previously inserted text.
     ///
     /// Output:
     ///     - Make sure the HTML is updated accordingly at each step.
@@ -21,10 +17,10 @@ class DOMStringTests: XCTestCase {
     func testReplaceCharactersWithStringEffectivelyInsertsTheNewString() {
         let string = DOMString()
 
-        string.replaceCharacters(inRange: NSRange.zero, withString: "Hello\n")
+        string.replace(NSRange.zero, with: "Hello\n")
         XCTAssertEqual(string.getHTML(), "Hello<br>")
 
-        string.replaceCharacters(inRange: NSRange(location: 6, length: 0), withString: "World!")
+        string.replace(NSRange(location: 6, length: 0), with: "World!")
         XCTAssertEqual(string.getHTML(), "Hello<br>World!")
     }
 

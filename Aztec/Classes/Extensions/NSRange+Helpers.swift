@@ -12,8 +12,19 @@ extension NSRange
     ///
     /// - Returns: `true` if the receiver contains the specified range, `false` otherwise.
     ///
-    func contains(range: NSRange) -> Bool {
+    func contains(_ range: NSRange) -> Bool {
         return intersect(withRange: range) == range
+    }
+
+    /// Checks if the receiver contains the specified location.
+    ///
+    /// - Parameters:
+    ///     - range: the location that the receiver may or may not contain.
+    ///
+    /// - Returns: `true` if the receiver contains the specified location, `false` otherwise.
+    ///
+    func contains(offset: Int) -> Bool {
+        return offset >= location && offset <= location + length
     }
     
     /// Returns the intersection between the receiver and the specified range.
@@ -43,6 +54,17 @@ extension NSRange
         } else {
             return nil
         }
+    }
+
+    /// Offsets the receiver by the specified value.
+    ///
+    /// - Parameters:
+    ///     - offset: the value to apply for the offset operation.
+    ///
+    /// - Returns: the requested range.
+    ///
+    func offset(_ offset: Int) -> NSRange {
+        return NSRange(location: location + offset, length: length)
     }
 
     /// Returns the union with the specified range.
