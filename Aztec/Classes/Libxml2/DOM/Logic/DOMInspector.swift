@@ -322,7 +322,7 @@ extension Libxml2 {
 
         func text(for element: ElementNode) -> String {
 
-            guard isSupportedByEditor(element) else {
+            guard element is RootNode || isSupportedByEditor(element) else {
                 return String(.objectReplacement)
             }
 
