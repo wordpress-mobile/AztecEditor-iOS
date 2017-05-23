@@ -178,7 +178,10 @@ private extension Libxml2.Out.HTMLConverter {
             return false
         }
 
-        return !rightSibling.isBlockLevelElement() && node.isBlockLevelElement() && prettyPrint
+        let rightElementNode = rightSibling as? ElementNode
+        let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevelElement() == false
+
+        return isRightNodeRegularElement && node.isBlockLevelElement() && prettyPrint
     }
 
 
