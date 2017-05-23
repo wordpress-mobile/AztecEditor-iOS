@@ -32,7 +32,7 @@ open class HTMLProcessor: RegexProcessor {
     /// 5. The closing tag.
     ///
     static func makeRegex(tag: String) -> NSRegularExpression {
-        let pattern = "\\<(\(tag))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\2\\>)[^\\<]*)*)(\\<\\/\\2\\>))?)"
+        let pattern = "\\<(\(tag))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         return regex
     }
