@@ -98,8 +98,23 @@ extension Libxml2 {
 //                return Node(name: "")
             case let attachment as CommentAttachment:
                 return CommentNode(text: attachment.text)
-//            case let attachment as HTMLAttachment:
-//                return Node(name: "")
+            case let attachment as HTMLAttachment:
+
+                let converter = Libxml2.In.HTMLConverter()
+
+                guard let rootNode = try? converter.convert(attachment.rawHTML),
+                    let firstChild = rootNode.children.first else {
+                        // If there are problems parsing the provided HTML, we just add the HTML
+                        // contents as raw text.
+                        //
+                        return TextNode(text: attachment.rawHTML)
+                }
+
+                guard rootNode.children.count == 1 else {
+                    return ElementNode(name: StandardElementType.span.rawValue, attributes: [], children: rootNode.children)
+                }
+
+                return firstChild
 //            case let attachment as ImageAttachment:
 //                return Node(name: "")
 //            case let attachment as VideoAttachment:
