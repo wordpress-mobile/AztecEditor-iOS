@@ -832,7 +832,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
             DispatchQueue.main.async(execute: {
@@ -849,7 +849,18 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         }) 
         task.resume()
 
-        return Gridicon.iconOfType(.image)
+        let placeholderImage: UIImage
+        switch attachment {
+        case _ as ImageAttachment:
+            placeholderImage = Gridicon.iconOfType(.image, withSize: CGSize(width:32, height:32))
+        case _ as VideoAttachment:
+            placeholderImage = Gridicon.iconOfType(.video, withSize: CGSize(width:32, height:32))
+        default:
+            placeholderImage = Gridicon.iconOfType(.attachment, withSize: CGSize(width:32, height:32))
+
+        }
+
+        return placeholderImage
     }
     
     func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {

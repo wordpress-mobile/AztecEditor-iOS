@@ -20,6 +20,7 @@ public protocol TextViewAttachmentDelegate: class {
     ///         of the images.
     ///
     func textView(_ textView: TextView,
+                  attachment: NSTextAttachment,
                   imageAt url: URL,
                   onSuccess success: @escaping (UIImage) -> Void,
                   onFailure failure: @escaping (Void) -> Void) -> UIImage
@@ -1328,7 +1329,7 @@ extension TextView: TextStorageAttachmentsDelegate {
             fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        return textAttachmentDelegate.textView(self, imageAt: url, onSuccess: success, onFailure: failure)
+        return textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
     func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
