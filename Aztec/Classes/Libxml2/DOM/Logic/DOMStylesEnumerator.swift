@@ -116,12 +116,13 @@ extension Libxml2 {
 
                 return firstChild
             case let attachment as ImageAttachment:
-                guard let urlAsString = attachment.url?.absoluteString else {
-                    fatalError()
+                var attributes = [Attribute]()
+                if let urlAsString = attachment.url?.absoluteString {
+                    let sourceAttribute = StringAttribute(name: "src", value: urlAsString)
+                    attributes.append(sourceAttribute)
                 }
 
-                let attribute = StringAttribute(name: "src", value: urlAsString)
-                return ElementNode(name: StandardElementType.img.rawValue, attributes: [attribute], children: [])
+                return ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
 //            case let attachment as VideoAttachment:
 //                return Node(name: "")
             default:
