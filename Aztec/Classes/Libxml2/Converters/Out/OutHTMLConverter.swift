@@ -42,7 +42,7 @@ extension Libxml2.Out {
         /// Converts a Node into it's HTML String Representation
         ///
         func convert(_ rawNode: Node) -> String {
-            return convert(node: rawNode).trimmingCharacters(in: CharacterSet.newlines)
+            return convert(rawNode, level: 0).trimmingCharacters(in: CharacterSet.newlines)
         }
     }
 }
@@ -54,16 +54,16 @@ private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
-    func convert(node: Node, level: Int = 0) -> String {
+    func convert(_ node: Node, level: Int) -> String {
         switch node {
-        case let node as RootNode:
-            return convert(root: node)
-        case let node as CommentNode:
-            return convert(comment: node)
-        case let node as ElementNode:
-            return convert(element: node, level: level)
-        case let node as TextNode:
-            return convert(text: node)
+        case let rootNode as RootNode:
+            return convert(rootNode)
+        case let commentNode as CommentNode:
+            return convert(commentNode)
+        case let element as ElementNode:
+            return convert(element, level: level)
+        case let textNode as TextNode:
+            return convert(textNode)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
@@ -72,9 +72,9 @@ private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes a RootNode into it's HTML String Representation
     ///
-    private func convert(root node: RootNode) -> String {
+    private func convert(_ node: RootNode) -> String {
         return node.children.reduce("") { (result, node) in
-            return result + convert(node: node)
+            return result + convert(node)
         }
     }
 
@@ -88,7 +88,7 @@ private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes an ElementNode into it's HTML String Representation
     ///
-    private func convert(element node: ElementNode, level: Int) -> String {
+    private func convert(_ node: ElementNode, level: Int) -> String {
         let opening = openingTag(for: node, at: level)
 
         guard let closing = closingTag(for: node, at: level) else {
@@ -96,7 +96,7 @@ private extension Libxml2.Out.HTMLConverter {
         }
 
         let children = node.children.reduce("") { (html, child)in
-            return html + convert(node: child, level: level + 1)
+            return html + convert(child, level: level + 1)
         }
 
         return opening + children + closing
@@ -105,7 +105,7 @@ private extension Libxml2.Out.HTMLConverter {
 
     /// Serializes a TextNode into it's HTML String Representation
     ///
-    private func convert(text node: TextNode) -> String {
+    private func convert(_ node: TextNode) -> String {
         return inspector.text(for: node).encodeHtmlEntities()
     }
 }
