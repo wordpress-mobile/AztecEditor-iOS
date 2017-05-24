@@ -74,14 +74,14 @@ private extension Libxml2.Out.HTMLConverter {
     ///
     private func convert(_ node: RootNode) -> String {
         return node.children.reduce("") { (result, node) in
-            return result + convert(node)
+            return result + convert(node, level: 0)
         }
     }
 
 
     /// Serializes a CommentNode into it's HTML String Representation
     ///
-    private func convert(comment node: CommentNode) -> String {
+    private func convert(_ node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
