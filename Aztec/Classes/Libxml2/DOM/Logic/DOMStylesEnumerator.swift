@@ -80,11 +80,11 @@ extension Libxml2 {
         func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, Node) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
-                let styles = attributesToStyles(attributes: attrs)
+                let (paragraphStyles, styles) = attributesToStyles(attributes: attrs)
                 let leaf = leafNode(from: attrString.attributedSubstring(from: range))
-                let rootNode = stylesToNode(styles: styles, leaf: leaf)
+                let mainNode = stylesToNode(paragraphStyles: paragraphStyles, styles: styles, leaf: leaf)
 
-                block(range, rootNode)
+                block(range, mainNode)
             }
         }
 
@@ -96,12 +96,12 @@ extension Libxml2 {
 
         ///
         ///
-        private func stylesToNode(styles: ([DOMParagraphStyle], [DOMStyle]), leaf: Node) -> Node {
-            let stylesRoot = styles.1.reversed().reduce(leaf) { (result, style) -> Node in
+        private func stylesToNode(paragraphStyles: [DOMParagraphStyle], styles: [DOMStyle], leaf: Node) -> Node {
+            let stylesRoot = styles.reversed().reduce(leaf) { (result, style) -> Node in
                 return style.toNode(children: [result])
             }
 
-            let paragraphStylesRoot = styles.0.reversed().reduce(stylesRoot) { (result, style) in
+            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
                 return style.toNode(children: [result])
             }
 
