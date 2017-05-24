@@ -824,7 +824,7 @@ extension Libxml2 {
             let right: ElementNode?
 
             if childIndex < element.children.count - 1 {
-                let children = element.children.subArray(from: childIndex, through: element.children.count - 1)
+                let children = element.children.subArray(from: childIndex + 1, through: element.children.count - 1)
 
                 let newElement = ElementNode(name: element.name, attributes: element.attributes, children: children)
                 insertChild(newElement, in: parent, at: elementIndex + 1)
