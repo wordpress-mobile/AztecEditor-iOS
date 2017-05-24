@@ -329,12 +329,12 @@ open class MediaAttachment: NSTextAttachment
                 }
                 
                 strongSelf.isFetchingImage = false
+                strongSelf.lastRequestedURL = nil
+                strongSelf.image = nil
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
             })
 
-        if self.image == nil {
-            self.image = image
-        }
+        self.image = image
     }
     
     fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
