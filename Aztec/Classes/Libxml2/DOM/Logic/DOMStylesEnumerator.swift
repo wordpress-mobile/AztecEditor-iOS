@@ -54,18 +54,18 @@ extension Libxml2 {
             switch self {
             case .anchor(let url):
                 let source = StringAttribute(name: "src", value: url)
-                return ElementNode(type: .a, attributes: [source])
+                return ElementNode(type: .a, attributes: [source], children: children)
             case .bold:
-                return ElementNode(type: .b)
+                return ElementNode(type: .b, children: children)
             case .italics:
-                return ElementNode(type: .i)
+                return ElementNode(type: .i, children: children)
             case .image(let url):
                 let source = StringAttribute(name: "src", value: url)
                 return ElementNode(type: .img, attributes: [source])
             case .strike:
-                return ElementNode(type: .strike)
+                return ElementNode(type: .strike, children: children)
             case .underlined:
-                return ElementNode(type: .u)
+                return ElementNode(type: .u, children: children)
             }
         }
     }
