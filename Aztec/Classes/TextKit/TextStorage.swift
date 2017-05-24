@@ -1061,6 +1061,12 @@ open class TextStorage: NSTextStorage {
 //
 extension TextStorage: MediaAttachmentDelegate {
 
+    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, missingImageFor: attachment)
+    }
+
+
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,

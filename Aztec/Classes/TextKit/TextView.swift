@@ -12,6 +12,7 @@ public protocol TextViewAttachmentDelegate: class {
     ///
     /// - Parameters:
     ///     - textView: the `TextView` the call has been made from.
+    ///     - attachment: the attachment that is requesting the image
     ///     - imageURL: the url to download the image from.
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
@@ -36,6 +37,14 @@ public protocol TextViewAttachmentDelegate: class {
     ///
     func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL
 
+    /// Called when an attachment doesn't have an available source URL to provide an image representation.
+    ///
+    /// - Parameters:
+    ///   - textView: the textview that is requesting the image
+    ///   - attachment: the attachment that does not an have image source
+    /// - Returns: an UIImage to represent the attachment graphically
+    func textView(_ textView: TextView,
+                  placeholderForAttachment attachment: NSTextAttachment) -> UIImage
 
     /// Called after a attachment is removed from the storage.
     ///
@@ -1333,7 +1342,10 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
-        return defaultMissingImage
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
+        }
+        return textAttachmentDelegate.textView(self, placeholderForAttachment: attachment)
     }
     
     func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {

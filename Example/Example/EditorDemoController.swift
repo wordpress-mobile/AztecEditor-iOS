@@ -849,6 +849,14 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         }) 
         task.resume()
 
+        return placeholderImage(forAttachment: attachment)
+    }
+
+    func textView(_ textView: TextView, placeholderForAttachment attachment: NSTextAttachment) -> UIImage {
+        return placeholderImage(forAttachment: attachment)
+    }
+
+    func placeholderImage(forAttachment attachment: NSTextAttachment) -> UIImage {
         let placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
@@ -862,7 +870,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
         return placeholderImage
     }
-    
+
     func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
         
         // TODO: start fake upload process
