@@ -112,7 +112,7 @@ private extension Libxml2.Out.HTMLConverter {
 
 
 
-// MARK: - ElementNode: Helpers
+// MARK: - ElementNode: Tags
 //
 private extension Libxml2.Out.HTMLConverter {
 

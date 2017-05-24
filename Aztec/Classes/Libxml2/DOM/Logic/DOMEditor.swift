@@ -40,24 +40,8 @@ extension Libxml2 {
             assert(attributedString.length > 0)
 
             DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, node) in
-
-                insert(node: node, atLocation: subRange.location)
+                insertChild(node, in: rootNode, atOffset: location)
             })
-        }
-
-        ///
-        ///
-        private func insert(node: Node, atLocation location: Int) {
-
-            let split = splitChild(of: rootNode, at: location)
-
-            if let leftNode = split.left {
-                insertChild(node, in: rootNode, after: leftNode)
-            } else if let rightNode = split.right {
-                insertChild(node, in: rootNode, before: rightNode)
-            } else {
-                fatalError("This should not be possible.  Review the logic!")
-            }
         }
 
 
