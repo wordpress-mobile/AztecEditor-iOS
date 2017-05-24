@@ -27,8 +27,12 @@
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
-		FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */; };
-		FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */; };
+		FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82911ED44A6C0080ACAF /* Processor.swift */; };
+		FF9D82961ED452600080ACAF /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82951ED452600080ACAF /* HTMLAttributes.swift */; };
+		FF9D82981ED455060080ACAF /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82971ED455060080ACAF /* HTMLProcessor.swift */; };
+		FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */; };
+		FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */; };
+		FFD06EA71EC474500072AD85 /* ShortcodeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,8 +123,12 @@
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
-		FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressShortcode.swift; sourceTree = "<group>"; };
-		FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortCodeParserTests.swift; sourceTree = "<group>"; };
+		FF9D82911ED44A6C0080ACAF /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
+		FF9D82951ED452600080ACAF /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
+		FF9D82971ED455060080ACAF /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
+		FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessorTests.swift; sourceTree = "<group>"; };
+		FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
+		FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +216,7 @@
 		607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */ = {
 			isa = PBXGroup;
 			children = (
+				FF9D82941ED452340080ACAF /* Processors */,
 				B570B1CD1E82D349008CF41E /* Renders */,
 				599F256F1D8BCF57002871D6 /* AppDelegate.swift */,
 				59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */,
@@ -221,7 +230,6 @@
 				59280F271D47CAF40083FB59 /* SampleContent */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 				FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */,
-				FFD06EA31EC3C5350072AD85 /* WordPressShortcode.swift */,
 			);
 			name = "Example for WordPress-Aztec-iOS";
 			path = Example;
@@ -239,7 +247,8 @@
 			isa = PBXGroup;
 			children = (
 				607FACE91AFB9204008FA782 /* Supporting Files */,
-				FFD06EA61EC474500072AD85 /* ShortCodeParserTests.swift */,
+				FFD06EA61EC474500072AD85 /* ShortcodeProcessorTests.swift */,
+				FF9D82991ED4581D0080ACAF /* HTMLProcessorTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -270,6 +279,17 @@
 				CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */,
 			);
 			path = AztecUITests;
+			sourceTree = "<group>";
+		};
+		FF9D82941ED452340080ACAF /* Processors */ = {
+			isa = PBXGroup;
+			children = (
+				FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */,
+				FF9D82911ED44A6C0080ACAF /* Processor.swift */,
+				FF9D82951ED452600080ACAF /* HTMLAttributes.swift */,
+				FF9D82971ED455060080ACAF /* HTMLProcessor.swift */,
+			);
+			name = Processors;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -440,7 +460,9 @@
 			files = (
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
-				FFD06EA41EC3C5350072AD85 /* WordPressShortcode.swift in Sources */,
+				FF9D82921ED44A6C0080ACAF /* Processor.swift in Sources */,
+				FF9D82961ED452600080ACAF /* HTMLAttributes.swift in Sources */,
+				FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
 				B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */,
@@ -448,6 +470,7 @@
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */,
+				FF9D82981ED455060080ACAF /* HTMLProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,7 +478,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FFD06EA71EC474500072AD85 /* ShortCodeParserTests.swift in Sources */,
+				FFD06EA71EC474500072AD85 /* ShortcodeProcessorTests.swift in Sources */,
+				FF9D829B1ED459AA0080ACAF /* HTMLProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
