@@ -39,39 +39,22 @@ extension Libxml2 {
 
             assert(attributedString.length > 0)
 
-            DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, paragraphStyles, styles) in
+            DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, node) in
 
-                let subString = attributedString.attributedSubstring(from: subRange).string
-
-                insert(subString, atLocation: subRange.location, paragraphStyles: paragraphStyles, styles: styles)
+                insert(node: node, atLocation: subRange.location)
             })
         }
 
         ///
         ///
-        private func insert(_ string: String,
-                            atLocation location: Int,
-                            paragraphStyles: [DOMParagraphStyle],
-                            styles: [DOMStyle]) {
-
-            assert(string.characters.count > 0)
-
-            let textNode = TextNode(text: string)
-
-            let stylesRoot = styles.reversed().reduce(textNode as Node) { (result, style) -> Node in
-                return style.toNode(children: [result])
-            }
-
-            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
-                return style.toNode(children: [result])
-            }
+        private func insert(node: Node, atLocation location: Int) {
 
             let split = splitChild(of: rootNode, at: location)
 
             if let leftNode = split.left {
-                insertChild(paragraphStylesRoot, in: rootNode, after: leftNode)
+                insertChild(node, in: rootNode, after: leftNode)
             } else if let rightNode = split.right {
-                insertChild(paragraphStylesRoot, in: rootNode, before: rightNode)
+                insertChild(node, in: rootNode, before: rightNode)
             } else {
                 fatalError("This should not be possible.  Review the logic!")
             }
@@ -416,20 +399,6 @@ extension Libxml2 {
             insertChild(node, in: element, atOffset: intersection)
         }
 
-        /// Replaces
-        ///
-        private func replace(_ range: NSRange,
-                             with string: String,
-                             paragraphStyles: [DOMParagraphStyle],
-                             styles: [DOMStyle]) {
-            if range.length > 0 {
-                deleteCharacters(spanning: range)
-            }
-
-            if string.characters.count > 0 {
-                insert(string, atLocation: range.location, paragraphStyles: paragraphStyles, styles: styles)
-            }
-        }
 
         // MARK: - Removing Nodes
 

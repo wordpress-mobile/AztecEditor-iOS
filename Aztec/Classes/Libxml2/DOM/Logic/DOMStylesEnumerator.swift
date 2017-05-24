@@ -77,20 +77,51 @@ extension Libxml2 {
 
         ///
         ///
-        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [DOMParagraphStyle], [DOMStyle]) -> Void)) {
+        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, Node) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
-                var paragraphStyles = [DOMParagraphStyle]()
-                var styles = [DOMStyle]()
+                let styles = attributesToStyles(attributes: attrs)
+                let leaf = leafNode(from: attrString.attributedSubstring(from: range))
+                let rootNode = stylesToNode(styles: styles, leaf: leaf)
 
-                for (key, value) in attrs {
-                    paragraphStyles.append(contentsOf: self.paragraphStyles(key: key, value: value))
-                    styles.append(contentsOf: self.styles(key: key, value: value))
-                }
-
-                block(range, paragraphStyles, styles)
+                block(range, rootNode)
             }
         }
+
+        ///
+        ///
+        private func leafNode(from attrString: NSAttributedString) -> Node {
+            return TextNode(text: attrString.string)
+        }
+
+        ///
+        ///
+        private func stylesToNode(styles: ([DOMParagraphStyle], [DOMStyle]), leaf: Node) -> Node {
+            let stylesRoot = styles.1.reversed().reduce(leaf) { (result, style) -> Node in
+                return style.toNode(children: [result])
+            }
+
+            let paragraphStylesRoot = styles.0.reversed().reduce(stylesRoot) { (result, style) in
+                return style.toNode(children: [result])
+            }
+
+            return paragraphStylesRoot
+        }
+
+        ///
+        ///
+        private func attributesToStyles(attributes: [String: Any]) -> ([DOMParagraphStyle], [DOMStyle]) {
+            var paragraphStyles = [DOMParagraphStyle]()
+            var styles = [DOMStyle]()
+
+            for (key, value) in attributes {
+                paragraphStyles.append(contentsOf: self.paragraphStyles(key: key, value: value))
+                styles.append(contentsOf: self.styles(key: key, value: value))
+            }
+
+            return (paragraphStyles, styles)
+        }
+
 
 
         /// Converts a NSAttributedString Attribute / Value into an array of DOMParagraphStyle Instances.
