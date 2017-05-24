@@ -169,7 +169,9 @@ extension Libxml2 {
             node.parent = element
         }
 
-        private func insertChild(_ node: Node, in element:  ElementNode, atOffset offset: Int) {
+        private func insertChild(_ node: Node, in element: ElementNode, atOffset offset: Int) {
+
+            assert(inspector.range(of: element).contains(offset: offset))
 
             let insertionIndex: Int
 
