@@ -94,8 +94,8 @@ extension Libxml2 {
             let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
 
             switch attachment {
-//            case _ as LineAttachment:
-//                return Node(name: "")
+            case _ as LineAttachment:
+                return ElementNode(name: StandardElementType.hr.rawValue, attributes: [], children: [])
             case let attachment as CommentAttachment:
                 return CommentNode(text: attachment.text)
             case let attachment as HTMLAttachment:
