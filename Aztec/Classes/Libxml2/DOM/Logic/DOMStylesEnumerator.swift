@@ -91,7 +91,22 @@ extension Libxml2 {
         ///
         ///
         private func leafNode(from attrString: NSAttributedString) -> Node {
-            return TextNode(text: attrString.string)
+            let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
+
+            switch attachment {
+//            case _ as LineAttachment:
+//                return Node(name: "")
+            case let attachment as CommentAttachment:
+                return CommentNode(text: attachment.text)
+//            case let attachment as HTMLAttachment:
+//                return Node(name: "")
+//            case let attachment as ImageAttachment:
+//                return Node(name: "")
+//            case let attachment as VideoAttachment:
+//                return Node(name: "")
+            default:
+                return TextNode(text: attrString.string)
+            }
         }
 
         ///
