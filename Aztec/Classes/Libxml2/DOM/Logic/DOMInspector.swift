@@ -127,7 +127,10 @@ extension Libxml2 {
         ///
         func rightSibling(of node: Node, ignoreEmptyTextNodes: Bool = false) -> Node? {
 
-            let parent = self.parent(of: node)
+            guard let parent = node.parent else {
+                return nil
+            }
+
             let nextIndex = parent.indexOf(childNode: node) + 1
 
             guard parent.children.count > nextIndex else {

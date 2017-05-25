@@ -64,12 +64,14 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     private func convertContents(of node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
         switch node {
+        case let rootNode as RootNode:
+            return convert(rootNode, inheritingAttributes: attributes)
         case let textNode as TextNode:
-            return convertTextNode(textNode, inheritingAttributes: attributes)
+            return convert(textNode, inheritingAttributes: attributes)
         case let commentNode as CommentNode:
-            return convertCommentNode(commentNode, inheritingAttributes: attributes)
+            return convert(commentNode, inheritingAttributes: attributes)
         case let elementNode as ElementNode:
-            return convertElementNode(elementNode, inheritingAttributes: attributes)
+            return convert(elementNode, inheritingAttributes: attributes)
         default:
             fatalError("Nodes can be either text, comment or element nodes.")
         }
@@ -83,7 +85,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
 
         guard inspector.length(of: node) > 0 else {
             return NSAttributedString()
@@ -100,7 +102,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -115,7 +117,10 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ element: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func convert(_ element: ElementNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+
+        assert(!(element is RootNode))
+
         guard !inspector.isSupportedByEditor(element) else {
             return stringForNode(element, inheritingAttributes: attributes)
         }
@@ -127,6 +132,18 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         attachment.rawHTML = converter.convert(element)
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
+    }
+
+    /// Converts a `RootNode` to `NSAttributedString`.
+    ///
+    /// - Parameters:
+    ///     - rootNode: the root node to convert to `NSAttributedString`.
+    ///     - attributes: the inherited attributes from parent nodes.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    private func convert(_ rootNode: RootNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+        return stringForNode(rootNode, inheritingAttributes: attributes)
     }
 
     // MARK: - Paragraph Separator
