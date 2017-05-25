@@ -120,6 +120,18 @@
  */
 - (nullable UIViewController *)mediaPickerController:(nonnull WPMediaPickerViewController *)picker previewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
 
+/**
+ *  Tells the delegate that the picker will begin requesting
+ *  new data from its data source.
+ */
+- (void)mediaPickerControllerWillBeginLoadingData:(nonnull WPMediaPickerViewController *)picker;
+
+/**
+ *  Tells the delegate that the picker finished loading
+ *  new data from its data source.
+ */
+- (void)mediaPickerControllerDidEndLoadingData:(nonnull WPMediaPickerViewController *)picker;
+
 @end
 
 

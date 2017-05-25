@@ -290,7 +290,13 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
+
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerWillBeginLoadingData:)]) {
+        [self.mediaPickerDelegate mediaPickerControllerWillBeginLoadingData:self];
+    }
+
     __weak __typeof__(self) weakSelf = self;
+
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
         BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
@@ -315,6 +321,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 if (refreshGroupFirstTime){
                     [strongSelf scrollToStart:NO];
                 }
+
+                [strongSelf informDelegateDidEndLoadingData];
             });
  
         });
@@ -322,9 +330,17 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         __typeof__(self) strongSelf = weakSelf;
         strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf informDelegateDidEndLoadingData];
             [strongSelf showError:error];
         });
     }];
+}
+
+- (void)informDelegateDidEndLoadingData
+{
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
+        [self.mediaPickerDelegate mediaPickerControllerDidEndLoadingData:self];
+    }
 }
 
 - (void)showError:(NSError *)error {
