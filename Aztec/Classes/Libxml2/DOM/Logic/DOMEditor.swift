@@ -850,10 +850,12 @@ extension Libxml2 {
             var leftNodes = [Node]()
             var rightNodes = [Node]()
 
-            var centerNodesStartIndex = 0
-            var centerNodesEndIndex = element.children.count - 1
+            let centerNodesStartIndex: Int
+            let centerNodesEndIndex: Int
 
-            if range.location != 0 {
+            if range.location == 0 {
+                centerNodesStartIndex = 0
+            } else {
                 let (leftNode, rightNode) = splitChild(of: element, at: range.location)
 
                 if let leftNode = leftNode {
@@ -865,7 +867,9 @@ extension Libxml2 {
                 centerNodesStartIndex = element.indexOf(childNode: rightNode!)
             }
 
-            if splitRangeEndLocation != elementRangeEndLocation {
+            if splitRangeEndLocation == elementRangeEndLocation {
+                centerNodesEndIndex = element.children.count - 1
+            } else {
                 let (leftNode, rightNode) = splitChild(of: element, at: splitRangeEndLocation)
 
                 if let rightNode = rightNode {
