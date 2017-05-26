@@ -99,12 +99,8 @@ extension Libxml2 {
             case let commentAttachment as CommentAttachment:
                 return commentAttachmentToNode(commentAttachment)
             case let htmlAttachment as HTMLAttachment:
-                // Note: Upon issues, we'll fallback to a TextNode
-                //
-                return htmlAttachmentToNode(htmlAttachment) ?? textToNode(htmlAttachment.rawHTML)
+                return htmlAttachmentToNode(htmlAttachment)
             case let imageAttachment as ImageAttachment:
-                // Note: Upon issues, we'll fallback to a TextNode
-                //
                 return imageAttachmentToNode(imageAttachment)
             default:
                 return textToNode(attrString.string)
@@ -130,13 +126,13 @@ extension Libxml2 {
 
         ///
         ///
-        private func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> Node? {
+        private func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> Node {
             let converter = Libxml2.In.HTMLConverter()
 
             guard let rootNode = try? converter.convert(attachment.rawHTML),
                 let firstChild = rootNode.children.first
             else {
-                return nil
+                return textToNode(attachment.rawHTML)
             }
 
             guard rootNode.children.count == 1 else {
