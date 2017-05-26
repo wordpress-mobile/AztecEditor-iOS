@@ -3,10 +3,18 @@ All notable changes to this project will be documented in this file.
 `WPMediaPicker` adheres to [Semantic Versioning](http://semver.org/).
 
 #### 0.x Releases
+- `0.17` Releases - [0.17](#17)
 - `0.16` Releases - [0.16](#16)
 - `0.15` Releases - [0.15](#15)
 
 ---
+
+## [0.17](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.17)
+Released on 2017-05-26. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.17).
+
+#### Added
+- Two new `WPMediaPickerViewControllerDelegate` methods: `mediaPickerControllerWillBeginLoadingData` and `mediaPickerControllerDidEndLoadingData` to inform the delegate when loading of data from the data source has begun / ended.
 
 ## [0.16](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.16)
 Released on 2017-05-04. All issues associated with this milestone can be found using this
