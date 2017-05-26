@@ -99,7 +99,6 @@ extension Libxml2 {
             case let attachment as CommentAttachment:
                 return CommentNode(text: attachment.text)
             case let attachment as HTMLAttachment:
-
                 let converter = Libxml2.In.HTMLConverter()
 
                 guard let rootNode = try? converter.convert(attachment.rawHTML),
@@ -116,18 +115,17 @@ extension Libxml2 {
 
                 return firstChild
             case let attachment as ImageAttachment:
-                var attributes = [Attribute]()
-                if let urlAsString = attachment.url?.absoluteString {
-                    let sourceAttribute = StringAttribute(name: "src", value: urlAsString)
-                    attributes.append(sourceAttribute)
+                guard let url = attachment.url else {
+                    break
                 }
 
-                return ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
-//            case let attachment as VideoAttachment:
-//                return Node(name: "")
+                let source = StringAttribute(name: "src", value: url.absoluteString)
+                return ElementNode(name: StandardElementType.img.rawValue, attributes: [source], children: [])
             default:
-                return TextNode(text: attrString.string)
+                break
             }
+
+            return TextNode(text: attrString.string)
         }
 
         ///
@@ -227,12 +225,6 @@ extension Libxml2 {
                 }
 
                 styles.append(.anchor(url: url.absoluteString))
-            case NSAttachmentAttributeName:
-                guard let image = value as? ImageAttachment, let url = image.url else {
-                    break
-                }
-
-                styles.append(.image(url: url.absoluteString))
             case NSStrikethroughStyleAttributeName:
                 styles.append(.strike)
             case NSUnderlineStyleAttributeName:
