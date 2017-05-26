@@ -1199,25 +1199,6 @@ extension Libxml2 {
 
         // MARK: - Merging Nodes
 
-        /// Merges the siblings found separated at the specified location.  Since the DOM is a tree
-        /// only two siblings can match this separator.
-        ///
-        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
-        ///         even though it's not part of the contents of any node.  This method implements
-        ///         the logic that's executed when such visual-only newline is removed.
-        ///
-        /// - Parameters:
-        ///     - location: the location that separates the siblings we're looking for.
-        ///
-        func mergeBlockLevelElementRight(endingAt location: Int) {
-
-            guard let node = inspector.findDescendant(of: rootNode, endingAt: location) else {
-                return
-            }
-
-            mergeRight(node)
-        }
-
         /// Merges the specified block-level element with the sibling(s) to its right.
         ///
         /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
