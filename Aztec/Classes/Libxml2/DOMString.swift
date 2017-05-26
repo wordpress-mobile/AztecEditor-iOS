@@ -825,10 +825,9 @@ extension Libxml2 {
         // MARK: - Candidates for removal: Synchronously
 
         private func updateImageSynchronously(spanning ranges: [NSRange], url: URL, size: ImageAttachment.Size, alignment: ImageAttachment.Alignment) {
-            /*
             for range in ranges {
 
-                let element = self.rootNode.lowestElementNodeWrapping(range)
+                let element = self.domEditor.inspector.lowestChildElementNode(of: rootNode, spanning: range)
                 
                 if element.name == StandardElementType.img.rawValue {
                     var components = [String]()
@@ -848,7 +847,7 @@ extension Libxml2 {
                         element.updateAttribute(named: "src", value: url.absoluteString)
                     }
                 }
-            }*/
+            }
         }
     }
 }
