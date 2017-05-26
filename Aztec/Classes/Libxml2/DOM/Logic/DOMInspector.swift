@@ -254,7 +254,7 @@ extension Libxml2 {
             //
             let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
                 guard let textNode = node as? TextNode,
-                    length(of: textNode) == 0 else {
+                    textNode.contents.characters.count == 0 else {
                         return true
                 }
 
@@ -287,6 +287,39 @@ extension Libxml2 {
             return knownElements.contains(standardName)
         }
 
+        func needsClosingParagraphSeparator(_ element: ElementNode) -> Bool {
+
+            if isBlockLevelElement(element) {
+                // Exit if the last "valid" child node is an element and it's block-level
+
+                return true
+            } else {
+
+                // Exit if right sibling is not a block-level element
+
+                guard let rightSiblingElement = rightSibling(of: element, ignoreEmptyTextNodes: true) as? ElementNode,
+                    isBlockLevelElement(rightSiblingElement) else {
+                        return false
+                }
+
+                return true
+            }
+
+
+            guard element.children.count > 0 && element.standardName != .br else {
+                return false
+            }
+
+
+            if let rightSiblingElement = rightSibling(of: element, ignoreEmptyTextNodes: true) as? ElementNode,
+                isBlockLevelElement(rightSiblingElement) {
+
+                return true
+            }
+
+            return !isLastInTree(element) && isLastInBlockLevelAncestor(element)
+        }
+
         func needsClosingParagraphSeparator(_ node: Node) -> Bool {
 
             if let element = node as? ElementNode {
@@ -294,7 +327,7 @@ extension Libxml2 {
                     return false
                 }
             } else if let textNode = node as? TextNode {
-                guard length(of: textNode) > 0 else {
+                guard textNode.contents.characters.count > 0 else {
                     return false
                 }
             }
@@ -349,7 +382,14 @@ extension Libxml2 {
         }
 
         func text(for textNode: TextNode) -> String {
-            return textNode.contents
+
+            var text = textNode.contents
+
+            if needsClosingParagraphSeparator(textNode) {
+                text = text + String(.paragraphSeparator)
+            }
+
+            return text
         }
 
         func length(of node: Node) -> Int {
@@ -368,12 +408,12 @@ extension Libxml2 {
         ///
         /// - Returns: the range of the paragraph separator if it exists, or `nil`.
         ///
-        func rangeOfParagraphSeparator(for element: ElementNode) -> NSRange? {
-            guard needsClosingParagraphSeparator(element) else {
+        func rangeOfParagraphSeparator(for node: Node) -> NSRange? {
+            guard needsClosingParagraphSeparator(node) else {
                 return nil
             }
 
-            return NSRange(location: length(of: element) - 1, length: String(.paragraphSeparator).characters.count)
+            return NSRange(location: length(of: node) - 1, length: String(.paragraphSeparator).characters.count)
         }
 
         // MARK: - Finding Nodes: Children

@@ -286,24 +286,7 @@ extension Libxml2 {
                 element.removeFromParent()
             } else {
 
-                let finalRange: NSRange
-
-                // Since some elements have an implicit paragraph separator at their end, we need
-                // to merge them right, whenever the separator is removed.
-                //
-                if let separatorRange = inspector.rangeOfParagraphSeparator(for: element),
-                    range.contains(separatorRange) {
-
-                    mergeRight(element)
-
-                    // After merging the node right, we also need to shorten the range of characters
-                    // to delete, since the implicit paragraph separator has been removed
-                    // succesfully.
-                    //
-                    finalRange = range.shortened(by: separatorRange.length)
-                } else {
-                    finalRange = range
-                }
+                let finalRange = ensureRemovalOfClosingParagraphSeparator(for: element, ifFoundIn: range)
 
                 guard finalRange.length > 0 else {
                     return
@@ -324,10 +307,16 @@ extension Libxml2 {
             assert(inspector.range(of: textNode).contains(range))
             assert(range.length > 0)
 
+            let finalRange = ensureRemovalOfClosingParagraphSeparator(for: textNode, ifFoundIn: range)
+
+            guard finalRange.length > 0 else {
+                return
+            }
+
             let originalString = textNode.contents
             
-            let deleteStartIndex = originalString.index(originalString.startIndex, offsetBy: range.location)
-            let deleteEndIndex = originalString.index(deleteStartIndex, offsetBy: range.length)
+            let deleteStartIndex = originalString.index(originalString.startIndex, offsetBy: finalRange.location)
+            let deleteEndIndex = originalString.index(deleteStartIndex, offsetBy: finalRange.length)
 
             let firstSubstring = originalString.substring(to: deleteStartIndex)
             let secondSubstring = originalString.substring(from: deleteEndIndex)
@@ -369,6 +358,35 @@ extension Libxml2 {
 
                 deleteCharacters(in: child, spanning: intersection)
             }
+        }
+
+        /// Ensures that the paragraph separator will be deleted if the specified node has one, and
+        /// the specified range intersects it.
+        ///
+        /// - Parameters:
+        ///     - range: the range for the deletion operation.
+        ///     - node: the node that owns the specified range.
+        ///
+        /// - Returns: the input range minus the characters that represent the implicit paragraph
+        ///     separator.
+        ///
+        private func ensureRemovalOfClosingParagraphSeparator(for node: Node, ifFoundIn range: NSRange) -> NSRange {
+
+            // Since some elements have an implicit paragraph separator at their end, we need
+            // to merge them right, whenever the separator is removed.
+            //
+            guard let separatorRange = inspector.rangeOfParagraphSeparator(for: node),
+                range.contains(separatorRange) else {
+                    return range
+            }
+
+            mergeRight(node)
+
+            // After merging the node right, we also need to shorten the range of characters
+            // to delete, since the implicit paragraph separator has been removed
+            // succesfully.
+            //
+            return range.shortened(by: separatorRange.length)
         }
 
         // MARK: - Replacing Characters
