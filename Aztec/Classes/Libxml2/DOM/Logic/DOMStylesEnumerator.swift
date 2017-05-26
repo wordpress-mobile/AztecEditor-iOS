@@ -94,39 +94,79 @@ extension Libxml2 {
             let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
 
             switch attachment {
-            case _ as LineAttachment:
-                return ElementNode(name: StandardElementType.hr.rawValue, attributes: [], children: [])
-            case let attachment as CommentAttachment:
-                return CommentNode(text: attachment.text)
-            case let attachment as HTMLAttachment:
-                let converter = Libxml2.In.HTMLConverter()
-
-                guard let rootNode = try? converter.convert(attachment.rawHTML),
-                    let firstChild = rootNode.children.first else {
-                        // If there are problems parsing the provided HTML, we just add the HTML
-                        // contents as raw text.
-                        //
-                        return TextNode(text: attachment.rawHTML)
-                }
-
-                guard rootNode.children.count == 1 else {
-                    return ElementNode(name: StandardElementType.span.rawValue, attributes: [], children: rootNode.children)
-                }
-
-                return firstChild
-            case let attachment as ImageAttachment:
-                guard let url = attachment.url else {
-                    break
-                }
-
-                let source = StringAttribute(name: "src", value: url.absoluteString)
-                return ElementNode(name: StandardElementType.img.rawValue, attributes: [source], children: [])
+            case let lineAttachment as LineAttachment:
+                return lineAttachmentToNode(lineAttachment)
+            case let commentAttachment as CommentAttachment:
+                return commentAttachmentToNode(commentAttachment)
+            case let htmlAttachment as HTMLAttachment:
+                // Note: Upon issues, we'll fallback to a TextNode
+                //
+                return htmlAttachmentToNode(htmlAttachment) ?? textToNode(htmlAttachment.rawHTML)
+            case let imageAttachment as ImageAttachment:
+                // Note: Upon issues, we'll fallback to a TextNode
+                //
+                return imageAttachmentToNode(imageAttachment) ?? textToNode(attrString.string)
             default:
-                break
+                return textToNode(attrString.string)
+            }
+        }
+
+
+        // MARK: - Leaf Node Helpers
+
+        ///
+        ///
+        private func lineAttachmentToNode(_ lineAttachment: LineAttachment) -> ElementNode {
+            return ElementNode(name: StandardElementType.hr.rawValue, attributes: [], children: [])
+        }
+
+
+        ///
+        ///
+        private func commentAttachmentToNode(_ attachment: CommentAttachment) -> CommentNode {
+            return CommentNode(text: attachment.text)
+        }
+
+
+        ///
+        ///
+        private func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> Node? {
+            let converter = Libxml2.In.HTMLConverter()
+
+            guard let rootNode = try? converter.convert(attachment.rawHTML),
+                let firstChild = rootNode.children.first
+            else {
+                return nil
             }
 
-            return TextNode(text: attrString.string)
+            guard rootNode.children.count == 1 else {
+                return ElementNode(name: StandardElementType.span.rawValue, attributes: [], children: rootNode.children)
+            }
+
+            return firstChild
         }
+
+
+        ///
+        ///
+        private func imageAttachmentToNode(_ attachment: ImageAttachment) -> ElementNode? {
+            guard let url = attachment.url else {
+                return nil
+            }
+
+            let source = StringAttribute(name: "src", value: url.absoluteString)
+            return ElementNode(name: StandardElementType.img.rawValue, attributes: [source], children: [])
+        }
+
+
+        ///
+        ///
+        private func textToNode(_ text: String) -> TextNode {
+            return TextNode(text: text)
+        }
+
+
+        // MARK: - Node Generation Helpers
 
         ///
         ///
@@ -142,6 +182,9 @@ extension Libxml2 {
             return paragraphStylesRoot
         }
 
+
+        // MARK: - Style Extraction Helpers
+
         ///
         ///
         private func attributesToStyles(attributes: [String: Any]) -> ([DOMParagraphStyle], [DOMStyle]) {
@@ -155,7 +198,6 @@ extension Libxml2 {
 
             return (paragraphStyles, styles)
         }
-
 
 
         /// Converts a NSAttributedString Attribute / Value into an array of DOMParagraphStyle Instances.
