@@ -67,6 +67,17 @@ extension NSRange
         return NSRange(location: location + offset, length: length)
     }
 
+    /// Returns a range equal to the receiver shortened by the specified deduction value.
+    ///
+    /// - Parameters:
+    ///     - deduction: the number that will be deducted from the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func shortened(by deduction: Int) -> NSRange {
+        return NSRange(location: location, length: length - deduction)
+    }
+
     /// Returns the union with the specified range.
     ///
     /// This is `NSUnionRange` wrapped as an instance method.

@@ -290,7 +290,7 @@ extension Libxml2 {
         func needsClosingParagraphSeparator(_ node: Node) -> Bool {
 
             if let element = node as? ElementNode {
-                guard element.children.count == 0 && element.standardName != .br else {
+                guard element.children.count > 0 && element.standardName != .br else {
                     return false
                 }
             } else if let textNode = node as? TextNode {
@@ -358,6 +358,22 @@ extension Libxml2 {
 
         func range(of node: Node) -> NSRange {
             return NSRange(location: 0, length: length(of: node))
+        }
+
+        /// Returns the range of the paragraph separator for the specified node, only if the
+        /// specified node has it.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element.
+        ///
+        /// - Returns: the range of the paragraph separator if it exists, or `nil`.
+        ///
+        func rangeOfParagraphSeparator(for element: ElementNode) -> NSRange? {
+            guard needsClosingParagraphSeparator(element) else {
+                return nil
+            }
+
+            return NSRange(location: length(of: element) - 1, length: String(.paragraphSeparator).characters.count)
         }
 
         // MARK: - Finding Nodes: Children

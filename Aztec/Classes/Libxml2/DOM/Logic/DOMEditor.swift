@@ -285,6 +285,30 @@ extension Libxml2 {
             if range.location == 0 && range.length == inspector.length(of: element) {
                 element.removeFromParent()
             } else {
+
+                let finalRange: NSRange
+
+                // Since some elements have an implicit paragraph separator at their end, we need
+                // to merge them right, whenever the separator is removed.
+                //
+                if let separatorRange = inspector.rangeOfParagraphSeparator(for: element),
+                    range.contains(separatorRange) {
+
+                    mergeRight(element)
+
+                    // After merging the node right, we also need to shorten the range of characters
+                    // to delete, since the implicit paragraph separator has been removed
+                    // succesfully.
+                    //
+                    finalRange = range.shortened(by: separatorRange.length)
+                } else {
+                    finalRange = range
+                }
+
+                guard finalRange.length > 0 else {
+                    return
+                }
+
                 deleteCharactersFromChildren(of: element, spanning: range)
             }
         }
