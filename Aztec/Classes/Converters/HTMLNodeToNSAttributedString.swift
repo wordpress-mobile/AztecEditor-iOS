@@ -52,14 +52,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
-
-        let string = convertContents(of: node, inheritingAttributes: attributes)
-
-        guard inspector.needsClosingParagraphSeparator(node) else {
-            return string
-        }
-
-        return appendParagraphSeparator(to: string, inheritingAttributes: attributes)
+        return convertContents(of: node, inheritingAttributes: attributes)
     }
 
     private func convertContents(of node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
@@ -180,12 +173,20 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         let content = NSMutableAttributedString()
-        
+
+        if inspector.needsOpeningParagraphSeparator(node) {
+            content.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
+        }
+
         for child in node.children {
             let childContent = convert(child, inheritingAttributes: childAttributes)
             content.append(childContent)
         }
-        
+
+        if inspector.needsClosingParagraphSeparator(node) {
+            content.append(NSAttributedString(.paragraphSeparator, attributes: inheritedAttributes))
+        }
+
         return content
     }
 

@@ -67,14 +67,27 @@ extension NSRange
         return NSRange(location: location + offset, length: length)
     }
 
-    /// Returns a range equal to the receiver shortened by the specified deduction value.
+    /// Returns a range equal to the receiver shortened on its left side by the specified deduction
+    /// value.
     ///
     /// - Parameters:
     ///     - deduction: the number that will be deducted from the length of the range
     ///
     /// - Returns: the new range.
     ///
-    func shortened(by deduction: Int) -> NSRange {
+    func shortenedLeft(by deduction: Int) -> NSRange {
+        return NSRange(location: location + deduction, length: length - deduction)
+    }
+
+    /// Returns a range equal to the receiver shortened on its right side by the specified deduction
+    /// value.
+    ///
+    /// - Parameters:
+    ///     - deduction: the number that will be deducted from the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func shortenedRight(by deduction: Int) -> NSRange {
         return NSRange(location: location, length: length - deduction)
     }
 

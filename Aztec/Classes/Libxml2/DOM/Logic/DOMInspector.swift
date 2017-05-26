@@ -287,25 +287,31 @@ extension Libxml2 {
             return knownElements.contains(standardName)
         }
 
-        func needsClosingParagraphSeparator(_ node: Node) -> Bool {
+        // MARK: - Paragraph Separator
 
-            if let element = node as? ElementNode {
-                guard element.children.count > 0 && element.standardName != .br else {
-                    return false
-                }
-            } else if let textNode = node as? TextNode {
-                guard textNode.contents.characters.count > 0 else {
-                    return false
-                }
+        func needsClosingParagraphSeparator(_ element: ElementNode) -> Bool {
+
+            guard isBlockLevelElement(element) else {
+                return false
             }
 
-            if let rightSiblingElement = rightSibling(of: node, ignoreEmptyTextNodes: true) as? ElementNode,
-                isBlockLevelElement(rightSiblingElement) {
+            if let rightmostChild = findRightmostChild(of: element) as? ElementNode {
+                return !isBlockLevelElement(rightmostChild)
+            } else {
+                return false
+            }
+        }
 
-                return true
+        func needsOpeningParagraphSeparator(_ element: ElementNode) -> Bool {
+            guard isBlockLevelElement(element) else {
+                return false
             }
 
-            return !isLastInTree(node) && isLastInBlockLevelAncestor(node)
+            if let leftmostChild = findLeftmostChild(of: element) as? ElementNode {
+                return !isBlockLevelElement(leftmostChild)
+            } else {
+                return false
+            }
         }
 
         // MARK: - Text
@@ -337,6 +343,10 @@ extension Libxml2 {
 
             var text = ""
 
+            if needsOpeningParagraphSeparator(element) {
+                text.append(String(.paragraphSeparator))
+            }
+
             for child in element.children {
                 text.append(self.text(for: child))
             }
@@ -349,14 +359,7 @@ extension Libxml2 {
         }
 
         func text(for textNode: TextNode) -> String {
-
-            var text = textNode.contents
-
-            if needsClosingParagraphSeparator(textNode) {
-                text.append(String(.paragraphSeparator))
-            }
-
-            return text
+            return textNode.contents
         }
 
         func length(of node: Node) -> Int {
@@ -367,7 +370,7 @@ extension Libxml2 {
             return NSRange(location: 0, length: length(of: node))
         }
 
-        /// Returns the range of the paragraph separator for the specified node, only if the
+        /// Returns the range of the closing paragraph separator for the specified node, only if the
         /// specified node has it.
         ///
         /// - Parameters:
@@ -375,12 +378,28 @@ extension Libxml2 {
         ///
         /// - Returns: the range of the paragraph separator if it exists, or `nil`.
         ///
-        func rangeOfParagraphSeparator(for node: Node) -> NSRange? {
-            guard needsClosingParagraphSeparator(node) else {
+        func rangeOfClosingParagraphSeparator(for element: ElementNode) -> NSRange? {
+            guard needsClosingParagraphSeparator(element) else {
                 return nil
             }
 
-            return NSRange(location: length(of: node) - 1, length: String(.paragraphSeparator).characters.count)
+            return NSRange(location: length(of: element) - 1, length: String(.paragraphSeparator).characters.count)
+        }
+
+        /// Returns the range of the opening paragraph separator for the specified node, only if the
+        /// specified node has it.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element.
+        ///
+        /// - Returns: the range of the paragraph separator if it exists, or `nil`.
+        ///
+        func rangeOfOpeningParagraphSeparator(for element: ElementNode) -> NSRange? {
+            guard needsOpeningParagraphSeparator(element) else {
+                return nil
+            }
+
+            return NSRange(location: 0, length: String(.paragraphSeparator).characters.count)
         }
 
         // MARK: - Finding Nodes: Children
@@ -458,6 +477,96 @@ extension Libxml2 {
                 childOffset = childOffset + length(of: child)
             }
             
+            return nil
+        }
+
+        /// Returns the leftmost child.  Optionally allows the caller to define if empty text nodes
+        /// are valid results.  By default they're not.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element, to search the children of.
+        ///     - ignoreEmptyTextNodes: optional parameter to specify if empty text nodes are
+        ///             valid results or not.
+        ///
+        /// - Returns: the requested node.
+        ///
+        func findLeftmostChild(
+            of element: ElementNode,
+            ignoreEmptyTextNodes: Bool = true) -> Node? {
+
+            return findLeftmostChild(of: element, where: { node -> Bool in
+                guard let textNode = node as? TextNode,
+                    text(for: textNode).characters.count == 0 else {
+                        return true
+                }
+
+                return false
+            })
+        }
+
+        /// Returns the leftmost child of an element satisfying a specified condition.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element, to search the children of.
+        ///     - condition: the condition the child node must satisfy.
+        ///
+        /// - Returns: the requested node if found, or `nil`.
+        ///
+        func findLeftmostChild(
+            of element: ElementNode,
+            where condition: (Node) -> Bool) -> Node? {
+
+            for child in element.children {
+                if condition(child) {
+                    return child
+                }
+            }
+            
+            return nil
+        }
+
+        /// Returns the right child.  Optionally allows the caller to define if empty text nodes
+        /// are valid results.  By default they're not.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element, to search the children of.
+        ///     - ignoreEmptyTextNodes: optional parameter to specify if empty text nodes are
+        ///             valid results or not.
+        ///
+        /// - Returns: the requested node.
+        ///
+        func findRightmostChild(
+            of element: ElementNode,
+            ignoreEmptyTextNodes: Bool = true) -> Node? {
+
+            return findRightmostChild(of: element, where: { node -> Bool in
+                guard let textNode = node as? TextNode,
+                    text(for: textNode).characters.count == 0 else {
+                        return true
+                }
+
+                return false
+            })
+        }
+
+        /// Returns the rightmost child of an element satisfying a specified condition.
+        ///
+        /// - Parameters:
+        ///     - element: the reference element, to search the children of.
+        ///     - condition: the condition the child node must satisfy.
+        ///
+        /// - Returns: the requested node if found, or `nil`.
+        ///
+        func findRightmostChild(
+            of element: ElementNode,
+            where condition: (Node) -> Bool) -> Node? {
+
+            for child in element.children.reversed() {
+                if condition(child) {
+                    return child
+                }
+            }
+
             return nil
         }
 

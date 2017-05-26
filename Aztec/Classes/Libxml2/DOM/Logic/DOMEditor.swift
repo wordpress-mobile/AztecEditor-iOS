@@ -288,7 +288,7 @@ extension Libxml2 {
                 element.removeFromParent()
             } else {
 
-                let finalRange = ensureRemovalOfClosingParagraphSeparator(for: element, ifFoundIn: range)
+                let finalRange = ensureRemovalOfParagraphSeparators(for: element, ifFoundIn: range)
 
                 guard finalRange.length > 0 else {
                     return
@@ -309,16 +309,10 @@ extension Libxml2 {
             assert(inspector.range(of: textNode).contains(range))
             assert(range.length > 0)
 
-            let finalRange = ensureRemovalOfClosingParagraphSeparator(for: textNode, ifFoundIn: range)
-
-            guard finalRange.length > 0 else {
-                return
-            }
-
             let originalString = textNode.contents
             
-            let deleteStartIndex = originalString.index(originalString.startIndex, offsetBy: finalRange.location)
-            let deleteEndIndex = originalString.index(deleteStartIndex, offsetBy: finalRange.length)
+            let deleteStartIndex = originalString.index(originalString.startIndex, offsetBy: range.location)
+            let deleteEndIndex = originalString.index(deleteStartIndex, offsetBy: range.length)
 
             let firstSubstring = originalString.substring(to: deleteStartIndex)
             let secondSubstring = originalString.substring(from: deleteEndIndex)
@@ -362,33 +356,82 @@ extension Libxml2 {
             }
         }
 
-        /// Ensures that the paragraph separator will be deleted if the specified node has one, and
-        /// the specified range intersects it.
+        // MARK: - Paragraph Separator Logic
+
+        /// Ensures that the paragraph separators will be deleted if the specified element has them,
+        /// and the specified range intersects it.
         ///
         /// - Parameters:
         ///     - range: the range for the deletion operation.
-        ///     - node: the node that owns the specified range.
+        ///     - element: the element node that owns the specified range.
         ///
         /// - Returns: the input range minus the characters that represent the implicit paragraph
         ///     separator.
         ///
-        private func ensureRemovalOfClosingParagraphSeparator(for node: Node, ifFoundIn range: NSRange) -> NSRange {
+        private func ensureRemovalOfClosingParagraphSeparators(for element: ElementNode, ifFoundIn range: NSRange) -> NSRange {
 
             // Since some elements have an implicit paragraph separator at their end, we need
             // to merge them right, whenever the separator is removed.
             //
-            guard let separatorRange = inspector.rangeOfParagraphSeparator(for: node),
+            guard let separatorRange = inspector.rangeOfClosingParagraphSeparator(for: element),
                 range.contains(separatorRange) else {
                     return range
             }
 
-            mergeRight(node)
+            mergeRight(element)
 
             // After merging the node right, we also need to shorten the range of characters
             // to delete, since the implicit paragraph separator has been removed
             // succesfully.
             //
-            return range.shortened(by: separatorRange.length)
+            return range.shortenedRight(by: separatorRange.length)
+        }
+
+
+        /// Ensures that the paragraph separators will be deleted if the specified element has them,
+        /// and the specified range intersects it.
+        ///
+        /// - Parameters:
+        ///     - range: the range for the deletion operation.
+        ///     - element: the element node that owns the specified range.
+        ///
+        /// - Returns: the input range minus the characters that represent the implicit paragraph
+        ///     separator.
+        ///
+        private func ensureRemovalOfOpeningParagraphSeparators(for element: ElementNode, ifFoundIn range: NSRange) -> NSRange {
+
+            // Since some elements have an implicit paragraph separator at their end, we need
+            // to merge them right, whenever the separator is removed.
+            //
+            guard let separatorRange = inspector.rangeOfOpeningParagraphSeparator(for: element),
+                range.contains(separatorRange) else {
+                    return range
+            }
+
+            mergeLeft(element)
+
+            // After merging the node right, we also need to shorten the range of characters
+            // to delete, since the implicit paragraph separator has been removed
+            // succesfully.
+            //
+            return range.shortenedLeft(by: separatorRange.length)
+        }
+
+        /// Ensures that the paragraph separators will be deleted if the specified element has them,
+        /// and the specified range intersects it.
+        ///
+        /// - Parameters:
+        ///     - range: the range for the deletion operation.
+        ///     - element: the element node that owns the specified range.
+        ///
+        /// - Returns: the input range minus the characters that represent the implicit paragraph
+        ///     separator.
+        ///
+        private func ensureRemovalOfParagraphSeparators(for element: ElementNode, ifFoundIn range: NSRange) -> NSRange {
+
+            let updatedRange = ensureRemovalOfOpeningParagraphSeparators(for: element, ifFoundIn: range)
+
+            return ensureRemovalOfClosingParagraphSeparators(for: element, ifFoundIn: range)
         }
 
         // MARK: - Replacing Characters
@@ -1184,6 +1227,23 @@ extension Libxml2 {
         /// - Parameters:
         ///     - node: the node we're merging to the right.
         ///
+        private func mergeLeft(_ node: Node) {
+            guard let leftSibling = inspector.leftSibling(of: node) else {
+                return
+            }
+
+            mergeRight(leftSibling)
+        }
+
+        /// Merges the specified block-level element with the sibling(s) to its right.
+        ///
+        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
+        ///         even though it's not part of the contents of any node.  This method implements
+        ///         the logic that's executed when such visual-only newline is removed.
+        ///
+        /// - Parameters:
+        ///     - node: the node we're merging to the right.
+        ///
         private func mergeRight(_ node: Node) {
             let rightNodes = extractRightNodesForMerging(after: node)
 
@@ -1228,10 +1288,7 @@ extension Libxml2 {
         }
 
         private func extractRightNodesForMerging(after node: Node) -> [Node] {
-            guard let parent = node.parent else {
-                fatalError("Expected to have a parent node here.")
-            }
-
+            let parent = inspector.parent(of: node)
             let nodeIndex = parent.indexOf(childNode: node)
 
             return extractNodesForMerging(from: parent, startingAt: nodeIndex + 1)
