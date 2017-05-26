@@ -7,6 +7,8 @@ protocol MediaAttachmentDelegate: class {
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage
+
+    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
 }
 
 /// Custom text attachment.
@@ -309,6 +311,9 @@ open class MediaAttachment: NSTextAttachment
         }
         
         guard let url = url, !isFetchingImage && url != lastRequestedURL else {
+            if self.url == nil {
+                self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)                
+            }
             return
         }
         
@@ -329,12 +334,12 @@ open class MediaAttachment: NSTextAttachment
                 }
                 
                 strongSelf.isFetchingImage = false
+                strongSelf.lastRequestedURL = nil
+                strongSelf.image = nil
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
             })
 
-        if self.image == nil {
-            self.image = image
-        }
+        self.image = image
     }
     
     fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
