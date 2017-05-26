@@ -292,7 +292,7 @@ extension Libxml2 {
                     return
                 }
 
-                deleteCharactersFromChildren(of: element, spanning: range)
+                deleteCharactersFromChildren(of: element, spanning: finalRange)
             }
         }
 
