@@ -849,22 +849,23 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         }) 
         task.resume()
 
-        return placeholderImage(forAttachment: attachment)
+        return placeholderImage(for: attachment)
     }
 
     func textView(_ textView: TextView, placeholderForAttachment attachment: NSTextAttachment) -> UIImage {
-        return placeholderImage(forAttachment: attachment)
+        return placeholderImage(for: attachment)
     }
 
-    func placeholderImage(forAttachment attachment: NSTextAttachment) -> UIImage {
+    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
+        let imageSize = CGSize(width:32, height:32)
         let placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
-            placeholderImage = Gridicon.iconOfType(.image, withSize: CGSize(width:32, height:32))
+            placeholderImage = Gridicon.iconOfType(.image, withSize: imageSize)
         case _ as VideoAttachment:
-            placeholderImage = Gridicon.iconOfType(.video, withSize: CGSize(width:32, height:32))
+            placeholderImage = Gridicon.iconOfType(.video, withSize: imageSize)
         default:
-            placeholderImage = Gridicon.iconOfType(.attachment, withSize: CGSize(width:32, height:32))
+            placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
 
         }
 
