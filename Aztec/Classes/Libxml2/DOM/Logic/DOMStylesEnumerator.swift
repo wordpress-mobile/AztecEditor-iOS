@@ -105,7 +105,7 @@ extension Libxml2 {
             case let imageAttachment as ImageAttachment:
                 // Note: Upon issues, we'll fallback to a TextNode
                 //
-                return imageAttachmentToNode(imageAttachment) ?? textToNode(attrString.string)
+                return imageAttachmentToNode(imageAttachment)
             default:
                 return textToNode(attrString.string)
             }
@@ -149,13 +149,14 @@ extension Libxml2 {
 
         ///
         ///
-        private func imageAttachmentToNode(_ attachment: ImageAttachment) -> ElementNode? {
-            guard let url = attachment.url else {
-                return nil
+        private func imageAttachmentToNode(_ attachment: ImageAttachment) -> ElementNode {
+            var attributes = [Attribute]()
+            if let url = attachment.url {
+                let source = StringAttribute(name: "src", value: url.absoluteString)
+                attributes.append(source)
             }
 
-            let source = StringAttribute(name: "src", value: url.absoluteString)
-            return ElementNode(name: StandardElementType.img.rawValue, attributes: [source], children: [])
+            return ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
         }
 
 
