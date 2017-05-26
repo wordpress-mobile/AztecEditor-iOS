@@ -287,39 +287,6 @@ extension Libxml2 {
             return knownElements.contains(standardName)
         }
 
-        func needsClosingParagraphSeparator(_ element: ElementNode) -> Bool {
-
-            if isBlockLevelElement(element) {
-                // Exit if the last "valid" child node is an element and it's block-level
-
-                return true
-            } else {
-
-                // Exit if right sibling is not a block-level element
-
-                guard let rightSiblingElement = rightSibling(of: element, ignoreEmptyTextNodes: true) as? ElementNode,
-                    isBlockLevelElement(rightSiblingElement) else {
-                        return false
-                }
-
-                return true
-            }
-
-
-            guard element.children.count > 0 && element.standardName != .br else {
-                return false
-            }
-
-
-            if let rightSiblingElement = rightSibling(of: element, ignoreEmptyTextNodes: true) as? ElementNode,
-                isBlockLevelElement(rightSiblingElement) {
-
-                return true
-            }
-
-            return !isLastInTree(element) && isLastInBlockLevelAncestor(element)
-        }
-
         func needsClosingParagraphSeparator(_ node: Node) -> Bool {
 
             if let element = node as? ElementNode {
