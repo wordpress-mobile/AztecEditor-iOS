@@ -687,6 +687,43 @@ extension Libxml2 {
             }
         }
 
+        /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
+        /// range. If no child element node wraps the specified range, this method returns this
+        /// node.
+        ///
+        /// - Parameters:
+        ///     - node: the node whose children must be checked.
+        ///     - range: the range we want to find the wrapping node of.
+        ///
+        /// - Returns: the lowest-level element node wrapping the specified range, or the main node if
+        ///         no child node fulfills the condition.
+        ///
+        func lowestChildElementNode(of node: ElementNode, spanning range: NSRange) -> ElementNode {
+
+            var offset = 0
+
+            for child in node.children {
+                let nodeLength = length(of: child)
+                let nodeRange = NSRange(location: offset, length: nodeLength)
+                let nodeWrapsRange = (NSUnionRange(nodeRange, range).length == nodeRange.length)
+
+                if nodeWrapsRange {
+                    if let elementNode = child as? ElementNode {
+
+                        let childRange = NSRange(location: range.location - offset, length: range.length)
+
+                        return lowestChildElementNode(of: elementNode, spanning: childRange)
+                    }
+
+                    return node
+                }
+
+                offset = offset + nodeLength
+            }
+            
+            return node
+        }
+
         // MARK: - Finding Nodes: Core Methods
 
         /// Navigates the descendants of a provided element.
