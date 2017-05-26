@@ -3,6 +3,7 @@
 #import "WPMediaCapturePreviewCollectionView.h"
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
+#import "WPPHAssetDataSource.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -124,25 +125,58 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (void)setupLayout
 {
-    CGFloat minWidth = MIN (self.view.frame.size.width, self.view.frame.size.height);
+    CGFloat frameWidth = self.view.frame.size.width;
+    CGFloat frameHeight = self.view.frame.size.height;
+    CGFloat minFrameWidth = MIN(frameWidth, frameHeight);
+
     // Configure collection view layout
     CGFloat numberOfPhotosForLine = 4;
-    CGFloat spaceBetweenPhotos = 1.0f;
-    CGFloat leftRightInset = 0;
+    CGFloat photoSpacing = 1.0f;
     CGFloat topBottomInset = 5;
-    
-    CGFloat width = floorf((minWidth - (((numberOfPhotosForLine -1) * spaceBetweenPhotos)) + (2*leftRightInset)) / numberOfPhotosForLine);
-    
-    self.layout.itemSize = CGSizeMake(width, width);
-    self.layout.minimumInteritemSpacing = spaceBetweenPhotos;
-    self.layout.minimumLineSpacing = spaceBetweenPhotos;
-    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, leftRightInset, topBottomInset, leftRightInset);
 
+    CGFloat cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                              photoSpacing:photoSpacing
+                                                frameWidth:minFrameWidth];
+
+    // Check the actual width of the content based on the computed cell size
+    // How many photos are we actually fitting per line?
+    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
+    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
+
+    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
+
+    // If we have gaps in our layout, adjust to fit
+    if (contentWidth < frameWidth) {
+        cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                          photoSpacing:photoSpacing
+                                            frameWidth:frameWidth];
+    }
+
+    self.layout.itemSize = CGSizeMake(cellSize, cellSize);
+    self.layout.minimumInteritemSpacing = photoSpacing;
+    self.layout.minimumLineSpacing = photoSpacing;
+    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, 0, topBottomInset, 0);
+}
+
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth
+{
+    CGFloat totalSpacing = (photosPerLine - 1) * photoSpacing;
+    return floorf((frameWidth - totalSpacing) / photosPerLine);
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     [self setupLayout];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [self.captureCell stopCaptureOnCompletion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.captureCell startCapture];
 }
 
 #pragma mark - Actions
@@ -251,16 +285,18 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
             [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
             [self.refreshControl beginRefreshing];
-        }
-        // NOTE: Sergio Estevao (2015-11-19)
-        // Clean all assets and refresh collection view when the group was changed
-        // This avoid to see data from previous group while the new one is loading.
-        [self.collectionView reloadData];
+        }        
     }
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
+
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerWillBeginLoadingData:)]) {
+        [self.mediaPickerDelegate mediaPickerControllerWillBeginLoadingData:self];
+    }
+
     __weak __typeof__(self) weakSelf = self;
+
     [self.dataSource loadDataWithSuccess:^{
         __typeof__(self) strongSelf = weakSelf;
         BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
@@ -285,6 +321,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                 if (refreshGroupFirstTime){
                     [strongSelf scrollToStart:NO];
                 }
+
+                [strongSelf informDelegateDidEndLoadingData];
             });
  
         });
@@ -292,9 +330,17 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         __typeof__(self) strongSelf = weakSelf;
         strongSelf.refreshGroupFirstTime = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
+            [strongSelf informDelegateDidEndLoadingData];
             [strongSelf showError:error];
         });
     }];
+}
+
+- (void)informDelegateDidEndLoadingData
+{
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
+        [self.mediaPickerDelegate mediaPickerControllerDidEndLoadingData:self];
+    }
 }
 
 - (void)showError:(NSError *)error {
@@ -423,13 +469,15 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
        (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
     {
-        self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
-        if (self.captureCell.gestureRecognizers == nil) {
-            UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
-            [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+        if (!self.captureCell) {
+            self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
+            if (self.captureCell.gestureRecognizers == nil) {
+                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+                [self.captureCell addGestureRecognizer:tapGestureRecognizer];
+            }
+            self.captureCell.preferFrontCamera = self.preferFrontCamera;
+            [self.captureCell startCapture];
         }
-        self.captureCell.preferFrontCamera = self.preferFrontCamera;
-        [self.captureCell startCapture];
         return self.captureCell;
     }
 
@@ -548,22 +596,6 @@ referenceSizeForFooterInSection:(NSInteger)section
     }];
 }
 
-- (void)animateCaptureCellSelection:(UIView *)cell completion:(void (^)())completionBlock
-{
-    [UIView animateKeyframesWithDuration:0.5 delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
-        [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:1 animations:^{
-            CGRect frame = self.view.frame;
-            frame.origin.x += self.collectionView.contentOffset.x;
-            frame.origin.y += self.collectionView.contentOffset.y;
-            cell.frame = frame;
-        }];
-    } completion:^(BOOL finished) {
-        if(completionBlock){
-            completionBlock();
-        }
-    }];
-}
-
 #pragma mark - Media Capture
 
 - (BOOL)isMediaDeviceAvailable
@@ -593,9 +625,8 @@ referenceSizeForFooterInSection:(NSInteger)section
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     imagePickerController.cameraDevice = [self cameraDevice];
     imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:^{
-
-    }];
+    imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
+    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 - (UIImagePickerControllerCameraDevice)cameraDevice
@@ -715,8 +746,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [picker dismissViewControllerAnimated:YES completion:^{
-    }];
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)setGroup:(id<WPMediaGroup>)group {
@@ -769,6 +799,11 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIViewController *)defaultPreviewViewControllerForAsset:(id <WPMediaAsset>)asset
 {
+    // We can't preview PHAssets that are audio files
+    if ([self.dataSource isKindOfClass:[WPPHAssetDataSource class]] && asset.assetType == WPMediaTypeAudio) {
+        return nil;
+    }
+
     WPAssetViewController *fullScreenImageVC = [[WPAssetViewController alloc] init];
     fullScreenImageVC.asset = asset;
     fullScreenImageVC.selected = [self positionOfAssetInSelection:asset] != NSNotFound;

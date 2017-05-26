@@ -7,7 +7,8 @@
 @property (nonatomic, strong) PHAssetCollection *activeAssetsCollection;
 @property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
-@property (nonatomic, strong) PHFetchResult * albums;
+@property (nonatomic, strong) PHFetchResult *albums;
+@property (nonatomic, strong) NSMutableArray<PHAssetCollectionForWPMediaGroup *> *cachedCollections;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
@@ -15,7 +16,9 @@
 
 @end
 
-@implementation WPPHAssetDataSource
+@implementation WPPHAssetDataSource {
+    id<WPMediaGroup> _selectedGroup;
+}
 
 + (instancetype)sharedInstance
 {
@@ -37,6 +40,7 @@
     _mediaTypeFilter = WPMediaTypeVideoOrImage;
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
+    _cachedCollections = [[NSMutableArray alloc] init];
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     return self;
 }
@@ -69,9 +73,8 @@
             return;
         }
 
-        if (groupChangeDetails || albumChangeDetails){
-            [self loadGroupsWithSuccess:nil failure:nil];
-        }
+        [self loadGroupsWithSuccess:nil failure:nil];
+        
         BOOL incrementalChanges = assetsChangeDetails.hasIncrementalChanges;
         // Capture removed, changed, and moved indexes before fetching results for incremental chaanges.
         // The adjustedIndex depends on the *old* asset count.
@@ -110,15 +113,17 @@
             }
             return;
         }
-        if (self.refreshGroups) {
-            [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-            [self loadGroupsWithSuccess:^{
-                self.refreshGroups = NO;
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            if (self.refreshGroups) {
+                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
+                [self loadGroupsWithSuccess:^{
+                    self.refreshGroups = NO;
+                    [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                } failure:failureBlock];
+            } else {
                 [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-            } failure:failureBlock];
-        } else {
-            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-        }
+            }
+        });
     }];
 }
 
@@ -169,9 +174,13 @@
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
+    [self.cachedCollections removeAllObjects];
+    for (PHAssetCollection *assetColletion in self.assetsCollections) {
+        [self.cachedCollections addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
+    }
     if (self.assetsCollections.count > 0){
         if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
-            self.activeAssetsCollection = self.assetsCollections[0];
+            self.activeAssetsCollection = [self.assetsCollections firstObject];
         }
         if (successBlock) {
             successBlock();
@@ -196,6 +205,9 @@
         case WPMediaTypeVideo:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
             break;
+        case WPMediaTypeAudio:
+            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeAudio];
+            break;
         case WPMediaTypeOther:
             return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
             break;
@@ -217,21 +229,34 @@
     }
 }
 
+- (void)setActiveAssetsCollection:(PHAssetCollection *)activeAssetsCollection
+{
+    if (_activeAssetsCollection != activeAssetsCollection) {
+        _activeAssetsCollection = activeAssetsCollection;
+        _selectedGroup = nil;
+    }
+}
+
 #pragma mark - WPMediaCollectionDataSource
 
 - (NSInteger)numberOfGroups
 {
-    return self.assetsCollections.count;
+    return self.cachedCollections.count;
 }
 
 - (id<WPMediaGroup>)groupAtIndex:(NSInteger)index
 {
-    return [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.assetsCollections[index] mediaType:self.mediaTypeFilter];
+    return self.cachedCollections[index];
 }
 
 - (id<WPMediaGroup>)selectedGroup
 {
-    return [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.activeAssetsCollection mediaType:self.mediaTypeFilter];
+    if (!_selectedGroup) {
+        _selectedGroup = [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.activeAssetsCollection
+                                                                            mediaType:self.mediaTypeFilter];
+    }
+
+    return _selectedGroup;
 }
 
 - (void)setSelectedGroup:(id<WPMediaGroup>)group
@@ -384,8 +409,8 @@
 {
     PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
-    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
-    options.resizeMode = PHImageRequestOptionsResizeModeExact;
+    options.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+    options.resizeMode = PHImageRequestOptionsResizeModeFast;
     options.networkAccessAllowed = YES;
     CGSize requestSize = size;
     if (CGSizeEqualToSize(requestSize, CGSizeZero)) {
@@ -423,9 +448,9 @@
  */
 - (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler
 {
-    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];    
     options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
     return [[WPPHAssetDataSource sharedImageManager] requestAVAssetForVideo:self
                                                                   options:options
                                                             resultHandler:^(AVAsset *result, AVAudioMix *audioMix, NSDictionary *info) {
@@ -450,6 +475,8 @@
         return WPMediaTypeVideo;
     } else if ([self mediaType] == PHAssetMediaTypeImage) {
         return WPMediaTypeImage;
+    } else if ([self mediaType] == PHAssetMediaTypeAudio) {
+        return WPMediaTypeAudio;
     } else if ([self mediaType] == PHAssetMediaTypeUnknown) {
         return WPMediaTypeOther;
     }
@@ -477,6 +504,11 @@
     return CGSizeMake((CGFloat)self.pixelWidth, (CGFloat)self.pixelHeight);
 }
 
+- (NSString *)fileExtension
+{
+    return [[[[PHAssetResource assetResourcesForAsset:self] firstObject] originalFilename] pathExtension];
+}
+
 @end
 
 #pragma mark - WPPHAssetCollection
@@ -484,7 +516,10 @@
 @interface PHAssetCollectionForWPMediaGroup()
 
 @property(nonatomic, strong) PHAssetCollection *collection;
+@property(nonatomic) NSInteger assetCount;
+@property(nonatomic, strong) PHAsset *posterAsset;
 @property(nonatomic, assign) WPMediaType mediaType;
+@property(nonatomic, strong) PHFetchResult *fetchResult;
 
 @end
 
@@ -496,6 +531,9 @@
     if (self) {
         _collection = collection;
         _mediaType = mediaType;
+
+        _assetCount = NSNotFound;
+        _posterAsset = nil;
     }
     return self;
 }
@@ -508,20 +546,12 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:self.mediaType];
-
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] lastObject];
-    return [posterAsset imageWithSize:size completionHandler:completionHandler];
+    return [self.posterAsset imageWithSize:size completionHandler:completionHandler];
 }
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:self.mediaType];
-
-    PHAsset *posterAsset = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] lastObject];
-    [posterAsset cancelImageRequest:requestID];
+    [self.posterAsset cancelImageRequest:requestID];
 }
 
 - (id)baseGroup
@@ -536,12 +566,34 @@
 
 - (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:mediaType];
+    NSInteger count = self.collection.estimatedAssetCount;
+    if (count != NSNotFound) {
+        return count;
+    }
 
-    NSInteger count = [[PHAsset fetchAssetsInAssetCollection:self.collection options:fetchOptions] count];
-    
-    return count;
+    if (self.assetCount == NSNotFound) {
+        self.assetCount = [self.fetchResult count];
+    }
+
+    return self.assetCount;
+}
+
+- (PHFetchResult *)fetchResult {
+    if (!_fetchResult) {
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
+        _fetchResult = [PHAsset fetchAssetsInAssetCollection:_collection options:fetchOptions];
+
+    }
+    return _fetchResult;
+}
+
+- (PHAsset *)posterAsset {
+    if (!_posterAsset) {
+        _posterAsset = [[self fetchResult] lastObject];
+    }
+
+    return _posterAsset;
 }
 
 @end

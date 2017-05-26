@@ -4,6 +4,7 @@
 @import AVKit;
 
 #import "WPVideoPlayerView.h"
+#import "WPDateTimeHelpers.h"
 
 @interface WPAssetViewController () <WPVideoPlayerViewDelegate>
 
@@ -61,6 +62,37 @@
     [self showAsset];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self updateNavigationTitle];
+}
+
+- (void)updateNavigationTitle {
+    if (self.asset.date == nil || self.navigationController == nil) {
+        return;
+    }
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.textColor = self.navigationController.navigationBar.tintColor;
+    if (self.asset.date != nil) {
+        NSString *dateString = [WPDateTimeHelpers userFriendlyStringDateFromDate:self.asset.date];
+        NSString *timeString = [WPDateTimeHelpers userFriendlyStringTimeFromDate:self.asset.date];
+
+        NSAttributedString *dateAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", dateString] attributes:@{NSFontAttributeName: titleLabel.font}];
+        NSAttributedString *timeAttributedString = [[NSAttributedString alloc] initWithString:timeString attributes:@{NSFontAttributeName: [titleLabel.font fontWithSize:floorf(titleLabel.font.pointSize * 0.75)]}];
+
+        NSMutableAttributedString *titleAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:dateAttributedString];
+        [titleAttributedString appendAttributedString:timeAttributedString];
+        titleLabel.attributedText = titleAttributedString;
+    } else {
+        titleLabel.text = @"";
+    }
+    titleLabel.numberOfLines = 2;
+
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    [titleLabel sizeToFit];
+    self.navigationItem.titleView = titleLabel;
+}
+
 - (UIImageView *)imageView
 {
     if (_imageView) {
@@ -113,10 +145,9 @@
         break;
         case WPMediaTypeVideo:
             [self showVideoAsset];
-        break;
+            break;
         default:
             return;
-        break;
     }
 }
 
@@ -192,7 +223,11 @@
     // Scale the preferred content size to be the same aspect
     // ratio as the asset we're displaying.
     CGSize pixelSize = [self.asset pixelSize];
-    CGFloat scaleFactor = pixelSize.height / pixelSize.width;
+
+    CGFloat scaleFactor = 1.0;
+    if (!CGSizeEqualToSize(pixelSize, CGSizeZero)) {
+        scaleFactor = pixelSize.height / pixelSize.width;
+    }
 
     return CGSizeMake(size.width, size.width * scaleFactor);
 }
