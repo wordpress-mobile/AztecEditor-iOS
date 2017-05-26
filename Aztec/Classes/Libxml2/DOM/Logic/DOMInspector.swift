@@ -371,7 +371,7 @@ extension Libxml2 {
             var text = ""
 
             for child in element.children {
-                text = text + self.text(for: child)
+                text.append(self.text(for: child))
             }
 
             if needsClosingParagraphSeparator(element) {
@@ -386,7 +386,7 @@ extension Libxml2 {
             var text = textNode.contents
 
             if needsClosingParagraphSeparator(textNode) {
-                text = text + String(.paragraphSeparator)
+                text.append(String(.paragraphSeparator))
             }
 
             return text
