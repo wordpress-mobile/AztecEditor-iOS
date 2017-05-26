@@ -431,7 +431,7 @@ extension Libxml2 {
 
             let updatedRange = ensureRemovalOfOpeningParagraphSeparators(for: element, ifFoundIn: range)
 
-            return ensureRemovalOfClosingParagraphSeparators(for: element, ifFoundIn: range)
+            return ensureRemovalOfClosingParagraphSeparators(for: element, ifFoundIn: updatedRange)
         }
 
         // MARK: - Replacing Characters
