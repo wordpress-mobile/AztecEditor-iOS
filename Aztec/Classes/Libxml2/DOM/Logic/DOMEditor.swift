@@ -39,8 +39,8 @@ extension Libxml2 {
 
             assert(attributedString.length > 0)
 
-            DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, node) in
-                insertChild(node, in: rootNode, atOffset: location)
+            DOMStylesEnumerator().enumerateStyles(in: attributedString, using: { (subRange, nodes) in
+                insertChildren(nodes, in: rootNode, atOffset: location)
             })
         }
 

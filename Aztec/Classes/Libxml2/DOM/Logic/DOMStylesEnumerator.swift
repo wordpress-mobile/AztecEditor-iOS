@@ -77,34 +77,42 @@ extension Libxml2 {
 
         ///
         ///
-        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, Node) -> Void)) {
+        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 let (paragraphStyles, styles) = attributesToStyles(attributes: attrs)
-                let leaf = leafNode(from: attrString.attributedSubstring(from: range))
-                let mainNode = stylesToNode(paragraphStyles: paragraphStyles, styles: styles, leaf: leaf)
+                let leafs = leafNodes(from: attrString.attributedSubstring(from: range))
+                let nodes = stylesToNode(paragraphStyles: paragraphStyles, styles: styles, leafs: leafs)
 
-                block(range, mainNode)
+                block(range, nodes)
             }
         }
 
         ///
         ///
-        private func leafNode(from attrString: NSAttributedString) -> Node {
+        private func leafNodes(from attrString: NSAttributedString) -> [Node] {
             let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
+            var leafs = [Node]()
 
             switch attachment {
             case let lineAttachment as LineAttachment:
-                return lineAttachmentToNode(lineAttachment)
+                let node = lineAttachmentToNode(lineAttachment)
+                leafs.append(node)
             case let commentAttachment as CommentAttachment:
-                return commentAttachmentToNode(commentAttachment)
+                let node = commentAttachmentToNode(commentAttachment)
+                leafs.append(node)
             case let htmlAttachment as HTMLAttachment:
-                return htmlAttachmentToNode(htmlAttachment)
+                let nodes = htmlAttachmentToNode(htmlAttachment)
+                leafs.append(contentsOf: nodes)
             case let imageAttachment as ImageAttachment:
-                return imageAttachmentToNode(imageAttachment)
+                let node = imageAttachmentToNode(imageAttachment)
+                leafs.append(node)
             default:
-                return textToNode(attrString.string)
+                let nodes = textToNode(attrString.string)
+                leafs.append(contentsOf: nodes)
             }
+
+            return leafs
         }
 
 
@@ -113,7 +121,7 @@ extension Libxml2 {
         ///
         ///
         private func lineAttachmentToNode(_ lineAttachment: LineAttachment) -> ElementNode {
-            return ElementNode(name: StandardElementType.hr.rawValue, attributes: [], children: [])
+            return ElementNode(type: .hr, attributes: [], children: [])
         }
 
 
@@ -126,7 +134,7 @@ extension Libxml2 {
 
         ///
         ///
-        private func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> Node {
+        private func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
             let converter = Libxml2.In.HTMLConverter()
 
             guard let rootNode = try? converter.convert(attachment.rawHTML),
@@ -136,10 +144,11 @@ extension Libxml2 {
             }
 
             guard rootNode.children.count == 1 else {
-                return ElementNode(name: StandardElementType.span.rawValue, attributes: [], children: rootNode.children)
+                let spanElement = ElementNode(type: .span, attributes: [], children: rootNode.children)
+                return [spanElement]
             }
 
-            return firstChild
+            return [firstChild]
         }
 
 
@@ -152,14 +161,27 @@ extension Libxml2 {
                 attributes.append(source)
             }
 
-            return ElementNode(name: StandardElementType.img.rawValue, attributes: attributes, children: [])
+            return ElementNode(type: .img, attributes: attributes, children: [])
         }
 
 
         ///
         ///
-        private func textToNode(_ text: String) -> TextNode {
-            return TextNode(text: text)
+        private func textToNode(_ text: String) -> [Node] {
+            let substrings = text.components(separatedBy: String(.newline))
+            var output = [Node]()
+
+            for substring in substrings {
+                if output.count > 0 {
+                    let newline = ElementNode(type: Libxml2.StandardElementType.br)
+                    output.append(newline)
+                }
+                
+                let text = TextNode(text: substring)
+                output.append(text)
+            }
+
+            return output
         }
 
 
@@ -167,13 +189,13 @@ extension Libxml2 {
 
         ///
         ///
-        private func stylesToNode(paragraphStyles: [DOMParagraphStyle], styles: [DOMStyle], leaf: Node) -> Node {
-            let stylesRoot = styles.reversed().reduce(leaf) { (result, style) -> Node in
-                return style.toNode(children: [result])
+        private func stylesToNode(paragraphStyles: [DOMParagraphStyle], styles: [DOMStyle], leafs: [Node]) -> [Node] {
+            let stylesRoot = styles.reversed().reduce(leafs) { (children, style) in
+                return [style.toNode(children: children)]
             }
 
-            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (result, style) in
-                return style.toNode(children: [result])
+            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (children, style) in
+                return [style.toNode(children: children)]
             }
 
             return paragraphStylesRoot
