@@ -253,6 +253,8 @@ extension Libxml2 {
                 deleteCharacters(in: element, spanning: range)
             } else if let textNode = node as? TextNode {
                 deleteCharacters(in: textNode, spanning: range)
+            } else {
+                assertionFailure("Node type not supported.")
             }
         }
 
