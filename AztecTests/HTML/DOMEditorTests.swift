@@ -1450,15 +1450,18 @@ class DOMEditorTests: XCTestCase {
 
         XCTAssertEqual(div.children.count, 2)
 
-        guard let newParagraph1 = div.children[0] as? ElementNode, editor.inspector.text(for: newParagraph1) == text1 else {
+        guard let newParagraph1 = div.children[0] as? ElementNode, let newText1 = newParagraph1.children[0] as? TextNode else {
             XCTFail("Expected the first new paragraph to exist and be the same as the original paragraph.")
             return
         }
 
-        guard let newParagraph2 = div.children[1] as? ElementNode, editor.inspector.text(for: newParagraph2) == text2 else {
+        guard let newParagraph2 = div.children[1] as? ElementNode, let newText2 = newParagraph2.children[0] as? TextNode else {
             XCTFail("Expected the first new paragraph to exist.")
             return
         }
+
+        XCTAssert(editor.inspector.text(for: newText1) == text1)
+        XCTAssert(editor.inspector.text(for: newText2) == text2)
     }
 
 
