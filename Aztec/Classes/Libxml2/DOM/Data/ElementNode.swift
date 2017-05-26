@@ -442,42 +442,6 @@ extension Libxml2 {
             ensureProcessingOfRangeWithoutMatch()
         }
 
-        /// Returns the lowest-level element node in this node's hierarchy that wraps the specified
-        /// range.  If no child element node wraps the specified range, this method returns this
-        /// node.
-        ///
-        /// - Parameters:
-        ///     - range: the range we want to find the wrapping node of.
-        ///
-        /// - Returns: the lowest-level element node wrapping the specified range, or this node if
-        ///         no child node fulfills the condition.
-        ///
-        func lowestElementNodeWrapping(_ range: NSRange) -> ElementNode {
-
-            var offset = 0
-
-            for child in children {
-                let length = child.length()
-                let nodeRange = NSRange(location: offset, length: length)
-                let nodeWrapsRange = (NSUnionRange(nodeRange, range).length == nodeRange.length)
-
-                if nodeWrapsRange {
-                    if let elementNode = child as? ElementNode {
-
-                        let childRange = NSRange(location: range.location - offset, length: range.length)
-
-                        return elementNode.lowestElementNodeWrapping(childRange)
-                    } else {
-                        return self
-                    }
-                }
-
-                offset = offset + length
-            }
-
-            return self
-        }
-
         /// Returns the lowest-level text node in this node's hierarchy that wraps the specified
         /// range.  If no child text node wraps the specified range, this method returns nil.
         ///
