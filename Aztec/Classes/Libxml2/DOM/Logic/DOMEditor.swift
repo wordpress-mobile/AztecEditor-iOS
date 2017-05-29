@@ -67,11 +67,14 @@ extension Libxml2 {
         ///     - location: the location the string will be inserted at.
         ///
         private func insert(_ string: String, into element: ElementNode, atLocation location: Int) {
-            if inspector.isBlockLevelElement(element) {
+
+            let (matchElement, matchLocation) = inspector.findLeftmostLowestDescendantElement(of: element, intersecting: location, blockLevel: true)
+
+            if inspector.isBlockLevelElement(matchElement) {
                 let paragraphs = string.components(separatedBy: String(.paragraphSeparator))
-                insert(paragraphs: paragraphs, into: element, atLocation: location)
+                insert(paragraphs: paragraphs, into: matchElement, atLocation: matchLocation)
             } else {
-                insert(rawString: string, into: element, atLocation: location)
+                insert(rawString: string, into: matchElement, atLocation: matchLocation)
             }
         }
 
