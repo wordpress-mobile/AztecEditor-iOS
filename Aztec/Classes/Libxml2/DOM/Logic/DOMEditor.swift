@@ -662,7 +662,7 @@ extension Libxml2 {
                 }()
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
-                wrapChildren(selectedChildren, of: element, inElement: childElementDescriptor)
+                wrapChildren(selectedChildren, of: finalWrapper, inElement: childElementDescriptor)
             }
             
             return finalWrapper

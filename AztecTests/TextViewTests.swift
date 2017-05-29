@@ -224,7 +224,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testToggleOrderedList() {
-        let textView = createTextViewWithContent()
+        let textView = createTextView(withHTML: "Sample content.")
         let length = textView.text.characters.count
         let range = NSRange(location: 0, length: length)
 
