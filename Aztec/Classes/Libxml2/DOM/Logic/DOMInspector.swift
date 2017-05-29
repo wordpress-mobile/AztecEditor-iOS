@@ -224,21 +224,53 @@ extension Libxml2 {
             return node is TextNode && length(of: node) == 0
         }
 
-        /// Checks if the receiver is the last node in a block-level ancestor.
+        func isSupportedByEditor(_ element: ElementNode) -> Bool {
+
+            guard let standardName = element.standardName else {
+                return false
+            }
+
+            return knownElements.contains(standardName)
+        }
+
+        // MARK: - Node Position Relative to Ancestors
+
+        /// Checks if the receiver is the last node in its parent.
+        /// Empty text nodes are filtered to avoid false positives.
+        ///
+        func isFirstInParent(_ node: Node) -> Bool {
+
+            guard let parent = node.parent else {
+                return true
+            }
+
+            // We are filtering empty text nodes from being considered.
+            //
+            let match = findFirstChild(of: parent, where: { node -> Bool in
+                guard let textNode = node as? TextNode,
+                    textNode.contents.characters.count == 0 else {
+                        return true
+                }
+
+                return false
+            })
+
+            return node === match
+        }
+
+        /// Checks if the receiver is the first node in the tree.
         ///
         /// - Note: The verification excludes all child nodes, since this method only cares about
         ///     siblings and parents in the tree.
         ///
-        func isLastInBlockLevelAncestor(_ node: Node) -> Bool {
+        func isFirstInTree(_ node: Node) -> Bool {
 
             guard let parent = node.parent else {
-                return false
+                return true
             }
-
-            return isLastInParent(node) &&
-                (isBlockLevelElement(parent) || isLastInBlockLevelAncestor(parent))
+            
+            return isFirstInParent(node) && isFirstInTree(parent)
         }
-
 
         /// Checks if the receiver is the last node in its parent.
         /// Empty text nodes are filtered to avoid false positives.
@@ -249,10 +281,9 @@ extension Libxml2 {
                 return true
             }
 
-            // We are filtering empty text nodes from being considered the last node in our
-            // parent node.
+            // We are filtering empty text nodes from being considered.
             //
-            let lastMatchingChildInParent = parent.lastChild(matching: { node -> Bool in
+            let match = findLastChild(of: parent, where: { node -> Bool in
                 guard let textNode = node as? TextNode,
                     textNode.contents.characters.count == 0 else {
                         return true
@@ -261,7 +292,7 @@ extension Libxml2 {
                 return false
             })
 
-            return self === lastMatchingChildInParent
+            return node === match
         }
 
         /// Checks if the receiver is the last node in the tree.
@@ -274,43 +305,35 @@ extension Libxml2 {
             guard let parent = node.parent else {
                 return true
             }
-
+            
             return isLastInParent(node) && isLastInTree(parent)
-        }
-
-        func isSupportedByEditor(_ element: ElementNode) -> Bool {
-
-            guard let standardName = element.standardName else {
-                return false
-            }
-
-            return knownElements.contains(standardName)
         }
 
         // MARK: - Paragraph Separator
 
         func needsClosingParagraphSeparator(_ element: ElementNode) -> Bool {
-
-            guard isBlockLevelElement(element) else {
-                return false
+            guard isBlockLevelElement(element),
+                !isLastInTree(element) else {
+                    return false
             }
 
             if let rightmostChild = findRightmostChild(of: element) as? ElementNode {
                 return !isBlockLevelElement(rightmostChild)
             } else {
-                return false
+                return true
             }
         }
 
         func needsOpeningParagraphSeparator(_ element: ElementNode) -> Bool {
-            guard isBlockLevelElement(element) else {
-                return false
+            guard isBlockLevelElement(element),
+                !isFirstInTree(element) else {
+                    return false
             }
 
             if let leftmostChild = findLeftmostChild(of: element) as? ElementNode {
                 return !isBlockLevelElement(leftmostChild)
             } else {
-                return false
+                return true
             }
         }
 
@@ -570,6 +593,28 @@ extension Libxml2 {
             return nil
         }
 
+        /// Retrieves the first child matching a specific filtering closure.
+        ///
+        /// - Parameters:
+        ///     - condition: the condition for a node to match the search.
+        ///
+        /// - Returns: the requested node, or `nil` if there are no nodes matching the request.
+        ///
+        func findFirstChild(of element: ElementNode, where condition: (Node) -> Bool) -> Node? {
+            return element.children.first(where: condition)
+        }
+
+        /// Retrieves the last child matching a specific filtering closure.
+        ///
+        /// - Parameters:
+        ///     - condition: the condition for a node to match the search.
+        ///
+        /// - Returns: the requested node, or `nil` if there are no nodes matching the request.
+        ///
+        func findLastChild(of element: ElementNode, where condition: (Node) -> Bool) -> Node? {
+            return element.children.reversed().first(where: condition)
+        }
+
         // MARK: - Finding Nodes: Descendants
 
         /// Finds the lowest block-level elements spanning the specified range.
@@ -659,9 +704,9 @@ extension Libxml2 {
                     return .stop
                 }
 
-                guard location <= endLocation && !isEmptyTextNode(node),
+                guard location <= endLocation,
                     let element = node as? ElementNode,
-                    blockLevel || isBlockLevelElement(element) else {
+                    !blockLevel || (isBlockLevelElement(element) && location != length(of: element)) else {
 
                         return .continueWithSiblings
                 }

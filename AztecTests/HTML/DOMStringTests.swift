@@ -41,6 +41,6 @@ class DOMStringTests: XCTestCase {
         XCTAssertEqual(string.getHTML(), "<unknown>plain</unknown>")
 
         string.replace(NSRange.zero, withRawHTML: "<b>prepended</b>")
-        XCTAssertEqual(string.getHTML(), "<b>prepended</b><unknown>plain</unknown>")
+        XCTAssertEqual(string.getHTML(), "<unknown><b>prepended</b>plain</unknown>")
     }
 }

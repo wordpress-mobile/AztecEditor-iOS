@@ -626,26 +626,26 @@ class DOMEditorTests: XCTestCase {
     /// Test that inserting a new line after a DIV tag doesn't crash
     /// See https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/90
     ///
-    /// Input HTML: `<div>This is a paragraph in a div</div>\nThis is some unwrapped text`
+    /// Input HTML: `<div>This is a paragraph in a div</div>This is some unwrapped text`
     /// - location: the location after the div tag.
     ///
     /// Expected results:
-    /// - Output: `<div>This is a paragraph in a div</div>\n\nThis is some unwrapped text`
+    /// - Output: `<div>This is a paragraph in a div</div>\nThis is some unwrapped text`
     ///
     func testInsertNewlineAfterDivShouldNotCrash() {
-        let text1 = "🇮🇳 This is a paragraph in a div"
-        let text2 = "\(String(.newline))This is some unwrapped text"
+        let text1 = "🇮🇳 Wrapped"
+        let text2 = "Unwrapped"
         let divText = TextNode(text: text1)
         let div = ElementNode(name: "div", attributes: [], children: [divText])
         let unwrappedText = TextNode(text: text2)
         let rootNode = RootNode(children: [div, unwrappedText])
         let editor = DOMEditor(with: rootNode)
 
-        let range = NSRange(location: text1.characters.count, length: 0)
+        let location = editor.inspector.length(of: div)
 
-        editor.replace(range, with: String(.newline))
+        editor.insert(String(.newline), atLocation: location)
 
-        XCTAssertEqual(editor.inspector.text(for: rootNode), "\(text1)\(String(.newline))\(text2)")
+        XCTAssertEqual(editor.inspector.text(for: rootNode), "\(text1)\(String(.paragraphSeparator))\(String(.newline))\(text2)")
     }
 
     /// ElementNode's `replaceCharacters(inRange:withString:)` has produced `TextNode` fragmentation
