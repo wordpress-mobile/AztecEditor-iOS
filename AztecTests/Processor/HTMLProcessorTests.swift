@@ -1,5 +1,5 @@
 import XCTest
-@testable import AztecExample
+@testable import Aztec
 
 class HTMLProcessorTests: XCTestCase {
 

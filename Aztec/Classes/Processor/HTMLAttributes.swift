@@ -5,10 +5,15 @@ import Foundation
 public struct HTMLAttributes {
 
     /// Attributes that have a form key=value or key="value" or key='value'
-    let named: [String: String]
+    public let named: [String: String]
 
     /// Attributes that have a form value "value"
-    let unamed: [String]
+    public let unamed: [String]
+
+    public init(named: [String: String], unamed: [String]) {
+        self.named = named
+        self.unamed = unamed
+    }
 }
 
 /// A struct that parses attributes inside a shortcode and return the corresponding attributes object
@@ -55,7 +60,7 @@ public struct HTMLAttributesParser {
     /// - Parameter text: the text to where to find the attributes
     /// - Returns: the ShortcodeAttributes parsed from the text
     ///
-    static func makeAttributes(in text:String) -> HTMLAttributes {
+    public static func makeAttributes(in text:String) -> HTMLAttributes {
         var namedAttributes = [String: String]()
         var unamedAttributes = [String]()
 

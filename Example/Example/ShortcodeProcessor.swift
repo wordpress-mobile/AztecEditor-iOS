@@ -1,4 +1,5 @@
 import Foundation
+import Aztec
 /// Struct to represent a WordPress shortcode
 /// More details here: https://codex.wordpress.org/Shortcode and here: https://en.support.wordpress.com/shortcodes/
 ///
@@ -49,13 +50,15 @@ open class ShortcodeProcessor: RegexProcessor {
         case content
         case closingTag
         case extraClose
+
+        static let allValues = [.all, extraOpen, .name, .arguments, .selfClosingElement, .content, .closingTag, .extraClose]
     }
 
     public init(tag: String, replacer: @escaping ShortcodeReplacer) {
         self.tag = tag
         let regex = ShortcodeProcessor.makeShortcodeRegex(tag: tag)
         let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
-            guard match.numberOfRanges == 8 else {
+            guard match.numberOfRanges == CaptureGroups.allValues.count else {
                 return nil
             }
             var attributes = HTMLAttributes(named: [:], unamed: [])
@@ -77,31 +80,5 @@ open class ShortcodeProcessor: RegexProcessor {
         }
 
         super.init(regex: regex, replacer: regexReplacer)
-    }
-}
-
-extension NSTextCheckingResult {
-
-    /// Returns the match for the corresponding capture group position in a text
-    ///
-    /// - Parameters:
-    ///   - position: the capture group position
-    ///   - text: the string where the match was detected
-    /// - Returns: the string with the captured group text
-    ///
-    func captureGroup(in position: Int, text: String) -> String? {
-        guard position < numberOfRanges else {
-            return nil
-        }
-
-        let nsrange = rangeAt(position)
-
-        guard nsrange.location != NSNotFound else {
-            return nil
-        }
-
-        let range = text.range(from: nsrange)
-        let captureGroup = text.substring(with: range)
-        return captureGroup
     }
 }
