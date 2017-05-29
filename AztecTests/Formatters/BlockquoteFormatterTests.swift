@@ -106,11 +106,11 @@ private extension BlockquoteFormatterTests {
         return view
     }
     var plainText: String {
-        return plainTextParagraphLines.joined(separator: "")
+        return plainTextParagraphLines.joined(separator: "\n")
     }
 
     var plainTextParagraphLines: [String] {
-        return ["First line.\n", "Second Line.\n", "Third line!.\n", "Last but not least?.\n", "Last One!"]
+        return ["First line.", "Second Line.", "Third line!.", "Last but not least?.", "Last One!"]
     }
 
     func paragraphRanges(inString string: NSAttributedString) -> [NSRange] {

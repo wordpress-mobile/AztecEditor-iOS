@@ -530,7 +530,7 @@ extension Libxml2 {
                     return elementDescriptor.matchingNames.contains(node.name)
             })
 
-            for (matchElement, matchRange) in elementsAndRanges {
+            for (matchElement, matchRange) in elementsAndRanges.reversed() {
 
                 // We don't allow wrapping empty ranges.
                 //
