@@ -726,45 +726,6 @@ extension Libxml2 {
             }
 
             return result
-/*
-            var resultingRange = range
-
-            if element.children.count > 0 {
-                resultingRange = unwrapChildren(of: element, intersecting: range, fromElementsNamed: elementNames)
-            }
-
-            if elementNames.contains(element.name) {
-
-                let rangeEndLocation = range.location + range.length
-
-                let myLength = inspector.length(of: element)
-                assert(range.location >= 0 && rangeEndLocation <= myLength,
-                       "The specified range is out of bounds.")
-
-                let elementDescriptor = ElementNodeDescriptor(name: element.name, attributes: element.attributes)
-
-                if range.location > 0 {
-                    let preRange = NSRange(location: 0, length: range.location)
-                    wrap(preRange, of: element, in: elementDescriptor)
-                }
-
-                if rangeEndLocation < myLength {
-                    let postRange = NSRange(location: rangeEndLocation, length: myLength - rangeEndLocation)
-                    wrap(postRange, of: element, in: elementDescriptor)
-                }
-
-                if inspector.needsClosingParagraphSeparator(element) {
-                    let br = ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
-
-                    appendChild(br, to: element)
-
-                    resultingRange = NSRange(location: resultingRange.location, length: resultingRange.length + inspector.length(of: br))
-                }
-
-                element.unwrapChildren()
-            }
-
-            return resultingRange*/
         }
 
         private func unwrapChildren(of element: ElementNode) -> NSRange {
@@ -821,6 +782,10 @@ extension Libxml2 {
             // The input range should already have the paragraph separators removed.
             //
             assert(range == removeParagraphSeparators(from: range, in: element))
+
+            guard element.children.count > 0 else {
+                return range
+            }
 
             let childNodesAndRanges = inspector.findChildren(of: element, spanning: range)
             assert(childNodesAndRanges.count > 0)
