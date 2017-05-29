@@ -53,7 +53,7 @@ extension Libxml2 {
         func toNode(children: [Node]) -> ElementNode {
             switch self {
             case .anchor(let url):
-                let source = StringAttribute(name: "src", value: url)
+                let source = StringAttribute(name: "href", value: url)
                 return ElementNode(type: .a, attributes: [source], children: children)
             case .bold:
                 return ElementNode(type: .b, children: children)
