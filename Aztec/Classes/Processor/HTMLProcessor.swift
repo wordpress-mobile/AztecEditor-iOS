@@ -44,13 +44,15 @@ open class HTMLProcessor: RegexProcessor {
         case selfClosingElement
         case content
         case closingTag
+
+        static let allValues: [CaptureGroups] = [.all, .name, .arguments, .selfClosingElement, .content, .closingTag]
     }
 
     public init(tag: String, replacer: @escaping HTMLReplacer) {
         self.tag = tag
         let regex = HTMLProcessor.makeRegex(tag: tag)
         let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
-            guard match.numberOfRanges == 6 else {
+            guard match.numberOfRanges == CaptureGroups.allValues.count else {
                 return nil
             }
             var attributes = HTMLAttributes(named: [:], unamed: [])

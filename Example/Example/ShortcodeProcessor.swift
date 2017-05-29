@@ -50,13 +50,15 @@ open class ShortcodeProcessor: RegexProcessor {
         case content
         case closingTag
         case extraClose
+
+        static let allValues = [.all, extraOpen, .name, .arguments, .selfClosingElement, .content, .closingTag, .extraClose]
     }
 
     public init(tag: String, replacer: @escaping ShortcodeReplacer) {
         self.tag = tag
         let regex = ShortcodeProcessor.makeShortcodeRegex(tag: tag)
         let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
-            guard match.numberOfRanges == 8 else {
+            guard match.numberOfRanges == CaptureGroups.allValues.count else {
                 return nil
             }
             var attributes = HTMLAttributes(named: [:], unamed: [])
