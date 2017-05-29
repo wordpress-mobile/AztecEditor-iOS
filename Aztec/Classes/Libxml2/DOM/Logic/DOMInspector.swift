@@ -89,7 +89,7 @@ extension Libxml2 {
             let parent = self.parent(of: node)
             let previousIndex = parent.indexOf(childNode: node) - 1
 
-            guard previousIndex > 0 else {
+            guard previousIndex >= 0 else {
                 return nil
             }
 
