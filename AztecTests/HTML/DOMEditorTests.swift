@@ -740,7 +740,7 @@ class DOMEditorTests: XCTestCase {
     /// - New String: "link!"
     ///
     /// Expected results:
-    /// - Output: `<div><p>Click on this </p>link!</div>`
+    /// - Output: `<div><p>Click on this link!</p></div>`
     ///
     func testReplaceCharactersInRangeWithString3() {
         let text1 = "Click on this "

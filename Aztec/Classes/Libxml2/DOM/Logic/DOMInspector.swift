@@ -224,6 +224,24 @@ extension Libxml2 {
             return node is TextNode && length(of: node) == 0
         }
 
+        /// This method is used to verify if an offset is valid for a block-level element.
+        /// This method assumes the caller already knows the offset is inside the range of the
+        /// block-level element.
+        ///
+        /// - Parameters:
+        ///     - offset: the insertion offset.
+        ///     - blockElement: the reference block element.
+        ///
+        /// - Returns: `true` if the offset is valid for inserting into the reference
+        ///         block-level element.  `false` otherwise.
+        ///
+        private func isValid(offset: Int, for blockElement: ElementNode) -> Bool {
+            assert(isBlockLevelElement(blockElement))
+            assert(range(of: blockElement).contains(offset: offset))
+
+            return !needsClosingParagraphSeparator(blockElement) || offset != length(of: blockElement)
+        }
+
         func isSupportedByEditor(_ element: ElementNode) -> Bool {
 
             guard let standardName = element.standardName else {
@@ -706,7 +724,7 @@ extension Libxml2 {
 
                 guard location <= endLocation,
                     let element = node as? ElementNode,
-                    !blockLevel || (isBlockLevelElement(element) && location != length(of: element)) else {
+                    !blockLevel || (isBlockLevelElement(element) && isValid(offset: location, for: element)) else {
 
                         return .continueWithSiblings
                 }
