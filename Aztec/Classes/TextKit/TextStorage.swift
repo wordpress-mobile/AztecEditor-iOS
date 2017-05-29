@@ -340,8 +340,13 @@ open class TextStorage: NSTextStorage {
     }
 
     private func replaceCharactersInDOM(in range: NSRange, with attrString: NSAttributedString) {
+
+        guard let swiftRange = string.nsRange(fromUTF16NSRange: range) else {
+            fatalError()
+        }
+
         if range.length > 0 || attrString.length > 0 {
-            dom.replace(range, with: attrString)
+            dom.replace(swiftRange, with: attrString)
         }
     }
 
