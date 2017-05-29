@@ -592,7 +592,11 @@ extension Libxml2 {
             assert(self.range(of: element).contains(range))
 
             guard element.children.count > 0 else {
-                return [(element, range)]
+                if bailCheck(element) {
+                    return []
+                } else {
+                    return [(element, range)]
+                }
             }
 
             var elementsAndRanges = [ElementAndIntersection]()
@@ -620,7 +624,7 @@ extension Libxml2 {
                         continue
                 }
 
-                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset))
+                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset), bailCheck: bailCheck)
 
                 for (matchElement, matchIntersection) in childElementsAndRanges {
                     elementsAndRanges.append((matchElement, matchIntersection))
