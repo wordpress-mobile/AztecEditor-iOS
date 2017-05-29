@@ -165,6 +165,11 @@ extension Libxml2 {
         // MARK: - Inserting Children
 
         private func insertChild(_ node: Node, in element: ElementNode, at index: Int) {
+
+            if let parent = node.parent {
+                remove(child: node, from: parent)
+            }
+
             element.children.insert(node, at: index)
             node.parent = element
         }
@@ -1038,7 +1043,7 @@ extension Libxml2 {
         ///
         /// The result is that the order of the receiver and its parent node will be inverted.
         ///
-        func pushUp(_ element: ElementNode) {
+        private func swapWithParent(_ element: ElementNode) {
 
             let initialParent = inspector.parent(of: element)
             let grandParent = inspector.parent(of: initialParent)
@@ -1087,12 +1092,9 @@ extension Libxml2 {
                 return theSibling
             }
 
-            guard !bail(theSibling) else {
-                return nil
-            }
-
-            guard let childElement = theSibling as? ElementNode else {
-                return nil
+            guard !bail(theSibling),
+                let childElement = theSibling as? ElementNode else {
+                    return nil
             }
 
             return pushUp(in: childElement, rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
@@ -1112,18 +1114,15 @@ extension Libxml2 {
         ///
         func pushUp<T: Node>(in element: ElementNode, leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
-            guard let node = element.find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let childElement = node as? ElementNode else {
-                return nil
+            guard let node = element.find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail),
+                let childElement = node as? ElementNode else {
+                    return nil
             }
 
             let finalParent = inspector.parent(of: element)
 
             while childElement.parent != nil && childElement.parent != finalParent {
-                pushUp(childElement)
+                swapWithParent(childElement)
             }
 
             return node
@@ -1155,12 +1154,9 @@ extension Libxml2 {
                 return theSibling
             }
 
-            guard !bail(theSibling) else {
-                return nil
-            }
-
-            guard let childElement = theSibling as? ElementNode else {
-                return nil
+            guard !bail(theSibling),
+                let childElement = theSibling as? ElementNode else {
+                    return nil
             }
 
             return pushUp(in: childElement, leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
@@ -1180,18 +1176,15 @@ extension Libxml2 {
         ///
         func pushUp<T: Node>(in element: ElementNode, rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
-            guard let node = element.find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail) else {
-                return nil
-            }
-
-            guard let childElement = node as? ElementNode else {
-                return nil
+            guard let node = element.find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail),
+                let childElement = node as? ElementNode else {
+                    return nil
             }
 
             let finalParent = inspector.parent(of: element)
             
             while childElement.parent != nil && childElement.parent != finalParent {
-                pushUp(childElement)
+                swapWithParent(childElement)
             }
             
             return node
