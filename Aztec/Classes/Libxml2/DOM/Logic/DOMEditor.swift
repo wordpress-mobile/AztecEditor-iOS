@@ -442,6 +442,24 @@ extension Libxml2 {
             return ensureRemovalOfClosingParagraphSeparators(for: element, ifFoundIn: updatedRange)
         }
 
+        private func removeParagraphSeparators(from range: NSRange, in element: ElementNode) -> NSRange {
+            var modifiedRange = range
+
+            if let separatorRange = inspector.rangeOfOpeningParagraphSeparator(for: element),
+                modifiedRange.contains(separatorRange) {
+
+                modifiedRange = modifiedRange.shortenedLeft(by: separatorRange.length)
+            }
+
+            if let separatorRange = inspector.rangeOfClosingParagraphSeparator(for: element),
+                modifiedRange.contains(separatorRange) {
+
+                modifiedRange = modifiedRange.shortenedRight(by: separatorRange.length)
+            }
+
+            return modifiedRange
+        }
+
         // MARK: - Replacing Characters
 
         /// Replaces the characters in the specified range with the specified string.
@@ -700,11 +718,20 @@ extension Libxml2 {
         ///
         func unwrap(_ element: ElementNode, range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
 
-            guard element.children.count > 0 else {
-                return range
+            let initialRange = removeParagraphSeparators(from: range, in: element)
+            var result = unwrapDescendants(of: element, spanning: initialRange, fromElementsNamed: elementNames)
+
+            if elementNames.contains(element.name) {
+                result = unwrapChildren(of: element, spanning: result)
             }
 
-            var resultingRange = unwrapChildren(of: element, intersecting: range, fromElementsNamed: elementNames)
+            return result
+/*
+            var resultingRange = range
+
+            if element.children.count > 0 {
+                resultingRange = unwrapChildren(of: element, intersecting: range, fromElementsNamed: elementNames)
+            }
 
             if elementNames.contains(element.name) {
 
@@ -737,10 +764,49 @@ extension Libxml2 {
                 element.unwrapChildren()
             }
 
-            return resultingRange
+            return resultingRange*/
         }
 
-        /// Unwraps all child nodes from elements with the specified names.
+        private func unwrapChildren(of element: ElementNode) -> NSRange {
+
+            var finalRange = NSRange.zero
+            let parent = inspector.parent(of: element)
+            let index = parent.indexOf(childNode: element)
+
+            for child in element.children.reversed() {
+                insertChild(child, in: parent, at: index)
+
+                finalRange = finalRange.extendedRight(by: inspector.length(of: child))
+            }
+
+            remove(child: element, from: parent)
+
+            return finalRange
+        }
+
+        private func unwrapChildren(of element: ElementNode, spanning range: NSRange) -> NSRange {
+
+            // The input range should already have the paragraph separators removed.
+            //
+            assert(range == removeParagraphSeparators(from: range, in: element))
+
+            // The following two guards' order is important.  Before checking if the range
+            // is empty, we should still check if this node must be removed.
+            //
+            guard range != inspector.childrenRange(of: element) else {
+                return unwrapChildren(of: element)
+            }
+
+            guard range.length > 0 else {
+                return range
+            }
+
+            let (_, center, _) = split(element, for: range)
+
+            return unwrapChildren(of: center)
+        }
+
+        /// Unwraps all descendant nodes from elements with the specified names.
         ///
         /// - Parameters:
         ///     - element: the element containing the specified range.
@@ -750,7 +816,11 @@ extension Libxml2 {
         /// - Returns: the provided range after the unwrapping (since it may be modified by newlines
         ///     being added).
         ///
-        func unwrapChildren(of element: ElementNode, intersecting range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
+        func unwrapDescendants(of element: ElementNode, spanning range: NSRange, fromElementsNamed elementNames: [String]) -> NSRange {
+
+            // The input range should already have the paragraph separators removed.
+            //
+            assert(range == removeParagraphSeparators(from: range, in: element))
 
             let childNodesAndRanges = inspector.findChildren(of: element, spanning: range)
             assert(childNodesAndRanges.count > 0)
@@ -795,7 +865,8 @@ extension Libxml2 {
             if let textNode = node as? TextNode {
                 return split(textNode, at: offset)
             } else if let element = node as? ElementNode {
-                return split(element, at: offset)
+                let (left, right) = split(element, at: offset)
+                return (left, right)
             } else {
                 fatalError("The node type is not supported by this method.")
             }
@@ -812,7 +883,7 @@ extension Libxml2 {
         /// - Returns: the nodes at the left and right side of the split.
         ///
         @discardableResult
-        func split(_ element: ElementNode, at offset: Int) -> (left: Node, right: Node) {
+        func split(_ element: ElementNode, at offset: Int) -> (left: ElementNode, right: ElementNode) {
 
             assert(offset != 0 && offset != inspector.length(of: element))
 
@@ -857,6 +928,34 @@ extension Libxml2 {
             parent.replace(child: textNode, with: [leftNode, rightNode])
 
             return (leftNode, rightNode)
+        }
+
+        func split(_ element: ElementNode, for range: NSRange) -> (left: ElementNode?, center: ElementNode, right: ElementNode?) {
+
+            assert(range.length > 0)
+            assert(inspector.range(of: element).contains(range))
+
+            let rangeEndLocation = range.location + range.length
+
+            var left: ElementNode? = nil
+            var center: ElementNode = element
+            var right: ElementNode? = nil
+
+            if range.location > 0  {
+                let (splitLeft, splitRight) = split(element, at: range.location)
+
+                left = splitLeft
+                center = splitRight
+            }
+
+            if rangeEndLocation < inspector.range(of: element).length {
+                let (splitLeft, splitRight) = split(center, at: rangeEndLocation)
+
+                center = splitLeft
+                right = splitRight
+            }
+
+            return (left, center, right)
         }
 
         // MARK: - Splitting Nodes: Children
@@ -1205,11 +1304,12 @@ extension Libxml2 {
         ///     - node: the node we're merging to the right.
         ///
         private func mergeLeft(_ node: Node) {
-            guard let leftSibling = inspector.leftSibling(of: node) else {
+
+            guard let leftNode = inspector.findFirstNodeBefore(node) else {
                 return
             }
 
-            mergeRight(leftSibling)
+            mergeRight(leftNode)
         }
 
         /// Merges the specified block-level element with the sibling(s) to its right.
@@ -1265,10 +1365,15 @@ extension Libxml2 {
         }
 
         private func extractRightNodesForMerging(after node: Node) -> [Node] {
-            let parent = inspector.parent(of: node)
-            let nodeIndex = parent.indexOf(childNode: node)
 
-            return extractNodesForMerging(from: parent, startingAt: nodeIndex + 1)
+            guard let firstNode = inspector.findFirstNodeAfter(node) else {
+                return []
+            }
+
+            let parent = inspector.parent(of: firstNode)
+            let index = parent.indexOf(childNode: firstNode)
+
+            return extractNodesForMerging(from: parent, startingAt: index)
         }
 
         private func extractNodesForMerging(from parent: ElementNode, startingAt index: Int) -> [Node] {

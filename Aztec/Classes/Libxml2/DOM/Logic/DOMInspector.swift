@@ -348,6 +348,15 @@ extension Libxml2 {
                     return false
             }
 
+            // The opening paragraph separator is not needed if this element comes immediately
+            // after other block-level elements.
+            //
+            if let nodeBefore = findFirstNodeBefore(element) as? ElementNode {
+                guard !isBlockLevelElement(nodeBefore) else {
+                    return false
+                }
+            }
+
             if let leftmostChild = findLeftmostChild(of: element) as? ElementNode {
                 return !isBlockLevelElement(leftmostChild)
             } else {
@@ -403,10 +412,38 @@ extension Libxml2 {
             return textNode.contents
         }
 
+        func childrenLength(of element: ElementNode) -> Int {
+            return element.children.reduce(0) { (previous, node) -> Int in
+                return previous + length(of: node)
+            }
+        }
+
         func length(of node: Node) -> Int {
             return text(for: node).characters.count
         }
 
+        // MARK: - Ranges
+
+        /// The range of an element's children nodes.  This may or may not be equal to the full
+        /// range of the element, depending on if the element has paragraph separators.
+        ///
+        /// - Parameters:
+        ///     - element: the element to get the length of.
+        ///
+        /// - Returns: the requested length.
+        ///
+        func childrenRange(of element: ElementNode) -> NSRange {
+            return NSRange(location: 0, length: childrenLength(of: element))
+        }
+
+        /// The range of an node.  Equal to the sum of the length of all child nodes, plus
+        /// any paragraph separators if the node has them.
+        ///
+        /// - Parameters:
+        ///     - node: the node to get the length of.
+        ///
+        /// - Returns: the requested length.
+        ///
         func range(of node: Node) -> NSRange {
             return NSRange(location: 0, length: length(of: node))
         }
@@ -441,6 +478,34 @@ extension Libxml2 {
             }
 
             return NSRange(location: 0, length: String(.paragraphSeparator).characters.count)
+        }
+
+        // MARK: - Finding Nodes: Before and After
+
+        func findFirstNodeAfter(_ node: Node) -> Node? {
+
+            if let rightSibling = self.rightSibling(of: node) {
+                return rightSibling
+            } else {
+                guard let parent = node.parent else {
+                    return nil
+                }
+
+                return findFirstNodeAfter(parent)
+            }
+        }
+
+        func findFirstNodeBefore(_ node: Node) -> Node? {
+
+            if let leftSibling = self.leftSibling(of: node) {
+                return leftSibling
+            } else {
+                guard let parent = node.parent else {
+                    return nil
+                }
+
+                return findFirstNodeBefore(parent)
+            }
         }
 
         // MARK: - Finding Nodes: Children

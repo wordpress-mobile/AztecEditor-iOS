@@ -26,6 +26,18 @@ extension NSRange
     func contains(offset: Int) -> Bool {
         return offset >= location && offset <= location + length
     }
+
+    /// Returns a range equal to the receiver extended to its right side by the specified addition
+    /// value.
+    ///
+    /// - Parameters:
+    ///     - addition: the number that will be added to the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func extendedRight(by addition: Int) -> NSRange {
+        return NSRange(location: location, length: length + addition)
+    }
     
     /// Returns the intersection between the receiver and the specified range.
     ///
