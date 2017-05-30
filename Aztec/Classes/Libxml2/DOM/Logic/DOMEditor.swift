@@ -730,17 +730,25 @@ extension Libxml2 {
 
         private func unwrapChildren(of element: ElementNode) -> NSRange {
 
-            var finalRange = NSRange.zero
             let parent = inspector.parent(of: element)
             let index = parent.indexOf(childNode: element)
 
-            for child in element.children.reversed() {
-                insertChild(child, in: parent, at: index)
-
-                finalRange = finalRange.extendedRight(by: inspector.length(of: child))
-            }
+            let children = element.children
 
             remove(child: element, from: parent)
+
+            for child in children.reversed() {
+                insertChild(child, in: parent, at: index)
+            }
+
+            var finalRange = NSRange.zero
+
+            // It's important to calculate the new range only after ALL nodes have been repositioned
+            // as the opening and closing paragraph separators can affect the node lengths.
+            //
+            for child in children {
+                finalRange = finalRange.extendedRight(by: inspector.length(of: child))
+            }
 
             return finalRange
         }

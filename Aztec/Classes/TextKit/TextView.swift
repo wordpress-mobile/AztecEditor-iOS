@@ -147,6 +147,14 @@ open class TextView: UITextView {
         return textStorage as! TextStorage
     }
 
+    // MARK: - Properties: Key Commands
+
+    override open var keyCommands: [UIKeyCommand]? {
+        get {
+            return [UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
+        }
+    }
+
     // MARK: - Overwritten Properties
 
     /// Overwrites Typing Attributes:
@@ -224,6 +232,12 @@ open class TextView: UITextView {
             gesture.require(toFail: attachmentGestureRecognizer)
         }
         addGestureRecognizer(attachmentGestureRecognizer)
+    }
+
+    // MARK: - Intercept Keyboard Combinations
+
+    @objc private func handleShiftEnter(command: UIKeyCommand) {
+        insertText(String(.lineSeparator))
     }
 
     // MARK: - Intercept copy paste operations
