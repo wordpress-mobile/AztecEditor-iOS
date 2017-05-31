@@ -87,9 +87,12 @@ extension Libxml2 {
         ///
         ///
         private func createNodes(from attrString: NSAttributedString) -> [Node] {
-            let paragraphAttribute = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil)
-            let paragraphStyles = paragraphStyles(key: <#T##String#>, value: <#T##Any#>)
-            let blockLevelNodes = stylesToNode(paragraphStyles)
+            
+            guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+                fatalError("This should not be possible, review your logic.")
+            }
+
+            let paragraphNode = createNode(from: paragraphStyle)
 
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
@@ -100,7 +103,7 @@ extension Libxml2 {
                 blockLevelNodes.append(nodes)
             }
 
-            return blockLevelNodes
+            return paragraphNode
         }
 
         ///
@@ -202,6 +205,19 @@ extension Libxml2 {
 
         // MARK: - Node Generation Helpers
 
+        private func createNode(from paragraphStyle: ParagraphStyle) -> Node {
+            let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
+            return createNode(from: domParagraphStyles)
+        }
+
+        private func createNode(from paragraphStyles: [DOMParagraphStyle]) -> Node {
+            let node = paragraphStyles.reversed().reduce(nil) { (previous, paragraphStyle) in
+                return paragraphStyle.toNode(children: [previous])
+            }
+
+            return node!
+        }
+
         ///
         ///
         private func stylesToNode(paragraphStyles: [DOMParagraphStyle], styles: [DOMStyle], leafs: [Node]) -> [Node] {
@@ -236,41 +252,27 @@ extension Libxml2 {
 
         /// Converts a NSAttributedString Attribute / Value into an array of DOMParagraphStyle Instances.
         ///
-        private func paragraphStyles(key: String, value: Any) -> [DOMParagraphStyle] {
+        private func domParagraphStyles(from style: ParagraphStyle) -> [DOMParagraphStyle] {
             var styles = [DOMParagraphStyle]()
 
-            switch key {
-            case NSParagraphStyleAttributeName:
-                guard let paragraph = value as? ParagraphStyle else {
-                    break
-                }
+            if style.blockquote != nil {
+                styles.append(.blockquote)
+            }
 
-                if paragraph.blockquote != nil {
-                    styles.append(.blockquote)
-                }
+            if style.htmlParagraph != nil {
+                styles.append(.paragraph)
+            }
 
-                if paragraph.htmlParagraph != nil {
-                    styles.append(.paragraph)
-                }
+            if style.headerLevel > 0 {
+                styles.append(.header(level: style.headerLevel))
+            }
 
-                if paragraph.headerLevel > 0 {
-                    styles.append(.header(level: paragraph.headerLevel))
+            for list in style.textLists {
+                if list.style == .ordered {
+                    styles.append(.orderedList)
+                } else {
+                    styles.append(.unorderedList)
                 }
-
-                for list in paragraph.textLists {
-                    if list.style == .ordered {
-                        styles.append(.orderedList)
-                    } else {
-                        styles.append(.unorderedList)
-                    }
-                }
-
-            case NSFontAttributeName:
-                break
-            case NSAttachmentAttributeName:
-                break
-            default:
-                break
             }
 
             guard styles.isEmpty == false else {
