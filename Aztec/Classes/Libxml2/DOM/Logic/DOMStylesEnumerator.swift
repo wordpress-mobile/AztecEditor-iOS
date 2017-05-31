@@ -77,16 +77,22 @@ extension Libxml2 {
 
         ///
         ///
-        func enumerateNodes(in attrString: NSAttributedString, using block: (([Node]) -> Void)) {
-            attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, substring) in
-                let nodes = createNodes(from: substring)
-                block(nodes)
+        func createNodes(from attrString: NSAttributedString) -> [Node] {
+
+            var result = [Node]()
+
+            attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, subString) in
+                let node = createNode(from: subString)
+
+                result.append(node)
             }
+
+            return result
         }
 
         ///
         ///
-        private func createNodes(from attrString: NSAttributedString) -> [Node] {
+        private func createNode(from attrString: NSAttributedString) -> Node {
             
             guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
                 fatalError("This should not be possible, review your logic.")
@@ -212,6 +218,12 @@ extension Libxml2 {
 
         private func createNode(from paragraphStyles: [DOMParagraphStyle]) -> Node {
             let node = paragraphStyles.reversed().reduce(nil) { (previous, paragraphStyle) in
+
+                guard previous != nil else {
+                    return paragraphStyle.toNode(children: [])
+                }
+
+
                 return paragraphStyle.toNode(children: [previous])
             }
 
