@@ -77,23 +77,30 @@ extension Libxml2 {
 
         ///
         ///
-        func enumerateNodes(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
+        func enumerateNodes(in attrString: NSAttributedString, using block: (([Node]) -> Void)) {
             attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, substring) in
-                enumerateStyles(in: substring, using: block)
+                let nodes = createNodes(from: substring)
+                block(nodes)
             }
         }
 
         ///
         ///
-        private func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
+        private func createNodes(from attrString: NSAttributedString) -> [Node] {
+            let paragraphAttribute = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil)
+            let paragraphStyles = paragraphStyles(key: <#T##String#>, value: <#T##Any#>)
+            let blockLevelNodes = stylesToNode(paragraphStyles)
+
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
-                let (paragraphStyles, styles) = attributesToStyles(attributes: attrs)
+                let styles = attributesToStyles(attributes: attrs)
                 let leafs = leafNodes(from: attrString.attributedSubstring(from: range))
                 let nodes = stylesToNode(paragraphStyles: paragraphStyles, styles: styles, leafs: leafs)
 
-                block(range, nodes)
+                blockLevelNodes.append(nodes)
             }
+
+            return blockLevelNodes
         }
 
         ///
