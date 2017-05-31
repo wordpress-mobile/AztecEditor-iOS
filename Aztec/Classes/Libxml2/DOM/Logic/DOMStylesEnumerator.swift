@@ -266,6 +266,10 @@ extension Libxml2 {
                 break
             }
 
+            guard styles.isEmpty == false else {
+                return [DOMParagraphStyle.paragraph]
+            }
+
             return styles
         }
 
