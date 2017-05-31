@@ -34,7 +34,7 @@ extension NSAttributedString
     ///
     func filterListRanges(_ ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
         return ranges.filter { range in
-            let list = textListAttribute(spanningRange: range)
+            let list = textListAttribute(spanning: range)
             return list == nil || list?.style == style
         }
     }
@@ -128,7 +128,7 @@ extension NSAttributedString
             return NSNotFound
         }
         var numberInList = 1
-        let paragraphRanges = self.paragraphRanges(spanningRange: rangeOfList)
+        let paragraphRanges = self.paragraphRanges(spanning: rangeOfList)
 
         for range in paragraphRanges {
             if NSLocationInRange(location, range) {
@@ -205,7 +205,7 @@ extension NSAttributedString
     ///
     /// - Returns: A TextList optional.
     ///
-    func textListAttribute(spanningRange range: NSRange) -> TextList? {
+    func textListAttribute(spanning range: NSRange) -> TextList? {
         // NOTE:
         // We're using this mechanism, instead of the old fashioned 'attribute:atIndex:effectiveRange:' because
         // whenever the "next substring" has a different set of attributes, the effective range gets cut, even though
@@ -224,7 +224,7 @@ extension NSAttributedString
     }
 
     func paragraphRanges() -> [NSRange] {
-        return paragraphRanges(spanningRange: rangeOfEntireString)
+        return paragraphRanges(spanning: rangeOfEntireString)
     }
 
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
@@ -233,7 +233,7 @@ extension NSAttributedString
     ///
     /// - Returns: An array containing an NSRange for each paragraph intersected by the specified range.
     ///
-    func paragraphRanges(spanningRange range: NSRange) -> [NSRange] {
+    func paragraphRanges(spanning range: NSRange) -> [NSRange] {
         var paragraphRanges = [NSRange]()
         let targetRange = rangeOfEntireString
 
@@ -279,7 +279,7 @@ extension NSAttributedString
             return []
         }
 
-        return paragraphRanges(spanningRange: range)
+        return paragraphRanges(spanning: range)
     }
 
 

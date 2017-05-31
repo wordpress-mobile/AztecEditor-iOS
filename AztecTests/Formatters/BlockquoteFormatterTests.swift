@@ -114,7 +114,7 @@ private extension BlockquoteFormatterTests {
     }
 
     func paragraphRanges(inString string: NSAttributedString) -> [NSRange] {
-        return string.paragraphRanges(spanningRange: string.rangeOfEntireString)
+        return string.paragraphRanges(spanning: string.rangeOfEntireString)
     }
 
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {

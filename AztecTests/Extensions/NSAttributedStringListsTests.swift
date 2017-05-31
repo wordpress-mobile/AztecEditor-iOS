@@ -207,7 +207,7 @@ class NSAttributedStringListsTests: XCTestCase {
 
         for index in (0 ..< string.length) {
             let range = NSRange(location: index, length: 1)
-            XCTAssertNil(string.textListAttribute(spanningRange: range))
+            XCTAssertNil(string.textListAttribute(spanning: range))
         }
     }
 
@@ -224,7 +224,7 @@ class NSAttributedStringListsTests: XCTestCase {
 
         for index in (0 ..< string.length) {
             let range = NSRange(location: index, length: 1)
-            let attribute = string.textListAttribute(spanningRange: range)
+            let attribute = string.textListAttribute(spanning: range)
 
             if isIndexWithinListRange(index) {
                 XCTAssertNotNil(attribute)
@@ -245,7 +245,7 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testTextListAttributeSpanningRangeReturnsTextListAttributeWhenPassedFullRange() {
         let string = sampleListString
-        let attribute = string.textListAttribute(spanningRange: sampleListRange)
+        let attribute = string.textListAttribute(spanning: sampleListRange)
 
         XCTAssertNotNil(attribute)
     }
@@ -260,7 +260,7 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testParagraphRangesReturnEmptyArrayForEmptyStrings() {
         let string = NSAttributedString()
-        let paragraphRanges = string.paragraphRanges(spanningRange: NSRange(location: 0, length: 0))
+        let paragraphRanges = string.paragraphRanges(spanning: NSRange(location: 0, length: 0))
 
         XCTAssert(paragraphRanges.isEmpty)
     }
@@ -278,7 +278,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = samplePlainString
         let range = NSRange(location: string.length, length: string.length)
 
-        let paragraphRanges = string.paragraphRanges(spanningRange: range)
+        let paragraphRanges = string.paragraphRanges(spanning: range)
         XCTAssert(paragraphRanges.isEmpty)
     }
 
@@ -297,7 +297,7 @@ class NSAttributedStringListsTests: XCTestCase {
 
         for index in (0..<string.length) {
             let spanningRange = NSRange(location: index, length: 1)
-            let paragraphRanges = string.paragraphRanges(spanningRange: spanningRange)
+            let paragraphRanges = string.paragraphRanges(spanning: spanningRange)
 
             XCTAssert(paragraphRanges.count == 1)
             guard let retrieved = paragraphRanges.first else {
@@ -326,7 +326,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let expected = [first, second, third]
         let text = NSAttributedString(string: first + second + third)
 
-        let ranges = text.paragraphRanges(spanningRange: text.rangeOfEntireString)
+        let ranges = text.paragraphRanges(spanning: text.rangeOfEntireString)
         XCTAssert(ranges.count == 3)
 
         let paragraphs = ranges.map { text.attributedSubstring(from: $0).string }
@@ -352,7 +352,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let text = NSAttributedString(string: first + second)
         let rangeExpected = (text.string as NSString).range(of: first)
 
-        let rangesForParagraphs = text.paragraphRanges(spanningRange: rangeExpected)
+        let rangesForParagraphs = text.paragraphRanges(spanning: rangeExpected)
         XCTAssert(rangesForParagraphs.count == 1)
 
         guard let rangeRetrieved = rangesForParagraphs.first else {
@@ -438,7 +438,7 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testParagraphRangesPreceedingAndSucceedingRangesReturnTheReceivedRangesIfThereIsNoSurroundingList() {
         let string = samplePlainString
-        let ranges = string.paragraphRanges(spanningRange: string.rangeOfEntireString)
+        let ranges = string.paragraphRanges(spanning: string.rangeOfEntireString)
 
         for style in listStyles {
             let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, matchingListStyle: style)
@@ -459,7 +459,7 @@ class NSAttributedStringListsTests: XCTestCase {
     func testParagraphRangesPreceedingAndSucceedingRangesEffectivelyInjectSurroundingListRanges() {
         let listString = sampleListString
         let listRange = sampleListRange
-        let listParagraphRanges = listString.paragraphRanges(spanningRange: listRange)
+        let listParagraphRanges = listString.paragraphRanges(spanning: listRange)
         XCTAssert(listParagraphRanges.count == 4)
 
         for itemRange in listParagraphRanges {
