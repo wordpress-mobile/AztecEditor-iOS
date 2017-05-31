@@ -320,6 +320,18 @@ extension NSAttributedString
         }
     }
 
+    /// Enumerates all of the paragraphs spanning a NSRange
+    ///
+    /// - Parameters:
+    ///     - range: Range that should be checked for paragraphs
+    ///     - block: Closure to be executed for each paragraph
+    ///
+    func enumerateParagraphs(spanning range: NSRange, using block: ((NSRange, NSAttributedString) -> Void)) {
+        for range in paragraphRanges(spanning: range) {
+            block(range, attributedSubstring(from: range))
+        }
+    }
+
     /// Internal convenience helper. Returns the internal string as a NSString instance
     ///
     var foundationString: NSString {
