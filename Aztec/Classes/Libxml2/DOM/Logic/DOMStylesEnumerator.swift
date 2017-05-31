@@ -77,7 +77,15 @@ extension Libxml2 {
 
         ///
         ///
-        func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
+        func enumerateNodes(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
+            attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, substring) in
+                enumerateStyles(in: substring, using: block)
+            }
+        }
+
+        ///
+        ///
+        private func enumerateStyles(in attrString: NSAttributedString, using block: ((NSRange, [Node]) -> Void)) {
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 let (paragraphStyles, styles) = attributesToStyles(attributes: attrs)
