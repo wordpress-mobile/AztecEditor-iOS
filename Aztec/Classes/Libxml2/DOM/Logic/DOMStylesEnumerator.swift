@@ -217,9 +217,10 @@ extension Libxml2 {
         }
 
         private func createNode(from paragraphStyles: [DOMParagraphStyle]) -> Node {
-            let node = paragraphStyles.reversed().reduce(nil) { (previous, paragraphStyle) in
 
-                guard previous != nil else {
+            let node = paragraphStyles.reversed().reduce(nil) { (previous, paragraphStyle) -> Node in
+
+                guard let previous = previous else {
                     return paragraphStyle.toNode(children: [])
                 }
 
