@@ -35,6 +35,7 @@ open class FormatBar: UIView {
         didSet {
             configure(items: scrollableItems)
             scrollableStackView.addArrangedSubviews(scrollableItems)
+            configureConstraints(for: scrollableItems, in: scrollableStackView)
         }
     }
 
@@ -48,6 +49,7 @@ open class FormatBar: UIView {
         didSet {
             configure(items: fixedItems)
             fixedStackView.addArrangedSubviews(fixedItems)
+            configureConstraints(for: fixedItems, in: fixedStackView)
         }
     }
 
@@ -318,6 +320,20 @@ private extension FormatBar {
     }
 
 
+    /// Sets up the Constraints for a given FormatBarItem, within the specified Container
+    ///
+    func configureConstraints(for items: [FormatBarItem], in container: UIView) {
+        let constraints = items.flatMap { item in
+            return [
+                item.widthAnchor.constraint(equalToConstant: Constants.stackButtonWidth),
+                item.heightAnchor.constraint(equalTo: container.heightAnchor)
+            ]
+        }
+
+        NSLayoutConstraint.activate(constraints)
+    }
+
+
     /// Refreshes the Stack View(s) Spacing, according to the Horizontal Size Class
     ///
     func refreshStackViewsSpacing() {
@@ -387,8 +403,9 @@ private extension FormatBar {
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        static let stackViewCompactSpacing = CGFloat(7)
-        static let stackViewRegularSpacing = CGFloat(20)
+        static let stackViewCompactSpacing = CGFloat(0)
+        static let stackViewRegularSpacing = CGFloat(15)
+        static let stackButtonWidth = CGFloat(30)
         static let topBorderHeightInPixels = CGFloat(1)
     }
 }
