@@ -909,6 +909,7 @@ extension Libxml2 {
             assert(inspector.range(of: element).contains(range))
 
             let rangeEndLocation = range.location + range.length
+            let elementLength = inspector.length(of: element)
 
             var left: ElementNode? = nil
             var center: ElementNode = element
@@ -921,7 +922,7 @@ extension Libxml2 {
                 center = splitRight
             }
 
-            if rangeEndLocation < inspector.range(of: element).length {
+            if rangeEndLocation < elementLength {
                 let (splitLeft, splitRight) = split(center, at: rangeEndLocation)
 
                 center = splitLeft

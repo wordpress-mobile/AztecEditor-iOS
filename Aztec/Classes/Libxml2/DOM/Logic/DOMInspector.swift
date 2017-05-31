@@ -433,7 +433,11 @@ extension Libxml2 {
         /// - Returns: the requested length.
         ///
         func childrenRange(of element: ElementNode) -> NSRange {
-            return NSRange(location: 0, length: childrenLength(of: element))
+
+            let location = needsOpeningParagraphSeparator(element) ? 1 : 0
+            let length = childrenLength(of: element)
+
+            return NSRange(location: location, length: length)
         }
 
         /// The range of an node.  Equal to the sum of the length of all child nodes, plus
