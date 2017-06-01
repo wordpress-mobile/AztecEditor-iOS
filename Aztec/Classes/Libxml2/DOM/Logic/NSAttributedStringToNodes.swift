@@ -71,7 +71,7 @@ extension Libxml2 {
     }
 
 
-    // MARK: - DOMStylesEnumerator
+    // MARK: - NSAttributedStringToNodes
     //
     class NSAttributedStringToNodes {
 
