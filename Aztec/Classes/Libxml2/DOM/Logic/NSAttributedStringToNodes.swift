@@ -93,12 +93,8 @@ extension Libxml2 {
         ///
         ///
         private func createNode(from attrString: NSAttributedString) -> Node {
-            
-            guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-                fatalError("This should not be possible, review your logic.")
-            }
 
-            let paragraphElement = createElement(from: paragraphStyle)
+            let paragraphElement = createParagraphElement(from: attrString)
             let (lastParagraphElement, _) = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
 
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
@@ -210,6 +206,15 @@ extension Libxml2 {
 
 
         // MARK: - Node Creation
+
+        private func createParagraphElement(from attrString: NSAttributedString) -> ElementNode {
+
+            guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+                return ElementNode(type: .p, children: [])
+            }
+
+            return createElement(from: paragraphStyle)
+        }
 
         private func createElement(from paragraphStyle: ParagraphStyle) -> ElementNode {
             let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
