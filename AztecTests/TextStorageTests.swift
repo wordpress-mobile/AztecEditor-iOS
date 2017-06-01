@@ -206,7 +206,7 @@ class TextStorageTests: XCTestCase
 
         html = storage.getHTML()
 
-        XCTAssertEqual(html, "Apply a blockquote")
+        XCTAssertEqual(html, "<p>Apply a blockquote</p>")
     }
 
     func testBlockquoteToggle2() {

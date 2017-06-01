@@ -104,6 +104,10 @@ extension Libxml2 {
                 let nodes = createNodes(from: styles, leaves: leaves)
 
                 lastParagraphElement.children = nodes
+
+                for node in nodes {
+                    node.parent = lastParagraphElement
+                }
             }
 
             return paragraphElement

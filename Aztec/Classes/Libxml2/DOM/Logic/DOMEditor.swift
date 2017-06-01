@@ -41,7 +41,7 @@ extension Libxml2 {
 
             let nodes = NSAttributedStringToNodes().createNodes(from: attributedString)
 
-            insertChildren(nodes, in: rootNode, at: location)
+            insertChildren(nodes, in: rootNode, atOffset: location)
         }
 
 
