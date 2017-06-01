@@ -103,7 +103,10 @@ extension Libxml2 {
                 let leaves = leafNodes(from: attrString.attributedSubstring(from: range))
                 let nodes = createNodes(from: styles, leaves: leaves)
 
-                lastParagraphElement.children = nodes
+                for node in nodes {
+                    lastParagraphElement.children.append(node)
+                    node.parent = lastParagraphElement
+                }
             }
 
             return paragraphElement
