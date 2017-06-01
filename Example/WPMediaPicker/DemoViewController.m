@@ -15,6 +15,7 @@
 @property (nonatomic, strong) UITextField *quickInputTextField;
 @property (nonatomic, strong) WPInputMediaPickerViewController *mediaInputViewController;
 @property (nonatomic, strong) UIView* wasFirstResponder;
+@property (nonatomic, strong) id<WPMediaCollectionDataSource> pickerDataSource;
 
 @end
 
@@ -222,6 +223,8 @@
 {
     self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
     self.mediaPicker.delegate = self;
+    self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
+    self.mediaPicker.dataSource = self.pickerDataSource;
     self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
     self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
     self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
