@@ -39,9 +39,9 @@ extension Libxml2 {
 
             assert(attributedString.length > 0)
 
-            DOMStylesEnumerator().enumerateNodes(in: attributedString, using: { nodes in
-                insertChildren(nodes, in: rootNode, atOffset: location)
-            })
+            let nodes = NSAttributedStringToNodes().createNodes(from: attributedString)
+
+            insertChildren(nodes, in: rootNode, at: location)
         }
 
 

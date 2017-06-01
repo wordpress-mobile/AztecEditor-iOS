@@ -18,7 +18,7 @@ extension Libxml2 {
         case preformatted
         case unorderedList
 
-        func toNode(children: [Node]) -> ElementNode {
+        func toElement(children: [Node]) -> ElementNode {
             switch self {
             case .blockquote:
                 return ElementNode(type: .blockquote, children: children)
@@ -73,7 +73,7 @@ extension Libxml2 {
 
     // MARK: - DOMStylesEnumerator
     //
-    class DOMStylesEnumerator {
+    class NSAttributedStringToNodes {
 
         ///
         ///
@@ -98,19 +98,22 @@ extension Libxml2 {
                 fatalError("This should not be possible, review your logic.")
             }
 
-            let paragraphNode = createNode(from: paragraphStyle)
+            let paragraphElement = createElement(from: paragraphStyle)
+            let lastParagraphElement = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
 
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 let styles = attributesToStyles(attributes: attrs)
-                let leafs = leafNodes(from: attrString.attributedSubstring(from: range))
-                let nodes = stylesToNode(paragraphStyles: paragraphStyles, styles: styles, leafs: leafs)
+                let leaves = leafNodes(from: attrString.attributedSubstring(from: range))
+                let nodes = createNodes(from: styles, leaves: leaves)
 
-                blockLevelNodes.append(nodes)
+                lastParagraphElement.append(nodes)
             }
 
-            return paragraphNode
+            return paragraphElement
         }
+
+        // MARK: - Leaf Nodes
 
         ///
         ///
@@ -138,9 +141,6 @@ extension Libxml2 {
 
             return leafs
         }
-
-
-        // MARK: - Leaf Node Helpers
 
         ///
         ///
@@ -209,48 +209,56 @@ extension Libxml2 {
         }
 
 
-        // MARK: - Node Generation Helpers
+        // MARK: - Node Creation
 
-        private func createNode(from paragraphStyle: ParagraphStyle) -> Node {
+        private func createElement(from paragraphStyle: ParagraphStyle) -> ElementNode {
             let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
-            return createNode(from: domParagraphStyles)
+            return createElement(from: domParagraphStyles)
         }
 
-        private func createNode(from paragraphStyles: [DOMParagraphStyle]) -> Node {
+        /// Creates a node from an array of `DOMParagraphStyle` objects.
+        ///
+        /// - Parameters:
+        ///     - domParagraphStyles: the input DOM paragraph styles to create the nodes from.
+        ///
+        /// - Returns: the requested node.
+        ///
+        private func createElement(from domParagraphStyles: [DOMParagraphStyle]) -> ElementNode {
 
-            let node = paragraphStyles.reversed().reduce(nil) { (previous, paragraphStyle) -> Node in
+            assert(domParagraphStyles.count > 0)
+
+            let element = domParagraphStyles.reversed().reduce(nil) { (previous, style) -> ElementNode in
 
                 guard let previous = previous else {
-                    return paragraphStyle.toNode(children: [])
+                    return style.toElement(children: [])
                 }
 
-
-                return paragraphStyle.toNode(children: [previous])
+                return style.toElement(children: [previous])
             }
 
-            return node!
+            guard let result = element else {
+                fatalError("The input array of paragraph styles cannot be empty, so this should not be possible.")
+            }
+
+            return result
         }
 
         ///
         ///
-        private func stylesToNode(paragraphStyles: [DOMParagraphStyle], styles: [DOMStyle], leafs: [Node]) -> [Node] {
-            let stylesRoot = styles.reversed().reduce(leafs) { (children, style) in
+        private func createNodes(from domStyles: [DOMStyle], leaves: [Node]) -> [Node] {
+            let styleNodes = domStyles.reversed().reduce(leaves) { (children, style) in
                 return [style.toNode(children: children)]
             }
 
-            let paragraphStylesRoot = paragraphStyles.reversed().reduce(stylesRoot) { (children, style) in
-                return [style.toNode(children: children)]
-            }
-
-            return paragraphStylesRoot
+            return styleNodes
         }
 
 
-        // MARK: - Style Extraction Helpers
+        // MARK: - Style Extraction
 
         ///
         ///
-        private func attributesToStyles(attributes: [String: Any]) -> ([DOMParagraphStyle], [DOMStyle]) {
+        private func attributesToStyles(attributes: [String: Any]) -> [DOMStyle] {
             var paragraphStyles = [DOMParagraphStyle]()
             var styles = [DOMStyle]()
 
