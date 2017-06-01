@@ -259,15 +259,13 @@ extension Libxml2 {
         ///
         ///
         private func attributesToStyles(attributes: [String: Any]) -> [DOMStyle] {
-            var paragraphStyles = [DOMParagraphStyle]()
             var styles = [DOMStyle]()
 
             for (key, value) in attributes {
-                paragraphStyles.append(contentsOf: self.paragraphStyles(key: key, value: value))
                 styles.append(contentsOf: self.styles(key: key, value: value))
             }
 
-            return (paragraphStyles, styles)
+            return styles
         }
 
 
