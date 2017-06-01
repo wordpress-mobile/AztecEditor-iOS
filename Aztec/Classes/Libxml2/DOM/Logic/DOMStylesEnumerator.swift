@@ -99,7 +99,7 @@ extension Libxml2 {
             }
 
             let paragraphElement = createElement(from: paragraphStyle)
-            let lastParagraphElement = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
+            let (lastParagraphElement, _) = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
 
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
@@ -107,7 +107,7 @@ extension Libxml2 {
                 let leaves = leafNodes(from: attrString.attributedSubstring(from: range))
                 let nodes = createNodes(from: styles, leaves: leaves)
 
-                lastParagraphElement.append(nodes)
+                lastParagraphElement.children = nodes
             }
 
             return paragraphElement
