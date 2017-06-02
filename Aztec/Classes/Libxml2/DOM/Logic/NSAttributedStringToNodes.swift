@@ -27,7 +27,7 @@ class NSAttributedStringToNodes {
         let inspector = DOMInspector()
         var result = [Node]()
 
-        attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
+        attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString, includeParagraphSeparator: false) { (_, paragraph) in
 
             guard paragraph.length > 0 else {
                 return

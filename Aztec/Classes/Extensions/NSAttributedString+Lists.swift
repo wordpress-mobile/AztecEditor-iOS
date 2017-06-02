@@ -235,9 +235,9 @@ extension NSAttributedString
     ///
     func paragraphRanges(spanning range: NSRange, includeParagraphSeparator: Bool = true) -> [NSRange] {
         var paragraphRanges = [NSRange]()
-        let range = string.range(fromUTF16NSRange: range)
+        let swiftRange = string.range(fromUTF16NSRange: range)
 
-        string.enumerateSubstrings(in: range, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
+        string.enumerateSubstrings(in: swiftRange, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
             let paragraphRange = includeParagraphSeparator ? enclosingRange : substringRange
             paragraphRanges.append(self.string.nsRange(from: paragraphRange))
         }

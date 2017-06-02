@@ -278,17 +278,11 @@ class NSAttributedStringListsTests: XCTestCase {
         let string = sampleSingleLine
         let expected = string.rangeOfEntireString
 
-        for index in (0..<string.length) {
-            let spanningRange = NSRange(location: index, length: 1)
-            let paragraphRanges = string.paragraphRanges(spanning: spanningRange)
+        for index in (0 ..< string.length) {
+            let targetRange = NSRange(location: index, length: 1)
+            let paragraphRange = string.paragraphRange(for: targetRange)
 
-            XCTAssert(paragraphRanges.count == 1)
-            guard let retrieved = paragraphRanges.first else {
-                XCTFail()
-                return
-            }
-
-            XCTAssert(retrieved.location == expected.location && retrieved.length == expected.length)
+            XCTAssert(paragraphRange == expected)
         }
     }
 
