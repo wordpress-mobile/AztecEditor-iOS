@@ -82,9 +82,9 @@ extension Libxml2 {
             var result = [Node]()
 
             attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
-                if let node = createNodes(fromParagraph: paragraph) {
-                    result.append(node)
-                }
+                let node = createNodes(fromParagraph: paragraph)
+
+                result.append(node)
             }
 
             return result
