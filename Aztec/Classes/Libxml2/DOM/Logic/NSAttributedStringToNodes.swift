@@ -36,7 +36,9 @@ class NSAttributedStringToNodes {
             var mustAddExplicitBreak = false
 
             if paragraphRange != enclosingRange {
-                mustAddExplicitBreak = !hasParagraphStyles(attrString)
+                let enclosingSubstring = attrString.attributedSubstring(from: enclosingRange)
+
+                mustAddExplicitBreak = !hasParagraphStyles(enclosingSubstring)
             }
 
             if mustAddExplicitBreak {
@@ -50,8 +52,9 @@ class NSAttributedStringToNodes {
     ///
     private func hasParagraphStyles(_ attrString: NSAttributedString) -> Bool {
 
-        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-            return false
+        guard attrString.length > 0,
+            let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+                return false
         }
 
         return paragraphStyle.blockquote != nil
