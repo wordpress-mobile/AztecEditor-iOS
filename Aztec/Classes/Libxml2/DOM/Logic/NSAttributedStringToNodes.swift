@@ -87,8 +87,9 @@ extension Libxml2 {
 
                 if let lastElement = result.last as? ElementNode,
                     let currentElement = node.first as? ElementNode,
-                    inspector.isBlockLevelElement(lastElement) || inspector.isBlockLevelElement(currentElement) {
-
+                    inspector.isBlockLevelElement(lastElement) == false &&
+                    inspector.isBlockLevelElement(currentElement) == false
+                {
                     result.append(ElementNode(type: .br))
                 }
 
