@@ -31,21 +31,28 @@ class NSAttributedStringToNodes {
             let paragraphSubstring = attrString.attributedSubstring(from: paragraphRange)
             let paragraphNodes = createNodes(fromParagraph: paragraphSubstring)
 
-            if let currentNode = paragraphNodes.first,
-                isBlocklevelElement(node: currentNode) == false
-            {
-                result.append(ElementNode(type: .br))
+            result.append(contentsOf: paragraphNodes)
+
+            var mustAddExplicitBreak = false
+
+            if paragraphRange != enclosingRange {
+                if let currentNode = paragraphNodes.first {
+                    mustAddExplicitBreak = !isBlocklevelElement(currentNode)
+                } else {
+                    mustAddExplicitBreak = true
+                }
             }
 
-            result.append(contentsOf: paragraphNodes)
+            if mustAddExplicitBreak {
+                result.append(ElementNode(type: .br))
+            }
         }
 
         return result
     }
-
     ///
     ///
-    private func isBlocklevelElement(node: Node) -> Bool {
+    private func isBlocklevelElement(_ node: Node) -> Bool {
         guard let element = node as? ElementNode else {
             return false
         }
@@ -58,6 +65,10 @@ class NSAttributedStringToNodes {
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
         var children = [Node]()
+
+        guard paragraph.length > 0 else {
+            return []
+        }
 
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
