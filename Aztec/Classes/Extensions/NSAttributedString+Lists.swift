@@ -245,6 +245,26 @@ extension NSAttributedString
         return paragraphRanges
     }
 
+    /// Finds the paragraph ranges in the specified string intersecting the specified range.
+    ///
+    /// - Parameters range: The range within the specified string to find paragraphs.
+    ///
+    /// - Returns: An array containing an NSRange for each paragraph intersected by the specified range.
+    ///
+    func paragraphRanges(spanning range: NSRange) -> ([(NSRange, NSRange)]) {
+        var paragraphRanges = [(NSRange, NSRange)]()
+        let swiftRange = string.range(fromUTF16NSRange: range)
+
+        string.enumerateSubstrings(in: swiftRange, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
+            let substringNSRange = self.string.utf16NSRange(from: substringRange)
+            let enclosingNSRange = self.string.utf16NSRange(from: enclosingRange)
+
+            paragraphRanges.append((substringNSRange, enclosingNSRange))
+        }
+
+        return paragraphRanges
+    }
+
     /// Returns the range of characters representing the paragraph or paragraphs containing a given range.
     ///
     /// This is an attributed string wrapper for `NSString.paragraphRangeForRange()`
@@ -319,9 +339,9 @@ extension NSAttributedString
     ///     - range: Range that should be checked for paragraphs
     ///     - block: Closure to be executed for each paragraph
     ///
-    func enumerateParagraphs(spanning range: NSRange, includeParagraphSeparator: Bool = false, using block: ((NSRange, NSAttributedString) -> Void)) {
-        for range in paragraphRanges(spanning: range, includeParagraphSeparator: includeParagraphSeparator) {
-            block(range, attributedSubstring(from: range))
+    func enumerateParagraphRanges(spanning range: NSRange, using block: ((NSRange, NSRange) -> Void)) {
+        for (range, enclosingRange) in paragraphRanges(spanning: range) {
+            block(range, enclosingRange)
         }
     }
 

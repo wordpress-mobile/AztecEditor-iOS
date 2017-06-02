@@ -26,19 +26,24 @@ class NSAttributedStringToNodes {
 
         var result = [Node]()
 
-        attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString, includeParagraphSeparator: false) { (_, paragraph) in
+        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
 
-            guard paragraph.length > 0 else {
-                return
+            let paragraphContents = paragraph.attributedSubstring(from: paragraphRange.shortenedRight(by: 1))
+            let needsParagraphSeparator: Bool
+
+            if paragraphContents.length > 0 {
+                let nodes = createNodes(fromParagraph: paragraph)
+
+                if let currentNode = nodes.first,
+                    isBlocklevelElement(node: currentNode) == false
+                {
+                    needsParagraphSeparator = true
+                }
+            } else {
+                
             }
 
-            let nodes = createNodes(fromParagraph: paragraph)
-
-            if let lastNode = result.last,
-                let currentNode = nodes.first,
-                isBlocklevelElement(node: lastNode) == false &&
-                isBlocklevelElement(node: currentNode) == false
-            {
+            if needsParagraphSeparator {
                 result.append(ElementNode(type: .br))
             }
 
