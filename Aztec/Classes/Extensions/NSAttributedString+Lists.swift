@@ -249,7 +249,10 @@ extension NSAttributedString
     /// This is an attributed string wrapper for `NSString.paragraphRangeForRange()`
     ///
     func paragraphRange(for range: NSRange) -> NSRange {
-        return foundationString.paragraphRange(for: range)
+        let range = string.range(fromUTF16NSRange: range)
+        let outRange = string.paragraphRange(for: range)
+
+        return string.nsRange(from: outRange)
     }
 
 
