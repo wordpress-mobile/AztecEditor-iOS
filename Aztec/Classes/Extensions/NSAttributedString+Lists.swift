@@ -239,7 +239,7 @@ extension NSAttributedString
 
         string.enumerateSubstrings(in: swiftRange, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
             let paragraphRange = includeParagraphSeparator ? enclosingRange : substringRange
-            paragraphRanges.append(self.string.nsRange(from: paragraphRange))
+            paragraphRanges.append(self.string.utf16NSRange(from: paragraphRange))
         }
 
         return paragraphRanges
