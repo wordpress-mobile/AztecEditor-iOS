@@ -79,10 +79,18 @@ extension Libxml2 {
         ///
         func createNodes(from attrString: NSAttributedString) -> [Node] {
 
+            let inspector = DOMInspector()
             var result = [Node]()
 
             attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
                 let node = createNodes(fromParagraph: paragraph)
+
+                if let lastElement = result.last as? ElementNode,
+                    let currentElement = node.first as? ElementNode,
+                    inspector.isBlockLevelElement(lastElement) || inspector.isBlockLevelElement(currentElement) {
+
+                    result.append(ElementNode(type: .br))
+                }
 
                 result.append(contentsOf: node)
             }
