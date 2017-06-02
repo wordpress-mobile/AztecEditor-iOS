@@ -84,7 +84,7 @@ extension Libxml2 {
             attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
                 let node = createNodes(fromParagraph: paragraph)
 
-                result.append(node)
+                result.append(contentsOf: node)
             }
 
             return result
