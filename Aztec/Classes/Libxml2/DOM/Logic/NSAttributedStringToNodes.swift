@@ -28,6 +28,11 @@ class NSAttributedStringToNodes {
         var result = [Node]()
 
         attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
+
+            guard paragraph.length > 0 else {
+                return
+            }
+
             let node = createNodes(fromParagraph: paragraph)
 
             if let lastElement = result.last as? ElementNode,
