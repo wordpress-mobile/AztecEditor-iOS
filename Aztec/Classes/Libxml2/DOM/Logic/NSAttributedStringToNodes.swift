@@ -24,7 +24,6 @@ class NSAttributedStringToNodes {
     ///
     func createNodes(from attrString: NSAttributedString) -> [Node] {
 
-        let inspector = DOMInspector()
         var result = [Node]()
 
         attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString, includeParagraphSeparator: false) { (_, paragraph) in
@@ -33,20 +32,30 @@ class NSAttributedStringToNodes {
                 return
             }
 
-            let node = createNodes(fromParagraph: paragraph)
+            let nodes = createNodes(fromParagraph: paragraph)
 
-            if let lastElement = result.last as? ElementNode,
-                let currentElement = node.first as? ElementNode,
-                inspector.isBlockLevelElement(lastElement) == false &&
-                inspector.isBlockLevelElement(currentElement) == false
+            if let lastNode = result.last,
+                let currentNode = nodes.first,
+                isBlocklevelElement(node: lastNode) == false &&
+                isBlocklevelElement(node: currentNode) == false
             {
                 result.append(ElementNode(type: .br))
             }
 
-            result.append(contentsOf: node)
+            result.append(contentsOf: nodes)
         }
 
         return result
+    }
+
+    ///
+    ///
+    private func isBlocklevelElement(node: Node) -> Bool {
+        guard let element = node as? ElementNode else {
+            return false
+        }
+
+        return DOMInspector().isBlockLevelElement(element)
     }
 
     ///
