@@ -36,11 +36,7 @@ class NSAttributedStringToNodes {
             var mustAddExplicitBreak = false
 
             if paragraphRange != enclosingRange {
-                if let currentNode = paragraphNodes.first {
-                    mustAddExplicitBreak = !isBlocklevelElement(currentNode)
-                } else {
-                    mustAddExplicitBreak = true
-                }
+                mustAddExplicitBreak = !hasParagraphStyles(attrString)
             }
 
             if mustAddExplicitBreak {
@@ -52,12 +48,16 @@ class NSAttributedStringToNodes {
     }
     ///
     ///
-    private func isBlocklevelElement(_ node: Node) -> Bool {
-        guard let element = node as? ElementNode else {
+    private func hasParagraphStyles(_ attrString: NSAttributedString) -> Bool {
+
+        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
             return false
         }
 
-        return DOMInspector().isBlockLevelElement(element)
+        return paragraphStyle.blockquote != nil
+            || paragraphStyle.htmlParagraph != nil
+            || paragraphStyle.headerLevel > 0
+            || paragraphStyle.textLists.count > 0
     }
 
     ///
