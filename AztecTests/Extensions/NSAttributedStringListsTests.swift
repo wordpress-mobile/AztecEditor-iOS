@@ -306,7 +306,10 @@ class NSAttributedStringListsTests: XCTestCase {
         let ranges = text.paragraphRanges(spanning: text.rangeOfEntireString)
         XCTAssert(ranges.count == 3)
 
-        let paragraphs = ranges.map { text.attributedSubstring(from: $0).string }
+        let paragraphs = ranges.map { (_, enclosingRange) in
+            text.attributedSubstring(from: enclosingRange).string
+        }
+
         for (index, retrieved) in paragraphs.enumerated() {
             let expected = expected[index]
             XCTAssert(expected == retrieved)
@@ -332,13 +335,13 @@ class NSAttributedStringListsTests: XCTestCase {
         let rangesForParagraphs = text.paragraphRanges(spanning: rangeExpected)
         XCTAssert(rangesForParagraphs.count == 1)
 
-        guard let rangeRetrieved = rangesForParagraphs.first else {
+        guard let (_, encapsulatedRange) = rangesForParagraphs.first else {
             XCTFail()
             return
         }
 
-        XCTAssert(rangeRetrieved.location == rangeExpected.location)
-        XCTAssert(rangeRetrieved.length == rangeExpected.length)
+        XCTAssert(encapsulatedRange.location == rangeExpected.location)
+        XCTAssert(encapsulatedRange.length == rangeExpected.length)
     }
 
 
@@ -399,54 +402,6 @@ class NSAttributedStringListsTests: XCTestCase {
             for listStyle in listStyles {
                 let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: listStyle)
                 XCTAssert(ranges.isEmpty)
-            }
-        }
-    }
-
-    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListStyle)` the same ranges received, whenever there is no
-    /// surrounding list.
-    ///
-    /// Set up:
-    /// - Attributed String with no text lists.
-    /// - Ranges of all of the string's paragraphs
-    ///
-    /// Expected result:
-    /// - Same Input Ranges
-    ///
-    func testParagraphRangesPreceedingAndSucceedingRangesReturnTheReceivedRangesIfThereIsNoSurroundingList() {
-        let string = samplePlainString
-        let ranges = string.paragraphRanges(spanning: string.rangeOfEntireString)
-
-        for style in listStyles {
-            let retrieved = string.paragraphRanges(preceedingAndSucceding: ranges, matchingListStyle: style)
-            XCTAssert(retrieved.count == ranges.count)
-        }
-    }
-
-    /// Tests that `paragraphRanges(preceedingAndSucceding: matchingListStyle)` returns all of the list's paragraph ranges,
-    /// when a single paragraph is fed.
-    ///
-    /// Set up:
-    /// - Attributed String with a text list.
-    /// - Ranges of all of the string's paragraphs
-    ///
-    /// Expected result:
-    /// - Full List Ranges, whenever each one of the List Item Ranges is sent over
-    ///
-    func testParagraphRangesPreceedingAndSucceedingRangesEffectivelyInjectSurroundingListRanges() {
-        let listString = sampleListString
-        let listRange = sampleListRange
-        let listParagraphRanges = listString.paragraphRanges(spanning: listRange)
-        XCTAssert(listParagraphRanges.count == 4)
-
-        for itemRange in listParagraphRanges {
-            let retrievedRanges = listString.paragraphRanges(preceedingAndSucceding: [itemRange], matchingListStyle: sampleListStyle)
-            XCTAssert(retrievedRanges.count == listParagraphRanges.count)
-            
-            for retrievedRange in retrievedRanges {
-                XCTAssertTrue(listParagraphRanges.contains(where: { (range) -> Bool in
-                    listParagraphRanges.contains(retrievedRange)
-                }))
             }
         }
     }

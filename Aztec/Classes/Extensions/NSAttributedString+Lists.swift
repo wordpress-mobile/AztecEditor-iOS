@@ -296,43 +296,6 @@ extension NSAttributedString
     }
 
 
-    /// Given a collection of Ranges, this helper will attempt to infer if the previous + following
-    /// paragraphs contain a TextList, of the specified kind.
-    /// If so, their ranges will be returned along with the received ranges, in a sorted fashion.
-    ///
-    /// - Parameters:
-    ///     - ranges: Ranges that should be checked
-    ///     - kind: Kind of list to look for
-    ///
-    /// - Returns: A collection of sorted NSRange's
-    ///
-    func paragraphRanges(preceedingAndSucceding ranges: [NSRange], matchingListStyle style: TextList.Style) -> [NSRange] {
-        guard let firstRange = ranges.first, let lastRange = ranges.last else {
-            return ranges
-        }
-
-        // Check preceding + following paragraphs style for same kind of list & same list level.
-        // If found add those paragraph ranges.
-        let preceedingIndex = firstRange.location - 1
-        let followingIndex = NSMaxRange(lastRange)
-        var adjustedRanges = ranges
-
-        for index in [preceedingIndex, followingIndex] {
-            for range in paragraphRanges(atIndex: index, matchingListStyle: style) {
-                guard adjustedRanges.contains(where: { NSEqualRanges($0, range)}) == false else {
-                    continue
-                }
-
-                adjustedRanges.append(range)
-            }
-        }
-
-        // Check the ranges are sorted in ascending order
-        return adjustedRanges.sorted {
-            $0.location < $1.location
-        }
-    }
-
     /// Enumerates all of the paragraphs spanning a NSRange
     ///
     /// - Parameters:
