@@ -81,10 +81,10 @@ extension Libxml2 {
 
             var result = [Node]()
 
-            attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, subString) in
-                let node = createNode(from: subString)
-
-                result.append(node)
+            attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, paragraph) in
+                if let node = createNode(fromParagraph: paragraph) {
+                    result.append(node)
+                }
             }
 
             return result
@@ -109,7 +109,7 @@ extension Libxml2 {
                 return children
             }
 
-            return paragraphElement
+            return [paragraphElement]
         }
 
         // MARK: - Leaf Nodes
@@ -295,10 +295,6 @@ extension Libxml2 {
                 } else {
                     styles.append(.unorderedList)
                 }
-            }
-
-            guard styles.isEmpty == false else {
-                return [DOMParagraphStyle.paragraph]
             }
 
             return styles
