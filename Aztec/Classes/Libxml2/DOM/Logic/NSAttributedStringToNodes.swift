@@ -102,11 +102,11 @@ extension Libxml2 {
         ///
         private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
-            var children: [Node]
+            var children = [Node]()
 
             paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
-                let styles = attributesToStyles(attributes: attrs)
+                let styles = domStyles(from: attrs)
                 let leaves = leafNodes(from: paragraph.attributedSubstring(from: range))
                 let nodes = createNodes(from: styles, leaves: leaves)
 
@@ -218,20 +218,6 @@ extension Libxml2 {
 
         // MARK: - Node Creation
 
-        private func createParagraphElement(from attrString: NSAttributedString, withChildren children: [Node]) -> ElementNode? {
-
-            guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-                return nil
-            }
-
-            return createElement(from: paragraphStyle, withChildren: children)
-        }
-
-        private func createElement(from paragraphStyle: ParagraphStyle, withChildren children: [Node]) -> ElementNode {
-            let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
-            return createElement(from: domParagraphStyles, withChildren: children)
-        }
-
         /// Creates a node from an array of `DOMParagraphStyle` objects.
         ///
         /// - Parameters:
@@ -239,20 +225,28 @@ extension Libxml2 {
         ///
         /// - Returns: the requested node.
         ///
-        private func createElement(from domParagraphStyles: [DOMParagraphStyle], withChildren children: [Node]) -> ElementNode {
+        private func createParagraphElement(from attrString: NSAttributedString, withChildren children: [Node]) -> ElementNode? {
 
-            assert(domParagraphStyles.count > 0)
-
-            let element = domParagraphStyles.reversed().reduce(children) { (previous, style) -> ElementNode in
-                return style.toElement(children: [previous])
+            guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+                return nil
             }
 
-            guard let result = element else {
+            let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
+            guard domParagraphStyles.isEmpty == false else {
+                return nil
+            }
+
+            let element = domParagraphStyles.reversed().reduce(children) { (previous, style) -> [Node] in
+                return [ style.toElement(children: previous) ]
+            }
+
+            guard let result = element.first as? ElementNode else {
                 fatalError("The input array of paragraph styles cannot be empty, so this should not be possible.")
             }
 
             return result
         }
+
 
         ///
         ///
@@ -265,20 +259,8 @@ extension Libxml2 {
         }
 
 
+
         // MARK: - Style Extraction
-
-        ///
-        ///
-        private func attributesToStyles(attributes: [String: Any]) -> [DOMStyle] {
-            var styles = [DOMStyle]()
-
-            for (key, value) in attributes {
-                styles.append(contentsOf: self.styles(key: key, value: value))
-            }
-
-            return styles
-        }
-
 
         /// Converts a NSAttributedString Attribute / Value into an array of DOMParagraphStyle Instances.
         ///
@@ -303,6 +285,19 @@ extension Libxml2 {
                 } else {
                     styles.append(.unorderedList)
                 }
+            }
+
+            return styles
+        }
+
+
+        ///
+        ///
+        private func domStyles(from attributes: [String: Any]) -> [DOMStyle] {
+            var styles = [DOMStyle]()
+
+            for (key, value) in attributes {
+                styles.append(contentsOf: self.styles(key: key, value: value))
             }
 
             return styles
