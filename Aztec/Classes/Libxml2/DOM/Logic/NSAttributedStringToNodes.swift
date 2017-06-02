@@ -82,9 +82,9 @@ extension Libxml2 {
             var result = [Node]()
 
             attrString.enumerateParagraphs(spanning: attrString.rangeOfEntireString) { (_, subString) in
-                let node = createNode(from: subString)
-
-                result.append(node)
+                if let node = createNode(from: subString) {
+                    result.append(node)
+                }
             }
 
             return result
@@ -92,22 +92,17 @@ extension Libxml2 {
 
         ///
         ///
-        private func createNode(from attrString: NSAttributedString) -> Node {
+        private func createNode(from attrString: NSAttributedString) -> Node? {
 
             let paragraphElement = createParagraphElement(from: attrString)
-            let (lastParagraphElement, _) = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
+//            let (lastParagraphElement, _) = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
 
             attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 let styles = attributesToStyles(attributes: attrs)
                 let leaves = leafNodes(from: attrString.attributedSubstring(from: range))
                 let nodes = createNodes(from: styles, leaves: leaves)
-
-                lastParagraphElement.children = nodes
-
-                for node in nodes {
-                    node.parent = lastParagraphElement
-                }
+// TODO: Inject Nodes
             }
 
             return paragraphElement
@@ -211,10 +206,10 @@ extension Libxml2 {
 
         // MARK: - Node Creation
 
-        private func createParagraphElement(from attrString: NSAttributedString) -> ElementNode {
+        private func createParagraphElement(from attrString: NSAttributedString) -> ElementNode? {
 
             guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-                return ElementNode(type: .p, children: [])
+                return nil
             }
 
             return createElement(from: paragraphStyle)
@@ -301,10 +296,6 @@ extension Libxml2 {
                 } else {
                     styles.append(.unorderedList)
                 }
-            }
-
-            guard styles.isEmpty == false else {
-                return [DOMParagraphStyle.paragraph]
             }
 
             return styles
