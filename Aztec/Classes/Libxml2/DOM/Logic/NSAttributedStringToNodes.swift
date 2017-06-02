@@ -92,22 +92,21 @@ extension Libxml2 {
 
         ///
         ///
-        private func createNode(from attrString: NSAttributedString) -> Node {
+        private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
-            let paragraphElement = createParagraphElement(from: attrString)
-            let (lastParagraphElement, _) = DOMInspector().findLeftmostLowestDescendantElement(of: paragraphElement, intersecting: 0)
+            var children: [Node]
 
-            attrString.enumerateAttributes(in: attrString.rangeOfEntireString, options: []) { (attrs, range, _) in
+            paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
                 let styles = attributesToStyles(attributes: attrs)
-                let leaves = leafNodes(from: attrString.attributedSubstring(from: range))
+                let leaves = leafNodes(from: paragraph.attributedSubstring(from: range))
                 let nodes = createNodes(from: styles, leaves: leaves)
 
-                lastParagraphElement.children = nodes
+                children.append(contentsOf: nodes)
+            }
 
-                for node in nodes {
-                    node.parent = lastParagraphElement
-                }
+            guard let paragraphElement = createParagraphElement(from: paragraph, withChildren: children) else {
+                return children
             }
 
             return paragraphElement
@@ -211,18 +210,18 @@ extension Libxml2 {
 
         // MARK: - Node Creation
 
-        private func createParagraphElement(from attrString: NSAttributedString) -> ElementNode {
+        private func createParagraphElement(from attrString: NSAttributedString, withChildren children: [Node]) -> ElementNode? {
 
             guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-                return ElementNode(type: .p, children: [])
+                return nil
             }
 
-            return createElement(from: paragraphStyle)
+            return createElement(from: paragraphStyle, withChildren: children)
         }
 
-        private func createElement(from paragraphStyle: ParagraphStyle) -> ElementNode {
+        private func createElement(from paragraphStyle: ParagraphStyle, withChildren children: [Node]) -> ElementNode {
             let domParagraphStyles = self.domParagraphStyles(from: paragraphStyle)
-            return createElement(from: domParagraphStyles)
+            return createElement(from: domParagraphStyles, withChildren: children)
         }
 
         /// Creates a node from an array of `DOMParagraphStyle` objects.
@@ -232,16 +231,11 @@ extension Libxml2 {
         ///
         /// - Returns: the requested node.
         ///
-        private func createElement(from domParagraphStyles: [DOMParagraphStyle]) -> ElementNode {
+        private func createElement(from domParagraphStyles: [DOMParagraphStyle], withChildren children: [Node]) -> ElementNode {
 
             assert(domParagraphStyles.count > 0)
 
-            let element = domParagraphStyles.reversed().reduce(nil) { (previous, style) -> ElementNode in
-
-                guard let previous = previous else {
-                    return style.toElement(children: [])
-                }
-
+            let element = domParagraphStyles.reversed().reduce(children) { (previous, style) -> ElementNode in
                 return style.toElement(children: [previous])
             }
 
