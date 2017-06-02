@@ -4,54 +4,7 @@ import UIKit
 
 // MARK: - NSAttributedString Lists Helpers
 //
-extension NSAttributedString
-{
-    /// Check if the location passed is the beggining of a new list line.
-    ///
-    /// - Parameter location: the position to check
-    /// - Returns: true if beggining of a new line false otherwise
-    ///
-    func isStartOfNewListItem(atLocation location: Int) -> Bool {
-        var isStartOfListItem = attribute(NSParagraphStyleAttributeName, at: location, effectiveRange: nil) != nil
-        var isStartOfLine = length == 0 || location == 0
-        if length > 0 && location > 0 {
-            let previousRange = NSRange(location: location - 1, length: 1)
-            let previousString = attributedSubstring(from: previousRange)
-            isStartOfLine = previousString.string.isEndOfLine()
-            isStartOfListItem = previousString.textListAttribute(atIndex: 0) != nil
-        }
-        return isStartOfLine && isStartOfListItem
-    }
-
-    /// Given a collection of NSRange's, this method will filter all of those that contain a TextList, and
-    /// don't match the specified Style.
-    ///
-    /// - Parameters:
-    ///     - ranges: Ranges to be filtered
-    ///     - style: Style to be matched
-    ///
-    /// - Returns: A subset of the input ranges that don't contain TextLists matching the input style.
-    ///
-    func filterListRanges(_ ranges: [NSRange], notMatchingStyle style: TextList.Style) -> [NSRange] {
-        return ranges.filter { range in
-            let list = textListAttribute(spanning: range)
-            return list == nil || list?.style == style
-        }
-    }
-
-    /// Get the range of a TextList containing the specified index.
-    ///
-    /// - Parameter index: An index intersecting a TextList.
-    ///
-    /// - Returns: An NSRange optional containing the range of the list or nil if no list was found.
-    ///
-    func rangeOfTextList(atIndex index: Int) -> NSRange? {
-        guard let textList = textListAttribute(atIndex: index) else {
-            return nil
-        }
-
-        return range(of: textList, at: index)
-    }
+extension NSAttributedString {
 
     /// Returns the range of the given text list that contains the given location.
     ///
@@ -170,25 +123,6 @@ extension NSAttributedString
         return range
     }
 
-
-    /// Return the contents of a TextList following the specified index (inclusive).
-    /// Used to retrieve list items that need to be renumbered.
-    ///
-    /// - Parameter index: An index intersecting a TextList.
-    ///
-    /// - Returns: An NSAttributedString optional containing the list from the specified range or nil if no list was found.
-    ///
-    func textListContents(followingIndex index: Int) -> NSAttributedString? {
-        guard let listRange = rangeOfTextList(atIndex: index) else {
-            return nil
-        }
-
-        let diff = index - listRange.location
-        let subRange = NSRange(location: index, length: listRange.length - diff)
-        return attributedSubstring(from: subRange)
-    }
-
-
     /// Returns the TextList attribute at the specified NSRange, if any.
     ///
     /// - Parameter index: The index at which to inspect.
@@ -274,25 +208,6 @@ extension NSAttributedString
         let outRange = string.paragraphRange(for: swiftRange)
 
         return string.utf16NSRange(from: outRange)
-    }
-
-
-    /// Returns all of the paragraphs, spanning at the specified index, with the given TextList Kind.
-    ///
-    /// - Parameters:
-    ///     - index: The index at which to inspect.
-    ///     - style: The type of TextList.
-    ///
-    /// - Return: A NSRange collection containing the paragraphs with the specified TextList Kind.
-    ///
-    func paragraphRanges(atIndex index: Int, matchingListStyle style: TextList.Style) -> [NSRange] {
-        guard index >= 0 && index < length, let range = rangeOfTextList(atIndex: index),
-            let list = textListAttribute(atIndex: index), list.style == style else
-        {
-            return []
-        }
-
-        return paragraphRanges(spanning: range)
     }
 
 

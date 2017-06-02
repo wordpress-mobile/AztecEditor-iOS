@@ -6,45 +6,6 @@ import XCTest
 //
 class NSAttributedStringListsTests: XCTestCase {
 
-    /// Tests that `rangeOfTextList` works.
-    ///
-    /// Set up:
-    /// - Sample NSAttributedString, with no TextList
-    ///
-    /// Expected result:
-    /// - nil for the whole String Length
-    ///
-    func testRangeOfTextListReturnsNilWhenStringDoesntContainTextLists() {
-        for index in (0 ... samplePlainString.length) {
-            XCTAssertNil(samplePlainString.rangeOfTextList(atIndex: index))
-        }
-    }
-
-    /// Tests that `rangeOfTextList` works.
-    ///
-    /// Set up:
-    /// - Sample NSAttributedString, with a TextList associated to a substring
-    ///
-    /// Expected result:
-    /// - The "Text List Substring" range, when applicable.
-    ///
-    func testRangeOfTextListReturnsTheExpectedRange() {
-        let string = sampleListString
-        let expected = sampleListRange
-
-        for index in (0 ..< string.length) {
-            let retrieved = string.rangeOfTextList(atIndex: index)
-
-            if isIndexWithinListRange(index) {
-                XCTAssert(retrieved != nil)
-                XCTAssert(expected.location == retrieved!.location)
-                XCTAssert(expected.length == retrieved!.length)
-            } else {
-                XCTAssert(retrieved == nil)
-            }
-        }
-    }
-
     /// Tests that `rangeOfEntireString` works.
     ///
     /// Set up:
@@ -110,50 +71,6 @@ class NSAttributedStringListsTests: XCTestCase {
             }
 
             XCTAssert(range.location == target.location && range.length == target.length)
-        }
-    }
-
-    /// Tests that `textListContents` returns nil, whenever there is no Text List.
-    ///
-    /// Set up:
-    /// - Sample (NON empty) NSAttributedString, but with no TextList
-    ///
-    /// Expected result:
-    /// - nil for the whole String Length.
-    ///
-    func testTextListContentsReturnsNilWheneverTheReceiverHasNoTextList() {
-        let string = samplePlainString
-
-        for index in (0 ..< string.length) {
-            let contents = string.textListContents(followingIndex: index)
-            XCTAssertNil(contents)
-        }
-    }
-
-    /// Tests that `textListContents` returns the expected TestList Contents.
-    ///
-    /// Set up:
-    /// - Sample (NON empty) NSAttributedString, with a TextList range.
-    ///
-    /// Expected result:
-    /// - Text List Contents. YAY!.
-    ///
-    func testTextListContentsReturnsTheAssociatedTextListContents() {
-        let string = sampleListString
-        let expectedContents = sampleListContents
-        let expectedRange = sampleListRange
-
-        for index in (0 ..< string.length) {
-            let retrievedContents = string.textListContents(followingIndex: index)
-
-            if isIndexWithinListRange(index) {
-                XCTAssertNotNil(retrievedContents)
-                let delta = index - expectedRange.location
-                let expectedSubstring = expectedContents.substring(from: expectedContents.characters.index(expectedContents.startIndex, offsetBy: delta))
-                XCTAssertEqual(retrievedContents!.string, expectedSubstring)
-            } else {
-                XCTAssertNil(retrievedContents)
-            }
         }
     }
 
@@ -342,68 +259,6 @@ class NSAttributedStringListsTests: XCTestCase {
 
         XCTAssert(encapsulatedRange.location == rangeExpected.location)
         XCTAssert(encapsulatedRange.length == rangeExpected.length)
-    }
-
-
-    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns the pargraph ranges, whenever the list
-    /// style matches.
-    ///
-    /// Set up:
-    /// - Attributed String with three list-paragraphs
-    ///
-    /// Expected result:
-    /// - Array with three ranges, whenever the method is passed an index that lies within the list range.
-    ///
-    func testParagraphRangesOfListStyleReturnsTheListRangeAtTheSpecifiedIndexWhenStyleMatches() {
-        let string = sampleListString
-
-        for index in (0 ..< string.length) {
-            let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: sampleListStyle)
-            if isIndexWithinListRange(index) {
-                XCTAssert(ranges.count == 4)
-            } else {
-                XCTAssert(ranges.isEmpty)
-            }
-        }
-    }
-
-    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns an empty array, whenever the list
-    /// style doesn't match.
-    ///
-    /// Set up:
-    /// - Attributed String with three list-paragraphs
-    ///
-    /// Expected result:
-    /// - Array with zero entities.
-    ///
-    func testParagraphRangesOfListStyleReturnsAnEmptyArrayWheneverStyleWontMatch() {
-        let string = sampleListString
-
-        for index in (0 ..< string.length) {
-            for listStyle in listStyles where listStyle != sampleListStyle {
-                let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: listStyle)
-                XCTAssert(ranges.isEmpty)
-            }
-        }
-    }
-
-    /// Tests that `paragraphRanges(atIndex: matchingListStyle)` returns an empty array, whenever there is no textList.
-    ///
-    /// Set up:
-    /// - Attributed String with no text lists.
-    ///
-    /// Expected result:
-    /// - Array with zero entities.
-    ///
-    func testParagraphRangesOfListStyleReturnsAnEmptyArrayWheneverThereIsNoList() {
-        let string = samplePlainString
-
-        for index in (0 ..< string.length) {
-            for listStyle in listStyles {
-                let ranges = string.paragraphRanges(atIndex: index, matchingListStyle: listStyle)
-                XCTAssert(ranges.isEmpty)
-            }
-        }
     }
 }
 
