@@ -28,26 +28,16 @@ class NSAttributedStringToNodes {
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
 
-            let paragraphContents = paragraph.attributedSubstring(from: paragraphRange.shortenedRight(by: 1))
-            let needsParagraphSeparator: Bool
+            let paragraphSubstring = attrString.attributedSubstring(from: paragraphRange)
+            let paragraphNodes = createNodes(fromParagraph: paragraphSubstring)
 
-            if paragraphContents.length > 0 {
-                let nodes = createNodes(fromParagraph: paragraph)
-
-                if let currentNode = nodes.first,
-                    isBlocklevelElement(node: currentNode) == false
-                {
-                    needsParagraphSeparator = true
-                }
-            } else {
-                
-            }
-
-            if needsParagraphSeparator {
+            if let currentNode = paragraphNodes.first,
+                isBlocklevelElement(node: currentNode) == false
+            {
                 result.append(ElementNode(type: .br))
             }
 
-            result.append(contentsOf: nodes)
+            result.append(contentsOf: paragraphNodes)
         }
 
         return result

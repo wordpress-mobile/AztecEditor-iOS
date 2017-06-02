@@ -130,11 +130,11 @@ extension NSAttributedString
         var numberInList = 1
         let paragraphRanges = self.paragraphRanges(spanning: rangeOfList)
 
-        for range in paragraphRanges {
-            if NSLocationInRange(location, range) {
+        for (_, enclosingRange) in paragraphRanges {
+            if NSLocationInRange(location, enclosingRange) {
                 return numberInList
             }
-            if let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle,
+            if let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
                listDepth == paragraphStyle.textLists.count {
                 numberInList += 1
             }
