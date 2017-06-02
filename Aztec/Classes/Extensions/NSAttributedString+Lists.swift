@@ -235,21 +235,10 @@ extension NSAttributedString
     ///
     func paragraphRanges(spanning range: NSRange) -> [NSRange] {
         var paragraphRanges = [NSRange]()
-        let targetRange = rangeOfEntireString
+        let range = string.startIndex ..< string.endIndex
 
-        foundationString.enumerateSubstrings(in: targetRange, options: .byParagraphs) { (substring, substringRange, enclosingRange, stop) in
-            // Stop if necessary.
-            if enclosingRange.location >= NSMaxRange(range) {
-                stop.pointee = true
-                return
-            }
-
-            // Bail early if the paragraph precedes the start of the selection
-            if NSMaxRange(enclosingRange) <= range.location {
-                return
-            }
-
-            paragraphRanges.append(enclosingRange)
+        string.enumerateSubstrings(in: range, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
+            paragraphRanges.append(self.string.nsRange(from: substringRange))
         }
 
         return paragraphRanges
