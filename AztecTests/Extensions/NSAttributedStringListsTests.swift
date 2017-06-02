@@ -265,23 +265,6 @@ class NSAttributedStringListsTests: XCTestCase {
         XCTAssert(paragraphRanges.isEmpty)
     }
 
-    /// Tests that `paragraphRanges` returns an empty array, when the spanning range is beyond the actual 
-    /// receiver's full range.
-    ///
-    /// Set up:
-    /// - Sample (NON empty) NSAttributedString.
-    ///
-    /// Expected result:
-    /// - Empty array.
-    ///
-    func testParagraphRangesReturnEmptyArrayWhenSpanningRangeIsBiggerThanReceiverString() {
-        let string = samplePlainString
-        let range = NSRange(location: string.length, length: string.length)
-
-        let paragraphRanges = string.paragraphRanges(spanning: range)
-        XCTAssert(paragraphRanges.isEmpty)
-    }
-
     /// Tests that `paragraphRanges` always returns the same paragraph ranges, wherever the "Range Location"
     /// is, as long as it falls within the string's length.
     ///
