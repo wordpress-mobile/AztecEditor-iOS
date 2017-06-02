@@ -148,7 +148,7 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
     }
 
     func testUpdateImage() {
@@ -161,13 +161,13 @@ class TextStorageTests: XCTestCase
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, url)
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignleft size-medium\"></p>")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
     func testUpdateHtmlAttachmentEffectivelyUpdatesTheDom() {
         let initialHTML = "<unknown>html</unknown>"
         let updatedHTML = "<updated>NEW HTML</updated>"
-        let finalHTML = "<p><updated>NEW HTML</updated></p>"
+        let finalHTML = "<updated>NEW HTML</updated>"
 
         // Setup
         let storage = TextStorage()
@@ -206,7 +206,7 @@ class TextStorageTests: XCTestCase
 
         html = storage.getHTML()
 
-        XCTAssertEqual(html, "<p>Apply a blockquote</p>")
+        XCTAssertEqual(html, "Apply a blockquote")
     }
 
     func testBlockquoteToggle2() {
@@ -304,7 +304,7 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\"></p>")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\">")
     }
 
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
@@ -320,7 +320,7 @@ class TextStorageTests: XCTestCase
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\">")
     }
 
     /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
@@ -371,7 +371,7 @@ class TextStorageTests: XCTestCase
         storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "<p><hr></p>")
+        XCTAssertEqual(html, "<hr>")
     }
 
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
@@ -385,7 +385,7 @@ class TextStorageTests: XCTestCase
         storage.replaceRangeWithHorizontalRuler(.zero)
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "<p><hr></p><p><hr></p>")
+        XCTAssertEqual(html, "<hr><hr>")
     }
 
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
