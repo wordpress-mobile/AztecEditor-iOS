@@ -223,8 +223,8 @@ extension NSAttributedString
         return list
     }
 
-    func paragraphRanges() -> [NSRange] {
-        return paragraphRanges(spanning: rangeOfEntireString)
+    func paragraphRanges(includeParagraphSeparator: Bool = true) -> [NSRange] {
+        return paragraphRanges(spanning: rangeOfEntireString, includeParagraphSeparator: includeParagraphSeparator)
     }
 
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
@@ -233,12 +233,13 @@ extension NSAttributedString
     ///
     /// - Returns: An array containing an NSRange for each paragraph intersected by the specified range.
     ///
-    func paragraphRanges(spanning range: NSRange) -> [NSRange] {
+    func paragraphRanges(spanning range: NSRange, includeParagraphSeparator: Bool = true) -> [NSRange] {
         var paragraphRanges = [NSRange]()
         let range = string.range(fromUTF16NSRange: range)
 
         string.enumerateSubstrings(in: range, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
-            paragraphRanges.append(self.string.nsRange(from: substringRange))
+            let paragraphRange = includeParagraphSeparator ? enclosingRange : substringRange
+            paragraphRanges.append(self.string.nsRange(from: paragraphRange))
         }
 
         return paragraphRanges
@@ -318,8 +319,8 @@ extension NSAttributedString
     ///     - range: Range that should be checked for paragraphs
     ///     - block: Closure to be executed for each paragraph
     ///
-    func enumerateParagraphs(spanning range: NSRange, using block: ((NSRange, NSAttributedString) -> Void)) {
-        for range in paragraphRanges(spanning: range) {
+    func enumerateParagraphs(spanning range: NSRange, includeParagraphSeparator: Bool = false, using block: ((NSRange, NSAttributedString) -> Void)) {
+        for range in paragraphRanges(spanning: range, includeParagraphSeparator: includeParagraphSeparator) {
             block(range, attributedSubstring(from: range))
         }
     }
