@@ -101,28 +101,6 @@ extension NSAttributedString {
         return NSRange(location: 0, length: length)
     }
 
-
-    /// Returns the NSRange that contains a specified position.
-    ///
-    /// - Parameter atIndex: Text location for which we want the line range.
-    ///
-    /// - Returns: The text's line range, at the specified position, if possible.
-    ///
-    func rangeOfLine(atIndex index: Int) -> NSRange? {
-        var range: NSRange?
-
-        foundationString.enumerateSubstrings(in: rangeOfEntireString, options: NSString.EnumerationOptions()) { (substring, substringRange, enclosingRange, stop) in
-            guard index >= enclosingRange.location && index < NSMaxRange(enclosingRange) else {
-                return
-            }
-
-            range = enclosingRange
-            stop.pointee = true
-        }
-
-        return range
-    }
-
     /// Returns the TextList attribute at the specified NSRange, if any.
     ///
     /// - Parameter index: The index at which to inspect.
