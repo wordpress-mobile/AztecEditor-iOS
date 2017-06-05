@@ -412,32 +412,33 @@ extension Libxml2 {
             return textNode.contents
         }
 
-        func childrenLength(of element: ElementNode) -> Int {
-            return element.children.reduce(0) { (previous, node) -> Int in
-                return previous + length(of: node)
-            }
-        }
-
         func length(of node: Node) -> Int {
             return text(for: node).characters.count
         }
 
         // MARK: - Ranges
 
-        /// The range of an element's children nodes.  This may or may not be equal to the full
-        /// range of the element, depending on if the element has paragraph separators.
+        /// The range of an element's content, without the block-level separators.
         ///
         /// - Parameters:
         ///     - element: the element to get the length of.
         ///
         /// - Returns: the requested length.
         ///
-        func childrenRange(of element: ElementNode) -> NSRange {
+        func contentRange(of element: ElementNode) -> NSRange {
 
-            let location = needsOpeningParagraphSeparator(element) ? 1 : 0
-            let length = childrenLength(of: element)
+            var range = self.range(of: element)
 
-            return NSRange(location: location, length: length)
+            if needsOpeningParagraphSeparator(element) {
+                range.location = 1
+                range.length = range.length - 1
+            }
+
+            if needsClosingParagraphSeparator(element) {
+                range.length = range.length - 1
+            }
+
+            return range
         }
 
         /// The range of an node.  Equal to the sum of the length of all child nodes, plus
@@ -545,13 +546,13 @@ extension Libxml2 {
                     offset = offset + length(of: child)
                 }
 
-                let childRangeInParent = self.range(of: child).offset(offset)
+                let childRangeInParent = self.range(of: child).offset(by: offset)
 
                 guard let intersectionInParent = range.intersect(withRange: childRangeInParent) else {
                     continue
                 }
 
-                elementsAndRanges.append((child, intersectionInParent.offset(-offset)))
+                elementsAndRanges.append((child, intersectionInParent.offset(by: -offset)))
             }
             
             return elementsAndRanges
@@ -578,7 +579,13 @@ extension Libxml2 {
 
             for child in element.children {
 
-                let childRangeInParent = range(of: child).offset(childOffset)
+                let childRangeInParent: NSRange
+
+                if let childElement = child as? ElementNode {
+                    childRangeInParent = contentRange(of: childElement).offset(by: childOffset)
+                } else {
+                    childRangeInParent = range(of: child).offset(by: childOffset)
+                }
 
                 if childRangeInParent.contains(offset: offset) {
                     return (node: child, offset: offset - childOffset)
@@ -744,7 +751,7 @@ extension Libxml2 {
                     continue
                 }
 
-                let childRangeInParent = self.range(of: child).offset(offset)
+                let childRangeInParent = self.range(of: child).offset(by: offset)
                 
                 guard let intersection = range.intersect(withRange: childRangeInParent) else {
                     continue
@@ -756,7 +763,7 @@ extension Libxml2 {
                         continue
                 }
 
-                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(-offset), bailCheck: bailCheck)
+                let childElementsAndRanges = findLowestBlockElementDescendants(of: childElement, spanning: intersection.offset(by: -offset), bailCheck: bailCheck)
 
                 for (matchElement, matchIntersection) in childElementsAndRanges {
                     elementsAndRanges.append((matchElement, matchIntersection))
@@ -866,7 +873,7 @@ extension Libxml2 {
                 let rangesInChildCoordinates = find(text, in: child)
 
                 let childRanges = rangesInChildCoordinates.map({ range -> NSRange in
-                    return range.offset(childOffset)
+                    return range.offset(by: childOffset)
                 })
 
                 ranges.append(contentsOf: childRanges)

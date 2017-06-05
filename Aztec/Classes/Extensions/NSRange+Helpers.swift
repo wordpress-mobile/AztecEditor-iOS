@@ -75,7 +75,7 @@ extension NSRange
     ///
     /// - Returns: the requested range.
     ///
-    func offset(_ offset: Int) -> NSRange {
+    func offset(by offset: Int) -> NSRange {
         return NSRange(location: location + offset, length: length)
     }
 

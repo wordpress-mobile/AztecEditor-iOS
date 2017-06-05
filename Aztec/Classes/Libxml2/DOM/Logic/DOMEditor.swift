@@ -35,16 +35,6 @@ extension Libxml2 {
 
         // MARK: - Inserting Characters
 
-        func insert(_ attributedString: NSAttributedString, atLocation location: Int) {
-
-            assert(attributedString.length > 0)
-
-            let nodes = NSAttributedStringToNodes().createNodes(from: attributedString)
-
-            insertChildren(nodes, in: rootNode, atOffset: location)
-        }
-
-
         /// Inserts the specified string at the specified location.
         ///
         /// - Parameters:
@@ -160,10 +150,55 @@ extension Libxml2 {
 
                 let (_, nextBlockLevelElement) = split(blockLevelElement, at: location + paragraph.characters.count)
 
-                currentElement = nextBlockLevelElement as! ElementNode
+                currentElement = nextBlockLevelElement
                 currentLocation = 0
             }
         }
+
+        // MARK: - Inserting Characters with Style.
+
+        func insert(_ attrString: NSAttributedString, atLocation location: Int) {
+            insert(attrString, into: rootNode, atLocation: location)
+        }
+
+        func insert(_ attrString: NSAttributedString, into element: ElementNode, atLocation location: Int) {
+
+            assert(attrString.length > 0)
+
+            attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString, reverseOrder: true) { (paragraphRange, enclosingRange) in
+                let separatorRange = enclosingRange.shortenedLeft(by: paragraphRange.length)
+                let separator = attrString.attributedSubstring(from: separatorRange)
+                let paragraph = attrString.attributedSubstring(from: paragraphRange)
+
+                insert(paragraph: paragraph, separator: separator, into: element, atLocation: location)
+            }
+        }
+
+        // MARK: - Inserting Paragraphs with Style.
+
+        func insert(paragraph: NSAttributedString, separator: NSAttributedString, into element: ElementNode, atLocation location: Int) {
+
+            let converter = NSAttributedStringToNodes()
+            let nodes = converter.createNodes(fromParagraph: paragraph)
+            var nodesToInsert = [Node]()
+
+            if nodes.count > 0 {
+                nodesToInsert.append(contentsOf: nodes)
+            }
+
+            if separator.length > 0 {
+                if converter.hasParagraphStyles(separator) {
+                    splitChildren(of: element, at: location)
+                } else {
+                    nodesToInsert.append(ElementNode(type: .br))
+                }
+            }
+
+            if nodesToInsert.count > 0 {
+                insertChildren(nodesToInsert, in: element, atOffset: location)
+            }
+        }
+
 
         // MARK: - Inserting Children
 
@@ -216,6 +251,8 @@ extension Libxml2 {
         }
 
         private func insertChildren(_ nodes: [Node], in element: ElementNode, atOffset offset: Int) {
+
+            assert(nodes.count > 0)
 
             let insertionIndex: Int
 
@@ -762,7 +799,7 @@ extension Libxml2 {
             // The following two guards' order is important.  Before checking if the range
             // is empty, we should still check if this node must be removed.
             //
-            guard range != inspector.childrenRange(of: element) else {
+            guard range != inspector.contentRange(of: element) else {
                 return unwrapChildren(of: element)
             }
 
@@ -833,8 +870,6 @@ extension Libxml2 {
         @discardableResult
         func split(_ node: Node, at offset: Int) -> (left: Node, right: Node) {
 
-            assert(offset != 0 && offset != inspector.length(of: node))
-
             if let textNode = node as? TextNode {
                 return split(textNode, at: offset)
             } else if let element = node as? ElementNode {
@@ -857,8 +892,6 @@ extension Libxml2 {
         ///
         @discardableResult
         func split(_ element: ElementNode, at offset: Int) -> (left: ElementNode, right: ElementNode) {
-
-            assert(offset != 0 && offset != inspector.length(of: element))
 
             let parent = inspector.parent(of: element)
 
@@ -883,8 +916,6 @@ extension Libxml2 {
         /// - Returns: the nodes at the left and right side of the split.
         ///
         func split(_ textNode: TextNode, at offset: Int) -> (left: Node, right: Node) {
-
-            assert(offset != 0 && offset != inspector.length(of: textNode))
 
             let parent = inspector.parent(of: textNode)
             let text = inspector.text(for: textNode)
@@ -1067,21 +1098,10 @@ extension Libxml2 {
         @discardableResult
         func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
 
-            assert(offset != 0 && offset != inspector.length(of: element))
             assert(inspector.range(of: element).contains(offset: offset))
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
                 fatalError("This should not happen.  Review the logic.")
-            }
-
-            guard intersection != 0 && intersection != inspector.length(of: child) else {
-                let includeInRightNodes = intersection == 0
-                let includeInLeftNodes = !includeInRightNodes
-
-                let leftNodes = inspector.findLeftSiblings(of: child, includingReferenceNode: includeInLeftNodes)
-                let rightNodes = inspector.findRightSiblings(of: child, includingReferenceNode: includeInRightNodes)
-
-                return (leftNodes, rightNodes)
             }
 
             let (leftNode, rightNode) = split(child, at: intersection)

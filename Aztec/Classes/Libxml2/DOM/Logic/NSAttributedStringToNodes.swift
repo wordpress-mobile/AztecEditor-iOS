@@ -19,38 +19,9 @@ class NSAttributedStringToNodes {
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
 
-
     ///
     ///
-    func createNodes(from attrString: NSAttributedString) -> [Node] {
-
-        var result = [Node]()
-
-        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
-
-            let paragraphSubstring = attrString.attributedSubstring(from: paragraphRange)
-            let paragraphNodes = createNodes(fromParagraph: paragraphSubstring)
-
-            result.append(contentsOf: paragraphNodes)
-
-            var mustAddExplicitBreak = false
-
-            if paragraphRange != enclosingRange {
-                let enclosingSubstring = attrString.attributedSubstring(from: enclosingRange)
-
-                mustAddExplicitBreak = !hasParagraphStyles(enclosingSubstring)
-            }
-
-            if mustAddExplicitBreak {
-                result.append(ElementNode(type: .br))
-            }
-        }
-
-        return result
-    }
-    ///
-    ///
-    private func hasParagraphStyles(_ attrString: NSAttributedString) -> Bool {
+    func hasParagraphStyles(_ attrString: NSAttributedString) -> Bool {
 
         guard attrString.length > 0,
             let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
@@ -65,7 +36,7 @@ class NSAttributedStringToNodes {
 
     ///
     ///
-    private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
+    func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
         var children = [Node]()
 
