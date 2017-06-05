@@ -261,10 +261,6 @@ extension Libxml2 {
             } else if offset == inspector.length(of: element) {
                 insertionIndex = element.children.count
             } else {
-                // This code must change... if you're inserting nodes from a paragraph, those nodes
-                // must already be styled
-
-
                 let (childrenBefore, _) = splitChildren(of: element, at: offset)
 
                 insertionIndex = childrenBefore.count
@@ -1103,6 +1099,10 @@ extension Libxml2 {
         func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
 
             assert(inspector.range(of: element).contains(offset: offset))
+
+            guard element.children.count > 0 else {
+                return ([], [])
+            }
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
                 fatalError("This should not happen.  Review the logic.")
