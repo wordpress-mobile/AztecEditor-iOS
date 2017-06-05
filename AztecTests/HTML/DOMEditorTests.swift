@@ -1157,7 +1157,7 @@ class DOMEditorTests: XCTestCase {
         let rootNode = RootNode(children: [paragraph])
         let editor = DOMEditor(with: rootNode)
 
-        let result = editor.pushUp(in: strike, leftSideDescendantEvaluatedBy: { node -> Bool in
+        let result = editor.pushUpLeftSideDescendant(in: strike, evaluatedBy: { node -> Bool in
             return node.name == "b"
         })
 

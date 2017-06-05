@@ -10,6 +10,8 @@ extension Libxml2 {
                                                     .ol, .p, .pre, .s, .span, .strike, .strong, .u,
                                                     .ul, .video]
 
+        let elementsThatCantBeMerged: [StandardElementType] = [.img]
+
         private typealias Test = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> TestResult
 
         /// Used as a result type for searching the DOM tree.
@@ -416,29 +418,62 @@ extension Libxml2 {
             return text(for: node).characters.count
         }
 
+        // MARK: - Mergeability
 
-        // MARK: - Comparison
-
-        func canMerge(left: Node, right: Node) -> Bool {
-            if left is CommentNode || right is CommentNode {
-                return false
-            }
-
-            if left is TextNode && right is TextNode {
+        private func canBeMerged(_ element: ElementNode) -> Bool {
+            guard let standardName = element.standardName else {
                 return true
             }
 
-            guard let leftElement = left as? ElementNode, let rightElement = right as? ElementNode else {
+            return !elementsThatCantBeMerged.contains(standardName)
+        }
+
+        func canMerge(left: Node, right: Node) -> Bool {
+            switch left {
+            case let leftCommentNode as CommentNode:
+                guard let rightCommentNode = right as? ElementNode else {
+                    return false
+                }
+
+                return canMerge(left: leftCommentNode, right: rightCommentNode)
+            case let leftElement as ElementNode:
+                guard let rightElement = right as? ElementNode else {
+                    return false
+                }
+
+                return canMerge(left: leftElement, right: rightElement)
+            case let leftTextNode as TextNode:
+                guard let rightTextNode = right as? TextNode else {
+                    return false
+                }
+
+                return canMerge(left: leftTextNode, right: rightTextNode)
+            default:
+                fatalError("Invalid case.  Must add support for new node type.")
+            }
+        }
+
+        func canMerge(left: CommentNode, right: CommentNode) -> Bool {
+            return false
+        }
+
+        func canMerge(left: ElementNode, right: ElementNode) -> Bool {
+
+            guard canBeMerged(left) && canBeMerged(right) else {
                 return false
             }
 
-            let matchingName = leftElement.name == rightElement.name
+            let matchingName = left.name == right.name
 
-            let leftAttributes = Set(leftElement.attributes)
-            let rightAttributes = Set(rightElement.attributes)
+            let leftAttributes = Set(left.attributes)
+            let rightAttributes = Set(right.attributes)
             let matchingAttributes = leftAttributes == rightAttributes
 
             return matchingName && matchingAttributes
+        }
+
+        func canMerge(left: TextNode, right: TextNode) -> Bool {
+            return true
         }
 
 

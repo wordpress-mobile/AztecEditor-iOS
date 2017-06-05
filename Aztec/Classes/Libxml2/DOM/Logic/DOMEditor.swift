@@ -267,6 +267,7 @@ extension Libxml2 {
             }
 
             insertChildren(nodes, in: element, at: insertionIndex)
+            mergeLeft(nodes)
         }
 
         // MARK: - Deleting Characters
@@ -423,7 +424,7 @@ extension Libxml2 {
                     return range
             }
 
-            mergeRight(element)
+            removeRightSeparator(from: element)
 
             // After merging the node right, we also need to shorten the range of characters
             // to delete, since the implicit paragraph separator has been removed
@@ -453,7 +454,7 @@ extension Libxml2 {
                     return range
             }
 
-            mergeLeft(element)
+            removeLeftSeparator(from: element)
 
             // After merging the node right, we also need to shorten the range of characters
             // to delete, since the implicit paragraph separator has been removed
@@ -495,6 +496,123 @@ extension Libxml2 {
             }
 
             return modifiedRange
+        }
+
+        /// Removes the separator at the left side of the specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node.
+        ///
+        private func removeLeftSeparator(from node: Node) {
+
+            guard let leftNode = inspector.findFirstNodeBefore(node) else {
+                return
+            }
+
+            removeRightSeparator(from: leftNode)
+        }
+
+        /// Removes the separator at the right side of the specified node.
+        ///
+        /// - Parameters:
+        ///     - node: the reference node.
+        ///
+        private func removeRightSeparator(from node: Node) {
+            let rightNodes = extractRightNodesForMerging(after: node)
+
+            removeSeparator(between: node, andRightNodes: rightNodes)
+
+            if let element = node as? ElementNode {
+                defragChildren(of: element)
+            }
+        }
+
+        private func removeSeparator(between node: Node, andRightNodes rightNodes: [Node]) {
+
+            guard let element = node as? ElementNode else {
+                guard let parent = node.parent else {
+                    fatalError("This method should not be called for a node without a parent set.")
+                }
+
+                let insertionIndex = parent.indexOf(childNode: node) + 1
+
+                for (index, child) in rightNodes.enumerated() {
+                    insertChild(child, in: parent, at: insertionIndex + index)
+                }
+
+                return
+            }
+
+            if element.children.count > 0,
+                let lastChildElement = element.children[element.children.count - 1] as? ElementNode,
+                inspector.isBlockLevelElement(lastChildElement) {
+
+                removeSeparator(between: lastChildElement, andRightNodes: rightNodes)
+                return
+            }
+
+            if element.standardName == .ul || element.standardName == .ol {
+                let newListItem = ElementNode(name: StandardElementType.li.rawValue, attributes: [], children: rightNodes)
+                appendChild(newListItem, to: element)
+                return
+            }
+            
+            appendChildren(rightNodes, to: element)
+        }
+
+        private func extractRightNodesForMerging(after node: Node) -> [Node] {
+
+            guard let firstNode = inspector.findFirstNodeAfter(node) else {
+                return []
+            }
+
+            let parent = inspector.parent(of: firstNode)
+            let index = parent.indexOf(childNode: firstNode)
+
+            return extractNodesForMerging(from: parent, startingAt: index)
+        }
+
+        private func extractNodesForMerging(from parent: ElementNode, startingAt index: Int) -> [Node] {
+
+            guard index < parent.children.count else {
+                return []
+            }
+
+            var nodes = [Node]()
+
+            var currentNode = parent.children[index]
+
+            while true {
+                let nextNodeOptional = inspector.rightSibling(of: currentNode)
+
+                if let element = currentNode as? ElementNode {
+                    if inspector.isBlockLevelElement(element) {
+                        if nodes.count == 0 {
+                            nodes = extractNodesForMerging(from: element, startingAt: 0)
+                        }
+
+                        break
+                    } else if element.standardName == .br  {
+                        element.removeFromParent()
+                        break
+                    }
+                }
+
+                remove(child: currentNode, from: parent)
+                nodes.append(currentNode)
+
+                guard let nextNode = nextNodeOptional else {
+                    break
+                }
+
+                currentNode = nextNode
+            }
+            
+            if parent.children.count == 0 {
+                parent.removeFromParent()
+            }
+            
+            return nodes
         }
 
         // MARK: - Replacing Characters
@@ -684,8 +802,8 @@ extension Libxml2 {
             // First get the right sibling because if we do it the other round, lastNodeIndex will
             // be modified before we access it.
             //
-            let rightSibling = elementDescriptor.canMergeRight ? pushUp(siblingOrDescendantAtRightSideOf: lastNodeIndex, in: element, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
-            let leftSibling = elementDescriptor.canMergeLeft ? pushUp(siblingOrDescendantAtLeftSideOf: firstNodeIndex, in: element, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let rightSibling = elementDescriptor.canMergeRight ? pushUpRightSiblingOrDescendant(of: lastNodeIndex, in: element, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
+            let leftSibling = elementDescriptor.canMergeLeft ? pushUpLeftSiblingOrDescendant(of: firstNodeIndex, in: element, evaluatedBy: evaluation, bailIf: bailEvaluation) : nil
 
             var wrapperElement: ElementNode?
 
@@ -1210,7 +1328,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        func pushUp<T: Node>(siblingOrDescendantAtLeftSideOf childIndex: Int, in element: ElementNode, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUpLeftSiblingOrDescendant<T: Node>(of childIndex: Int, in element: ElementNode, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
             guard let theSibling: T = inspector.sibling(leftOf: childIndex, in: element) else {
                 return nil
@@ -1225,7 +1343,7 @@ extension Libxml2 {
                     return nil
             }
 
-            return pushUp(in: childElement, rightSideDescendantEvaluatedBy: evaluation, bailIf: bail)
+            return pushUpRightSideDescendant(in: childElement, evaluatedBy: evaluation, bailIf: bail)
         }
 
         /// Pushes up to the level of the receiver any left-side descendant that evaluates
@@ -1240,7 +1358,7 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(in element: ElementNode, leftSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUpLeftSideDescendant<T: Node>(in element: ElementNode, evaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
             guard let node = element.find(leftSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail),
                 let childElement = node as? ElementNode else {
@@ -1272,7 +1390,7 @@ extension Libxml2 {
         ///
         /// - Returns: The requested node, if one is found, or `nil`.
         ///
-        func pushUp<T: Node>(siblingOrDescendantAtRightSideOf childIndex: Int, in element: ElementNode, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUpRightSiblingOrDescendant<T: Node>(of childIndex: Int, in element: ElementNode, evaluatedBy evaluation: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
             guard let theSibling: T = inspector.sibling(rightOf: childIndex, in: element) else {
                 return nil
@@ -1287,7 +1405,7 @@ extension Libxml2 {
                     return nil
             }
 
-            return pushUp(in: childElement, leftSideDescendantEvaluatedBy: evaluation, bailIf: bail)
+            return pushUpLeftSideDescendant(in: childElement, evaluatedBy: evaluation, bailIf: bail)
         }
 
         /// Pushes up to the level of the receiver any right-side descendant that evaluates
@@ -1302,7 +1420,7 @@ extension Libxml2 {
         ///         node after being pushed all the way up, or `nil` if no matching descendant is
         ///         found.
         ///
-        func pushUp<T: Node>(in element: ElementNode, rightSideDescendantEvaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
+        func pushUpRightSideDescendant<T: Node>(in element: ElementNode, evaluatedBy evaluationClosure: ((T) -> Bool), bailIf bail: ((T) -> Bool) = { _ in return false }) -> T? {
 
             guard let node = element.find(rightSideDescendantEvaluatedBy: evaluationClosure, bailIf: bail),
                 let childElement = node as? ElementNode else {
@@ -1320,129 +1438,59 @@ extension Libxml2 {
 
         // MARK: - Merging Nodes
 
-        /// Merges the specified block-level element with the sibling(s) to its right.
-        ///
-        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
-        ///         even though it's not part of the contents of any node.  This method implements
-        ///         the logic that's executed when such visual-only newline is removed.
-        ///
-        /// - Parameters:
-        ///     - node: the node we're merging to the right.
-        ///
         private func mergeLeft(_ node: Node) {
-
-            guard let leftNode = inspector.findFirstNodeBefore(node) else {
-                return
-            }
-
-            mergeRight(leftNode)
-        }
-
-        /// Merges the specified block-level element with the sibling(s) to its right.
-        ///
-        /// - Note: Block-level elements are rendered on their own line, meaning a newline is added
-        ///         even though it's not part of the contents of any node.  This method implements
-        ///         the logic that's executed when such visual-only newline is removed.
-        ///
-        /// - Parameters:
-        ///     - node: the node we're merging to the right.
-        ///
-        private func mergeRight(_ node: Node) {
-            let rightNodes = extractRightNodesForMerging(after: node)
-
-            merge(node, withRightNodes: rightNodes)
-
             if let element = node as? ElementNode {
-                defragChildren(of: element)
+                mergeLeft(element)
             }
         }
 
-        private func merge(_ node: Node, withRightNodes rightNodes: [Node]) {
-
-            guard let element = node as? ElementNode else {
-                guard let parent = node.parent else {
-                    fatalError("This method should not be called for a node without a parent set.")
-                }
-
-                let insertionIndex = parent.indexOf(childNode: node) + 1
-
-                for (index, child) in rightNodes.enumerated() {
-                    insertChild(child, in: parent, at: insertionIndex + index)
-                }
-
-                return
+        private func mergeLeft(_ nodes: [Node]) {
+            for node in nodes {
+                mergeLeft(node)
             }
-
-            if element.children.count > 0,
-                let lastChildElement = element.children[element.children.count - 1] as? ElementNode,
-                inspector.isBlockLevelElement(lastChildElement) {
-
-                merge(lastChildElement, withRightNodes: rightNodes)
-                return
-            }
-
-            if element.standardName == .ul || element.standardName == .ol {
-                let newListItem = ElementNode(name: StandardElementType.li.rawValue, attributes: [], children: rightNodes)
-                appendChild(newListItem, to: element)
-                return
-            }
-
-            appendChildren(rightNodes, to: element)
         }
 
-        private func extractRightNodesForMerging(after node: Node) -> [Node] {
-
-            guard let firstNode = inspector.findFirstNodeAfter(node) else {
-                return []
+        private func mergeLeft(_ element: ElementNode) {
+            guard !inspector.isBlockLevelElement(element) else {
+                mergeLeft(blockLevelElement: element)
+                return
             }
 
-            let parent = inspector.parent(of: firstNode)
-            let index = parent.indexOf(childNode: firstNode)
+            let parent = inspector.parent(of: element)
+            let index = parent.indexOf(childNode: element)
 
-            return extractNodesForMerging(from: parent, startingAt: index)
+            guard let leftElement = pushUpLeftSiblingOrDescendant(of: index, in: parent, evaluatedBy: { (candidate: ElementNode) -> Bool in
+                return inspector.canMerge(left: candidate, right: element)
+            }, bailIf: { (candidate: ElementNode) -> Bool in
+                return inspector.isBlockLevelElement(candidate)
+            }) else {
+                return
+            }
+
+            merge(left: leftElement, right: element)
         }
 
-        private func extractNodesForMerging(from parent: ElementNode, startingAt index: Int) -> [Node] {
+        private func mergeLeft(blockLevelElement element: ElementNode) {
 
-            guard index < parent.children.count else {
-                return []
+            assert(inspector.isBlockLevelElement(element))
+
+            guard let leftElement = inspector.leftSibling(of: element) as? ElementNode,
+                inspector.isBlockLevelElement(leftElement)
+                    && inspector.canMerge(left: leftElement, right: element) else {
+                        return
             }
 
-            var nodes = [Node]()
+            merge(left: leftElement, right: element)
+        }
 
-            var currentNode = parent.children[index]
+        private func merge(left: ElementNode, right: ElementNode) {
 
-            while true {
-                let nextNodeOptional = inspector.rightSibling(of: currentNode)
+            let children = right.children
 
-                if let element = currentNode as? ElementNode {
-                    if inspector.isBlockLevelElement(element) {
-                        if nodes.count == 0 {
-                            nodes = extractNodesForMerging(from: element, startingAt: 0)
-                        }
+            appendChildren(children, to: left)
+            removeFromParent(right)
 
-                        break
-                    } else if element.standardName == .br  {
-                        element.removeFromParent()
-                        break
-                    }
-                }
-
-                remove(child: currentNode, from: parent)
-                nodes.append(currentNode)
-
-                guard let nextNode = nextNodeOptional else {
-                    break
-                }
-
-                currentNode = nextNode
-            }
-
-            if parent.children.count == 0 {
-                parent.removeFromParent()
-            }
-            
-            return nodes
+            mergeLeft(children)
         }
 
         // MARK: - Node Fragmentation
