@@ -193,10 +193,16 @@ extension NSAttributedString {
     ///
     /// - Parameters:
     ///     - range: Range that should be checked for paragraphs
+    ///     - reverseOrder: Boolean indicating if the paragraphs should be enumerated in reverse order
     ///     - block: Closure to be executed for each paragraph
     ///
-    func enumerateParagraphRanges(spanning range: NSRange, using block: ((NSRange, NSRange) -> Void)) {
-        for (range, enclosingRange) in paragraphRanges(spanning: range) {
+    func enumerateParagraphRanges(spanning range: NSRange, reverseOrder: Bool = false, using block: ((NSRange, NSRange) -> Void)) {
+        var ranges = paragraphRanges(spanning: range)
+        if reverseOrder {
+            ranges.reverse()
+        }
+
+        for (range, enclosingRange) in ranges {
             block(range, enclosingRange)
         }
     }
