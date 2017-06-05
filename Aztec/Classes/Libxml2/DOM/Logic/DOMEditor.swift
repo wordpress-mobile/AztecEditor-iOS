@@ -1104,6 +1104,10 @@ extension Libxml2 {
                 fatalError("This should not happen.  Review the logic.")
             }
 
+            guard canSplit(child, atOffset: intersection) else {
+                return siblingsForAvoidedSplit(of: child, atOffset: intersection)
+            }
+
             let (leftNode, rightNode) = split(child, at: intersection)
 
             let leftNodes = inspector.findLeftSiblings(of: leftNode, includingReferenceNode: true)
@@ -1129,6 +1133,30 @@ extension Libxml2 {
                 deleteCharacters(in: node, spanning: range)
                 split(node, at: range.location)
             }
+        }
+
+        // MARK: - Splitting Support Methods
+
+        private func canSplit(_ node: Node, atOffset offset: Int) -> Bool {
+            if let childElement = node as? ElementNode,
+                inspector.isBlockLevelElement(childElement) {
+
+                let contentRange = inspector.contentRange(of: childElement)
+
+                return offset >= contentRange.location && offset < contentRange.location + contentRange.length
+            } else {
+                return offset > 0 && offset < inspector.length(of: node)
+            }
+        }
+
+        private func siblingsForAvoidedSplit(of node: Node, atOffset offset: Int) -> (left: [Node], right: [Node]) {
+
+            let includeInLeftGroup = offset == 0
+
+            let leftNodes = inspector.findLeftSiblings(of: node, includingReferenceNode: includeInLeftGroup)
+            let rightNodes = inspector.findRightSiblings(of: node, includingReferenceNode: !includeInLeftGroup)
+
+            return (leftNodes, rightNodes)
         }
 
         // MARK: - Pusing Up Nodes
