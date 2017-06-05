@@ -416,6 +416,32 @@ extension Libxml2 {
             return text(for: node).characters.count
         }
 
+
+        // MARK: - Comparison
+
+        func canMerge(left: Node, right: Node) -> Bool {
+            if left is CommentNode || right is CommentNode {
+                return false
+            }
+
+            if left is TextNode && right is TextNode {
+                return true
+            }
+
+            guard let leftElement = left as? ElementNode, let rightElement = right as? ElementNode else {
+                return false
+            }
+
+            let matchingName = leftElement.name == rightElement.name
+
+            let leftAttributes = Set(leftElement.attributes)
+            let rightAttributes = Set(rightElement.attributes)
+            let matchingAttributes = leftAttributes == rightAttributes
+
+            return matchingName && matchingAttributes
+        }
+
+
         // MARK: - Ranges
 
         /// The range of an element's content, without the block-level separators.
