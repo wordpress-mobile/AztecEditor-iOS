@@ -261,6 +261,10 @@ extension Libxml2 {
             } else if offset == inspector.length(of: element) {
                 insertionIndex = element.children.count
             } else {
+                // This code must change... if you're inserting nodes from a paragraph, those nodes
+                // must already be styled
+
+
                 let (childrenBefore, _) = splitChildren(of: element, at: offset)
 
                 insertionIndex = childrenBefore.count
@@ -1143,7 +1147,7 @@ extension Libxml2 {
 
                 let contentRange = inspector.contentRange(of: childElement)
 
-                return offset >= contentRange.location && offset < contentRange.location + contentRange.length
+                return offset >= contentRange.location && offset <= contentRange.location + contentRange.length
             } else {
                 return offset > 0 && offset < inspector.length(of: node)
             }
