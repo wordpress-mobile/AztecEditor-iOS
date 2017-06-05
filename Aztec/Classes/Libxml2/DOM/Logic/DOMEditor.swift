@@ -1151,10 +1151,10 @@ extension Libxml2 {
 
         private func siblingsForAvoidedSplit(of node: Node, atOffset offset: Int) -> (left: [Node], right: [Node]) {
 
-            let includeInLeftGroup = offset == 0
+            let includeInRightGroup = offset == 0
 
-            let leftNodes = inspector.findLeftSiblings(of: node, includingReferenceNode: includeInLeftGroup)
-            let rightNodes = inspector.findRightSiblings(of: node, includingReferenceNode: !includeInLeftGroup)
+            let leftNodes = inspector.findLeftSiblings(of: node, includingReferenceNode: !includeInRightGroup)
+            let rightNodes = inspector.findRightSiblings(of: node, includingReferenceNode: includeInRightGroup)
 
             return (leftNodes, rightNodes)
         }

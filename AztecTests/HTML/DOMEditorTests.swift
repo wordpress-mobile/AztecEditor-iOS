@@ -643,7 +643,7 @@ class DOMEditorTests: XCTestCase {
 
         let location = editor.inspector.length(of: div)
 
-        editor.insert(String(.newline), atLocation: location)
+        editor.insert(NSAttributedString(.newline, attributes: [:]), atLocation: location)
 
         XCTAssertEqual(editor.inspector.text(for: rootNode), "\(text1)\(String(.paragraphSeparator))\(String(.newline))\(text2)")
     }
