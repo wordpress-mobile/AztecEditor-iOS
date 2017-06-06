@@ -1058,7 +1058,7 @@ private extension EditorDemoController
         
         let attachment = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
         let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
+        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
         
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -1077,8 +1077,8 @@ private extension EditorDemoController
         let posterImage = UIImage(cgImage: cgImage)
         let posterURL = saveToDisk(image: posterImage)
         let attachment = richTextView.insertVideo(atLocation: index, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
-        let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageID, "videoURL":videoURL])
+        let mediaID = attachment.identifier
+        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
         progress.totalUnitCount = 100
 
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -1086,7 +1086,7 @@ private extension EditorDemoController
 
     @objc func timerFireMethod(_ timer: Timer) {
         guard let progress = timer.userInfo as? Progress,
-              let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String,
+              let imageId = progress.userInfo[MediaProgressKey.mediaID] as? String,
               let attachment = richTextView.attachment(withId: imageId)
         else {
             timer.invalidate()
@@ -1104,7 +1104,7 @@ private extension EditorDemoController
         if progress.fractionCompleted >= 1 {
             timer.invalidate()
             attachment.progress = nil
-            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[ProgressUserInfoKey("videoURL")] as? URL {
+            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.mediaID] as? URL {
                 videoAttachment.srcURL = videoURL
                 richTextView.update(attachment: videoAttachment)
             }
@@ -1192,6 +1192,11 @@ extension EditorDemoController {
         static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
+    }
+
+    struct MediaProgressKey {
+        static let mediaID = ProgressUserInfoKey("mediaID")
+        static let videoURL = ProgressUserInfoKey("videoURL")
     }
 }
 
