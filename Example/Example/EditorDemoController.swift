@@ -315,11 +315,11 @@ class EditorDemoController: UIViewController {
 
         let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.named["src"] {
-                html += "src=\"\(src)\" "
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
             }
-            if let poster = shortcode.attributes.named["poster"] {
-                html += "poster=\"\(poster)\" "
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
             }
             html += "/>"
             return html
@@ -330,11 +330,11 @@ class EditorDemoController: UIViewController {
 
         let postWordPressVideoProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
             var html = "[video "
-            if let src = shortcode.attributes.named["src"] {
-                html += "src=\"\(src)\" "
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
             }
-            if let poster = shortcode.attributes.named["poster"] {
-                html += "poster=\"\(poster)\" "
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
             }
             html += "/]"
             return html

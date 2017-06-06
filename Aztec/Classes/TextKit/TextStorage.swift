@@ -591,13 +591,13 @@ open class TextStorage: NSTextStorage {
         let addVideoUrl = originalUrl == nil && newUrl != nil
         let removeVideoUrl = originalUrl != nil && newUrl == nil
 
-        if addVideoUrl {
+        if addVideoUrl, let videoAttachment = new {
             guard let urlToAdd = newUrl else {
                 assertionFailure("This should not be possible.  Review your logic.")
                 return
             }
 
-            dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL)
+            dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL, namedAttributes: videoAttachment.namedAttributes, unnamedAttributes: videoAttachment.unnamedAttributes)
         } else if removeVideoUrl {
             dom.removeVideo(spanning: range)
         }
@@ -864,7 +864,7 @@ open class TextStorage: NSTextStorage {
     /// - returns: the attachment object that was created and inserted on the text
     ///
     func insertVideo(sourceURL: URL, posterURL: URL?, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> VideoAttachment {
-        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL, namedAttributes: [String:String](), unnamedAttributes: [String]())
         attachment.delegate = self
         attachment.image = placeHolderImage
 

@@ -266,7 +266,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
                 posterURL = URL(string: urlString)
             }
 
-            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
+            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, namedAttributes: node.namedAttributes, unnamedAttributes: node.unnamedAttributes)
 
             attributeValue = attachment
         }
