@@ -778,12 +778,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
         let scrollableItems = scrollableItemsForToolbar
-        let fixedItems = fixedItemsForToolbar
+        let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            let merged = scrollableItems + fixedItems
+            let merged = scrollableItems + overflowItems
             for item in merged {
                 item.isEnabled = false
                 if item.identifier == .sourcecode {
@@ -792,8 +792,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
 
-        toolbar.scrollableItems = scrollableItems
-        toolbar.fixedItems = fixedItems
+        toolbar.defaultItems = scrollableItems
+        toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
         toolbar.selectedTintColor = .darkGray
@@ -812,17 +812,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             makeToolbarButton(identifier: .italic),
             makeToolbarButton(identifier: .underline),
             makeToolbarButton(identifier: .strikethrough),
-            makeToolbarButton(identifier: .blockquote),
-            makeToolbarButton(identifier: .unorderedlist),
-            makeToolbarButton(identifier: .orderedlist),
-            makeToolbarButton(identifier: .link),
-            makeToolbarButton(identifier: .horizontalruler),
-            makeToolbarButton(identifier: .more)
+            makeToolbarButton(identifier: .blockquote)
         ]
     }
 
-    var fixedItemsForToolbar: [FormatBarItem] {
+    var overflowItemsForToolbar: [FormatBarItem] {
         return [
+            makeToolbarButton(identifier: .unorderedlist),
+            makeToolbarButton(identifier: .orderedlist),
+            makeToolbarButton(identifier: .horizontalruler),
+            makeToolbarButton(identifier: .more),
+            makeToolbarButton(identifier: .link),
             makeToolbarButton(identifier: .sourcecode)
         ]
     }

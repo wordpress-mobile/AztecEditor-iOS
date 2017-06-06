@@ -26,30 +26,26 @@ open class FormatBar: UIView {
     fileprivate let fixedStackView = UIStackView()
 
 
-    /// FormatBarItems to be embedded within the Scrollable StackView
+    /// FormatBarItems to be displayed when the bar is in its default collapsed state
     ///
-    open var scrollableItems = [FormatBarItem]() {
+    open var defaultItems = [FormatBarItem]() {
         willSet {
-            scrollableStackView.removeArrangedSubviews(scrollableItems)
+            scrollableStackView.removeArrangedSubviews(defaultItems)
         }
         didSet {
-            configure(items: scrollableItems)
-            scrollableStackView.addArrangedSubviews(scrollableItems)
-            configureConstraints(for: scrollableItems, in: scrollableStackView)
+            configure(items: defaultItems)
+            scrollableStackView.addArrangedSubviews(defaultItems)
+            configureConstraints(for: defaultItems, in: scrollableStackView)
         }
     }
 
 
-    /// FormatBarItems to be embedded within the Fixed StackView
+    /// Extra FormatBarItems to be displayed when the bar is in its expanded state
     ///
-    open var fixedItems = [FormatBarItem]() {
-        willSet {
-            fixedStackView.removeArrangedSubviews(fixedItems)
-        }
+    open var overflowItems = [FormatBarItem]() {
         didSet {
-            configure(items: fixedItems)
-            fixedStackView.addArrangedSubviews(fixedItems)
-            configureConstraints(for: fixedItems, in: fixedStackView)
+            let hasOverflowItems = !overflowItems.isEmpty
+            setOverflowToggleItemVisible(hasOverflowItems)
         }
     }
 
@@ -57,7 +53,7 @@ open class FormatBar: UIView {
     /// Returns the collection of all of the FormatBarItem's (Scrollable + Fixed)
     ///
     private var items: [FormatBarItem] {
-        return scrollableItems + fixedItems
+        return defaultItems + overflowItems
     }
 
     
