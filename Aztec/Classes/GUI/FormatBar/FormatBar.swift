@@ -407,18 +407,18 @@ extension FormatBar {
         return scrollView.contentSize
     }
 
-    private var scrollabeVisibleSize: CGSize {
+    private var scrollableVisibleSize: CGSize {
         return scrollView.frame.size
     }
 
     open func animateSlightPeekWhenOverflows() {
-        guard scrollableContentSize.width > scrollabeVisibleSize.width else {
+        guard scrollableContentSize.width > scrollableVisibleSize.width else {
             return
         }
 
-        let originalRect = CGRect(origin: .zero, size: scrollabeVisibleSize)
+        let originalRect = CGRect(origin: .zero, size: scrollableVisibleSize)
         let peekOrigin = CGPoint(x: scrollableContentSize.width * Animations.peekWidthRatio, y: 0)
-        let peekRect = CGRect(origin: peekOrigin, size: scrollabeVisibleSize)
+        let peekRect = CGRect(origin: peekOrigin, size: scrollableVisibleSize)
 
         UIView.animate(withDuration: Animations.durationLong, delay: Animations.delayZero, options: .curveEaseInOut, animations: {
             self.scrollView.scrollRectToVisible(peekRect, animated: false)
