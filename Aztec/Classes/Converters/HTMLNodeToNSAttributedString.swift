@@ -256,17 +256,21 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         }
 
         if node.isNodeType(.video) {
+
+            var namedAttributes = node.namedAttributes
             var srcURL: URL?
-            if let urlString = node.valueForStringAttribute(named: "src") {
+            if let urlString = namedAttributes["src"] {
                 srcURL = URL(string: urlString)
+                namedAttributes.removeValue(forKey: "src")
             }
 
             var posterURL: URL?
-            if let urlString = node.valueForStringAttribute(named: "poster") {
+            if let urlString = namedAttributes["poster"] {
                 posterURL = URL(string: urlString)
+                namedAttributes.removeValue(forKey: "poster")
             }
 
-            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, namedAttributes: node.namedAttributes, unnamedAttributes: node.unnamedAttributes)
+            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, namedAttributes: namedAttributes, unnamedAttributes: node.unnamedAttributes)
 
             attributeValue = attachment
         }

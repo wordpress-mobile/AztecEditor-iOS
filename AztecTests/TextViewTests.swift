@@ -9,6 +9,8 @@ class TextViewTests: XCTestCase {
         static let sampleText1 = " patronum sitanum elanum zoipancoiamum."
     }
 
+    let attachmentDelegate = TextViewStubAttachmentDelegate()
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -24,13 +26,13 @@ class TextViewTests: XCTestCase {
 
     func createEmptyTextView() -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
-
+        richTextView.textAttachmentDelegate = attachmentDelegate
         return richTextView
     }
 
     func createTextView(withHTML html: String) -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
-
+        richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.setHTML(html)
 
         return richTextView
@@ -39,7 +41,7 @@ class TextViewTests: XCTestCase {
     func createTextViewWithContent() -> Aztec.TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
-
+        richTextView.textAttachmentDelegate = attachmentDelegate
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
@@ -1353,4 +1355,20 @@ class TextViewTests: XCTestCase {
         
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.paragraphSeparator) + String(.paragraphSeparator))
     }
+
+    func testInsertVideo() {
+        let textView = createEmptyTextView()
+        let _ = textView.insertVideo(atLocation: 0, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
+    }
+
+    func testUpdateVideo() {
+        let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
+        let videoAttachment = textView.storage.MediaAttachments().first! as! VideoAttachment
+        videoAttachment.srcURL = URL(string:"newVideo.mp4")!
+        let _ = textView.update(attachment: videoAttachment)
+
+        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
+    }
+
 }
