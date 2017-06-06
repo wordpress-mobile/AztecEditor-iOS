@@ -457,8 +457,8 @@ private extension FormatBar {
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         static let stackViewCompactSpacing = CGFloat(0)
-        static let stackViewRegularSpacing = CGFloat(15)
-        static let stackButtonWidth = CGFloat(30)
+        static let stackViewRegularSpacing = CGFloat(0)
+        static let stackButtonWidth = CGFloat(44)
         static let topBorderHeightInPixels = CGFloat(1)
     }
 }
