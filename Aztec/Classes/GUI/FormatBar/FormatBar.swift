@@ -246,7 +246,28 @@ open class FormatBar: UIView {
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
-        print("Toggle tapped!")
+        // We're collapsed if the toggle button belongs to the outer stackview
+        let collapsed = (sender.superview == stackView)
+
+        overflowToggleItem.removeFromSuperview()
+
+        if collapsed {
+            setOverflowItemsVisible(true)
+        } else {
+            setOverflowItemsVisible(false)
+        }
+
+        refreshScrollingLock()
+    }
+
+    private func setOverflowItemsVisible(_ visible: Bool) {
+        if visible {
+            scrollableStackView.addArrangedSubviews(overflowItems)
+            scrollableStackView.addArrangedSubview(overflowToggleItem)
+        } else {
+            overflowItems.forEach({ $0.removeFromSuperview() })
+            stackView.addArrangedSubview(overflowToggleItem)
+        }
     }
 }
 
