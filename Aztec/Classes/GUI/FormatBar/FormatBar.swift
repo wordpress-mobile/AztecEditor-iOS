@@ -11,6 +11,11 @@ open class FormatBar: UIView {
     open weak var formatter: FormatBarDelegate?
 
 
+    /// Container StackView
+    ///
+    fileprivate let stackView = UIStackView()
+
+
     /// Container ScrollView
     ///
     fileprivate let scrollView = UIScrollView()
@@ -19,11 +24,6 @@ open class FormatBar: UIView {
     /// StackView embedded within the ScrollView
     ///
     fileprivate let scrollableStackView = UIStackView()
-
-
-    /// Fixed StackView
-    ///
-    fileprivate let fixedStackView = UIStackView()
 
 
     /// FormatBarItems to be displayed when the bar is in its default collapsed state
@@ -49,6 +49,7 @@ open class FormatBar: UIView {
         }
     }
 
+
     /// FormatBarItem used to toggle the bar's expanded state
     ///
     fileprivate lazy var overflowToggleItem: FormatBarItem = {
@@ -60,6 +61,9 @@ open class FormatBar: UIView {
         return item
     }()
 
+
+    /// The icon to show on the overflow toggle button
+    ///
     open var overflowToggleIcon: UIImage? {
         set {
             overflowToggleItem.setImage(newValue, for: .normal)
@@ -68,6 +72,7 @@ open class FormatBar: UIView {
             return overflowToggleItem.image(for: .normal)
         }
     }
+
 
     /// Returns the collection of all of the FormatBarItem's (Scrollable + Fixed)
     ///
@@ -168,12 +173,13 @@ open class FormatBar: UIView {
         layer.needsDisplayOnBoundsChange = true
 
         configure(scrollView: scrollView)
-        configure(stackView: scrollableStackView)
-        configure(stackView: fixedStackView)
+        configureScrollableStackView()
+        configureContainerStackview()
+
+        stackView.addArrangedSubview(scrollView)
+        addSubview(stackView)
 
         scrollView.addSubview(scrollableStackView)
-        addSubview(scrollView)
-        addSubview(fixedStackView)
 
         configureConstraints()
     }
@@ -217,7 +223,7 @@ open class FormatBar: UIView {
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        refreshStackViewsSpacing()
+        refreshStackViewSpacing()
     }
 
 
@@ -283,15 +289,25 @@ private extension FormatBar {
         item.disabledTintColor = disabledTintColor
     }
 
-
-    /// Sets up a given StackView
+    /// Sets up the container StackView
     ///
-    func configure(stackView: UIStackView) {
+    func configureContainerStackview() {
         stackView.axis = .horizontal
-        stackView.spacing = Constants.stackViewCompactSpacing
+        stackView.spacing = Constants.stackViewRegularSpacing
         stackView.alignment = .center
-        stackView.distribution = .equalCentering
+        stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+
+    /// Sets up the scrollable StackView
+    ///
+    func configureScrollableStackView() {
+        scrollableStackView.axis = .horizontal
+        scrollableStackView.spacing = Constants.stackViewCompactSpacing
+        scrollableStackView.alignment = .center
+        scrollableStackView.distribution = .equalCentering
+        scrollableStackView.translatesAutoresizingMaskIntoConstraints = false
     }
 
 
@@ -299,6 +315,7 @@ private extension FormatBar {
     ///
     func configure(scrollView: UIScrollView) {
         scrollView.isScrollEnabled = true
+        scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -307,25 +324,18 @@ private extension FormatBar {
     /// Sets up the Constraints
     ///
     func configureConstraints() {
-        let fixedInsets = Constants.fixedStackViewInsets
-        let scrollableInsets = Constants.scrollableStackViewInsets
+        let insets = Constants.scrollableStackViewInsets
 
         NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: insets.left),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * insets.right),
+            stackView.topAnchor.constraint(equalTo: topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
 
         NSLayoutConstraint.activate([
-            fixedStackView.leadingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: fixedInsets.left),
-            fixedStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * fixedInsets.right),
-            fixedStackView.topAnchor.constraint(equalTo: topAnchor),
-            fixedStackView.bottomAnchor.constraint(equalTo: bottomAnchor)
-            ])
-
-        NSLayoutConstraint.activate([
-            scrollableStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: scrollableInsets.left),
-            scrollableStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -1 * scrollableInsets.right),
+            scrollableStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            scrollableStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             scrollableStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             scrollableStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
@@ -347,14 +357,13 @@ private extension FormatBar {
     }
 
 
-    /// Refreshes the Stack View(s) Spacing, according to the Horizontal Size Class
+    /// Refreshes the Stack View's Spacing, according to the Horizontal Size Class
     ///
-    func refreshStackViewsSpacing() {
+    func refreshStackViewSpacing() {
         let horizontallyCompact = traitCollection.horizontalSizeClass == .compact
         let stackViewSpacing = horizontallyCompact ? Constants.stackViewCompactSpacing : Constants.stackViewRegularSpacing
 
         scrollableStackView.spacing = stackViewSpacing
-        fixedStackView.spacing = stackViewSpacing
     }
 
 
@@ -362,6 +371,7 @@ private extension FormatBar {
     ///
     func refreshScrollingLock() {
         layoutIfNeeded()
+
         scrollView.isScrollEnabled = scrollView.contentSize.width > scrollView.frame.width
     }
 }
@@ -399,11 +409,11 @@ extension FormatBar {
     }
 
     func setOverflowToggleItemVisible(_ visible: Bool) {
-        fixedStackView.removeArrangedSubview(overflowToggleItem)
+        overflowToggleItem.removeFromSuperview()
 
         if visible {
-            fixedStackView.addArrangedSubview(overflowToggleItem)
-            configureConstraints(for: [overflowToggleItem], in: fixedStackView)
+            stackView.addArrangedSubview(overflowToggleItem)
+            configureConstraints(for: [overflowToggleItem], in: stackView)
         }
     }
 }
