@@ -931,6 +931,18 @@ open class TextStorage: NSTextStorage {
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
     }
 
+    /// Updates the specified VideoAttachment with new HTML contents
+    ///
+    func update(attachment: VideoAttachment) {
+        guard let range = range(for: attachment) else {
+            assertionFailure("Couldn't determine the range for an Attachment")
+            return
+        }
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+    }
+
     /// Updates the specified HTMLAttachment with new HTML contents
     ///
     func update(attachment: HTMLAttachment, html: String) {

@@ -1076,9 +1076,9 @@ private extension EditorDemoController
         }
         let posterImage = UIImage(cgImage: cgImage)
         let posterURL = saveToDisk(image: posterImage)
-        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: videoURL, posterURL: posterURL, placeHolderImage: posterImage)
+        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
         let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
+        let progress = Progress(parent: nil, userInfo: ["imageID": imageID, "videoURL":videoURL])
         progress.totalUnitCount = 100
 
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -1086,28 +1086,30 @@ private extension EditorDemoController
 
     @objc func timerFireMethod(_ timer: Timer) {
         guard let progress = timer.userInfo as? Progress,
-            let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String
+              let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String,
+              let attachment = richTextView.attachment(withId: imageId)
         else {
-                
+            timer.invalidate()
             return
         }        
         progress.completedUnitCount += 1
-        if let attachment = richTextView.attachment(withId: imageId) {
-            attachment.progress = progress.fractionCompleted                        
-            if mediaErrorMode && progress.fractionCompleted >= 0.25 {
-                timer.invalidate()
-                let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
-                attachment.message = message
-                attachment.overlayImage = Gridicon.iconOfType(.refresh)
-            }
-            if progress.fractionCompleted >= 1 {
-                timer.invalidate()
-                attachment.progress = nil
-            }
-            richTextView.refreshLayout(for: attachment)
-        } else {
+
+        attachment.progress = progress.fractionCompleted
+        if mediaErrorMode && progress.fractionCompleted >= 0.25 {
             timer.invalidate()
+            let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
+            attachment.message = message
+            attachment.overlayImage = Gridicon.iconOfType(.refresh)
         }
+        if progress.fractionCompleted >= 1 {
+            timer.invalidate()
+            attachment.progress = nil
+            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[ProgressUserInfoKey("videoURL")] as? URL {
+                videoAttachment.srcURL = videoURL
+                richTextView.update(attachment: videoAttachment)
+            }
+        }
+        richTextView.refreshLayout(for: attachment)
     }
 
     var mediaMessageAttributes: [String: Any] {

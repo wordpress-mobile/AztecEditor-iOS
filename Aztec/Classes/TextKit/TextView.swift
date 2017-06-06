@@ -1109,6 +1109,14 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
+    open func update(attachment: VideoAttachment) {
+        storage.update(attachment: attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+
     /// Updates the Attachment's HTML contents to the new specified value.
     ///
     /// - Parameters:
