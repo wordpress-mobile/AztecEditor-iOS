@@ -49,6 +49,25 @@ open class FormatBar: UIView {
         }
     }
 
+    /// FormatBarItem used to toggle the bar's expanded state
+    ///
+    fileprivate lazy var overflowToggleItem: FormatBarItem = {
+        let item = FormatBarItem(image: UIImage(), identifier: nil)
+        self.configureStylesFor(item)
+
+        item.addTarget(self, action: #selector(handleToggleButtonAction), for: .touchUpInside)
+
+        return item
+    }()
+
+    open var overflowToggleIcon: UIImage? {
+        set {
+            overflowToggleItem.setImage(newValue, for: .normal)
+        }
+        get {
+            return overflowToggleItem.image(for: .normal)
+        }
+    }
 
     /// Returns the collection of all of the FormatBarItem's (Scrollable + Fixed)
     ///
@@ -194,15 +213,6 @@ open class FormatBar: UIView {
         context.move(to: CGPoint(x: 0, y: lineWidthInPoints))
         context.addLine(to: CGPoint(x: bounds.maxX, y: lineWidthInPoints))
         context.strokePath()
-
-        // Scrollable / Fixed `>` Separator
-        let originX = fixedStackView.frame.minX - Constants.fixedStackViewInsets.left
-
-        context.setShouldAntialias(true)
-        context.move(to: CGPoint(x: originX, y: bounds.minY))
-        context.addLine(to: CGPoint(x: originX + Constants.fixedSeparatorMidPointPaddingX, y: bounds.midY))
-        context.addLine(to: CGPoint(x: originX, y: bounds.maxY))
-        context.strokePath()
     }
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -223,11 +233,14 @@ open class FormatBar: UIView {
         }
     }
 
-
     // MARK: - Actions
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
         formatter?.handleActionForIdentifier(sender.identifier!)
+    }
+
+    @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
+        print("Toggle tapped!")
     }
 }
 
@@ -258,12 +271,16 @@ private extension FormatBar {
     /// Sets up a given FormatBarItem
     ///
     func configure(item: FormatBarItem) {
+        configureStylesFor(item)
+
+        item.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
+    }
+
+    func configureStylesFor(_ item: FormatBarItem) {
         item.tintColor = tintColor
         item.selectedTintColor = selectedTintColor
         item.highlightedTintColor = highlightedTintColor
         item.disabledTintColor = disabledTintColor
-
-        item.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
     }
 
 
@@ -379,6 +396,15 @@ extension FormatBar {
                 self.scrollView.scrollRectToVisible(originalRect, animated: false)
             }, completion: nil)
         })
+    }
+
+    func setOverflowToggleItemVisible(_ visible: Bool) {
+        fixedStackView.removeArrangedSubview(overflowToggleItem)
+
+        if visible {
+            fixedStackView.addArrangedSubview(overflowToggleItem)
+            configureConstraints(for: [overflowToggleItem], in: fixedStackView)
+        }
     }
 }
 

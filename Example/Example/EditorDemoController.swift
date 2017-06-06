@@ -798,6 +798,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.highlightedTintColor = .blue
         toolbar.selectedTintColor = .darkGray
         toolbar.disabledTintColor = .lightGray
+        toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 

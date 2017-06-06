@@ -77,7 +77,7 @@ open class FormatBarItem: UIButton {
 
     // MARK: - Lifecycle
 
-    public convenience init(image: UIImage, identifier: FormattingIdentifier) {
+    public convenience init(image: UIImage, identifier: FormattingIdentifier? = nil) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
