@@ -391,6 +391,7 @@ open class TextStorage: NSTextStorage {
                 alignment: ImageAttachment.Alignment,
                 size: ImageAttachment.Size,
                 url: URL) {
+        /*
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
@@ -401,6 +402,7 @@ open class TextStorage: NSTextStorage {
         }
         
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
+        */
     }
 
     /// Updates the specified HTMLAttachment with new HTML contents
@@ -482,19 +484,6 @@ open class TextStorage: NSTextStorage {
         if enable {
             addAttribute(attributeName, value: value, range: range)
         } else {
-            
-            /// We should be calculating what attributes to remove in `TextStorage.setAttributes()`
-            /// but since that may take a while to implement, we need this workaround until it's ready.
-            ///
-            switch attributeName {
-            case NSStrikethroughStyleAttributeName:
-                dom.removeStrikethrough(spanning: range)
-            case NSUnderlineStyleAttributeName:
-                dom.removeUnderline(spanning: range)
-            default:
-                break
-            }
-            
             removeAttribute(attributeName, range: range)
         }
     }
