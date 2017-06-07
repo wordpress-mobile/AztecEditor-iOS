@@ -26,6 +26,11 @@ open class FormatBar: UIView {
     fileprivate let scrollableStackView = UIStackView()
 
 
+    /// Top dividing line
+    ///
+    fileprivate let topDivider = UIView()
+
+
     /// FormatBarItems to be displayed when the bar is in its default collapsed state.
     /// Each sub-array of items will be divided into a separate section in the bar.
     ///
@@ -87,7 +92,7 @@ open class FormatBar: UIView {
     }
 
     private var dividers: [UIView] {
-        return scrollableStackView.arrangedSubviews.filter({ !($0 is FormatBarItem) })
+        return scrollableStackView.arrangedSubviews.filter({ !($0 is FormatBarItem) }) + [topDivider]
     }
     
     /// Tint Color
@@ -144,6 +149,7 @@ open class FormatBar: UIView {
         }
     }
 
+
     /// Enables or disables all of the Format Bar Items
     ///
     open var enabled = true {
@@ -153,11 +159,6 @@ open class FormatBar: UIView {
             }
         }
     }
-
-
-    /// Top Border's Separator Color
-    ///
-    open var topBorderColor = UIColor.darkGray
 
 
     /// Bounds Change Observer
@@ -187,9 +188,7 @@ open class FormatBar: UIView {
 
     public init() {
         super.init(frame: .zero)
-
-        // Make sure we getre-drawn whenever the bounds change!
-        layer.needsDisplayOnBoundsChange = true
+        backgroundColor = .white
 
         configure(scrollView: scrollView)
         configureScrollableStackView()
@@ -200,6 +199,9 @@ open class FormatBar: UIView {
 
         scrollView.addSubview(scrollableStackView)
 
+        topDivider.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(topDivider)
+
         configureConstraints()
     }
 
@@ -209,36 +211,6 @@ open class FormatBar: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-
-
-    // MARK: - Drawing!
-
-    open override func draw(_ rect: CGRect) {
-        super.draw(rect)
-
-        guard let context = UIGraphicsGetCurrentContext() else {
-            return
-        }
-
-        // Setup the Context
-        let lineWidthInPoints = Constants.topBorderHeightInPixels / UIScreen.main.scale
-
-        context.clear(rect)
-        context.setLineWidth(lineWidthInPoints)
-
-        // Background
-        let bgColor = backgroundColor ?? .white
-        bgColor.setFill()
-        context.fill(rect)
-
-        // Top Separator
-        topBorderColor.setStroke()
-
-        context.setShouldAntialias(false)
-        context.move(to: CGPoint(x: 0, y: lineWidthInPoints))
-        context.addLine(to: CGPoint(x: bounds.maxX, y: lineWidthInPoints))
-        context.strokePath()
-    }
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -419,6 +391,13 @@ private extension FormatBar {
     ///
     func configureConstraints() {
         let insets = Constants.scrollableStackViewInsets
+
+        NSLayoutConstraint.activate([
+            topDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topDivider.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topDivider.topAnchor.constraint(equalTo: topAnchor),
+            topDivider.heightAnchor.constraint(equalToConstant: Constants.topDividerHeight)
+        ])
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: insets.left),
@@ -602,6 +581,6 @@ private extension FormatBar {
         static let stackViewCompactSpacing = CGFloat(0)
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
-        static let topBorderHeightInPixels = CGFloat(1)
+        static let topDividerHeight = CGFloat(1)
     }
 }
