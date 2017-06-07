@@ -35,7 +35,6 @@ open class FormatBar: UIView {
         didSet {
             configure(items: defaultItems)
             scrollableStackView.addArrangedSubviews(defaultItems)
-            configureConstraints(for: defaultItems, in: scrollableStackView)
         }
     }
 
@@ -278,8 +277,6 @@ open class FormatBar: UIView {
         if visible {
             scrollableStackView.addArrangedSubviews(overflowItems)
 
-            configureConstraints(for: overflowItems, in: stackView)
-
             for (index, item) in overflowItems.enumerated() {
                 animate(item: item, visible: true, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
             }
@@ -289,7 +286,6 @@ open class FormatBar: UIView {
             }, completion: { (complete) in
                 self.overflowItems.forEach({ item in
                     item.removeFromSuperview()
-                    item.removeConstraints(item.constraints)
                 })
             })
         }
@@ -300,7 +296,6 @@ open class FormatBar: UIView {
 
         if visible {
             stackView.addArrangedSubview(overflowToggleItem)
-            configureConstraints(for: [overflowToggleItem], in: stackView)
         }
     }
 }
@@ -396,21 +391,7 @@ private extension FormatBar {
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ])
     }
-
-
-    /// Sets up the Constraints for a given FormatBarItem, within the specified Container
-    ///
-    func configureConstraints(for items: [FormatBarItem], in container: UIView) {
-        let constraints = items.flatMap { item in
-            return [
-                item.widthAnchor.constraint(equalToConstant: Constants.stackButtonWidth),
-                item.heightAnchor.constraint(equalTo: item.widthAnchor)
-            ]
-        }
-
-        NSLayoutConstraint.activate(constraints)
-    }
-
+    
 
     /// Refreshes the Stack View's Spacing, according to the Horizontal Size Class
     ///

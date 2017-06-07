@@ -83,6 +83,9 @@ open class FormatBarItem: UIButton {
         self.identifier = identifier
     }
 
+    open override var intrinsicContentSize: CGSize {
+        return CGSize(width: 44.0, height: 44.0)
+    }
 
     public init(image: UIImage, frame: CGRect) {
         super.init(frame: frame)
