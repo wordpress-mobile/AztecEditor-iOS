@@ -24,7 +24,7 @@ open class VideoAttachment: MediaAttachment
 
     /// Extra unnamed attributes on video
     ///
-    open var unnamedAttributes =  [String]()
+    open var unnamedAttributes = [String]()
 
     /// Video poster image to show, while the video is not played.
     ///
