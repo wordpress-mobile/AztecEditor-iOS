@@ -29,12 +29,10 @@ open class FormatBar: UIView {
     /// FormatBarItems to be displayed when the bar is in its default collapsed state
     ///
     open var defaultItems = [FormatBarItem]() {
-        willSet {
-            scrollableStackView.removeArrangedSubviews(defaultItems)
-        }
         didSet {
             configure(items: defaultItems)
-            scrollableStackView.addArrangedSubviews(defaultItems)
+
+            populateItems()
         }
     }
 
@@ -45,9 +43,20 @@ open class FormatBar: UIView {
         didSet {
             configure(items: overflowItems)
 
+            populateItems()
+
+            setOverflowItemsVisible(false, animated: false)
+
             let hasOverflowItems = !overflowItems.isEmpty
             setOverflowToggleItemVisible(hasOverflowItems)
         }
+    }
+
+    private func populateItems() {
+        scrollableStackView.removeArrangedSubviews(scrollableStackView.arrangedSubviews)
+
+        scrollableStackView.addArrangedSubviews(defaultItems)
+        scrollableStackView.addArrangedSubviews(overflowItems)
     }
 
 
@@ -75,10 +84,10 @@ open class FormatBar: UIView {
     }
 
 
-    /// Returns the collection of all of the FormatBarItem's (Scrollable + Fixed)
+    /// Returns the collection of all of the FormatBarItems
     ///
     private var items: [FormatBarItem] {
-        return defaultItems + overflowItems
+        return scrollableStackView.arrangedSubviews as! [FormatBarItem]
     }
 
     
@@ -273,21 +282,29 @@ open class FormatBar: UIView {
         refreshScrollingLock()
     }
 
-    private func setOverflowItemsVisible(_ visible: Bool) {
-        if visible {
-            scrollableStackView.addArrangedSubviews(overflowItems)
+    private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
+        let toggleVisibility = {
+            self.overflowItems.forEach({ $0.isHidden = !visible })
+        }
 
-            for (index, item) in overflowItems.enumerated() {
-                animate(item: item, visible: true, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
+        if visible {
+            toggleVisibility()
+
+            if animated {
+                for (index, item) in overflowItems.enumerated() {
+                    animate(item: item, visible: true, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
+                }
             }
         } else {
-            UIView.animate(withDuration: Animations.durationLong, animations: {
-                self.scrollView.setContentOffset(.zero, animated: false)
-            }, completion: { (complete) in
-                self.overflowItems.forEach({ item in
-                    item.removeFromSuperview()
+            if animated {
+                UIView.animate(withDuration: Animations.durationLong, animations: {
+                    self.scrollView.setContentOffset(.zero, animated: false)
+                }, completion: { _ in
+                    toggleVisibility()
                 })
-            })
+            } else {
+                toggleVisibility()
+            }
         }
     }
 
