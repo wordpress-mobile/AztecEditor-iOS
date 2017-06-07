@@ -49,6 +49,7 @@
 		B577DC651E7B18E90012A1F8 /* NodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */; };
 		B577DC671E7B18F80012A1F8 /* CommentNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */; };
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
+		B58082BE1EE88D60001FDC8D /* NSAttributedStringToNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58082BD1EE88D60001FDC8D /* NSAttributedStringToNodes.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
 		B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A99D831EBA073D00DED081 /* HTMLStorage.swift */; };
 		B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */; };
@@ -203,6 +204,7 @@
 		B577DC641E7B18E90012A1F8 /* NodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NodeDescriptor.swift; path = Descriptors/NodeDescriptor.swift; sourceTree = "<group>"; };
 		B577DC661E7B18F80012A1F8 /* CommentNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommentNodeDescriptor.swift; path = Descriptors/CommentNodeDescriptor.swift; sourceTree = "<group>"; };
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
+		B58082BD1EE88D60001FDC8D /* NSAttributedStringToNodes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringToNodes.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
 		B5A99D831EBA073D00DED081 /* HTMLStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLStorage.swift; sourceTree = "<group>"; };
 		B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderableAttachmentDelegate.swift; sourceTree = "<group>"; };
@@ -668,6 +670,7 @@
 				F1FA0E721E6EF25A009D98EE /* DOMEditor.swift */,
 				F1FA0E741E6EF267009D98EE /* DOMLogic.swift */,
 				F1FA0E761E6EF29B009D98EE /* DOMInspector.swift */,
+				B58082BD1EE88D60001FDC8D /* NSAttributedStringToNodes.swift */,
 			);
 			path = Logic;
 			sourceTree = "<group>";
@@ -906,6 +909,7 @@
 				B577DC671E7B18F80012A1F8 /* CommentNodeDescriptor.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
+				B58082BE1EE88D60001FDC8D /* NSAttributedStringToNodes.swift in Sources */,
 				F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
