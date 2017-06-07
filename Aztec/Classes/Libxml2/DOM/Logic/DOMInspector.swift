@@ -703,6 +703,35 @@ extension Libxml2 {
             })
         }
 
+        func findDescendants(
+            of element: ElementNode,
+            where condition: (Node) -> Bool) -> [NodeAndIntersection] {
+
+            var childOffset = 0
+            var results = [NodeAndIntersection]()
+
+            for child in element.children {
+
+                let childLength = length(of: child)
+
+                if condition(child) {
+                    let childRange = NSRange(location: childOffset, length: childLength)
+
+                    results.append((child, childRange))
+                } else if let childElement = child as? ElementNode {
+                    let descendantResults = findDescendants(of: childElement, where: condition)
+
+                    for (descendant, descendantIntersection) in descendantResults {
+                        results.append((descendant, descendantIntersection.offset(by: childOffset)))
+                    }
+                }
+
+                childOffset = childOffset + childLength
+            }
+
+            return results
+        }
+
         /// Returns the leftmost child of an element satisfying a specified condition.
         ///
         /// - Parameters:

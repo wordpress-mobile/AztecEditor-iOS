@@ -881,7 +881,13 @@ extension Libxml2 {
                 }()
 
             if let childElementDescriptor = elementDescriptor.childDescriptor {
-                wrapChildren(selectedChildren, of: finalWrapper, inElement: childElementDescriptor)
+                let childWrapper = wrapChildren(selectedChildren, of: finalWrapper, inElement: childElementDescriptor)
+
+                if inspector.isBlockLevelElement(finalWrapper) && !inspector.isBlockLevelElement(childWrapper) {
+                    splitAtBreaks(finalWrapper)
+                }
+            } else if inspector.isBlockLevelElement(finalWrapper) {
+                splitAtBreaks(finalWrapper)
             }
             
             return finalWrapper
@@ -1308,6 +1314,29 @@ extension Libxml2 {
             for range in ranges.reversed() {
                 deleteCharacters(in: node, spanning: range)
                 split(node, at: range.location)
+            }
+        }
+
+        func splitAtBreaks(_ element: ElementNode) {
+
+            let contentRange = inspector.contentRange(of: element)
+            let contentEndLocation = contentRange.endLocation()
+
+            let nodesAndIntersections = inspector.findDescendants(of: element) { (node: Node) -> Bool in
+                guard let descendantElement = node as? ElementNode,
+                    let standardName = descendantElement.standardName else {
+                        return false
+                }
+
+                return standardName == .br
+            }
+
+            for (node, intersection) in nodesAndIntersections.reversed() {
+                removeFromParent(node)
+
+                if contentRange.location + intersection.location != contentEndLocation - 1 {
+                    split(element, at: intersection.location)
+                }
             }
         }
 

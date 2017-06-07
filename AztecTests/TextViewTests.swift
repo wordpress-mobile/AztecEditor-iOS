@@ -673,6 +673,39 @@ class TextViewTests: XCTestCase {
         // The test not crashing would be successful.
     }
 
+    /// Simple test for toggling header.  The newline must not be presented as a <br> at the end.
+    ///
+    func testToggleHeader1() {
+        let textView = createTextView(withHTML: "")
+
+        textView.insertText("Header\n")
+        textView.toggleHeader(.h1, range: .zero)
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>")
+    }
+
+    /// Simple test for toggling header.  The newline must not be presented as a <br> at the end.
+    ///
+    func testToggleHeader2() {
+        let textView = createTextView(withHTML: "")
+
+        textView.insertText("Header\n\n")
+        textView.toggleHeader(.h1, range: .zero)
+
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><br>")
+    }
+
+    /// Simple test for toggling header.  The newline must not be presented as a <br> at the end.
+    ///
+    func testToggleHeader3() {
+        let textView = createTextView(withHTML: "")
+
+        textView.insertText("\nHeader\n")
+        textView.toggleHeader(.h1, range: .zero)
+
+        XCTAssertEqual(textView.getHTML(), "<h1></h1>Header<br>")
+    }
+
     /// Tests that there is no content loss, when switching to HTML mode, after toggling H1 Style.
     ///
     /// Input:
