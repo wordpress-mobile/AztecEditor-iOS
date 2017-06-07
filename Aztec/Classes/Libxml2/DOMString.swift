@@ -112,7 +112,7 @@ extension Libxml2 {
             
             return output
         }
-        
+
         /// Sets the HTML for the DOM.
         ///
         /// - Parameters:
