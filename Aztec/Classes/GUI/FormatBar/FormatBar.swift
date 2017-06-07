@@ -250,17 +250,25 @@ open class FormatBar: UIView {
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
-        // We're collapsed if the toggle button belongs to the outer stackview
-        let collapsed = (sender.superview == stackView)
+        // We're currently collapsed if the toggle button belongs to the outer stackview
+        let shouldExpand = (sender.superview == stackView)
 
-        overflowToggleItem.removeFromSuperview()
+        if shouldExpand {
+            animateOverflowToggleOffscreen(completion: {
+                self.rotateOverflowToggleItem(.vertical, animated: false)
+            })
 
-        if collapsed {
             setOverflowItemsVisible(true)
-            animateOverflowToggleItem(.vertical)
+
+            scrollableStackView.addArrangedSubview(overflowToggleItem)
+
         } else {
+            overflowToggleItem.removeFromSuperview()
+
             setOverflowItemsVisible(false)
-            animateOverflowToggleItem(.horizontal)
+            stackView.addArrangedSubview(overflowToggleItem)
+
+            rotateOverflowToggleItem(.horizontal, animated: true)
         }
 
         refreshScrollingLock()
@@ -269,7 +277,6 @@ open class FormatBar: UIView {
     private func setOverflowItemsVisible(_ visible: Bool) {
         if visible {
             scrollableStackView.addArrangedSubviews(overflowItems)
-            scrollableStackView.addArrangedSubview(overflowToggleItem)
 
             configureConstraints(for: overflowItems, in: stackView)
         } else {
@@ -277,8 +284,6 @@ open class FormatBar: UIView {
                 item.removeFromSuperview()
                 item.removeConstraints(item.constraints)
             })
-
-            stackView.addArrangedSubview(overflowToggleItem)
         }
     }
 
@@ -450,12 +455,7 @@ extension FormatBar {
         })
     }
 
-    func setOverflowToggleItemVisible(_ visible: Bool) {
-        overflowToggleItem.removeFromSuperview()
 
-        if visible {
-            stackView.addArrangedSubview(overflowToggleItem)
-            configureConstraints(for: [overflowToggleItem], in: stackView)
         }
     }
 
@@ -466,22 +466,50 @@ extension FormatBar {
         var transform: CGAffineTransform {
             switch self {
             case .horizontal:
-                return CGAffineTransform(rotationAngle: -(.pi / 2))
-            case .vertical:
                 return .identity
+            case .vertical:
+                return CGAffineTransform(rotationAngle: (.pi / 2))
             }
         }
     }
 
-    fileprivate func animateOverflowToggleItem(_ direction: OverflowToggleAnimationDirection) {
-        UIView.animate(withDuration: Animations.springDuration,
-                       delay: 0,
-                       usingSpringWithDamping: Animations.springDamping,
-                       initialSpringVelocity: Animations.springInitialVelocity,
-                       options: [],
-                       animations: {
+    fileprivate func rotateOverflowToggleItem(_ direction: OverflowToggleAnimationDirection, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+        let transform = {
             self.overflowToggleItem.transform = direction.transform
-        }, completion: nil)
+        }
+
+        if (animated) {
+            UIView.animate(withDuration: Animations.springDuration,
+                           delay: 0,
+                           usingSpringWithDamping: Animations.springDamping,
+                           initialSpringVelocity: Animations.springInitialVelocity,
+                           options: [],
+                           animations: transform,
+                           completion: completion)
+        } else {
+            transform()
+            completion?(true)
+        }
+    }
+
+    fileprivate func animateOverflowToggleOffscreen(completion: (() -> Void)? = nil) {
+        defer {
+            overflowToggleItem.removeFromSuperview()
+        }
+
+        // Replace toggle with a snapshot
+        guard let snapshot = overflowToggleItem.snapshotView(afterScreenUpdates: false) else { return }
+
+        addSubview(snapshot)
+        snapshot.frame = convert(overflowToggleItem.frame, from: stackView)
+
+        UIView.animate(withDuration: Animations.durationLong,
+                       animations: {
+                        snapshot.transform = CGAffineTransform(translationX: Constants.stackButtonWidth, y: 0)
+        }, completion: { _ in
+            snapshot.removeFromSuperview()
+            completion?()
+        })
     }
 }
 
@@ -496,6 +524,10 @@ private extension FormatBar {
         static let durationShort = TimeInterval(0.15)
         static let delayZero = TimeInterval(0)
         static let peekWidthRatio = CGFloat(0.05)
+        static let springDuration = TimeInterval(0.6)
+        static let springDamping = CGFloat(0.5)
+        static let springInitialVelocity = CGFloat(0.1)
+        static let interItemAnimationDelay = TimeInterval(0.1)
     }
 
     struct Constants {
