@@ -257,8 +257,10 @@ open class FormatBar: UIView {
 
         if collapsed {
             setOverflowItemsVisible(true)
+            animateOverflowToggleItem(.vertical)
         } else {
             setOverflowItemsVisible(false)
+            animateOverflowToggleItem(.horizontal)
         }
 
         refreshScrollingLock()
@@ -455,6 +457,31 @@ extension FormatBar {
             stackView.addArrangedSubview(overflowToggleItem)
             configureConstraints(for: [overflowToggleItem], in: stackView)
         }
+    }
+
+    fileprivate enum OverflowToggleAnimationDirection {
+        case horizontal
+        case vertical
+
+        var transform: CGAffineTransform {
+            switch self {
+            case .horizontal:
+                return CGAffineTransform(rotationAngle: -(.pi / 2))
+            case .vertical:
+                return .identity
+            }
+        }
+    }
+
+    fileprivate func animateOverflowToggleItem(_ direction: OverflowToggleAnimationDirection) {
+        UIView.animate(withDuration: Animations.springDuration,
+                       delay: 0,
+                       usingSpringWithDamping: Animations.springDamping,
+                       initialSpringVelocity: Animations.springInitialVelocity,
+                       options: [],
+                       animations: {
+            self.overflowToggleItem.transform = direction.transform
+        }, completion: nil)
     }
 }
 
