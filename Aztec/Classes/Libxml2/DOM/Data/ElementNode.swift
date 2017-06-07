@@ -1571,9 +1571,9 @@ extension Libxml2 {
             }
 
             let finalWrapper = wrapperElement ?? { () -> ElementNode in
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: self.editContext)
 
-                children.insert(newNode, at: firstNodeIndex)
+                self.children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
 
                 return newNode
