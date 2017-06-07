@@ -121,7 +121,7 @@ open class TextStorage: NSTextStorage {
 
     var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
-    open func MediaAttachments() -> [MediaAttachment] {
+    open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
         var attachments = [MediaAttachment]()
         enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in

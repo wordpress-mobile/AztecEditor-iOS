@@ -1364,7 +1364,7 @@ class TextViewTests: XCTestCase {
 
     func testUpdateVideo() {
         let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
-        let videoAttachment = textView.storage.MediaAttachments().first! as! VideoAttachment
+        let videoAttachment = textView.storage.mediaAttachments.first! as! VideoAttachment
         videoAttachment.srcURL = URL(string:"newVideo.mp4")!
         let _ = textView.update(attachment: videoAttachment)
 
