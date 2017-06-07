@@ -279,10 +279,18 @@ open class FormatBar: UIView {
             scrollableStackView.addArrangedSubviews(overflowItems)
 
             configureConstraints(for: overflowItems, in: stackView)
+
+            for (index, item) in overflowItems.enumerated() {
+                animate(item: item, visible: true, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
+            }
         } else {
-            overflowItems.forEach({ item in
-                item.removeFromSuperview()
-                item.removeConstraints(item.constraints)
+            UIView.animate(withDuration: Animations.durationLong, animations: {
+                self.scrollView.setContentOffset(.zero, animated: false)
+            }, completion: { (complete) in
+                self.overflowItems.forEach({ item in
+                    item.removeFromSuperview()
+                    item.removeConstraints(item.constraints)
+                })
             })
         }
     }
@@ -455,8 +463,30 @@ extension FormatBar {
         })
     }
 
-
+    func animate(item: FormatBarItem, visible: Bool, withDelay delay: TimeInterval) {
+        let hide = {
+            item.transform = Animations.itemPop.initialTransform
+            item.alpha = 0
         }
+
+        let unhide = {
+            item.transform = CGAffineTransform.identity
+            item.alpha = 1.0
+        }
+
+        if visible {
+            hide()
+        } else {
+            unhide()
+        }
+
+        UIView.animate(withDuration: Animations.itemPop.duration,
+                       delay: delay,
+                       usingSpringWithDamping: Animations.itemPop.springDamping,
+                       initialSpringVelocity: Animations.itemPop.springInitialVelocity,
+                       options: [],
+                       animations: (visible) ? unhide : hide,
+                       completion: nil)
     }
 
     fileprivate enum OverflowToggleAnimationDirection {
@@ -479,10 +509,10 @@ extension FormatBar {
         }
 
         if (animated) {
-            UIView.animate(withDuration: Animations.springDuration,
+            UIView.animate(withDuration: Animations.toggleItem.duration,
                            delay: 0,
-                           usingSpringWithDamping: Animations.springDamping,
-                           initialSpringVelocity: Animations.springInitialVelocity,
+                           usingSpringWithDamping: Animations.toggleItem.springDamping,
+                           initialSpringVelocity: Animations.toggleItem.springInitialVelocity,
                            options: [],
                            animations: transform,
                            completion: completion)
@@ -524,10 +554,20 @@ private extension FormatBar {
         static let durationShort = TimeInterval(0.15)
         static let delayZero = TimeInterval(0)
         static let peekWidthRatio = CGFloat(0.05)
-        static let springDuration = TimeInterval(0.6)
-        static let springDamping = CGFloat(0.5)
-        static let springInitialVelocity = CGFloat(0.1)
-        static let interItemAnimationDelay = TimeInterval(0.1)
+
+        struct toggleItem {
+            static let duration = TimeInterval(0.6)
+            static let springDamping = CGFloat(0.5)
+            static let springInitialVelocity = CGFloat(0.1)
+        }
+
+        struct itemPop {
+            static let interItemAnimationDelay = TimeInterval(0.1)
+            static let initialTransform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            static let duration = TimeInterval(0.65)
+            static let springDamping = CGFloat(0.4)
+            static let springInitialVelocity = CGFloat(1.0)
+        }
     }
 
     struct Constants {
