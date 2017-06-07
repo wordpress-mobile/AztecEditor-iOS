@@ -777,13 +777,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
+        let mediaItem = makeToolbarButton(identifier: .media)
         let scrollableItems = scrollableItemsForToolbar
         let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            let merged = scrollableItems + overflowItems
+            let merged = [mediaItem] + scrollableItems + overflowItems
             for item in merged {
                 item.isEnabled = false
                 if item.identifier == .sourcecode {
@@ -792,12 +793,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
 
-        toolbar.defaultItems = scrollableItems
+        toolbar.defaultItems = [[mediaItem], scrollableItems]
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
         toolbar.selectedTintColor = .darkGray
         toolbar.disabledTintColor = .lightGray
+        toolbar.dividerTintColor = .purple
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
@@ -807,7 +809,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     var scrollableItemsForToolbar: [FormatBarItem] {
         return [
-            makeToolbarButton(identifier: .media),
             makeToolbarButton(identifier: .header),
             makeToolbarButton(identifier: .unorderedlist),
             makeToolbarButton(identifier: .blockquote),

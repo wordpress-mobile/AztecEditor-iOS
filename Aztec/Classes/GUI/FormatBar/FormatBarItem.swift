@@ -121,3 +121,9 @@ open class FormatBarItem: UIButton {
         tintColor = normalTintColor
     }
 }
+
+class FormatBarDividerItem: UIView {
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: 1.0, height: 44.0)
+    }
+}

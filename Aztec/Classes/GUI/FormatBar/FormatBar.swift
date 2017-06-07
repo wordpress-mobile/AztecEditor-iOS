@@ -26,11 +26,14 @@ open class FormatBar: UIView {
     fileprivate let scrollableStackView = UIStackView()
 
 
-    /// FormatBarItems to be displayed when the bar is in its default collapsed state
+    /// FormatBarItems to be displayed when the bar is in its default collapsed state.
+    /// Each sub-array of items will be divided into a separate section in the bar.
     ///
-    open var defaultItems = [FormatBarItem]() {
+    open var defaultItems = [[FormatBarItem]]() {
         didSet {
-            configure(items: defaultItems)
+            let allItems = defaultItems.flatMap({ $0 })
+
+            configure(items: allItems)
 
             populateItems()
         }
@@ -50,13 +53,6 @@ open class FormatBar: UIView {
             let hasOverflowItems = !overflowItems.isEmpty
             setOverflowToggleItemVisible(hasOverflowItems)
         }
-    }
-
-    private func populateItems() {
-        scrollableStackView.removeArrangedSubviews(scrollableStackView.arrangedSubviews)
-
-        scrollableStackView.addArrangedSubviews(defaultItems)
-        scrollableStackView.addArrangedSubviews(overflowItems)
     }
 
 
@@ -87,9 +83,12 @@ open class FormatBar: UIView {
     /// Returns the collection of all of the FormatBarItems
     ///
     private var items: [FormatBarItem] {
-        return scrollableStackView.arrangedSubviews as! [FormatBarItem]
+        return scrollableStackView.arrangedSubviews.filter({ $0 is FormatBarItem }) as! [FormatBarItem]
     }
 
+    private var dividers: [UIView] {
+        return scrollableStackView.arrangedSubviews.filter({ !($0 is FormatBarItem) })
+    }
     
     /// Tint Color
     ///
@@ -134,6 +133,16 @@ open class FormatBar: UIView {
         }
     }
 
+
+    /// Tint Color to be applied to dividers
+    ///
+    open var dividerTintColor: UIColor? {
+        didSet {
+            for divider in dividers {
+                divider.backgroundColor = dividerTintColor
+            }
+        }
+    }
 
     /// Enables or disables all of the Format Bar Items
     ///
@@ -323,16 +332,34 @@ open class FormatBar: UIView {
 //
 private extension FormatBar {
 
-    /// Detaches a given collection of FormatBarItem's
+    /// Populates the bar with the combined default and overflow items.
+    /// Overflow items will be hidden by default.
     ///
-    func detach(items: [FormatBarItem]) {
-        for item in items {
-            item.removeFromSuperview()
+    func populateItems() {
+        scrollableStackView.removeArrangedSubviews(scrollableStackView.arrangedSubviews)
+
+        for items in defaultItems {
+            scrollableStackView.addArrangedSubviews(items)
+
+            if let last = defaultItems.last,
+                items != last {
+                addDivider()
+            }
         }
+
+        scrollableStackView.addArrangedSubviews(overflowItems)
+    }
+
+    /// Inserts a divider into the bar.
+    ///
+    func addDivider() {
+        let divider = FormatBarDividerItem()
+        divider.backgroundColor = dividerTintColor
+        scrollableStackView.addArrangedSubview(divider)
     }
 
 
-    /// Sets up a given collection of FormatBarItem's1
+    /// Sets up a given collection of FormatBarItem's
     ///
     func configure(items: [FormatBarItem]) {
         for item in items {
@@ -373,7 +400,7 @@ private extension FormatBar {
         scrollableStackView.axis = .horizontal
         scrollableStackView.spacing = Constants.stackViewCompactSpacing
         scrollableStackView.alignment = .center
-        scrollableStackView.distribution = .equalCentering
+        scrollableStackView.distribution = .equalSpacing
         scrollableStackView.translatesAutoresizingMaskIntoConstraints = false
     }
 
