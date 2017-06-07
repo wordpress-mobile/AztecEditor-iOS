@@ -138,7 +138,7 @@ class StringRangeConversionTests: XCTestCase {
 
         let wordToCapture = "🌍"
         let nsRange = nsString.range(of: wordToCapture)
-        let location = string.location(before: nsRange.endLocation)!
+        let location = string.location(before: nsRange.endLocation())!
         let index = string.indexFromLocation(location)!
         let wordCaptured = string.substring(to: index)
 

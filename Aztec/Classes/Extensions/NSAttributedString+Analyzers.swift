@@ -21,7 +21,7 @@ extension NSAttributedString {
     ///
     func isLocationSuccededByLink(_ location: Int) -> Bool {
         let afterRange = NSRange(location: location, length: 1)
-        guard afterRange.endLocation < length else {
+        guard afterRange.endLocation() < length else {
             return false
         }
 
@@ -32,7 +32,7 @@ extension NSAttributedString {
     /// otherwise.
     ///
     func safeSubstring(at range: NSRange) -> String? {
-        guard range.location >= 0 && range.endLocation <= length else {
+        guard range.location >= 0 && range.endLocation() <= length else {
             return nil
         }
 

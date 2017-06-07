@@ -44,9 +44,9 @@ extension NSAttributedString {
                 break;
             }
         }
-        while resultRange.endLocation < self.length {
+        while resultRange.endLocation() < self.length {
             guard
-                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation(), longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
                 let foundList = paragraphStyle.textLists.last
             else {
                 break;

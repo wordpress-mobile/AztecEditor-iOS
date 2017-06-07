@@ -10,7 +10,8 @@ extension Libxml2 {
                                                     .ol, .p, .pre, .s, .span, .strike, .strong, .u,
                                                     .ul, .video]
 
-        let elementsThatCantBeMerged: [StandardElementType] = [.img]
+        let elementsThatCantBeMerged: [StandardElementType] = [.hr, .img]
+        let elementsThatCantBeSplit: [StandardElementType] = [.hr, .img]
 
         private typealias Test = (_ node: Node, _ startLocation: Int, _ endLocation: Int) -> TestResult
 
@@ -253,7 +254,29 @@ extension Libxml2 {
             return knownElements.contains(standardName)
         }
 
+        func canSplit(_ node: Node, atOffset offset: Int) -> Bool {
+            if let childElement = node as? ElementNode,
+                isBlockLevelElement(childElement) {
+
+                if let standardName = childElement.standardName {
+                    guard !elementsThatCantBeSplit.contains(standardName) else {
+                        return false
+                    }
+                }
+
+                let contentRange = self.contentRange(of: childElement)
+
+                return offset >= contentRange.location && offset <= contentRange.location + contentRange.length
+            } else {
+                return offset > 0 && offset < length(of: node)
+            }
+        }
+
         // MARK: - Node Position Relative to Ancestors
+
+        func indexInParent(of node: Node) -> Int {
+            return parent(of: node).indexOf(childNode: node)
+        }
 
         /// Checks if the receiver is the last node in its parent.
         /// Empty text nodes are filtered to avoid false positives.
@@ -464,7 +487,6 @@ extension Libxml2 {
             }
 
             let matchingName = left.name == right.name
-
             let leftAttributes = Set(left.attributes)
             let rightAttributes = Set(right.attributes)
             let matchingAttributes = leftAttributes == rightAttributes
@@ -475,7 +497,6 @@ extension Libxml2 {
         func canMerge(left: TextNode, right: TextNode) -> Bool {
             return true
         }
-
 
         // MARK: - Ranges
 

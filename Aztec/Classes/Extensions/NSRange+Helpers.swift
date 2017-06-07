@@ -27,6 +27,14 @@ extension NSRange
         return offset >= location && offset <= location + length
     }
 
+    /// Calculates the end location for the receiver.
+    ///
+    /// - Returns: the requested end location
+    ///
+    func endLocation() -> Int {
+        return location + length
+    }
+
     /// Returns a range equal to the receiver extended to its right side by the specified addition
     /// value.
     ///
@@ -109,12 +117,6 @@ extension NSRange
     ///
     func union(withRange target: NSRange) -> NSRange {
         return NSUnionRange(self, target)
-    }
-
-    /// Returns the maximum Location.
-    ///
-    var endLocation: Int {
-        return location + length
     }
 
     /// Returns a NSRange instance with location = 0 + length = 0

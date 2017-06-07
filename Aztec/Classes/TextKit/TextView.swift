@@ -708,7 +708,7 @@ open class TextView: UITextView {
         for formatter in paragraphFormatters {
             if let locationBefore = storage.string.location(before: range.location),
                 formatter.present(in: textStorage, at: locationBefore) {
-                if range.endLocation < storage.length {
+                if range.endLocation() < storage.length {
                     formatter.applyAttributes(to: storage, at: range)
                 }
             }

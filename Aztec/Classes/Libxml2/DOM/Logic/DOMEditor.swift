@@ -1,6 +1,6 @@
 import Foundation
 import libxml2
-
+import UIKit
 
 extension Libxml2 {
 
@@ -158,10 +158,6 @@ extension Libxml2 {
         // MARK: - Inserting Characters with Style.
 
         func insert(_ attrString: NSAttributedString, atLocation location: Int) {
-            insert(attrString, into: rootNode, atLocation: location)
-        }
-
-        func insert(_ attrString: NSAttributedString, into element: ElementNode, atLocation location: Int) {
 
             assert(attrString.length > 0)
 
@@ -170,33 +166,39 @@ extension Libxml2 {
                 let separator = attrString.attributedSubstring(from: separatorRange)
                 let paragraph = attrString.attributedSubstring(from: paragraphRange)
 
-                insert(paragraph: paragraph, separator: separator, into: element, atLocation: location)
+                insert(paragraph: paragraph, separator: separator, atLocation: location)
             }
         }
 
         // MARK: - Inserting Paragraphs with Style.
 
-        func insert(paragraph: NSAttributedString, separator: NSAttributedString, into element: ElementNode, atLocation location: Int) {
+        func insert(paragraph: NSAttributedString, separator: NSAttributedString, atLocation location: Int) {
 
             let converter = NSAttributedStringToNodes()
             let nodes = converter.createNodes(fromParagraph: paragraph)
-            var nodesToInsert = [Node]()
-
-            if nodes.count > 0 {
-                nodesToInsert.append(contentsOf: nodes)
-            }
 
             if separator.length > 0 {
-                if converter.hasParagraphStyles(separator) {
-                    splitChildren(of: element, at: location)
-                } else {
-                    nodesToInsert.append(ElementNode(type: .br))
-                }
+                insertNewline(into: rootNode, atOffset: location)
             }
 
-            if nodesToInsert.count > 0 {
-                insertChildren(nodesToInsert, in: element, atOffset: location)
+            guard nodes.count > 0 else {
+                return
             }
+
+            let finalNodes: [Node]
+
+            // TODO: this should go inside the converter above, but moving it now would be a huge PITA.
+            //      Since we're inserting a paragraph here, we should only receive 1 node back from
+            //      the converter.
+            //
+            if nodes.count > 1 {
+                finalNodes = mergeLeft([Node](nodes.dropFirst()))
+            } else {
+                finalNodes = nodes
+            }
+
+            assert(finalNodes.count > 0)
+            insertChildren(finalNodes, atOffset: location)
         }
 
 
@@ -250,24 +252,68 @@ extension Libxml2 {
             }
         }
 
-        private func insertChildren(_ nodes: [Node], in element: ElementNode, atOffset offset: Int) {
-
-            assert(nodes.count > 0)
+        private func insertChild(_ node: Node, atOffset offset: Int) {
 
             let insertionIndex: Int
+            var mergeWithSiblings = false
 
-            if offset == 0 {
-                insertionIndex = 0
-            } else if offset == inspector.length(of: element) {
-                insertionIndex = element.children.count
-            } else {
-                let (childrenBefore, _) = splitChildren(of: element, at: offset)
+            let initialCount = rootNode.children.count
+            let (childrenBefore, _) = splitChildren(of: rootNode, at: offset)
+            let finalCount = rootNode.children.count
 
-                insertionIndex = childrenBefore.count
+            // Not very elegant, but if a child node was split to make space for our new nodes
+            // we can attempt merging.
+            //
+            if initialCount != finalCount {
+                mergeWithSiblings = true
             }
 
-            insertChildren(nodes, in: element, at: insertionIndex)
-            mergeLeft(nodes)
+            insertionIndex = childrenBefore.count
+
+            insertChild(node, in: rootNode, at: insertionIndex)
+
+            if mergeWithSiblings {
+                let mergedNode = mergeLeft(node)
+
+                guard let rightSibling = inspector.rightSibling(of: mergedNode) else {
+                    fatalError("A merge is supposed to happen here.")
+                }
+
+                mergeLeft(rightSibling)
+            }
+        }
+
+        private func insertChildren(_ nodes: [Node], atOffset offset: Int) {
+            assert(nodes.count > 0)
+
+            for node in nodes.reversed() {
+                insertChild(node, atOffset: offset)
+            }
+        }
+
+        // MARK: - Inserting Newlines
+
+        func insertNewline(into rootNode: RootNode, atOffset offset: Int) {
+
+            let (targetElement, intersection) = inspector.findLeftmostLowestDescendantElement(of: rootNode, intersecting: offset, blockLevel: true)
+
+            if inspector.isBlockLevelElement(targetElement) {
+                let contentRangeEndLocation = inspector.contentRange(of: targetElement).endLocation()
+                let needsSplit = offset < contentRangeEndLocation || inspector.needsClosingParagraphSeparator(targetElement)
+
+                if needsSplit {
+                    split(targetElement, at: intersection)
+                }
+            } else {
+                insertChild(ElementNode(type: .br), in: rootNode, atOffset: offset)
+            }
+        }
+
+        private func hasHTMLParagraphStyles(in paragraphStyle: ParagraphStyle) -> Bool {
+            return paragraphStyle.blockquote != nil
+                || paragraphStyle.htmlParagraph != nil
+                || paragraphStyle.headerLevel > 0
+                || paragraphStyle.textLists.count > 0
         }
 
         // MARK: - Deleting Characters
@@ -1216,17 +1262,25 @@ extension Libxml2 {
         @discardableResult
         func splitChildren(of element: ElementNode, at offset: Int) -> (left: [Node], right: [Node]) {
 
-            assert(inspector.range(of: element).contains(offset: offset))
-
             guard element.children.count > 0 else {
                 return ([], [])
+            }
+
+            let contentRange = inspector.contentRange(of: element)
+
+            guard offset >= contentRange.location else {
+                return ([], element.children)
+            }
+
+            guard offset <= contentRange.endLocation() else {
+                return (element.children, [])
             }
 
             guard let (child, intersection) = inspector.findLeftmostChild(of: element, intersecting: offset) else {
                 fatalError("This should not happen.  Review the logic.")
             }
 
-            guard canSplit(child, atOffset: intersection) else {
+            guard inspector.canSplit(child, atOffset: intersection) else {
                 return siblingsForAvoidedSplit(of: child, atOffset: intersection)
             }
 
@@ -1258,18 +1312,6 @@ extension Libxml2 {
         }
 
         // MARK: - Splitting Support Methods
-
-        private func canSplit(_ node: Node, atOffset offset: Int) -> Bool {
-            if let childElement = node as? ElementNode,
-                inspector.isBlockLevelElement(childElement) {
-
-                let contentRange = inspector.contentRange(of: childElement)
-
-                return offset >= contentRange.location && offset <= contentRange.location + contentRange.length
-            } else {
-                return offset > 0 && offset < inspector.length(of: node)
-            }
-        }
 
         private func siblingsForAvoidedSplit(of node: Node, atOffset offset: Int) -> (left: [Node], right: [Node]) {
 
@@ -1438,22 +1480,51 @@ extension Libxml2 {
 
         // MARK: - Merging Nodes
 
-        private func mergeLeft(_ node: Node) {
-            if let element = node as? ElementNode {
-                mergeLeft(element)
-            }
-        }
+        /// Merges the specified nodes left.
+        ///
+        /// - Parameters:
+        ///     - nodes: the nodes to merge left.
+        ///
+        @discardableResult
+        private func mergeLeft(_ nodes: [Node]) -> [Node] {
+            var nodes = [Node]()
 
-        private func mergeLeft(_ nodes: [Node]) {
             for node in nodes {
-                mergeLeft(node)
+                nodes.append(mergeLeft(node))
+            }
+
+            return nodes
+        }
+
+        @discardableResult
+        private func mergeLeft(_ node: Node) -> Node {
+            if let element = node as? ElementNode {
+                return mergeLeft(element)
+            } else if let textNode = node as? TextNode {
+                return mergeLeft(textNode)
+            } else if let commentNode = node as? CommentNode {
+                return commentNode
+            } else {
+                fatalError("Unsupported node type!")
             }
         }
 
-        private func mergeLeft(_ element: ElementNode) {
+        @discardableResult
+        private func mergeLeft(_ textNode: TextNode) -> Node {
+            guard let previousTextNode = inspector.leftSibling(of: textNode) as? TextNode else {
+                return textNode
+            }
+
+            previousTextNode.contents.append(textNode.contents)
+            removeFromParent(textNode)
+
+            return previousTextNode
+        }
+
+        @discardableResult
+        private func mergeLeft(_ element: ElementNode) -> Node {
             guard !inspector.isBlockLevelElement(element) else {
-                mergeLeft(blockLevelElement: element)
-                return
+                return mergeLeft(blockLevelElement: element)
             }
 
             let parent = inspector.parent(of: element)
@@ -1464,26 +1535,28 @@ extension Libxml2 {
             }, bailIf: { (candidate: ElementNode) -> Bool in
                 return inspector.isBlockLevelElement(candidate)
             }) else {
-                return
+                return element
             }
 
-            merge(left: leftElement, right: element)
+            return merge(left: leftElement, right: element)
         }
 
-        private func mergeLeft(blockLevelElement element: ElementNode) {
+        @discardableResult
+        private func mergeLeft(blockLevelElement element: ElementNode) -> Node {
 
             assert(inspector.isBlockLevelElement(element))
 
             guard let leftElement = inspector.leftSibling(of: element) as? ElementNode,
                 inspector.isBlockLevelElement(leftElement)
                     && inspector.canMerge(left: leftElement, right: element) else {
-                        return
+                        return element
             }
 
-            merge(left: leftElement, right: element)
+            return merge(left: leftElement, right: element)
         }
 
-        private func merge(left: ElementNode, right: ElementNode) {
+        @discardableResult
+        private func merge(left: ElementNode, right: ElementNode) -> Node {
 
             let children = right.children
 
@@ -1491,6 +1564,8 @@ extension Libxml2 {
             removeFromParent(right)
 
             mergeLeft(children)
+
+            return left
         }
 
         // MARK: - Node Fragmentation

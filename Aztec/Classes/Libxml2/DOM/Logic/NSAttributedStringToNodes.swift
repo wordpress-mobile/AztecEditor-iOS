@@ -21,21 +21,6 @@ class NSAttributedStringToNodes {
 
     ///
     ///
-    func hasParagraphStyles(_ attrString: NSAttributedString) -> Bool {
-
-        guard attrString.length > 0,
-            let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-                return false
-        }
-
-        return paragraphStyle.blockquote != nil
-            || paragraphStyle.htmlParagraph != nil
-            || paragraphStyle.headerLevel > 0
-            || paragraphStyle.textLists.count > 0
-    }
-
-    ///
-    ///
     func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
         var children = [Node]()
