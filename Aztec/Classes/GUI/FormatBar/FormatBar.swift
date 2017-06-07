@@ -44,6 +44,8 @@ open class FormatBar: UIView {
     ///
     open var overflowItems = [FormatBarItem]() {
         didSet {
+            configure(items: overflowItems)
+
             let hasOverflowItems = !overflowItems.isEmpty
             setOverflowToggleItemVisible(hasOverflowItems)
         }
@@ -242,7 +244,9 @@ open class FormatBar: UIView {
     // MARK: - Actions
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
-        formatter?.handleActionForIdentifier(sender.identifier!)
+        guard let identifier = sender.identifier else { return }
+
+        formatter?.handleActionForIdentifier(identifier)
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
@@ -264,9 +268,24 @@ open class FormatBar: UIView {
         if visible {
             scrollableStackView.addArrangedSubviews(overflowItems)
             scrollableStackView.addArrangedSubview(overflowToggleItem)
+
+            configureConstraints(for: overflowItems, in: stackView)
         } else {
-            overflowItems.forEach({ $0.removeFromSuperview() })
+            overflowItems.forEach({ item in
+                item.removeFromSuperview()
+                item.removeConstraints(item.constraints)
+            })
+
             stackView.addArrangedSubview(overflowToggleItem)
+        }
+    }
+
+    private func setOverflowToggleItemVisible(_ visible: Bool) {
+        overflowToggleItem.removeFromSuperview()
+
+        if visible {
+            stackView.addArrangedSubview(overflowToggleItem)
+            configureConstraints(for: [overflowToggleItem], in: stackView)
         }
     }
 }
@@ -370,7 +389,7 @@ private extension FormatBar {
         let constraints = items.flatMap { item in
             return [
                 item.widthAnchor.constraint(equalToConstant: Constants.stackButtonWidth),
-                item.heightAnchor.constraint(equalTo: container.heightAnchor)
+                item.heightAnchor.constraint(equalTo: item.widthAnchor)
             ]
         }
 
@@ -454,8 +473,8 @@ private extension FormatBar {
 
     struct Constants {
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
-        static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 10)
-        static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         static let stackViewCompactSpacing = CGFloat(0)
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
