@@ -54,7 +54,12 @@ extension Libxml2 {
         convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], editContext: EditContext? = nil) {
             self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
         }
-        
+
+        convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
+            self.init(name: type.rawValue, attributes: attributes, children: children)
+        }
+
+
         // MARK: - Node Constructors
         
         static func `break`() -> ElementNode {

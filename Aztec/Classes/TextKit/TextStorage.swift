@@ -491,7 +491,15 @@ open class TextStorage: NSTextStorage {
     // MARK: - HTML Interaction
 
     open func getHTML(prettyPrint: Bool = false) -> String {
-        return dom.getHTML(prettyPrint: prettyPrint)
+        let converter = NSAttributedStringToNodes()
+
+        // TODO: Testing Code. This will be violently updated!!
+        let nodes = converter.createNodes(fromParagraph: self)
+        let rootNode = Libxml2.RootNode(children: nodes, editContext: nil)
+
+        let serializer = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
+        return serializer.convert(rootNode)
+
     }
 
     func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
