@@ -113,8 +113,6 @@ class EditorDemoController: UIViewController {
 
     fileprivate var currentSelectedAttachment: ImageAttachment?
 
-    fileprivate var formatBarAnimatedPeek = false
-
     var loadSampleHTML = false
 
     fileprivate var shortcodePreProcessors = [Processor]()
@@ -184,7 +182,6 @@ class EditorDemoController: UIViewController {
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
-        nc.addObserver(self, selector: #selector(keyboardDidShow), name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -194,7 +191,6 @@ class EditorDemoController: UIViewController {
         let nc = NotificationCenter.default
         nc.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
         nc.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
-        nc.removeObserver(self, name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -373,16 +369,6 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
-    }
-
-    func keyboardDidShow(_ notification: Notification) {
-        guard richTextView.isFirstResponder, !formatBarAnimatedPeek else {
-            return
-        }
-
-        let formatBar = richTextView.inputAccessoryView as? FormatBar
-        formatBar?.animateSlightPeekWhenOverflows()
-        formatBarAnimatedPeek = true
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
