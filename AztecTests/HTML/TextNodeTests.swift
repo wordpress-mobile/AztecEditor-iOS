@@ -3,7 +3,6 @@ import XCTest
 
 class TextNodeTests: XCTestCase {
     
-    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias StandardElementType = Libxml2.StandardElementType
     typealias TextNode = Libxml2.TextNode
@@ -650,8 +649,7 @@ class TextNodeTests: XCTestCase {
         let textToAppend = "Hello there!"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
-        let textNode = TextNode(text: "", editContext: editContext)
+        let textNode = TextNode(text: "")
         
         textNode.append(textToAppend)
         XCTAssertEqual(textNode.text(), textToAppend)
@@ -677,9 +675,8 @@ class TextNodeTests: XCTestCase {
         let fullText = "\(text1)\(text2)"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: text1, editContext: editContext)
+        let textNode = TextNode(text: text1)
         
         textNode.append(text2)
         XCTAssertEqual(textNode.text(), fullText)
@@ -706,9 +703,8 @@ class TextNodeTests: XCTestCase {
         let range = NSRange(location: 0, length: text1.characters.count)
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.deleteCharacters(inRange: range)
         XCTAssertEqual(textNode.text(), text2)
@@ -735,9 +731,8 @@ class TextNodeTests: XCTestCase {
         let range = NSRange(location: text1.characters.count, length: text2.characters.count)
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.deleteCharacters(inRange: range)
         XCTAssertEqual(textNode.text(), text1)
@@ -760,11 +755,8 @@ class TextNodeTests: XCTestCase {
     func testThatPrependIsUndoable1() {
         
         let textToPrepend = "Hello there!"
-        
+        let textNode = TextNode(text: "")
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
-        
-        let textNode = TextNode(text: "", editContext: editContext)
         
         textNode.prepend(textToPrepend)
         XCTAssertEqual(textNode.text(), textToPrepend)
@@ -791,9 +783,8 @@ class TextNodeTests: XCTestCase {
         let fullText = "\(text2)\(text1)"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: text1, editContext: editContext)
+        let textNode = TextNode(text: text1)
         
         textNode.prepend(text2)
         XCTAssertEqual(textNode.text(), fullText)
@@ -826,9 +817,8 @@ class TextNodeTests: XCTestCase {
         let newFullText = "\(text1)\(newText)\(text3)"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
@@ -861,9 +851,8 @@ class TextNodeTests: XCTestCase {
         let newFullText = "\(newText)\(text2)\(text3)"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
@@ -896,9 +885,8 @@ class TextNodeTests: XCTestCase {
         let newFullText = "\(text1)\(text2)\(newText)"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newFullText)
@@ -930,9 +918,8 @@ class TextNodeTests: XCTestCase {
         let newText = "-"
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newText)
@@ -964,9 +951,8 @@ class TextNodeTests: XCTestCase {
         let newText = ""
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
-        let textNode = TextNode(text: fullText, editContext: editContext)
+        let textNode = TextNode(text: fullText)
         
         textNode.replaceCharacters(inRange: range, withString: newText)
         XCTAssertEqual(textNode.text(), newText)

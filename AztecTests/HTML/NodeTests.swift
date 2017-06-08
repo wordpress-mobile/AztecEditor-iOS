@@ -4,7 +4,6 @@ import XCTest
 class NodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
-    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
     typealias TextNode = Libxml2.TextNode
@@ -89,12 +88,11 @@ class NodeTests: XCTestCase {
     func testThatParentChangesAreUndoable() {
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
         undoManager.disableUndoRegistration()
         
-        let textNode = TextNode(text: "Hello", editContext: editContext)
-        let elementNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode], editContext: editContext)
+        let textNode = TextNode(text: "Hello")
+        let elementNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode])
         
         undoManager.enableUndoRegistration()
         
