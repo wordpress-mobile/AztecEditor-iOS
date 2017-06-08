@@ -23,8 +23,7 @@ class NSAttributedStringToNodes: Converter {
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
         var nodes = [Node]()
-
-        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString, reverseOrder: true) { (paragraphRange, _) in
+        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             nodes += createNodes(fromParagraph: paragraph)
         }
