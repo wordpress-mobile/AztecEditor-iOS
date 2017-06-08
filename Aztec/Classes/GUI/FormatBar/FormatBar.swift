@@ -399,16 +399,6 @@ private extension FormatBar {
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ])
     }
-    
-
-    /// Refreshes the Stack View's Spacing, according to the Horizontal Size Class
-    ///
-    func refreshStackViewSpacing() {
-        let horizontallyCompact = traitCollection.horizontalSizeClass == .compact
-        let stackViewSpacing = horizontallyCompact ? Constants.stackViewCompactSpacing : Constants.stackViewRegularSpacing
-
-        scrollableStackView.spacing = stackViewSpacing
-    }
 
 
     /// Disables scrolling whenever there's no actual overflow
@@ -424,7 +414,7 @@ private extension FormatBar {
 
 // MARK: - Animation Helpers
 //
-extension FormatBar {
+private extension FormatBar {
 
     private var scrollableContentSize: CGSize {
         return scrollView.contentSize
@@ -432,24 +422,6 @@ extension FormatBar {
 
     private var scrollableVisibleSize: CGSize {
         return scrollView.frame.size
-    }
-
-    open func animateSlightPeekWhenOverflows() {
-        guard scrollableContentSize.width > scrollableVisibleSize.width else {
-            return
-        }
-
-        let originalRect = CGRect(origin: .zero, size: scrollableVisibleSize)
-        let peekOrigin = CGPoint(x: scrollableContentSize.width * Animations.peekWidthRatio, y: 0)
-        let peekRect = CGRect(origin: peekOrigin, size: scrollableVisibleSize)
-
-        UIView.animate(withDuration: Animations.durationLong, delay: Animations.delayZero, options: .curveEaseInOut, animations: {
-            self.scrollView.scrollRectToVisible(peekRect, animated: false)
-        }, completion: { _ in
-            UIView.animate(withDuration: Animations.durationShort, delay: Animations.delayZero, options: .curveEaseInOut, animations: {
-                self.scrollView.scrollRectToVisible(originalRect, animated: false)
-            }, completion: nil)
-        })
     }
 
     func animate(item: FormatBarItem, visible: Bool, withDelay delay: TimeInterval) {
@@ -478,7 +450,7 @@ extension FormatBar {
                        completion: nil)
     }
 
-    fileprivate enum OverflowToggleAnimationDirection {
+    enum OverflowToggleAnimationDirection {
         case horizontal
         case vertical
 
@@ -492,7 +464,7 @@ extension FormatBar {
         }
     }
 
-    fileprivate func rotateOverflowToggleItem(_ direction: OverflowToggleAnimationDirection, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+    func rotateOverflowToggleItem(_ direction: OverflowToggleAnimationDirection, animated: Bool, completion: ((Bool) -> Void)? = nil) {
         let transform = {
             self.overflowToggleItem.transform = direction.transform
         }
@@ -510,28 +482,7 @@ extension FormatBar {
             completion?(true)
         }
     }
-
-    fileprivate func animateOverflowToggleOffscreen(completion: (() -> Void)? = nil) {
-        defer {
-            overflowToggleItem.removeFromSuperview()
-        }
-
-        // Replace toggle with a snapshot
-        guard let snapshot = overflowToggleItem.snapshotView(afterScreenUpdates: false) else { return }
-
-        addSubview(snapshot)
-        snapshot.frame = convert(overflowToggleItem.frame, from: stackView)
-
-        UIView.animate(withDuration: Animations.durationLong,
-                       animations: {
-                        snapshot.transform = CGAffineTransform(translationX: Constants.stackButtonWidth, y: 0)
-        }, completion: { _ in
-            snapshot.removeFromSuperview()
-            completion?()
-        })
-    }
 }
-
 
 
 // MARK: - Private Constants
