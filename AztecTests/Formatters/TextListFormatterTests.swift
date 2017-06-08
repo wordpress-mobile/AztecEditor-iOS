@@ -272,7 +272,7 @@ class TextListFormatterTests: XCTestCase {
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
-        let lists = ranges.flatMap { list.textListAttribute(spanningRange: $0) }
+        let lists = ranges.flatMap { list.textListAttribute(spanning: $0) }
 
         XCTAssert(lists[0].style == .ordered)
         XCTAssert(lists[1].style == .ordered)
@@ -313,7 +313,7 @@ class TextListFormatterTests: XCTestCase {
         // Verify
         let paragraphs = paragraphRanges(inString: string)
         for (index, range) in paragraphs.enumerated() {
-            let list = string.textListAttribute(spanningRange: range)
+            let list = string.textListAttribute(spanning: range)
             XCTAssertNotNil(list)
             XCTAssert(list!.style == .ordered)
 
@@ -349,7 +349,7 @@ class TextListFormatterTests: XCTestCase {
         // Verify
         let paragraphs = paragraphRanges(inString: string)
         for (index, range) in paragraphs.enumerated() {
-            guard let list = string.textListAttribute(spanningRange: range) else
+            guard let list = string.textListAttribute(spanning: range) else
             {
                 XCTFail()
                 return
@@ -499,12 +499,12 @@ private extension TextListFormatterTests
     }
 
     func paragraphRanges(inString string: NSAttributedString) -> [NSRange] {
-        return string.paragraphRanges(spanningRange: string.rangeOfEntireString)
+        return string.paragraphRanges(spanning: string.rangeOfEntireString)
     }
 
     func textListAttributes(inString string: NSAttributedString, atRanges ranges: [NSRange]) -> [TextList] {
         return ranges.flatMap {
-            string.textListAttribute(spanningRange: $0)
+            string.textListAttribute(spanning: $0)
         }
     }
 }

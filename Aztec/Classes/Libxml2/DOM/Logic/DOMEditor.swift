@@ -226,7 +226,7 @@ extension Libxml2 {
         ///
         fileprivate func forceWrapChildren(of element: ElementNode, intersecting targetRange: NSRange, inElement elementDescriptor: ElementNodeDescriptor) {
 
-            assert(element.range().contains(range: targetRange))
+            assert(element.range().contains(targetRange))
 
             let childNodesAndRanges = element.childNodes(intersectingRange: targetRange)
 
