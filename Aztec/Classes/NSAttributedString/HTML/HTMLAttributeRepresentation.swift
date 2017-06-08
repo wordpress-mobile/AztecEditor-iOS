@@ -21,10 +21,7 @@ class HTMLAttributeRepresentation: HTMLRepresentation {
         self.element = element
         name = attribute.name
 
-        if let stringAttribute = attribute as? StringAttribute {
-            value = stringAttribute.value
-        } else {
-            value = nil
-        }
+        let stringAttribute = attribute as? StringAttribute
+        value = stringAttribute?.value
     }
 }
