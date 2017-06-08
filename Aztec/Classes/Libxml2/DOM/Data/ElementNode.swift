@@ -8,7 +8,14 @@ extension Libxml2 {
     class ElementNode: Node {
 
         var attributes = [Attribute]()
-        fileprivate(set) var children: [Node]
+        var children: [Node] {
+            didSet {
+                for child in children {
+                    child.parent?.remove(child)
+                    child.parent = self
+                }
+            }
+        }
 
         private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
 
@@ -42,15 +49,6 @@ extension Libxml2 {
             self.children = children
 
             super.init(name: name)
-
-            for child in children {
-
-                if let parent = child.parent {
-                    parent.remove(child)
-                }
-
-                child.parent = self
-            }
         }
         
         convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {

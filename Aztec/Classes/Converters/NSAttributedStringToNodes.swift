@@ -35,6 +35,7 @@ class NSAttributedStringToNodes: Converter {
         return RootNode(children: nodes)
     }
 
+
     ///
     ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
@@ -93,6 +94,7 @@ private extension NSAttributedStringToNodes {
 
         return leafs
     }
+
 
     ///
     ///
