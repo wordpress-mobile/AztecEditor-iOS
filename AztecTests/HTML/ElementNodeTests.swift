@@ -4,7 +4,6 @@ import XCTest
 class ElementNodeTests: XCTestCase {
 
     typealias Attribute = Libxml2.Attribute
-    typealias EditContext = Libxml2.EditContext
     typealias ElementNode = Libxml2.ElementNode
     typealias ElementNodeDescriptor = Libxml2.ElementNodeDescriptor
     typealias RootNode = Libxml2.RootNode
@@ -1263,14 +1262,13 @@ class ElementNodeTests: XCTestCase {
     func testUndoRemoveChild() {
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
         undoManager.disableUndoRegistration()
         
-        let textNode1 = TextNode(text: "Hello ", editContext: editContext)
-        let textNode2 = TextNode(text: "world!", editContext: editContext)
-        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2], editContext: editContext)
-        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode], editContext: editContext)
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world!")
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2])
+        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode])
         
         undoManager.enableUndoRegistration()
         
@@ -1309,16 +1307,15 @@ class ElementNodeTests: XCTestCase {
     func testUndoRemoveChildren() {
         
         let undoManager = UndoManager()
-        let editContext = EditContext(undoManager: undoManager)
         
         undoManager.disableUndoRegistration()
         
-        let textNode1 = TextNode(text: "Hello ", editContext: editContext)
-        let textNode2 = TextNode(text: "world!", editContext: editContext)
-        let textNode3 = TextNode(text: "How are you?", editContext: editContext)
-        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2], editContext: editContext)
-        let emNode = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode3], editContext: editContext)
-        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode, emNode], editContext: editContext)
+        let textNode1 = TextNode(text: "Hello ")
+        let textNode2 = TextNode(text: "world!")
+        let textNode3 = TextNode(text: "How are you?")
+        let boldNode = ElementNode(name: StandardElementType.b.rawValue, attributes: [], children: [textNode2])
+        let emNode = ElementNode(name: StandardElementType.em.rawValue, attributes: [], children: [textNode3])
+        let paragraph = ElementNode(name: StandardElementType.p.rawValue, attributes: [], children: [textNode1, boldNode, emNode])
         
         undoManager.enableUndoRegistration()
         

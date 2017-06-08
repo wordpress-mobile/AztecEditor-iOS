@@ -10,6 +10,8 @@ extension Libxml2 {
         fileprivate(set) var attributes = [Attribute]()
         fileprivate(set) var children: [Node]
 
+        private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
+
         internal var standardName: StandardElementType? {
             get {
                 return StandardElementType(rawValue: name)
@@ -35,11 +37,11 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, attributes: [Attribute], children: [Node], editContext: EditContext? = nil) {
+        init(name: String, attributes: [Attribute], children: [Node]) {
             self.attributes.append(contentsOf: attributes)
             self.children = children
 
-            super.init(name: name, editContext: editContext)
+            super.init(name: name)
 
             for child in children {
 
@@ -51,8 +53,8 @@ extension Libxml2 {
             }
         }
         
-        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = [], editContext: EditContext? = nil) {
-            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children, editContext: editContext)
+        convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
+            self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
         }
 
         convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
@@ -998,7 +1000,6 @@ extension Libxml2 {
                 return
             }
 
-            registerUndoForRemove(child)
             children.remove(at: index)
 
             if updateParent {
@@ -1337,7 +1338,7 @@ extension Libxml2 {
                 // This code can be improved but this "hack" will allow us to postpone the necessary
                 // code restructuration.
                 //
-                let textNode = TextNode(text: "", editContext: editContext)
+                let textNode = TextNode(text: "")
                 insert(textNode, at: index)
                 textNode.append(string)
             }
@@ -1352,9 +1353,9 @@ extension Libxml2 {
 
             let node: Node
             if let descriptor = descriptor as? ElementNodeDescriptor {
-                node = ElementNode(descriptor: descriptor, editContext: editContext)
+                node = ElementNode(descriptor: descriptor)
             } else if let descriptor = descriptor as? CommentNodeDescriptor {
-                node = CommentNode(text: descriptor.comment, editContext: editContext)
+                node = CommentNode(text: descriptor.comment)
             } else {
                 fatalError("Unsupported Node Descriptor")
             }
@@ -1412,7 +1413,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: location)
             
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
                 
                 parent.insert(newElement, at: nodeIndex + 1)
             }
@@ -1441,7 +1442,7 @@ extension Libxml2 {
             let postNodes = splitChildren(after: range.location + range.length)
 
             if postNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: postNodes)
 
                 parent.insert(newElement, at: nodeIndex + 1)
             }
@@ -1449,7 +1450,7 @@ extension Libxml2 {
             let preNodes = splitChildren(before: range.location)
 
             if preNodes.count > 0 {
-                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes, editContext: editContext)
+                let newElement = ElementNode(name: name, attributes: attributes, children: preNodes)
 
                 parent.insert(newElement, at: nodeIndex)
             }
@@ -1530,7 +1531,7 @@ extension Libxml2 {
 
             guard selectedChildren.count > 0 else {
                 assertionFailure("Avoid calling this method with no nodes.")
-                return ElementNode(descriptor: elementDescriptor, editContext: editContext)
+                return ElementNode(descriptor: elementDescriptor)
             }
 
             guard let firstNodeIndex = children.index(of: childrenToWrap[0]) else {
@@ -1576,7 +1577,7 @@ extension Libxml2 {
             }
 
             let finalWrapper = wrapperElement ?? { () -> ElementNode in
-                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap, editContext: editContext)
+                let newNode = ElementNode(descriptor: elementDescriptor, children: childrenToWrap)
 
                 children.insert(newNode, at: firstNodeIndex)
                 newNode.parent = self
@@ -1615,41 +1616,14 @@ extension Libxml2 {
 
             return ElementNode.elementsThatInterruptStyleAtEdges.contains(elementType)
         }
-        
-        // MARK: - Undo Support
-        
-        private func registerUndoForRemove(_ child: Node) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            guard let index = children.index(of: child) else {
-                assertionFailure("The specified node is not one of this node's children.")
-                return
-            }
-            
-            editContext.undoManager.registerUndo(withTarget: self) { [weak self] target in
-                self?.children.insert(child, at: index)
-            }
-        }
 
         func isSupportedByEditor() -> Bool {
-            /// NOTE:
-            /// ElementNode.length is coupled to the value of this method. Elements not known by the Editor are
-            /// represented by a single character (NSTextAttachment), with a customizable visual representation.
-            /// In Unit Tests, ElementNode will be decoupled from the Editor, and we'll neutralize this
-            /// "Length=1" workaround.
-            ///
-            guard let editContext = editContext else {
-                return true
-            }
 
             guard let standardName = standardName else {
                 return false
             }
 
-            return editContext.knownElements.contains(standardName)
+            return ElementNode.knownElements.contains(standardName)
         }
     }
 
@@ -1677,8 +1651,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(children: [Node], editContext: EditContext? = nil) {
-            super.init(name: type(of: self).name, attributes: [], children: children, editContext: editContext)
+        init(children: [Node]) {
+            super.init(name: type(of: self).name, attributes: [], children: children)
         }
 
         // MARK: - Overriden Methods
