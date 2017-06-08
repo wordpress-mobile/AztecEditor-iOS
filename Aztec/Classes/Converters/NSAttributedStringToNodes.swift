@@ -338,7 +338,6 @@ private extension NSAttributedStringToNodes {
         case anchor(url: String)
         case bold
         case italics
-        case image(url: String)
         case strike
         case underlined
 
@@ -351,9 +350,6 @@ private extension NSAttributedStringToNodes {
                 return ElementNode(type: .b, children: children)
             case .italics:
                 return ElementNode(type: .i, children: children)
-            case .image(let url):
-                let source = StringAttribute(name: "src", value: url)
-                return ElementNode(type: .img, attributes: [source])
             case .strike:
                 return ElementNode(type: .strike, children: children)
             case .underlined:
