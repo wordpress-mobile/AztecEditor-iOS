@@ -492,10 +492,7 @@ open class TextStorage: NSTextStorage {
 
     open func getHTML(prettyPrint: Bool = false) -> String {
         let converter = NSAttributedStringToNodes()
-
-        // TODO: Testing Code. This will be violently updated!!
-        let nodes = converter.createNodes(fromParagraph: self)
-        let rootNode = Libxml2.RootNode(children: nodes, editContext: nil)
+        let rootNode = converter.convert(self)
 
         let serializer = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
         return serializer.convert(rootNode)

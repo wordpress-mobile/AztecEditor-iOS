@@ -6,22 +6,31 @@ import libxml2
 
 // MARK: - NSAttributedStringToNodes
 //
-class NSAttributedStringToNodes {
+class NSAttributedStringToNodes: Converter {
 
     /// Typealiases
     ///
     typealias Node = Libxml2.Node
     typealias CommentNode = Libxml2.CommentNode
     typealias ElementNode = Libxml2.ElementNode
+    typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
     typealias DOMString = Libxml2.DOMString
     typealias DOMInspector = Libxml2.DOMInspector
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
 
+
     ///
     ///
-    func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
+    func convert(_ attrString: NSAttributedString) -> RootNode {
+        let children = createNodes(fromParagraph: attrString)
+        return RootNode(children: children, editContext: nil)
+    }
+
+    ///
+    ///
+    private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
 
         var children = [Node]()
 
