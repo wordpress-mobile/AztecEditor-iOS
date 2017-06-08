@@ -3,7 +3,6 @@ import UIKit
 import libxml2
 
 
-
 // MARK: - NSAttributedStringToNodes
 //
 class NSAttributedStringToNodes: Converter {
@@ -16,7 +15,6 @@ class NSAttributedStringToNodes: Converter {
     typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
     typealias DOMString = Libxml2.DOMString
-    typealias DOMInspector = Libxml2.DOMInspector
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
 
@@ -24,8 +22,17 @@ class NSAttributedStringToNodes: Converter {
     ///
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
-        let children = createNodes(fromParagraph: attrString)
-        return RootNode(children: children)
+        var nodes = [Node]()
+
+        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString, reverseOrder: true) { (paragraphRange, enclosingRange) in
+            let separatorRange = enclosingRange.shortenedLeft(by: paragraphRange.length)
+            let separator = attrString.attributedSubstring(from: separatorRange)
+            let paragraph = attrString.attributedSubstring(from: paragraphRange)
+
+            nodes += createNodes(fromParagraph: attrString)
+        }
+
+        return RootNode(children: nodes)
     }
 
     ///
@@ -142,7 +149,7 @@ private extension NSAttributedStringToNodes {
 
         for substring in substrings {
             if output.count > 0 {
-                let newline = ElementNode(type: Libxml2.StandardElementType.br)
+                let newline = ElementNode(type: .br)
                 output.append(newline)
             }
             
