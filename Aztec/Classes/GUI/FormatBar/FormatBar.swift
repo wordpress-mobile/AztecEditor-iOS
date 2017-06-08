@@ -11,11 +11,6 @@ open class FormatBar: UIView {
     open weak var formatter: FormatBarDelegate?
 
 
-    /// Container StackView
-    ///
-    fileprivate let stackView = UIStackView()
-
-
     /// Container ScrollView
     ///
     fileprivate let scrollView = UIScrollView()
@@ -56,7 +51,7 @@ open class FormatBar: UIView {
             setOverflowItemsVisible(false, animated: false)
 
             let hasOverflowItems = !overflowItems.isEmpty
-            setOverflowToggleItemVisible(hasOverflowItems)
+            overflowToggleItem.isHidden = !hasOverflowItems
         }
     }
 
@@ -91,9 +86,22 @@ open class FormatBar: UIView {
         return scrollableStackView.arrangedSubviews.filter({ $0 is FormatBarItem }) as! [FormatBarItem]
     }
 
+    /// Returns all of the dividers (including the top divider) in the bar
+    ///
     private var dividers: [UIView] {
         return scrollableStackView.arrangedSubviews.filter({ !($0 is FormatBarItem) }) + [topDivider]
     }
+
+    /// Returns true if any of the overflow items in the bar are currently hidden
+    ///
+    private var overflowItemsHidden: Bool {
+        if let _ = scrollableStackView.arrangedSubviews.first(where: { $0.isHidden }) {
+            return true
+        }
+
+        return false
+    }
+
     
     /// Tint Color
     ///
@@ -192,15 +200,15 @@ open class FormatBar: UIView {
 
         configure(scrollView: scrollView)
         configureScrollableStackView()
-        configureContainerStackview()
 
-        stackView.addArrangedSubview(scrollView)
-        addSubview(stackView)
-
+        addSubview(scrollView)
         scrollView.addSubview(scrollableStackView)
 
         topDivider.translatesAutoresizingMaskIntoConstraints = false
         addSubview(topDivider)
+
+        overflowToggleItem.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(overflowToggleItem)
 
         configureConstraints()
     }
@@ -214,7 +222,7 @@ open class FormatBar: UIView {
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        refreshStackViewSpacing()
+        refreshScrollingLock()
     }
 
 
@@ -239,65 +247,39 @@ open class FormatBar: UIView {
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
-        // We're currently collapsed if the toggle button belongs to the outer stackview
-        let shouldExpand = (sender.superview == stackView)
+        let shouldExpand = overflowItemsHidden
 
-        if shouldExpand {
-            animateOverflowToggleOffscreen(completion: {
-                self.rotateOverflowToggleItem(.vertical, animated: false)
-            })
+        let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
 
-            setOverflowItemsVisible(true)
+        setOverflowItemsVisible(shouldExpand)
 
-            scrollableStackView.addArrangedSubview(overflowToggleItem)
-
-        } else {
-            overflowToggleItem.removeFromSuperview()
-
-            setOverflowItemsVisible(false)
-            stackView.addArrangedSubview(overflowToggleItem)
-
-            rotateOverflowToggleItem(.horizontal, animated: true)
-        }
+        rotateOverflowToggleItem(direction, animated: true)
 
         refreshScrollingLock()
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
+        // Animate backwards if we're disappearing
+        let items = visible ? overflowItems : overflowItems.reversed()
+
         let toggleVisibility = {
-            self.overflowItems.forEach({ $0.isHidden = !visible })
+            items.forEach({ $0.isHidden = !visible })
         }
 
-        if visible {
-            toggleVisibility()
+        if animated {
+            UIView.animate(withDuration: Animations.durationLong, animations: toggleVisibility)
 
-            if animated {
-                for (index, item) in overflowItems.enumerated() {
-                    animate(item: item, visible: true, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
+            // Currently only doing the pop animation for appearance
+            if visible {
+                for (index, item) in items.enumerated() {
+                    animate(item: item, visible: visible, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
                 }
             }
         } else {
-            if animated {
-                UIView.animate(withDuration: Animations.durationLong, animations: {
-                    self.scrollView.setContentOffset(.zero, animated: false)
-                }, completion: { _ in
-                    toggleVisibility()
-                })
-            } else {
-                toggleVisibility()
-            }
-        }
-    }
-
-    private func setOverflowToggleItemVisible(_ visible: Bool) {
-        overflowToggleItem.removeFromSuperview()
-
-        if visible {
-            stackView.addArrangedSubview(overflowToggleItem)
+            toggleVisibility()
         }
     }
 }
-
 
 
 // MARK: - Configuration Helpers
@@ -355,16 +337,6 @@ private extension FormatBar {
         item.disabledTintColor = disabledTintColor
     }
 
-    /// Sets up the container StackView
-    ///
-    func configureContainerStackview() {
-        stackView.axis = .horizontal
-        stackView.spacing = Constants.stackViewRegularSpacing
-        stackView.alignment = .center
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-    }
-
 
     /// Sets up the scrollable StackView
     ///
@@ -384,6 +356,9 @@ private extension FormatBar {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+
+        // Add padding at the end to account for overflow button
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Constants.stackButtonWidth)
     }
 
 
@@ -391,6 +366,16 @@ private extension FormatBar {
     ///
     func configureConstraints() {
         let insets = Constants.scrollableStackViewInsets
+
+        let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
+        overflowTrailingConstraint.priority = UILayoutPriorityDefaultLow
+
+        NSLayoutConstraint.activate([
+            overflowToggleItem.topAnchor.constraint(equalTo: topAnchor),
+            overflowToggleItem.bottomAnchor.constraint(equalTo: bottomAnchor),
+            overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
+            overflowTrailingConstraint
+        ])
 
         NSLayoutConstraint.activate([
             topDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -400,10 +385,10 @@ private extension FormatBar {
         ])
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: insets.left),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * insets.right),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: insets.left),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * insets.right),
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
 
         NSLayoutConstraint.activate([
