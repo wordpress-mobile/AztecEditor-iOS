@@ -39,7 +39,6 @@ class NSAttributedStringToNodes: Converter {
     ///
     ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
-
         var children = [Node]()
 
         guard paragraph.length > 0 else {
@@ -241,6 +240,10 @@ private extension NSAttributedStringToNodes {
             }
         }
 
+        if !style.textLists.isEmpty {
+            styles.append(.listItem)
+        }
+
         return styles
     }
 
@@ -305,6 +308,7 @@ private extension NSAttributedStringToNodes {
         case blockquote
         case header(level: Int)
         case horizontalRule
+        case listItem
         case orderedList
         case paragraph
         case preformatted
@@ -319,6 +323,8 @@ private extension NSAttributedStringToNodes {
                 return ElementNode(type: header, children: children)
             case .horizontalRule:
                 return ElementNode(type: .hr, children: children)
+            case .listItem:
+                return ElementNode(type: .li, children: children)
             case .orderedList:
                 return ElementNode(type: .ol, children: children)
             case .paragraph:
