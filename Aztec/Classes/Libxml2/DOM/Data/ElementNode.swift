@@ -7,7 +7,7 @@ extension Libxml2 {
     ///
     class ElementNode: Node {
 
-        fileprivate(set) var attributes = [Attribute]()
+        var attributes = [Attribute]()
         fileprivate(set) var children: [Node]
 
         private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
@@ -511,7 +511,7 @@ extension Libxml2 {
             onMatchFound matchFound: NodeIntersectionReport?,
             onMatchNotFound matchNotFound: RangeReport?) {
 
-            assert(range().contains(range: targetRange))
+            assert(range().contains(targetRange))
             assert(matchFound != nil || matchNotFound != nil)
 
             guard !isMatch(self) else {
