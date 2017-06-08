@@ -121,7 +121,7 @@ open class TextStorage: NSTextStorage {
 
     var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
-    open func MediaAttachments() -> [MediaAttachment] {
+    open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
         var attachments = [MediaAttachment]()
         enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
@@ -591,13 +591,13 @@ open class TextStorage: NSTextStorage {
         let addVideoUrl = originalUrl == nil && newUrl != nil
         let removeVideoUrl = originalUrl != nil && newUrl == nil
 
-        if addVideoUrl {
+        if addVideoUrl, let videoAttachment = new {
             guard let urlToAdd = newUrl else {
                 assertionFailure("This should not be possible.  Review your logic.")
                 return
             }
 
-            dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL)
+            dom.replace(range, withVideoURL: urlToAdd, posterURL: new?.posterURL, namedAttributes: videoAttachment.namedAttributes, unnamedAttributes: videoAttachment.unnamedAttributes)
         } else if removeVideoUrl {
             dom.removeVideo(spanning: range)
         }
@@ -864,7 +864,7 @@ open class TextStorage: NSTextStorage {
     /// - returns: the attachment object that was created and inserted on the text
     ///
     func insertVideo(sourceURL: URL, posterURL: URL?, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> VideoAttachment {
-        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL, namedAttributes: [String:String](), unnamedAttributes: [String]())
         attachment.delegate = self
         attachment.image = placeHolderImage
 
@@ -929,6 +929,18 @@ open class TextStorage: NSTextStorage {
         }
         
         dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
+    }
+
+    /// Updates the specified VideoAttachment with new HTML contents
+    ///
+    func update(attachment: VideoAttachment) {
+        guard let range = range(for: attachment) else {
+            assertionFailure("Couldn't determine the range for an Attachment")
+            return
+        }
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
     }
 
     /// Updates the specified HTMLAttachment with new HTML contents
