@@ -14,16 +14,12 @@ extension Libxml2 {
     class DOMString {
 
         private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
-
-        private lazy var editContext: EditContext = {
-            return EditContext(undoManager: self.domUndoManager)
-        }()
         
         private lazy var rootNode: RootNode = {
             
-            let textNode = TextNode(text: "", editContext: self.editContext)
+            let textNode = TextNode(text: "")
             
-            return RootNode(children: [textNode], editContext: self.editContext)
+            return RootNode(children: [textNode])
         }()
         
         private var parentUndoManager: UndoManager?
@@ -124,7 +120,7 @@ extension Libxml2 {
         ///
         func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) -> NSAttributedString {
             
-            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor, editContext: editContext)
+            let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
             let output: (rootNode: RootNode, attributedString: NSAttributedString)
             
             do {
@@ -651,7 +647,7 @@ extension Libxml2 {
 
         private func replaceSynchronously(_ range: NSRange, withRawHTML rawHTML: String) {
             do {
-                let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
+                let htmlToNode = Libxml2.In.HTMLConverter()
                 let parsedRootNode = try htmlToNode.convert(rawHTML)
 
                 guard let firstChild = parsedRootNode.children.first else {

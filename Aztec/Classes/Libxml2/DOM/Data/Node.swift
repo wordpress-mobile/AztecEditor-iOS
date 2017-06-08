@@ -16,24 +16,11 @@ extension Libxml2 {
         
         /// Parent-node-reference setter and getter, with undo support.
         ///
-        var parent: ElementNode? {
-            get {
-                return rawParent
-            }
-            
-            set {
-                registerUndoForParentChange()
-                rawParent = newValue
-            }
-        }
+        var parent: ElementNode?
 
         // MARK: - Properties: Editing traits
 
         var canEditTextRepresentation: Bool = true
-        
-        // MARK: - Properties: Edit Context
-        
-        let editContext: EditContext?
         
         // MARK: - CustomReflectable
         
@@ -45,9 +32,8 @@ extension Libxml2 {
         
         // MARK: - Initializers
 
-        init(name: String, editContext: EditContext? = nil) {
+        init(name: String) {
             self.name = name
-            self.editContext = editContext
         }
 
         func range() -> NSRange {
@@ -277,7 +263,7 @@ extension Libxml2 {
             let originalParent = parent
             let originalIndex = parent?.children.index(of: self)
 
-            let newNode = ElementNode(descriptor: elementDescriptor, editContext: editContext)
+            let newNode = ElementNode(descriptor: elementDescriptor)
 
             if let parent = originalParent {
                 guard let index = originalIndex else {
@@ -298,23 +284,6 @@ extension Libxml2 {
         ///
         func wrap(in range: NSRange, inElement elementDescriptor: Libxml2.ElementNodeDescriptor) {
             assertionFailure("This method should always be overridden.")
-        }
-        
-        // MARK: - Undo support
-        
-        /// Registers an undo operation for an upcoming parent property change.
-        ///
-        private func registerUndoForParentChange() {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            let originalParent = rawParent
-            
-            editContext.undoManager.registerUndo(withTarget: self) { target in
-                target.parent = originalParent
-            }
         }
     }
 }

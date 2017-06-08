@@ -164,10 +164,10 @@ extension Libxml2 {
             var nodes = [Node]()
 
             for (index, component) in components.enumerated() {
-                nodes.append(TextNode(text: component, editContext: rootNode.editContext))
+                nodes.append(TextNode(text: component))
 
                 if index != components.count - 1 {
-                    nodes.append(ElementNode(descriptor: separatorElement, children: [], editContext: rootNode.editContext))
+                    nodes.append(ElementNode(descriptor: separatorElement, children: []))
                 }
             }
 

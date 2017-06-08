@@ -17,10 +17,10 @@ extension Libxml2 {
         
         // MARK: - Initializers
         
-        init(text: String, editContext: EditContext? = nil) {
+        init(text: String) {
             contents = text
 
-            super.init(name: "text", editContext: editContext)
+            super.init(name: "text")
         }
 
         /// Node length.
@@ -50,7 +50,6 @@ extension Libxml2 {
         ///     - string: the string to append to the node.
         ///
         private func append(sanitizedString string: String) {
-            registerUndoForAppend(appendedLength: string.characters.count)
             contents.append(string)
         }
         
@@ -81,7 +80,7 @@ extension Libxml2 {
                     insertionIndex = insertionIndex + 1
                     
                     if !component.isEmpty {
-                        let textNode = TextNode(text: component, editContext: editContext)
+                        let textNode = TextNode(text: component)
                         
                         parent.insert(textNode, at: insertionIndex)
                         insertionIndex = insertionIndex + 1
@@ -97,7 +96,6 @@ extension Libxml2 {
         ///     - string: the string to prepend to the node.
         ///
         private func prepend(sanitizedString string: String) {
-            registerUndoForPrepend(prependedLength: string.characters.count)
             contents = "\(string)\(contents)"
         }
         
@@ -120,7 +118,7 @@ extension Libxml2 {
                 if componentIndex == components.count - 1 {
                     prepend(sanitizedString: component)
                 } else {
-                    let textNode = TextNode(text: component, editContext: editContext)
+                    let textNode = TextNode(text: component)
                     let separator = ElementNode(descriptor: separatorDescriptor)
                     
                     parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
@@ -142,7 +140,6 @@ extension Libxml2 {
             
             let range = contents.range(from: nsRange)
 
-            registerUndoForReplaceCharacters(in: range, withString: string)
             contents.replaceSubrange(range, with: string)
         }
         
@@ -208,7 +205,7 @@ extension Libxml2 {
                     } else if index == components.count - 1 {
                         rightNode.prepend(sanitizedString: component)
                     } else {
-                        let textNode = TextNode(text: component, editContext: editContext)
+                        let textNode = TextNode(text: component)
                         let separator = ElementNode(descriptor: separatorDescriptor)
                         
                         parent.insert(textNode, at: insertionIndex, tryToMergeWithSiblings: false)
@@ -246,8 +243,6 @@ extension Libxml2 {
         }
         
         func deleteCharacters(inRange range: Range<String.Index>) {
-            
-            registerUndoForDeleteCharacters(inRange: range)
             contents.removeSubrange(range)
         }
         
@@ -319,7 +314,7 @@ extension Libxml2 {
             let postRange = index ..< text().endIndex
             
             if postRange.lowerBound != postRange.upperBound {
-                let newNode = TextNode(text: text().substring(with: postRange), editContext: editContext)
+                let newNode = TextNode(text: text().substring(with: postRange))
                 
                 deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
@@ -340,14 +335,14 @@ extension Libxml2 {
             let postRange = swiftRange.upperBound ..< contents.endIndex
 
             if !postRange.isEmpty {
-                let newNode = TextNode(text: contents.substring(with: postRange), editContext: editContext)
+                let newNode = TextNode(text: contents.substring(with: postRange))
 
                 deleteCharacters(inRange: postRange)
                 parent.insert(newNode, at: nodeIndex + 1, tryToMergeWithSiblings: false)
             }
             
             if !preRange.isEmpty {
-                let newNode = TextNode(text: contents.substring(with: preRange), editContext: editContext)
+                let newNode = TextNode(text: contents.substring(with: preRange))
 
                 deleteCharacters(inRange: preRange)
                 parent.insert(newNode, at: nodeIndex, tryToMergeWithSiblings: false)
@@ -376,66 +371,6 @@ extension Libxml2 {
         
         override func text() -> String {
             return contents
-        }
-
-        // MARK: - Undo support
-        
-        private func registerUndoForAppend(appendedLength: Int) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            editContext.undoManager.registerUndo(withTarget: self) { target in
-                let endIndex = target.contents.endIndex
-                let range = target.contents.index(endIndex, offsetBy: -appendedLength)..<endIndex
-                
-                target.contents.removeSubrange(range)
-            }
-        }
-        
-        private func registerUndoForDeleteCharacters(inRange subrange: Range<String.Index>) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            let index = subrange.lowerBound
-            let removedContent = contents.substring(with: subrange).characters
-            
-            editContext.undoManager.registerUndo(withTarget: self) { target in
-                target.contents.insert(contentsOf: removedContent, at: index)
-            }
-        }
-        
-        private func registerUndoForPrepend(prependedLength: Int) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            editContext.undoManager.registerUndo(withTarget: self) { target in
-                let startIndex = target.contents.startIndex
-                let range = startIndex ..< target.contents.index(startIndex, offsetBy: prependedLength)
-                
-                target.contents.removeSubrange(range)
-            }
-        }
-        
-        private func registerUndoForReplaceCharacters(in range: Range<String.Index>, withString string: String) {
-            
-            guard let editContext = editContext else {
-                return
-            }
-            
-            let index = range.lowerBound
-            let originalString = contents.substring(with: range)
-            
-            editContext.undoManager.registerUndo(withTarget: self) { target in
-                let newStringRange = index ..< target.contents.index(index, offsetBy: string.characters.count)
-                
-                target.contents.replaceSubrange(newStringRange, with: originalString)
-            }
         }
     }
 }

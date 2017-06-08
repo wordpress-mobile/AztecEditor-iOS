@@ -25,7 +25,7 @@ class NSAttributedStringToNodes: Converter {
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
         let children = createNodes(fromParagraph: attrString)
-        return RootNode(children: children, editContext: nil)
+        return RootNode(children: children)
     }
 
     ///
