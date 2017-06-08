@@ -259,8 +259,8 @@ class EditorDemoController: UIViewController {
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
-            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor),
             richTextView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Constants.margin)
             ])
@@ -281,6 +281,8 @@ class EditorDemoController: UIViewController {
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.textContainerInset.left = Constants.margin
+        textView.textContainerInset.right = Constants.margin
     }
 
     private func registerAttachmentImageProviders() {
