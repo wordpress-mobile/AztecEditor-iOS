@@ -19,6 +19,15 @@ class NSAttributedStringToNodes {
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
 
+    func createNodes(fromText text: NSAttributedString) -> [Node] {
+        var result = [Node]()
+        let ranges = text.paragraphRanges()
+        for range in ranges {
+            let paragraph = text.attributedSubstring(from: range)
+            result.append(contentsOf:createNodes(fromParagraph: paragraph))
+        }
+        return result
+    }
     ///
     ///
     func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
@@ -297,7 +306,7 @@ private extension NSAttributedStringToNodes {
             case .blockquote:
                 return ElementNode(type: .blockquote, children: children)
             case .header(let level):
-                let header = DOMString.elementTypeForHeaderLevel(level) ?? .h1
+                let header = DOMString.elementTypeForHeaderLevel(level) ?? .p
                 return ElementNode(type: header, children: children)
             case .horizontalRule:
                 return ElementNode(type: .hr, children: children)
