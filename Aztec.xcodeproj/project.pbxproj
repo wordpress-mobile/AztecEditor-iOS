@@ -80,7 +80,6 @@
 		F138062A1E3651DC00CFB9ED /* ControlCharacters.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F13806291E3651DC00CFB9ED /* ControlCharacters.rtf */; };
 		F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */; };
-		F15F61C91E0323EC00CD6DD8 /* EditContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F61C81E0323EC00CD6DD8 /* EditContext.swift */; };
 		F16DD2CB1EE99B850083A098 /* HTMLRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16DD2CA1EE99B850083A098 /* HTMLRepresentation.swift */; };
 		F16DD2D31EE99E720083A098 /* HTMLElementRepresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16DD2D21EE99E720083A098 /* HTMLElementRepresentationTests.swift */; };
 		F16DD2D51EE99E820083A098 /* HTMLElementRepresentator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16DD2D41EE99E820083A098 /* HTMLElementRepresentator.swift */; };
@@ -99,6 +98,7 @@
 		F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B981E37F99D007510EA /* Character+Name.swift */; };
 		F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */; };
 		F1C05B9F1E37FD2F007510EA /* NSAttributedString+CharacterName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B9E1E37FD2F007510EA /* NSAttributedString+CharacterName.swift */; };
+		F1C55D9E1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C55D9D1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift */; };
 		F1CF272A1DBA8CDB0001C61D /* DOMString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CF27291DBA8CDB0001C61D /* DOMString.swift */; };
 		F1DB0B511E6EF5E600FB4C75 /* DOMInspectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DB0B501E6EF5E600FB4C75 /* DOMInspectorTests.swift */; };
 		F1DB0B531E6EF8AE00FB4C75 /* DOMEditorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DB0B521E6EF8AE00FB4C75 /* DOMEditorTests.swift */; };
@@ -238,7 +238,6 @@
 		F13806291E3651DC00CFB9ED /* ControlCharacters.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = ControlCharacters.rtf; sourceTree = "<group>"; };
 		F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F15C9B871DD58D8B00833C39 /* ElementNodeDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ElementNodeDescriptor.swift; path = Descriptors/ElementNodeDescriptor.swift; sourceTree = "<group>"; };
-		F15F61C81E0323EC00CD6DD8 /* EditContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditContext.swift; sourceTree = "<group>"; };
 		F16DD2CA1EE99B850083A098 /* HTMLRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLRepresentation.swift; sourceTree = "<group>"; };
 		F16DD2D21EE99E720083A098 /* HTMLElementRepresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLElementRepresentationTests.swift; sourceTree = "<group>"; };
 		F16DD2D41EE99E820083A098 /* HTMLElementRepresentator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLElementRepresentator.swift; sourceTree = "<group>"; };
@@ -258,6 +257,7 @@
 		F1C05B981E37F99D007510EA /* Character+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Character+Name.swift"; sourceTree = "<group>"; };
 		F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CharacterName.swift"; sourceTree = "<group>"; };
 		F1C05B9E1E37FD2F007510EA /* NSAttributedString+CharacterName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+CharacterName.swift"; sourceTree = "<group>"; };
+		F1C55D9D1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributeRepresentationTests.swift; sourceTree = "<group>"; };
 		F1CF27291DBA8CDB0001C61D /* DOMString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMString.swift; sourceTree = "<group>"; };
 		F1DB0B501E6EF5E600FB4C75 /* DOMInspectorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMInspectorTests.swift; sourceTree = "<group>"; };
 		F1DB0B521E6EF8AE00FB4C75 /* DOMEditorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DOMEditorTests.swift; sourceTree = "<group>"; };
@@ -684,6 +684,7 @@
 		F16DD2D11EE99E720083A098 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				F1C55D9D1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift */,
 				F16DD2D21EE99E720083A098 /* HTMLElementRepresentationTests.swift */,
 			);
 			path = HTML;
@@ -980,6 +981,7 @@
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
 				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
 				F1FFB2A11E6058930015ACB8 /* DOMStringTests.swift in Sources */,
+				F1C55D9E1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				F19587D11EA7EEEE0078DD9C /* StringVisualRangeMappingTests.swift in Sources */,
 				F16DD2D31EE99E720083A098 /* HTMLElementRepresentationTests.swift in Sources */,
