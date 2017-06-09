@@ -43,39 +43,6 @@ class NSAttributedStringToNodes: Converter {
 
     ///
     ///
-    private func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let (target, source) = findLowestMatchingNodes(left: left, right: right) else {
-            return false
-        }
-
-        target.children += source.children
-
-        return true
-    }
-
-
-    private func findLowestMatchingNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
-        var currentIndex = 0
-        var match: (ElementNode, ElementNode)?
-
-        while currentIndex < left.count && currentIndex < right.count {
-            let left = left[currentIndex]
-            let right = right[currentIndex]
-
-            guard left.canMergeChildren(of: right) else {
-                break
-            }
-
-            match = (left, right)
-            currentIndex += 1
-        }
-
-        return match
-    }
-
-
-    ///
-    ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> ([Node], [ElementNode]) {
         var children = [Node]()
 
@@ -99,6 +66,46 @@ class NSAttributedStringToNodes: Converter {
         }
 
         return ([theParagraphElement], paragraphNodes)
+    }
+}
+
+
+// MARK: - Restoring Dimensionality
+//
+private extension NSAttributedStringToNodes {
+
+    ///
+    ///
+    func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
+        guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
+            return false
+        }
+
+        target.children += source.children
+
+        return true
+    }
+
+
+    ///
+    ///
+    private func findLowestMergeableNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
+        var currentIndex = 0
+        var match: (ElementNode, ElementNode)?
+
+        while currentIndex < left.count && currentIndex < right.count {
+            let left = left[currentIndex]
+            let right = right[currentIndex]
+
+            guard left.canMergeChildren(of: right) else {
+                break
+            }
+
+            match = (left, right)
+            currentIndex += 1
+        }
+        
+        return match
     }
 }
 
