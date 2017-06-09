@@ -53,12 +53,90 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
         super.setParagraphStyle(obj)
         if let paragrahStyle = obj as? ParagraphStyle {
+            headIndent = 0
+            firstLineHeadIndent = 0
+            tailIndent = 0
+            paragraphSpacing = 0
+            paragraphSpacingBefore = 0
+
+            baseHeadIndent = paragrahStyle.baseHeadIndent
+            baseFistLineHeadIndent = paragrahStyle.baseFistLineHeadIndent
+            baseTailIndent = paragrahStyle.baseTailIndent
+            baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
+            baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
+
             blockquote = paragrahStyle.blockquote
             headerLevel = paragrahStyle.headerLevel
             htmlParagraph = paragrahStyle.htmlParagraph
             textLists = paragrahStyle.textLists
         }
     }
+
+    open override var headIndent: CGFloat {
+        get {
+            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+
+            return baseHeadIndent + extra
+        }
+
+        set {
+            baseHeadIndent = newValue
+        }
+    }
+
+    open override var firstLineHeadIndent: CGFloat {
+        get {
+            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+
+            return baseFistLineHeadIndent + extra
+        }
+
+        set {
+            baseFistLineHeadIndent = newValue
+        }
+    }
+
+    open override var tailIndent: CGFloat {
+        get {
+            let extra: CGFloat = (self.blockquote == nil ? 0 : 1) * Metrics.defaultIndentation
+
+            return baseTailIndent - extra
+        }
+
+        set {
+            baseTailIndent = newValue
+        }
+    }
+
+    open override var paragraphSpacing: CGFloat {
+        get {
+            let extra: CGFloat = (self.blockquote == nil ? 0 : 1) * Metrics.defaultIndentation
+
+            return baseParagraphSpacing + extra
+        }
+
+        set {
+            baseParagraphSpacing = newValue
+        }
+    }
+
+    open override var paragraphSpacingBefore: CGFloat {
+        get {
+            let extra: CGFloat = (self.blockquote == nil ? 0 : 1) * Metrics.defaultIndentation
+
+            return baseParagraphSpacingBefore + extra
+        }
+
+        set {
+            baseParagraphSpacingBefore = newValue
+        }
+    }
+
+    var baseHeadIndent: CGFloat = 0
+    var baseFistLineHeadIndent: CGFloat = 0
+    var baseTailIndent: CGFloat = 0
+    var baseParagraphSpacing: CGFloat = 0
+    var baseParagraphSpacingBefore: CGFloat = 0
 
     open override class var `default`: NSParagraphStyle {
         let style = ParagraphStyle()
