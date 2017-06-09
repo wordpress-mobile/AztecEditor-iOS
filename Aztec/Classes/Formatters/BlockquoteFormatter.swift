@@ -27,11 +27,11 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         }
 
         if newParagraphStyle.blockquote == nil {
-            newParagraphStyle.headIndent += Metrics.defaultIndentation
-            newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
-            newParagraphStyle.tailIndent -= Metrics.defaultIndentation
-            newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
-            newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
+            //newParagraphStyle.headIndent += Metrics.defaultIndentation
+            //newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
+            //newParagraphStyle.tailIndent -= Metrics.defaultIndentation
+            //newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
+            //newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
         }
 
         newParagraphStyle.blockquote = Blockquote()
@@ -50,11 +50,11 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
         let newParagraphStyle = ParagraphStyle()
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.headIndent -= Metrics.defaultIndentation
-        newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
-        newParagraphStyle.tailIndent += Metrics.defaultIndentation
-        newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
-        newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
+        //newParagraphStyle.headIndent -= Metrics.defaultIndentation
+        //newParagraphStyle.firstLineHeadIndent = newParagraphStyle.headIndent
+        //newParagraphStyle.tailIndent += Metrics.defaultIndentation
+        //newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
+        //newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
         newParagraphStyle.blockquote = nil
 
         var resultingAttributes = attributes

@@ -127,7 +127,7 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        let markerRect = rect.offsetBy(dx: style.headIndent - Metrics.listTextIndentation, dy: style.paragraphSpacingBefore)
+        let markerRect = rect.offsetBy(dx: style.headIndent - Metrics.listTextIndentation, dy: style.paragraphSpacingBefore + style.paragraphSpacing)
 
         markerText.draw(in: markerRect)
     }
