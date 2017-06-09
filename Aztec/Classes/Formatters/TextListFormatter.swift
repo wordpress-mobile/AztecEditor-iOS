@@ -34,13 +34,15 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
+        if  increaseDepth || !(newParagraphStyle.has(paragraphHint: ParagraphHint.orderedList) || newParagraphStyle.has(paragraphHint: .unorderedList)) {
             //newParagraphStyle.headIndent += Metrics.listTextIndentation
             //newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            //newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            newParagraphStyle.add(paragraphHint: self.listStyle == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList)
         } else {
-            newParagraphStyle.textLists.removeLast()
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            //newParagraphStyle.textLists.removeLast()
+            //newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            newParagraphStyle.replace(paragraphHint: self.listStyle == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList)
         }
 
         var resultingAttributes = attributes
@@ -51,8 +53,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes: [String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-              let currentList = paragraphStyle.textLists.last,
-              currentList.style == self.listStyle
+              paragraphStyle.has(paragraphHint: self.listStyle == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList)
         else {
             return attributes
         }
@@ -61,7 +62,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
         newParagraphStyle.setParagraphStyle(paragraphStyle)
         //newParagraphStyle.headIndent -= Metrics.listTextIndentation
         //newParagraphStyle.firstLineHeadIndent -= Metrics.listTextIndentation
-        newParagraphStyle.textLists.removeLast()
+        //newParagraphStyle.textLists.removeLast()
+        newParagraphStyle.remove(paragraphHint: self.listStyle == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList)
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -70,18 +72,21 @@ class TextListFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.textLists.last else {
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        //,let list = style.textLists.last 
+        else {
             return false
         }
 
-        return list.style == listStyle
+        return style.has(paragraphHint: self.listStyle == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList)
     }
 
     static func listsOfAnyKindPresent(in attributes: [String: Any]) -> Bool {
         guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
             return false
         }
-        return !(style.textLists.isEmpty)
+        //return !(style.textLists.isEmpty)
+        return style.has(paragraphHint: ParagraphHint.orderedList) || style.has(paragraphHint: .unorderedList)
     }
 }
 

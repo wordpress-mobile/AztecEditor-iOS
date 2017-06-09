@@ -224,10 +224,10 @@ private extension NSAttributedStringToNodes {
             styles.append(.header(level: style.headerLevel))
         }
 
-        for list in style.textLists {
-            if list.style == .ordered {
+        for paragraphHint in style.paragraphHints {
+            if paragraphHint == .orderedList {
                 styles.append(.orderedList)
-            } else {
+            } else if paragraphHint == .unorderedList {
                 styles.append(.unorderedList)
             }
         }

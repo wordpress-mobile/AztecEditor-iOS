@@ -17,14 +17,15 @@ extension NSAttributedString {
 
         var effectiveRange = NSRange()
         let targetRange = rangeOfEntireString
+        let paragraphHint = list.style == .ordered ? ParagraphHint.orderedList : ParagraphHint.unorderedList
         guard
             let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-            let foundList = paragraphStyle.textLists.last,
-            foundList == list
+            let foundParagraphHint = paragraphStyle.deepest(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList]),
+            paragraphHint == foundParagraphHint
         else {
             return nil
         }
-        let listDepth = paragraphStyle.textLists.count
+        let listDepth = paragraphStyle.depth(paragraphHint: paragraphHint)
 
         var resultRange = effectiveRange
         //Note: The effective range will only return the range of the in location NSParagraphStyleAttributed 
@@ -33,12 +34,13 @@ extension NSAttributedString {
         while resultRange.location > 0 {
             guard
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textLists.last
+                let foundParagraphHint = paragraphStyle.deepest(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
             else {
                     break;
             }
-            if ((listDepth == paragraphStyle.textLists.count && foundList == list) ||
-                listDepth < paragraphStyle.textLists.count) {
+            let currentDepth = paragraphStyle.depth(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
+            if ((listDepth == currentDepth && foundParagraphHint == paragraphHint) ||
+                listDepth < currentDepth) {
                resultRange = resultRange.union(withRange: effectiveRange)
             } else {
                 break;
@@ -47,12 +49,13 @@ extension NSAttributedString {
         while resultRange.endLocation < self.length {
             guard
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textLists.last
+                let foundParagraphHint = paragraphStyle.deepest(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
             else {
                 break;
             }
-            if ((listDepth == paragraphStyle.textLists.count && foundList == list) ||
-                listDepth < paragraphStyle.textLists.count) {
+            let currentDepth = paragraphStyle.depth(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
+            if ((listDepth == currentDepth && foundParagraphHint == paragraphHint) ||
+                listDepth < currentDepth) {
                 resultRange = resultRange.union(withRange: effectiveRange)
             } else {
                 break;
@@ -76,7 +79,7 @@ extension NSAttributedString {
             else {
                 return NSNotFound
         }
-        let listDepth = paragraphStyle.textLists.count
+        let listDepth = paragraphStyle.depth(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
         guard let rangeOfList = range(of:list, at: location) else {
             return NSNotFound
         }
@@ -88,7 +91,8 @@ extension NSAttributedString {
                 return numberInList
             }
             if let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
-               listDepth == paragraphStyle.textLists.count {
+               listDepth == paragraphStyle.depth(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
+            {
                 numberInList += 1
             }
         }
@@ -108,7 +112,16 @@ extension NSAttributedString {
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.textLists.last
+        guard
+            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle,
+            let paragraphHint =  paragraphStyle.deepest(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList]) else {
+            return nil
+        }
+        if paragraphHint == .orderedList {
+            return TextList(style: .ordered)
+        } else {
+            return TextList(style: .unordered)
+        }
     }
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
@@ -123,16 +136,23 @@ extension NSAttributedString {
         // whenever the "next substring" has a different set of attributes, the effective range gets cut, even though
         // the attribute is present in the neighbor!
         //
-        var list: TextList?
+        var foundParagraphHint: ParagraphHint?
 
         enumerateAttribute(NSParagraphStyleAttributeName, in: range, options: []) { (attribute, range, stop) in
             if let paragraphStyle = attribute as? ParagraphStyle {
-                list = paragraphStyle.textLists.last
+                foundParagraphHint = paragraphStyle.deepest(paragraphHintsToSearch: [ParagraphHint.orderedList, ParagraphHint.unorderedList])
             }
             stop.pointee = true
         }
-
-        return list
+        guard let paragraphHint = foundParagraphHint else {
+            return nil
+        }
+        if paragraphHint == .orderedList {
+            return TextList(style: .ordered)
+        } else {
+            return TextList(style: .unordered)
+        }
+        return nil
     }
 
     func paragraphRanges(includeParagraphSeparator: Bool = true) -> [NSRange] {

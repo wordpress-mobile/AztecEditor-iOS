@@ -1,13 +1,26 @@
 import Foundation
 import UIKit
 
+enum ParagraphHint: Int {
+    case paragraph
+    case blockquote
+    case orderedList
+    case unorderedList
+    case header1
+    case header2
+    case header3
+    case header4
+    case header5
+    case header6
+}
+
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - CustomReflectable
 
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquote": blockquote as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": textLists as Any])
+            return Mirror(self, children: ["blockquote": blockquote as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any])//, "textList": textLists as Any])
         }
     }
 
@@ -17,23 +30,29 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     var blockquote: Blockquote?
     var htmlParagraph: HTMLParagraph?
-    var textLists: [TextList] = []
+    //var textLists: [TextList] = []
     
     var headerLevel: Int = 0
+
+    var paragraphHints: [ParagraphHint] = []
 
     override init() {
         super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        if let encodedLists = aDecoder.decodeObject(forKey:String(describing: TextList.self)) as? [TextList] {
-            textLists = encodedLists
-        }
+//        if let encodedLists = aDecoder.decodeObject(forKey:String(describing: TextList.self)) as? [TextList] {
+//            textLists = encodedLists
+//        }
         if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
             blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
         }
 
-        aDecoder.decodeInteger(forKey: EncodingKeys.headerLevel.rawValue)
+        headerLevel = aDecoder.decodeInteger(forKey: EncodingKeys.headerLevel.rawValue)
+
+        if let encodedHints = aDecoder.decodeObject(forKey:String(describing: ParagraphHint.self)) as? [ParagraphHint] {
+            paragraphHints = encodedHints
+        }
         
         super.init(coder: aDecoder)
     }
@@ -41,13 +60,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
 
-        aCoder.encode(textLists, forKey: String(describing: TextList.self))
+//        aCoder.encode(textLists, forKey: String(describing: TextList.self))
 
         if let blockquote = self.blockquote {
             aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
         }
 
         aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
+
+        aCoder.encode(paragraphHints, forKey: String(describing: ParagraphHint.self))
     }
 
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
@@ -68,13 +89,18 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             blockquote = paragrahStyle.blockquote
             headerLevel = paragrahStyle.headerLevel
             htmlParagraph = paragrahStyle.htmlParagraph
-            textLists = paragrahStyle.textLists
+//            textLists = paragrahStyle.textLists
+            paragraphHints = paragrahStyle.paragraphHints
         }
+    }
+
+    func calculateExtraHeadIndent() -> CGFloat {
+        return (CGFloat(depth(paragraphHint: .orderedList) + depth(paragraphHint: .unorderedList)) * Metrics.listTextIndentation)
     }
 
     open override var headIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = calculateExtraHeadIndent()
 
             return baseHeadIndent + extra
         }
@@ -86,7 +112,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var firstLineHeadIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = calculateExtraHeadIndent()
 
             return baseFistLineHeadIndent + extra
         }
@@ -163,7 +189,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         if blockquote != otherParagraph.blockquote
             || headerLevel != otherParagraph.headerLevel
             || htmlParagraph != otherParagraph.htmlParagraph
-            || textLists != otherParagraph.textLists {
+//            || textLists != otherParagraph.textLists
+            || paragraphHints != otherParagraph.paragraphHints
+        {
             return false
         }
         
@@ -181,7 +209,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
         copy.htmlParagraph = htmlParagraph
-        copy.textLists = textLists
+//        copy.textLists = textLists
+        copy.paragraphHints = paragraphHints
 
         return copy
     }
@@ -193,7 +222,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         copy.blockquote = blockquote
         copy.headerLevel = headerLevel
         copy.htmlParagraph = htmlParagraph
-        copy.textLists = textLists
+//        copy.textLists = textLists
+        copy.paragraphHints = paragraphHints
 
         return copy
     }
@@ -203,11 +233,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         if blockquote != nil {
             hash = hash ^ String(describing: Blockquote.self).hashValue
         }
-        for list in textLists {
-            hash = hash ^ list.style.hashValue
-        }
+//        for list in textLists {
+//            hash = hash ^ list.style.hashValue
+//        }
 
         hash = hash ^ headerLevel.hashValue
+
+        for hint in paragraphHints {
+            hash = hash ^ hint.hashValue
+        }
         return hash
     }
 
@@ -216,6 +250,78 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(textLists)"
+        return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph))"//,\n TextLists: \(textLists)"
     }
+
+    func has(paragraphHint: ParagraphHint) -> Bool {
+        return paragraphHints.contains(paragraphHint)
+    }
+
+    func remove(paragraphHint: ParagraphHint) {
+        let pos = positionOfFirst(paragraphHint: paragraphHint)
+        if (pos != NSNotFound) {
+            paragraphHints.remove(at: pos)
+        }
+    }
+
+    func positionOfFirst(paragraphHint: ParagraphHint) -> Int {
+        var pos = NSNotFound
+        for i in (0..<paragraphHints.count).reversed() {
+            if paragraphHints[i] == paragraphHint {
+                pos = i
+                break
+            }
+        }
+        return pos
+    }
+
+    func add(paragraphHint: ParagraphHint) {
+        paragraphHints.append(paragraphHint)
+    }
+
+    func replace(paragraphHint: ParagraphHint) {
+        let pos = positionOfFirst(paragraphHint: paragraphHint)
+        if (pos != NSNotFound) {
+            paragraphHints[pos] = paragraphHint
+        }
+    }
+
+    func depth(paragraphHint: ParagraphHint) -> Int {
+        var depth = 0
+        for loopParagraphHint in paragraphHints {
+            if paragraphHint == loopParagraphHint {
+                depth += 1
+            }
+        }
+        return depth
+    }
+
+    func depth(paragraphHintsToSearch: Set<ParagraphHint>) -> Int {
+        var depth = 0
+        for loopParagraphHint in paragraphHints {
+            if paragraphHintsToSearch.contains(loopParagraphHint) {
+                depth += 1
+            }
+        }
+        return depth
+    }
+
+    func deepest(paragraphHint: ParagraphHint) -> ParagraphHint? {        
+        for loopParagrahHint in paragraphHints.reversed() {
+            if loopParagrahHint == paragraphHint {
+                return loopParagrahHint
+            }
+        }
+        return nil
+    }
+
+    func deepest(paragraphHintsToSearch: Set<ParagraphHint>) -> ParagraphHint? {
+        for loopParagrahHint in paragraphHints.reversed() {
+            if paragraphHintsToSearch.contains(loopParagrahHint) {
+                return loopParagrahHint
+            }
+        }
+        return nil
+    }
+
 }

@@ -515,16 +515,14 @@
 		599F252E1D8BC9A1002871D6 /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
-				FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */,
+				FF07C9951EEAB40000134E31 /* ParagraphAttributes */,
 				B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */,
 				B572AC271E817CFE008948C2 /* CommentAttachment.swift */,
 				B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */,
-				F1ABC1B21EAE2816002E52FE /* HTMLParagraph.swift */,
 				FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */,
 				599F25301D8BC9A1002871D6 /* MediaAttachment.swift */,
 				FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */,
 				FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */,
-				B5BC4FF51DA2D76600614582 /* TextList.swift */,
 				599F25311D8BC9A1002871D6 /* TextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
 				E109B51B1DC33F2C0099605E /* LayoutManager.swift */,
@@ -732,6 +730,16 @@
 				F1FA0E801E6EF514009D98EE /* TextNode.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		FF07C9951EEAB40000134E31 /* ParagraphAttributes */ = {
+			isa = PBXGroup;
+			children = (
+				FF7C89A71E3A2B7C000472A8 /* Blockquote.swift */,
+				F1ABC1B21EAE2816002E52FE /* HTMLParagraph.swift */,
+				B5BC4FF51DA2D76600614582 /* TextList.swift */,
+			);
+			name = ParagraphAttributes;
 			sourceTree = "<group>";
 		};
 		FF20D63C1EDC389A00294B78 /* Processor */ = {
