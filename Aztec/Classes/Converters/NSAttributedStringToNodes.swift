@@ -30,10 +30,11 @@ class NSAttributedStringToNodes: Converter {
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             let (children, paragraphStyles) = createNodes(fromParagraph: paragraph)
 
-            if !merge(left: previousParagraphStyles, right: paragraphStyles) {
-                nodes += children
+            guard !merge(left: previousParagraphStyles, right: paragraphStyles) else {
+                return
             }
 
+            nodes += children
             previousParagraphStyles = paragraphStyles
         }
 
