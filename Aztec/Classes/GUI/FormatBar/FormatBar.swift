@@ -288,7 +288,7 @@ private extension FormatBar {
     /// Overflow items will be hidden by default.
     ///
     func populateItems() {
-        scrollableStackView.removeArrangedSubviews(scrollableStackView.arrangedSubviews)
+        scrollableStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         for items in defaultItems {
             scrollableStackView.addArrangedSubviews(items)
