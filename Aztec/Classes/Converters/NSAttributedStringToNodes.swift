@@ -22,10 +22,18 @@ class NSAttributedStringToNodes: Converter {
     ///
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
+        var previousParagraphStyles = [ElementNode]()
         var nodes = [Node]()
+
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
-            nodes += createNodes(fromParagraph: paragraph)
+            let (children, paragraphStyles) = createNodes(fromParagraph: paragraph)
+
+            if !merge(left: previousParagraphStyles, right: paragraphStyles) {
+                nodes += children
+            }
+
+            previousParagraphStyles = paragraphStyles
         }
 
         return RootNode(children: nodes)
@@ -34,11 +42,47 @@ class NSAttributedStringToNodes: Converter {
 
     ///
     ///
-    private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
+    private func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
+        guard let (target, source) = findLowestMatchingNodes(left: left, right: right) else {
+            return false
+        }
+
+        target.children += source.children
+
+        return true
+    }
+
+
+    private func findLowestMatchingNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
+        var currentIndex = 0
+        var match: (ElementNode, ElementNode)?
+
+        while currentIndex < left.count && currentIndex < right.count {
+            let left = left[currentIndex]
+            let right = right[currentIndex]
+
+            let leftAttributes = Set(arrayLiteral: left.attributes)
+            let rightAttributes = Set(arrayLiteral: right.attributes)
+
+            if left.name != right.name || left.attributes != right.attributes {
+                break
+            }
+
+            match = (left, right)
+            currentIndex += 1
+        }
+
+        return match
+    }
+
+
+    ///
+    ///
+    private func createNodes(fromParagraph paragraph: NSAttributedString) -> ([Node], [ElementNode]) {
         var children = [Node]()
 
         guard paragraph.length > 0 else {
-            return []
+            return ([], [])
         }
 
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
@@ -50,11 +94,13 @@ class NSAttributedStringToNodes: Converter {
             children.append(contentsOf: nodes)
         }
 
-        guard let paragraphElement = createParagraphElement(from: paragraph, children: children) else {
-            return children
+        let (paragraphElement, paragraphNodes) = createParagraphElement(from: paragraph, children: children)
+
+        guard let theParagraphElement = paragraphElement else {
+            return (children, [])
         }
 
-        return [paragraphElement]
+        return ([theParagraphElement], paragraphNodes)
     }
 }
 
@@ -67,23 +113,26 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Parameters:
     ///     - attrString: AttributedString from which we intend to extract the ElementNode
-    ///     - childre: Array of Node instances to be set as children
+    ///     - children: Array of Node instances to be set as children
     ///
     /// - Returns: the root ElementNode
     ///
-    func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> ElementNode? {
+    func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> (ElementNode?, [ElementNode]) {
         guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-            return nil
+            return (nil, [])
         }
 
         var lastNodes: [ElementNode]?
+        var elements = [ElementNode]()
 
         enumerateParagraphNodes(in: paragraphStyle) { node in
             node.children = lastNodes ?? children
             lastNodes = [node]
+
+            elements.insert(node, at: 0)
         }
 
-        return lastNodes?.first
+        return (lastNodes?.first, elements)
     }
 
 
@@ -150,16 +199,16 @@ private extension NSAttributedStringToNodes {
             block( ElementNode(type: header) )
         }
 
+        if !style.textLists.isEmpty {
+            block( ElementNode(type: .li) )
+        }
+
         for list in style.textLists {
             if list.style == .ordered {
                 block( ElementNode(type: .ol) )
             } else {
                 block( ElementNode(type: .ul) )
             }
-        }
-
-        if !style.textLists.isEmpty {
-            block( ElementNode(type: .li) )
         }
     }
 
@@ -229,8 +278,8 @@ private extension NSAttributedStringToNodes {
 
         guard let rootNode = try? converter.convert(attachment.rawHTML),
             let firstChild = rootNode.children.first
-            else {
-                return textToNode(attachment.rawHTML)
+        else {
+            return textToNode(attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
