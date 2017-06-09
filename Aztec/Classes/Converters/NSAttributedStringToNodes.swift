@@ -159,27 +159,19 @@ private extension NSAttributedStringToNodes {
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
         let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
-        var leafs = [Node]()
 
         switch attachment {
         case let lineAttachment as LineAttachment:
-            let node = lineAttachmentToNode(lineAttachment)
-            leafs.append(node)
+            return lineAttachmentToNodes(lineAttachment)
         case let commentAttachment as CommentAttachment:
-            let node = commentAttachmentToNode(commentAttachment)
-            leafs.append(node)
+            return commentAttachmentToNodes(commentAttachment)
         case let htmlAttachment as HTMLAttachment:
-            let nodes = htmlAttachmentToNode(htmlAttachment)
-            leafs.append(contentsOf: nodes)
+            return htmlAttachmentToNode(htmlAttachment)
         case let imageAttachment as ImageAttachment:
-            let node = imageAttachmentToNode(imageAttachment)
-            leafs.append(node)
+            return imageAttachmentToNodes(imageAttachment)
         default:
-            let nodes = textToNode(attrString.string)
-            leafs.append(contentsOf: nodes)
+            return textToNodes(attrString.string)
         }
-
-        return leafs
     }
 }
 
@@ -192,28 +184,29 @@ private extension NSAttributedStringToNodes {
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
         if style.blockquote != nil {
-            block( ElementNode(type: .blockquote) )
+            let node = ElementNode(type: .blockquote)
+            block(node)
         }
 
         if style.htmlParagraph != nil {
-            block( ElementNode(type: .p) )
+            let node = ElementNode(type: .p)
+            block(node)
         }
 
         if style.headerLevel > 0 {
-            let header = DOMString.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
-            block( ElementNode(type: header) )
+            let type = DOMString.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
+            let node = ElementNode(type: type)
+            block(node)
         }
 
         if !style.textLists.isEmpty {
-            block( ElementNode(type: .li) )
+            let node = ElementNode(type: .li)
+            block(node)
         }
 
         for list in style.textLists {
-            if list.style == .ordered {
-                block( ElementNode(type: .ol) )
-            } else {
-                block( ElementNode(type: .ul) )
-            }
+            let node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+            block(node)
         }
     }
 
@@ -229,11 +222,13 @@ private extension NSAttributedStringToNodes {
                 }
 
                 if font.containsTraits(.traitBold) == true {
-                    block( ElementNode(type: .b) )
+                    let node = ElementNode(type: .b)
+                    block(node)
                 }
 
                 if font.containsTraits(.traitItalic) == true {
-                    block( ElementNode(type: .i) )
+                    let node = ElementNode(type: .i)
+                    block(node)
                 }
 
             case NSLinkAttributeName:
@@ -242,13 +237,16 @@ private extension NSAttributedStringToNodes {
                 }
 
                 let source = StringAttribute(name: "href", value: url.absoluteString)
-                block( ElementNode(type: .a, attributes: [source]) )
+                let node = ElementNode(type: .a, attributes: [source])
+                block(node)
 
             case NSStrikethroughStyleAttributeName:
-                block( ElementNode(type: .strike) )
+                let node = ElementNode(type: .strike)
+                block(node)
 
             case NSUnderlineStyleAttributeName:
-                block( ElementNode(type: .u) )
+                let node = ElementNode(type: .u)
+                block(node)
 
             default:
                 break
@@ -264,15 +262,17 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    func lineAttachmentToNode(_ lineAttachment: LineAttachment) -> ElementNode {
-        return ElementNode(type: .hr)
+    func lineAttachmentToNodes(_ lineAttachment: LineAttachment) -> [Node] {
+        let node = ElementNode(type: .hr)
+        return [node]
     }
 
 
     ///
     ///
-    func commentAttachmentToNode(_ attachment: CommentAttachment) -> CommentNode {
-        return CommentNode(text: attachment.text)
+    func commentAttachmentToNodes(_ attachment: CommentAttachment) -> [Node] {
+        let node = CommentNode(text: attachment.text)
+        return [node]
     }
 
 
@@ -284,12 +284,12 @@ private extension NSAttributedStringToNodes {
         guard let rootNode = try? converter.convert(attachment.rawHTML),
             let firstChild = rootNode.children.first
         else {
-            return textToNode(attachment.rawHTML)
+            return textToNodes(attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
-            let spanElement = ElementNode(type: .span, attributes: [], children: rootNode.children)
-            return [spanElement]
+            let node = ElementNode(type: .span, attributes: [], children: rootNode.children)
+            return [node]
         }
 
         return [firstChild]
@@ -298,20 +298,21 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    func imageAttachmentToNode(_ attachment: ImageAttachment) -> ElementNode {
+    func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
         var attributes = [Attribute]()
-        if let url = attachment.url {
-            let source = StringAttribute(name: "src", value: url.absoluteString)
-            attributes.append(source)
+        if let source = attachment.url?.absoluteString {
+            let attribute = StringAttribute(name: "src", value: source)
+            attributes.append(attribute)
         }
 
-        return ElementNode(type: .img, attributes: attributes)
+        let node = ElementNode(type: .img, attributes: attributes)
+        return [node]
     }
 
 
     ///
     ///
-    func textToNode(_ text: String) -> [Node] {
+    func textToNodes(_ text: String) -> [Node] {
         let substrings = text.components(separatedBy: String(.newline))
         var output = [Node]()
 
@@ -321,8 +322,8 @@ private extension NSAttributedStringToNodes {
                 output.append(newline)
             }
 
-            let text = TextNode(text: substring)
-            output.append(text)
+            let node = TextNode(text: substring)
+            output.append(node)
         }
         
         return output
