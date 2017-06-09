@@ -75,8 +75,8 @@ private extension NSAttributedStringToNodes {
     ///
     ///
     func merge(left: [Node], right: [Node]) -> Bool {
-        let left = paragraphStyleElements(from: left)
-        let right = paragraphStyleElements(from: right)
+        let left = rightMostParagraphStyleElements(from: left)
+        let right = leftMostParagraphStyleElements(from: right)
 
         guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
             return false
@@ -112,9 +112,28 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    private func paragraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+    private func rightMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.last
+        }
+    }
+
+
+    ///
+    ///
+    private func leftMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.first
+        }
+    }
+
+
+    ///
+    ///
+    private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
         var elements = [ElementNode]()
-        var nextElement = nodes.first as? ElementNode
+        var nextElement = childPicker(nodes) as? ElementNode
+
 
         while let currentElement = nextElement {
             guard currentElement.isBlockLevelElement() else {
@@ -122,7 +141,7 @@ private extension NSAttributedStringToNodes {
             }
 
             elements.append(currentElement)
-            nextElement = currentElement.children.first as? ElementNode
+            nextElement = childPicker(currentElement.children) as? ElementNode
         }
 
         return elements
