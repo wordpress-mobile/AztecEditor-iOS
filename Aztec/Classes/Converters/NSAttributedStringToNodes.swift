@@ -17,6 +17,7 @@ class NSAttributedStringToNodes: Converter {
     typealias DOMString = Libxml2.DOMString
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
+    typealias StandardElementType = Libxml2.StandardElementType
 
 
     ///
@@ -61,10 +62,7 @@ class NSAttributedStringToNodes: Converter {
             let left = left[currentIndex]
             let right = right[currentIndex]
 
-            let leftAttributes = Set(arrayLiteral: left.attributes)
-            let rightAttributes = Set(arrayLiteral: right.attributes)
-
-            if left.name != right.name || left.attributes != right.attributes {
+            guard left.canMergeChildren(of: right) else {
                 break
             }
 
