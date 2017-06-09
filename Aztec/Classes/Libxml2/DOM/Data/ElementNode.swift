@@ -18,6 +18,7 @@ extension Libxml2 {
         }
 
         private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
+        private static let mergeableElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .blockquote]
 
         internal var standardName: StandardElementType? {
             get {
@@ -198,6 +199,22 @@ extension Libxml2 {
         func lastChild(matching filter: (Node) -> Bool) -> Node? {
             return children.filter(filter).last
         }
+
+
+        ///
+        ///
+        func canMergeChildren(of node: ElementNode) -> Bool {
+            guard name == node.name && Set(attributes) == Set(node.attributes) else {
+                return false
+            }
+
+            guard let standardName = self.standardName else {
+                return false
+            }
+
+            return ElementNode.mergeableElements.contains(standardName)
+        }
+
 
         // MARK: - DOM Queries
         
