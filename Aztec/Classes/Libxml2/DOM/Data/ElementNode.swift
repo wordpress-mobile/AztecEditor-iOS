@@ -10,7 +10,7 @@ extension Libxml2 {
         var attributes = [Attribute]()
         var children: [Node] {
             didSet {
-                for child in children {
+                for child in children where child.parent != self {
                     child.parent?.remove(child)
                     child.parent = self
                 }
