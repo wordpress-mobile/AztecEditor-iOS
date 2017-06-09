@@ -23,19 +23,18 @@ class NSAttributedStringToNodes: Converter {
     ///
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
-        var previousParagraphStyles = [ElementNode]()
+        var previous = [Node]()
         var nodes = [Node]()
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
-            let (children, paragraphStyles) = createNodes(fromParagraph: paragraph)
+            let children = createNodes(fromParagraph: paragraph)
 
-            guard !merge(left: previousParagraphStyles, right: paragraphStyles) else {
+            guard !merge(left: previous, right: children) else {
                 return
             }
-
             nodes += children
-            previousParagraphStyles = paragraphStyles
+            previous = children
         }
 
         return RootNode(children: nodes)
@@ -44,11 +43,11 @@ class NSAttributedStringToNodes: Converter {
 
     ///
     ///
-    private func createNodes(fromParagraph paragraph: NSAttributedString) -> ([Node], [ElementNode]) {
+    private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
         var children = [Node]()
 
         guard paragraph.length > 0 else {
-            return ([], [])
+            return []
         }
 
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
@@ -60,13 +59,11 @@ class NSAttributedStringToNodes: Converter {
             children.append(contentsOf: nodes)
         }
 
-        let (paragraphElement, paragraphNodes) = createParagraphElement(from: paragraph, children: children)
-
-        guard let theParagraphElement = paragraphElement else {
-            return (children, [])
+        guard let paragraphElement = createParagraphElement(from: paragraph, children: children) else {
+            return children
         }
 
-        return ([theParagraphElement], paragraphNodes)
+        return [paragraphElement]
     }
 }
 
@@ -77,7 +74,10 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
+    func merge(left: [Node], right: [Node]) -> Bool {
+        let left = paragraphStyleElements(from: left)
+        let right = paragraphStyleElements(from: right)
+
         guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
             return false
         }
@@ -108,6 +108,25 @@ private extension NSAttributedStringToNodes {
         
         return match
     }
+
+
+    ///
+    ///
+    private func paragraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        var elements = [ElementNode]()
+        var nextElement = nodes.first as? ElementNode
+
+        while let currentElement = nextElement {
+            guard currentElement.isBlockLevelElement() else {
+                break
+            }
+
+            elements.append(currentElement)
+            nextElement = currentElement.children.first as? ElementNode
+        }
+
+        return elements
+    }
 }
 
 
@@ -123,22 +142,19 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Returns: the root ElementNode
     ///
-    func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> (ElementNode?, [ElementNode]) {
+    func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> ElementNode? {
         guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-            return (nil, [])
+            return nil
         }
 
         var lastNodes: [ElementNode]?
-        var elements = [ElementNode]()
 
         enumerateParagraphNodes(in: paragraphStyle) { node in
             node.children = lastNodes ?? children
             lastNodes = [node]
-
-            elements.insert(node, at: 0)
         }
 
-        return (lastNodes?.first, elements)
+        return lastNodes?.first
     }
 
 
