@@ -266,14 +266,12 @@ open class FormatBar: UIView {
             items.forEach({ $0.isHidden = !visible })
         }
 
-        if animated {
+        // Currently only doing the pop animation for appearance
+        if animated && visible {
             UIView.animate(withDuration: Animations.durationLong, animations: toggleVisibility)
 
-            // Currently only doing the pop animation for appearance
-            if visible {
-                for (index, item) in items.enumerated() {
-                    animate(item: item, visible: visible, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
-                }
+            for (index, item) in items.enumerated() {
+                animate(item: item, visible: visible, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
             }
         } else {
             toggleVisibility()
