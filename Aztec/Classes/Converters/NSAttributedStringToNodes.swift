@@ -30,7 +30,10 @@ class NSAttributedStringToNodes: Converter {
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             let children = createNodes(fromParagraph: paragraph)
 
-            guard !merge(left: previous, right: children) else {
+            let left = rightMostParagraphStyleElements(from: previous)
+            let right = leftMostParagraphStyleElements(from: children)
+
+            guard !merge(left: left, right: right) else {
                 return
             }
             nodes += children
@@ -74,10 +77,7 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    func merge(left: [Node], right: [Node]) -> Bool {
-        let left = rightMostParagraphStyleElements(from: left)
-        let right = leftMostParagraphStyleElements(from: right)
-
+    func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
         guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
             return false
         }
@@ -85,6 +85,24 @@ private extension NSAttributedStringToNodes {
         target.children += source.children
 
         return true
+    }
+
+
+    ///
+    ///
+    func rightMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.last
+        }
+    }
+
+
+    ///
+    ///
+    func leftMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.first
+        }
     }
 
 
@@ -107,24 +125,6 @@ private extension NSAttributedStringToNodes {
         }
         
         return match
-    }
-
-
-    ///
-    ///
-    private func rightMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.last
-        }
-    }
-
-
-    ///
-    ///
-    private func leftMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.first
-        }
     }
 
 
