@@ -27,23 +27,21 @@ class NSAttributedStringToNodes: Converter {
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
         var nodes = [Node]()
-        var previous: [Node]?
+        var previous = [Node]()
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             let children = createNodes(fromParagraph: paragraph)
 
-            if let previous = previous {
-                let left = rightmostParagraphStyleElements(from: previous)
-                let right = leftmostParagraphStyleElements(from: children)
+            let left = rightmostParagraphStyleElements(from: previous)
+            let right = leftmostParagraphStyleElements(from: children)
 
-                guard !merge(left: left, right: right) else {
-                    return
-                }
+            guard !merge(left: left, right: right) else {
+                return
+            }
 
-                if left.count == 0 && right.count == 0 {
-                    nodes += [ ElementNode(type: .br) ]
-                }
+            if !previous.isEmpty && left.count == 0 && right.count == 0 {
+                nodes += [ ElementNode(type: .br) ]
             }
 
             nodes += children
