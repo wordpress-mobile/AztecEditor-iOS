@@ -56,14 +56,9 @@ open class HTMLAttachment: NSTextAttachment {
     open func prettyHTML() -> String {
         let inParser = Libxml2.In.HTMLConverter()
         let outParser = Libxml2.Out.HTMLConverter(prettyPrint: true)
-        do {
-            let inNode = try inParser.convert(rawHTML)
-            return outParser.convert(inNode)
-        } catch {
-            assertionFailure("Error converting Raw HTML to Pretty Format: \(error)")
-        }
 
-        return rawHTML
+        let inNode = inParser.convert(rawHTML)
+        return outParser.convert(inNode)
     }
 
     // MARK: - NSCoder Methods
