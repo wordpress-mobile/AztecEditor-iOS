@@ -19,7 +19,8 @@ class NSAttributedStringToNodesTests: XCTestCase {
     ///
     private struct Constants {
         static let sampleAttributes: [String : Any] = [
-            NSFontAttributeName: UIFont.systemFont(ofSize: UIFont.systemFontSize)
+            NSFontAttributeName: UIFont.systemFont(ofSize: UIFont.systemFontSize),
+            NSParagraphStyleAttributeName: NSParagraphStyle()
         ]
     }
 
@@ -85,10 +86,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
     ///
     func testStrikeStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = StrikethroughFormatter().apply(to: Constants.sampleAttributes)
-        let string = NSAttributedString(string: "Strike!", attributes: attributes)
+        let testingString = NSAttributedString(string: "Strike!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
+        let node = rootNode(from: testingString)
         XCTAssert(node.children.count == 1)
 
         let strike = node.children.first as? ElementNode
@@ -96,7 +97,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssert(strike?.children.count == 1)
 
         let text = strike?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, string.string)
+        XCTAssertEqual(text?.contents, testingString.string)
     }
 
 
@@ -107,10 +108,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
         formatter.attributeValue = URL(string: "www.yosemite.com") as Any
 
         let attributes = formatter.apply(to: Constants.sampleAttributes)
-        let string = NSAttributedString(string: "Yo! Yose! Yosemite!", attributes: attributes)
+        let testingString = NSAttributedString(string: "Yo! Yose! Yosemite!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
+        let node = rootNode(from: testingString)
         XCTAssert(node.children.count == 1)
 
         let link = node.children.first as? ElementNode
@@ -118,7 +119,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssert(link?.children.count == 1)
 
         let text = link?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, string.string)
+        XCTAssertEqual(text?.contents, testingString.string)
     }
 
 
@@ -131,10 +132,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let attributes = TextListFormatter(style: .ordered).apply(to: Constants.sampleAttributes)
 
         let text = firstText + String(.newline) + secondText
-        let string = NSMutableAttributedString(string: text, attributes: attributes)
+        let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
+        let node = rootNode(from: testingString)
         XCTAssert(node.children.count == 1)
 
         let list = node.children.first as? ElementNode
@@ -156,52 +157,148 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-//    ///
-//    ///
-//    func testCommentsArePreservedAndSerializedBack() {
-//        let input = "<!-- I'm a comment. YEAH --><ul><li>Item</li></ul><!-- Tail Comment -->"
-//        let expected = input
-//
-//        let generated = generatedHTML(input: input)
-//        XCTAssertEqual(generated, expected)
-//    }
-//
-//
-//    ///
-//    ///
-//    func testUnknownHtmlDoesNotGetNuked() {
-//        let input = "<table><tr><td>ROW ROW</td></tr></table><ul><li>Item</li></ul><!-- Tail Comment -->"
-//        let expected = input
-//
-//        let generated = generatedHTML(input: input)
-//        XCTAssertEqual(generated, expected)
-//    }
-//
-//
-//    ///
-//    ///
-//    func testHeaderElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
-//        for level in 1...6 {
-//            let input = "<h\(level)>Aztec Rocks</h\(level)>Newline!"
-//            let expected = input
-//
-//            let generated = generatedHTML(input: input)
-//            XCTAssertEqual(generated, expected)
-//        }
-//    }
-//
-//
-//    ///
-//    ///
-//    func testLineElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
-//        let input = "<hr>I'm a text line<hr>I'm another text line<hr>And i'm a third one"
-//        let expected = "<hr>I&apos;m a text line<hr>I&apos;m another text line<hr>And i&apos;m a third one"
-//
-//        let generated = generatedHTML(input: input)
-//        XCTAssertEqual(generated, expected)
-//    }
-//
-//
+    ///
+    ///
+    func testCommentsArePreservedAndSerializedBack() {
+        let attachment = CommentAttachment()
+        attachment.text = "I'm a comment. YEAH!"
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+
+        let text = "Payload here"
+        let testingString = NSMutableAttributedString(string: text)
+        testingString.insert(stringWithAttachment, at: 0)
+        testingString.append(stringWithAttachment)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 3)
+
+        guard let headNode = node.children[0] as? CommentNode,
+            let textNode = node.children[1] as? TextNode,
+            let tailNode = node.children[2] as? CommentNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(headNode.comment, attachment.text)
+        XCTAssertEqual(tailNode.comment, attachment.text)
+        XCTAssertEqual(textNode.contents, text)
+    }
+
+
+    ///
+    ///
+    func testLineElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
+        let attachment = LineAttachment()
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        let stringWithText = NSAttributedString(string: "I'm a text line")
+
+        let testingString = NSMutableAttributedString()
+
+        testingString.append(stringWithAttachment)
+        testingString.append(stringWithText)
+        testingString.append(stringWithAttachment)
+        testingString.append(stringWithText)
+        testingString.append(stringWithAttachment)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 5)
+
+        guard let firstLine = node.children[0] as? ElementNode,
+            let firstText = node.children[1] as? TextNode,
+            let secondLine = node.children[2] as? ElementNode,
+            let secondText = node.children[3] as? TextNode,
+            let thirdLine = node.children[4] as? ElementNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(firstLine.name, "hr")
+        XCTAssertEqual(secondLine.name, "hr")
+        XCTAssertEqual(thirdLine.name, "hr")
+        XCTAssertEqual(firstText.contents, stringWithText.string)
+        XCTAssertEqual(secondText.contents, stringWithText.string)
+    }
+
+
+    ///
+    ///
+    func testHeaderElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
+
+        let levels: [HeaderFormatter.HeaderType] = [.h1, .h2, .h3, .h4, .h5, .h6]
+
+        for level in levels {
+            let formatter = HeaderFormatter(headerLevel: level, placeholderAttributes: [:])
+
+            let headingStyle = formatter.apply(to: Constants.sampleAttributes)
+            let headingText = NSAttributedString(string: "Aztec Rocks\n", attributes: headingStyle)
+            let regularText = NSAttributedString(string: "Newline?", attributes: Constants.sampleAttributes)
+
+            let testingString = NSMutableAttributedString()
+            testingString.append(headingText)
+            testingString.append(regularText)
+
+            // Convert + Verify
+            let node = rootNode(from: testingString)
+            XCTAssert(node.children.count == 2)
+
+            guard let headerNode = node.children[0] as? ElementNode,
+                let headerTextNode = headerNode.children[0] as? TextNode,
+                let regularTextNode = node.children[1] as? TextNode
+            else {
+                XCTFail()
+                return
+            }
+
+            XCTAssertEqual(headerNode.name, "h\(level.rawValue)")
+            XCTAssertEqual(headerTextNode.contents, "Aztec Rocks")
+            XCTAssertEqual(regularTextNode.contents, "Newline?")
+        }
+    }
+
+
+    ///
+    ///
+    func testUnknownHtmlDoesNotGetNuked() {
+        let htmlAttachment = HTMLAttachment()
+        htmlAttachment.rawHTML = "<table><tr><td>ROW ROW</td></tr></table>"
+
+        let commentAttachment = CommentAttachment()
+        commentAttachment.text = "Tail Comment"
+
+        let htmlString = NSAttributedString(attachment: htmlAttachment)
+        let textString = NSAttributedString(string: "Some Text here?")
+        let commentString = NSAttributedString(attachment: commentAttachment)
+
+        let testingString = NSMutableAttributedString()
+        testingString.append(htmlString)
+        testingString.append(textString)
+        testingString.append(commentString)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 3)
+
+        guard let htmlNode = node.children[0] as? ElementNode,
+            let textNode = node.children[1] as? TextNode,
+            let commentNode = node.children[2] as? CommentNode
+        else {
+            XCTFail()
+            return
+        }
+
+        let reconvertedHTML = Libxml2.Out.HTMLConverter().convert(htmlNode)
+
+        XCTAssertEqual(reconvertedHTML, htmlAttachment.rawHTML)
+        XCTAssertEqual(textNode.contents, textString.string)
+        XCTAssertEqual(commentNode.comment, commentAttachment.text)
+    }
+
+
 //    ///
 //    ///
 //    func testContiguousUnorderedListsGetHeirItemsmerged() {
@@ -214,7 +311,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
 //
 //
 //    ///
-//    //
+//    ///
 //    func testSomething2() {
 //        let input = "<blockquote><ul><li>First Line</li></ul></blockquote><blockquote><ul><li>Second Line</li></ul></blockquote>"
 //        let expected = "<blockquote><ul><li>First Line</li><li>Second Line</li></ul></blockquote>"
