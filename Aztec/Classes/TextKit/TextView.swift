@@ -180,7 +180,7 @@ open class TextView: UITextView {
         
         self.defaultFont = defaultFont
         self.defaultMissingImage = defaultMissingImage
-        
+
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
