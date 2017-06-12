@@ -173,9 +173,6 @@ open class FormatBar: UIView {
     ///
     override open var bounds: CGRect {
         didSet {
-            // Note: Under certain conditions, frame.didSet might get called instead of bounds.didSet.
-            // We're observing both for that reason!
-            refreshScrollingLock()
         }
     }
 
@@ -184,9 +181,6 @@ open class FormatBar: UIView {
     ///
     override open var frame: CGRect {
         didSet {
-            // Note: Under certain conditions, frame.didSet might get called instead of bounds.didSet.
-            // We're observing both for that reason!
-            refreshScrollingLock()
         }
     }
 
@@ -222,7 +216,6 @@ open class FormatBar: UIView {
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        refreshScrollingLock()
     }
 
 
@@ -254,8 +247,6 @@ open class FormatBar: UIView {
         setOverflowItemsVisible(shouldExpand)
 
         rotateOverflowToggleItem(direction, animated: true)
-
-        refreshScrollingLock()
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -352,7 +343,7 @@ private extension FormatBar {
     func configure(scrollView: UIScrollView) {
         scrollView.isScrollEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
-        scrollView.alwaysBounceHorizontal = true
+        scrollView.alwaysBounceHorizontal = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
         // Add padding at the end to account for overflow button
@@ -397,17 +388,7 @@ private extension FormatBar {
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
             ])
     }
-
-
-    /// Disables scrolling whenever there's no actual overflow
-    ///
-    func refreshScrollingLock() {
-        layoutIfNeeded()
-
-        scrollView.isScrollEnabled = scrollView.contentSize.width > scrollView.frame.width
-    }
 }
-
 
 
 // MARK: - Animation Helpers
