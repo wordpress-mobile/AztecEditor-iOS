@@ -26,8 +26,8 @@ class NSAttributedStringToNodes: Converter {
     /// -   Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
-        var previous = [Node]()
         var nodes = [Node]()
+        var previous = [Node]()
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
@@ -39,6 +39,11 @@ class NSAttributedStringToNodes: Converter {
             guard !merge(left: left, right: right) else {
                 return
             }
+
+            if !previous.isEmpty && left.count == 0 && right.count == 0 {
+                nodes += [ ElementNode(type: .br) ]
+            }
+
             nodes += children
             previous = children
         }
