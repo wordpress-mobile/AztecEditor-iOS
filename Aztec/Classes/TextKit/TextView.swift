@@ -180,7 +180,7 @@ open class TextView: UITextView {
         
         self.defaultFont = defaultFont
         self.defaultMissingImage = defaultMissingImage
-        
+
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
@@ -190,7 +190,6 @@ open class TextView: UITextView {
         container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
-        storage.undoManager = undoManager
         commonInit()
     }
 

@@ -67,10 +67,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
-        if newParagraphStyle.headerLevel == .none  && headerLevel != .none {
-            newParagraphStyle.paragraphSpacing += Metrics.defaultIndentation
-            newParagraphStyle.paragraphSpacingBefore += Metrics.defaultIndentation
-        }
+
         newParagraphStyle.headerLevel = headerLevel.rawValue
 
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -91,10 +88,6 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
             return resultingAttributes
         }
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        if newParagraphStyle.headerLevel != .none  && headerLevel == .none {
-            newParagraphStyle.paragraphSpacing -= Metrics.defaultIndentation
-            newParagraphStyle.paragraphSpacingBefore -= Metrics.defaultIndentation
-        }
         newParagraphStyle.headerLevel = HeaderType.none.rawValue
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 

@@ -2,7 +2,7 @@ import Foundation
 import libxml2
 
 extension Libxml2.In {
-    class HTMLConverter: Converter {
+    class HTMLConverter: SafeConverter {
 
         typealias RootNode = Libxml2.RootNode
         
@@ -17,7 +17,7 @@ extension Libxml2.In {
         ///
         /// - Returns: the HTML root node.
         ///
-        func convert(_ html: String) throws -> RootNode {
+        func convert(_ html: String) -> RootNode {
 
             // We wrap the HTML into a special root node, since it helps avoid conversion issues
             // with libxml2, where the library would add custom tags to "fix" the HTML code we
@@ -67,28 +67,14 @@ extension Libxml2.In {
             }
 
             let rootNodePtr = xmlDocGetRootElement(document)
+            let nodeConverter = NodeConverter()
 
-            if let rootNode = rootNodePtr?.pointee  {
-
-                // TODO: If the root node has siblings, they're loaded as children instead (by
-                // libxml2).  We need to test this a bit more, because saving the HTML back will
-                // produce a different result unless there's some way to identify this scenario.
-                //
-                // Example HTML: <a></a><b></b>
-                //
-                // It may be a good idea to wrap the HTML in a single fake root node before parsing
-                // it to bypass this behaviour.
-                //
-                let nodeConverter = NodeConverter()
-
-                guard let node = nodeConverter.convert(rootNode) as? RootNode else {
-                    throw Error.NoRootNode
-                }
-
-                return node
-            } else {
-                throw Error.NoRootNode
+            guard let rootNode = rootNodePtr?.pointee,
+                let node = nodeConverter.convert(rootNode) as? RootNode else {
+                    return RootNode(children: [])
             }
+
+            return node
         }
     }
 }

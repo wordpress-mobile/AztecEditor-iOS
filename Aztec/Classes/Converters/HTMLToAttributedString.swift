@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class HTMLToAttributedString: Converter {
+class HTMLToAttributedString: SafeConverter {
 
     typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
@@ -14,14 +14,14 @@ class HTMLToAttributedString: Converter {
         self.defaultFontDescriptor = defaultFontDescriptor
     }
 
-    func convert(_ html: String) throws -> (rootNode: RootNode, attributedString: NSAttributedString) {
+    func convert(_ html: String) -> (rootNode: RootNode, attributedString: NSAttributedString) {
         let htmlToNode = Libxml2.In.HTMLConverter()
         let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
-        let rootNode = try htmlToNode.convert(html)
+        let rootNode = htmlToNode.convert(html)
 
         if rootNode.children.count == 0 {
-            rootNode.append(TextNode(text: html))
+            rootNode.children.append(TextNode(text: html))
         }
 
         let attributedString = nodeToAttributedString.convert(rootNode)
