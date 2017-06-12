@@ -188,6 +188,7 @@ extension Libxml2 {
         func isNodeType(_ type: StandardElementType) -> Bool {
             return type.equivalentNames.contains(name.lowercased())
         }
+        
 
         /// Retrieves the last child matching a specific filtering closure.
         ///
@@ -201,7 +202,12 @@ extension Libxml2 {
         }
 
 
+        /// Indicates whether the children of the specified node can be merged in, or not.
         ///
+        /// - Parameters:
+        ///     - node: Target node for which we'll determine Merge-ability status.
+        ///
+        /// - Returns: true if both nodes can be merged, or not.
         ///
         func canMergeChildren(of node: ElementNode) -> Bool {
             guard name == node.name && Set(attributes) == Set(node.attributes) else {
