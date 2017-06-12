@@ -14,7 +14,6 @@ class NSAttributedStringToNodes: Converter {
     typealias ElementNode = Libxml2.ElementNode
     typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
-    typealias DOMString = Libxml2.DOMString
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
 
@@ -146,7 +145,7 @@ private extension NSAttributedStringToNodes {
         }
 
         if style.headerLevel > 0 {
-            let header = DOMString.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
+            let header = ElementNode.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
             block( ElementNode(type: header) )
         }
 
@@ -227,10 +226,10 @@ private extension NSAttributedStringToNodes {
     func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
         let converter = Libxml2.In.HTMLConverter()
 
-        guard let rootNode = try? converter.convert(attachment.rawHTML),
-            let firstChild = rootNode.children.first
-            else {
-                return textToNode(attachment.rawHTML)
+        let rootNode = converter.convert(attachment.rawHTML)
+
+        guard let firstChild = rootNode.children.first else {
+            return textToNode(attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
