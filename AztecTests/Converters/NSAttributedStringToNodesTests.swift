@@ -121,7 +121,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         let list = node.children.first as? ElementNode
         XCTAssertEqual(list?.name, "ol")
-        XCTAssert(list?.children.count == 2)
+        guard list?.children.count == 2 else {
+            XCTFail()
+            return
+        }
 
         let firstListItem = list?.children[0] as? ElementNode
         let secondListItem = list?.children[1] as? ElementNode
