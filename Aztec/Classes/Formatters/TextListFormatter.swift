@@ -35,8 +35,6 @@ class TextListFormatter: ParagraphAttributeFormatter {
         }
 
         if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
-            newParagraphStyle.headIndent += Metrics.listTextIndentation
-            newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
             newParagraphStyle.textLists.append(TextList(style: self.listStyle))
         } else {
             newParagraphStyle.textLists.removeLast()
@@ -59,8 +57,6 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
         let newParagraphStyle = ParagraphStyle()
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.headIndent -= Metrics.listTextIndentation
-        newParagraphStyle.firstLineHeadIndent -= Metrics.listTextIndentation
         newParagraphStyle.textLists.removeLast()
 
         var resultingAttributes = attributes
