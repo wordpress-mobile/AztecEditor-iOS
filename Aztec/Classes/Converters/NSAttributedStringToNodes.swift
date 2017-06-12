@@ -27,19 +27,24 @@ class NSAttributedStringToNodes: Converter {
     /// -   Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
-        var previous = [Node]()
         var nodes = [Node]()
+        var previous: [Node]?
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             let children = createNodes(fromParagraph: paragraph)
 
-            let left = rightmostParagraphStyleElements(from: previous)
-            let right = leftmostParagraphStyleElements(from: children)
+            if let previous = previous {
+                let left = rightmostParagraphStyleElements(from: previous)
+                let right = leftmostParagraphStyleElements(from: children)
 
-            guard !merge(left: left, right: right) else {
-                return
+                if left.count == 0 && right.count == 0 {
+                    nodes += [ ElementNode(type: .br) ]
+                } else if merge(left: left, right: right) {
+                    return
+                }
             }
+
             nodes += children
             previous = children
         }
