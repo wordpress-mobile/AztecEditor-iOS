@@ -795,9 +795,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         headerButton.alternativeIcons = alternativeIcons
 
+
+        let listButton = makeToolbarButton(identifier: .unorderedlist)
+        var listIcons = [FormattingIdentifier: UIImage]()
+        let listTypes: [FormattingIdentifier] = [ .unorderedlist, .orderedlist ]
+        for list in listTypes {
+            listIcons[list] = list.iconImage
+        }
+
+        listButton.alternativeIcons = listIcons
+
         return [
-            makeToolbarButton(identifier: .unorderedlist),
             headerButton,
+            listButton,
             makeToolbarButton(identifier: .blockquote),
             makeToolbarButton(identifier: .bold),
             makeToolbarButton(identifier: .italic),
