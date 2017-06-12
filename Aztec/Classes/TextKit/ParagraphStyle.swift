@@ -37,7 +37,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     var blockquote: Blockquote?
     var htmlParagraph: HTMLParagraph?
-    var textLists: [TextList] = []
+    var textLists : [TextList] {
+        return properties.flatMap { (property) -> TextList? in
+            if let textList = property as? TextList {
+                return textList
+            } else {
+                return nil
+            }
+        }
+    }
     
     var headerLevel: Int = 0
 
@@ -51,9 +59,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             properties = encodedProperties
         }
 
-        if let encodedLists = aDecoder.decodeObject(forKey:String(describing: TextList.self)) as? [TextList] {
-            textLists = encodedLists
-        }
         if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
             blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
         }
@@ -67,7 +72,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         super.encode(with: aCoder)
 
         aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))
-        aCoder.encode(textLists, forKey: String(describing: TextList.self))
 
         if let blockquote = self.blockquote {
             aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
@@ -93,8 +97,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
             blockquote = paragrahStyle.blockquote
             headerLevel = paragrahStyle.headerLevel
-            htmlParagraph = paragrahStyle.htmlParagraph
-            textLists = paragrahStyle.textLists
+            htmlParagraph = paragrahStyle.htmlParagraph            
             properties = paragrahStyle.properties
         }
     }
@@ -246,5 +249,40 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var description: String {
         return super.description + " Blockquote: \(String(describing:blockquote)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(textLists)"
+    }
+}
+
+// MARK: - Add method to manipulate properties array
+
+extension ParagraphStyle {
+
+    func add(property: ParagraphProperty) {
+        properties.append(property)
+    }
+
+    func removeProperty(ofType type: AnyClass) {
+        var position: Int?
+        for index in (0..<properties.count).reversed() {
+            if type(of: properties[index]) == type {
+                position = index
+                break
+            }
+        }
+        if let positionFound = position {
+            properties.remove(at: positionFound)
+        }
+    }
+
+    func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
+        var position: Int?
+        for index in (0..<properties.count).reversed() {
+            if type(of: properties[index]) == type {
+                position = index
+                break
+            }
+        }
+        if let positionFound = position {
+            properties[positionFound] = newProperty
+        }
     }
 }
