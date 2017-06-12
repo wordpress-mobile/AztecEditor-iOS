@@ -127,7 +127,7 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        let markerRect = rect.offsetBy(dx: style.headIndent - Metrics.listTextIndentation, dy: style.paragraphSpacingBefore + style.paragraphSpacing)
+        let markerRect = rect.offsetBy(dx: style.headIndent, dy: style.paragraphSpacingBefore + style.paragraphSpacing)
 
         markerText.draw(in: markerRect)
     }
@@ -137,7 +137,11 @@ private extension LayoutManager {
     ///
     private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
         var resultAttributes = attributes
-        resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle()
+        var indent: CGFloat = 0
+        if let style = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+            indent = style.headIndent
+        }
+        resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle(indent: indent)
         resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
         resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
         resultAttributes.removeValue(forKey: NSLinkAttributeName)
@@ -155,8 +159,8 @@ private extension LayoutManager {
 
     /// Returns the Marker Paratraph Attributes
     ///
-    private func markerParagraphStyle() -> NSParagraphStyle {
-        let tabStop = NSTextTab(textAlignment: .right, location: Metrics.listBulletIndentation, options: [:])
+    private func markerParagraphStyle(indent: CGFloat) -> NSParagraphStyle {
+        let tabStop = NSTextTab(textAlignment: .right, location: indent, options: [:])
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.tabStops = [tabStop]
 
