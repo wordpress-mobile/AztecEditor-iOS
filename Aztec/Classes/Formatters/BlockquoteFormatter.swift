@@ -26,7 +26,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.blockquote = Blockquote()
+        newParagraphStyle.add(property: Blockquote())
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -35,14 +35,14 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes:[String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-            paragraphStyle.blockquote != nil
+            !paragraphStyle.blockquotes.isEmpty
         else {
             return attributes
         }
 
         let newParagraphStyle = ParagraphStyle()
         newParagraphStyle.setParagraphStyle(paragraphStyle)        
-        newParagraphStyle.blockquote = nil
+        newParagraphStyle.removeProperty(ofType: Blockquote.self)
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -50,8 +50,10 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return style?.blockquote != nil
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+            return false
+        }
+        return !style.blockquotes.isEmpty
     }
 }
 

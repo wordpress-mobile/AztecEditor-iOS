@@ -45,7 +45,7 @@ private extension LayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         //draw blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.blockquote != nil else {
+            guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
 

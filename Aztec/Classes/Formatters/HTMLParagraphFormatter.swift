@@ -36,7 +36,7 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes:[String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-            paragraphStyle.blockquote != nil
+            !paragraphStyle.blockquotes.isEmpty
             else {
                 return attributes
         }
