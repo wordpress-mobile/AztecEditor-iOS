@@ -90,7 +90,9 @@ private extension NSAttributedStringToNodes {
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
+        let mergeable = findMergeableNodes(left: left, right: right)
+
+        guard let target = mergeable.last?.left, let source = mergeable.last?.right else {
             return false
         }
 
@@ -118,11 +120,16 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Defines a pair of Nodes that can be merged
+    ///
+    typealias MergeablePair = (left: ElementNode, right: ElementNode)
+
+
     /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
     ///
-    private func findLowestMergeableNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
+    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair] {
         var currentIndex = 0
-        var match: (ElementNode, ElementNode)?
+        var matching = [MergeablePair]()
 
         while currentIndex < left.count && currentIndex < right.count {
             let left = left[currentIndex]
@@ -132,11 +139,12 @@ private extension NSAttributedStringToNodes {
                 break
             }
 
-            match = (left, right)
+            let pair = MergeablePair(left: left, right: right)
+            matching.append(pair)
             currentIndex += 1
         }
         
-        return match
+        return matching
     }
 
 
@@ -146,7 +154,6 @@ private extension NSAttributedStringToNodes {
     private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
         var elements = [ElementNode]()
         var nextElement = childPicker(nodes) as? ElementNode
-
 
         while let currentElement = nextElement {
             guard currentElement.isBlockLevelElement() else {
