@@ -34,8 +34,8 @@ class NSAttributedStringToNodes: Converter {
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
             let children = createNodes(fromParagraph: paragraph)
 
-            let left = rightMostParagraphStyleElements(from: previous)
-            let right = leftMostParagraphStyleElements(from: children)
+            let left = rightmostParagraphStyleElements(from: previous)
+            let right = leftmostParagraphStyleElements(from: children)
 
             guard !merge(left: left, right: right) else {
                 return
@@ -96,18 +96,18 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    /// Returns the "Right Most" Blocklevel Node from a collection fo nodes.
+    /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
     ///
-    func rightMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+    func rightmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
         return paragraphStyleElements(from: nodes) { children in
             return children.last
         }
     }
 
 
-    /// Returns the "Left Most" Blocklevel Node from a collection fo nodes.
+    /// Returns the "Leftmost" Blocklevel Node from a collection fo nodes.
     ///
-    func leftMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+    func leftmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
         return paragraphStyleElements(from: nodes) { children in
             return children.first
         }
