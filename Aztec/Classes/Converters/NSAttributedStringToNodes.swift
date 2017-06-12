@@ -37,10 +37,12 @@ class NSAttributedStringToNodes: Converter {
                 let left = rightmostParagraphStyleElements(from: previous)
                 let right = leftmostParagraphStyleElements(from: children)
 
+                guard !merge(left: left, right: right) else {
+                    return
+                }
+
                 if left.count == 0 && right.count == 0 {
                     nodes += [ ElementNode(type: .br) ]
-                } else if merge(left: left, right: right) {
-                    return
                 }
             }
 
