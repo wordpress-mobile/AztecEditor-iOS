@@ -182,10 +182,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         let originalCopy = super.copy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
-        copy.blockquote = blockquote
-        copy.headerLevel = headerLevel
-        copy.htmlParagraph = htmlParagraph
-        copy.textLists = textLists
 
         return copy
     }
@@ -194,16 +190,17 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
         copy.setParagraphStyle(originalCopy)
-        copy.blockquote = blockquote
-        copy.headerLevel = headerLevel
-        copy.htmlParagraph = htmlParagraph
-        copy.textLists = textLists
 
         return copy
     }
 
     open override var hash: Int {
         var hash: Int = super.hash
+
+        for property in properties {
+            hash = hash ^ property.hashValue
+        }
+
         if blockquote != nil {
             hash = hash ^ String(describing: Blockquote.self).hashValue
         }
