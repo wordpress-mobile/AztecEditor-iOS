@@ -1,6 +1,24 @@
 import Foundation
 import UIKit
 
+public class ParagraphProperty: NSObject, NSCoding {
+
+    public override init() {
+
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        super.init()
+    }
+
+    public func encode(with aCoder: NSCoder) {
+    }
+
+    static func ==(lhs: ParagraphProperty, rhs: ParagraphProperty) -> Bool {
+        return lhs == rhs
+    }
+}
+
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - CustomReflectable
@@ -15,6 +33,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         case headerLevel
     }
 
+    var properties = [ParagraphProperty]()
+
     var blockquote: Blockquote?
     var htmlParagraph: HTMLParagraph?
     var textLists: [TextList] = []
@@ -26,6 +46,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     public required init?(coder aDecoder: NSCoder) {
+
+        if let encodedProperties = aDecoder.decodeObject(forKey:String(describing: ParagraphProperty.self)) as? [ParagraphProperty] {
+            properties = encodedProperties
+        }
+
         if let encodedLists = aDecoder.decodeObject(forKey:String(describing: TextList.self)) as? [TextList] {
             textLists = encodedLists
         }
@@ -41,6 +66,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
 
+        aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))
         aCoder.encode(textLists, forKey: String(describing: TextList.self))
 
         if let blockquote = self.blockquote {
@@ -69,6 +95,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             headerLevel = paragrahStyle.headerLevel
             htmlParagraph = paragrahStyle.htmlParagraph
             textLists = paragrahStyle.textLists
+            properties = paragrahStyle.properties
         }
     }
 
@@ -167,7 +194,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         if blockquote != otherParagraph.blockquote
             || headerLevel != otherParagraph.headerLevel
             || htmlParagraph != otherParagraph.htmlParagraph
-            || textLists != otherParagraph.textLists {
+            || textLists != otherParagraph.textLists
+            || properties != otherParagraph.properties {
             return false
         }
         
