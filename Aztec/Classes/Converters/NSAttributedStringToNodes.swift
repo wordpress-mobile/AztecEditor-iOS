@@ -16,22 +16,42 @@ class NSAttributedStringToNodes: Converter {
     typealias TextNode = Libxml2.TextNode
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
+    typealias StandardElementType = Libxml2.StandardElementType
 
 
+    /// Converts an Attributed String Instance into it's HTML Tree Representation.
     ///
+    /// -   Parameter attrString: Attributed String that should be converted.
+    ///
+    /// -   Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
+        var previous = [Node]()
         var nodes = [Node]()
+
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
-            nodes += createNodes(fromParagraph: paragraph)
+            let children = createNodes(fromParagraph: paragraph)
+
+            let left = rightmostParagraphStyleElements(from: previous)
+            let right = leftmostParagraphStyleElements(from: children)
+
+            guard !merge(left: left, right: right) else {
+                return
+            }
+            nodes += children
+            previous = children
         }
 
         return RootNode(children: nodes)
     }
 
 
+    /// Converts a *Paragraph* into a collection of Nodes, representing the internal HTML Entities.
     ///
+    /// - Parameter paragraph: Paragraph's Attributed String that should be converted.
+    ///
+    /// - Returns: Array of Node instances.
     ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
         var children = [Node]()
@@ -58,17 +78,96 @@ class NSAttributedStringToNodes: Converter {
 }
 
 
+// MARK: - Dimensionality
+//
+private extension NSAttributedStringToNodes {
+
+    /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
+    ///
+    func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
+        guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
+            return false
+        }
+
+        target.children += source.children
+
+        return true
+    }
+
+
+    /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
+    ///
+    func rightmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.last
+        }
+    }
+
+
+    /// Returns the "Leftmost" Blocklevel Node from a collection fo nodes.
+    ///
+    func leftmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.first
+        }
+    }
+
+
+    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
+    ///
+    private func findLowestMergeableNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
+        var currentIndex = 0
+        var match: (ElementNode, ElementNode)?
+
+        while currentIndex < left.count && currentIndex < right.count {
+            let left = left[currentIndex]
+            let right = right[currentIndex]
+
+            guard left.canMergeChildren(of: right) else {
+                break
+            }
+
+            match = (left, right)
+            currentIndex += 1
+        }
+        
+        return match
+    }
+
+
+    /// Returns a children Blocklevel Node from a collection of nodes, using a Child Picker to determine the
+    /// navigational-direction.
+    ///
+    private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
+        var elements = [ElementNode]()
+        var nextElement = childPicker(nodes) as? ElementNode
+
+
+        while let currentElement = nextElement {
+            guard currentElement.isBlockLevelElement() else {
+                break
+            }
+
+            elements.append(currentElement)
+            nextElement = childPicker(currentElement.children) as? ElementNode
+        }
+
+        return elements
+    }
+}
+
+
 // MARK: - Node Creation
 //
 private extension NSAttributedStringToNodes {
 
-    /// Creates an ElementNode from an AttributedString
+    /// Extracts the ElementNode contained within a Paragraph's AttributedString.
     ///
     /// - Parameters:
-    ///     - attrString: AttributedString from which we intend to extract the ElementNode
-    ///     - childre: Array of Node instances to be set as children
+    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
+    ///     - children: Array of Node instances to be set as children
     ///
-    /// - Returns: the root ElementNode
+    /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> ElementNode? {
         guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
@@ -86,7 +185,13 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Extracts all of the Style Nodes contained within a collection of AttributedString Attributes.
     ///
+    /// - Parameters:
+    ///     - attrs: Collection of attributes that should be converted.
+    ///     - leaves: Leaf nodes that should be used to regen the tree.
+    ///
+    /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
     func createStyleNodes(from attrs: [String: Any], leaves: [Node]) -> [Node] {
         var lastNodes: [ElementNode]?
@@ -100,70 +205,68 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Extract all of the Leaf Nodes contained within an Attributed String. We consider the following as Leaf:
+    /// Plain Text, Attachments of any kind [Line, Comment, HTML, Image].
     ///
+    /// - Parameter attrString: AttributedString that should be converted.
+    ///
+    /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
         let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
-        var leafs = [Node]()
 
         switch attachment {
         case let lineAttachment as LineAttachment:
-            let node = lineAttachmentToNode(lineAttachment)
-            leafs.append(node)
+            return lineAttachmentToNodes(lineAttachment)
         case let commentAttachment as CommentAttachment:
-            let node = commentAttachmentToNode(commentAttachment)
-            leafs.append(node)
+            return commentAttachmentToNodes(commentAttachment)
         case let htmlAttachment as HTMLAttachment:
-            let nodes = htmlAttachmentToNode(htmlAttachment)
-            leafs.append(contentsOf: nodes)
+            return htmlAttachmentToNode(htmlAttachment)
         case let imageAttachment as ImageAttachment:
-            let node = imageAttachmentToNode(imageAttachment)
-            leafs.append(node)
+            return imageAttachmentToNodes(imageAttachment)
         default:
-            let nodes = textToNode(attrString.string)
-            leafs.append(contentsOf: nodes)
+            return textToNodes(attrString.string)
         }
-
-        return leafs
     }
 }
 
 
-// MARK: - Style Extraction
+// MARK: - Enumerators
 //
 private extension NSAttributedStringToNodes {
 
-    ///
+    /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
         if style.blockquote != nil {
-            block( ElementNode(type: .blockquote) )
+            let node = ElementNode(type: .blockquote)
+            block(node)
         }
 
         if style.htmlParagraph != nil {
-            block( ElementNode(type: .p) )
+            let node = ElementNode(type: .p)
+            block(node)
         }
 
         if style.headerLevel > 0 {
-            let header = ElementNode.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
-            block( ElementNode(type: header) )
-        }
-
-        for list in style.textLists {
-            if list.style == .ordered {
-                block( ElementNode(type: .ol) )
-            } else {
-                block( ElementNode(type: .ul) )
-            }
+            let type = ElementNode.elementTypeForHeaderLevel(style.headerLevel) ?? .h1
+            let node = ElementNode(type: type)
+            block(node)
         }
 
         if !style.textLists.isEmpty {
-            block( ElementNode(type: .li) )
+            let node = ElementNode(type: .li)
+            block(node)
+        }
+
+        for list in style.textLists {
+            let node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+            block(node)
         }
     }
 
 
-    ///
+    /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateStyleNodes(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
         for (key, value) in attributes {
@@ -174,11 +277,13 @@ private extension NSAttributedStringToNodes {
                 }
 
                 if font.containsTraits(.traitBold) == true {
-                    block( ElementNode(type: .b) )
+                    let node = ElementNode(type: .b)
+                    block(node)
                 }
 
                 if font.containsTraits(.traitItalic) == true {
-                    block( ElementNode(type: .i) )
+                    let node = ElementNode(type: .i)
+                    block(node)
                 }
 
             case NSLinkAttributeName:
@@ -187,13 +292,16 @@ private extension NSAttributedStringToNodes {
                 }
 
                 let source = StringAttribute(name: "href", value: url.absoluteString)
-                block( ElementNode(type: .a, attributes: [source]) )
+                let node = ElementNode(type: .a, attributes: [source])
+                block(node)
 
             case NSStrikethroughStyleAttributeName:
-                block( ElementNode(type: .strike) )
+                let node = ElementNode(type: .strike)
+                block(node)
 
             case NSUnderlineStyleAttributeName:
-                block( ElementNode(type: .u) )
+                let node = ElementNode(type: .u)
+                block(node)
 
             default:
                 break
@@ -207,21 +315,23 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
+    /// Converts a Line Attachment into it's representing nodes.
     ///
-    ///
-    func lineAttachmentToNode(_ lineAttachment: LineAttachment) -> ElementNode {
-        return ElementNode(type: .hr)
+    func lineAttachmentToNodes(_ lineAttachment: LineAttachment) -> [Node] {
+        let node = ElementNode(type: .hr)
+        return [node]
     }
 
 
+    /// Converts a Comment Attachment into it's representing nodes.
     ///
-    ///
-    func commentAttachmentToNode(_ attachment: CommentAttachment) -> CommentNode {
-        return CommentNode(text: attachment.text)
+    func commentAttachmentToNodes(_ attachment: CommentAttachment) -> [Node] {
+        let node = CommentNode(text: attachment.text)
+        return [node]
     }
 
 
-    ///
+    /// Converts an HTML Attachment into it's representing nodes.
     ///
     func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
         let converter = Libxml2.In.HTMLConverter()
@@ -229,34 +339,35 @@ private extension NSAttributedStringToNodes {
         let rootNode = converter.convert(attachment.rawHTML)
 
         guard let firstChild = rootNode.children.first else {
-            return textToNode(attachment.rawHTML)
+            return textToNodes(attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
-            let spanElement = ElementNode(type: .span, attributes: [], children: rootNode.children)
-            return [spanElement]
+            let node = ElementNode(type: .span, attributes: [], children: rootNode.children)
+            return [node]
         }
 
         return [firstChild]
     }
 
 
+    /// Converts an Image Attachment into it's representing nodes.
     ///
-    ///
-    func imageAttachmentToNode(_ attachment: ImageAttachment) -> ElementNode {
+    func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
         var attributes = [Attribute]()
-        if let url = attachment.url {
-            let source = StringAttribute(name: "src", value: url.absoluteString)
-            attributes.append(source)
+        if let source = attachment.url?.absoluteString {
+            let attribute = StringAttribute(name: "src", value: source)
+            attributes.append(attribute)
         }
 
-        return ElementNode(type: .img, attributes: attributes)
+        let node = ElementNode(type: .img, attributes: attributes)
+        return [node]
     }
 
 
+    /// Converts a String into it's representing nodes.
     ///
-    ///
-    func textToNode(_ text: String) -> [Node] {
+    func textToNodes(_ text: String) -> [Node] {
         let substrings = text.components(separatedBy: String(.newline))
         var output = [Node]()
 
@@ -266,8 +377,8 @@ private extension NSAttributedStringToNodes {
                 output.append(newline)
             }
 
-            let text = TextNode(text: substring)
-            output.append(text)
+            let node = TextNode(text: substring)
+            output.append(node)
         }
         
         return output
