@@ -315,19 +315,24 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = rootNode(from: testingString)
-        XCTAssert(node.children.count == 1)
-
-        guard let headingNode = node.children[0] as? ElementNode,
-            let helloNode = headingNode.children[0] as? TextNode,
-            let worldNode = headingNode.children[1] as? TextNode
-            else {
-                XCTFail()
-                return
+        guard node.children.count == 2 else {
+            XCTFail()
+            return
         }
 
-        XCTAssertEqual(headingNode.name, "h1")
-        XCTAssertEqual(helloNode.contents, "Hello")
-        XCTAssertEqual(worldNode.contents, "World")
+        guard let headingElementNode = node.children[0] as? ElementNode,
+            let worldElementNode = node.children[1] as? ElementNode,
+            let helloTextNode = headingElementNode.children[0] as? TextNode,
+            let worldTextNode = worldElementNode.children[0] as? TextNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(headingElementNode.name, "h1")
+        XCTAssertEqual(worldElementNode.name, "h1")
+        XCTAssertEqual(helloTextNode.contents, "Hello")
+        XCTAssertEqual(worldTextNode.contents, "World")
     }
 }
 
