@@ -198,19 +198,26 @@ open class FormatBar: UIView {
         }
     }
 
-
-    /// Bounds Change Observer
-    ///
-    override open var bounds: CGRect {
+    open override var bounds: CGRect {
         didSet {
+            updateVisibleItemsForCurrentBounds()
+        }
+    }
+    open override var frame: CGRect {
+        didSet {
+            updateVisibleItemsForCurrentBounds()
         }
     }
 
+    func updateVisibleItemsForCurrentBounds() {
+        guard overflowItemsHidden else { return }
 
-    /// Bounds Change Observer
-    ///
-    override open var frame: CGRect {
-        didSet {
+        // Ensure that any items that wouldn't fit are hidden
+        let allItems = items
+        let overflowedItems = overflowedDefaultItems + overflowItems
+
+        for item in allItems {
+            item.isHiddenInStackView = overflowedItems.contains(item)
         }
     }
 
@@ -246,6 +253,8 @@ open class FormatBar: UIView {
 
     override open func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+
+        updateVisibleItemsForCurrentBounds()
     }
 
 
@@ -317,6 +326,8 @@ private extension FormatBar {
         }
 
         scrollableStackView.addArrangedSubviews(overflowItems)
+
+        updateVisibleItemsForCurrentBounds()
     }
 
     /// Inserts a divider into the bar.
