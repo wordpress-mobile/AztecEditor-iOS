@@ -60,7 +60,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             paragraphSpacingBefore = 0
 
             baseHeadIndent = paragrahStyle.baseHeadIndent
-            baseFistLineHeadIndent = paragrahStyle.baseFistLineHeadIndent
+            baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
             baseTailIndent = paragrahStyle.baseTailIndent
             baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
             baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
@@ -88,11 +88,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         get {
             let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
 
-            return baseFistLineHeadIndent + extra
+            return baseFirstLineHeadIndent + extra
         }
 
         set {
-            baseFistLineHeadIndent = newValue
+            baseFirstLineHeadIndent = newValue
         }
     }
 
@@ -108,9 +108,13 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
 
+    private func calculateExtraParagraphSpacing() -> CGFloat {         
+        return min(((self.blockquote == nil ? 0.0 : 1.0) + (self.headerLevel == 0 ? 0.0 : 1.0)), 1.0) * Metrics.paragraphSpacing
+    }
+
     open override var paragraphSpacing: CGFloat {
         get {
-            let extra: CGFloat = (self.blockquote == nil ? 0 : 1) * Metrics.defaultIndentation
+            let extra = calculateExtraParagraphSpacing()
 
             return baseParagraphSpacing + extra
         }
@@ -122,7 +126,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            let extra: CGFloat = (self.blockquote == nil ? 0 : 1) * Metrics.defaultIndentation
+            let extra = calculateExtraParagraphSpacing()
 
             return baseParagraphSpacingBefore + extra
         }
@@ -133,7 +137,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     var baseHeadIndent: CGFloat = 0
-    var baseFistLineHeadIndent: CGFloat = 0
+    var baseFirstLineHeadIndent: CGFloat = 0
     var baseTailIndent: CGFloat = 0
     var baseParagraphSpacing: CGFloat = 0
     var baseParagraphSpacingBefore: CGFloat = 0
