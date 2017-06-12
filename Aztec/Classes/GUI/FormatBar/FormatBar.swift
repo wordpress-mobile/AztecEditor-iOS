@@ -86,16 +86,46 @@ open class FormatBar: UIView {
         return scrollableStackView.arrangedSubviews.filter({ $0 is FormatBarItem }) as! [FormatBarItem]
     }
 
+    /// Returns the collection of all items in the stackview that are currently hidden
+    ///
+    private var hiddenItems: [FormatBarItem] {
+        return scrollableStackView.arrangedSubviews.filter({ $0.isHiddenInStackView && $0 is FormatBarItem }) as! [FormatBarItem]
+    }
+
     /// Returns all of the dividers (including the top divider) in the bar
     ///
     private var dividers: [UIView] {
         return scrollableStackView.arrangedSubviews.filter({ !($0 is FormatBarItem) }) + [topDivider]
     }
 
+    /// Returns a list of all default items that don't fit within the current
+    /// screen width. They will be hidden, and then displayed when overflow
+    /// items are revealed.
+    ///
+    private var overflowedDefaultItems: ArraySlice<FormatBarItem> {
+        // Work out how many items we can show in the bar
+        let availableWidth = visibleWidth
+        guard availableWidth > 0 else { return [] }
+
+        let visibleItemCount = Int(floor(availableWidth / Constants.stackButtonWidth))
+
+        let allItems = items
+        guard visibleItemCount < defaultItems.flatMap({ $0 }).count else { return [] }
+
+        return allItems.suffix(from: visibleItemCount)
+    }
+
+    /// Returns the current width currently available to fit toolbar items without scrolling.
+    ///
+    private var visibleWidth: CGFloat {
+        return frame.width - scrollView.contentInset.left - scrollView.contentInset.right
+    }
+
+
     /// Returns true if any of the overflow items in the bar are currently hidden
     ///
     private var overflowItemsHidden: Bool {
-        if let _ = scrollableStackView.arrangedSubviews.first(where: { $0.isHidden }) {
+        if let _ = overflowItems.first(where: { $0.isHiddenInStackView }) {
             return true
         }
 
@@ -242,30 +272,26 @@ open class FormatBar: UIView {
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
         let shouldExpand = overflowItemsHidden
 
-        let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
-
         setOverflowItemsVisible(shouldExpand)
 
+        let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
         rotateOverflowToggleItem(direction, animated: true)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
-        // Animate backwards if we're disappearing
-        let items = visible ? overflowItems : overflowItems.reversed()
+        guard overflowItemsHidden == visible else { return }
 
-        let toggleVisibility = {
-            items.forEach({ $0.isHidden = !visible })
-        }
+        // Animate backwards if we're disappearing
+        let items = visible ? hiddenItems : (overflowedDefaultItems + overflowItems).reversed()
 
         // Currently only doing the pop animation for appearance
         if animated && visible {
-            UIView.animate(withDuration: Animations.durationLong, animations: toggleVisibility)
-
             for (index, item) in items.enumerated() {
                 animate(item: item, visible: visible, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
             }
         } else {
-            toggleVisibility()
+            scrollView.contentOffset = .zero
+            items.forEach({ $0.isHiddenInStackView = !visible })
         }
     }
 }
@@ -414,19 +440,27 @@ private extension FormatBar {
             item.alpha = 1.0
         }
 
-        if visible {
-            hide()
-        } else {
-            unhide()
+        let pop = {
+            UIView.animate(withDuration: Animations.itemPop.duration,
+                           delay: delay,
+                           usingSpringWithDamping: Animations.itemPop.springDamping,
+                           initialSpringVelocity: Animations.itemPop.springInitialVelocity,
+                           options: [],
+                           animations: (visible) ? unhide : hide,
+                           completion: nil)
         }
 
-        UIView.animate(withDuration: Animations.itemPop.duration,
-                       delay: delay,
-                       usingSpringWithDamping: Animations.itemPop.springDamping,
-                       initialSpringVelocity: Animations.itemPop.springInitialVelocity,
-                       options: [],
-                       animations: (visible) ? unhide : hide,
-                       completion: nil)
+        if visible {
+            hide()
+            UIView.animate(withDuration: Animations.durationShort,
+                           animations: { item.isHiddenInStackView = false },
+                           completion: { _ in
+                            pop()
+            })
+        } else {
+            unhide()
+            pop()
+        }
     }
 
     enum OverflowToggleAnimationDirection {
@@ -497,5 +531,23 @@ private extension FormatBar {
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
         static let topDividerHeight = CGFloat(1)
+    }
+}
+
+private extension UIView {
+    /// Required to work around a bug in UIStackView where items don't become
+    /// hidden / unhidden correctly if you set their `isHidden` property
+    /// to the same value twice in a row. See http://www.openradar.me/22819594
+    ///
+    var isHiddenInStackView: Bool {
+        set {
+            if isHidden != newValue {
+                isHidden = newValue
+            }
+        }
+
+        get {
+            return isHidden
+        }
     }
 }
