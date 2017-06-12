@@ -20,7 +20,11 @@ class NSAttributedStringToNodes: Converter {
     typealias StandardElementType = Libxml2.StandardElementType
 
 
+    /// Converts an Attributed String Instance into it's HTML Tree Representation.
     ///
+    /// -   Parameter attrString: Attributed String that should be converted.
+    ///
+    /// -   Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
         var previous = [Node]()
@@ -44,7 +48,11 @@ class NSAttributedStringToNodes: Converter {
     }
 
 
+    /// Converts a *Paragraph* into a collection of Nodes, representing the internal HTML Entities.
     ///
+    /// - Parameter paragraph: Paragraph's Attributed String that should be converted.
+    ///
+    /// - Returns: Array of Node instances.
     ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
         var children = [Node]()
@@ -71,11 +79,11 @@ class NSAttributedStringToNodes: Converter {
 }
 
 
-// MARK: - Restoring Dimensionality
+// MARK: - Dimensionality
 //
 private extension NSAttributedStringToNodes {
 
-    ///
+    /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
         guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
@@ -88,7 +96,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Returns the "Right Most" Blocklevel Node from a collection fo nodes.
     ///
     func rightMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
         return paragraphStyleElements(from: nodes) { children in
@@ -97,7 +105,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Returns the "Left Most" Blocklevel Node from a collection fo nodes.
     ///
     func leftMostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
         return paragraphStyleElements(from: nodes) { children in
@@ -106,7 +114,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
     ///
     private func findLowestMergeableNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
         var currentIndex = 0
@@ -128,7 +136,8 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Returns a children Blocklevel Node from a collection of nodes, using a Child Picker to determine the
+    /// navigational-direction.
     ///
     private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
         var elements = [ElementNode]()
@@ -153,13 +162,13 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
-    /// Creates an ElementNode from an AttributedString
+    /// Extracts the ElementNode contained within a Paragraph's AttributedString.
     ///
     /// - Parameters:
-    ///     - attrString: AttributedString from which we intend to extract the ElementNode
+    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
     ///     - children: Array of Node instances to be set as children
     ///
-    /// - Returns: the root ElementNode
+    /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> ElementNode? {
         guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
@@ -177,7 +186,13 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Extracts all of the Style Nodes contained within a collection of AttributedString Attributes.
     ///
+    /// - Parameters:
+    ///     - attrs: Collection of attributes that should be converted.
+    ///     - leaves: Leaf nodes that should be used to regen the tree.
+    ///
+    /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
     func createStyleNodes(from attrs: [String: Any], leaves: [Node]) -> [Node] {
         var lastNodes: [ElementNode]?
@@ -191,7 +206,12 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Extract all of the Leaf Nodes contained within an Attributed String. We consider the following as Leaf:
+    /// Plain Text, Attachments of any kind [Line, Comment, HTML, Image].
     ///
+    /// - Parameter attrString: AttributedString that should be converted.
+    ///
+    /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
         let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
@@ -212,11 +232,11 @@ private extension NSAttributedStringToNodes {
 }
 
 
-// MARK: - Style Extraction
+// MARK: - Enumerators
 //
 private extension NSAttributedStringToNodes {
 
-    ///
+    /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
         if style.blockquote != nil {
@@ -247,7 +267,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateStyleNodes(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
         for (key, value) in attributes {
@@ -296,7 +316,7 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
-    ///
+    /// Converts a Line Attachment into it's representing nodes.
     ///
     func lineAttachmentToNodes(_ lineAttachment: LineAttachment) -> [Node] {
         let node = ElementNode(type: .hr)
@@ -304,7 +324,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Converts a Comment Attachment into it's representing nodes.
     ///
     func commentAttachmentToNodes(_ attachment: CommentAttachment) -> [Node] {
         let node = CommentNode(text: attachment.text)
@@ -312,7 +332,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Converts an HTML Attachment into it's representing nodes.
     ///
     func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
         let converter = Libxml2.In.HTMLConverter()
@@ -332,7 +352,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Converts an Image Attachment into it's representing nodes.
     ///
     func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
         var attributes = [Attribute]()
@@ -346,7 +366,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Converts a String into it's representing nodes.
     ///
     func textToNodes(_ text: String) -> [Node] {
         let substrings = text.components(separatedBy: String(.newline))

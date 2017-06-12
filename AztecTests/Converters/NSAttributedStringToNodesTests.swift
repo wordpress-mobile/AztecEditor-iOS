@@ -6,26 +6,7 @@ import XCTest
 //
 class NSAttributedStringToNodesTests: XCTestCase {
 
-    /// Typealiases
-    ///
-    typealias Node = Libxml2.Node
-    typealias CommentNode = Libxml2.CommentNode
-    typealias ElementNode = Libxml2.ElementNode
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-
-
-    ///
-    ///
-    private struct Constants {
-        static let sampleAttributes: [String : Any] = [
-            NSFontAttributeName: UIFont.systemFont(ofSize: UIFont.systemFontSize),
-            NSParagraphStyleAttributeName: NSParagraphStyle()
-        ]
-    }
-
-
-    ///
+    /// Verifies that Bold Style gets effectively mapped.
     ///
     func testBoldStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = BoldFormatter().apply(to: Constants.sampleAttributes)
@@ -44,7 +25,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Italics Style gets effectively mapped.
     ///
     func testItalicStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = ItalicFormatter().apply(to: Constants.sampleAttributes)
@@ -63,7 +44,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Underline Style gets effectively mapped.
     ///
     func testUnderlineStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = UnderlineFormatter().apply(to: Constants.sampleAttributes)
@@ -82,7 +63,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Strike Style gets effectively mapped.
     ///
     func testStrikeStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = StrikethroughFormatter().apply(to: Constants.sampleAttributes)
@@ -101,7 +82,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Link Style gets effectively mapped.
     ///
     func testLinkStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let formatter = LinkFormatter()
@@ -123,7 +104,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Lists get effectively mapped.
     ///
     func testListItemsRemainInTheSameContainingUnorderedList() {
         let firstText = "First Line"
@@ -157,7 +138,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Comments get effectively mapped.
     ///
     func testCommentsArePreservedAndSerializedBack() {
         let attachment = CommentAttachment()
@@ -187,7 +168,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Line Attachments get effectively mapped.
     ///
     func testLineElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
         let attachment = LineAttachment()
@@ -225,7 +206,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Header Style gets properly mapped.
     ///
     func testHeaderElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
 
@@ -261,7 +242,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     }
 
 
-    ///
+    /// Verifies that Unknown HTML Attachments get properly mapped, and don't get nuked along the way.
     ///
     func testUnknownHtmlDoesNotGetNuked() {
         let htmlAttachment = HTMLAttachment()
@@ -297,43 +278,29 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(textNode.contents, textString.string)
         XCTAssertEqual(commentNode.comment, commentAttachment.text)
     }
-
-
-//    ///
-//    ///
-//    func testContiguousUnorderedListsGetHeirItemsmerged() {
-//        let input = "<ul><li>First Line</li></ul><ul><li>Second Line</li></ul>"
-//        let expected = "<ul><li>First Line</li><li>Second Line</li></ul>"
-//
-//        let generated = generatedHTML(input: input)
-//        XCTAssertEqual(generated, expected)
-//    }
-//
-//
-//    ///
-//    ///
-//    func testSomething2() {
-//        let input = "<blockquote><ul><li>First Line</li></ul></blockquote><blockquote><ul><li>Second Line</li></ul></blockquote>"
-//        let expected = "<blockquote><ul><li>First Line</li><li>Second Line</li></ul></blockquote>"
-//
-//        let generated = generatedHTML(input: input)
-//        XCTAssertEqual(generated, expected)
-//    }
-//
-//
-//    ///
-//    ///
-//    func testSomething() {
-//        let input = "<ul><li><blockquote>text 1</blockquote></li></ul>" +
-//                    "<ul><li><blockquote>text 2</blockquote></li></ul>"
-//        let expected = "<ul><li><blockquote>text 1</blockquote><blockquote>text 2</blockquote></li></ul>"
-//    }
 }
 
 
 // MARK: - Helpers
 //
 private extension NSAttributedStringToNodesTests {
+
+    /// Typealiases
+    ///
+    typealias Node = Libxml2.Node
+    typealias CommentNode = Libxml2.CommentNode
+    typealias ElementNode = Libxml2.ElementNode
+    typealias RootNode = Libxml2.RootNode
+    typealias TextNode = Libxml2.TextNode
+
+    /// Constants
+    ///
+    struct Constants {
+        static let sampleAttributes: [String : Any] = [
+            NSFontAttributeName: UIFont.systemFont(ofSize: UIFont.systemFontSize),
+            NSParagraphStyleAttributeName: NSParagraphStyle()
+        ]
+    }
 
     /// Converts an AttributedString into it's RootNode Representation
     ///
