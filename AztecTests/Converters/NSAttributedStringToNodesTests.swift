@@ -278,6 +278,57 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(textNode.contents, textString.string)
         XCTAssertEqual(commentNode.comment, commentAttachment.text)
     }
+
+
+    /// Verifies that Line Breaks get properly converted into BR Element, whenever the Leftmost + Rightmost elements
+    /// are just plain strings.
+    ///
+    func testNewlineIsAddedBetweenTwoNonBlocklevelElements() {
+        let testingString = NSAttributedString(string: "Hello\nWorld")
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 3)
+
+        guard let helloNode = node.children[0] as? TextNode,
+            let breakNode = node.children[1] as? ElementNode,
+            let worldNode = node.children[2] as? TextNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(helloNode.contents, "Hello")
+        XCTAssertEqual(breakNode.name, "br")
+        XCTAssertEqual(worldNode.contents, "World")
+    }
+
+
+    /// Verifies that Line Breaks do NOT get added into the Tree, whenever the Leftmost + Rightmost elements
+    /// are H1.
+    ///
+    func testNewlineDoesNotGetAddedBetweenTwoBlocklevelElements() {
+        let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
+        let headingStyle = formatter.apply(to: Constants.sampleAttributes)
+
+        let testingString = NSAttributedString(string: "Hello\nWorld", attributes: headingStyle)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 1)
+
+        guard let headingNode = node.children[0] as? ElementNode,
+            let helloNode = headingNode.children[0] as? TextNode,
+            let worldNode = headingNode.children[1] as? TextNode
+            else {
+                XCTFail()
+                return
+        }
+
+        XCTAssertEqual(headingNode.name, "h1")
+        XCTAssertEqual(helloNode.contents, "Hello")
+        XCTAssertEqual(worldNode.contents, "World")
+    }
 }
 
 
