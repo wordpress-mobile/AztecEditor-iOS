@@ -83,31 +83,56 @@ class NSAttributedStringToNodes: Converter {
 }
 
 
-// MARK: - Dimensionality
+// MARK: - Merge
 //
 private extension NSAttributedStringToNodes {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
     /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
-    /// - Last LI item is never merged
-    /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
-    /// - The remaining elements will get merged
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let mergeableNodes = findMergeableNodes(left: left, right: right)?.dropLast(),
-            !mergeableNodes.isEmpty
-        else {
+        guard let mergeableCandidates = findMergeableNodes(left: left, right: right) else {
             return false
         }
 
-        guard let (target, source) = prefix(upTo: "li", from: mergeableNodes).last else {
+        guard let (leftMerger, rightMerger) = mergeablePair(from: mergeableCandidates) else {
             return false
         }
 
-        target.children += source.children
+        leftMerger.children += rightMerger.children
 
         return true
+    }
+
+
+    /// Defines a pair of Nodes that can be merged
+    ///
+    typealias MergeablePair = (left: ElementNode, right: ElementNode)
+
+
+    /// Finds the last valid Mergeable Pair within a collection of mergeable nodes
+    ///
+    /// - Last LI item is never merged
+    /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
+    ///
+    private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
+
+        // Business logic: The last mergeable node is never merged, so we need more than 1 node to continue.
+        //
+        guard mergeableNodes.count > 1,
+            let lastNodeName = mergeableNodes.last?.left.name
+        else {
+            return nil
+        }
+
+        var mergeCandidates = mergeableNodes.dropLast()
+        
+        if lastNodeName != "li" {
+            mergeCandidates = prefix(upToLast: "li", from: mergeCandidates)
+        }
+        
+        return mergeCandidates.last
     }
 
 
@@ -117,7 +142,7 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Output: [.ul]
     ///
-    func prefix(upTo name: String, from nodes: ArraySlice<MergeablePair>) -> ArraySlice<MergeablePair> {
+    private func prefix(upToLast name: String, from nodes: ArraySlice<MergeablePair>) -> ArraySlice<MergeablePair> {
         var lastItemIndex: Int?
         for (index, node) in nodes.enumerated().reversed() where node.left.name == name {
             lastItemIndex = index
@@ -130,29 +155,6 @@ private extension NSAttributedStringToNodes {
 
         return nodes[0..<sliceIndex]
     }
-
-
-    /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
-    ///
-    func rightmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.last
-        }
-    }
-
-
-    /// Returns the "Leftmost" Blocklevel Node from a collection fo nodes.
-    ///
-    func leftmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.first
-        }
-    }
-
-
-    /// Defines a pair of Nodes that can be merged
-    ///
-    typealias MergeablePair = (left: ElementNode, right: ElementNode)
 
 
     /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
@@ -175,6 +177,29 @@ private extension NSAttributedStringToNodes {
         }
         
         return matching.isEmpty ? nil : matching
+    }
+}
+
+
+// MARK: - Paragraph Nodes Extraction
+//
+extension NSAttributedStringToNodes {
+
+    /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
+    ///
+    func rightmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.last
+        }
+    }
+
+
+    /// Returns the "Leftmost" Blocklevel Node from a collection fo nodes.
+    ///
+    func leftmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
+        return paragraphStyleElements(from: nodes) { children in
+            return children.first
+        }
     }
 
 
