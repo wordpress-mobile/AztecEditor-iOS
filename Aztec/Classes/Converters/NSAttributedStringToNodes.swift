@@ -282,7 +282,7 @@ private extension NSAttributedStringToNodes {
     /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
-        for property in style.properties {
+        for property in style.properties.reversed() {
             switch property {
             case is Blockquote:
                 block( ElementNode(type: .blockquote) )
