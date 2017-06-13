@@ -19,12 +19,12 @@ extension NSAttributedString {
         let targetRange = rangeOfEntireString
         guard
             let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-            let foundList = paragraphStyle.textLists.last,
+            let foundList = paragraphStyle.lists.last,
             foundList == list
         else {
             return nil
         }
-        let listDepth = paragraphStyle.textLists.count
+        let listDepth = paragraphStyle.lists.count
 
         var resultRange = effectiveRange
         //Note: The effective range will only return the range of the in location NSParagraphStyleAttributed 
@@ -33,12 +33,12 @@ extension NSAttributedString {
         while resultRange.location > 0 {
             guard
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textLists.last
+                let foundList = paragraphStyle.lists.last
             else {
                     break;
             }
-            if ((listDepth == paragraphStyle.textLists.count && foundList == list) ||
-                listDepth < paragraphStyle.textLists.count) {
+            if ((listDepth == paragraphStyle.lists.count && foundList == list) ||
+                listDepth < paragraphStyle.lists.count) {
                resultRange = resultRange.union(withRange: effectiveRange)
             } else {
                 break;
@@ -47,12 +47,12 @@ extension NSAttributedString {
         while resultRange.endLocation < self.length {
             guard
                 let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
-                let foundList = paragraphStyle.textLists.last
+                let foundList = paragraphStyle.lists.last
             else {
                 break;
             }
-            if ((listDepth == paragraphStyle.textLists.count && foundList == list) ||
-                listDepth < paragraphStyle.textLists.count) {
+            if ((listDepth == paragraphStyle.lists.count && foundList == list) ||
+                listDepth < paragraphStyle.lists.count) {
                 resultRange = resultRange.union(withRange: effectiveRange)
             } else {
                 break;
@@ -76,7 +76,7 @@ extension NSAttributedString {
             else {
                 return NSNotFound
         }
-        let listDepth = paragraphStyle.textLists.count
+        let listDepth = paragraphStyle.lists.count
         guard let rangeOfList = range(of:list, at: location) else {
             return NSNotFound
         }
@@ -88,7 +88,7 @@ extension NSAttributedString {
                 return numberInList
             }
             if let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
-               listDepth == paragraphStyle.textLists.count {
+               listDepth == paragraphStyle.lists.count {
                 numberInList += 1
             }
         }
@@ -108,7 +108,7 @@ extension NSAttributedString {
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.textLists.last
+        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.lists.last
     }
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
@@ -127,7 +127,7 @@ extension NSAttributedString {
 
         enumerateAttribute(NSParagraphStyleAttributeName, in: range, options: []) { (attribute, range, stop) in
             if let paragraphStyle = attribute as? ParagraphStyle {
-                list = paragraphStyle.textLists.last
+                list = paragraphStyle.lists.last
             }
             stop.pointee = true
         }
