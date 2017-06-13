@@ -85,7 +85,7 @@ private extension LayoutManager {
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, let list = paragraphStyle.textLists.last else {
+            guard let paragraphStyle = object as? ParagraphStyle, let list = paragraphStyle.lists.last else {
                 return
             }
 

@@ -34,7 +34,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
+        if  (increaseDepth || newParagraphStyle.lists.isEmpty) {
             newParagraphStyle.add(property: TextList(style: self.listStyle))
         } else {
             newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
@@ -48,7 +48,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes: [String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-              let currentList = paragraphStyle.textLists.last,
+              let currentList = paragraphStyle.lists.last,
               currentList.style == self.listStyle
         else {
             return attributes
@@ -65,7 +65,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.textLists.last else {
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.lists.last else {
             return false
         }
 
@@ -76,7 +76,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
         guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
             return false
         }
-        return !(style.textLists.isEmpty)
+        return !(style.lists.isEmpty)
     }
 }
 

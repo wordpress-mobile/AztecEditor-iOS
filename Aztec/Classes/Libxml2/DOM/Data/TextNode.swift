@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
     ///
-    class TextNode: Node, LeafNode {
+    class TextNode: Node {
 
         var contents: String
 
@@ -25,7 +25,7 @@ extension Libxml2 {
 
         /// Node length.
         ///
-        override func length() -> Int {
+        func length() -> Int {
             return contents.characters.count
         }
 
@@ -43,7 +43,7 @@ extension Libxml2 {
 
         // MARK: - LeafNode
         
-        override func text() -> String {
+        func text() -> String {
             return contents
         }
     }
