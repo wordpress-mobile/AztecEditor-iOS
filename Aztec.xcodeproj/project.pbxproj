@@ -103,7 +103,6 @@
 		F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E791E6EF514009D98EE /* Attribute.swift */; };
 		F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */; };
 		F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */; };
-		F1FA0E841E6EF514009D98EE /* LeafNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7C1E6EF514009D98EE /* LeafNode.swift */; };
 		F1FA0E851E6EF514009D98EE /* MarkerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */; };
 		F1FA0E861E6EF514009D98EE /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7E1E6EF514009D98EE /* Node.swift */; };
 		F1FA0E871E6EF514009D98EE /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */; };
@@ -258,7 +257,6 @@
 		F1FA0E791E6EF514009D98EE /* Attribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentNode.swift; sourceTree = "<group>"; };
 		F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNode.swift; sourceTree = "<group>"; };
-		F1FA0E7C1E6EF514009D98EE /* LeafNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeafNode.swift; sourceTree = "<group>"; };
 		F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkerNode.swift; sourceTree = "<group>"; };
 		F1FA0E7E1E6EF514009D98EE /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
@@ -709,7 +707,6 @@
 				F1FA0E791E6EF514009D98EE /* Attribute.swift */,
 				F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */,
 				F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */,
-				F1FA0E7C1E6EF514009D98EE /* LeafNode.swift */,
 				F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */,
 				F1FA0E7E1E6EF514009D98EE /* Node.swift */,
 				F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */,
@@ -897,7 +894,6 @@
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
 				B5375F471EC2566200F5D7EC /* String+HTML.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
-				F1FA0E841E6EF514009D98EE /* LeafNode.swift in Sources */,
 				FF2774A61EEFE85800D7F2BD /* ParagraphProperty.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F1288BB01DD0B1EF00E67ABC /* HTMLToAttributedString.swift in Sources */,
