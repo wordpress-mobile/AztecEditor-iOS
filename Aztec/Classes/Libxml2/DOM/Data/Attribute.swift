@@ -3,7 +3,7 @@ extension Libxml2 {
     /// Represents a basic attribute with no value.  This is also the base class for all other
     /// attributes.
     ///
-    class Attribute: CustomReflectable {
+    class Attribute: CustomReflectable, Equatable, Hashable {
         let name: String
         
         // MARK: - CustomReflectable
@@ -19,7 +19,21 @@ extension Libxml2 {
         init(name: String) {
             self.name = name
         }
+
+
+        // MARK - Hashable
+
+        var hashValue: Int {
+            return name.hashValue
+        }
+
+        // MARK: - Equatable
+
+        static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+            return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name
+        }
     }
+
 
     /// Represents an attribute with an generic string value.  This is useful for storing attributes
     /// that do have a value, which we don't know how to parse.  This is only meant as a mechanism
@@ -40,6 +54,19 @@ extension Libxml2 {
             self.value = value
 
             super.init(name: name)
+        }
+
+        // MARK - Hashable
+
+        override var hashValue: Int {
+            return name.hashValue ^ value.hashValue
+        }
+
+
+        // MARK: - Equatable
+
+        static func ==(lhs: StringAttribute, rhs: StringAttribute) -> Bool {
+            return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
         }
     }
 }

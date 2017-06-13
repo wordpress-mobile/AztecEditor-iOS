@@ -7,10 +7,8 @@ extension Libxml2.In {
     ///
     class NodesConverter: SafeCLinkedListToArrayConverter<NodeConverter> {
         
-        typealias EditContext = Libxml2.EditContext
-        
-        required init(editContext: EditContext? = nil) {
-            super.init(elementConverter: NodeConverter(editContext: editContext), next: { return $0.next })
+        required init() {
+            super.init(elementConverter: NodeConverter(), next: { return $0.next })
         }
     }
 }

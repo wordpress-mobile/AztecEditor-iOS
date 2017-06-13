@@ -39,6 +39,10 @@ open class HTMLStorage: NSTextStorage {
         fatalError()
     }
 
+    required public init(itemProviderData data: Data, typeIdentifier: String) throws {
+        fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
+    }
+
 
     // MARK: - Overriden Methods
 

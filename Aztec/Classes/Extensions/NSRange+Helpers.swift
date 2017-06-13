@@ -12,8 +12,39 @@ extension NSRange
     ///
     /// - Returns: `true` if the receiver contains the specified range, `false` otherwise.
     ///
-    func contains(range: NSRange) -> Bool {
+    func contains(_ range: NSRange) -> Bool {
         return intersect(withRange: range) == range
+    }
+
+    /// Checks if the receiver contains the specified location.
+    ///
+    /// - Parameters:
+    ///     - range: the location that the receiver may or may not contain.
+    ///
+    /// - Returns: `true` if the receiver contains the specified location, `false` otherwise.
+    ///
+    func contains(offset: Int) -> Bool {
+        return offset >= location && offset <= location + length
+    }
+
+    /// Calculates the end location for the receiver.
+    ///
+    /// - Returns: the requested end location
+    ///
+    var endLocation: Int {
+        return location + length
+    }
+
+    /// Returns a range equal to the receiver extended to its right side by the specified addition
+    /// value.
+    ///
+    /// - Parameters:
+    ///     - addition: the number that will be added to the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func extendedRight(by addition: Int) -> NSRange {
+        return NSRange(location: location, length: length + addition)
     }
     
     /// Returns the intersection between the receiver and the specified range.
@@ -45,18 +76,47 @@ extension NSRange
         }
     }
 
+    /// Offsets the receiver by the specified value.
+    ///
+    /// - Parameters:
+    ///     - offset: the value to apply for the offset operation.
+    ///
+    /// - Returns: the requested range.
+    ///
+    func offset(by offset: Int) -> NSRange {
+        return NSRange(location: location + offset, length: length)
+    }
+
+    /// Returns a range equal to the receiver shortened on its left side by the specified deduction
+    /// value.
+    ///
+    /// - Parameters:
+    ///     - deduction: the number that will be deducted from the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func shortenedLeft(by deduction: Int) -> NSRange {
+        return NSRange(location: location + deduction, length: length - deduction)
+    }
+
+    /// Returns a range equal to the receiver shortened on its right side by the specified deduction
+    /// value.
+    ///
+    /// - Parameters:
+    ///     - deduction: the number that will be deducted from the length of the range
+    ///
+    /// - Returns: the new range.
+    ///
+    func shortenedRight(by deduction: Int) -> NSRange {
+        return NSRange(location: location, length: length - deduction)
+    }
+
     /// Returns the union with the specified range.
     ///
     /// This is `NSUnionRange` wrapped as an instance method.
     ///
     func union(withRange target: NSRange) -> NSRange {
         return NSUnionRange(self, target)
-    }
-
-    /// Returns the maximum Location.
-    ///
-    var endLocation: Int {
-        return location + length
     }
 
     /// Returns a NSRange instance with location = 0 + length = 0

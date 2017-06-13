@@ -1,31 +1,27 @@
 import Foundation
 import UIKit
 
-class HTMLToAttributedString: Converter {
+class HTMLToAttributedString: SafeConverter {
 
-    typealias EditContext = Libxml2.EditContext
     typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
 
     /// The default font descriptor that will be used as a base for conversions.
     ///
     let defaultFontDescriptor: UIFontDescriptor
-    
-    let editContext: EditContext?
 
-    required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor, editContext: EditContext? = nil) {
+    required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
         self.defaultFontDescriptor = defaultFontDescriptor
-        self.editContext = editContext
     }
 
-    func convert(_ html: String) throws -> (rootNode: RootNode, attributedString: NSAttributedString) {
-        let htmlToNode = Libxml2.In.HTMLConverter(editContext: editContext)
+    func convert(_ html: String) -> (rootNode: RootNode, attributedString: NSAttributedString) {
+        let htmlToNode = Libxml2.In.HTMLConverter()
         let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
-        let rootNode = try htmlToNode.convert(html)
+        let rootNode = htmlToNode.convert(html)
 
         if rootNode.children.count == 0 {
-            rootNode.append(TextNode(text: html, editContext: editContext))
+            rootNode.children.append(TextNode(text: html))
         }
 
         let attributedString = nodeToAttributedString.convert(rootNode)
