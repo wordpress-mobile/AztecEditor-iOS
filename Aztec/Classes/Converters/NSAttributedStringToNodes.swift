@@ -95,7 +95,9 @@ private extension NSAttributedStringToNodes {
     /// - The remaining elements will get merged
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let mergeableNodes = findMergeableNodes(left: left, right: right)?.dropLast() else {
+        guard let mergeableNodes = findMergeableNodes(left: left, right: right)?.dropLast(),
+            !mergeableNodes.isEmpty
+        else {
             return false
         }
 
