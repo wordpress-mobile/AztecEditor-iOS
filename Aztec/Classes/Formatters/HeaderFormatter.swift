@@ -32,7 +32,11 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.add(property: Header(level: headerLevel))
+        if (newParagraphStyle.headerLevel == 0) {
+            newParagraphStyle.add(property: Header(level: headerLevel))
+        } else {
+            newParagraphStyle.replaceProperty(ofType: Header.self, with: Header(level: headerLevel))
+        }
 
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
