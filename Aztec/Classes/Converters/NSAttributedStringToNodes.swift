@@ -95,11 +95,11 @@ private extension NSAttributedStringToNodes {
     /// - The remaining elements will get merged
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let nodes = findMergeableNodes(left: left, right: right)?.dropLast() else {
+        guard let mergeableNodes = findMergeableNodes(left: left, right: right)?.dropLast() else {
             return false
         }
 
-        guard let (target, source) = sliceUntilLastListItemElement(nodes: Array(nodes)).last else {
+        guard let (target, source) = prefix(upTo: "li", from: mergeableNodes).last else {
             return false
         }
 
@@ -115,9 +115,9 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Output: [.ul]
     ///
-    func sliceUntilLastListItemElement(nodes: [MergeablePair]) -> [MergeablePair] {
+    func prefix(upTo name: String, from nodes: ArraySlice<MergeablePair>) -> ArraySlice<MergeablePair> {
         var lastItemIndex: Int?
-        for (index, node) in nodes.enumerated().reversed() where node.left.standardName == .li {
+        for (index, node) in nodes.enumerated().reversed() where node.left.name == name {
             lastItemIndex = index
             break
         }
@@ -126,7 +126,7 @@ private extension NSAttributedStringToNodes {
             return nodes
         }
 
-        return Array(nodes[0..<sliceIndex])
+        return nodes[0..<sliceIndex]
     }
 
 
