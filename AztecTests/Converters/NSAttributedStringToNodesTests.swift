@@ -278,6 +278,62 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(textNode.contents, textString.string)
         XCTAssertEqual(commentNode.comment, commentAttachment.text)
     }
+
+
+    /// Verifies that Line Breaks get properly converted into BR Element, whenever the Leftmost + Rightmost elements
+    /// are just plain strings.
+    ///
+    func testNewlineIsAddedBetweenTwoNonBlocklevelElements() {
+        let testingString = NSAttributedString(string: "Hello\nWorld")
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 3)
+
+        guard let helloNode = node.children[0] as? TextNode,
+            let breakNode = node.children[1] as? ElementNode,
+            let worldNode = node.children[2] as? TextNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(helloNode.contents, "Hello")
+        XCTAssertEqual(breakNode.name, "br")
+        XCTAssertEqual(worldNode.contents, "World")
+    }
+
+
+    /// Verifies that Line Breaks do NOT get added into the Tree, whenever the Leftmost + Rightmost elements
+    /// are H1.
+    ///
+    func testNewlineDoesNotGetAddedBetweenTwoBlocklevelElements() {
+        let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
+        let headingStyle = formatter.apply(to: Constants.sampleAttributes)
+
+        let testingString = NSAttributedString(string: "Hello\nWorld", attributes: headingStyle)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        guard node.children.count == 2 else {
+            XCTFail()
+            return
+        }
+
+        guard let headingElementNode = node.children[0] as? ElementNode,
+            let worldElementNode = node.children[1] as? ElementNode,
+            let helloTextNode = headingElementNode.children[0] as? TextNode,
+            let worldTextNode = worldElementNode.children[0] as? TextNode
+        else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(headingElementNode.name, "h1")
+        XCTAssertEqual(worldElementNode.name, "h1")
+        XCTAssertEqual(helloTextNode.contents, "Hello")
+        XCTAssertEqual(worldTextNode.contents, "World")
+    }
 }
 
 

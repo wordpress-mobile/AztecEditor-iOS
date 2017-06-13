@@ -74,35 +74,6 @@ protocol TextStorageAttachmentsDelegate {
 open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    fileprivate let dom = Libxml2.DOMString()
-
-    // MARK: - Undo Support
-    
-    public var undoManager: UndoManager? {
-        get {
-            return dom.undoManager
-        }
-        
-        set {
-            dom.undoManager = newValue
-        }
-    }
-    
-    /// Call this method to know if the DOM should be updated, or if the undo manager will take care
-    /// of it.
-    ///
-    /// The undo manager will take care of updating the DOM whenever an undo or redo operation
-    /// is triggered.
-    ///
-    /// - Returns: `true` if the DOM must be updated, or `false` if the undo manager will take care.
-    ///
-    private func mustUpdateDOM() -> Bool {
-        guard let undoManager = undoManager else {
-            return true
-        }
-        
-        return !undoManager.isUndoing
-    }
     
     // MARK: - NSTextStorage
 
@@ -500,11 +471,13 @@ open class TextStorage: NSTextStorage {
     }
 
     func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
-        
-        let attributedString = dom.setHTML(html, withDefaultFontDescriptor: defaultFontDescriptor)
-        
+
         let originalLength = textStore.length
+        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+
+        let (_, attributedString) = converter.convert(html)
         textStore = NSMutableAttributedString(attributedString: attributedString)
+
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }

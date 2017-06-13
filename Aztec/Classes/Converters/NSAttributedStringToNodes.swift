@@ -14,7 +14,6 @@ class NSAttributedStringToNodes: Converter {
     typealias ElementNode = Libxml2.ElementNode
     typealias RootNode = Libxml2.RootNode
     typealias TextNode = Libxml2.TextNode
-    typealias DOMString = Libxml2.DOMString
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
     typealias StandardElementType = Libxml2.StandardElementType
@@ -27,8 +26,8 @@ class NSAttributedStringToNodes: Converter {
     /// -   Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
-        var previous = [Node]()
         var nodes = [Node]()
+        var previous = [Node]()
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
             let paragraph = attrString.attributedSubstring(from: paragraphRange)
@@ -40,6 +39,11 @@ class NSAttributedStringToNodes: Converter {
             guard !merge(left: left, right: right) else {
                 return
             }
+
+            if !previous.isEmpty && left.count == 0 && right.count == 0 {
+                nodes += [ ElementNode(type: .br) ]
+            }
+
             nodes += children
             previous = children
         }
@@ -249,11 +253,12 @@ private extension NSAttributedStringToNodes {
             case is Blockquote:
                 node = ElementNode(type: .blockquote)
             case let header as Header:
-                let type = DOMString.elementTypeForHeaderLevel(header.level.rawValue) ?? .h1
+                let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) ?? .h1
                 node = ElementNode(type: type)
             case let list as TextList:
-                let node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
-                block(node)
+                node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+            case is HTMLParagraph:
+                node = ElementNode(type: .p)
             default:
                 node = nil
             }
@@ -334,9 +339,9 @@ private extension NSAttributedStringToNodes {
     func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
         let converter = Libxml2.In.HTMLConverter()
 
-        guard let rootNode = try? converter.convert(attachment.rawHTML),
-            let firstChild = rootNode.children.first
-        else {
+        let rootNode = converter.convert(attachment.rawHTML)
+
+        guard let firstChild = rootNode.children.first else {
             return textToNodes(attachment.rawHTML)
         }
 

@@ -222,7 +222,7 @@ class TextStorageTests: XCTestCase
 
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "Hello &#x1F30E;!<br><blockquote>Apply a blockquote!</blockquote>")
+        XCTAssertEqual(html, "Hello &#x1F30E;!<blockquote>Apply a blockquote!</blockquote>")
     }
 
     func testLinkInsert() {
