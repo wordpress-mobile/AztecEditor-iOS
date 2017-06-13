@@ -77,12 +77,15 @@ open class FormatBarItem: UIButton {
 
     // MARK: - Lifecycle
 
-    public convenience init(image: UIImage, identifier: FormattingIdentifier) {
+    public convenience init(image: UIImage, identifier: FormattingIdentifier? = nil) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
     }
 
+    open override var intrinsicContentSize: CGSize {
+        return CGSize(width: 44.0, height: 44.0)
+    }
 
     public init(image: UIImage, frame: CGRect) {
         super.init(frame: frame)
@@ -116,5 +119,11 @@ open class FormatBarItem: UIButton {
         }
 
         tintColor = normalTintColor
+    }
+}
+
+class FormatBarDividerItem: UIView {
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: 1.0, height: 44.0)
     }
 }

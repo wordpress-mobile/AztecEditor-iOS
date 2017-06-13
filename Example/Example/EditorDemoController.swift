@@ -113,8 +113,6 @@ class EditorDemoController: UIViewController {
 
     fileprivate var currentSelectedAttachment: ImageAttachment?
 
-    fileprivate var formatBarAnimatedPeek = false
-
     var loadSampleHTML = false
 
     fileprivate var shortcodePreProcessors = [Processor]()
@@ -184,7 +182,6 @@ class EditorDemoController: UIViewController {
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
-        nc.addObserver(self, selector: #selector(keyboardDidShow), name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -194,7 +191,6 @@ class EditorDemoController: UIViewController {
         let nc = NotificationCenter.default
         nc.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
         nc.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
-        nc.removeObserver(self, name: .UIKeyboardDidShow, object: nil)
     }
 
 
@@ -377,16 +373,6 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-    func keyboardDidShow(_ notification: Notification) {
-        guard richTextView.isFirstResponder, !formatBarAnimatedPeek else {
-            return
-        }
-
-        let formatBar = richTextView.inputAccessoryView as? FormatBar
-        formatBar?.animateSlightPeekWhenOverflows()
-        formatBarAnimatedPeek = true
-    }
-
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
         let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
 
@@ -440,15 +426,14 @@ class EditorDemoController: UIViewController {
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        richTextView.inputAccessoryView = createToolbar(htmlMode: false)
         if richTextView.resignFirstResponder() {
             richTextView.becomeFirstResponder()
         }
-        htmlTextView.inputAccessoryView = createToolbar(htmlMode: true)
+
         if htmlTextView.resignFirstResponder() {
             htmlTextView.becomeFirstResponder()
         }
-        titleTextField.inputAccessoryView = createToolbar(htmlMode: true)
+
         if titleTextField.resignFirstResponder() {
             titleTextField.becomeFirstResponder()
         }
@@ -779,13 +764,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
 
+        let mediaItem = makeToolbarButton(identifier: .media)
         let scrollableItems = scrollableItemsForToolbar
-        let fixedItems = fixedItemsForToolbar
+        let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
 
         if htmlMode {
-            let merged = scrollableItems + fixedItems
+            let merged = [mediaItem] + scrollableItems + overflowItems
             for item in merged {
                 item.isEnabled = false
                 if item.identifier == .sourcecode {
@@ -794,12 +780,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
 
-        toolbar.scrollableItems = scrollableItems
-        toolbar.fixedItems = fixedItems
+        toolbar.defaultItems = [[mediaItem], scrollableItems]
+        toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
         toolbar.selectedTintColor = .darkGray
         toolbar.disabledTintColor = .lightGray
+        toolbar.dividerTintColor = .gray
+        toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 
@@ -808,23 +796,21 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
     var scrollableItemsForToolbar: [FormatBarItem] {
         return [
-            makeToolbarButton(identifier: .media),
             makeToolbarButton(identifier: .header),
+            makeToolbarButton(identifier: .unorderedlist),
+            makeToolbarButton(identifier: .blockquote),
             makeToolbarButton(identifier: .bold),
             makeToolbarButton(identifier: .italic),
-            makeToolbarButton(identifier: .underline),
-            makeToolbarButton(identifier: .strikethrough),
-            makeToolbarButton(identifier: .blockquote),
-            makeToolbarButton(identifier: .unorderedlist),
-            makeToolbarButton(identifier: .orderedlist),
-            makeToolbarButton(identifier: .link),
-            makeToolbarButton(identifier: .horizontalruler),
-            makeToolbarButton(identifier: .more)
+            makeToolbarButton(identifier: .link)
         ]
     }
 
-    var fixedItemsForToolbar: [FormatBarItem] {
+    var overflowItemsForToolbar: [FormatBarItem] {
         return [
+            makeToolbarButton(identifier: .underline),
+            makeToolbarButton(identifier: .strikethrough),
+            makeToolbarButton(identifier: .horizontalruler),
+            makeToolbarButton(identifier: .more),
             makeToolbarButton(identifier: .sourcecode)
         ]
     }
@@ -1191,6 +1177,7 @@ extension EditorDemoController {
         static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
+        static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
@@ -1208,46 +1195,51 @@ extension FormattingIdentifier {
 
         switch(self) {
         case .media:
-            return Gridicon.iconOfType(.addImage)
+            return gridicon(.addOutline)
         case .header:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .bold:
-            return Gridicon.iconOfType(.bold)
+            return gridicon(.bold)
         case .italic:
-            return Gridicon.iconOfType(.italic)
+            return gridicon(.italic)
         case .underline:
-            return Gridicon.iconOfType(.underline)
+            return gridicon(.underline)
         case .strikethrough:
-            return Gridicon.iconOfType(.strikethrough)
+            return gridicon(.strikethrough)
         case .blockquote:
-            return Gridicon.iconOfType(.quote)
+            return gridicon(.quote)
         case .orderedlist:
-            return Gridicon.iconOfType(.listOrdered)
+            return gridicon(.listOrdered)
         case .unorderedlist:
-            return Gridicon.iconOfType(.listUnordered)
+            return gridicon(.listUnordered)
         case .link:
-            return Gridicon.iconOfType(.link)
+            return gridicon(.link)
         case .horizontalruler:
-            return Gridicon.iconOfType(.minusSmall)
+            return gridicon(.minusSmall)
         case .sourcecode:
-            return Gridicon.iconOfType(.code)
+            return gridicon(.code)
         case .more:
-            return Gridicon.iconOfType(.readMore)
+            return gridicon(.readMore)
         case .header1:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .header2:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .header3:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .header4:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .header5:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .header6:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         case .p:
-            return Gridicon.iconOfType(.heading)
+            return gridicon(.heading)
         }
+    }
+
+    private func gridicon(_ gridiconType: GridiconType) -> UIImage {
+        let size = EditorDemoController.Constants.formatBarIconSize
+        return Gridicon.iconOfType(gridiconType, withSize: size)
     }
 
     var accessibilityIdentifier: String {
