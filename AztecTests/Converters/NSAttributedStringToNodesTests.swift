@@ -8,6 +8,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Bold Style gets effectively mapped.
     ///
+    /// - Input: [Bold Style]Bold?[/Bold Style]
+    ///
+    /// - Output: <b>Bold?</b>
+    ///
     func testBoldStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = BoldFormatter().apply(to: Constants.sampleAttributes)
         let string = NSAttributedString(string: "Bold?", attributes: attributes)
@@ -26,6 +30,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
     /// Verifies that Italics Style gets effectively mapped.
+    ///
+    /// - Input: [Italic Style]Italics![/Italic Style]
+    ///
+    /// - Output: <i>Italics</i>
     ///
     func testItalicStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = ItalicFormatter().apply(to: Constants.sampleAttributes)
@@ -46,6 +54,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Underline Style gets effectively mapped.
     ///
+    /// - Input: [Underline Style]Underlined![/Underline Style]
+    ///
+    /// - Output: <u>Underlined!</u>
+    ///
     func testUnderlineStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = UnderlineFormatter().apply(to: Constants.sampleAttributes)
         let string = NSAttributedString(string: "Underlined!", attributes: attributes)
@@ -65,6 +77,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Strike Style gets effectively mapped.
     ///
+    /// - Input: [Strike Style]Strike![/Strike Style]
+    ///
+    /// - Output: <strike>Strike!</strike>
+    ///
     func testStrikeStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let attributes = StrikethroughFormatter().apply(to: Constants.sampleAttributes)
         let testingString = NSAttributedString(string: "Strike!", attributes: attributes)
@@ -83,6 +99,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
     /// Verifies that Link Style gets effectively mapped.
+    ///
+    /// - Input: [Link Style]Yo! Yose! Yosemite![/Link Style]
+    ///
+    /// - Output: <a href="...">Yo! Yose! Yosemite!</a>
     ///
     func testLinkStyleEffectivelyMapsIntoItsTreeRepresentation() {
         let formatter = LinkFormatter()
@@ -105,6 +125,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
     /// Verifies that Lists get effectively mapped.
+    ///
+    /// - Input: <ul><li>First Line\nSecond Line</li></ul>
+    ///
+    /// - Output: <ul><li>First Line</li><li>Second Line</li></ul>
     ///
     func testListItemsRemainInTheSameContainingUnorderedList() {
         let firstText = "First Line"
@@ -143,6 +167,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Comments get effectively mapped.
     ///
+    /// - Input: [Comment Attachment]I'm a comment. YEAH![Comment Attachment]
+    ///
+    /// - Output: <!-- Comment -->I'm a comment. YEAH!<!-- Comment -->
+    ///
     func testCommentsArePreservedAndSerializedBack() {
         let attachment = CommentAttachment()
         attachment.text = "I'm a comment. YEAH!"
@@ -172,6 +200,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
     /// Verifies that Line Attachments get effectively mapped.
+    ///
+    /// - Input: I'm a text line[Line Attachment]I'm a text line[Line Attachment]I'm a text line[Line Attachment]
+    ///
+    /// - Output: I'm a text line<hr>I'm a text line<hr>I'm a text line<hr>
     ///
     func testLineElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
         let attachment = LineAttachment()
@@ -211,6 +243,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Header Style gets properly mapped.
     ///
+    /// - Input: <h1>Aztec Rocks</h1>\nNewline?
+    ///
+    /// - Output: <h1>Aztec Rocks</h1>Newline?
+    ///
     func testHeaderElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
 
         let levels: [HeaderFormatter.HeaderType] = [.h1, .h2, .h3, .h4, .h5, .h6]
@@ -246,6 +282,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
     /// Verifies that Unknown HTML Attachments get properly mapped, and don't get nuked along the way.
+    ///
+    /// - Input: [Unknown HTML][Tail Comment]
+    ///
+    /// - Output: [Unknown HTML]<!-- Tail Comment -->
     ///
     func testUnknownHtmlDoesNotGetNuked() {
         let htmlAttachment = HTMLAttachment()
@@ -286,6 +326,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
     /// Verifies that Line Breaks get properly converted into BR Element, whenever the Leftmost + Rightmost elements
     /// are just plain strings.
     ///
+    /// - Input: Hello\nWorld
+    ///
+    /// - Output: Hello<br>World
+    ///
     func testNewlineIsAddedBetweenTwoNonBlocklevelElements() {
         let testingString = NSAttributedString(string: "Hello\nWorld")
 
@@ -309,6 +353,10 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
     /// Verifies that Line Breaks do NOT get added into the Tree, whenever the Leftmost + Rightmost elements
     /// are H1.
+    ///
+    /// - Input: <h1>Hello\nWorld</h1>
+    ///
+    /// - Output: <h1>Hello</h1><h1>World</h1>
     ///
     func testNewlineDoesNotGetAddedBetweenTwoBlocklevelElements() {
         let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
