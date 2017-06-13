@@ -1,16 +1,17 @@
 import Foundation
 
-class HTMLParagraph: NSObject, NSCoding {
-    public func encode(with aCoder: NSCoder) {
-
+class HTMLParagraph: ParagraphProperty {
+    
+    override public func encode(with aCoder: NSCoder) {
+        encode(with: aCoder)
     }
 
     override public init() {
-
+        super.init()
     }
 
     required public init?(coder aDecoder: NSCoder){
-
+        super.init(coder: aDecoder)
     }
 
     static func ==(lhs: HTMLParagraph, rhs: HTMLParagraph) -> Bool {

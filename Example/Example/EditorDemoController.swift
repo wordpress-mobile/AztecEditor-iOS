@@ -608,14 +608,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.becomeFirstResponder()
     }
 
-    func headerLevelForSelectedText() -> HeaderFormatter.HeaderType {
+    func headerLevelForSelectedText() -> Header.HeaderType {
         var identifiers = [FormattingIdentifier]()
         if (richTextView.selectedRange.length > 0) {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
-        let mapping: [FormattingIdentifier: HeaderFormatter.HeaderType] = [
+        let mapping: [FormattingIdentifier: Header.HeaderType] = [
             .header1 : .h1,
             .header2 : .h2,
             .header3 : .h3,
@@ -1187,7 +1187,7 @@ extension EditorDemoController {
         static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
-        static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
     }

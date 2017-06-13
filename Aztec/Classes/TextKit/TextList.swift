@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - Text List
 //
-class TextList: Equatable
+class TextList: ParagraphProperty
 {
     // MARK: - Nested Types
 
@@ -30,6 +30,17 @@ class TextList: Equatable
 
     init(style: Style) {
         self.style = style
+        super.init()
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        if aDecoder.containsValue(forKey: String(describing: Style.self)),
+            let decodedStyle = Style(rawValue:aDecoder.decodeInteger(forKey: String(describing: Style.self))) {
+            style = decodedStyle
+        } else {
+            style = .ordered
+        }
+        super.init(coder: aDecoder)
     }
 
     static func ==(lhs: TextList, rhs: TextList) -> Bool {

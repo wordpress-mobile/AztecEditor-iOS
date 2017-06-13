@@ -210,7 +210,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     ///
     func testHeaderElementGetsProperlySerialiedBackIntoItsHtmlRepresentation() {
 
-        let levels: [HeaderFormatter.HeaderType] = [.h1, .h2, .h3, .h4, .h5, .h6]
+        let levels: [Header.HeaderType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
         for level in levels {
             let formatter = HeaderFormatter(headerLevel: level, placeholderAttributes: [:])

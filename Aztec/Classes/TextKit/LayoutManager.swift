@@ -45,7 +45,7 @@ private extension LayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         //draw blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.blockquote != nil else {
+            guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
 
@@ -127,7 +127,7 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        let markerRect = rect.offsetBy(dx: style.headIndent, dy: style.paragraphSpacingBefore + style.paragraphSpacing)
+        let markerRect = rect.offsetBy(dx: 0, dy: style.paragraphSpacingBefore)
 
         markerText.draw(in: markerRect)
     }

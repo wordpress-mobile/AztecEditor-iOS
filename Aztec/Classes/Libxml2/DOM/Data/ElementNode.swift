@@ -20,7 +20,7 @@ extension Libxml2 {
         private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
         class func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
-            if headerLevel < 1 && headerLevel > headerLevels.count {
+            if headerLevel < 1 || headerLevel > headerLevels.count {
                 return nil
             }
             return headerLevels[headerLevel - 1]

@@ -35,10 +35,9 @@ class TextListFormatter: ParagraphAttributeFormatter {
         }
 
         if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            newParagraphStyle.add(property: TextList(style: self.listStyle))
         } else {
-            newParagraphStyle.textLists.removeLast()
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
         }
 
         var resultingAttributes = attributes
@@ -56,8 +55,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
         }
 
         let newParagraphStyle = ParagraphStyle()
-        newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.textLists.removeLast()
+        newParagraphStyle.setParagraphStyle(paragraphStyle)       
+        newParagraphStyle.removeProperty(ofType: TextList.self)
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
