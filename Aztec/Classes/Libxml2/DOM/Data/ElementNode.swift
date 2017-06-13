@@ -68,14 +68,6 @@ extension Libxml2 {
         }
         
         // MARK: - Node Overrides
-        
-        /// Node length.  Calculated by adding the length of all child nodes.
-        ///
-        /*
-        override func length() -> Int {
-            return text().characters.count
-        }
- */
 
         /// Checks if the specified node requires a closing paragraph separator.
         ///
