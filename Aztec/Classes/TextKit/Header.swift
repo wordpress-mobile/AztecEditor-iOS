@@ -65,6 +65,11 @@ open class Header: ParagraphProperty
         super.init(coder: aDecoder)
     }
 
+    public override func encode(with aCoder: NSCoder) {
+        super.encode(with: aCoder)
+        aCoder.encode(level.rawValue, forKey: String(describing: HeaderType.self))
+    }
+
     static func ==(lhs: Header, rhs: Header) -> Bool {
         return lhs.level == rhs.level
     }

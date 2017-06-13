@@ -7,7 +7,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": textLists as Any])
+            return Mirror(self, children: ["blockquotes": blockquotes as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": lists as Any])
         }
     }
 
@@ -37,7 +37,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
 
-    var textLists : [TextList] {
+    var lists : [TextList] {
         return properties.flatMap { (property) -> TextList? in
             if let textList = property as? TextList {
                 return textList
@@ -110,7 +110,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var headIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
 
             return baseHeadIndent + extra
         }
@@ -122,7 +122,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var firstLineHeadIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(textLists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
 
             return baseFirstLineHeadIndent + extra
         }
@@ -244,7 +244,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description + " Blockquotes: \(String(describing:blockquotes)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(textLists)"
+        return super.description + " Blockquotes: \(String(describing:blockquotes)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(lists)"
     }
 }
 

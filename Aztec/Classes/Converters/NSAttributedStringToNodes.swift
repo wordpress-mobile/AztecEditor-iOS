@@ -282,7 +282,7 @@ private extension NSAttributedStringToNodes {
     /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
-        if !style.textLists.isEmpty {
+        if !style.lists.isEmpty {
             let node = ElementNode(type: .li)
             block(node)
         }

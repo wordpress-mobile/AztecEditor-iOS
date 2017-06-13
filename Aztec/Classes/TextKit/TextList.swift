@@ -43,6 +43,11 @@ class TextList: ParagraphProperty
         super.init(coder: aDecoder)
     }
 
+    public override func encode(with aCoder: NSCoder) {
+        super.encode(with: aCoder)
+        aCoder.encode(style.rawValue, forKey: String(describing: Style.self))
+    }
+
     static func ==(lhs: TextList, rhs: TextList) -> Bool {
         return lhs.style == rhs.style 
     }
