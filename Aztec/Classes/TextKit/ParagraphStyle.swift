@@ -257,28 +257,20 @@ extension ParagraphStyle {
     }
 
     func removeProperty(ofType type: AnyClass) {
-        var position: Int?
         for index in (0..<properties.count).reversed() {
             if type(of: properties[index]) == type {
-                position = index
-                break
+                properties.remove(at: index)
+                return
             }
-        }
-        if let positionFound = position {
-            properties.remove(at: positionFound)
         }
     }
 
     func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
-        var position: Int?
         for index in (0..<properties.count).reversed() {
             if type(of: properties[index]) == type {
-                position = index
-                break
+                properties[index] = newProperty
+                return
             }
-        }
-        if let positionFound = position {
-            properties[positionFound] = newProperty
         }
     }
 }
