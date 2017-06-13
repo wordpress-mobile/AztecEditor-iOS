@@ -90,6 +90,10 @@ private extension NSAttributedStringToNodes {
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
+        guard !left.isEmpty && !right.isEmpty else {
+            return false
+        }
+
         let mergeable = findMergeableNodes(left: left, right: right)
         guard let (target, source) = mergeable.dropLast().last else {
             return false
