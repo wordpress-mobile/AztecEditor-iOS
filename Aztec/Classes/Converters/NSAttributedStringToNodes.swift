@@ -229,6 +229,8 @@ private extension NSAttributedStringToNodes {
             return htmlAttachmentToNode(htmlAttachment)
         case let imageAttachment as ImageAttachment:
             return imageAttachmentToNodes(imageAttachment)
+        case let videoAttachment as VideoAttachment:
+            return videoAttachmentToNodes(videoAttachment)
         default:
             return textToNodes(attrString.string)
         }
@@ -366,6 +368,24 @@ private extension NSAttributedStringToNodes {
         }
 
         let node = ElementNode(type: .img, attributes: attributes)
+        return [node]
+    }
+
+    /// Converts an Video Attachment into it's representing nodes.
+    ///
+    func videoAttachmentToNodes(_ attachment: VideoAttachment) -> [Node] {
+        var attributes = [Attribute]()
+        if let source = attachment.srcURL?.absoluteString {
+            let attribute = StringAttribute(name: "src", value: source)
+            attributes.append(attribute)
+        }
+
+        if let poster = attachment.posterURL?.absoluteString {
+            let attribute = StringAttribute(name: "poster", value: poster)
+            attributes.append(attribute)
+        }
+
+        let node = ElementNode(type: .video, attributes: attributes)
         return [node]
     }
 
