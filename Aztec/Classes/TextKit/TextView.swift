@@ -24,7 +24,7 @@ public protocol TextViewAttachmentDelegate: class {
                   attachment: NSTextAttachment,
                   imageAt url: URL,
                   onSuccess success: @escaping (UIImage) -> Void,
-                  onFailure failure: @escaping (Void) -> Void) -> UIImage
+                  onFailure failure: @escaping () -> Void) -> UIImage
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
@@ -1107,6 +1107,14 @@ open class TextView: UITextView {
         layoutManager.ensureLayoutForContainers()
         delegate?.textViewDidChange?(self)
     }
+
+    open func update(attachment: VideoAttachment) {
+        storage.update(attachment: attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
 
     /// Updates the Attachment's HTML contents to the new specified value.
     ///

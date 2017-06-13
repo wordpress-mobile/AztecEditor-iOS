@@ -123,6 +123,7 @@
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
 		FF7DCB471E80837D00AB77CB /* UIColor+Parsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB461E80837D00AB77CB /* UIColor+Parsers.swift */; };
 		FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */; };
+		FF8669EC1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */; };
 		FF8F85841E84162900C12BB4 /* PreFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8F85831E84162900C12BB4 /* PreFormatter.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
@@ -281,6 +282,7 @@
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
 		FF7DCB461E80837D00AB77CB /* UIColor+Parsers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Parsers.swift"; sourceTree = "<group>"; };
 		FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIColorHexParserTests.swift; path = Extensions/UIColorHexParserTests.swift; sourceTree = "<group>"; };
+		FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewStubAttachmentDelegate.swift; sourceTree = "<group>"; };
 		FF8F85831E84162900C12BB4 /* PreFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreFormatter.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
@@ -624,6 +626,7 @@
 			children = (
 				599F25931D8BDCFC002871D6 /* TextViewTests.swift */,
 				599F25921D8BDCFC002871D6 /* TextStorageTests.swift */,
+				FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */,
 			);
 			name = TextKit;
 			sourceTree = "<group>";
@@ -802,7 +805,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Automattic Inc.";
 				TargetAttributes = {
 					5951CB8D1D8BC93600E1866F = {
@@ -967,6 +970,7 @@
 				FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
+				FF8669EC1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift in Sources */,
 				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
 				F1C55D9E1EE9A976002CE99D /* HTMLAttributeRepresentationTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
@@ -1006,7 +1010,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1014,7 +1020,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1060,7 +1070,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1068,7 +1080,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1199,7 +1215,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1207,7 +1225,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1293,7 +1315,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1301,7 +1325,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
