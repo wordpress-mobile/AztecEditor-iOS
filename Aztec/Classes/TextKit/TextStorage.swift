@@ -362,18 +362,9 @@ open class TextStorage: NSTextStorage {
                 alignment: ImageAttachment.Alignment,
                 size: ImageAttachment.Size,
                 url: URL) {
-        /*
         attachment.alignment = alignment
         attachment.size = size
         attachment.url = url
-        let rangesForAttachment = ranges(forAttachment: attachment)
-
-        let domRanges = rangesForAttachment.map { range -> NSRange in
-            string.map(visualUTF16Range: range)
-        }
-        
-        dom.updateImage(spanning: domRanges, url: url, size: size, alignment: alignment)
-        */
     }
 
     /// Updates the specified HTMLAttachment with new HTML contents
