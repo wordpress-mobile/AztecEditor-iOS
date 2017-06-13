@@ -89,19 +89,44 @@ private extension NSAttributedStringToNodes {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
+    /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
+    /// - Last LI item is never merged
+    /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
+    /// - The remaining elements will get merged
+    ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard !left.isEmpty && !right.isEmpty else {
+        guard let nodes = findMergeableNodes(left: left, right: right)?.dropLast() else {
             return false
         }
 
-        let mergeable = findMergeableNodes(left: left, right: right)
-        guard let (target, source) = mergeable.dropLast().last else {
+        guard let (target, source) = sliceUntilLastListItemElement(nodes: Array(nodes)).last else {
             return false
         }
 
         target.children += source.children
 
         return true
+    }
+
+
+    /// Slices the specified array until the last LI node. For instance:
+    ///
+    /// - Input: [.ul, .li, .h1]
+    ///
+    /// - Output: [.ul]
+    ///
+    func sliceUntilLastListItemElement(nodes: [MergeablePair]) -> [MergeablePair] {
+        var lastItemIndex: Int?
+        for (index, node) in nodes.enumerated().reversed() where node.left.standardName == .li {
+            lastItemIndex = index
+            break
+        }
+
+        guard let sliceIndex = lastItemIndex else {
+            return nodes
+        }
+
+        return Array(nodes[0..<sliceIndex])
     }
 
 
@@ -130,7 +155,7 @@ private extension NSAttributedStringToNodes {
 
     /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
     ///
-    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair] {
+    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair]? {
         var currentIndex = 0
         var matching = [MergeablePair]()
 
@@ -147,7 +172,7 @@ private extension NSAttributedStringToNodes {
             currentIndex += 1
         }
         
-        return matching
+        return matching.isEmpty ? nil : matching
     }
 
 
