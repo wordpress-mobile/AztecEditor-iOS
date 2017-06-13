@@ -653,7 +653,7 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleHeader(_ headerType: HeaderFormatter.HeaderType, range: NSRange) {
+    open func toggleHeader(_ headerType: Header.HeaderType, range: NSRange) {
         let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()

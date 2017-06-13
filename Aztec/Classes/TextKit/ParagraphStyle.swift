@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class ParagraphProperty: NSObject, NSCoding {
+open class ParagraphProperty: NSObject, NSCoding {
 
     public override init() {
 
@@ -64,8 +64,25 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             }
         }
     }
-    
-    var headerLevel: Int = 0
+
+    var headers: [Header] {
+        return properties.flatMap { (property) -> Header? in
+            if let header = property as? Header {
+                return header
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var headerLevel: Int {
+        let availableHeaders = headers
+        if availableHeaders.isEmpty {
+            return 0
+        } else {
+            return availableHeaders.last!.level.rawValue
+        }
+    }
 
     override init() {
         super.init()
@@ -104,8 +121,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             baseTailIndent = paragrahStyle.baseTailIndent
             baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
             baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
-            
-            headerLevel = paragrahStyle.headerLevel            
+
             properties = paragrahStyle.properties
         }
     }
@@ -237,8 +253,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         for property in properties {
             hash = hash ^ property.hashValue
         }        
-
-        hash = hash ^ headerLevel.hashValue
+        
         return hash
     }
 

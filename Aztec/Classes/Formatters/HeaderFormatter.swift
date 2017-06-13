@@ -6,45 +6,9 @@ import UIKit
 //
 open class HeaderFormatter: ParagraphAttributeFormatter {
 
-    /// Available Heading Types
-    ///
-    public enum HeaderType: Int {
-        case none = 0
-        case h1 = 1
-        case h2 = 2
-        case h3 = 3
-        case h4 = 4
-        case h5 = 5
-        case h6 = 6
-
-        public var fontSize: CGFloat {
-            switch self {
-            case .none: return 14
-            case .h1: return 36
-            case .h2: return 24
-            case .h3: return 21
-            case .h4: return 16
-            case .h5: return 14
-            case .h6: return 11
-            }
-        }
-
-        public var description: String {
-            switch self {
-            case .none: return "Paragraph"
-            case .h1: return "Heading 1"
-            case .h2: return "Heading 2"
-            case .h3: return "Heading 3"
-            case .h4: return "Heading 4"
-            case .h5: return "Heading 5"
-            case .h6: return "Heading 6"
-            }
-        }
-    }
-
     /// Heading Level of this formatter
     ///
-    let headerLevel: HeaderType
+    let headerLevel: Header.HeaderType
 
     /// Attributes to be added by default
     ///
@@ -53,7 +17,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Designated Initializer
     ///
-    init(headerLevel: HeaderType = .h1, placeholderAttributes: [String : Any]? = nil) {
+    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [String : Any]? = nil) {
         self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
@@ -68,7 +32,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.headerLevel = headerLevel.rawValue
+        newParagraphStyle.add(property: Header(level: headerLevel))
 
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
@@ -88,11 +52,11 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
             return resultingAttributes
         }
         newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.headerLevel = HeaderType.none.rawValue
+        newParagraphStyle.removeProperty(ofType: Header.self)
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
-            let newFont = font.withSize(HeaderType.none.fontSize)
+            let newFont = font.withSize(Header.HeaderType.none.fontSize)
             resultingAttributes[NSFontAttributeName] = newFont
         }
 
