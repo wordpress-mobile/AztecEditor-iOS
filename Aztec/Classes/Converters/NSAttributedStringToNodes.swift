@@ -361,8 +361,11 @@ private extension NSAttributedStringToNodes {
     ///
     func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
         var attributes = [Attribute]()
-        if let source = attachment.url?.absoluteString {
-            let attribute = StringAttribute(name: "src", value: source)
+        if let attribute = imageSourceAttribute(attachment) {
+            attributes.append(attribute)
+        }
+
+        if let attribute = imageClassAttribute(attachment) {
             attributes.append(attribute)
         }
 
@@ -386,6 +389,37 @@ private extension NSAttributedStringToNodes {
 
         let node = ElementNode(type: .video, attributes: attributes)
         return [node]
+    }
+
+
+    /// Extracts the src attribute from an ImageAttachment Instance.
+    ///
+    func imageSourceAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+        guard let source = attachment.url?.absoluteString else {
+            return nil
+        }
+        return StringAttribute(name: "src", value: source)
+    }
+
+
+    /// Extracts the class attribute from an ImageAttachment Instance.
+    ///
+    func imageClassAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+        var style = String()
+        if attachment.alignment != .center {
+            style += attachment.alignment.htmlString()
+        }
+
+        if attachment.size != .full {
+            style += style.isEmpty ? String() : String(.space)
+            style += attachment.size.htmlString()
+        }
+
+        guard !style.isEmpty else {
+            return nil
+        }
+
+        return StringAttribute(name: "class", value: style)
     }
 
 
