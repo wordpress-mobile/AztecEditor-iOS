@@ -54,6 +54,17 @@ public extension String
         return lowerBound ..< upperBound
     }
 
+    func range(fromUTF16NSRange utf16NSRange: NSRange) -> Range<String.Index> {
+
+        let swiftUTF16Range = utf16.range(from: utf16NSRange)
+
+        guard let swiftRange = range(from: swiftUTF16Range) else {
+            fatalError("Out of bounds!")
+        }
+
+        return swiftRange
+    }
+
     /// Converts a UTF16 NSRange into a `Range<String.Index>` for this string.
     ///
     /// - Parameters:

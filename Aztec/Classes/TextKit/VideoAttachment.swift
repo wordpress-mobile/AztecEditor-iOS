@@ -18,6 +18,14 @@ open class VideoAttachment: MediaAttachment
     ///
     open var srcURL: URL?
 
+    /// Extra named attributes on video
+    ///
+    open var namedAttributes = [String:String]()
+
+    /// Extra unnamed attributes on video
+    ///
+    open var unnamedAttributes = [String]()
+
     /// Video poster image to show, while the video is not played.
     ///
     open var posterURL: URL? {
@@ -34,8 +42,10 @@ open class VideoAttachment: MediaAttachment
     ///
     /// - parameter identifier: An unique identifier for the attachment
     ///
-    required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil) {
+    required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil, namedAttributes: [String:String], unnamedAttributes: [String]) {
         self.srcURL = srcURL
+        self.namedAttributes = namedAttributes
+        self.unnamedAttributes = unnamedAttributes
         
         super.init(identifier: identifier, url: posterURL)
 

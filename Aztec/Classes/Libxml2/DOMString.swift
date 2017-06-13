@@ -695,18 +695,24 @@ extension Libxml2 {
         ///   - videoURL: the URL for the video src attribute
         ///   - posterURL: the URL for ther video poster attribute
         ///
-        func replace(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+        func replace(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?, namedAttributes: [String:String], unnamedAttributes: [String]) {
             performAsyncUndoable { [weak self] in
-                self?.replaceSynchronously(range, withVideoURL: videoURL, posterURL: posterURL)
+                self?.replaceSynchronously(range, withVideoURL: videoURL, posterURL: posterURL, namedAttributes: namedAttributes, unnamedAttributes: unnamedAttributes)
             }
         }
 
-        private func replaceSynchronously(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?) {
+        private func replaceSynchronously(_ range: NSRange, withVideoURL videoURL: URL, posterURL: URL?, namedAttributes: [String:String], unnamedAttributes: [String]) {
             let videoURLString = videoURL.absoluteString
 
-            var attributes = [Libxml2.StringAttribute(name:"src", value: videoURLString)]
+            var attributes: [Libxml2.Attribute] = [Libxml2.StringAttribute(name:"src", value: videoURLString)]
             if let posterURLString = posterURL?.absoluteString {
                 attributes.append(Libxml2.StringAttribute(name:"poster", value: posterURLString))
+            }
+            for (key, value) in namedAttributes {
+                attributes.append(Libxml2.StringAttribute(name:key, value: value))
+            }
+            for value in unnamedAttributes {
+                attributes.append(Libxml2.Attribute(name: value))
             }
             let descriptor = ElementNodeDescriptor(elementType: .video, attributes: attributes)
 
