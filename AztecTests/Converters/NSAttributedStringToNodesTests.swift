@@ -443,8 +443,8 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
-        TextListFormatter(style: .ordered).applyAttributes(to: testingString, at: testingRange)
         BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
+        TextListFormatter(style: .ordered).applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
         let node = rootNode(from: testingString)
@@ -500,8 +500,8 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
-        BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
         TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
+        BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
         let node = rootNode(from: testingString)
@@ -560,8 +560,8 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
-        HeaderFormatter().applyAttributes(to: testingString, at: testingRange)
         TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
+        HeaderFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
         let node = rootNode(from: testingString)
