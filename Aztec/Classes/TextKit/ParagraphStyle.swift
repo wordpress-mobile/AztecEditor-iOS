@@ -1,24 +1,6 @@
 import Foundation
 import UIKit
 
-open class ParagraphProperty: NSObject, NSCoding {
-
-    public override init() {
-
-    }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        super.init()
-    }
-
-    public func encode(with aCoder: NSCoder) {
-    }
-
-    static func ==(lhs: ParagraphProperty, rhs: ParagraphProperty) -> Bool {
-        return lhs == rhs
-    }
-}
-
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - CustomReflectable
