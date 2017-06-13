@@ -509,8 +509,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             insertMoreAttachment()
         case .horizontalruler:
             insertHorizontalRuler()
-        default:
-            break
         }
 
         updateFormatBar()
@@ -1235,8 +1233,6 @@ extension FormattingIdentifier {
             return gridicon(.headingH5)
         case .header6:
             return gridicon(.headingH6)
-        default:
-            return UIImage()
         }
     }
 
@@ -1285,8 +1281,6 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH5"
         case .header6:
             return "formatToolbarToggleH6"
-        default:
-            return "none"
         }
     }
 
@@ -1330,8 +1324,6 @@ extension FormattingIdentifier {
             return NSLocalizedString("Header 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
             return NSLocalizedString("Header 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
-        default:
-            return ""
         }
     }
 }
