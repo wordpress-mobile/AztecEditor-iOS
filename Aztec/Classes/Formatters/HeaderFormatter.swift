@@ -69,7 +69,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     func present(in attributes: [String : Any]) -> Bool {
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
-            return paragraphStyle.headerLevel == headerLevel.rawValue
+            return paragraphStyle.headerLevel != 0 && paragraphStyle.headerLevel == headerLevel.rawValue
         }
         return false
     }

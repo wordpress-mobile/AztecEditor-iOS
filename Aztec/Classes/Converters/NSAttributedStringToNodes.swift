@@ -253,8 +253,9 @@ private extension NSAttributedStringToNodes {
             case is Blockquote:
                 node = ElementNode(type: .blockquote)
             case let header as Header:
-                let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) ?? .h1
-                node = ElementNode(type: type)
+                if let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) {
+                    node = ElementNode(type: type)
+                }
             case let list as TextList:
                 node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
             case is HTMLParagraph:
