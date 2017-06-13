@@ -543,6 +543,66 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(firstTextNode?.contents, firstText)
         XCTAssertEqual(secondTextNode?.contents, secondText)
     }
+
+
+    /// Verifies that the last List Item within a list *never* gets merged with the next Paragraph's List Item of
+    /// the exact same leve.
+    ///
+    /// - Input: <ul><li><h1>Hello\nWorld</h1></li></ul>
+    ///
+    /// - Output: <ul><li><h1>Hello</h1></li><li><h1>World</h1></li></ul>
+    ///
+    func testLastListItemIsNeverMergedWithTheNextListItem() {
+        let firstText = "Hello"
+        let secondText = "World"
+
+        let text = firstText + String(.newline) + secondText
+        let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
+        let testingRange = testingString.rangeOfEntireString
+
+        HeaderFormatter().applyAttributes(to: testingString, at: testingRange)
+        TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 1)
+
+        guard let unorderedElementNode = node.children.first as? ElementNode,
+            unorderedElementNode.name == "ul",
+            unorderedElementNode.children.count == 2
+        else {
+            XCTFail()
+            return
+        }
+
+        guard let firstListItem = unorderedElementNode.children[0] as? ElementNode,
+            let secondListItem = unorderedElementNode.children[1] as? ElementNode,
+            firstListItem.name == "li",
+            secondListItem.name == "li",
+            firstListItem.children.count == 1,
+            secondListItem.children.count == 1
+        else {
+            XCTFail()
+            return
+        }
+
+        guard let firstHeaderNode = firstListItem.children.first as? ElementNode,
+            let secondHeaderNode = secondListItem.children.first as? ElementNode,
+            firstHeaderNode.name == "h1",
+            firstHeaderNode.children.count == 1,
+            secondHeaderNode.name == "h1",
+            secondHeaderNode.children.count == 1
+        else {
+            XCTFail()
+            return
+        }
+
+        let firstTextNode = firstHeaderNode.children.first as? TextNode
+        let secondTextNode = secondHeaderNode.children.first as? TextNode
+
+        XCTAssertEqual(firstTextNode?.contents, firstText)
+        XCTAssertEqual(secondTextNode?.contents, secondText)
+    }
 }
 
 
@@ -570,7 +630,6 @@ private extension NSAttributedStringToNodesTests {
     /// Converts an AttributedString into it's RootNode Representation
     ///
     func rootNode(from attrString: NSAttributedString) -> RootNode {
-        let converter = NSAttributedStringToNodes()
-        return converter.convert(attrString)
+        return NSAttributedStringToNodes().convert(attrString)
     }
 }
