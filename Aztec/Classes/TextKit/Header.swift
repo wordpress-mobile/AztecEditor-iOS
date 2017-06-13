@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 
-// MARK: - Text List
+// MARK: - Header property for paragraphs
 //
 open class Header: ParagraphProperty
 {
