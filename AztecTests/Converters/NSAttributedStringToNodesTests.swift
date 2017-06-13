@@ -391,7 +391,6 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(worldNode.contents, "World")
     }
 
-
     /// Verifies that Line Breaks do NOT get added into the Tree, whenever the Leftmost + Rightmost elements
     /// are H1.
     ///
