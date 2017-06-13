@@ -89,14 +89,46 @@ private extension NSAttributedStringToNodes {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
+    /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
+    /// - Last LI item is never merged
+    /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
+    /// - The remaining elements will get merged
+    ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let (target, source) = findLowestMergeableNodes(left: left, right: right) else {
+        guard let mergeableNodes = findMergeableNodes(left: left, right: right)?.dropLast(),
+            !mergeableNodes.isEmpty
+        else {
+            return false
+        }
+
+        guard let (target, source) = prefix(upTo: "li", from: mergeableNodes).last else {
             return false
         }
 
         target.children += source.children
 
         return true
+    }
+
+
+    /// Slices the specified array until the last LI node. For instance:
+    ///
+    /// - Input: [.ul, .li, .h1]
+    ///
+    /// - Output: [.ul]
+    ///
+    func prefix(upTo name: String, from nodes: ArraySlice<MergeablePair>) -> ArraySlice<MergeablePair> {
+        var lastItemIndex: Int?
+        for (index, node) in nodes.enumerated().reversed() where node.left.name == name {
+            lastItemIndex = index
+            break
+        }
+
+        guard let sliceIndex = lastItemIndex else {
+            return nodes
+        }
+
+        return nodes[0..<sliceIndex]
     }
 
 
@@ -118,11 +150,16 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Defines a pair of Nodes that can be merged
+    ///
+    typealias MergeablePair = (left: ElementNode, right: ElementNode)
+
+
     /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
     ///
-    private func findLowestMergeableNodes(left: [ElementNode], right: [ElementNode]) -> (ElementNode, ElementNode)? {
+    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair]? {
         var currentIndex = 0
-        var match: (ElementNode, ElementNode)?
+        var matching = [MergeablePair]()
 
         while currentIndex < left.count && currentIndex < right.count {
             let left = left[currentIndex]
@@ -132,11 +169,12 @@ private extension NSAttributedStringToNodes {
                 break
             }
 
-            match = (left, right)
+            let pair = MergeablePair(left: left, right: right)
+            matching.append(pair)
             currentIndex += 1
         }
         
-        return match
+        return matching.isEmpty ? nil : matching
     }
 
 
@@ -146,7 +184,6 @@ private extension NSAttributedStringToNodes {
     private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
         var elements = [ElementNode]()
         var nextElement = childPicker(nodes) as? ElementNode
-
 
         while let currentElement = nextElement {
             guard currentElement.isBlockLevelElement() else {
