@@ -479,6 +479,7 @@ extension EditorDemoController {
     }
 }
 
+// MARK: - Format Bar Delegate
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
     func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
@@ -493,10 +494,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleStrikethrough()
         case .blockquote:
             toggleBlockquote()
-        case .unorderedlist:
-            toggleUnorderedList()
-        case .orderedlist:
-            toggleOrderedList()
+        case .unorderedlist, .orderedlist:
+            toggleList()
         case .link:
             toggleLink()
         case .media:
@@ -534,15 +533,33 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
 
-    func toggleOrderedList() {
-        richTextView.toggleOrderedList(range: richTextView.selectedRange)
+    func toggleList() {
+        if richTextView.inputView != nil {
+            changeRichTextInputView(to: nil)
+            return
+        }
+        let listOptions = Constants.lists.map { (listType) -> NSAttributedString in
+            return NSAttributedString(string: listType.description, attributes: [:])
+        }
+
+        let listPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 200), options: listOptions)
+            listPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+            listPicker.onSelect = { selected in
+            let listType = Constants.lists[selected]
+                switch listType {
+                case .unordered:
+                    self.richTextView.toggleUnorderedList(range: self.richTextView.selectedRange)
+                case .ordered:
+                    self.richTextView.toggleOrderedList(range: self.richTextView.selectedRange)
+                }
+            }
+        if let listType = listTypeForSelectedText(),
+            let list = Constants.lists.index(of: listType) {
+            listPicker.selectRow(at: IndexPath(row: list, section: 0), animated: false, scrollPosition: .top)
+        }
+
+        changeRichTextInputView(to: listPicker)
     }
-
-
-    func toggleUnorderedList() {
-        richTextView.toggleUnorderedList(range: richTextView.selectedRange)
-    }
-
 
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
@@ -604,6 +621,26 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
         return .none
+    }
+
+    func listTypeForSelectedText() -> TextList.Style? {
+        var identifiers = [FormattingIdentifier]()
+        if (richTextView.selectedRange.length > 0) {
+            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+        } else {
+            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        }
+        let mapping: [FormattingIdentifier: TextList.Style] = [
+            .orderedlist : .ordered,
+            .unorderedlist : .unordered
+            ]
+        for (key,value) in mapping {
+            if identifiers.contains(key) {
+                return value
+            }
+        }
+
+        return nil
     }
 
     func toggleLink() {
@@ -1185,6 +1222,7 @@ extension EditorDemoController {
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let lists                = [TextList.Style.unordered, .ordered]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
     }

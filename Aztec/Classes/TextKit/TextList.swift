@@ -4,13 +4,13 @@ import UIKit
 
 // MARK: - Text List
 //
-class TextList: Equatable
+open class TextList: Equatable
 {
     // MARK: - Nested Types
 
     /// List Styles
     ///
-    enum Style: Int {
+    public enum Style: Int {
         case ordered
         case unordered
 
@@ -18,6 +18,13 @@ class TextList: Equatable
             switch self {
             case .ordered:      return "\t\(number).\t"
             case .unordered:    return "\t\u{2022}\t\t"
+            }
+        }
+
+       public var description: String {
+            switch self {
+            case .ordered: return "Ordered List"
+            case .unordered: return "Unordered List"
             }
         }
     }
@@ -32,7 +39,7 @@ class TextList: Equatable
         self.style = style
     }
 
-    static func ==(lhs: TextList, rhs: TextList) -> Bool {
+    public static func ==(lhs: TextList, rhs: TextList) -> Bool {
         return lhs.style == rhs.style 
     }
 }
