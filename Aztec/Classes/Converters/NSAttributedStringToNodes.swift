@@ -244,7 +244,7 @@ private extension NSAttributedStringToNodes {
             block(node)
         }
 
-        if style.htmlParagraph != nil {
+        for _ in style.htmlParagraph {
             let node = ElementNode(type: .p)
             block(node)
         }

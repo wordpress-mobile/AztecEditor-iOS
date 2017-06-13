@@ -45,7 +45,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
 
-    var htmlParagraph: HTMLParagraph?
+    var htmlParagraph: [HTMLParagraph] {
+        return properties.flatMap { (property) -> HTMLParagraph? in
+            if let paragraph = property as? HTMLParagraph {
+                return paragraph
+            } else {
+                return nil
+            }
+        }
+    }
 
     var textLists : [TextList] {
         return properties.flatMap { (property) -> TextList? in
@@ -97,8 +105,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
             baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
             
-            headerLevel = paragrahStyle.headerLevel
-            htmlParagraph = paragrahStyle.htmlParagraph            
+            headerLevel = paragrahStyle.headerLevel            
             properties = paragrahStyle.properties
         }
     }

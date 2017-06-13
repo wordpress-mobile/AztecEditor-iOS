@@ -27,7 +27,7 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.htmlParagraph = HTMLParagraph()
+        newParagraphStyle.add(property: HTMLParagraph())
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -36,13 +36,14 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes:[String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-            !paragraphStyle.blockquotes.isEmpty
+            !paragraphStyle.htmlParagraph.isEmpty
             else {
                 return attributes
         }
 
         let newParagraphStyle = ParagraphStyle()
         newParagraphStyle.setParagraphStyle(paragraphStyle)
+        newParagraphStyle.removeProperty(ofType: HTMLParagraph.self)
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -50,8 +51,10 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
-        return style?.htmlParagraph != nil
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+            return false
+        }
+        return !style.htmlParagraph.isEmpty
     }
 }
 
