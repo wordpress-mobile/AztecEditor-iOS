@@ -120,7 +120,7 @@ private extension BlockquoteFormatterTests {
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
         guard let paragraphStyle = string.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
-            let _ = paragraphStyle.blockquote else {
+            !paragraphStyle.blockquotes.isEmpty else {
             return false
         }
         // Blockquote attribute spans the whole range

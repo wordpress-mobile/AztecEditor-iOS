@@ -254,7 +254,7 @@ extension NSAttributedStringListsTests
 
         let range = (sample.string as NSString).range(of: sampleListContents)
         let listParagraphStyle = ParagraphStyle()
-        listParagraphStyle.textLists.append(TextList(style: .ordered))
+        listParagraphStyle.add(property: TextList(style: .ordered))
         let attributes = [NSParagraphStyleAttributeName: listParagraphStyle]
         sample.addAttributes(attributes, range: range)
 
