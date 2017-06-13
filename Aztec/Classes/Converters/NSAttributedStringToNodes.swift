@@ -282,28 +282,29 @@ private extension NSAttributedStringToNodes {
     /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
-        if !style.textLists.isEmpty {
-            let node = ElementNode(type: .li)
-            block(node)
-        }
         for property in style.properties {
-            var node: ElementNode?
             switch property {
             case is Blockquote:
-                node = ElementNode(type: .blockquote)
+                block( ElementNode(type: .blockquote) )
+
             case let header as Header:
-                if let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) {
-                    node = ElementNode(type: type)
+                guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
+                    continue
                 }
+
+                block( ElementNode(type: type) )
+
             case let list as TextList:
-                node = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+                let textListElement = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+
+                block( ElementNode(type: .li) )
+                block( textListElement )
+
             case is HTMLParagraph:
-                node = ElementNode(type: .p)
+                block( ElementNode(type: .p) )
+
             default:
-                node = nil
-            }
-            if let nodeAvailable = node {
-                block(nodeAvailable)
+                continue
             }
         }
     }
