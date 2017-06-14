@@ -91,7 +91,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:
                             ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
-                                if (incrementalChanges) {
+                                if (incrementalChanges || !self.refreshGroupFirstTime) {
                                     [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
                                 } else {
                                     [weakSelf refreshData];
