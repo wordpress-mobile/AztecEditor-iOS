@@ -29,6 +29,8 @@ open class PreFormatter: ParagraphAttributeFormatter {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
 
+        newParagraphStyle.add(property: HTMLPre(with: representation))
+
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
         resultingAttributes[NSFontAttributeName] = monospaceFont
 

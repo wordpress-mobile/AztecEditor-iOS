@@ -11,9 +11,11 @@ extension ParagraphAttributeFormatter {
         // TODO: this should be changed so that the method signature requires this, but in order to
         // do so we need a reengineering of the code that would be too big to tackle now.
         //
-        guard let elementRepresentation = representation as? HTMLElementRepresentation else {
+        guard representation is HTMLElementRepresentation || representation == nil else {
             fatalError("Never pass anything other than an element representation to a paragraph style.")
         }
+
+        let elementRepresentation = representation as? HTMLElementRepresentation
 
         return apply(to: attributes, andStore: elementRepresentation)
     }

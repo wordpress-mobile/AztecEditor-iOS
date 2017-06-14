@@ -1,5 +1,5 @@
 
-class HTMLAttributeRepresentation: HTMLRepresentation {
+class HTMLAttributeRepresentation: HTMLRepresentation, CustomReflectable {
 
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
@@ -23,5 +23,15 @@ class HTMLAttributeRepresentation: HTMLRepresentation {
 
         let stringAttribute = attribute as? StringAttribute
         value = stringAttribute?.value
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            let value = self.value ?? ""
+
+            return Mirror(self, children: ["name": name, "value": value])
+        }
     }
 }
