@@ -195,5 +195,13 @@
  */
 - (void)resetState:(BOOL)animated;
 
+/**
+ Return the default preview view controller to use to preview assets
+
+ @param asset the asset to preview
+ @return a view controller to preview the asset
+ */
+- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
+
 @end
 

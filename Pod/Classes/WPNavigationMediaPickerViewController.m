@@ -204,7 +204,8 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:previewViewControllerForAsset:)]) {
         return [self.delegate mediaPickerController:picker previewViewControllerForAsset:asset];
     }
-    return nil;
+
+    return [self.mediaPicker defaultPreviewViewControllerForAsset:asset];
 }
 
 - (void)mediaPickerControllerWillBeginLoadingData:(nonnull WPMediaPickerViewController *)picker {

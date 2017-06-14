@@ -489,6 +489,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     return;
 }
 
+/**
+ Returns the position of the asset in the current selection if any
+
+ @param asset to find in selection
+ @return the position if the asset is selected or NSNotFound
+ */
 - (NSUInteger)positionOfAssetInSelection:(id<WPMediaAsset>)asset
 {
     NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaAsset> loopAsset, NSUInteger idx, BOOL *stop) {
