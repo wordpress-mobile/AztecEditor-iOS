@@ -1,9 +1,22 @@
 import UIKit
 
 protocol ParagraphAttributeFormatter: AttributeFormatter {
+    func apply(to attributes: [String: Any], andStore representation: HTMLElementRepresentation?) -> [String: Any]
 }
 
 extension ParagraphAttributeFormatter {
+
+    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+
+        // TODO: this should be changed so that the method signature requires this, but in order to
+        // do so we need a reengineering of the code that would be too big to tackle now.
+        //
+        guard let elementRepresentation = representation as? HTMLElementRepresentation else {
+            fatalError("Never pass anything other than an element representation to a paragraph style.")
+        }
+
+        return apply(to: attributes, andStore: elementRepresentation)
+    }
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return text.paragraphRange(for: range)

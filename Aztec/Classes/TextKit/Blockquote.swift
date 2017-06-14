@@ -6,8 +6,8 @@ class Blockquote: ParagraphProperty {
         encode(with: aCoder)
     }
 
-    override public init() {
-        super.init()
+    override public init(with representation: HTMLElementRepresentation? = nil) {
+        super.init(with: representation)
     }
 
     required public init?(coder aDecoder: NSCoder){

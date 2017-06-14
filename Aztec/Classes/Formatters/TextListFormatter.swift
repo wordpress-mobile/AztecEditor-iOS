@@ -28,14 +28,14 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
         if  (increaseDepth || newParagraphStyle.lists.isEmpty) {
-            newParagraphStyle.add(property: TextList(style: self.listStyle))
+            newParagraphStyle.add(property: TextList(style: self.listStyle, with: representation))
         } else {
             newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
         }

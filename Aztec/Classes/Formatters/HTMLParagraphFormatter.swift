@@ -20,14 +20,14 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
         let newParagraphStyle = ParagraphStyle()
 
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.add(property: HTMLParagraph())
+        newParagraphStyle.add(property: HTMLParagraph(with: representation))
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
