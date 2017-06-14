@@ -366,6 +366,12 @@ extension Libxml2 {
 
             return ElementNode.knownElements.contains(standardName)
         }
+
+        /// Indicates if the current Element Node should be preserved during the DOM regeneration
+        ///
+        func needsToBePreservedDuringRegeneration() -> Bool {
+            return true
+        }
     }
 
 
@@ -400,6 +406,10 @@ extension Libxml2 {
 
         override func isSupportedByEditor() -> Bool {
             return true
+        }
+
+        override func needsToBePreservedDuringRegeneration() -> Bool {
+            return false
         }
     }
 }

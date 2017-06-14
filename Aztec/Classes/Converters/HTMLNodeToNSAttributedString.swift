@@ -16,6 +16,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
+
     // MARK: - Initializers
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -26,6 +27,8 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
         return [NSFontAttributeName: defaultFont]
     }()
+
+
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -216,15 +219,22 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     fileprivate func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
 
         let representation = HTMLElementRepresentation(for: node)
-        let attributes: [String:Any]
 
         if let formatter = self.formatter(for: representation) {
-            attributes = formatter.apply(to: inheritedAttributes, andStore: representation)
-        } else {
-            attributes = inheritedAttributes
+            return formatter.apply(to: attributes, andStore: representation)
         }
 
-        return attributes
+        guard node.needsToBePreservedDuringRegeneration() else {
+            return attributes
+        }
+
+        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
+        unsupportedHTML.add(element: representation)
+
+        var updated = attributes
+        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
+
+        return updated
     }
 
 
