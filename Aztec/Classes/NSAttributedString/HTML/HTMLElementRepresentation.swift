@@ -1,6 +1,9 @@
+import Foundation
 
 
-class HTMLElementRepresentation: HTMLRepresentation, CustomReflectable {
+// MARK: - HTMLElementRepresentation
+//
+class HTMLElementRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
     typealias ElementNode = Libxml2.ElementNode
 
@@ -18,6 +21,24 @@ class HTMLElementRepresentation: HTMLRepresentation, CustomReflectable {
         for attribute in element.attributes {
             attributes.append(HTMLAttributeRepresentation(for: attribute))
         }
+    }
+
+
+    /// Returns the ElementNode Instance for the current definition.
+    ///
+    func toNode() -> ElementNode {
+        let attributes = self.attributes.flatMap { representation in
+            return representation.toAttribute()
+        }
+
+        return ElementNode(name: name, attributes: attributes, children: [])
+    }
+
+
+    // MARK: - Equatable
+
+    static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
     }
 
     // MARK: - CustomReflectable

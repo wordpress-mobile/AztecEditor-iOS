@@ -16,6 +16,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     /// 
     let defaultFontDescriptor: UIFontDescriptor
 
+
     // MARK: - Initializers
 
     required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
@@ -26,6 +27,8 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
         return [NSFontAttributeName: defaultFont]
     }()
+
+
     // MARK: - Conversion
 
     /// Main conversion method.
@@ -36,7 +39,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(_ node: Node) -> NSAttributedString {
-        return convert(node, inheritingAttributes: defaultAttributes)
+        return convert(node, inheriting: defaultAttributes)
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -48,25 +51,25 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
 
-        let string = convertContents(of: node, inheritingAttributes: attributes)
+        let string = convertContents(of: node, inheriting: attributes)
 
         guard node.needsClosingParagraphSeparator() else {
             return string
         }
 
-        return appendParagraphSeparator(to: string, inheritingAttributes: attributes)
+        return appendParagraphSeparator(to: string, inheriting: attributes)
     }
 
-    private func convertContents(of node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    private func convertContents(of node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
-            return convertTextNode(textNode, inheritingAttributes: attributes)
+            return convertTextNode(textNode, inheriting: attributes)
         case let commentNode as CommentNode:
-            return convertCommentNode(commentNode, inheritingAttributes: attributes)
+            return convertCommentNode(commentNode, inheriting: attributes)
         case let elementNode as ElementNode:
-            return convertElementNode(elementNode, inheritingAttributes: attributes)
+            return convertElementNode(elementNode, inheriting: attributes)
         default:
             fatalError("Nodes can be either text, comment or element nodes.")
         }
@@ -80,12 +83,12 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convertTextNode(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         guard node.length() > 0 else {
             return NSAttributedString()
         }
 
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+        return NSAttributedString(string: node.text(), attributes: attributes)
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -96,7 +99,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convertCommentNode(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -111,9 +114,9 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func convertElementNode(_ node: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
         guard !node.isSupportedByEditor() else {
-            return stringForNode(node, inheritingAttributes: attributes)
+            return stringForNode(node, inheriting: attributes)
         }
 
         let converter = Libxml2.Out.HTMLConverter()
@@ -127,7 +130,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheritingAttributes inheritedAttributes: [String: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [String: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -143,14 +146,14 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - node: the element node to generate a representation string of.
-    ///     - inheritedAttributes: the inherited attributes from parent nodes.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+    fileprivate func stringForNode(_ node: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         
-        let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
+        let childAttributes = self.attributes(forNode: node, inheriting: attributes)
         
         if let nodeType = node.standardName,
             let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
@@ -161,13 +164,12 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString()
         
         for child in node.children {
-            let childContent = convert(child, inheritingAttributes: childAttributes)
+            let childContent = convert(child, inheriting: childAttributes)
             content.append(childContent)
         }
         
         return content
     }
-
 
 /*
         var attributes = inheritedAttributes
@@ -323,14 +325,14 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> [String:Any] {
+    func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
 
         guard !(node is RootNode) else {
-            return inheritedAttributes
+            return attributes
         }
 
         let elementRepresentation = HTMLElementRepresentation(for: node)
-        return attributes(for: elementRepresentation, inheriting: inheritedAttributes)
+        return self.attributes(for: elementRepresentation, inheriting: attributes)
     }
 
     /// Calculates the attributes for the specified element representation.  Returns a dictionary
@@ -342,17 +344,15 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting inheritedAttributes: [String:Any]) -> [String:Any] {
-
-        let attributes: [String:Any]
-
-        if let elementFormatter = formatter(for: elementRepresentation) {
-            attributes = elementFormatter.apply(to: inheritedAttributes, andStore: elementRepresentation)
-        } else {
-            attributes = inheritedAttributes
-        }
+    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting attributes: [String: Any]) -> [String: Any] {
 
         var finalAttributes = attributes
+
+        if let elementFormatter = formatter(for: elementRepresentation) {
+            finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
+        } else {
+            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
+        }
 
         for attributeRepresentation in elementRepresentation.attributes {
             finalAttributes = self.attributes(for: attributeRepresentation, inheriting: finalAttributes)
@@ -360,6 +360,7 @@ private extension HTMLNodeToNSAttributedString {
 
         return finalAttributes
     }
+
 
     /// Calculates the attributes for the specified element representation.  Returns a dictionary
     /// including inherited attributes.
@@ -370,7 +371,7 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String:Any]) -> [String:Any] {
+    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         let attributes: [String:Any]
 
@@ -381,6 +382,25 @@ private extension HTMLNodeToNSAttributedString {
         }
         
         return attributes
+    }
+
+
+    /// Stores the specified HTMLElementRepresentation in a collection of NSAttributedString Attributes.
+    ///
+    /// - Parameters:
+    ///     - elementRepresentation: Instance of HTMLElementRepresentation to be stored.
+    ///     - attributes: Attributes where we should store the HTML Representation.
+    ///
+    /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
+    ///
+    private func attributes(storing elementRepresentation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
+        unsupportedHTML.add(element: elementRepresentation)
+
+        var updated = attributes
+        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
+
+        return updated
     }
 }
 

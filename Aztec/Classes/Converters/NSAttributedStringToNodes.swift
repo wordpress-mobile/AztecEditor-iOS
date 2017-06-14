@@ -372,6 +372,15 @@ private extension NSAttributedStringToNodes {
                 let node = ElementNode(type: .u)
                 block(node)
 
+            case UnsupportedHTMLAttributeName:
+                guard let unsupported = value as? UnsupportedHTML else {
+                    break
+                }
+
+                for element in unsupported.elements.reversed() {
+                    block(element.toNode())
+                }
+
             default:
                 break
             }
