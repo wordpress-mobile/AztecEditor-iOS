@@ -114,39 +114,8 @@ open class TextStorage: NSTextStorage {
 
     private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
-        let stringWithParagraphs = preprocessParagraphsForInsertion(stringWithAttachments)
 
-        return stringWithParagraphs
-    }
-
-    private func preprocessParagraphsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-
-        let fullRange = NSRange(location: 0, length: attributedString.length)
-        let finalString = NSMutableAttributedString(attributedString: attributedString)
-
-        attributedString.enumerateAttribute(NSParagraphStyleAttributeName, in: fullRange, options: []) { (value, subRange, stop) in
-
-            guard value is ParagraphStyle else {
-                return
-            }
-
-            var newlineRange = finalString.mutableString.range(of: String(.newline))
-
-            while newlineRange.location != NSNotFound {
-
-                let originalAttributes = finalString.attributes(at: newlineRange.location, effectiveRange: nil)
-
-                finalString.replaceCharacters(in: newlineRange, with: NSAttributedString(.paragraphSeparator, attributes: originalAttributes))
-
-                let nextLocation = newlineRange.location + newlineRange.length
-                let nextLength = subRange.length - nextLocation
-                let nextRange = NSRange(location: nextLocation, length: nextLength)
-
-                newlineRange = finalString.mutableString.range(of: String(.newline), options: [], range: nextRange)
-            }
-        }
-
-        return finalString
+        return stringWithAttachments
     }
 
     /// Preprocesses an attributed string's attachments for insertion in the storage.

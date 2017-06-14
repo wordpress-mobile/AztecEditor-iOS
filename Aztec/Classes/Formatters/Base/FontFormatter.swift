@@ -44,17 +44,3 @@ class FontFormatter: CharacterAttributeFormatter {
     }
 }
 
-class BoldFormatter: FontFormatter {
-
-    init() {
-        super.init(traits: .traitBold)
-    }
-}
-
-class ItalicFormatter: FontFormatter {
-
-    init() {
-        super.init(traits: .traitItalic)
-    }
-}
-
