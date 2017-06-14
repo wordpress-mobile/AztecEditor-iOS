@@ -171,6 +171,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     // MARK: - Formatters
 
     fileprivate func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
+        // TODO: implement attribute representation formatters
+        //
+        return nil
+    }
+
+    fileprivate func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
         guard let standardType = StandardElementType(rawValue: representation.name) else {
             return nil
         }
@@ -183,12 +189,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             }
         }
 
-        return nil
-    }
-
-    fileprivate func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
-        // TODO: implement attribute representation formatters
-        //
         return nil
     }
 
