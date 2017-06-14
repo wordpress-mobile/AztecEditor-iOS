@@ -36,7 +36,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     func convert(_ node: Node) -> NSAttributedString {
-        return convert(node, inheritingAttributes: defaultAttributes)
+        return convert(node, inheriting: defaultAttributes)
     }
 
     /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
@@ -48,25 +48,25 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
 
-        let string = convertContents(of: node, inheritingAttributes: attributes)
+        let string = convertContents(of: node, inheriting: attributes)
 
         guard node.needsClosingParagraphSeparator() else {
             return string
         }
 
-        return appendParagraphSeparator(to: string, inheritingAttributes: attributes)
+        return appendParagraphSeparator(to: string, inheriting: attributes)
     }
 
-    private func convertContents(of node: Node, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    private func convertContents(of node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
-            return convertTextNode(textNode, inheritingAttributes: attributes)
+            return convertTextNode(textNode, inheriting: attributes)
         case let commentNode as CommentNode:
-            return convertCommentNode(commentNode, inheritingAttributes: attributes)
+            return convertCommentNode(commentNode, inheriting: attributes)
         case let elementNode as ElementNode:
-            return convertElementNode(elementNode, inheritingAttributes: attributes)
+            return convertElementNode(elementNode, inheriting: attributes)
         default:
             fatalError("Nodes can be either text, comment or element nodes.")
         }
@@ -80,12 +80,12 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertTextNode(_ node: TextNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convertTextNode(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         guard node.length() > 0 else {
             return NSAttributedString()
         }
 
-        return NSAttributedString(string: node.text(), attributes: inheritedAttributes)
+        return NSAttributedString(string: node.text(), attributes: attributes)
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -96,7 +96,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheritingAttributes attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convertCommentNode(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -111,9 +111,9 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheritingAttributes attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func convertElementNode(_ node: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
         guard !node.isSupportedByEditor() else {
-            return stringForNode(node, inheritingAttributes: attributes)
+            return stringForNode(node, inheriting: attributes)
         }
 
         let converter = Libxml2.Out.HTMLConverter()
@@ -127,7 +127,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheritingAttributes inheritedAttributes: [String: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [String: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -143,14 +143,14 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Parameters:
     ///     - node: the element node to generate a representation string of.
-    ///     - inheritedAttributes: the inherited attributes from parent nodes.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    fileprivate func stringForNode(_ node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> NSAttributedString {
+    fileprivate func stringForNode(_ node: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         
-        let childAttributes = attributes(forNode: node, inheritingAttributes: inheritedAttributes)
+        let childAttributes = self.attributes(forNode: node, inheriting: attributes)
         
         if let nodeType = node.standardName,
             let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
@@ -161,7 +161,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         let content = NSMutableAttributedString()
         
         for child in node.children {
-            let childContent = convert(child, inheritingAttributes: childAttributes)
+            let childContent = convert(child, inheriting: childAttributes)
             content.append(childContent)
         }
         
@@ -213,7 +213,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> [String:Any] {
+    fileprivate func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
 
         let representation = HTMLElementRepresentation(for: node)
         let attributes: [String:Any]
