@@ -34,13 +34,10 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if  (increaseDepth || newParagraphStyle.textLists.isEmpty) {
-            newParagraphStyle.headIndent += Metrics.listTextIndentation
-            newParagraphStyle.firstLineHeadIndent += Metrics.listTextIndentation
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+        if  (increaseDepth || newParagraphStyle.lists.isEmpty) {
+            newParagraphStyle.add(property: TextList(style: self.listStyle))
         } else {
-            newParagraphStyle.textLists.removeLast()
-            newParagraphStyle.textLists.append(TextList(style: self.listStyle))
+            newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
         }
 
         var resultingAttributes = attributes
@@ -51,17 +48,15 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes: [String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-              let currentList = paragraphStyle.textLists.last,
+              let currentList = paragraphStyle.lists.last,
               currentList.style == self.listStyle
         else {
             return attributes
         }
 
         let newParagraphStyle = ParagraphStyle()
-        newParagraphStyle.setParagraphStyle(paragraphStyle)
-        newParagraphStyle.headIndent -= Metrics.listTextIndentation
-        newParagraphStyle.firstLineHeadIndent -= Metrics.listTextIndentation
-        newParagraphStyle.textLists.removeLast()
+        newParagraphStyle.setParagraphStyle(paragraphStyle)       
+        newParagraphStyle.removeProperty(ofType: TextList.self)
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
@@ -70,7 +65,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [String : Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.textLists.last else {
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.lists.last else {
             return false
         }
 
@@ -81,7 +76,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
         guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
             return false
         }
-        return !(style.textLists.isEmpty)
+        return !(style.lists.isEmpty)
     }
 }
 

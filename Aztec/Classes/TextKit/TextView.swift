@@ -24,7 +24,7 @@ public protocol TextViewAttachmentDelegate: class {
                   attachment: NSTextAttachment,
                   imageAt url: URL,
                   onSuccess success: @escaping (UIImage) -> Void,
-                  onFailure failure: @escaping (Void) -> Void) -> UIImage
+                  onFailure failure: @escaping () -> Void) -> UIImage
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
@@ -180,7 +180,7 @@ open class TextView: UITextView {
         
         self.defaultFont = defaultFont
         self.defaultMissingImage = defaultMissingImage
-        
+
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
@@ -190,7 +190,6 @@ open class TextView: UITextView {
         container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
-        storage.undoManager = undoManager
         commonInit()
     }
 
@@ -653,7 +652,7 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleHeader(_ headerType: HeaderFormatter.HeaderType, range: NSRange) {
+    open func toggleHeader(_ headerType: Header.HeaderType, range: NSRange) {
         let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
@@ -1108,6 +1107,14 @@ open class TextView: UITextView {
         layoutManager.ensureLayoutForContainers()
         delegate?.textViewDidChange?(self)
     }
+
+    open func update(attachment: VideoAttachment) {
+        storage.update(attachment: attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
 
     /// Updates the Attachment's HTML contents to the new specified value.
     ///

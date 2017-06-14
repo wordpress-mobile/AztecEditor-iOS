@@ -255,8 +255,8 @@ class EditorDemoController: UIViewController {
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: Constants.margin),
-            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -Constants.margin),
+            richTextView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            richTextView.rightAnchor.constraint(equalTo: view.rightAnchor),
             richTextView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             richTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Constants.margin)
             ])
@@ -277,6 +277,8 @@ class EditorDemoController: UIViewController {
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.textContainerInset.left = Constants.margin
+        textView.textContainerInset.right = Constants.margin
     }
 
     private func registerAttachmentImageProviders() {
@@ -311,11 +313,11 @@ class EditorDemoController: UIViewController {
 
         let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
             var html = "<video "
-            if let src = shortcode.attributes.named["src"] {
-                html += "src=\"\(src)\" "
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
             }
-            if let poster = shortcode.attributes.named["poster"] {
-                html += "poster=\"\(poster)\" "
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
             }
             html += "/>"
             return html
@@ -326,11 +328,11 @@ class EditorDemoController: UIViewController {
 
         let postWordPressVideoProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
             var html = "[video "
-            if let src = shortcode.attributes.named["src"] {
-                html += "src=\"\(src)\" "
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
             }
-            if let poster = shortcode.attributes.named["poster"] {
-                html += "poster=\"\(poster)\" "
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
             }
             html += "/]"
             return html
@@ -600,14 +602,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.becomeFirstResponder()
     }
 
-    func headerLevelForSelectedText() -> HeaderFormatter.HeaderType {
+    func headerLevelForSelectedText() -> Header.HeaderType {
         var identifiers = [FormattingIdentifier]()
         if (richTextView.selectedRange.length > 0) {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
-        let mapping: [FormattingIdentifier: HeaderFormatter.HeaderType] = [
+        let mapping: [FormattingIdentifier: Header.HeaderType] = [
             .header1 : .h1,
             .header2 : .h2,
             .header3 : .h3,
@@ -1091,7 +1093,7 @@ private extension EditorDemoController
         
         let attachment = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
         let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
+        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
         
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -1109,9 +1111,9 @@ private extension EditorDemoController
         }
         let posterImage = UIImage(cgImage: cgImage)
         let posterURL = saveToDisk(image: posterImage)
-        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: videoURL, posterURL: posterURL, placeHolderImage: posterImage)
-        let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: ["imageID": imageID])
+        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
+        let mediaID = attachment.identifier
+        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
         progress.totalUnitCount = 100
 
         Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
@@ -1119,28 +1121,30 @@ private extension EditorDemoController
 
     @objc func timerFireMethod(_ timer: Timer) {
         guard let progress = timer.userInfo as? Progress,
-            let imageId = progress.userInfo[ProgressUserInfoKey("imageID")] as? String
+              let imageId = progress.userInfo[MediaProgressKey.mediaID] as? String,
+              let attachment = richTextView.attachment(withId: imageId)
         else {
-                
+            timer.invalidate()
             return
         }        
         progress.completedUnitCount += 1
-        if let attachment = richTextView.attachment(withId: imageId) {
-            attachment.progress = progress.fractionCompleted                        
-            if mediaErrorMode && progress.fractionCompleted >= 0.25 {
-                timer.invalidate()
-                let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
-                attachment.message = message
-                attachment.overlayImage = Gridicon.iconOfType(.refresh)
-            }
-            if progress.fractionCompleted >= 1 {
-                timer.invalidate()
-                attachment.progress = nil
-            }
-            richTextView.refreshLayout(for: attachment)
-        } else {
+
+        attachment.progress = progress.fractionCompleted
+        if mediaErrorMode && progress.fractionCompleted >= 0.25 {
             timer.invalidate()
+            let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
+            attachment.message = message
+            attachment.overlayImage = Gridicon.iconOfType(.refresh)
         }
+        if progress.fractionCompleted >= 1 {
+            timer.invalidate()
+            attachment.progress = nil
+            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.mediaID] as? URL {
+                videoAttachment.srcURL = videoURL
+                richTextView.update(attachment: videoAttachment)
+            }
+        }
+        richTextView.refreshLayout(for: attachment)
     }
 
     var mediaMessageAttributes: [String: Any] {
@@ -1221,10 +1225,15 @@ extension EditorDemoController {
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
-        static let headers              = [HeaderFormatter.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let lists                = [TextList.Style.unordered, .ordered]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
+    }
+
+    struct MediaProgressKey {
+        static let mediaID = ProgressUserInfoKey("mediaID")
+        static let videoURL = ProgressUserInfoKey("videoURL")
     }
 }
 

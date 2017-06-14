@@ -6,17 +6,10 @@ extension Libxml2.In {
 
         typealias Attribute = Libxml2.Attribute
         typealias CommentNode = Libxml2.CommentNode
-        typealias EditContext = Libxml2.EditContext
         typealias ElementNode = Libxml2.ElementNode
         typealias Node = Libxml2.Node
         typealias RootNode = Libxml2.RootNode
         typealias TextNode = Libxml2.TextNode
-        
-        let editContext: EditContext?
-        
-        required init(editContext: EditContext? = nil) {
-            self.editContext = editContext
-        }
         
         /// Converts a single node (from libxml2) into an HTML.Node.
         ///
@@ -66,12 +59,12 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(editContext: editContext)
+                let nodesConverter = NodesConverter()
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
             let attributes = createAttributes(fromNode: rawNode)
-            let node = ElementNode(name: nodeName, attributes: attributes, children: children, editContext: editContext)
+            let node = ElementNode(name: nodeName, attributes: attributes, children: children)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -93,11 +86,11 @@ extension Libxml2.In {
             var children = [Node]()
 
             if rawNode.children != nil {
-                let nodesConverter = NodesConverter(editContext: editContext)
+                let nodesConverter = NodesConverter()
                 children.append(contentsOf: nodesConverter.convert(rawNode.children))
             }
 
-            let node = RootNode(children: children, editContext: editContext)
+            let node = RootNode(children: children)
 
             // TODO: This can be optimized to be set during instantiation of the child nodes.
             //
@@ -144,7 +137,7 @@ extension Libxml2.In {
             if shouldSanitizeText(inNode: rawNode) {
                 text = sanitize(text)
             }
-            let node = TextNode(text: text, editContext: editContext)
+            let node = TextNode(text: text)
 
             return node
         }
@@ -158,7 +151,7 @@ extension Libxml2.In {
         ///
         fileprivate func createCommentNode(_ rawNode: xmlNode) -> CommentNode {
             let text = String(cString: rawNode.content)
-            let node = CommentNode(text: text, editContext: editContext)
+            let node = CommentNode(text: text)
 
             return node
         }
