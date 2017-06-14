@@ -1,8 +1,8 @@
-osx_image: xcode8
+osx_image: xcode8.3
 sudo: false
 language: objective-c
 podfile: Example/Podfile
 before_script:
 - cd Example && pod install && cd -
 script:
-- set -o pipefail && xcodebuild build test -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty -c
+- set -o pipefail && xcodebuild build test -workspace Example/WPMediaPicker.xcworkspace -scheme WPMediaPicker-Example -sdk iphonesimulator  -destination "name=iPhone 7" ONLY_ACTIVE_ARCH=NO | xcpretty -c
