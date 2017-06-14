@@ -42,6 +42,17 @@ protocol AttributeFormatter {
     ///
     func apply(to attributes: [String: Any]) -> [String: Any]
 
+    /// Apply the compound attributes to the provided attributes dictionary.
+    ///
+    /// - Parameters:
+    ///     - attributes: the original attributes to apply to
+    ///     - representation: the original HTML representation for the attribute to apply.
+    ///
+    /// - Returns:
+    ///     - the resulting attributes dictionary
+    ///
+    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any]
+
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
@@ -70,6 +81,13 @@ protocol AttributeFormatter {
 // MARK: - Default Implementations
 //
 extension AttributeFormatter {
+
+    /// The default implementation forwards the call.  This is probably good enough for all
+    /// classes that implement this protocol.
+    ///
+    func apply(to attributes: [String : Any]) -> [String: Any] {
+        return apply(to: attributes, andStore: nil)
+    }
 
     /// Indicates whether the Formatter's Attributes are present in a given string, at a specified Index.
     ///

@@ -19,8 +19,8 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
 
     // MARK: - Overwriten Methods
-    
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)

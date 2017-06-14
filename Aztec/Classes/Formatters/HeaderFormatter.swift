@@ -25,7 +25,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {

@@ -168,6 +168,41 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         return content
     }
 
+    // MARK: - Formatters
+
+    fileprivate func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
+        guard let standardType = StandardElementType(rawValue: representation.name) else {
+            return nil
+        }
+
+        let equivalentNames = standardType.equivalentNames
+
+        for (key, formatter) in elementToFormattersMap {
+            if equivalentNames.contains(key.rawValue) {
+                return formatter
+            }
+        }
+
+        return nil
+    }
+
+    fileprivate func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
+        // TODO: implement attribute representation formatters
+        //
+        return nil
+    }
+
+    fileprivate func formatter(for representation: HTMLRepresentation) -> AttributeFormatter? {
+        if let elementRepresentation = representation as? HTMLElementRepresentation {
+            return formatter(for: elementRepresentation)
+        } else if let attributeRepresentation = representation as? HTMLAttributeRepresentation {
+            return formatter(for: attributeRepresentation)
+        } else {
+            assertionFailure("Unsupported representation type.")
+            return nil
+        }
+    }
+
     // MARK: - String attributes
 
     /// Calculates the attributes for the specified node.  Returns a dictionary including inherited
@@ -180,8 +215,21 @@ class HMTLNodeToNSAttributedString: SafeConverter {
     ///
     fileprivate func attributes(forNode node: ElementNode, inheritingAttributes inheritedAttributes: [String:Any]) -> [String:Any] {
 
-        var attributes = inheritedAttributes
+        let representation = HTMLElementRepresentation(for: node)
+        let attributes: [String:Any]
 
+        if let formatter = self.formatter(for: representation) {
+            attributes = formatter.apply(to: inheritedAttributes, andStore: representation)
+        } else {
+            attributes = inheritedAttributes
+        }
+
+        return attributes
+    }
+
+
+/*
+        var attributes = inheritedAttributes
         let attributeValue = parseCustomAttributeValues(forNode: node)
 
         for (key, formatter) in elementToFormattersMap {
@@ -277,6 +325,7 @@ class HMTLNodeToNSAttributedString: SafeConverter {
 
         return attributeValue
     }
+ */
 
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
         .ol: TextListFormatter(style: .ordered, increaseDepth: true),

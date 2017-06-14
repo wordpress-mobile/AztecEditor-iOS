@@ -9,7 +9,7 @@ class FontFormatter: CharacterAttributeFormatter {
         self.traits = traits
     }
 
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
         var resultingAttributes = attributes
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
@@ -17,7 +17,7 @@ class FontFormatter: CharacterAttributeFormatter {
         }
         let newFont = font.modifyTraits(traits, enable: true)
         resultingAttributes[NSFontAttributeName] = newFont
-        
+
         return resultingAttributes
     }
 

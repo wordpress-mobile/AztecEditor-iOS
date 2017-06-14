@@ -13,7 +13,7 @@ class StandardAttributeFormatter: CharacterAttributeFormatter {
         self.attributeValue = attributeValue
     }
 
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         
         resultingAttributes[attributeKey] = attributeValue
