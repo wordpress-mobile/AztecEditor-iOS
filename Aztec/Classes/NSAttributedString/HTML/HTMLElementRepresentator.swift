@@ -1,6 +1,9 @@
+import Foundation
 
 
-class HTMLElementRepresentation: HTMLRepresentation {
+// MARK: - HTMLElementRepresentation
+//
+class HTMLElementRepresentation: HTMLRepresentation, Equatable {
 
     typealias ElementNode = Libxml2.ElementNode
 
@@ -18,5 +21,12 @@ class HTMLElementRepresentation: HTMLRepresentation {
         for attribute in element.attributes {
             attributes.append(HTMLAttributeRepresentation(for: attribute))
         }
+    }
+
+
+    // MARK: - Equatable
+
+    static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
     }
 }
