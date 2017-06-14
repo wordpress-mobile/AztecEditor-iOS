@@ -351,7 +351,7 @@ private extension HTMLNodeToNSAttributedString {
         if let elementFormatter = formatter(for: elementRepresentation) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
         } else {
-            finalAttributes = store(elementRepresentation: elementRepresentation, in: finalAttributes)
+            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
         for attributeRepresentation in elementRepresentation.attributes {
@@ -393,7 +393,7 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func store(elementRepresentation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+    private func attributes(storing elementRepresentation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
         let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
         unsupportedHTML.add(element: elementRepresentation)
 
