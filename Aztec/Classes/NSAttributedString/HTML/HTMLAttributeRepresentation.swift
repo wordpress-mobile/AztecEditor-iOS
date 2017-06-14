@@ -20,6 +20,8 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable {
     ///
     let value: String?
 
+    /// Initializes the HTMLAttributeRepresentation Instance
+    ///
     init(for attribute: Attribute, in element: HTMLElementRepresentation? = nil) {
 
         self.element = element
@@ -27,6 +29,17 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable {
 
         let stringAttribute = attribute as? StringAttribute
         value = stringAttribute?.value
+    }
+
+
+    /// Returns the Attribute instance for the current representation
+    ///
+    func toAttribute() -> Attribute {
+        guard let value = value else {
+            return Attribute(name: name)
+        }
+
+        return StringAttribute(name: name, value: value)
     }
 
 
