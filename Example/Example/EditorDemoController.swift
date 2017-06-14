@@ -540,8 +540,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let listOptions = Constants.lists.map { (listType) -> NSAttributedString in
-            return NSAttributedString(string: listType.description, attributes: [:])
+        let listOptions = Constants.formatLists.map { (listType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
 
         let listPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 200), options: listOptions)
@@ -555,6 +555,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                     self.richTextView.toggleOrderedList(range: self.richTextView.selectedRange)
                 }
             }
+
+        listPicker.cellDeselectedTintColor = .gray
+        listPicker.tintColor = view.tintColor
+
         if let listType = listTypeForSelectedText(),
             let list = Constants.lists.index(of: listType) {
             listPicker.selectRow(at: IndexPath(row: list, section: 0), animated: false, scrollPosition: .top)
@@ -577,8 +581,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let headerOptions = Constants.headers.map { (headerType) -> NSAttributedString in
-            NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
+        let headerOptions = Constants.formatHeaders.map { (headerType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: headerType.iconImage, title: NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: 18)]))
         }
 
         let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
@@ -587,8 +591,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             self.richTextView.toggleHeader(Constants.headers[selected], range: self.richTextView.selectedRange)
             self.changeRichTextInputView(to: nil)
         }
+
+        headerPicker.cellDeselectedTintColor = .gray
+        headerPicker.tintColor = view.tintColor
+
         if let selectedHeader = Constants.headers.index(of: self.headerLevelForSelectedText()) {
-            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
+            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .middle)
         }
         changeRichTextInputView(to: headerPicker)
     }
@@ -811,7 +819,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
-        toolbar.selectedTintColor = .darkGray
+        toolbar.selectedTintColor = view.tintColor
         toolbar.disabledTintColor = .lightGray
         toolbar.dividerTintColor = .gray
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
@@ -1226,7 +1234,9 @@ extension EditorDemoController {
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let formatHeaders        = [FormattingIdentifier.p, .header1, .header2, .header3, .header4, .header5, .header6]
         static let lists                = [TextList.Style.unordered, .ordered]
+        static let formatLists          = [FormattingIdentifier.unorderedlist, .orderedlist]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
     }
@@ -1331,6 +1341,14 @@ extension FormattingIdentifier {
         }
     }
 
+    var description: String {
+        switch(self) {
+        case .p:
+            return NSLocalizedString("Default", comment: "Description of the paragraph formatting style option in the editor.")
+        default: return accessibilityLabel
+        }
+    }
+
     var accessibilityLabel: String {
         switch(self) {
         case .media:
@@ -1360,17 +1378,17 @@ extension FormattingIdentifier {
         case .more:
             return NSLocalizedString("More", comment:"Accessibility label for the More button on formatting toolbar.")
         case .header1:
-            return NSLocalizedString("Header 1", comment: "Accessibility label for selecting h1 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 1", comment: "Accessibility label for selecting h1 paragraph style button on the formatting toolbar.")
         case .header2:
-            return NSLocalizedString("Header 2", comment: "Accessibility label for selecting h2 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 2", comment: "Accessibility label for selecting h2 paragraph style button on the formatting toolbar.")
         case .header3:
-            return NSLocalizedString("Header 3", comment: "Accessibility label for selecting h3 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 3", comment: "Accessibility label for selecting h3 paragraph style button on the formatting toolbar.")
         case .header4:
-            return NSLocalizedString("Header 4", comment: "Accessibility label for selecting h4 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 4", comment: "Accessibility label for selecting h4 paragraph style button on the formatting toolbar.")
         case .header5:
-            return NSLocalizedString("Header 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
-            return NSLocalizedString("Header 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
         }
     }
 }
