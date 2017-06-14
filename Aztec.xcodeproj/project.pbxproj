@@ -75,6 +75,8 @@
 		F10BE6181EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */; };
 		F10BE61A1EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */; };
 		F10BE61C1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */; };
+		F11326A31EF18700007FEE9A /* ParagraphAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326A21EF18700007FEE9A /* ParagraphAttributeFormatter.swift */; };
+		F11326A51EF1872D007FEE9A /* CharacterAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326A41EF1872D007FEE9A /* CharacterAttributeFormatter.swift */; };
 		F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */; };
 		F1288BAF1DD0B1EF00E67ABC /* HTMLNodeToNSAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1288BAD1DD0B1EF00E67ABC /* HTMLNodeToNSAttributedString.swift */; };
 		F1288BB01DD0B1EF00E67ABC /* HTMLToAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1288BAE1DD0B1EF00E67ABC /* HTMLToAttributedString.swift */; };
@@ -229,6 +231,8 @@
 		F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
 		F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
 		F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
+		F11326A21EF18700007FEE9A /* ParagraphAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphAttributeFormatter.swift; sourceTree = "<group>"; };
+		F11326A41EF1872D007FEE9A /* CharacterAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterAttributeFormatter.swift; sourceTree = "<group>"; };
 		F11904A41D9D857500BFF9A1 /* TextNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNodeTests.swift; sourceTree = "<group>"; };
 		F1288BAD1DD0B1EF00E67ABC /* HTMLNodeToNSAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLNodeToNSAttributedString.swift; sourceTree = "<group>"; };
 		F1288BAE1DD0B1EF00E67ABC /* HTMLToAttributedString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedString.swift; sourceTree = "<group>"; };
@@ -599,13 +603,15 @@
 			isa = PBXGroup;
 			children = (
 				E11B77631DBA6ADC0024E455 /* AttributeFormatter.swift */,
-				FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */,
+				F11326A41EF1872D007FEE9A /* CharacterAttributeFormatter.swift */,
 				E1C163A41DB6056B00E66A83 /* BlockquoteFormatter.swift */,
+				FFD436951E300EF700A0E26F /* FontFormatter.swift */,
 				FF13CD4C1E5C8067000FF10E /* HeaderFormatter.swift */,
 				F1ABC1B01EAE279D002E52FE /* HTMLParagraphFormatter.swift */,
+				F11326A21EF18700007FEE9A /* ParagraphAttributeFormatter.swift */,
 				FF8F85831E84162900C12BB4 /* PreFormatter.swift */,
+				FF7C89AB1E3A47F1000472A8 /* StandardAttributeFormatter.swift */,
 				B5B86D3B1DA41A550083DB3F /* TextListFormatter.swift */,
-				FFD436951E300EF700A0E26F /* FontFormatter.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -907,11 +913,13 @@
 				F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */,
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
+				F11326A31EF18700007FEE9A /* ParagraphAttributeFormatter.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
 				E1C163A51DB6056B00E66A83 /* BlockquoteFormatter.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
 				F15C9B881DD58D8B00833C39 /* ElementNodeDescriptor.swift in Sources */,
+				F11326A51EF1872D007FEE9A /* CharacterAttributeFormatter.swift in Sources */,
 				FF7C89A81E3A2B7C000472A8 /* Blockquote.swift in Sources */,
 				599F254C1D8BC9A1002871D6 /* UITextView+Helpers.swift in Sources */,
 				FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */,
