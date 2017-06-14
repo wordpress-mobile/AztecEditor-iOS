@@ -10,27 +10,23 @@ let UnsupportedHTMLAttributeName = "UnsupportedHTMLAttributeName"
 //
 class UnsupportedHTML {
 
-    /// Typealiases
-    ///
-    typealias ElementNode = Libxml2.ElementNode
-
     /// Nodes not supported by the Editor (which will be re-serialized!!)
     ///
-    private(set) var nodes = [ElementNode]()
+    private(set) var elements = [HTMLElementRepresentation]()
 
-    /// Adds the specified ElementNode Instance
+    /// Adds the specified Element Representation
     ///
-    func add(node: ElementNode) {
-        nodes.append(node)
+    func add(element: HTMLElementRepresentation) {
+        elements.append(element)
     }
 
-    /// Removes the specified ElementNode Instance
+    /// Removes the specified Element Representation
     ///
-    func remove(node: ElementNode) {
-        guard let index = nodes.index(where: { $0 == node }) else {
+    func remove(element: HTMLElementRepresentation) {
+        guard let index = elements.index(where: { $0 == element }) else {
             return
         }
 
-        nodes.remove(at: index)
+        elements.remove(at: index)
     }
 }
