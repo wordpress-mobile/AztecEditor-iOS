@@ -3,6 +3,8 @@ import UIKit
 
 class FontFormatter: CharacterAttributeFormatter {
 
+    let attributedStringStorageKey: String = "FontFormatter"
+
     let traits: UIFontDescriptorSymbolicTraits
 
     init(traits: UIFontDescriptorSymbolicTraits) {

@@ -1,6 +1,7 @@
 import UIKit
 
 protocol CharacterAttributeFormatter: AttributeFormatter {
+    var attributedStringStorageKey: String { get }
 }
 
 extension CharacterAttributeFormatter {
