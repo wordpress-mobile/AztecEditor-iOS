@@ -327,12 +327,12 @@ private extension HTMLNodeToNSAttributedString {
     ///
     func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
 
-        guard node.needsToBePreservedDuringRegeneration() else {
+        guard !(node is RootNode) else {
             return attributes
         }
 
         let elementRepresentation = HTMLElementRepresentation(for: node)
-        return attributes(for: elementRepresentation, inheriting: inheritedAttributes)
+        return self.attributes(for: elementRepresentation, inheriting: attributes)
     }
 
     /// Calculates the attributes for the specified element representation.  Returns a dictionary
@@ -344,17 +344,15 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting attributes: [String:Any]) -> [String:Any] {
-
-        let attributes: [String:Any]
-
-        if let elementFormatter = formatter(for: elementRepresentation) {
-            attributes = elementFormatter.apply(to: attributes, andStore: elementRepresentation)
-        } else {
-            attributes = store(elementRepresentation: elementRepresentation, in: attributes)
-        }
+    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting attributes: [String: Any]) -> [String: Any] {
 
         var finalAttributes = attributes
+
+        if let elementFormatter = formatter(for: elementRepresentation) {
+            finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
+        } else {
+            finalAttributes = store(elementRepresentation: elementRepresentation, in: finalAttributes)
+        }
 
         for attributeRepresentation in elementRepresentation.attributes {
             finalAttributes = self.attributes(for: attributeRepresentation, inheriting: finalAttributes)
@@ -373,7 +371,7 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String:Any]) -> [String:Any] {
+    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         let attributes: [String:Any]
 
