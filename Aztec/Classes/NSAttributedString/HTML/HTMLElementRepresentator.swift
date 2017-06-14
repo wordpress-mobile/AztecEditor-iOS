@@ -23,6 +23,16 @@ class HTMLElementRepresentation: HTMLRepresentation, Equatable {
         }
     }
 
+    /// Returns the ElementNode Instance for the current definition.
+    ///
+    func toNode() -> ElementNode {
+        let attributes = self.attributes.flatMap { representation in
+            return representation.toAttribute()
+        }
+
+        return ElementNode(name: name, attributes: attributes, children: [])
+    }
+
 
     // MARK: - Equatable
 
