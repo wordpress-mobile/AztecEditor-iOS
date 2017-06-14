@@ -135,6 +135,8 @@ class EditorDemoController: UIViewController {
         return processedHTML
     }
 
+    fileprivate var optionsViewController: OptionsTableViewController!
+
 
     // MARK: - Lifecycle Methods
 
@@ -534,40 +536,41 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
-
     func toggleList() {
         let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
 
         // Hide the input view if we're already showing these options
-        if let existingOptionsView = richTextView.inputView as? OptionsTableView,
-            existingOptionsView.options == listOptions {
+        if let optionsViewController = optionsViewController,
+            optionsViewController.options == listOptions {
+            self.optionsViewController = nil
             changeRichTextInputView(to: nil)
             return
         }
 
-        let listPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 200), options: listOptions)
-            listPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-            listPicker.onSelect = { selected in
+        optionsViewController = OptionsTableViewController(options: listOptions)
+        optionsViewController.cellDeselectedTintColor = .gray
+        optionsViewController.onSelect = { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
             let listType = Constants.lists[selected]
-                switch listType {
-                case .unordered:
-                    self.richTextView.toggleUnorderedList(range: self.richTextView.selectedRange)
-                case .ordered:
-                    self.richTextView.toggleOrderedList(range: self.richTextView.selectedRange)
-                }
+            switch listType {
+            case .unordered:
+                self?.richTextView.toggleUnorderedList(range: range)
+            case .ordered:
+                self?.richTextView.toggleOrderedList(range: range)
             }
-
-        listPicker.cellDeselectedTintColor = .gray
-        listPicker.tintColor = view.tintColor
-
-        if let listType = listTypeForSelectedText(),
-            let list = Constants.lists.index(of: listType) {
-            listPicker.selectRow(at: IndexPath(row: list, section: 0), animated: false, scrollPosition: .top)
         }
 
-        changeRichTextInputView(to: listPicker)
+        self.addChildViewController(optionsViewController)
+        changeRichTextInputView(to: optionsViewController.view)
+        optionsViewController.didMove(toParentViewController: self)
+
+        if let listType = listTypeForSelectedText(),
+            let index = Constants.lists.index(of: listType) {
+            optionsViewController.selectRow(at: index)
+        }
     }
 
     func toggleBlockquote() {
@@ -586,26 +589,29 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
 
         // Hide the input view if we're already showing these options
-        if let existingOptionsView = richTextView.inputView as? OptionsTableView,
-            existingOptionsView.options == headerOptions {
+        if let optionsViewController = optionsViewController,
+            optionsViewController.options == headerOptions {
+            self.optionsViewController = nil
             changeRichTextInputView(to: nil)
             return
         }
 
-        let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
-        headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        headerPicker.onSelect = { selected in
-            self.richTextView.toggleHeader(Constants.headers[selected], range: self.richTextView.selectedRange)
-            self.changeRichTextInputView(to: nil)
+        optionsViewController = OptionsTableViewController(options: headerOptions)
+        optionsViewController.cellDeselectedTintColor = .gray
+        optionsViewController.onSelect = { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
+            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
+            self?.changeRichTextInputView(to: nil)
         }
 
-        headerPicker.cellDeselectedTintColor = .gray
-        headerPicker.tintColor = view.tintColor
+        self.addChildViewController(optionsViewController)
+        changeRichTextInputView(to: optionsViewController.view)
+        optionsViewController.didMove(toParentViewController: self)
 
-        if let selectedHeader = Constants.headers.index(of: self.headerLevelForSelectedText()) {
-            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .middle)
+        if let index = Constants.headers.index(of: self.headerLevelForSelectedText()) {
+            optionsViewController.selectRow(at: index)
         }
-        changeRichTextInputView(to: headerPicker)
     }
 
     func changeRichTextInputView(to: UIView?) {

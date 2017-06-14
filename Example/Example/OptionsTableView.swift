@@ -13,41 +13,50 @@ struct OptionsTableViewOption: Equatable {
     }
 }
 
-class OptionsTableView: UITableView {
+class OptionsTableViewController: UITableViewController {
     var options = [OptionsTableViewOption]()
 
     var onSelect: ((_ selected: Int) -> Void)?
 
     var cellDeselectedTintColor: UIColor? {
         didSet {
-            reloadData()
+            tableView?.reloadData()
         }
     }
 
-    init(frame: CGRect, options: [OptionsTableViewOption]) {
+    init(options: [OptionsTableViewOption]) {
         self.options = options
-        super.init(frame: frame, style: .plain)
-        self.delegate = self
-        self.dataSource = self
+        super.init(style: .plain)
+    }
 
-        register(OptionsTableViewCell.self, forCellReuseIdentifier: OptionsTableViewCell.reuseIdentifier)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tableView.register(OptionsTableViewCell.self, forCellReuseIdentifier: OptionsTableViewCell.reuseIdentifier)
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+
+    func selectRow(at index: Int) {
+        let indexPath = IndexPath(row: index, section: 0)
+
+        tableView.selectRow(at: indexPath, animated: false, scrollPosition: .middle)
+    }
 }
 
-extension OptionsTableView: UITableViewDelegate {
+extension OptionsTableViewController {
 
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) else {
             return
         }
         cell.accessoryType = .none
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) else {
             return
         }
@@ -57,18 +66,18 @@ extension OptionsTableView: UITableViewDelegate {
     }
 }
 
-extension OptionsTableView: UITableViewDataSource {
+extension OptionsTableViewController {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return options.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseCell = self.dequeueReusableCell(withIdentifier: OptionsTableViewCell.reuseIdentifier, for: indexPath) as! OptionsTableViewCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let reuseCell = tableView.dequeueReusableCell(withIdentifier: OptionsTableViewCell.reuseIdentifier, for: indexPath) as! OptionsTableViewCell
 
         let option = options[indexPath.row]
         reuseCell.textLabel?.attributedText = option.title
@@ -76,7 +85,7 @@ extension OptionsTableView: UITableViewDataSource {
 
         reuseCell.deselectedTintColor = cellDeselectedTintColor
 
-        let isSelected = indexPath.row == super.indexPathForSelectedRow?.row
+        let isSelected = indexPath.row == tableView.indexPathForSelectedRow?.row
         reuseCell.isSelected = isSelected
 
         return reuseCell
