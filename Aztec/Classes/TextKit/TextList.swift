@@ -20,13 +20,6 @@ open class TextList: ParagraphProperty
             case .unordered:    return "\t\u{2022}\t\t"
             }
         }
-
-       public var description: String {
-            switch self {
-            case .ordered: return "Ordered List"
-            case .unordered: return "Unordered List"
-            }
-        }
     }
 
     // MARK: - Properties

@@ -30,18 +30,6 @@ open class Header: ParagraphProperty
             case .h6: return 11
             }
         }
-
-        public var description: String {
-            switch self {
-            case .none: return "Paragraph"
-            case .h1: return "Heading 1"
-            case .h2: return "Heading 2"
-            case .h3: return "Heading 3"
-            case .h4: return "Heading 4"
-            case .h5: return "Heading 5"
-            case .h6: return "Heading 6"
-            }
-        }
     }
 
     // MARK: - Properties

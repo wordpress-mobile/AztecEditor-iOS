@@ -540,7 +540,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let listOptions = Constants.formatLists.map { (listType) -> OptionsTableViewOption in
+        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
 
@@ -581,8 +581,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             changeRichTextInputView(to: nil)
             return
         }
-        let headerOptions = Constants.formatHeaders.map { (headerType) -> OptionsTableViewOption in
-            return OptionsTableViewOption(image: headerType.iconImage, title: NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: 18)]))
+        let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: headerType.iconImage,
+                                          title: NSAttributedString(string: headerType.description,
+                                                                    attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
         }
 
         let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
@@ -833,9 +835,9 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let headerButton = makeToolbarButton(identifier: .p)
 
         var alternativeIcons = [FormattingIdentifier: UIImage]()
-        let headings: [FormattingIdentifier] = [ .header1, .header2, .header3, .header4, .header5, .header6 ]
+        let headings = Constants.headers.suffix(from: 1) // Remove paragraph style
         for heading in headings {
-            alternativeIcons[heading] = heading.iconImage
+            alternativeIcons[heading.formattingIdentifier] = heading.iconImage
         }
 
         headerButton.alternativeIcons = alternativeIcons
@@ -843,9 +845,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         let listButton = makeToolbarButton(identifier: .unorderedlist)
         var listIcons = [FormattingIdentifier: UIImage]()
-        let listTypes: [FormattingIdentifier] = [ .unorderedlist, .orderedlist ]
-        for list in listTypes {
-            listIcons[list] = list.iconImage
+        for list in Constants.lists {
+            listIcons[list.formattingIdentifier] = list.iconImage
         }
 
         listButton.alternativeIcons = listIcons
@@ -1234,9 +1235,7 @@ extension EditorDemoController {
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
-        static let formatHeaders        = [FormattingIdentifier.p, .header1, .header2, .header3, .header4, .header5, .header6]
         static let lists                = [TextList.Style.unordered, .ordered]
-        static let formatLists          = [FormattingIdentifier.unorderedlist, .orderedlist]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
     }
@@ -1341,14 +1340,6 @@ extension FormattingIdentifier {
         }
     }
 
-    var description: String {
-        switch(self) {
-        case .p:
-            return NSLocalizedString("Default", comment: "Description of the paragraph formatting style option in the editor.")
-        default: return accessibilityLabel
-        }
-    }
-
     var accessibilityLabel: String {
         switch(self) {
         case .media:
@@ -1390,5 +1381,57 @@ extension FormattingIdentifier {
         case .header6:
             return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
         }
+    }
+}
+
+// MARK: - Header and List presentation extensions
+
+private extension Header.HeaderType {
+    var formattingIdentifier: FormattingIdentifier {
+        switch self {
+        case .none: return FormattingIdentifier.p
+        case .h1:   return FormattingIdentifier.header1
+        case .h2:   return FormattingIdentifier.header2
+        case .h3:   return FormattingIdentifier.header3
+        case .h4:   return FormattingIdentifier.header4
+        case .h5:   return FormattingIdentifier.header5
+        case .h6:   return FormattingIdentifier.header6
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .none: return NSLocalizedString("Default", comment: "Description of the default paragraph formatting style in the editor.")
+        case .h1: return "Heading 1"
+        case .h2: return "Heading 2"
+        case .h3: return "Heading 3"
+        case .h4: return "Heading 4"
+        case .h5: return "Heading 5"
+        case .h6: return "Heading 6"
+        }
+    }
+
+    var iconImage: UIImage? {
+        return formattingIdentifier.iconImage
+    }
+}
+
+private extension TextList.Style {
+    var formattingIdentifier: FormattingIdentifier {
+        switch self {
+        case .ordered:   return FormattingIdentifier.orderedlist
+        case .unordered: return FormattingIdentifier.unorderedlist
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .ordered: return "Ordered List"
+        case .unordered: return "Unordered List"
+        }
+    }
+
+    var iconImage: UIImage? {
+        return formattingIdentifier.iconImage
     }
 }

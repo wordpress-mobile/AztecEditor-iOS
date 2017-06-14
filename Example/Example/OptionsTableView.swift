@@ -68,7 +68,6 @@ extension OptionsTableView: UITableViewDataSource {
         reuseCell.textLabel?.attributedText = option.title
         reuseCell.imageView?.image = option.image
 
-
         reuseCell.deselectedTintColor = cellDeselectedTintColor
 
         let isSelected = indexPath.row == super.indexPathForSelectedRow?.row
