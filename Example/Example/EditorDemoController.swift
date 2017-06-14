@@ -536,12 +536,15 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 
     func toggleList() {
-        if richTextView.inputView != nil {
-            changeRichTextInputView(to: nil)
-            return
-        }
         let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
+        }
+
+        // Hide the input view if we're already showing these options
+        if let existingOptionsView = richTextView.inputView as? OptionsTableView,
+            existingOptionsView.options == listOptions {
+            changeRichTextInputView(to: nil)
+            return
         }
 
         let listPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 200), options: listOptions)
@@ -576,15 +579,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
-        // check if we already showing a custom view.
-        if richTextView.inputView != nil {
-            changeRichTextInputView(to: nil)
-            return
-        }
         let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: headerType.iconImage,
                                           title: NSAttributedString(string: headerType.description,
                                                                     attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
+        }
+
+        // Hide the input view if we're already showing these options
+        if let existingOptionsView = richTextView.inputView as? OptionsTableView,
+            existingOptionsView.options == headerOptions {
+            changeRichTextInputView(to: nil)
+            return
         }
 
         let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)

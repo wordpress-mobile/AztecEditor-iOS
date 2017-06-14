@@ -2,9 +2,15 @@ import UIKit
 
 /// Encapsulates data for a row in an `OptionsTableView`.
 ///
-struct OptionsTableViewOption {
+struct OptionsTableViewOption: Equatable {
     let image: UIImage?
     let title: NSAttributedString
+
+    // MARK: - Equatable
+
+    static func ==(lhs: OptionsTableViewOption, rhs: OptionsTableViewOption) -> Bool {
+        return lhs.title == rhs.title
+    }
 }
 
 class OptionsTableView: UITableView {
