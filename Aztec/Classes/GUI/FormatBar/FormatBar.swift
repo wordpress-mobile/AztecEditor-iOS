@@ -263,8 +263,22 @@ open class FormatBar: UIView {
     /// Selects all of the FormatBarItems matching a collection of Identifiers
     ///
     open func selectItemsMatchingIdentifiers(_ identifiers: [FormattingIdentifier]) {
+        let identifiers = Set(identifiers)
+
         for item in items {
-            if let identifier = item.identifier {
+            if let alternativeIcons = item.alternativeIcons, alternativeIcons.count > 0 {
+                // If the item has a matching alternative identifier, use that first and set selected
+                if let alternativeIdentifier = alternativeIcons.keys.first(where: { identifiers.contains($0) }) {
+                    item.useAlternativeIconForIdentifier(alternativeIdentifier)
+                    item.isSelected = true
+                } else {
+                    // If the item has alternative identifiers, but none of them match,
+                    // reset the icon and deselect it
+                    item.resetIcon()
+                    item.isSelected = false
+                }
+            } else if let identifier = item.identifier {
+                // Otherwise, select it if the identifier matches
                 item.isSelected = identifiers.contains(identifier)
             }
         }

@@ -397,15 +397,7 @@ class EditorDemoController: UIViewController {
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
-        // Filter multiple header identifier to single header identifier
-        identifiers = identifiers.map({ (identifier) -> FormattingIdentifier in
-            switch identifier {
-            case .header1, .header2, .header3, .header4, .header5, .header6:
-                return .header
-            default:
-                return identifier
-            }
-        })
+
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
@@ -513,14 +505,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             showImagePicker()
         case .sourcecode:
             toggleEditingMode()
-        case .header, .header1, .header2, .header3, .header4, .header5, .header6:
+        case .p, .header1, .header2, .header3, .header4, .header5, .header6:
             toggleHeader()
         case .more:
             insertMoreAttachment()
         case .horizontalruler:
             insertHorizontalRuler()
-        case .p:
-            break
         }
 
         updateFormatBar()
@@ -795,9 +785,29 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     var scrollableItemsForToolbar: [FormatBarItem] {
+        let headerButton = makeToolbarButton(identifier: .p)
+
+        var alternativeIcons = [FormattingIdentifier: UIImage]()
+        let headings: [FormattingIdentifier] = [ .header1, .header2, .header3, .header4, .header5, .header6 ]
+        for heading in headings {
+            alternativeIcons[heading] = heading.iconImage
+        }
+
+        headerButton.alternativeIcons = alternativeIcons
+
+
+        let listButton = makeToolbarButton(identifier: .unorderedlist)
+        var listIcons = [FormattingIdentifier: UIImage]()
+        let listTypes: [FormattingIdentifier] = [ .unorderedlist, .orderedlist ]
+        for list in listTypes {
+            listIcons[list] = list.iconImage
+        }
+
+        listButton.alternativeIcons = listIcons
+
         return [
-            makeToolbarButton(identifier: .header),
-            makeToolbarButton(identifier: .unorderedlist),
+            headerButton,
+            listButton,
             makeToolbarButton(identifier: .blockquote),
             makeToolbarButton(identifier: .bold),
             makeToolbarButton(identifier: .italic),
@@ -1196,7 +1206,7 @@ extension FormattingIdentifier {
         switch(self) {
         case .media:
             return gridicon(.addOutline)
-        case .header:
+        case .p:
             return gridicon(.heading)
         case .bold:
             return gridicon(.bold)
@@ -1221,19 +1231,17 @@ extension FormattingIdentifier {
         case .more:
             return gridicon(.readMore)
         case .header1:
-            return gridicon(.heading)
+            return gridicon(.headingH1)
         case .header2:
-            return gridicon(.heading)
+            return gridicon(.headingH2)
         case .header3:
-            return gridicon(.heading)
+            return gridicon(.headingH3)
         case .header4:
-            return gridicon(.heading)
+            return gridicon(.headingH4)
         case .header5:
-            return gridicon(.heading)
+            return gridicon(.headingH5)
         case .header6:
-            return gridicon(.heading)
-        case .p:
-            return gridicon(.heading)
+            return gridicon(.headingH6)
         }
     }
 
@@ -1246,7 +1254,7 @@ extension FormattingIdentifier {
         switch(self) {
         case .media:
             return "formatToolbarInsertMedia"
-        case .header:
+        case .p:
             return "formatToolbarSelectParagraphStyle"
         case .bold:
             return "formatToolbarToggleBold"
@@ -1282,8 +1290,6 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH5"
         case .header6:
             return "formatToolbarToggleH6"
-        case .p:
-            return "none"
         }
     }
 
@@ -1291,7 +1297,7 @@ extension FormattingIdentifier {
         switch(self) {
         case .media:
             return NSLocalizedString("Insert media", comment: "Accessibility label for insert media button on formatting toolbar.")
-        case .header:
+        case .p:
             return NSLocalizedString("Select paragraph style", comment: "Accessibility label for selecting paragraph style button on formatting toolbar.")
         case .bold:
             return NSLocalizedString("Bold", comment: "Accessibility label for bold button on formatting toolbar.")
@@ -1327,8 +1333,6 @@ extension FormattingIdentifier {
             return NSLocalizedString("Header 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
             return NSLocalizedString("Header 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
-        case .p:
-            return ""
         }
     }
 }

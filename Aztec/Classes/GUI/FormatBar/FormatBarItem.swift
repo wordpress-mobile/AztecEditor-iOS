@@ -74,6 +74,28 @@ open class FormatBarItem: UIButton {
     }
 
 
+    // MARK: - Icons
+
+    /// A list of alternative icons that can be switched out for
+    /// this item's default icon if their formatting identifiers are detected
+    ///
+    public var alternativeIcons: [FormattingIdentifier: UIImage]? = nil
+
+    /// Switch out this item's icon for the icon that matches the specified identifier
+    ///
+    public func useAlternativeIconForIdentifier(_ identifier: FormattingIdentifier) {
+        if let icon = alternativeIcons?[identifier] {
+            setImage(icon, for: .normal)
+        }
+    }
+
+    /// Reset this item's icon back to default
+    ///
+    public func resetIcon() {
+        setImage(originalIcon, for: .normal)
+    }
+
+    private var originalIcon: UIImage
 
     // MARK: - Lifecycle
 
@@ -88,6 +110,8 @@ open class FormatBarItem: UIButton {
     }
 
     public init(image: UIImage, frame: CGRect) {
+        self.originalIcon = image
+
         super.init(frame: frame)
         self.setImage(image, for: UIControlState())
         self.adjustsImageWhenDisabled = true
