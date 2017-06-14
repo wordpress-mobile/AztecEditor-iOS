@@ -1,5 +1,9 @@
+import Foundation
 
-class HTMLAttributeRepresentation: HTMLRepresentation {
+
+// MARK: - HTMLAttributeRepresentation
+//
+class HTMLAttributeRepresentation: HTMLRepresentation, Equatable {
 
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
@@ -23,5 +27,12 @@ class HTMLAttributeRepresentation: HTMLRepresentation {
 
         let stringAttribute = attribute as? StringAttribute
         value = stringAttribute?.value
+    }
+
+
+    // MARK: - Equatable
+
+    static func ==(lhs: HTMLAttributeRepresentation, rhs: HTMLAttributeRepresentation) -> Bool {
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
     }
 }
