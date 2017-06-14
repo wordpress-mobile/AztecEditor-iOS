@@ -536,43 +536,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
-    func toggleList() {
-        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
-            return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
-        }
-
-        // Hide the input view if we're already showing these options
-        if let optionsViewController = optionsViewController,
-            optionsViewController.options == listOptions {
-            self.optionsViewController = nil
-            changeRichTextInputView(to: nil)
-            return
-        }
-
-        optionsViewController = OptionsTableViewController(options: listOptions)
-        optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
-
-            let listType = Constants.lists[selected]
-            switch listType {
-            case .unordered:
-                self?.richTextView.toggleUnorderedList(range: range)
-            case .ordered:
-                self?.richTextView.toggleOrderedList(range: range)
-            }
-        }
-
-        self.addChildViewController(optionsViewController)
-        changeRichTextInputView(to: optionsViewController.view)
-        optionsViewController.didMove(toParentViewController: self)
-
-        if let listType = listTypeForSelectedText(),
-            let index = Constants.lists.index(of: listType) {
-            optionsViewController.selectRow(at: index)
-        }
-    }
-
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
@@ -588,28 +551,64 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
                                                                     attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
         }
 
+        let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
+
+        showOptionsTableViewControllerWithOptions(headerOptions,
+                                                  selectedRowIndex: selectedIndex,
+                                                  onSelect: { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
+            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
+            self?.optionsViewController = nil
+            self?.changeRichTextInputView(to: nil)
+        })
+    }
+
+    func toggleList() {
+        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
+        }
+
+        var index: Int? = nil
+        if let listType = listTypeForSelectedText() {
+            index = Constants.lists.index(of: listType)
+        }
+
+        showOptionsTableViewControllerWithOptions(listOptions,
+                                                  selectedRowIndex: index,
+                                                  onSelect: { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
+            let listType = Constants.lists[selected]
+            switch listType {
+            case .unordered:
+                self?.richTextView.toggleUnorderedList(range: range)
+            case .ordered:
+                self?.richTextView.toggleOrderedList(range: range)
+            }
+
+            self?.optionsViewController = nil
+        })
+    }
+
+    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption], selectedRowIndex index: Int?, onSelect: OptionsTableViewController.OnSelectHandler?) {
         // Hide the input view if we're already showing these options
         if let optionsViewController = optionsViewController,
-            optionsViewController.options == headerOptions {
+            optionsViewController.options == options {
             self.optionsViewController = nil
             changeRichTextInputView(to: nil)
             return
         }
 
-        optionsViewController = OptionsTableViewController(options: headerOptions)
+        optionsViewController = OptionsTableViewController(options: options)
         optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
-
-            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
-            self?.changeRichTextInputView(to: nil)
-        }
+        optionsViewController.onSelect = onSelect
 
         self.addChildViewController(optionsViewController)
         changeRichTextInputView(to: optionsViewController.view)
         optionsViewController.didMove(toParentViewController: self)
 
-        if let index = Constants.headers.index(of: self.headerLevelForSelectedText()) {
+        if let index = index {
             optionsViewController.selectRow(at: index)
         }
     }

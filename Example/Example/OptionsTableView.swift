@@ -14,9 +14,11 @@ struct OptionsTableViewOption: Equatable {
 }
 
 class OptionsTableViewController: UITableViewController {
+    typealias OnSelectHandler = (_ selected: Int) -> Void
+
     var options = [OptionsTableViewOption]()
 
-    var onSelect: ((_ selected: Int) -> Void)?
+    var onSelect: OnSelectHandler?
 
     var cellDeselectedTintColor: UIColor? {
         didSet {
