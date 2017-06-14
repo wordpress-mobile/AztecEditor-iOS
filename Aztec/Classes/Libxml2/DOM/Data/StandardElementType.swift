@@ -72,6 +72,7 @@ extension Libxml2 {
                 case .i: return [self.rawValue, StandardElementType.em.rawValue]
                 case .s: return [self.rawValue, StandardElementType.strike.rawValue, StandardElementType.del.rawValue]
                 case .del: return [self.rawValue, StandardElementType.strike.rawValue, StandardElementType.s.rawValue]
+                case .strike: return [self.rawValue, StandardElementType.del.rawValue, StandardElementType.s.rawValue]
                 default:
                     return [self.rawValue]
                 }

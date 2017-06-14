@@ -50,9 +50,9 @@ open class Header: ParagraphProperty
     ///
     let level: HeaderType
 
-    init(level: HeaderType) {
+    init(level: HeaderType, with representation: HTMLElementRepresentation? = nil) {
         self.level = level
-        super.init()
+        super.init(with: representation)
     }
     
     public required init?(coder aDecoder: NSCoder) {

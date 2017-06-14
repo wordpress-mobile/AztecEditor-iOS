@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - HTMLAttributeRepresentation
 //
-class HTMLAttributeRepresentation: HTMLRepresentation, Equatable {
+class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
     typealias Attribute = Libxml2.Attribute
     typealias StringAttribute = Libxml2.StringAttribute
@@ -47,5 +47,15 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable {
 
     static func ==(lhs: HTMLAttributeRepresentation, rhs: HTMLAttributeRepresentation) -> Bool {
         return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            let value = self.value ?? ""
+
+            return Mirror(self, children: ["name": name, "value": value])
+        }
     }
 }

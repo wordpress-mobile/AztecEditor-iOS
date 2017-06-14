@@ -2,7 +2,7 @@ import Foundation
 import Gridicons
 import UIKit
 
-class HMTLNodeToNSAttributedString: SafeConverter {
+class HTMLNodeToNSAttributedString: SafeConverter {
 
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
@@ -171,73 +171,6 @@ class HMTLNodeToNSAttributedString: SafeConverter {
         return content
     }
 
-    // MARK: - Formatters
-
-    fileprivate func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
-        // TODO: implement attribute representation formatters
-        //
-        return nil
-    }
-
-    fileprivate func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
-        guard let standardType = StandardElementType(rawValue: representation.name) else {
-            return nil
-        }
-
-        let equivalentNames = standardType.equivalentNames
-
-        for (key, formatter) in elementToFormattersMap {
-            if equivalentNames.contains(key.rawValue) {
-                return formatter
-            }
-        }
-
-        return nil
-    }
-
-    fileprivate func formatter(for representation: HTMLRepresentation) -> AttributeFormatter? {
-        if let elementRepresentation = representation as? HTMLElementRepresentation {
-            return formatter(for: elementRepresentation)
-        } else if let attributeRepresentation = representation as? HTMLAttributeRepresentation {
-            return formatter(for: attributeRepresentation)
-        } else {
-            assertionFailure("Unsupported representation type.")
-            return nil
-        }
-    }
-
-    // MARK: - String attributes
-
-    /// Calculates the attributes for the specified node.  Returns a dictionary including inherited
-    /// attributes.
-    ///
-    /// - Parameters:
-    ///     - node: the node to get the information from.
-    ///
-    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
-    ///
-    fileprivate func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
-
-        let representation = HTMLElementRepresentation(for: node)
-
-        if let formatter = self.formatter(for: representation) {
-            return formatter.apply(to: attributes, andStore: representation)
-        }
-
-        guard node.needsToBePreservedDuringRegeneration() else {
-            return attributes
-        }
-
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
-        unsupportedHTML.add(element: representation)
-
-        var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
-
-        return updated
-    }
-
-
 /*
         var attributes = inheritedAttributes
         let attributeValue = parseCustomAttributeValues(forNode: node)
@@ -377,5 +310,126 @@ class HMTLNodeToNSAttributedString: SafeConverter {
             stylesDictionary[key] = value
         }
         return stylesDictionary
+    }
+}
+
+private extension HTMLNodeToNSAttributedString {
+
+    // MARK: - NSAttributedString attribute generation
+
+    /// Calculates the attributes for the specified node.  Returns a dictionary including inherited
+    /// attributes.
+    ///
+    /// - Parameters:
+    ///     - node: the node to get the information from.
+    ///
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
+    ///
+    func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
+
+        guard node.needsToBePreservedDuringRegeneration() else {
+            return attributes
+        }
+
+        let elementRepresentation = HTMLElementRepresentation(for: node)
+        return attributes(for: elementRepresentation, inheriting: inheritedAttributes)
+    }
+
+    /// Calculates the attributes for the specified element representation.  Returns a dictionary
+    /// including inherited attributes.
+    ///
+    /// - Parameters:
+    ///     - elementRepresentation: the element representation.
+    ///     - inheritedAttributes: the attributes that will be inherited.
+    ///
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
+    ///
+    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting attributes: [String:Any]) -> [String:Any] {
+
+        let attributes: [String:Any]
+
+        if let elementFormatter = formatter(for: elementRepresentation) {
+            attributes = elementFormatter.apply(to: attributes, andStore: elementRepresentation)
+        } else {
+            attributes = store(elementRepresentation: elementRepresentation, in: attributes)
+        }
+
+        var finalAttributes = attributes
+
+        for attributeRepresentation in elementRepresentation.attributes {
+            finalAttributes = self.attributes(for: attributeRepresentation, inheriting: finalAttributes)
+        }
+
+        return finalAttributes
+    }
+
+
+    /// Calculates the attributes for the specified element representation.  Returns a dictionary
+    /// including inherited attributes.
+    ///
+    /// - Parameters:
+    ///     - attributeRepresentation: the element representation.
+    ///     - inheritedAttributes: the attributes that will be inherited.
+    ///
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
+    ///
+    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String:Any]) -> [String:Any] {
+
+        let attributes: [String:Any]
+
+        if let attributeFormatter = formatter(for: attributeRepresentation) {
+            attributes = attributeFormatter.apply(to: inheritedAttributes, andStore: attributeRepresentation)
+        } else {
+            attributes = inheritedAttributes
+        }
+        
+        return attributes
+    }
+
+
+    /// Stores the specified HTMLElementRepresentation in a collection of NSAttributedString Attributes.
+    ///
+    /// - Parameters:
+    ///     - elementRepresentation: Instance of HTMLElementRepresentation to be stored.
+    ///     - attributes: Attributes where we should store the HTML Representation.
+    ///
+    /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
+    ///
+    private func store(elementRepresentation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
+        unsupportedHTML.add(element: elementRepresentation)
+
+        var updated = attributes
+        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
+
+        return updated
+    }
+}
+
+extension HTMLNodeToNSAttributedString {
+
+    // MARK: - Formatters
+
+    func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
+        // TODO: implement attribute representation formatters
+        //
+        return nil
+    }
+
+    func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
+
+        guard let standardType = StandardElementType(rawValue: representation.name) else {
+            return nil
+        }
+
+        let equivalentNames = standardType.equivalentNames
+
+        for (key, formatter) in elementToFormattersMap {
+            if equivalentNames.contains(key.rawValue) {
+                return formatter
+            }
+        }
+
+        return nil
     }
 }

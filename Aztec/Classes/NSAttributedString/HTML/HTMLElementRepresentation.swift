@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - HTMLElementRepresentation
 //
-class HTMLElementRepresentation: HTMLRepresentation, Equatable {
+class HTMLElementRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
     typealias ElementNode = Libxml2.ElementNode
 
@@ -23,6 +23,7 @@ class HTMLElementRepresentation: HTMLRepresentation, Equatable {
         }
     }
 
+
     /// Returns the ElementNode Instance for the current definition.
     ///
     func toNode() -> ElementNode {
@@ -38,5 +39,13 @@ class HTMLElementRepresentation: HTMLRepresentation, Equatable {
 
     static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
         return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "attributes": attributes])
+        }
     }
 }
