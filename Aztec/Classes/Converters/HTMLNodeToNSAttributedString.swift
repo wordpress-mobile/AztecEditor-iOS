@@ -350,8 +350,10 @@ private extension HTMLNodeToNSAttributedString {
 
         if let elementFormatter = formatter(for: elementRepresentation) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
-        } else {
+        } else  if elementRepresentation.name != StandardElementType.li.rawValue {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
+        } else {
+            finalAttributes = attributes
         }
 
         for attributeRepresentation in elementRepresentation.attributes {
