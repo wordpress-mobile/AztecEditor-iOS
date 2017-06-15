@@ -22,16 +22,16 @@ class LinkFormatter: StandardAttributeFormatter {
     func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
 
         if let representation = representation {
-            let linkURL: URL
+            let linkURL: NSURL
 
             if let attributeIndex = representation.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
                 let attributeValue = representation.attributes[attributeIndex].value {
 
-                linkURL = URL(string: attributeValue)!
+                linkURL = NSURL(string: attributeValue)!
             } else {
                 // We got a link tag without an HREF attribute
                 //
-                linkURL = URL(string: "")!
+                linkURL = NSURL(string: "")!
             }
 
             attributeValue = linkURL
