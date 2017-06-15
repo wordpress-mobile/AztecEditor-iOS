@@ -309,29 +309,63 @@ private extension NSAttributedStringToNodes {
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
         for property in style.properties.reversed() {
             switch property {
-            case is Blockquote:
-                block( ElementNode(type: .blockquote) )
+            case let blockquote as Blockquote:
+                processBlockquoteStyle(blockquote: blockquote, block: block)
 
             case let header as Header:
-                guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
-                    continue
-                }
-
-                block( ElementNode(type: type) )
+                processHeaderStyle(header: header, block: block)
 
             case let list as TextList:
-                let textListElement = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+                processListStyle(list: list, block: block)
 
-                block( ElementNode(type: .li) )
-                block( textListElement )
-
-            case is HTMLParagraph:
-                block( ElementNode(type: .p) )
+            case let paragraph as HTMLParagraph:
+                processParagraphStyle(paragraph: paragraph, block: block)
 
             default:
                 continue
             }
         }
+    }
+
+
+    ///
+    ///
+    private func processBlockquoteStyle(blockquote: Blockquote, block: ((ElementNode) -> Void)) {
+        let node = blockquote.representation?.toNode() ?? ElementNode(type: .blockquote)
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processHeaderStyle(header: Header, block: ((ElementNode) -> Void)) {
+        guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
+            return
+        }
+
+        let node = header.representation?.toNode() ?? ElementNode(type: type)
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processListStyle(list: TextList, block: ((ElementNode) -> Void)) {
+        let elementType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
+        let listElement = list.representation?.toNode() ?? ElementNode(type: elementType)
+        let itemElement = ElementNode(type: .li)
+
+        // TODO: LI needs it's Original Attributes!!
+        block(itemElement)
+        block(listElement)
+    }
+
+
+    ///
+    ///
+    private func processParagraphStyle(paragraph: HTMLParagraph, block: ((ElementNode) -> Void)) {
+        let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
+        block(node)
     }
 }
 
