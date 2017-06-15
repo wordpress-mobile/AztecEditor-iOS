@@ -345,13 +345,17 @@ private extension NSAttributedStringToNodes {
                     break
                 }
 
-                if font.containsTraits(.traitBold) == true {
-                    let node = ElementNode(type: .b)
+                if font.containsTraits(.traitBold) {
+                    let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+                    let node = representation?.toNode() ?? ElementNode(type: .b)
+                    
                     block(node)
                 }
 
-                if font.containsTraits(.traitItalic) == true {
-                    let node = ElementNode(type: .i)
+                if font.containsTraits(.traitItalic) {
+                    let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+                    let node = representation?.toNode() ?? ElementNode(type: .i)
+
                     block(node)
                 }
 
@@ -360,16 +364,22 @@ private extension NSAttributedStringToNodes {
                     break
                 }
 
-                let source = StringAttribute(name: "href", value: url.absoluteString)
-                let node = ElementNode(type: .a, attributes: [source])
+                let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+                let node = representation?.toNode() ?? ElementNode(type: .a)
+                node.updateAttribute(named: "href", value: url.absoluteString)
+
                 block(node)
 
             case NSStrikethroughStyleAttributeName:
-                let node = ElementNode(type: .strike)
+                let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+                let node = representation?.toNode() ?? ElementNode(type: .strike)
+
                 block(node)
 
             case NSUnderlineStyleAttributeName:
-                let node = ElementNode(type: .u)
+                let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+                let node = representation?.toNode() ?? ElementNode(type: .u)
+
                 block(node)
 
             case UnsupportedHTMLAttributeName:
@@ -433,11 +443,11 @@ private extension NSAttributedStringToNodes {
     ///
     func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
         var attributes = [Attribute]()
-        if let attribute = imageSourceAttribute(attachment) {
+        if let attribute = imageSourceAttribute(from: attachment) {
             attributes.append(attribute)
         }
 
-        if let attribute = imageClassAttribute(attachment) {
+        if let attribute = imageClassAttribute(from: attachment) {
             attributes.append(attribute)
         }
 
@@ -466,7 +476,7 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts the src attribute from an ImageAttachment Instance.
     ///
-    func imageSourceAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+    private func imageSourceAttribute(from attachment: ImageAttachment) -> StringAttribute? {
         guard let source = attachment.url?.absoluteString else {
             return nil
         }
@@ -476,7 +486,7 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts the class attribute from an ImageAttachment Instance.
     ///
-    func imageClassAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+    private func imageClassAttribute(from attachment: ImageAttachment) -> StringAttribute? {
         var style = String()
         if attachment.alignment != .center {
             style += attachment.alignment.htmlString()
