@@ -2,12 +2,22 @@ import Foundation
 import UIKit
 
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string. 
-class StandardAttributeFormatter: CharacterAttributeFormatter {
+class StandardAttributeFormatter: AttributeFormatter {
+
+    var placeholderAttributes: [String : Any]? { return nil }
 
     let attributedStringStorageKey: String = "FontFormatter"
     let attributeKey: String
 
     var attributeValue: Any
+
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
+        return range
+    }
+
+    func worksInEmptyRange() -> Bool {
+        return false
+    }
 
     init(attributeKey: String, attributeValue: Any) {
         self.attributeKey = attributeKey

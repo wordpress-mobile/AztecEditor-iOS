@@ -1,14 +1,24 @@
 import Foundation
 import UIKit
 
-class FontFormatter: CharacterAttributeFormatter {
+class FontFormatter: AttributeFormatter {
 
+    var placeholderAttributes: [String : Any]? { return nil }
+    
     let attributedStringStorageKey: String = "FontFormatter"
 
     let traits: UIFontDescriptorSymbolicTraits
 
     init(traits: UIFontDescriptorSymbolicTraits) {
         self.traits = traits
+    }
+
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
+        return range
+    }
+
+    func worksInEmptyRange() -> Bool {
+        return false
     }
 
     func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
