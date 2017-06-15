@@ -338,62 +338,89 @@ private extension NSAttributedStringToNodes {
     /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateStyleNodes(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
-        for (key, value) in attributes {
-            switch key {
-            case NSFontAttributeName:
-                guard let font = value as? UIFont else {
-                    break
-                }
+        processFontStyle(in: attributes, block: block)
+        processLinkStyle(in: attributes, block: block)
+        processStrikethruStyle(in: attributes, block: block)
+        processUnderlineStyle(in: attributes, block: block)
+        processUnsupportedHTML(in: attributes, block: block)
+    }
 
-                if font.containsTraits(.traitBold) {
-                    let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-                    let node = representation?.toNode() ?? ElementNode(type: .b)
-                    
-                    block(node)
-                }
 
-                if font.containsTraits(.traitItalic) {
-                    let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-                    let node = representation?.toNode() ?? ElementNode(type: .i)
+    ///
+    ///
+    private func processFontStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let font = attributes[NSFontAttributeName] as? UIFont else {
+            return
+        }
 
-                    block(node)
-                }
+        if font.containsTraits(.traitBold) {
+            let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+            let node = representation?.toNode() ?? ElementNode(type: .b)
 
-            case NSLinkAttributeName:
-                guard let url = value as? URL else {
-                    break
-                }
+            block(node)
+        }
 
-                let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-                let node = representation?.toNode() ?? ElementNode(type: .a)
-                node.updateAttribute(named: "href", value: url.absoluteString)
+        if font.containsTraits(.traitItalic) {
+            let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+            let node = representation?.toNode() ?? ElementNode(type: .i)
 
-                block(node)
+            block(node)
+        }
+    }
 
-            case NSStrikethroughStyleAttributeName:
-                let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-                let node = representation?.toNode() ?? ElementNode(type: .strike)
 
-                block(node)
+    ///
+    ///
+    private func processLinkStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let url = attributes[NSLinkAttributeName] as? URL else {
+            return
+        }
 
-            case NSUnderlineStyleAttributeName:
-                let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-                let node = representation?.toNode() ?? ElementNode(type: .u)
+        let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .a)
+        node.updateAttribute(named: "href", value: url.absoluteString)
 
-                block(node)
+        block(node)
+    }
 
-            case UnsupportedHTMLAttributeName:
-                guard let unsupported = value as? UnsupportedHTML else {
-                    break
-                }
 
-                for element in unsupported.elements.reversed() {
-                    block(element.toNode())
-                }
+    ///
+    ///
+    private func processStrikethruStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard attributes[NSStrikethroughStyleAttributeName] != nil else {
+            return
+        }
 
-            default:
-                break
-            }
+        let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .strike)
+
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processUnderlineStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard attributes[NSUnderlineStyleAttributeName] != nil else {
+            return
+        }
+
+        let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .u)
+
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processUnsupportedHTML(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let unsupported = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
+            return
+        }
+
+        for element in unsupported.elements.reversed() {
+            block(element.toNode())
         }
     }
 }
