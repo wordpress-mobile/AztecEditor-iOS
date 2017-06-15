@@ -1,10 +1,11 @@
 import UIKit
 
 class ColorFormatter: StandardAttributeFormatter {
+    static let htmlRepresentationKey = "Color.htmlRepresentation"
 
     init(color: UIColor = .black) {
-        let htmlRepresentationKey = "Color.htmlRepresentation"
-
-        super.init(attributeKey: NSForegroundColorAttributeName, attributeValue: color, htmlRepresentationKey: htmlRepresentationKey)
+        super.init(attributeKey: NSForegroundColorAttributeName,
+                   attributeValue: color,
+                   htmlRepresentationKey: ColorFormatter.htmlRepresentationKey)
     }
 }

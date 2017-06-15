@@ -1,12 +1,11 @@
 import UIKit
 
 class LinkFormatter: StandardAttributeFormatter {
-    init() {
-        let htmlRepresentationKey = "Link.htmlRepresentation"
+    static let htmlRepresentationKey = "Link.htmlRepresentation"
 
-        super.init(
-            attributeKey: NSLinkAttributeName,
-            attributeValue: NSURL(string:"")!,
-            htmlRepresentationKey: htmlRepresentationKey)
+    init() {
+        super.init(attributeKey: NSLinkAttributeName,
+                   attributeValue: NSURL(string:"")!,
+                   htmlRepresentationKey: LinkFormatter.htmlRepresentationKey)
     }
 }

@@ -1,9 +1,11 @@
 import UIKit
 
 class HRFormatter: StandardAttributeFormatter {
-    init() {
-        let htmlRepresentationKey = "HR.htmlRepresentation"
+    static let htmlRepresentationKey = "HR.htmlRepresentation"
 
-        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: LineAttachment(), htmlRepresentationKey: htmlRepresentationKey)
+    init() {
+        super.init(attributeKey: NSAttachmentAttributeName,
+                   attributeValue: LineAttachment(),
+                   htmlRepresentationKey: HRFormatter.htmlRepresentationKey)
     }
 }

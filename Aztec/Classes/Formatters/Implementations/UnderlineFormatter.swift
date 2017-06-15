@@ -1,13 +1,11 @@
 import UIKit
 
 class UnderlineFormatter: StandardAttributeFormatter {
+    static let htmlRepresentationKey = "Underline.htmlRepresentation"
 
     init() {
-        let htmlRepresentationKey = "Underline.htmlRepresentation"
-
-        super.init(
-            attributeKey: NSUnderlineStyleAttributeName,
-            attributeValue: NSUnderlineStyle.styleSingle.rawValue,
-            htmlRepresentationKey: htmlRepresentationKey)
+        super.init(attributeKey: NSUnderlineStyleAttributeName,
+                   attributeValue: NSUnderlineStyle.styleSingle.rawValue,
+                   htmlRepresentationKey: UnderlineFormatter.htmlRepresentationKey)
     }
 }
