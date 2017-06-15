@@ -350,10 +350,12 @@ private extension HTMLNodeToNSAttributedString {
 
         if let elementFormatter = formatter(for: elementRepresentation) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
-        } else  if elementRepresentation.name != StandardElementType.li.rawValue {
-            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
-        } else {
+        } else  if elementRepresentation.name == StandardElementType.li.rawValue {
+            // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+
             finalAttributes = attributes
+        } else {
+            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
         for attributeRepresentation in elementRepresentation.attributes {
