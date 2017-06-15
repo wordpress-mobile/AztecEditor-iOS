@@ -42,6 +42,17 @@ protocol AttributeFormatter {
     ///
     func apply(to attributes: [String: Any]) -> [String: Any]
 
+    /// Apply the compound attributes to the provided attributes dictionary.
+    ///
+    /// - Parameters:
+    ///     - attributes: the original attributes to apply to
+    ///     - representation: the original HTML representation for the attribute to apply.
+    ///
+    /// - Returns:
+    ///     - the resulting attributes dictionary
+    ///
+    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any]
+
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
@@ -70,6 +81,13 @@ protocol AttributeFormatter {
 // MARK: - Default Implementations
 //
 extension AttributeFormatter {
+
+    /// The default implementation forwards the call.  This is probably good enough for all
+    /// classes that implement this protocol.
+    ///
+    func apply(to attributes: [String : Any]) -> [String: Any] {
+        return apply(to: attributes, andStore: nil)
+    }
 
     /// Indicates whether the Formatter's Attributes are present in a given string, at a specified Index.
     ///
@@ -181,87 +199,5 @@ private extension AttributeFormatter {
         }
 
         return present(in: text, at: range) == false
-    }
-}
-
-
-// MARK: - Character Attribute Formatter
-//
-protocol CharacterAttributeFormatter: AttributeFormatter {
-}
-
-extension CharacterAttributeFormatter {
-
-    var placeholderAttributes: [String : Any]? { return nil }
-
-    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
-        return range
-    }
-
-    func worksInEmptyRange() -> Bool {
-        return false
-    }
-}
-
-
-// MARK: - Paragraph Attribute Formatter
-//
-protocol ParagraphAttributeFormatter: AttributeFormatter {
-}
-
-extension ParagraphAttributeFormatter {
-
-    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
-        return text.paragraphRange(for: range)
-    }
-
-    /// Applies the Formatter's Attributes into a given string, at the specified range.
-    ///
-    /// - Returns: the full range where the attributes where applied
-    ///
-    @discardableResult
-    func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
-        let rangeToApply = applicationRange(for: range, in: text)
-
-        text.replaceOcurrences(of: String(.newline), with: String(.paragraphSeparator), within: rangeToApply)
-
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, _) in
-            let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
-            let attributes = apply(to: currentAttributes)
-            text.addAttributes(attributes, range: range)
-        }
-
-        return rangeToApply
-    }
-
-    /// Removes the Formatter's Attributes from a given string, at the specified range.
-    ///
-    /// - Returns: the full range where the attributes where removed
-    ///
-    @discardableResult
-    func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
-        let rangeToApply = applicationRange(for: range, in: text)
-
-        text.replaceOcurrences(of: String(.paragraphSeparator), with: String(.newline), within: rangeToApply)
-
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
-            let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
-            let attributes = remove(from: currentAttributes)
-
-            let currentKeys = Set(currentAttributes.keys)
-            let newKeys = Set(attributes.keys)
-            let removedKeys = currentKeys.subtracting(newKeys)
-            for key in removedKeys {
-                text.removeAttribute(key, range: range)
-            }
-
-            text.addAttributes(attributes, range: range)
-        }
-
-        return rangeToApply
-    }
-
-    func worksInEmptyRange() -> Bool {
-        return true
     }
 }

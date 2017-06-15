@@ -1,23 +1,39 @@
 import Foundation
 import UIKit
 
-class FontFormatter: CharacterAttributeFormatter {
+class FontFormatter: AttributeFormatter {
 
+    var placeholderAttributes: [String : Any]? { return nil }
+    
+    let htmlRepresentationKey: String
     let traits: UIFontDescriptorSymbolicTraits
 
-    init(traits: UIFontDescriptorSymbolicTraits) {
+    init(traits: UIFontDescriptorSymbolicTraits, htmlRepresentationKey: String) {
+        self.htmlRepresentationKey = htmlRepresentationKey
         self.traits = traits
     }
 
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+    func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
+        return range
+    }
 
-        var resultingAttributes = attributes
+    func worksInEmptyRange() -> Bool {
+        return false
+    }
+
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
             return attributes
         }
+
         let newFont = font.modifyTraits(traits, enable: true)
+
+        var resultingAttributes = attributes
+
         resultingAttributes[NSFontAttributeName] = newFont
-        
+        resultingAttributes[htmlRepresentationKey] = representation
+
         return resultingAttributes
     }
 
@@ -29,6 +45,8 @@ class FontFormatter: CharacterAttributeFormatter {
 
         let newFont = font.modifyTraits(traits, enable: false)
         resultingAttributes[NSFontAttributeName] = newFont
+        
+        resultingAttributes.removeValue(forKey: htmlRepresentationKey)
 
         return resultingAttributes
     }
@@ -39,20 +57,6 @@ class FontFormatter: CharacterAttributeFormatter {
         }
         let enabled = font.containsTraits(traits)
         return enabled
-    }
-}
-
-class BoldFormatter: FontFormatter {
-
-    init() {
-        super.init(traits: .traitBold)
-    }
-}
-
-class ItalicFormatter: FontFormatter {
-
-    init() {
-        super.init(traits: .traitItalic)
     }
 }
 

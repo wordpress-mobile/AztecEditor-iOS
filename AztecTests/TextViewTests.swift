@@ -1366,10 +1366,9 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
         let videoAttachment = textView.storage.mediaAttachments.first! as! VideoAttachment
         videoAttachment.srcURL = URL(string:"newVideo.mp4")!
-        videoAttachment.namedAttributes["data-wpvideopress"] = "ABCDEFG"
         let _ = textView.update(attachment: videoAttachment)
 
-        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDEFG\" alt=\"The video\"></video>")
+        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
     }
 
 }

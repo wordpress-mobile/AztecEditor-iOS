@@ -280,27 +280,20 @@ private extension NSAttributedStringToNodes {
     /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
-        let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
+        var nodes = [Node]()
 
-        switch attachment {
-        case let lineAttachment as LineAttachment:
-            return lineAttachmentToNodes(lineAttachment)
-        case let commentAttachment as CommentAttachment:
-            return commentAttachmentToNodes(commentAttachment)
-        case let htmlAttachment as HTMLAttachment:
-            return htmlAttachmentToNode(htmlAttachment)
-        case let imageAttachment as ImageAttachment:
-            return imageAttachmentToNodes(imageAttachment)
-        case let videoAttachment as VideoAttachment:
-            return videoAttachmentToNodes(videoAttachment)
-        default:
-            return textToNodes(attrString.string)
-        }
+        nodes += processLineAttachment(from: attrString)
+        nodes += processCommentAttachment(from: attrString)
+        nodes += processHtmlAttachment(from: attrString)
+        nodes += processImageAttachment(from: attrString)
+        nodes += processVideoAttachment(from: attrString)
+
+        return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
     }
 }
 
 
-// MARK: - Enumerators
+// MARK: - Enumerator: Paragraph Nodes
 //
 private extension NSAttributedStringToNodes {
 
@@ -309,24 +302,17 @@ private extension NSAttributedStringToNodes {
     func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
         for property in style.properties.reversed() {
             switch property {
-            case is Blockquote:
-                block( ElementNode(type: .blockquote) )
+            case let blockquote as Blockquote:
+                processBlockquoteStyle(blockquote: blockquote, block: block)
 
             case let header as Header:
-                guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
-                    continue
-                }
-
-                block( ElementNode(type: type) )
+                processHeaderStyle(header: header, block: block)
 
             case let list as TextList:
-                let textListElement = list.style == .ordered ? ElementNode(type: .ol) : ElementNode(type: .ul)
+                processListStyle(list: list, block: block)
 
-                block( ElementNode(type: .li) )
-                block( textListElement )
-
-            case is HTMLParagraph:
-                block( ElementNode(type: .p) )
+            case let paragraph as HTMLParagraph:
+                processParagraphStyle(paragraph: paragraph, block: block)
 
             default:
                 continue
@@ -335,46 +321,138 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    ///
+    ///
+    private func processBlockquoteStyle(blockquote: Blockquote, block: ((ElementNode) -> Void)) {
+        let node = blockquote.representation?.toNode() ?? ElementNode(type: .blockquote)
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processHeaderStyle(header: Header, block: ((ElementNode) -> Void)) {
+        guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
+            return
+        }
+
+        let node = header.representation?.toNode() ?? ElementNode(type: type)
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processListStyle(list: TextList, block: ((ElementNode) -> Void)) {
+        let elementType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
+        let listElement = list.representation?.toNode() ?? ElementNode(type: elementType)
+        let itemElement = ElementNode(type: .li)
+
+        // TODO: LI needs it's Original Attributes!!
+        block(itemElement)
+        block(listElement)
+    }
+
+
+    ///
+    ///
+    private func processParagraphStyle(paragraph: HTMLParagraph, block: ((ElementNode) -> Void)) {
+        let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
+        block(node)
+    }
+}
+
+
+// MARK: - Enumerator: Style Nodes
+//
+private extension NSAttributedStringToNodes {
+
     /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
     func enumerateStyleNodes(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
-        for (key, value) in attributes {
-            switch key {
-            case NSFontAttributeName:
-                guard let font = value as? UIFont else {
-                    break
-                }
+        processFontStyle(in: attributes, block: block)
+        processLinkStyle(in: attributes, block: block)
+        processStrikethruStyle(in: attributes, block: block)
+        processUnderlineStyle(in: attributes, block: block)
+        processUnsupportedHTML(in: attributes, block: block)
+    }
 
-                if font.containsTraits(.traitBold) == true {
-                    let node = ElementNode(type: .b)
-                    block(node)
-                }
 
-                if font.containsTraits(.traitItalic) == true {
-                    let node = ElementNode(type: .i)
-                    block(node)
-                }
+    ///
+    ///
+    private func processFontStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let font = attributes[NSFontAttributeName] as? UIFont else {
+            return
+        }
 
-            case NSLinkAttributeName:
-                guard let url = value as? URL else {
-                    break
-                }
+        if font.containsTraits(.traitBold) {
+            let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+            let node = representation?.toNode() ?? ElementNode(type: .b)
 
-                let source = StringAttribute(name: "href", value: url.absoluteString)
-                let node = ElementNode(type: .a, attributes: [source])
-                block(node)
+            block(node)
+        }
 
-            case NSStrikethroughStyleAttributeName:
-                let node = ElementNode(type: .strike)
-                block(node)
+        if font.containsTraits(.traitItalic) {
+            let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+            let node = representation?.toNode() ?? ElementNode(type: .i)
 
-            case NSUnderlineStyleAttributeName:
-                let node = ElementNode(type: .u)
-                block(node)
+            block(node)
+        }
+    }
 
-            default:
-                break
-            }
+
+    ///
+    ///
+    private func processLinkStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let url = attributes[NSLinkAttributeName] as? URL else {
+            return
+        }
+
+        let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .a)
+        node.updateAttribute(named: "href", value: url.absoluteString)
+
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processStrikethruStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard attributes[NSStrikethroughStyleAttributeName] != nil else {
+            return
+        }
+
+        let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .strike)
+
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processUnderlineStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard attributes[NSUnderlineStyleAttributeName] != nil else {
+            return
+        }
+
+        let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .u)
+
+        block(node)
+    }
+
+
+    ///
+    ///
+    private func processUnsupportedHTML(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+        guard let unsupported = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
+            return
+        }
+
+        for element in unsupported.elements.reversed() {
+            block(element.toNode())
         }
     }
 }
@@ -386,15 +464,25 @@ private extension NSAttributedStringToNodes {
 
     /// Converts a Line Attachment into it's representing nodes.
     ///
-    func lineAttachmentToNodes(_ lineAttachment: LineAttachment) -> [Node] {
-        let node = ElementNode(type: .hr)
+    func processLineAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
+            return []
+        }
+
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .hr)
         return [node]
     }
 
 
     /// Converts a Comment Attachment into it's representing nodes.
     ///
-    func commentAttachmentToNodes(_ attachment: CommentAttachment) -> [Node] {
+    func processCommentAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
+            return []
+        }
+
         let node = CommentNode(text: attachment.text)
         return [node]
     }
@@ -402,13 +490,17 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an HTML Attachment into it's representing nodes.
     ///
-    func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
+    func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? HTMLAttachment else {
+            return []
+        }
+
         let converter = Libxml2.In.HTMLConverter()
 
         let rootNode = converter.convert(attachment.rawHTML)
 
         guard let firstChild = rootNode.children.first else {
-            return textToNodes(attachment.rawHTML)
+            return processTextNodes(from: attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
@@ -422,51 +514,74 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Image Attachment into it's representing nodes.
     ///
-    func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
-        var attributes = [Attribute]()
-        if let attribute = imageSourceAttribute(attachment) {
-            attributes.append(attribute)
+    func processImageAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
+            return []
         }
 
-        if let attribute = imageClassAttribute(attachment) {
-            attributes.append(attribute)
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .img)
+
+        if let attribute = imageSourceAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        let node = ElementNode(type: .img, attributes: attributes)
+        if let attribute = imageClassAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
+        }
+
         return [node]
     }
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
-    func videoAttachmentToNodes(_ attachment: VideoAttachment) -> [Node] {
-        var attributes = [Attribute]()
-        if let source = attachment.srcURL?.absoluteString {
-            let attribute = StringAttribute(name: "src", value: source)
-            attributes.append(attribute)
+    func processVideoAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
+            return []
         }
 
-        if let poster = attachment.posterURL?.absoluteString {
-            let attribute = StringAttribute(name: "poster", value: poster)
-            attributes.append(attribute)
-        }
-        
-        for (key, value) in attachment.namedAttributes {
-            let attribute = StringAttribute(name: key, value: value)
-            attributes.append(attribute)
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .video)
+
+        if let attribute = videoSourceAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        for value in attachment.unnamedAttributes {
-            let attribute = Attribute(name: value)
-            attributes.append(attribute)
+        if let attribute = videoPosterAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
-        let node = ElementNode(type: .video, attributes: attributes)
+
         return [node]
+    }
+
+
+    ///
+    ///
+    private func videoSourceAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+        guard let source = attachment.srcURL?.absoluteString else {
+            return nil
+        }
+
+        return StringAttribute(name: "src", value: source)
+    }
+
+
+    ///
+    ///
+    private func videoPosterAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+        guard let poster = attachment.posterURL?.absoluteString else {
+            return nil
+        }
+
+        return StringAttribute(name: "poster", value: poster)
     }
 
 
     /// Extracts the src attribute from an ImageAttachment Instance.
     ///
-    func imageSourceAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+    private func imageSourceAttribute(from attachment: ImageAttachment) -> StringAttribute? {
         guard let source = attachment.url?.absoluteString else {
             return nil
         }
@@ -476,7 +591,7 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts the class attribute from an ImageAttachment Instance.
     ///
-    func imageClassAttribute(_ attachment: ImageAttachment) -> StringAttribute? {
+    private func imageClassAttribute(from attachment: ImageAttachment) -> StringAttribute? {
         var style = String()
         if attachment.alignment != .center {
             style += attachment.alignment.htmlString()
@@ -497,7 +612,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts a String into it's representing nodes.
     ///
-    func textToNodes(_ text: String) -> [Node] {
+    func processTextNodes(from text: String) -> [Node] {
         let substrings = text.components(separatedBy: String(.newline))
         var output = [Node]()
 
