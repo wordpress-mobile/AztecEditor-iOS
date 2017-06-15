@@ -300,7 +300,7 @@ private extension NSAttributedStringToNodes {
 }
 
 
-// MARK: - Enumerators
+// MARK: - Enumerator: Paragraph Nodes
 //
 private extension NSAttributedStringToNodes {
 
@@ -333,7 +333,12 @@ private extension NSAttributedStringToNodes {
             }
         }
     }
+}
 
+
+// MARK: - Enumerator: Style Nodes
+//
+private extension NSAttributedStringToNodes {
 
     /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
     ///
