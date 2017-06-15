@@ -517,17 +517,29 @@ open class TextView: UITextView {
     // MARK: - UIResponderStandardEditActions
 
     open override func toggleBoldface(_ sender: Any?) {
-        super.toggleBoldface(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleBold(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     open override func toggleItalics(_ sender: Any?) {
-        super.toggleItalics(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleItalic(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     open override func toggleUnderline(_ sender: Any?) {
-        super.toggleUnderline(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleUnderline(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
