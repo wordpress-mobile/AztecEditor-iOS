@@ -40,6 +40,7 @@ class StandardAttributeFormatter: AttributeFormatter {
         var resultingAttributes = attributes
 
         resultingAttributes.removeValue(forKey: attributeKey)
+        resultingAttributes.removeValue(forKey: htmlRepresentationKey)
 
         return resultingAttributes
     }

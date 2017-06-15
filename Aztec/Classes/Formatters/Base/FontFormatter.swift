@@ -45,6 +45,8 @@ class FontFormatter: AttributeFormatter {
 
         let newFont = font.modifyTraits(traits, enable: false)
         resultingAttributes[NSFontAttributeName] = newFont
+        
+        resultingAttributes.removeValue(forKey: htmlRepresentationKey)
 
         return resultingAttributes
     }
