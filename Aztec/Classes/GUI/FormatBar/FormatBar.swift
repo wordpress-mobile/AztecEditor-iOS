@@ -211,7 +211,7 @@ open class FormatBar: UIView {
         }
     }
 
-    func updateVisibleItemsForCurrentBounds() {
+    fileprivate func updateVisibleItemsForCurrentBounds() {
         guard overflowItemsHidden else { return }
 
         // Ensure that any items that wouldn't fit are hidden
