@@ -468,16 +468,7 @@ private extension NSAttributedStringToNodes {
             let attribute = StringAttribute(name: "poster", value: poster)
             attributes.append(attribute)
         }
-        
-        for (key, value) in attachment.namedAttributes {
-            let attribute = StringAttribute(name: key, value: value)
-            attributes.append(attribute)
-        }
 
-        for value in attachment.unnamedAttributes {
-            let attribute = Attribute(name: value)
-            attributes.append(attribute)
-        }
         let node = ElementNode(type: .video, attributes: attributes)
         return [node]
     }

@@ -221,51 +221,6 @@ class HTMLNodeToNSAttributedString: SafeConverter {
             attributeValue = linkURL
         }
 
-        if node.isNodeType(.img) {
-            let url: URL?
-
-            if let urlString = node.valueForStringAttribute(named: "src") {
-                url = URL(string: urlString)
-            } else {
-                url = nil
-            }
-
-            let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
-
-            if let elementClass = node.valueForStringAttribute(named: "class") {
-                let classAttributes = elementClass.components(separatedBy: " ")
-                for classAttribute in classAttributes {
-                    if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
-                        attachment.alignment = alignment
-                    }
-                    if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
-                        attachment.size = size
-                    }
-                }
-            }
-            attributeValue = attachment
-        }
-
-        if node.isNodeType(.video) {
-
-            var namedAttributes = node.namedAttributes
-            var srcURL: URL?
-            if let urlString = namedAttributes["src"] {
-                srcURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "src")
-            }
-
-            var posterURL: URL?
-            if let urlString = namedAttributes["poster"] {
-                posterURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "poster")
-            }
-
-            let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, namedAttributes: namedAttributes, unnamedAttributes: node.unnamedAttributes)
-
-            attributeValue = attachment
-        }
-
         return attributeValue
     }
  */

@@ -276,7 +276,7 @@ open class TextStorage: NSTextStorage {
     /// - returns: the attachment object that was created and inserted on the text
     ///
     func insertVideo(sourceURL: URL, posterURL: URL?, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> VideoAttachment {
-        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL, namedAttributes: [String:String](), unnamedAttributes: [String]())
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
         attachment.delegate = self
         attachment.image = placeHolderImage
 
