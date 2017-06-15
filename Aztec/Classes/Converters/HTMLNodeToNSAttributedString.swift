@@ -171,60 +171,6 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         return content
     }
 
-/*
-        var attributes = inheritedAttributes
-        let attributeValue = parseCustomAttributeValues(forNode: node)
-
-        for (key, formatter) in elementToFormattersMap {
-            if node.isNodeType(key) {
-                if let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                    let value = attributeValue {
-                    standardValueFormatter.attributeValue = value
-                }
-                attributes = formatter.apply(to: attributes);
-            }
-        }
-
-        if let elementStyle = node.valueForStringAttribute(named: "style") {
-            let styles = parseStyle(style: elementStyle)
-            for (key, (formatter, parser)) in styleToFormattersMap {
-                guard let styleString = styles[key],
-                      let standardValueFormatter = formatter as? StandardAttributeFormatter,
-                      let value = parser(styleString)
-                    else {
-                        continue
-                    }
-                    standardValueFormatter.attributeValue = value
-                    attributes = standardValueFormatter.apply(to: attributes);
-            }
-        }
-        return attributes
-    }
-
-    public func parseCustomAttributeValues(forNode node: ElementNode) -> Any? {
-
-        var attributeValue: Any?
-
-        if node.isNodeType(.a) {
-            var linkURL: URL?
-
-            if let attributeIndex = node.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
-                let attribute = node.attributes[attributeIndex] as? StringAttribute {
-
-                linkURL = URL(string: attribute.value)
-            } else {
-                // We got a link tag without an HREF attribute
-                //
-                linkURL = URL(string: "")
-            }
-
-            attributeValue = linkURL
-        }
-
-        return attributeValue
-    }
- */
-
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
         .ol: TextListFormatter(style: .ordered, increaseDepth: true),
         .ul: TextListFormatter(style: .unordered, increaseDepth: true),
