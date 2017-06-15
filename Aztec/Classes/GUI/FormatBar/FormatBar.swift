@@ -195,6 +195,8 @@ open class FormatBar: UIView {
             for item in items {
                 item.isEnabled = enabled
             }
+
+            overflowToggleItem.isEnabled = enabled
         }
     }
 
