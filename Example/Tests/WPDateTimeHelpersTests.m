@@ -1,5 +1,14 @@
 #import <XCTest/XCTest.h>
-#import "WPDateTimeHelpers.h"
+
+@interface WPDateTimeHelpers : NSObject
+
++ (NSString *)userFriendlyStringDateFromDate:(NSDate *)date;
+
++ (NSString *)userFriendlyStringTimeFromDate:(NSDate *)date;
+
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval;
+
+@end
 
 @interface WPDateTimeHelpersTest : XCTestCase
 
