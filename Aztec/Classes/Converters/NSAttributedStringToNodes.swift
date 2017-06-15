@@ -541,19 +541,41 @@ private extension NSAttributedStringToNodes {
             return []
         }
 
-        var attributes = [Attribute]()
-        if let source = attachment.srcURL?.absoluteString {
-            let attribute = StringAttribute(name: "src", value: source)
-            attributes.append(attribute)
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .video)
+
+        if let attribute = videoSourceAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        if let poster = attachment.posterURL?.absoluteString {
-            let attribute = StringAttribute(name: "poster", value: poster)
-            attributes.append(attribute)
+        if let attribute = videoPosterAttribute(from: attachment) {
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        let node = ElementNode(type: .video, attributes: attributes)
         return [node]
+    }
+
+
+    ///
+    ///
+    private func videoSourceAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+        guard let source = attachment.srcURL?.absoluteString else {
+            return nil
+        }
+
+        return StringAttribute(name: "src", value: source)
+    }
+
+
+    ///
+    ///
+    private func videoPosterAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+        guard let poster = attachment.posterURL?.absoluteString else {
+            return nil
+        }
+
+        return StringAttribute(name: "poster", value: poster)
     }
 
 
