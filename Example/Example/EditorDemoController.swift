@@ -199,13 +199,7 @@ class EditorDemoController: UIViewController {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        if optionsViewController != nil {
-            if presentedViewController == optionsViewController {
-                dismiss(animated: true, completion: nil)
-            }
-
-            optionsViewController = nil
-        }
+        dismissOptionsViewControllerIfNecessary()
     }
 
     // MARK: - Title and Title placeholder position methods
@@ -358,6 +352,14 @@ class EditorDemoController: UIViewController {
         editingMode.toggle()
     }
 
+    fileprivate func dismissOptionsViewControllerIfNecessary() {
+        if let optionsViewController = optionsViewController,
+            presentedViewController == optionsViewController {
+            dismiss(animated: true, completion: nil)
+
+            self.optionsViewController = nil
+        }
+    }
 
     // MARK: - Keyboard Handling
 
@@ -381,6 +383,7 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
+        dismissOptionsViewControllerIfNecessary()
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -494,6 +497,10 @@ extension EditorDemoController {
 // MARK: - Format Bar Delegate
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
+    func formatBarTouchesBegan(_ formatBar: FormatBar) {
+        dismissOptionsViewControllerIfNecessary()
+    }
+
     func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem) {
         switch identifier {
         case .bold:
@@ -609,7 +616,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         if let optionsViewController = optionsViewController,
             optionsViewController.options == options {
             if presentedViewController != nil {
-                dismiss(animated: true, completion: nil)
+              dismiss(animated: true, completion: nil)
             }
 
             self.optionsViewController = nil
