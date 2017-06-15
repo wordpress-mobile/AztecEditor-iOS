@@ -48,7 +48,8 @@ open class FormatBar: UIView {
 
             populateItems()
 
-            setOverflowItemsVisible(false, animated: false)
+            let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
+            setOverflowItemsVisible(overflowVisible, animated: false)
 
             let hasOverflowItems = !overflowItems.isEmpty
             overflowToggleItem.isHidden = !hasOverflowItems
@@ -299,6 +300,8 @@ open class FormatBar: UIView {
 
         let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
         rotateOverflowToggleItem(direction, animated: true)
+
+        UserDefaults.standard.set(shouldExpand, forKey: Constants.overflowExpandedUserDefaultsKey)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -549,6 +552,7 @@ private extension FormatBar {
     }
 
     struct Constants {
+        static let overflowExpandedUserDefaultsKey = "AztecFormatBarOverflowExpandedKey"
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
