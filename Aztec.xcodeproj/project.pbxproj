@@ -53,7 +53,7 @@
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
 		B5A5277C1EF1B44800E7D2FD /* UnsupportedHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A5277B1EF1B44800E7D2FD /* UnsupportedHTML.swift */; };
-		B5A5277E1EF1BAC000E7D2FD /* HMTLNodeToNSAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A5277D1EF1BAC000E7D2FD /* HMTLNodeToNSAttributedStringTests.swift */; };
+		B5A5277E1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A5277D1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift */; };
 		B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A99D831EBA073D00DED081 /* HTMLStorage.swift */; };
 		B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */; };
@@ -217,7 +217,7 @@
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
 		B5A5277B1EF1B44800E7D2FD /* UnsupportedHTML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnsupportedHTML.swift; sourceTree = "<group>"; };
-		B5A5277D1EF1BAC000E7D2FD /* HMTLNodeToNSAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMTLNodeToNSAttributedStringTests.swift; sourceTree = "<group>"; };
+		B5A5277D1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLNodeToNSAttributedStringTests.swift; sourceTree = "<group>"; };
 		B5A99D831EBA073D00DED081 /* HTMLStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLStorage.swift; sourceTree = "<group>"; };
 		B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderableAttachmentDelegate.swift; sourceTree = "<group>"; };
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
@@ -607,7 +607,7 @@
 			isa = PBXGroup;
 			children = (
 				B5657C171EE99AF500579FE1 /* NSAttributedStringToNodesTests.swift */,
-				B5A5277D1EF1BAC000E7D2FD /* HMTLNodeToNSAttributedStringTests.swift */,
+				B5A5277D1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift */,
 			);
 			path = Converters;
 			sourceTree = "<group>";
@@ -1020,7 +1020,7 @@
 			files = (
 				FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */,
 				594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */,
-				B5A5277E1EF1BAC000E7D2FD /* HMTLNodeToNSAttributedStringTests.swift in Sources */,
+				B5A5277E1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift in Sources */,
 				B5F84B631E706B720089A76C /* NSAttributedStringAnalyzerTests.swift in Sources */,
 				F10BE61C1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */,
