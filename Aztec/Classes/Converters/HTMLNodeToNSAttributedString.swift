@@ -114,16 +114,16 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ node: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
-        guard !node.isSupportedByEditor() else {
-            return stringForNode(node, inheriting: attributes)
+    fileprivate func convertElementNode(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+        guard !element.isSupportedByEditor() else {
+            return string(for: element, inheriting: attributes)
         }
 
         let converter = Libxml2.Out.HTMLConverter()
         let attachment = HTMLAttachment()
 
-        attachment.rootTagName = node.name
-        attachment.rawHTML = converter.convert(node)
+        attachment.rootTagName = element.name
+        attachment.rawHTML = converter.convert(element)
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }
@@ -151,11 +151,11 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the attributed string representing the specified element node.
     ///
     ///
-    fileprivate func stringForNode(_ node: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func string(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         
-        let childAttributes = self.attributes(forNode: node, inheriting: attributes)
+        let childAttributes = self.attributes(for: element, inheriting: attributes)
         
-        if let nodeType = node.standardName,
+        if let nodeType = element.standardName,
             let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
             
             return implicitRepresentation
@@ -163,7 +163,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
         let content = NSMutableAttributedString()
         
-        for child in node.children {
+        for child in element.children {
             let childContent = convert(child, inheriting: childAttributes)
             content.append(childContent)
         }
@@ -325,13 +325,13 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(forNode node: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
+    func attributes(for element: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
 
-        guard !(node is RootNode) else {
+        guard !(element is RootNode) else {
             return attributes
         }
 
-        let elementRepresentation = HTMLElementRepresentation(for: node)
+        let elementRepresentation = HTMLElementRepresentation(for: element)
         return self.attributes(for: elementRepresentation, inheriting: attributes)
     }
 
