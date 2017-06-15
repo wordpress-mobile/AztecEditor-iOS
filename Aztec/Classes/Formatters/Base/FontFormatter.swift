@@ -5,11 +5,11 @@ class FontFormatter: AttributeFormatter {
 
     var placeholderAttributes: [String : Any]? { return nil }
     
-    let attributedStringStorageKey: String = "FontFormatter"
-
+    let htmlRepresentationKey: String
     let traits: UIFontDescriptorSymbolicTraits
 
-    init(traits: UIFontDescriptorSymbolicTraits) {
+    init(traits: UIFontDescriptorSymbolicTraits, htmlRepresentationKey: String) {
+        self.htmlRepresentationKey = htmlRepresentationKey
         self.traits = traits
     }
 
@@ -23,12 +23,16 @@ class FontFormatter: AttributeFormatter {
 
     func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
-        var resultingAttributes = attributes
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
             return attributes
         }
+
         let newFont = font.modifyTraits(traits, enable: true)
+
+        var resultingAttributes = attributes
+
         resultingAttributes[NSFontAttributeName] = newFont
+        resultingAttributes[htmlRepresentationKey] = representation
 
         return resultingAttributes
     }

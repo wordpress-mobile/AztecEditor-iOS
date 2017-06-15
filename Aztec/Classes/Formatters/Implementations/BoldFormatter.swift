@@ -1,8 +1,9 @@
 import UIKit
 
 class BoldFormatter: FontFormatter {
-
     init() {
-        super.init(traits: .traitBold)
+        let htmlRepresentationKey = "Bold.htmlRepresentation"
+        
+        super.init(traits: .traitBold, htmlRepresentationKey: htmlRepresentationKey)
     }
 }

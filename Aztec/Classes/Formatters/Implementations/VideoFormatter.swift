@@ -2,6 +2,8 @@ import UIKit
 
 class VideoFormatter: StandardAttributeFormatter {
     init() {
-        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: VideoAttachment(identifier: NSUUID().uuidString, namedAttributes: [String:String](), unnamedAttributes: []))
+        let htmlRepresentationKey = "Video.htmlRepresentation"
+
+        super.init(attributeKey: NSAttachmentAttributeName, attributeValue: VideoAttachment(identifier: NSUUID().uuidString, namedAttributes: [String:String](), unnamedAttributes: []), htmlRepresentationKey: htmlRepresentationKey)
     }
 }

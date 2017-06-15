@@ -3,6 +3,8 @@ import UIKit
 class ItalicFormatter: FontFormatter {
 
     init() {
-        super.init(traits: .traitItalic)
+        let htmlRepresentationKey = "Italic.htmlRepresentation"
+        
+        super.init(traits: .traitItalic, htmlRepresentationKey: htmlRepresentationKey)
     }
 }

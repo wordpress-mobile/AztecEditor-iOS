@@ -6,10 +6,18 @@ class StandardAttributeFormatter: AttributeFormatter {
 
     var placeholderAttributes: [String : Any]? { return nil }
 
-    let attributedStringStorageKey: String = "FontFormatter"
     let attributeKey: String
-
     var attributeValue: Any
+
+    let htmlRepresentationKey: String
+
+    // MARK: - Init
+
+    init(attributeKey: String, attributeValue: Any, htmlRepresentationKey: String) {
+        self.attributeKey = attributeKey
+        self.attributeValue = attributeValue
+        self.htmlRepresentationKey = htmlRepresentationKey
+    }
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return range
@@ -19,15 +27,11 @@ class StandardAttributeFormatter: AttributeFormatter {
         return false
     }
 
-    init(attributeKey: String, attributeValue: Any) {
-        self.attributeKey = attributeKey
-        self.attributeValue = attributeValue
-    }
-
     func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         
         resultingAttributes[attributeKey] = attributeValue
+        resultingAttributes[htmlRepresentationKey] = representation
 
         return resultingAttributes
     }
