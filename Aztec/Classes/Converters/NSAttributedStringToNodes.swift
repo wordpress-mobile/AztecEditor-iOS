@@ -280,22 +280,15 @@ private extension NSAttributedStringToNodes {
     /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
-        let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? NSTextAttachment
+        var nodes = [Node]()
 
-        switch attachment {
-        case let lineAttachment as LineAttachment:
-            return lineAttachmentToNodes(lineAttachment)
-        case let commentAttachment as CommentAttachment:
-            return commentAttachmentToNodes(commentAttachment)
-        case let htmlAttachment as HTMLAttachment:
-            return htmlAttachmentToNode(htmlAttachment)
-        case let imageAttachment as ImageAttachment:
-            return imageAttachmentToNodes(imageAttachment)
-        case let videoAttachment as VideoAttachment:
-            return videoAttachmentToNodes(videoAttachment)
-        default:
-            return textToNodes(attrString.string)
-        }
+        nodes += processLineAttachment(from: attrString)
+        nodes += processCommentAttachment(from: attrString)
+        nodes += processHtmlAttachment(from: attrString)
+        nodes += processImageAttachment(from: attrString)
+        nodes += processVideoAttachment(from: attrString)
+
+        return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
     }
 }
 
@@ -471,15 +464,25 @@ private extension NSAttributedStringToNodes {
 
     /// Converts a Line Attachment into it's representing nodes.
     ///
-    func lineAttachmentToNodes(_ lineAttachment: LineAttachment) -> [Node] {
-        let node = ElementNode(type: .hr)
+    func processLineAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
+            return []
+        }
+
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .hr)
         return [node]
     }
 
 
     /// Converts a Comment Attachment into it's representing nodes.
     ///
-    func commentAttachmentToNodes(_ attachment: CommentAttachment) -> [Node] {
+    func processCommentAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
+            return []
+        }
+
         let node = CommentNode(text: attachment.text)
         return [node]
     }
@@ -487,13 +490,17 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an HTML Attachment into it's representing nodes.
     ///
-    func htmlAttachmentToNode(_ attachment: HTMLAttachment) -> [Node] {
+    func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? HTMLAttachment else {
+            return []
+        }
+
         let converter = Libxml2.In.HTMLConverter()
 
         let rootNode = converter.convert(attachment.rawHTML)
 
         guard let firstChild = rootNode.children.first else {
-            return textToNodes(attachment.rawHTML)
+            return processTextNodes(from: attachment.rawHTML)
         }
 
         guard rootNode.children.count == 1 else {
@@ -507,7 +514,11 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Image Attachment into it's representing nodes.
     ///
-    func imageAttachmentToNodes(_ attachment: ImageAttachment) -> [Node] {
+    func processImageAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
+            return []
+        }
+
         var attributes = [Attribute]()
         if let attribute = imageSourceAttribute(from: attachment) {
             attributes.append(attribute)
@@ -523,7 +534,11 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
-    func videoAttachmentToNodes(_ attachment: VideoAttachment) -> [Node] {
+    func processVideoAttachment(from attrString: NSAttributedString) -> [Node] {
+        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
+            return []
+        }
+
         var attributes = [Attribute]()
         if let source = attachment.srcURL?.absoluteString {
             let attribute = StringAttribute(name: "src", value: source)
@@ -573,7 +588,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts a String into it's representing nodes.
     ///
-    func textToNodes(_ text: String) -> [Node] {
+    func processTextNodes(from text: String) -> [Node] {
         let substrings = text.components(separatedBy: String(.newline))
         var output = [Node]()
 
