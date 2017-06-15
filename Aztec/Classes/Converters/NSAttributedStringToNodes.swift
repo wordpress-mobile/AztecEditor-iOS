@@ -519,16 +519,18 @@ private extension NSAttributedStringToNodes {
             return []
         }
 
-        var attributes = [Attribute]()
+        let range = attrString.rangeOfEntireString
+        let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
+        let node = representation?.toNode() ?? ElementNode(type: .img)
+
         if let attribute = imageSourceAttribute(from: attachment) {
-            attributes.append(attribute)
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         if let attribute = imageClassAttribute(from: attachment) {
-            attributes.append(attribute)
+            node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        let node = ElementNode(type: .img, attributes: attributes)
         return [node]
     }
 
