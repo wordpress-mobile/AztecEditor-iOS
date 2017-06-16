@@ -4,13 +4,13 @@ import UIKit
 
 // MARK: - Text List
 //
-class TextList: ParagraphProperty
+open class TextList: ParagraphProperty
 {
     // MARK: - Nested Types
 
     /// List Styles
     ///
-    enum Style: Int {
+    public enum Style: Int {
         case ordered
         case unordered
 
@@ -48,7 +48,7 @@ class TextList: ParagraphProperty
         aCoder.encode(style.rawValue, forKey: String(describing: Style.self))
     }
 
-    static func ==(lhs: TextList, rhs: TextList) -> Bool {
+    public static func ==(lhs: TextList, rhs: TextList) -> Bool {
         return lhs.style == rhs.style 
     }
 }
