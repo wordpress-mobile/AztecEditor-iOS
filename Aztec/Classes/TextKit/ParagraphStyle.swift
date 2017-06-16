@@ -214,17 +214,17 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override func copy(with zone: NSZone? = nil) -> Any {
-        let originalCopy = super.copy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
-        copy.setParagraphStyle(originalCopy)
+
+        copy.setParagraphStyle(self)
 
         return copy
     }
 
     open override func mutableCopy(with zone: NSZone? = nil) -> Any {
-        let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
-        copy.setParagraphStyle(originalCopy)
+
+        copy.setParagraphStyle(self)
 
         return copy
     }
