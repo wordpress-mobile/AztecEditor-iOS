@@ -1120,8 +1120,7 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
-    open func update(attachment: VideoAttachment) {
-        storage.update(attachment: attachment)
+    open func update(attachment: VideoAttachment) {        
         layoutManager.invalidateLayout(for: attachment)
         layoutManager.ensureLayoutForContainers()
         delegate?.textViewDidChange?(self)
