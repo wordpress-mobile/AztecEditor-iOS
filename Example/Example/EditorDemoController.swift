@@ -454,6 +454,8 @@ extension EditorDemoController : UITextViewDelegate {
         case titleTextField:
             updateTitleHeight()
             updateTitlePlaceholderVisibility()
+        case richTextView:
+            updateFormatBar()
         default:
             break
         }
