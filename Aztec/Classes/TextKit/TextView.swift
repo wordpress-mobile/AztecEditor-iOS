@@ -257,6 +257,10 @@ open class TextView: UITextView {
             return
         }
 
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+        let applicationRange = NSRange(location: selectedRange.location, length: string.length)
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
@@ -543,10 +547,38 @@ open class TextView: UITextView {
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
+
     // MARK: - Formatting
 
+    @objc class UndoInfo: NSObject {
+        let range: NSRange
+        let text: NSAttributedString
+        let selectedRange: NSRange
+
+        init(range: NSRange, text: NSAttributedString, selectedRange: NSRange) {
+            self.range = range
+            self.text = text
+            self.selectedRange = selectedRange
+        }
+    }
+
+    func undo(info: UndoInfo?) {
+        guard let actionInfo = info else {
+            return
+        }
+        storage.replaceCharacters(in: actionInfo.range, with: actionInfo.text)
+        self.selectedRange = actionInfo.selectedRange
+        delegate?.textViewDidChange?(self)
+    }
+
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
+        let oldText = attributedText!
+
         let applicationRange = storage.toggle(formatter: formatter, at: range)
+
+        let originalText = oldText.attributedSubstring(from: applicationRange)
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
         } else {
