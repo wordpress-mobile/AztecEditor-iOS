@@ -550,27 +550,6 @@ open class TextView: UITextView {
 
     // MARK: - Formatting
 
-    @objc class UndoInfo: NSObject {
-        let range: NSRange
-        let text: NSAttributedString
-        let selectedRange: NSRange
-
-        init(range: NSRange, text: NSAttributedString, selectedRange: NSRange) {
-            self.range = range
-            self.text = text
-            self.selectedRange = selectedRange
-        }
-    }
-
-    func undo(info: UndoInfo?) {
-        guard let actionInfo = info else {
-            return
-        }
-        storage.replaceCharacters(in: actionInfo.range, with: actionInfo.text)
-        self.selectedRange = actionInfo.selectedRange
-        delegate?.textViewDidChange?(self)
-    }
-
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
         let oldText = attributedText!
 
@@ -707,8 +686,12 @@ open class TextView: UITextView {
     /// - Parameter range: the range where the ruler will be inserted
     ///
     open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
+        let originalText = attributedText.attributedSubstring(from: range)
+        let applicationRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         storage.replaceRangeWithHorizontalRuler(range)
-        let length = NSAttributedString(attachment:NSTextAttachment()).length
+        let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
         selectedRange = NSMakeRange(range.location + length, 0)
         delegate?.textViewDidChange?(self)
@@ -902,6 +885,10 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
+        let originalText = attributedText.attributedSubstring(from: range)
+        let applicationRange = range
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
@@ -937,6 +924,11 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
+
+        let originalText = NSAttributedString(string: "")
+        let applicationRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
@@ -982,6 +974,10 @@ open class TextView: UITextView {
     /// - Returns: the video attachment object that was inserted.
     ///
     open func insertVideo(atLocation location: Int, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let originalText = NSAttributedString(string: "")
+        let applicationRange = NSRange(location: location, length: NSAttributedString.lengthOfTextAttachment)
+        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
         let attachment = storage.insertVideo(sourceURL: sourceURL, posterURL: posterURL, atPosition: location, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString.lengthOfTextAttachment
         textStorage.addAttributes(typingAttributes, range: NSMakeRange(location, length))
@@ -1491,6 +1487,31 @@ extension TextView: TextStorageAttachmentsDelegate {
 
         currentSelectedAttachment = attachment as? ImageAttachment
         textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
+    }
+}
+
+//MARK: - Undo implementation
+
+extension TextView {
+    @objc class UndoInfo: NSObject {
+        let range: NSRange
+        let text: NSAttributedString
+        let selectedRange: NSRange
+
+        init(range: NSRange, text: NSAttributedString, selectedRange: NSRange) {
+            self.range = range
+            self.text = text
+            self.selectedRange = selectedRange
+        }
+    }
+
+    func undo(info: UndoInfo?) {
+        guard let actionInfo = info else {
+            return
+        }
+        storage.replaceCharacters(in: actionInfo.range, with: actionInfo.text)
+        self.selectedRange = actionInfo.selectedRange
+        delegate?.textViewDidChange?(self)
     }
 }
 
