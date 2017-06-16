@@ -3,7 +3,7 @@ import Foundation
 class Blockquote: ParagraphProperty {
 
     public override func encode(with aCoder: NSCoder) {
-        encode(with: aCoder)
+        super.encode(with: aCoder)
     }
 
     override public init(with representation: HTMLElementRepresentation? = nil) {
