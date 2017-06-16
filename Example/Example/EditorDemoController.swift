@@ -11,13 +11,15 @@ class EditorDemoController: UIViewController {
 
     fileprivate var mediaErrorMode = false
 
+    fileprivate(set) lazy var formatBar: Aztec.FormatBar = {
+        return self.createToolbar()
+    }()
+
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
-        let toolbar = self.createToolbar(htmlMode: false)
-
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
-        self.configureDefaultProperties(for: textView, using: toolbar, accessibilityLabel: accessibilityLabel)
+        self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
 
         textView.delegate = self
         textView.formattingDelegate = self
@@ -37,10 +39,8 @@ class EditorDemoController: UIViewController {
 
         let textView = UITextView(frame: .zero, textContainer: container)
 
-        let toolbar = self.createToolbar(htmlMode: true)
-
         let accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        self.configureDefaultProperties(for: textView, using: toolbar, accessibilityLabel: accessibilityLabel)
+        self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
 
         textView.isHidden = true
         textView.delegate = self
@@ -62,9 +62,6 @@ class EditorDemoController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.isScrollEnabled = false
         textField.backgroundColor = .clear
-        let toolbar = self.createToolbar(htmlMode: false)
-        toolbar.enabled = false
-        textField.inputAccessoryView = toolbar
 
         return textField
     }()
@@ -102,14 +99,15 @@ class EditorDemoController: UIViewController {
                 htmlTextView.text = getHTML()
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                setHTML(htmlTextView.text)                
+                setHTML(htmlTextView.text)
                 richTextView.becomeFirstResponder()
             }
 
             richTextView.isHidden = editingMode == .html
             htmlTextView.isHidden = editingMode == .richText
         }
-    }    
+    }
+
 
     fileprivate var currentSelectedAttachment: ImageAttachment?
 
@@ -270,10 +268,9 @@ class EditorDemoController: UIViewController {
     }
 
 
-    private func configureDefaultProperties(for textView: UITextView, using formatBar: Aztec.FormatBar, accessibilityLabel: String) {
+    private func configureDefaultProperties(for textView: UITextView, accessibilityLabel: String) {
         textView.accessibilityLabel = accessibilityLabel
         textView.font = Constants.defaultContentFont
-        textView.inputAccessoryView = formatBar
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -447,6 +444,26 @@ extension EditorDemoController : UITextViewDelegate {
         default:
             break
         }
+    }
+
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        switch textView {
+        case titleTextField:
+            formatBar.enabled = false
+        case richTextView:
+            formatBar.enabled = true
+        case htmlTextView:
+            formatBar.enabled = false
+
+            // Disable the bar, except for the source code button
+            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode })
+            htmlButton?.isEnabled = true
+        default: break
+        }
+
+        textView.inputAccessoryView = formatBar
+
+        return true
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -752,24 +769,12 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         return button
     }
 
-    func createToolbar(htmlMode: Bool) -> Aztec.FormatBar {
-
+    func createToolbar() -> Aztec.FormatBar {
         let mediaItem = makeToolbarButton(identifier: .media)
         let scrollableItems = scrollableItemsForToolbar
         let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
-
-        if htmlMode {
-            let merged = [mediaItem] + scrollableItems + overflowItems
-            for item in merged {
-                item.isEnabled = false
-                if item.identifier == .sourcecode {
-                    item.isEnabled = true
-                }
-            }
-        }
-
         toolbar.defaultItems = [[mediaItem], scrollableItems]
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray

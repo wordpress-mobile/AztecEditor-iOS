@@ -197,6 +197,8 @@ open class FormatBar: UIView {
             for item in items {
                 item.isEnabled = enabled
             }
+
+            overflowToggleItem.isEnabled = enabled
         }
     }
 
@@ -211,7 +213,7 @@ open class FormatBar: UIView {
         }
     }
 
-    func updateVisibleItemsForCurrentBounds() {
+    fileprivate func updateVisibleItemsForCurrentBounds() {
         guard overflowItemsHidden else { return }
 
         // Ensure that any items that wouldn't fit are hidden
