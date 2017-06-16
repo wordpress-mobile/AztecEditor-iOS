@@ -257,9 +257,12 @@ open class TextView: UITextView {
             return
         }
 
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
         let originalText = attributedText.attributedSubstring(from: selectedRange)
-        let applicationRange = NSRange(location: selectedRange.location, length: string.length)
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         string.loadLazyAttachments()
 
@@ -547,16 +550,18 @@ open class TextView: UITextView {
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
-
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let oldText = attributedText!
 
-        let applicationRange = storage.toggle(formatter: formatter, at: range)
+        let applicationRange = formatter.applicationRange(for: range, in: textStorage)
+        let originalString = storage.attributedSubstring(from: applicationRange)
 
-        let originalText = oldText.attributedSubstring(from: applicationRange)
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+        storage.toggle(formatter: formatter, at: range)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+        })
 
         if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
@@ -687,8 +692,11 @@ open class TextView: UITextView {
     ///
     open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
         let originalText = attributedText.attributedSubstring(from: range)
-        let applicationRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+        let finalRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         storage.replaceRangeWithHorizontalRuler(range)
         let length = NSAttributedString.lengthOfTextAttachment
@@ -885,9 +893,13 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
+
         let originalText = attributedText.attributedSubstring(from: range)
-        let applicationRange = range
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+        let finalRange = range
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
@@ -926,8 +938,11 @@ open class TextView: UITextView {
     open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
 
         let originalText = NSAttributedString(string: "")
-        let applicationRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+        let finalRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString.lengthOfTextAttachment
@@ -975,8 +990,11 @@ open class TextView: UITextView {
     ///
     open func insertVideo(atLocation location: Int, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
         let originalText = NSAttributedString(string: "")
-        let applicationRange = NSRange(location: location, length: NSAttributedString.lengthOfTextAttachment)
-        undoManager?.registerUndo(withTarget: self, selector: #selector(TextView.undo(info:)), object: UndoInfo(range: applicationRange, text: originalText, selectedRange: selectedRange))
+        let finalRange = NSRange(location: location, length: NSAttributedString.lengthOfTextAttachment)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         let attachment = storage.insertVideo(sourceURL: sourceURL, posterURL: posterURL, atPosition: location, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
         let length = NSAttributedString.lengthOfTextAttachment
@@ -1493,24 +1511,19 @@ extension TextView: TextStorageAttachmentsDelegate {
 //MARK: - Undo implementation
 
 extension TextView {
-    @objc class UndoInfo: NSObject {
-        let range: NSRange
-        let text: NSAttributedString
-        let selectedRange: NSRange
+    
+    func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
 
-        init(range: NSRange, text: NSAttributedString, selectedRange: NSRange) {
-            self.range = range
-            self.text = text
-            self.selectedRange = selectedRange
-        }
-    }
+        let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)
+        let redoOriginalText = storage.attributedSubstring(from: finalRange)
 
-    func undo(info: UndoInfo?) {
-        guard let actionInfo = info else {
-            return
-        }
-        storage.replaceCharacters(in: actionInfo.range, with: actionInfo.text)
-        self.selectedRange = actionInfo.selectedRange
+        storage.replaceCharacters(in: finalRange, with: originalText)
+        selectedRange = redoFinalRange
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: redoOriginalText, finalRange: redoFinalRange)
+        })
+
         delegate?.textViewDidChange?(self)
     }
 }
