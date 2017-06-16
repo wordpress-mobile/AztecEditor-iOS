@@ -95,6 +95,25 @@ extension Libxml2 {
                 (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
         }
 
+        func hasRightBlockLevelSibling() -> Bool {
+            if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevelElement() {
+                return true
+            } else {
+                return false
+            }
+        }
+
+        func isLastInAncestorEndingInBlockLevelSeparation() -> Bool {
+            guard let parent = parent else {
+                return false
+            }
+
+            return parent.children.last == self
+                && (parent.isBlockLevelElement()
+                    || parent.hasRightBlockLevelSibling()
+                    || parent.isLastInAncestorEndingInBlockLevelSeparation())
+        }
+
         /// Retrieves the right sibling for a node.
         ///
         /// - Returns: the right sibling, or `nil` if none exists.
@@ -108,20 +127,6 @@ extension Libxml2 {
             let index = parent.indexOf(childNode: self)
 
             return parent.sibling(rightOf: index)
-        }
-
-        // MARK: - Paragraph Separation Logic
-
-        /// Checks if the specified node requires a closing paragraph separator.
-        ///
-        func needsClosingParagraphSeparator() -> Bool {
-
-            if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevelElement() {
-
-                return true
-            }
-
-            return !isLastInTree() && isLastInBlockLevelAncestor()
         }
 
         // MARK: - DOM Modification

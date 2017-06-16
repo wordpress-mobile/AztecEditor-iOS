@@ -71,12 +71,17 @@ extension Libxml2 {
 
         /// Checks if the specified node requires a closing paragraph separator.
         ///
-        override func needsClosingParagraphSeparator() -> Bool {
-            guard children.count == 0 && standardName != .br else {
+        func needsClosingParagraphSeparator() -> Bool {
+
+            guard children.count == 0 else {
                 return false
             }
 
-            return super.needsClosingParagraphSeparator()
+            guard !hasRightBlockLevelSibling() else {
+                return true
+            }
+
+            return isLastInAncestorEndingInBlockLevelSeparation()
         }
 
         // MARK: - Node Queries

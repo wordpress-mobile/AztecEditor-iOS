@@ -52,17 +52,6 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convert(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
-
-        let string = convertContents(of: node, inheriting: attributes)
-
-        guard node.needsClosingParagraphSeparator() else {
-            return string
-        }
-
-        return appendParagraphSeparator(to: string, inheriting: attributes)
-    }
-
-    private func convertContents(of node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return convertTextNode(textNode, inheriting: attributes)
@@ -84,11 +73,20 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func convertTextNode(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        guard node.length() > 0 else {
-            return NSAttributedString()
+
+        let string: NSAttributedString
+
+        if node.length() == 0 {
+            string = NSAttributedString()
+        } else {
+            string = NSAttributedString(string: node.text(), attributes: attributes)
         }
 
-        return NSAttributedString(string: node.text(), attributes: attributes)
+        guard !node.needsClosingParagraphSeparator() else {
+            return appendParagraphSeparator(to: string, inheriting: attributes)
+        }
+
+        return string
     }
 
     /// Converts a `CommentNode` to `NSAttributedString`.
@@ -166,6 +164,10 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         for child in element.children {
             let childContent = convert(child, inheriting: childAttributes)
             content.append(childContent)
+        }
+
+        guard !element.needsClosingParagraphSeparator() else {
+            return appendParagraphSeparator(to: content, inheriting: attributes)
         }
         
         return content

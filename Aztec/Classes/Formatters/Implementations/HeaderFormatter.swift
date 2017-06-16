@@ -28,6 +28,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
     func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
+
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }

@@ -33,12 +33,16 @@ extension Libxml2 {
 
         /// Checks if the specified node requires a closing paragraph separator.
         ///
-        override func needsClosingParagraphSeparator() -> Bool {
+        func needsClosingParagraphSeparator() -> Bool {
             guard length() > 0 else {
                 return false
             }
 
-            return super.needsClosingParagraphSeparator()
+            guard !hasRightBlockLevelSibling() else {
+                return true
+            }
+
+            return isLastInAncestorEndingInBlockLevelSeparation()
         }
 
         // MARK: - LeafNode

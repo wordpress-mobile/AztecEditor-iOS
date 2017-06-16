@@ -66,6 +66,7 @@ extension Libxml2 {
         var equivalentNames: [String] {
             get {
                 switch self {
+                case .h1: return [self.rawValue]
                 case .strong: return [self.rawValue, StandardElementType.b.rawValue]
                 case .em: return [self.rawValue, StandardElementType.i.rawValue]
                 case .b: return [self.rawValue, StandardElementType.strong.rawValue]
