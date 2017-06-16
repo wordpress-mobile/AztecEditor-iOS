@@ -3,11 +3,21 @@ All notable changes to this project will be documented in this file.
 `WPMediaPicker` adheres to [Semantic Versioning](http://semver.org/).
 
 #### 0.x Releases
+- `0.18` Releases - [0.18](#18)
 - `0.17` Releases - [0.17](#17)
 - `0.16` Releases - [0.16](#16)
 - `0.15` Releases - [0.15](#15)
 
 ---
+
+## [0.18](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.18)
+Released on 2017-06-16. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.18).
+
+#### Fixed
+- Fixed unit tests compilation and started running them on Travis CI
+- Improved startup time of the picker
+- Fix long  standing issue when certain updates when switching groups where crashing the picker.
 
 ## [0.17](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.17)
 Released on 2017-05-26. All issues associated with this milestone can be found using this
