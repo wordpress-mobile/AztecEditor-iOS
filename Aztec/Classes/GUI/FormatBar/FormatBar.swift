@@ -65,6 +65,7 @@ open class FormatBar: UIView {
         self.configureStylesFor(item)
 
         item.addTarget(self, action: #selector(handleToggleButtonAction), for: .touchUpInside)
+        item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
 
         return item
     }()
@@ -290,12 +291,17 @@ open class FormatBar: UIView {
         }
     }
 
+
     // MARK: - Actions
+
+    @IBAction func handleButtonTouch(_ sender: FormatBarItem) {
+        formatter?.formatBarTouchesBegan(self)
+    }
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
         guard let identifier = sender.identifier else { return }
 
-        formatter?.handleActionForIdentifier(identifier)
+        formatter?.handleActionForIdentifier(identifier, barItem: sender)
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
@@ -376,6 +382,7 @@ private extension FormatBar {
         configureStylesFor(item)
 
         item.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
+        item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
     }
 
     func configureStylesFor(_ item: FormatBarItem) {
@@ -404,6 +411,7 @@ private extension FormatBar {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.delegate = self
 
         // Add padding at the end to account for overflow button
         scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Constants.stackButtonWidth)
@@ -537,6 +545,13 @@ private extension FormatBar {
     }
 }
 
+// MARK: - UIScrollViewDelegate
+
+extension FormatBar: UIScrollViewDelegate {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        formatter?.formatBarTouchesBegan(self)
+    }
+}
 
 // MARK: - Private Constants
 //

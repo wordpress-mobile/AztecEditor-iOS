@@ -196,6 +196,8 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+
+        dismissOptionsViewControllerIfNecessary()
     }
 
     // MARK: - Title and Title placeholder position methods
@@ -347,6 +349,14 @@ class EditorDemoController: UIViewController {
         editingMode.toggle()
     }
 
+    fileprivate func dismissOptionsViewControllerIfNecessary() {
+        if let optionsViewController = optionsViewController,
+            presentedViewController == optionsViewController {
+            dismiss(animated: true, completion: nil)
+
+            self.optionsViewController = nil
+        }
+    }
 
     // MARK: - Keyboard Handling
 
@@ -370,6 +380,7 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
+        dismissOptionsViewControllerIfNecessary()
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -503,7 +514,11 @@ extension EditorDemoController {
 // MARK: - Format Bar Delegate
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
-    func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
+    func formatBarTouchesBegan(_ formatBar: FormatBar) {
+        dismissOptionsViewControllerIfNecessary()
+    }
+
+    func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem) {
         switch identifier {
         case .bold:
             toggleBold()
@@ -516,7 +531,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         case .blockquote:
             toggleBlockquote()
         case .unorderedlist, .orderedlist:
-            toggleList()
+            toggleList(fromItem: barItem)
         case .link:
             toggleLink()
         case .media:
@@ -524,7 +539,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         case .sourcecode:
             toggleEditingMode()
         case .p, .header1, .header2, .header3, .header4, .header5, .header6:
-            toggleHeader()
+            toggleHeader(fromItem: barItem)
         case .more:
             insertMoreAttachment()
         case .horizontalruler:
@@ -561,7 +576,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.replaceRangeWithHorizontalRuler(richTextView.selectedRange)
     }
 
-    func toggleHeader() {
+    func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: headerType.iconImage,
                                           title: NSAttributedString(string: headerType.description,
@@ -571,6 +586,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
 
         showOptionsTableViewControllerWithOptions(headerOptions,
+                                                  fromBarItem: item,
                                                   selectedRowIndex: selectedIndex,
                                                   onSelect: { [weak self] selected in
             guard let range = self?.richTextView.selectedRange else { return }
@@ -581,7 +597,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         })
     }
 
-    func toggleList() {
+    func toggleList(fromItem item: FormatBarItem) {
         let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
@@ -592,6 +608,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
 
         showOptionsTableViewControllerWithOptions(listOptions,
+                                                  fromBarItem: item,
                                                   selectedRowIndex: index,
                                                   onSelect: { [weak self] selected in
             guard let range = self?.richTextView.selectedRange else { return }
@@ -608,10 +625,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         })
     }
 
-    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption], selectedRowIndex index: Int?, onSelect: OptionsTableViewController.OnSelectHandler?) {
+    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption],
+                                                   fromBarItem barItem: FormatBarItem,
+                                                   selectedRowIndex index: Int?,
+                                                   onSelect: OptionsTableViewController.OnSelectHandler?) {
         // Hide the input view if we're already showing these options
         if let optionsViewController = optionsViewController,
             optionsViewController.options == options {
+            if presentedViewController != nil {
+              dismiss(animated: true, completion: nil)
+            }
+
             self.optionsViewController = nil
             changeRichTextInputView(to: nil)
             return
@@ -619,15 +643,54 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         optionsViewController = OptionsTableViewController(options: options)
         optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = onSelect
+        optionsViewController.onSelect = { [weak self] selected in
+            if self?.presentedViewController != nil {
+                self?.dismiss(animated: true, completion: nil)
+            }
 
+            onSelect?(selected)
+        }
+
+        let selectRow = {
+            if let index = index {
+                self.optionsViewController.selectRow(at: index)
+            }
+        }
+
+        if UIDevice.current.userInterfaceIdiom == .pad  {
+            presentOptionsViewController(optionsViewController, asPopoverFromBarItem: barItem, completion: selectRow)
+        } else {
+            presentOptionsViewControllerAsInputView(optionsViewController)
+            selectRow()
+        }
+    }
+
+    private func presentOptionsViewController(_ optionsViewController: OptionsTableViewController,
+                                              asPopoverFromBarItem barItem: FormatBarItem,
+                                              completion: (() -> Void)? = nil) {
+        optionsViewController.modalPresentationStyle = .popover
+        optionsViewController.popoverPresentationController?.permittedArrowDirections = [.down]
+        optionsViewController.popoverPresentationController?.sourceView = view
+
+        let frame = barItem.superview?.convert(barItem.frame, to: UIScreen.main.coordinateSpace)
+
+        optionsViewController.popoverPresentationController?.sourceRect = view.convert(frame!, from: UIScreen.main.coordinateSpace)
+        optionsViewController.popoverPresentationController?.backgroundColor = .white
+        optionsViewController.popoverPresentationController?.delegate = self
+
+        if presentedViewController != nil {
+            dismiss(animated: true, completion: {
+                self.present(self.optionsViewController, animated: true, completion: completion)
+            })
+        } else {
+            present(optionsViewController, animated: true, completion: completion)
+        }
+    }
+
+    private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
         self.addChildViewController(optionsViewController)
         changeRichTextInputView(to: optionsViewController.view)
         optionsViewController.didMove(toParentViewController: self)
-
-        if let index = index {
-            optionsViewController.selectRow(at: index)
-        }
     }
 
     func changeRichTextInputView(to: UIView?) {
@@ -1086,6 +1149,12 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
 
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
+    }
+
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
+        if optionsViewController != nil {
+            optionsViewController = nil
+        }
     }
 }
 

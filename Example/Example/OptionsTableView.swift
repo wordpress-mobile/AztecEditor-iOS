@@ -14,6 +14,8 @@ struct OptionsTableViewOption: Equatable {
 }
 
 class OptionsTableViewController: UITableViewController {
+    private static let rowHeight: CGFloat = 44.0
+
     typealias OnSelectHandler = (_ selected: Int) -> Void
 
     var options = [OptionsTableViewOption]()
@@ -36,6 +38,8 @@ class OptionsTableViewController: UITableViewController {
 
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         tableView.register(OptionsTableViewCell.self, forCellReuseIdentifier: OptionsTableViewCell.reuseIdentifier)
+
+        preferredContentSize = CGSize(width: 0, height: min(CGFloat(options.count), 7.5) * OptionsTableViewController.rowHeight)
     }
 
     required init?(coder aDecoder: NSCoder) {

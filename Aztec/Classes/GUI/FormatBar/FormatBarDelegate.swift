@@ -4,5 +4,6 @@ import UIKit
 
 public protocol FormatBarDelegate : NSObjectProtocol {
 
-    func handleActionForIdentifier(_ identifier: FormattingIdentifier)
+    func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem)
+    func formatBarTouchesBegan(_ formatBar: FormatBar)
 }
