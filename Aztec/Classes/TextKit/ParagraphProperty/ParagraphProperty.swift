@@ -2,10 +2,14 @@ import Foundation
 
 open class ParagraphProperty: NSObject, NSCoding {
 
-    var htmlRepresentation: HTMLElementRepresentation?
+    var representation: HTMLElementRepresentation?
     
     public override init() {
+        self.representation = nil
+    }
 
+    init(with representation: HTMLElementRepresentation? = nil) {
+        self.representation = representation
     }
 
     public required init?(coder aDecoder: NSCoder) {

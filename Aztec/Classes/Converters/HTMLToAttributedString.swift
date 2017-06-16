@@ -16,7 +16,7 @@ class HTMLToAttributedString: SafeConverter {
 
     func convert(_ html: String) -> (rootNode: RootNode, attributedString: NSAttributedString) {
         let htmlToNode = Libxml2.In.HTMLConverter()
-        let nodeToAttributedString = HMTLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+        let nodeToAttributedString = HTMLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
         let rootNode = htmlToNode.convert(html)
 

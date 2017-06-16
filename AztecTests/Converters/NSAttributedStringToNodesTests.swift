@@ -602,6 +602,37 @@ class NSAttributedStringToNodesTests: XCTestCase {
         XCTAssertEqual(firstTextNode?.contents, firstText)
         XCTAssertEqual(secondTextNode?.contents, secondText)
     }
+
+
+    /// Verifies that Unsupported HTML is preserved, and converted into Nodes.
+    ///
+    /// - Input: <span>Ehlo World!</span>
+    ///
+    /// - Output: The same!!
+    ///
+    func testUnsupportedHtmlIsPreservedAndSerializedBack() {
+        let text = "Ehlo World!"
+        let testingString = NSMutableAttributedString(string: text)
+
+        let spanNode = ElementNode(type: .span)
+        let spanElement = HTMLElementRepresentation(for: spanNode)
+
+        let unsupported = UnsupportedHTML()
+        unsupported.add(element: spanElement)
+
+        testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupported, range: testingString.rangeOfEntireString)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 1)
+
+        let restoredSpanNode = node.children.first as? ElementNode
+        XCTAssert(restoredSpanNode?.name == "span")
+        XCTAssert(restoredSpanNode?.children.count == 1)
+
+        let restoredTextNode = restoredSpanNode?.children.first as? TextNode
+        XCTAssert(restoredTextNode?.contents == text)
+    }
 }
 
 

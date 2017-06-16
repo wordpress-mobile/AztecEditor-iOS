@@ -25,7 +25,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
@@ -33,7 +33,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         }
 
         if (newParagraphStyle.headerLevel == 0) {
-            newParagraphStyle.add(property: Header(level: headerLevel))
+            newParagraphStyle.add(property: Header(level: headerLevel, with: representation))
         } else {
             newParagraphStyle.replaceProperty(ofType: Header.self, with: Header(level: headerLevel))
         }

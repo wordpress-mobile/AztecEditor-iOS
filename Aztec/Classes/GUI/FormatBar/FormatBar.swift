@@ -21,9 +21,10 @@ open class FormatBar: UIView {
     fileprivate let scrollableStackView = UIStackView()
 
 
-    /// Top dividing line
+    /// Top and bottom dividing lines
     ///
     fileprivate let topDivider = UIView()
+    fileprivate let bottomDivider = UIView()
 
 
     /// FormatBarItems to be displayed when the bar is in its default collapsed state.
@@ -48,7 +49,8 @@ open class FormatBar: UIView {
 
             populateItems()
 
-            setOverflowItemsVisible(false, animated: false)
+            let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
+            setOverflowItemsVisible(overflowVisible, animated: false)
 
             let hasOverflowItems = !overflowItems.isEmpty
             overflowToggleItem.isHidden = !hasOverflowItems
@@ -181,7 +183,7 @@ open class FormatBar: UIView {
     ///
     open var dividerTintColor: UIColor? {
         didSet {
-            for divider in dividers {
+            for divider in (dividers + [topDivider, bottomDivider]) {
                 divider.backgroundColor = dividerTintColor
             }
         }
@@ -195,6 +197,8 @@ open class FormatBar: UIView {
             for item in items {
                 item.isEnabled = enabled
             }
+
+            overflowToggleItem.isEnabled = enabled
         }
     }
 
@@ -209,7 +213,7 @@ open class FormatBar: UIView {
         }
     }
 
-    func updateVisibleItemsForCurrentBounds() {
+    fileprivate func updateVisibleItemsForCurrentBounds() {
         guard overflowItemsHidden else { return }
 
         // Ensure that any items that wouldn't fit are hidden
@@ -236,7 +240,9 @@ open class FormatBar: UIView {
         scrollView.addSubview(scrollableStackView)
 
         topDivider.translatesAutoresizingMaskIntoConstraints = false
+        bottomDivider.translatesAutoresizingMaskIntoConstraints = false
         addSubview(topDivider)
+        addSubview(bottomDivider)
 
         overflowToggleItem.translatesAutoresizingMaskIntoConstraints = false
         addSubview(overflowToggleItem)
@@ -299,6 +305,8 @@ open class FormatBar: UIView {
 
         let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
         rotateOverflowToggleItem(direction, animated: true)
+
+        UserDefaults.standard.set(shouldExpand, forKey: Constants.overflowExpandedUserDefaultsKey)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -421,7 +429,14 @@ private extension FormatBar {
             topDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
             topDivider.trailingAnchor.constraint(equalTo: trailingAnchor),
             topDivider.topAnchor.constraint(equalTo: topAnchor),
-            topDivider.heightAnchor.constraint(equalToConstant: Constants.topDividerHeight)
+            topDivider.heightAnchor.constraint(equalToConstant: Constants.horizontalDividerHeight)
+        ])
+
+        NSLayoutConstraint.activate([
+            bottomDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomDivider.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomDivider.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomDivider.heightAnchor.constraint(equalToConstant: Constants.horizontalDividerHeight)
         ])
 
         NSLayoutConstraint.activate([
@@ -429,7 +444,7 @@ private extension FormatBar {
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * insets.right),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
-            ])
+        ])
 
         NSLayoutConstraint.activate([
             scrollableStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -437,7 +452,7 @@ private extension FormatBar {
             scrollableStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             scrollableStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             scrollableStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            ])
+        ])
     }
 }
 
@@ -549,13 +564,14 @@ private extension FormatBar {
     }
 
     struct Constants {
+        static let overflowExpandedUserDefaultsKey = "AztecFormatBarOverflowExpandedKey"
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         static let stackViewCompactSpacing = CGFloat(0)
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
-        static let topDividerHeight = CGFloat(1)
+        static let horizontalDividerHeight = CGFloat(1)
     }
 }
 

@@ -19,14 +19,14 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
 
     // MARK: - Overwriten Methods
-    
-    func apply(to attributes: [String : Any]) -> [String: Any] {
+
+    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.add(property: Blockquote())
+        newParagraphStyle.add(property: Blockquote(with: representation))
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle

@@ -92,26 +92,6 @@ extension Libxml2 {
             return nil
         }
 
-        var namedAttributes: [String: String] {
-            var attributesResult = [String:String]()
-            for attribute in attributes {
-                if let attribute = attribute as? StringAttribute {
-                    attributesResult[attribute.name] = attribute.value
-                }
-            }
-            return attributesResult
-        }
-
-        var unnamedAttributes: [String] {
-            var attributesResult = [String]()
-            for attribute in attributes {
-                if !(attribute is StringAttribute) {
-                    attributesResult.append(attribute.name)
-                }
-            }
-            return attributesResult
-        }
-
         /// Updates or adds an attribute with the specificed name with the corresponding value
         ///
         /// - parameter attributeName: the name of the attribute
