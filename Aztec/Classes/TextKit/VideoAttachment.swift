@@ -12,8 +12,8 @@ protocol VideoAttachmentDelegate: class {
 
 /// Custom text attachment.
 ///
-open class VideoAttachment: MediaAttachment
-{
+open class VideoAttachment: MediaAttachment {
+
     /// Attachment video URL
     ///
     open var srcURL: URL?
@@ -30,6 +30,10 @@ open class VideoAttachment: MediaAttachment
         }
     }
 
+    /// Attributes accessible by the user, for general purposes.
+    ///
+    open var namedAttributes = [String: String]()
+    
     /// Creates a new attachment
     ///
     /// - parameter identifier: An unique identifier for the attachment
