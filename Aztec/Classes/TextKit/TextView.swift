@@ -554,10 +554,13 @@ open class TextView: UITextView {
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
 
-        let applicationRange = storage.toggle(formatter: formatter, at: range)
+        let applicationRange = formatter.applicationRange(for: range, in: textStorage)
+        let originalString = storage.attributedSubstring(from: applicationRange)
+
+        storage.toggle(formatter: formatter, at: range)
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.toggle(formatter: formatter, atRange: range)
+            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
         })
 
         if applicationRange.length == 0 {
