@@ -133,6 +133,8 @@ class EditorDemoController: UIViewController {
         return processedHTML
     }
 
+    fileprivate var optionsViewController: OptionsTableViewController!
+
 
     // MARK: - Lifecycle Methods
 
@@ -498,6 +500,7 @@ extension EditorDemoController {
     }
 }
 
+// MARK: - Format Bar Delegate
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
     func handleActionForIdentifier(_ identifier: FormattingIdentifier) {
@@ -512,10 +515,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             toggleStrikethrough()
         case .blockquote:
             toggleBlockquote()
-        case .unorderedlist:
-            toggleUnorderedList()
-        case .orderedlist:
-            toggleOrderedList()
+        case .unorderedlist, .orderedlist:
+            toggleList()
         case .link:
             toggleLink()
         case .media:
@@ -552,17 +553,6 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
-
-    func toggleOrderedList() {
-        richTextView.toggleOrderedList(range: richTextView.selectedRange)
-    }
-
-
-    func toggleUnorderedList() {
-        richTextView.toggleUnorderedList(range: richTextView.selectedRange)
-    }
-
-
     func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
@@ -572,25 +562,72 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func toggleHeader() {
-        // check if we already showing a custom view.
-        if richTextView.inputView != nil {
+        let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: headerType.iconImage,
+                                          title: NSAttributedString(string: headerType.description,
+                                                                    attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
+        }
+
+        let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
+
+        showOptionsTableViewControllerWithOptions(headerOptions,
+                                                  selectedRowIndex: selectedIndex,
+                                                  onSelect: { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
+            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
+            self?.optionsViewController = nil
+            self?.changeRichTextInputView(to: nil)
+        })
+    }
+
+    func toggleList() {
+        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
+            return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
+        }
+
+        var index: Int? = nil
+        if let listType = listTypeForSelectedText() {
+            index = Constants.lists.index(of: listType)
+        }
+
+        showOptionsTableViewControllerWithOptions(listOptions,
+                                                  selectedRowIndex: index,
+                                                  onSelect: { [weak self] selected in
+            guard let range = self?.richTextView.selectedRange else { return }
+
+            let listType = Constants.lists[selected]
+            switch listType {
+            case .unordered:
+                self?.richTextView.toggleUnorderedList(range: range)
+            case .ordered:
+                self?.richTextView.toggleOrderedList(range: range)
+            }
+
+            self?.optionsViewController = nil
+        })
+    }
+
+    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption], selectedRowIndex index: Int?, onSelect: OptionsTableViewController.OnSelectHandler?) {
+        // Hide the input view if we're already showing these options
+        if let optionsViewController = optionsViewController,
+            optionsViewController.options == options {
+            self.optionsViewController = nil
             changeRichTextInputView(to: nil)
             return
         }
-        let headerOptions = Constants.headers.map { (headerType) -> NSAttributedString in
-            NSAttributedString(string: headerType.description, attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)])
-        }
 
-        let headerPicker = OptionsTableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 200), options: headerOptions)
-        headerPicker.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        headerPicker.onSelect = { selected in
-            self.richTextView.toggleHeader(Constants.headers[selected], range: self.richTextView.selectedRange)
-            self.changeRichTextInputView(to: nil)
+        optionsViewController = OptionsTableViewController(options: options)
+        optionsViewController.cellDeselectedTintColor = .gray
+        optionsViewController.onSelect = onSelect
+
+        self.addChildViewController(optionsViewController)
+        changeRichTextInputView(to: optionsViewController.view)
+        optionsViewController.didMove(toParentViewController: self)
+
+        if let index = index {
+            optionsViewController.selectRow(at: index)
         }
-        if let selectedHeader = Constants.headers.index(of: self.headerLevelForSelectedText()) {
-            headerPicker.selectRow(at: IndexPath(row: selectedHeader, section: 0), animated: false, scrollPosition: .top)
-        }
-        changeRichTextInputView(to: headerPicker)
     }
 
     func changeRichTextInputView(to: UIView?) {
@@ -623,6 +660,26 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             }
         }
         return .none
+    }
+
+    func listTypeForSelectedText() -> TextList.Style? {
+        var identifiers = [FormattingIdentifier]()
+        if (richTextView.selectedRange.length > 0) {
+            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+        } else {
+            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+        }
+        let mapping: [FormattingIdentifier: TextList.Style] = [
+            .orderedlist : .ordered,
+            .unorderedlist : .unordered
+            ]
+        for (key,value) in mapping {
+            if identifiers.contains(key) {
+                return value
+            }
+        }
+
+        return nil
     }
 
     func toggleLink() {
@@ -779,7 +836,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
-        toolbar.selectedTintColor = .darkGray
+        toolbar.selectedTintColor = view.tintColor
         toolbar.disabledTintColor = .lightGray
         toolbar.dividerTintColor = .gray
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
@@ -793,9 +850,9 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let headerButton = makeToolbarButton(identifier: .p)
 
         var alternativeIcons = [FormattingIdentifier: UIImage]()
-        let headings: [FormattingIdentifier] = [ .header1, .header2, .header3, .header4, .header5, .header6 ]
+        let headings = Constants.headers.suffix(from: 1) // Remove paragraph style
         for heading in headings {
-            alternativeIcons[heading] = heading.iconImage
+            alternativeIcons[heading.formattingIdentifier] = heading.iconImage
         }
 
         headerButton.alternativeIcons = alternativeIcons
@@ -803,9 +860,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
         let listButton = makeToolbarButton(identifier: .unorderedlist)
         var listIcons = [FormattingIdentifier: UIImage]()
-        let listTypes: [FormattingIdentifier] = [ .unorderedlist, .orderedlist ]
-        for list in listTypes {
-            listIcons[list] = list.iconImage
+        for list in Constants.lists {
+            listIcons[list.formattingIdentifier] = list.iconImage
         }
 
         listButton.alternativeIcons = listIcons
@@ -1194,6 +1250,7 @@ extension EditorDemoController {
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
+        static let lists                = [TextList.Style.unordered, .ordered]
         static let margin               = CGFloat(20)
         static let moreAttachmentText   = "more"
     }
@@ -1327,17 +1384,69 @@ extension FormattingIdentifier {
         case .more:
             return NSLocalizedString("More", comment:"Accessibility label for the More button on formatting toolbar.")
         case .header1:
-            return NSLocalizedString("Header 1", comment: "Accessibility label for selecting h1 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 1", comment: "Accessibility label for selecting h1 paragraph style button on the formatting toolbar.")
         case .header2:
-            return NSLocalizedString("Header 2", comment: "Accessibility label for selecting h2 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 2", comment: "Accessibility label for selecting h2 paragraph style button on the formatting toolbar.")
         case .header3:
-            return NSLocalizedString("Header 3", comment: "Accessibility label for selecting h3 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 3", comment: "Accessibility label for selecting h3 paragraph style button on the formatting toolbar.")
         case .header4:
-            return NSLocalizedString("Header 4", comment: "Accessibility label for selecting h4 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 4", comment: "Accessibility label for selecting h4 paragraph style button on the formatting toolbar.")
         case .header5:
-            return NSLocalizedString("Header 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
-            return NSLocalizedString("Header 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
+            return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
         }
+    }
+}
+
+// MARK: - Header and List presentation extensions
+
+private extension Header.HeaderType {
+    var formattingIdentifier: FormattingIdentifier {
+        switch self {
+        case .none: return FormattingIdentifier.p
+        case .h1:   return FormattingIdentifier.header1
+        case .h2:   return FormattingIdentifier.header2
+        case .h3:   return FormattingIdentifier.header3
+        case .h4:   return FormattingIdentifier.header4
+        case .h5:   return FormattingIdentifier.header5
+        case .h6:   return FormattingIdentifier.header6
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .none: return NSLocalizedString("Default", comment: "Description of the default paragraph formatting style in the editor.")
+        case .h1: return "Heading 1"
+        case .h2: return "Heading 2"
+        case .h3: return "Heading 3"
+        case .h4: return "Heading 4"
+        case .h5: return "Heading 5"
+        case .h6: return "Heading 6"
+        }
+    }
+
+    var iconImage: UIImage? {
+        return formattingIdentifier.iconImage
+    }
+}
+
+private extension TextList.Style {
+    var formattingIdentifier: FormattingIdentifier {
+        switch self {
+        case .ordered:   return FormattingIdentifier.orderedlist
+        case .unordered: return FormattingIdentifier.unorderedlist
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .ordered: return "Ordered List"
+        case .unordered: return "Unordered List"
+        }
+    }
+
+    var iconImage: UIImage? {
+        return formattingIdentifier.iconImage
     }
 }
