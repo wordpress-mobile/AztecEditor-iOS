@@ -21,8 +21,9 @@ extension String {
     /// - Returns: `true` if the specified offset is in an empty paragraph, `false` otherwise.
     ///
     func isEmptyParagraph(at offset: Int) -> Bool {
-
-        let index = self.index(startIndex, offsetBy: offset)
+        guard let index = self.indexFromLocation(offset) else {
+            return true
+        }        
         
         return isEmptyParagraph(at: index)
     }
