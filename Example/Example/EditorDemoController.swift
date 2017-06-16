@@ -641,30 +641,39 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
 
         if UIDevice.current.userInterfaceIdiom == .pad  {
-            optionsViewController.modalPresentationStyle = .popover
-            optionsViewController.popoverPresentationController?.permittedArrowDirections = [.down]
-            optionsViewController.popoverPresentationController?.sourceView = view
-
-            let frame = barItem.superview?.convert(barItem.frame, to: UIScreen.main.coordinateSpace)
-
-            optionsViewController.popoverPresentationController?.sourceRect = view.convert(frame!, from: UIScreen.main.coordinateSpace)
-            optionsViewController.popoverPresentationController?.backgroundColor = .white
-            optionsViewController.popoverPresentationController?.delegate = self
-
-            if presentedViewController != nil {
-                dismiss(animated: true, completion: { 
-                    self.present(self.optionsViewController, animated: true, completion: selectRow)
-                })
-            } else {
-                present(optionsViewController, animated: true, completion: selectRow)
-            }
-
+            presentOptionsViewController(optionsViewController, asPopoverFromBarItem: barItem, completion: selectRow)
         } else {
-            self.addChildViewController(optionsViewController)
-            changeRichTextInputView(to: optionsViewController.view)
-            optionsViewController.didMove(toParentViewController: self)
+            presentOptionsViewControllerAsInputView(optionsViewController)
             selectRow()
         }
+    }
+
+    private func presentOptionsViewController(_ optionsViewController: OptionsTableViewController,
+                                              asPopoverFromBarItem barItem: FormatBarItem,
+                                              completion: (() -> Void)? = nil) {
+        optionsViewController.modalPresentationStyle = .popover
+        optionsViewController.popoverPresentationController?.permittedArrowDirections = [.down]
+        optionsViewController.popoverPresentationController?.sourceView = view
+
+        let frame = barItem.superview?.convert(barItem.frame, to: UIScreen.main.coordinateSpace)
+
+        optionsViewController.popoverPresentationController?.sourceRect = view.convert(frame!, from: UIScreen.main.coordinateSpace)
+        optionsViewController.popoverPresentationController?.backgroundColor = .white
+        optionsViewController.popoverPresentationController?.delegate = self
+
+        if presentedViewController != nil {
+            dismiss(animated: true, completion: {
+                self.present(self.optionsViewController, animated: true, completion: completion)
+            })
+        } else {
+            present(optionsViewController, animated: true, completion: completion)
+        }
+    }
+
+    private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
+        self.addChildViewController(optionsViewController)
+        changeRichTextInputView(to: optionsViewController.view)
+        optionsViewController.didMove(toParentViewController: self)
     }
 
     func changeRichTextInputView(to: UIView?) {
