@@ -152,18 +152,17 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     fileprivate func string(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         
         let childAttributes = self.attributes(for: element, inheriting: attributes)
-        
+        let content = NSMutableAttributedString()
+
         if let nodeType = element.standardName,
             let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
-            
-            return implicitRepresentation
-        }
 
-        let content = NSMutableAttributedString()
-        
-        for child in element.children {
-            let childContent = convert(child, inheriting: childAttributes)
-            content.append(childContent)
+            content.append(implicitRepresentation)
+        } else {
+            for child in element.children {
+                let childContent = convert(child, inheriting: childAttributes)
+                content.append(childContent)
+            }
         }
 
         guard !element.needsClosingParagraphSeparator() else {

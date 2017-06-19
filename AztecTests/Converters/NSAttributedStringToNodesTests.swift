@@ -633,6 +633,49 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let restoredTextNode = restoredSpanNode?.children.first as? TextNode
         XCTAssert(restoredTextNode?.contents == text)
     }
+
+
+    /// Verifies that Unsupported HTML is preserved, and converted into Nodes.
+    ///
+    /// - Input: <span>Ehlo World!</span>
+    ///
+    /// - Output: The same!!
+    ///
+    func testMultipleNewlinesAreProperlyMappedIntoBreakNodes() {
+        let text = "\nHello\n\n\nEveryone\n\nYEAH\nSarasa"
+        let testingString = NSMutableAttributedString(string: text)
+
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+
+        let expectedNodes = [
+            0: nil,
+            1: "Hello",
+            2: nil,
+            3: nil,
+            4: nil,
+            5: "Everyone",
+            6: nil,
+            7: nil,
+            8: "YEAH",
+            9: nil,
+            10: "Sarasa"
+        ]
+
+        XCTAssert(node.children.count == expectedNodes.count)
+
+        for (index, text) in expectedNodes {
+            if let text = text {
+                let textNode = node.children[index] as? TextNode
+                XCTAssert(textNode?.contents == text)
+            } else {
+                let breakNode = node.children[index] as? ElementNode
+                XCTAssert(breakNode?.name == "br")
+                XCTAssert(breakNode?.children.count == 0)
+            }
+        }
+    }
 }
 
 
