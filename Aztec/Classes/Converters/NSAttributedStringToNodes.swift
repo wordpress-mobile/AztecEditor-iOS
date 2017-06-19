@@ -71,9 +71,17 @@ class NSAttributedStringToNodes: Converter {
 
             let substring = paragraph.attributedSubstring(from: range)
             let leaves = createLeafNodes(from: substring)
-            let nodes = createStyleNodes(from: attrs, leaves: leaves)
+            let styles = createStyleNodes(from: attrs)
+// TODO: Remove. Recreating old behavior
+            var innerChildren = leaves
+            for style in styles.reversed() {
+                style.children = innerChildren
+                innerChildren = [style]
+            }
 
-            children.append(contentsOf: nodes)
+            let target = innerChildren.isEmpty ? leaves : innerChildren
+// TODO: Remove. Recreating old behavior
+            children.append(contentsOf: target)
         }
 
         guard let paragraphElement = createParagraphElement(from: paragraph, children: children) else {
@@ -252,50 +260,10 @@ private extension NSAttributedStringToNodes {
 
         return lastNodes?.first
     }
-
-
-    /// Extracts all of the Style Nodes contained within a collection of AttributedString Attributes.
-    ///
-    /// - Parameters:
-    ///     - attrs: Collection of attributes that should be converted.
-    ///     - leaves: Leaf nodes that should be used to regen the tree.
-    ///
-    /// - Returns: Style Nodes contained within the specified collection of attributes
-    ///
-    func createStyleNodes(from attrs: [String: Any], leaves: [Node]) -> [Node] {
-        var lastNodes: [ElementNode]?
-
-        enumerateStyleNodes(in: attrs) { node in
-            node.children = lastNodes ?? leaves
-            lastNodes = [node]
-        }
-
-        return lastNodes ?? leaves
-    }
-
-
-    /// Extract all of the Leaf Nodes contained within an Attributed String. We consider the following as Leaf:
-    /// Plain Text, Attachments of any kind [Line, Comment, HTML, Image].
-    ///
-    /// - Parameter attrString: AttributedString that should be converted.
-    ///
-    /// - Returns: Leaf Nodes contained within the specified collection of attributes
-    ///
-    func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
-        var nodes = [Node]()
-
-        nodes += processLineAttachment(from: attrString)
-        nodes += processCommentAttachment(from: attrString)
-        nodes += processHtmlAttachment(from: attrString)
-        nodes += processImageAttachment(from: attrString)
-        nodes += processVideoAttachment(from: attrString)
-
-        return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
-    }
 }
 
 
-// MARK: - Enumerator: Paragraph Nodes
+// MARK: - Paragraph Nodes: Alloc'ation
 //
 private extension NSAttributedStringToNodes {
 
@@ -365,108 +333,140 @@ private extension NSAttributedStringToNodes {
 }
 
 
-// MARK: - Enumerator: Style Nodes
+// MARK: - Style Nodes: Alloc'ation
 //
 private extension NSAttributedStringToNodes {
 
-    /// Enumerates all of the "Style ElementNode's" contained within a collection of AttributedString's Atributes.
+    /// Extracts all of the Style Nodes contained within a collection of AttributedString Attributes.
     ///
-    func enumerateStyleNodes(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
-        processFontStyle(in: attributes, block: block)
-        processLinkStyle(in: attributes, block: block)
-        processStrikethruStyle(in: attributes, block: block)
-        processUnderlineStyle(in: attributes, block: block)
-        processUnsupportedHTML(in: attributes, block: block)
+    /// - Parameters:
+    ///     - attrs: Collection of attributes that should be converted.
+    ///
+    /// - Returns: Style Nodes contained within the specified collection of attributes
+    ///
+    func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
+        var nodes = [ElementNode]()
+
+        nodes += processFontStyle(in: attributes)
+        nodes += processLinkStyle(in: attributes)
+        nodes += processStrikethruStyle(in: attributes)
+        nodes += processUnderlineStyle(in: attributes)
+        nodes += processUnsupportedHTML(in: attributes)
+
+        return nodes
     }
 
 
     ///
     ///
-    private func processFontStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+    private func processFontStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
-            return
+            return []
         }
+
+        var nodes = [ElementNode]()
 
         if font.containsTraits(.traitBold) {
             let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
             let node = representation?.toNode() ?? ElementNode(type: .b)
 
-            block(node)
+            nodes.append(node)
         }
 
         if font.containsTraits(.traitItalic) {
             let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
             let node = representation?.toNode() ?? ElementNode(type: .i)
 
-            block(node)
+            nodes.append(node)
         }
+
+        return nodes
     }
 
 
     ///
     ///
-    private func processLinkStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+    private func processLinkStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard let url = attributes[NSLinkAttributeName] as? URL else {
-            return
+            return []
         }
 
         let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
         let node = representation?.toNode() ?? ElementNode(type: .a)
         node.updateAttribute(named: "href", value: url.absoluteString)
 
-        block(node)
+        return [node]
     }
 
 
     ///
     ///
-    private func processStrikethruStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+    private func processStrikethruStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard attributes[NSStrikethroughStyleAttributeName] != nil else {
-            return
+            return []
         }
 
         let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
         let node = representation?.toNode() ?? ElementNode(type: .strike)
 
-        block(node)
+        return [node]
     }
 
 
     ///
     ///
-    private func processUnderlineStyle(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+    private func processUnderlineStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard attributes[NSUnderlineStyleAttributeName] != nil else {
-            return
+            return []
         }
 
         let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
         let node = representation?.toNode() ?? ElementNode(type: .u)
 
-        block(node)
+        return [node]
     }
 
 
     ///
     ///
-    private func processUnsupportedHTML(in attributes: [String: Any], block: ((ElementNode) -> Void)) {
+    private func processUnsupportedHTML(in attributes: [String: Any]) -> [ElementNode] {
         guard let unsupported = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
-            return
+            return []
         }
 
-        for element in unsupported.elements.reversed() {
-            block(element.toNode())
-        }
+        return unsupported.elements.reversed().flatMap({ element in
+            return element.toNode()
+        })
     }
 }
 
 
-// MARK: - Leaf Nodes
+// MARK: - Leaf Nodes: Alloc'ation
 //
 private extension NSAttributedStringToNodes {
 
+    /// Extract all of the Leaf Nodes contained within an Attributed String. We consider the following as Leaf:
+    /// Plain Text, Attachments of any kind [Line, Comment, HTML, Image].
+    ///
+    /// - Parameter attrString: AttributedString that should be converted.
+    ///
+    /// - Returns: Leaf Nodes contained within the specified collection of attributes
+    ///
+    func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
+        var nodes = [Node]()
+
+        nodes += processLineAttachment(from: attrString)
+        nodes += processCommentAttachment(from: attrString)
+        nodes += processHtmlAttachment(from: attrString)
+        nodes += processImageAttachment(from: attrString)
+        nodes += processVideoAttachment(from: attrString)
+
+        return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
+    }
+
     /// Converts a Line Attachment into it's representing nodes.
     ///
-    func processLineAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processLineAttachment(from attrString: NSAttributedString) -> [Node] {
         guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
             return []
         }
@@ -480,7 +480,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts a Comment Attachment into it's representing nodes.
     ///
-    func processCommentAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processCommentAttachment(from attrString: NSAttributedString) -> [Node] {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
             return []
         }
@@ -492,7 +492,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an HTML Attachment into it's representing nodes.
     ///
-    func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? HTMLAttachment else {
             return []
         }
@@ -516,7 +516,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Image Attachment into it's representing nodes.
     ///
-    func processImageAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processImageAttachment(from attrString: NSAttributedString) -> [Node] {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
             return []
         }
@@ -538,7 +538,7 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
-    func processVideoAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processVideoAttachment(from attrString: NSAttributedString) -> [Node] {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
             return []
         }
@@ -556,6 +556,26 @@ private extension NSAttributedStringToNodes {
         }
 
         return [node]
+    }
+
+
+    /// Converts a String into it's representing nodes.
+    ///
+    private func processTextNodes(from text: String) -> [Node] {
+        let substrings = text.components(separatedBy: String(.newline))
+        var output = [Node]()
+
+        for substring in substrings {
+            if output.count > 0 {
+                let newline = ElementNode(type: .br)
+                output.append(newline)
+            }
+
+            let node = TextNode(text: substring)
+            output.append(node)
+        }
+
+        return output
     }
 
 
@@ -609,25 +629,5 @@ private extension NSAttributedStringToNodes {
         }
 
         return StringAttribute(name: "class", value: style)
-    }
-
-
-    /// Converts a String into it's representing nodes.
-    ///
-    func processTextNodes(from text: String) -> [Node] {
-        let substrings = text.components(separatedBy: String(.newline))
-        var output = [Node]()
-
-        for substring in substrings {
-            if output.count > 0 {
-                let newline = ElementNode(type: .br)
-                output.append(newline)
-            }
-
-            let node = TextNode(text: substring)
-            output.append(node)
-        }
-        
-        return output
     }
 }
