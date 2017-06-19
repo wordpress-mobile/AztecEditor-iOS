@@ -70,25 +70,25 @@ class NSAttributedStringToNodes: Converter {
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
             let substring = paragraph.attributedSubstring(from: range)
-            let leaves = createLeafNodes(from: substring)
-            let styles = createStyleNodes(from: attrs)
-// TODO: Remove. Recreating old behavior
-            var innerChildren = leaves
-            for style in styles.reversed() {
-                style.children = innerChildren
-                innerChildren = [style]
-            }
+            let leafNodes = createLeafNodes(from: substring)
+            let styleNodes = createStyleNodes(from: attrs)
 
-            let target = innerChildren.isEmpty ? leaves : innerChildren
-// TODO: Remove. Recreating old behavior
-            children.append(contentsOf: target)
+            let subtree = generateTree(nodes: styleNodes, leaves: leafNodes)
+            children.append(contentsOf: subtree)
         }
 
-        guard let paragraphElement = createParagraphElement(from: paragraph, children: children) else {
-            return children
-        }
+        let paragraphNodes = createParagraphNodes(from: paragraph)
+        return generateTree(nodes: paragraphNodes, leaves: children)
+    }
 
-        return [paragraphElement]
+
+    ///
+    ///
+    private func generateTree(nodes: [ElementNode], leaves: [Node]) -> [Node] {
+        return nodes.reduce(leaves) { (result, node) in
+            node.children = result
+            return [node]
+        }
     }
 }
 
@@ -234,101 +234,84 @@ extension NSAttributedStringToNodes {
 }
 
 
-// MARK: - Node Creation
-//
-private extension NSAttributedStringToNodes {
-
-    /// Extracts the ElementNode contained within a Paragraph's AttributedString.
-    ///
-    /// - Parameters:
-    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
-    ///     - children: Array of Node instances to be set as children
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    func createParagraphElement(from attrString: NSAttributedString, children: [Node]) -> ElementNode? {
-        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-            return nil
-        }
-
-        var lastNodes: [ElementNode]?
-
-        enumerateParagraphNodes(in: paragraphStyle) { node in
-            node.children = lastNodes ?? children
-            lastNodes = [node]
-        }
-
-        return lastNodes?.first
-    }
-}
-
-
 // MARK: - Paragraph Nodes: Alloc'ation
 //
 private extension NSAttributedStringToNodes {
 
-    /// Enumerates all of the "Paragraph ElementNode's" contained within a collection of AttributedString's Atributes.
+    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
     ///
-    func enumerateParagraphNodes(in style: ParagraphStyle, block: ((ElementNode) -> Void)) {
-        for property in style.properties.reversed() {
+    /// - Parameters:
+    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    func createParagraphNodes(from attrString: NSAttributedString) -> [ElementNode] {
+        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+            return []
+        }
+
+        var paragraphNodes = [ElementNode]()
+
+        for property in paragraphStyle.properties.reversed() {
             switch property {
             case let blockquote as Blockquote:
-                processBlockquoteStyle(blockquote: blockquote, block: block)
+                paragraphNodes += processBlockquoteStyle(blockquote: blockquote)
 
             case let header as Header:
-                processHeaderStyle(header: header, block: block)
+                paragraphNodes += processHeaderStyle(header: header)
 
             case let list as TextList:
-                processListStyle(list: list, block: block)
+                paragraphNodes += processListStyle(list: list)
 
             case let paragraph as HTMLParagraph:
-                processParagraphStyle(paragraph: paragraph, block: block)
+                paragraphNodes += processParagraphStyle(paragraph: paragraph)
 
             default:
                 continue
             }
         }
+
+        return paragraphNodes
     }
 
 
     ///
     ///
-    private func processBlockquoteStyle(blockquote: Blockquote, block: ((ElementNode) -> Void)) {
+    private func processBlockquoteStyle(blockquote: Blockquote) -> [ElementNode] {
         let node = blockquote.representation?.toNode() ?? ElementNode(type: .blockquote)
-        block(node)
+        return [node]
     }
 
 
     ///
     ///
-    private func processHeaderStyle(header: Header, block: ((ElementNode) -> Void)) {
+    private func processHeaderStyle(header: Header) -> [ElementNode] {
         guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
-            return
+            return []
         }
 
         let node = header.representation?.toNode() ?? ElementNode(type: type)
-        block(node)
+        return [node]
     }
 
 
     ///
     ///
-    private func processListStyle(list: TextList, block: ((ElementNode) -> Void)) {
+    private func processListStyle(list: TextList) -> [ElementNode] {
         let elementType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
         let listElement = list.representation?.toNode() ?? ElementNode(type: elementType)
         let itemElement = ElementNode(type: .li)
 
         // TODO: LI needs it's Original Attributes!!
-        block(itemElement)
-        block(listElement)
+        return [itemElement, listElement]
     }
 
 
     ///
     ///
-    private func processParagraphStyle(paragraph: HTMLParagraph, block: ((ElementNode) -> Void)) {
+    private func processParagraphStyle(paragraph: HTMLParagraph) -> [ElementNode] {
         let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
-        block(node)
+        return [node]
     }
 }
 
