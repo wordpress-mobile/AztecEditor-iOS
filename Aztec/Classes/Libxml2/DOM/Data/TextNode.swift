@@ -42,7 +42,7 @@ extension Libxml2 {
                 return true
             }
 
-            return isLastInAncestorEndingInBlockLevelSeparation()
+            return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
         }
 
         // MARK: - LeafNode
