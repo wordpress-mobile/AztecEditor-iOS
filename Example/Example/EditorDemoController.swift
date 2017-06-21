@@ -520,6 +520,15 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         dismissOptionsViewControllerIfNecessary()
     }
 
+    func formatBar(_ formatBar: FormatBar, didChangeOverflowState state: FormatBarOverflowState) {
+        switch state {
+        case .hidden:
+            print("Format bar collapsed")
+        case .visible:
+            print("Format bar expanded")
+        }
+    }
+
     func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem) {
         switch identifier {
         case .bold:
