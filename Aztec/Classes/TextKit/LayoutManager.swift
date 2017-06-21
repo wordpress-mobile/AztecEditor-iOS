@@ -128,8 +128,13 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        let markerRect = rect.offsetBy(dx: 0, dy: style.paragraphSpacingBefore)
+        var yOffset = -style.paragraphSpacing
 
+        if let font = markerAttributes[NSFontAttributeName] as? UIFont {
+            yOffset += (rect.height - font.lineHeight)
+        }
+
+        let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
         markerText.draw(in: markerRect)
     }
 
@@ -142,18 +147,16 @@ private extension LayoutManager {
         if let style = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             indent = style.headIndent
         }
+
         resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle(indent: indent)
         resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
         resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
         resultAttributes.removeValue(forKey: NSLinkAttributeName)
+
         if let font = resultAttributes[NSFontAttributeName] as? UIFont {
-            var traits = font.fontDescriptor.symbolicTraits
-            traits.remove(.traitBold)
-            traits.remove(.traitItalic)
-            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
-            resultAttributes[NSFontAttributeName] = newFont
+            resultAttributes[NSFontAttributeName] = fixFontForMarkerAttributes(font: font)
         }
+
         return resultAttributes
     }
 
@@ -166,5 +169,24 @@ private extension LayoutManager {
         paragraphStyle.tabStops = [tabStop]
 
         return paragraphStyle
+    }
+
+
+    /// Fixes a UIFont Instance for List Marker Usage:
+    ///
+    /// - Emoji Font is replaced by the System's font, of matching size
+    /// - Bold and Italic styling is neutralized
+    ///
+    private func fixFontForMarkerAttributes(font: UIFont) -> UIFont {
+        guard !font.isAppleEmojiFont else {
+            return UIFont.systemFont(ofSize: font.pointSize)
+        }
+
+        var traits = font.fontDescriptor.symbolicTraits
+        traits.remove(.traitBold)
+        traits.remove(.traitItalic)
+
+        let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+        return UIFont(descriptor: descriptor!, size: font.pointSize)
     }
 }
