@@ -128,8 +128,13 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        let markerRect = rect.offsetBy(dx: 0, dy: style.paragraphSpacingBefore)
+        var yOffset = -style.paragraphSpacing
 
+        if let font = markerAttributes[NSFontAttributeName] as? UIFont {
+            yOffset += (rect.height - font.lineHeight)
+        }
+
+        let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
         markerText.draw(in: markerRect)
     }
 
