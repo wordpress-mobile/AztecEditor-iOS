@@ -392,33 +392,6 @@ open class TextStorage: NSTextStorage {
         return attachment
     }
 
-
-    // MARK: - Toggle Attributes
-
-    fileprivate func toggleAttribute(_ attributeName: String, value: AnyObject, range: NSRange) {
-
-        var effectiveRange = NSRange()
-        let enable: Bool
-        
-        if attribute(attributeName, at: range.location, longestEffectiveRange: &effectiveRange, in: range) != nil {
-            let intersection = range.intersect(withRange: effectiveRange)
-            
-            if let intersection = intersection {
-                enable = !NSEqualRanges(range, intersection)
-            } else {
-                enable = true
-            }
-        } else {
-            enable = true
-        }
-        
-        if enable {
-            addAttribute(attributeName, value: value, range: range)
-        } else {
-            removeAttribute(attributeName, range: range)
-        }
-    }
-
     // MARK: - HTML Interaction
 
     open func getHTML(prettyPrint: Bool = false) -> String {
