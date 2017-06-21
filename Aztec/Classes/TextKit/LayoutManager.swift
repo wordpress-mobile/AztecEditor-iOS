@@ -94,7 +94,8 @@ private extension LayoutManager {
             // Draw Paragraph Markers
             enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let location = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil).location
-                guard textStorage.string.isStartOfNewLine(at: location) else {
+
+                guard textStorage.string.isStartOfNewLine(atUTF16Offset: location) else {
                     return
                 }
 
