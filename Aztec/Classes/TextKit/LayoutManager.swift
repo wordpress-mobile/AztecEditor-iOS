@@ -16,12 +16,17 @@ class LayoutManager: NSLayoutManager {
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
 
+    /// HTML Pre Background Color
+    ///
+    var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+
     /// Draws the background, associated to a given Text Range
     ///
     override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
 
         drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
+        drawHTMLPre(forGlyphRange: glyphsToShow, at: origin)
         drawLists(forGlyphRange: glyphsToShow, at: origin)
     }
 }
@@ -71,6 +76,45 @@ private extension LayoutManager {
     }
 }
 
+// MARK: - PreFormatted Helpers
+//
+private extension LayoutManager {
+
+    /// Draws a HTML Pre associated to a Range + Graphics Origin.
+    ///
+    func drawHTMLPre(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+        guard let textStorage = textStorage else {
+            return
+        }
+
+        guard let context = UIGraphicsGetCurrentContext() else {
+            preconditionFailure("When drawBackgroundForGlyphRange is called, the graphics context is supposed to be set by UIKit")
+        }
+
+        let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
+        //draw html pre paragraphs
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.htmlPre != nil else {
+                return
+            }
+
+            let preGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+
+            enumerateLineFragments(forGlyphRange: preGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
+                self.drawHTMLPre(in: lineRect.integral, with: context)
+            }
+        }
+
+    }
+
+    /// Draws a single HTML Pre Line Fragment, in the specified Rectangle, using a given Graphics Context.
+    ///
+    private func drawHTMLPre(in rect: CGRect, with context: CGContext) {
+        preBackgroundColor.setFill()
+        context.fill(rect)
+    }
+}
 
 // MARK: - Lists Helpers
 //
