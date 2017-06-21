@@ -414,15 +414,19 @@ private extension FormatBar {
         scrollView.delegate = self
 
         // Add padding at the end to account for overflow button
-        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Constants.stackButtonWidth)
+        let layoutDirection = UIView.userInterfaceLayoutDirection(for: semanticContentAttribute)
+        switch layoutDirection {
+        case .leftToRight:
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Constants.stackButtonWidth)
+        case .rightToLeft:
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: Constants.stackButtonWidth, bottom: 0, right: 0)
+        }
     }
 
 
     /// Sets up the Constraints
     ///
     func configureConstraints() {
-        let insets = Constants.scrollableStackViewInsets
-
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
         overflowTrailingConstraint.priority = UILayoutPriorityDefaultLow
 
@@ -448,8 +452,8 @@ private extension FormatBar {
         ])
 
         NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: insets.left),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -1 * insets.right),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
@@ -581,8 +585,6 @@ private extension FormatBar {
     struct Constants {
         static let overflowExpandedUserDefaultsKey = "AztecFormatBarOverflowExpandedKey"
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
-        static let fixedStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        static let scrollableStackViewInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         static let stackViewCompactSpacing = CGFloat(0)
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
