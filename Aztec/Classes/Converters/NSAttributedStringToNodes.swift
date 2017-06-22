@@ -123,7 +123,8 @@ private extension NSAttributedStringToNodes {
         var previous: Branch?
 
         for branch in sorted {
-            if let previous = previous , merge(left: previous, right: branch) {
+            if let left = previous , let merged = merge(left: left, right: branch) {
+                previous = merged
                 continue
             }
 
@@ -138,25 +139,28 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    private func merge(left: Branch, right: Branch) -> Bool {
+    private func merge(left: Branch, right: Branch) -> Branch? {
         guard let mergeableCandidate = findMergeableNodes(left: left.nodes, right: right.nodes),
-            let lastMergeableCandidate = mergeableCandidate.last
+            let target = mergeableCandidate.last?.left
         else {
-            return false
+            return nil
         }
 
-        let mergeableRightNodes = mergeableCandidate.flatMap {
-            return $0.right
-        }
+        let mergeableLeftNodes = mergeableCandidate.flatMap { $0.left }
+        let mergeableRightNodes = mergeableCandidate.flatMap { $0.right }
 
-        ///
-        let nonMergeableRightNodes = Set(mergeableRightNodes).subtracting(right.nodes)
-        let source = reduce(nodes: Array(nonMergeableRightNodes), leaves: right.leaves)
+        // Reduce: Non Mergeable Right Subtree
+        let nonMergeableRightNodesSet = Set(right.nodes).subtracting(mergeableRightNodes)
+        let nonMergeableRightNodes = Array(nonMergeableRightNodesSet)
 
-        let target = lastMergeableCandidate.left
+        let source = reduce(nodes: nonMergeableRightNodes, leaves: right.leaves)
+
+        // Merge: Move the 'Non Mergeable Right Subtree' to the left merging spot
         target.children += source
 
-        return true
+        // Regen: Branch with the actual used instances!
+        let mergedNodes = mergeableLeftNodes + nonMergeableRightNodes
+        return Branch(nodes: mergedNodes, leaves: right.leaves)
     }
 
 
