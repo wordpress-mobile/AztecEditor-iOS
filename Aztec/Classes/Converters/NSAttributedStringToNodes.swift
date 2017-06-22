@@ -266,6 +266,9 @@ private extension NSAttributedStringToNodes {
             case let paragraph as HTMLParagraph:
                 paragraphNodes += processParagraphStyle(paragraph: paragraph)
 
+            case let pre as HTMLPre:
+                paragraphNodes += processPreStyle(pre: pre)
+
             default:
                 continue
             }
@@ -311,6 +314,14 @@ private extension NSAttributedStringToNodes {
     ///
     private func processParagraphStyle(paragraph: HTMLParagraph) -> [ElementNode] {
         let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
+        return [node]
+    }
+
+
+    ///
+    ///
+    private func processPreStyle(pre: HTMLPre) -> [ElementNode] {
+        let node = pre.representation?.toNode() ?? ElementNode(type: .pre)
         return [node]
     }
 }
@@ -545,7 +556,6 @@ private extension NSAttributedStringToNodes {
     /// Converts a String into it's representing nodes.
     ///
     private func processTextNodes(from text: String) -> [Node] {
-
         let substrings = text.components(separatedBy: String(.lineSeparator))
         var output = [Node]()
 
@@ -590,6 +600,7 @@ private extension NSAttributedStringToNodes {
         guard let source = attachment.url?.absoluteString else {
             return nil
         }
+
         return StringAttribute(name: "src", value: source)
     }
 
