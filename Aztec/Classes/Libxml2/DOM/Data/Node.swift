@@ -149,5 +149,5 @@ extension Libxml2 {
 // MARK: - Node Equatable
 
 func ==(lhs: Libxml2.Node, rhs: Libxml2.Node) -> Bool {
-    return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    return lhs.name == rhs.name
 }
