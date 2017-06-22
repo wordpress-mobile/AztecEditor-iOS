@@ -42,6 +42,17 @@ extension Libxml2 {
                 return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .suppressed)
             }
         }
+
+        // MARK - Hashable
+
+        override public var hashValue: Int {
+            let attributesHash = attributes.reduce(0) { (result, attribute) in
+                return result ^ attribute.hashValue
+            }
+
+            return name.hashValue ^ attributesHash
+        }
+
         
         // MARK: - Initializers
 
