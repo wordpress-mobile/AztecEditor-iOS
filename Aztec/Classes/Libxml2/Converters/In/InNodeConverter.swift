@@ -183,7 +183,7 @@ extension Libxml2.In {
                 singleSpaceText = singleSpaceText.replacingOccurrences(of: doubleSpace, with: singleSpace)
             }
 
-            let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.newline), with: "")
+            let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.lineFeed), with: "")
             let endingSpace = !noBreaksText.isEmpty && hasAnEndingSpace ? String(.space) : ""
             let startingSpace = !noBreaksText.isEmpty && hasAStartingSpace ? String(.space) : ""
             return "\(startingSpace)\(noBreaksText)\(endingSpace)"

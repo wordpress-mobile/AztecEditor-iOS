@@ -560,11 +560,11 @@ class TextViewTests: XCTestCase {
     /// Tests that deleting a newline works by merging the component around it.
     ///
     /// Input:
-    ///     - Initial HTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!"
+    ///     - Initial HTML: "<ol><li>First</li><li>Second</li></ol><ul><li>Third</li><li>Fourth</li></ul>"
     ///     - Deletion range: (loc: 12, len 1)
     ///
     /// Output:
-    ///     - Final HTML: "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!"
+    ///     - Final HTML: "<ol><li>First</li><li>Second</li><li>Third</li></ol><ul><li>Fourth</li></u"
     ///
     func testDeleteNewline6() {
 
@@ -576,29 +576,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
-    }
-
-    /// Tests that deleting a newline works by merging the component around it.
-    ///
-    /// Input:
-    ///     - Initial HTML: "<ol><li>First</li><li>Second</li></ol><ul><li>Third</li><li>Fourth</li></ul>"
-    ///     - Deletion range: (loc: 12, len 1)
-    ///
-    /// Output:
-    ///     - Final HTML: "<ol><li>First</li><li>Second</li><li>Third</li></ol><ul><li>Fourth</li></u"
-    ///
-    func testDeleteNewline7() {
-
-        let textView = createTextView(withHTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!")
-
-        let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 12)!
-        let rangeEnd = textView.position(from: rangeStart, offset: 1)!
-        let range = textView.textRange(from: rangeStart, to: rangeEnd)!
-
-        textView.replace(range, withText: "")
-
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -815,7 +793,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark III on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesAreInsertedAfterEmptyList() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
         let textView = createTextView(withHTML: "")
 
         // Toggle List + Move the selection to the EOD
@@ -842,7 +820,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark IV on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
 
         let textView = createTextView(withHTML: "")
 
@@ -897,7 +875,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
         let formatter = TextListFormatter(style: .ordered)
         let attributedText = textView.attributedText!
@@ -942,9 +920,9 @@ class TextViewTests: XCTestCase {
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator) )
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator) )
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -979,9 +957,9 @@ class TextViewTests: XCTestCase {
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
     }
 
 
@@ -1040,7 +1018,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testNewLinesAreInsertedAfterEmptyBlockquote() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
@@ -1065,7 +1043,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testNewLinesGetBlockquoteStyleEvenAfterDeletingEndOfDocumentNewline() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
 
         let textView = createTextView(withHTML: "")
 
@@ -1118,7 +1096,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
         let formatter = BlockquoteFormatter()
         let attributedText = textView.attributedText!
@@ -1165,9 +1143,9 @@ class TextViewTests: XCTestCase {
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
     }
 
 
@@ -1226,7 +1204,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testNewLinesAreInsertedAfterEmptyPre() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
         let textView = createTextView(withHTML: "")
 
         textView.togglePre(range: .zero)
@@ -1251,7 +1229,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testNewLinesGetPreStyleEvenAfterDeletingEndOfDocumentNewline() {
-        let newline = String(.newline)
+        let newline = String(.lineFeed)
 
         let textView = createTextView(withHTML: "")
 
@@ -1304,7 +1282,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "")
 
         textView.togglePre(range: .zero)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
 
         let formatter = PreFormatter()
         let attributedText = textView.attributedText!
@@ -1351,9 +1329,9 @@ class TextViewTests: XCTestCase {
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.insertText(Constants.sampleText1)
-        textView.insertText(String(.newline))
+        textView.insertText(String(.lineFeed))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.newline) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
     }
 
     func testInsertVideo() {

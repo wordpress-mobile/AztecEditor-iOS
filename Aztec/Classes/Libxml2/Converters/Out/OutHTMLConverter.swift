@@ -143,14 +143,14 @@ private extension Libxml2.Out.HTMLConverter {
     ///
     private func prefixForTag(at level: Int) -> String {
         let indentation = level > 0 ? String(repeating: String(.space), count: level * indentationSpaces) : ""
-        return String(.newline) + indentation
+        return String(.lineFeed) + indentation
     }
 
 
     /// Returns the Tag Posfix String
     ///
     private func posfixForTag() -> String {
-        return String(.newline)
+        return String(.lineFeed)
     }
 
 

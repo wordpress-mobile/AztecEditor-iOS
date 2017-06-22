@@ -545,19 +545,19 @@ private extension NSAttributedStringToNodes {
     /// Converts a String into it's representing nodes.
     ///
     private func processTextNodes(from text: String) -> [Node] {
-        let substrings = text.components(separatedBy: String(.newline))
+
+        let substrings = text.components(separatedBy: String(.lineSeparator))
         var output = [Node]()
 
-        for substring in substrings {
-            if output.count > 0 {
-                let newline = ElementNode(type: .br)
-                output.append(newline)
+        for (index, substring) in substrings.enumerated() {
+
+            output.append(TextNode(text: substring))
+
+            if index < substrings.count - 1 {
+                output.append(ElementNode(type: .br))
             }
-
-            let node = TextNode(text: substring)
-            output.append(node)
         }
-
+        
         return output
     }
 

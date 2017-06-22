@@ -4,9 +4,10 @@ import UIKit
 extension Character {
 
     enum Name: Character {
+        case lineFeed = "\u{000A}"
+        case carriageReturn = "\u{000D}"
         case nonBreakingSpace = "\u{00A0}"
         case lineSeparator = "\u{2028}"
-        case newline = "\n"
         case objectReplacement = "\u{FFFC}"
         case paragraphSeparator = "\u{2029}"
         case space = " "

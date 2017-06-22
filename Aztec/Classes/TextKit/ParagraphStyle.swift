@@ -66,6 +66,17 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
 
+    var htmlPre: HTMLPre? {
+        let htmlPres = properties.flatMap { (property) -> HTMLPre? in
+            if let htmlPre = property as? HTMLPre {
+                return htmlPre
+            } else {
+                return nil
+            }
+        }
+        return htmlPres.first
+    }
+
     override init() {
         super.init()
     }
