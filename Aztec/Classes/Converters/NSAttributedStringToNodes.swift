@@ -73,14 +73,14 @@ class NSAttributedStringToNodes: Converter {
             let leafNodes = createLeafNodes(from: substring)
             let styleNodes = createStyleNodes(from: attrs)
 
-            let branch = Branch(styles: styleNodes, leaves: leafNodes)
+            let branch = Branch(nodes: styleNodes, leaves: leafNodes)
             branches.append(branch)
         }
 
         let paragraphNodes = createParagraphNodes(from: paragraph)
-        let paragraphChildren = merge(branches: branches)
+        let mergedBranches = merge(branches: branches)
 
-        return reduce(nodes: paragraphNodes, leaves: paragraphChildren)
+        return reduce(nodes: paragraphNodes, leaves: mergedBranches)
     }
 }
 
@@ -88,6 +88,16 @@ class NSAttributedStringToNodes: Converter {
 // MARK: - Merge: Helpers
 //
 private extension NSAttributedStringToNodes {
+
+    ///
+    ///
+    typealias Branch = (nodes: [ElementNode], leaves: [Node])
+
+
+    /// Defines a pair of Nodes that can be merged
+    ///
+    typealias MergeablePair = (left: ElementNode, right: ElementNode)
+
 
     /// Sets Up a collection of Nodes and Leaves as a chain of Parent-Children, and returns the root node.and
     /// If the collection of nodes is empty, will return the leaves parameters 'as is'.
@@ -107,15 +117,107 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    typealias Branch = (styles: [ElementNode], leaves: [Node])
-
-
-    ///
-    ///
     func merge(branches: [Branch]) -> [Node] {
-        return branches.flatMap { branch in
-            return self.reduce(nodes: branch.styles, leaves: branch.leaves)
+        let sorted = sort(branches: branches)
+        var merged = [Node]()
+        var previous: Branch?
+
+        for branch in sorted {
+            if let previous = previous , merge(left: previous, right: branch) {
+                continue
+            }
+
+            let reduced = reduce(nodes: branch.nodes.reversed(), leaves: branch.leaves)
+            merged.append(contentsOf: reduced)
+            previous = branch
         }
+
+        return merged
+    }
+
+
+    ///
+    ///
+    private func merge(left: Branch, right: Branch) -> Bool {
+        guard let mergeableCandidate = findMergeableNodes(left: left.nodes, right: right.nodes),
+            let lastMergeableCandidate = mergeableCandidate.last
+        else {
+            return false
+        }
+
+        let mergeableRightNodes = mergeableCandidate.flatMap {
+            return $0.right
+        }
+
+        ///
+        let nonMergeableRightNodes = Set(mergeableRightNodes).subtracting(right.nodes)
+        let source = reduce(nodes: Array(nonMergeableRightNodes), leaves: right.leaves)
+
+        let target = lastMergeableCandidate.left
+        target.children += source
+
+        return true
+    }
+
+
+    ///
+    ///
+    private func sort(branches: [Branch]) -> [Branch] {
+        let weights = elementCount(for: branches)
+        var output = [Branch]()
+
+        for branch in branches {
+            let sorted = branch.nodes.sorted {
+                let leftWeight = weights[$0] ?? 0
+                let rightWeight = weights[$1] ?? 0
+
+                return leftWeight > rightWeight
+            }
+
+            let updated = Branch(nodes: sorted, leaves: branch.leaves)
+            output.append(updated)
+        }
+
+        return output
+    }
+
+
+    ///
+    ///
+    private func elementCount(for branches: [Branch]) -> [ElementNode: Int] {
+        var weights = [ElementNode: Int]()
+
+        for branch in branches {
+            for node in branch.nodes {
+                let count = weights[node] ?? 0
+                weights[node] = count + 1
+            }
+        }
+
+        return weights
+    }
+
+
+    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
+    ///
+    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair]? {
+        var currentIndex = 0
+        var matching = [MergeablePair]()
+
+        while currentIndex < left.count && currentIndex < right.count {
+            let left = left[currentIndex]
+            let right = right[currentIndex]
+
+            guard left == right else {
+                break
+            }
+
+            let pair = MergeablePair(left: left, right: right)
+            matching.append(pair)
+            currentIndex += 1
+        }
+
+        return matching.isEmpty ? nil : matching
     }
 }
 
@@ -141,11 +243,6 @@ private extension NSAttributedStringToNodes {
 
         return true
     }
-
-
-    /// Defines a pair of Nodes that can be merged
-    ///
-    typealias MergeablePair = (left: ElementNode, right: ElementNode)
 
 
     /// Finds the last valid Mergeable Pair within a collection of mergeable nodes
@@ -212,7 +309,7 @@ private extension NSAttributedStringToNodes {
             matching.append(pair)
             currentIndex += 1
         }
-        
+
         return matching.isEmpty ? nil : matching
     }
 }
