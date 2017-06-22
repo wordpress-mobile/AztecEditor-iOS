@@ -1,5 +1,4 @@
 import XCTest
-import Gridicons
 @testable import Aztec
 
 // MARK: - BlockquoteFormatterTests Tests
@@ -101,7 +100,7 @@ class BlockquoteFormatterTests: XCTestCase {
 
 private extension BlockquoteFormatterTests {
     var testTextView: TextView {
-        let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.image))
+        let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         view.text = plainText
         return view
     }

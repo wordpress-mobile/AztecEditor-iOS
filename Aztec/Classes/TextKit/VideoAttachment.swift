@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import Gridicons
 
 protocol VideoAttachmentDelegate: class {
     func videoAttachment(
@@ -43,7 +42,7 @@ open class VideoAttachment: MediaAttachment {
         
         super.init(identifier: identifier, url: posterURL)
 
-        self.overlayImage = Gridicon.iconOfType(.video)
+        self.overlayImage = UIImage()
     }
 
     /// Required Initializer

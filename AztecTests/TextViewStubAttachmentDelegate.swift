@@ -1,6 +1,6 @@
 import Foundation
 import Aztec
-import Gridicons
+import UIKit
 
 class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate {
 
@@ -17,11 +17,11 @@ class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate {
         let placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
-            placeholderImage = Gridicon.iconOfType(.image, withSize: imageSize)
+            placeholderImage = UIImage()
         case _ as VideoAttachment:
-            placeholderImage = Gridicon.iconOfType(.video, withSize: imageSize)
+            placeholderImage = UIImage()
         default:
-            placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
+            placeholderImage = UIImage()
 
         }
 

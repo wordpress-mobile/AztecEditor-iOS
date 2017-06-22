@@ -1,7 +1,6 @@
 
 import UIKit
 import Foundation
-import Gridicons
 
 
 // MARK: - TextViewAttachmentDelegate
@@ -196,7 +195,7 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
-        defaultMissingImage = Gridicon.iconOfType(.image)
+        defaultMissingImage = UIImage()
         super.init(coder: aDecoder)
         commonInit()
     }
