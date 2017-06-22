@@ -3,7 +3,7 @@ import XCTest
 
 class StringEndOfLineTests: XCTestCase {
 
-    private let endOfLineSeparators = [String(.newline), String(.lineSeparator), String(.paragraphSeparator)]
+    private let endOfLineSeparators = [String(.lineFeed), String(.lineSeparator), String(.paragraphSeparator)]
 
     // MARK: - Setup
 

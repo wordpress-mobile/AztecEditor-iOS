@@ -136,7 +136,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         let attributes = TextListFormatter(style: .unordered).apply(to: Constants.sampleAttributes)
 
-        let text = firstText + String(.newline) + secondText
+        let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
         // Convert + Verify
@@ -177,7 +177,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         let attributes = TextListFormatter(style: .ordered).apply(to: Constants.sampleAttributes)
 
-        let text = firstText + String(.newline) + secondText
+        let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
         // Convert + Verify
@@ -438,7 +438,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let firstText = "First Line"
         let secondText = "Second Line"
 
-        let text = firstText + String(.newline) + secondText
+        let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
@@ -495,7 +495,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let firstText = "First Line"
         let secondText = "Second Line"
 
-        let text = firstText + String(.newline) + secondText
+        let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
@@ -555,7 +555,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let firstText = "Hello"
         let secondText = "World"
 
-        let text = firstText + String(.newline) + secondText
+        let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
