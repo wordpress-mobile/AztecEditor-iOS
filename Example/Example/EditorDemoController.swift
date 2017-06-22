@@ -1192,10 +1192,9 @@ private extension EditorDemoController
     
     func insertImage(_ image: UIImage) {
         
-        let index = richTextView.positionForCursor()
         let fileURL = saveToDisk(image: image)
         
-        let attachment = richTextView.insertImage(sourceURL: fileURL, atPosition: index, placeHolderImage: image)
+        let attachment = richTextView.insertImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1204,9 +1203,6 @@ private extension EditorDemoController
     }
 
     func insertVideo(_ videoURL: URL) {
-
-        let index = richTextView.positionForCursor()
-
         let asset = AVURLAsset(url: videoURL, options: nil)
         let imgGenerator = AVAssetImageGenerator(asset: asset)
         imgGenerator.appliesPreferredTrackTransform = true
@@ -1215,7 +1211,7 @@ private extension EditorDemoController
         }
         let posterImage = UIImage(cgImage: cgImage)
         let posterURL = saveToDisk(image: posterImage)
-        let attachment = richTextView.insertVideo(atLocation: index, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
+        let attachment = richTextView.insertVideo(at: richTextView.selectedRange, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
         let mediaID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
         progress.totalUnitCount = 100

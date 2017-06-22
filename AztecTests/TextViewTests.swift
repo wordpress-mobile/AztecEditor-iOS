@@ -1336,7 +1336,7 @@ class TextViewTests: XCTestCase {
 
     func testInsertVideo() {
         let textView = createEmptyTextView()
-        let _ = textView.insertVideo(atLocation: 0, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        let _ = textView.insertVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 

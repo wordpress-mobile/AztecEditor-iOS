@@ -244,50 +244,6 @@ open class TextStorage: NSTextStorage {
         return formatter.toggle(in: self, at: applicationRange)
     }
 
-    /// Insert Image Element at the specified range using url as source
-    ///
-    /// - parameter url: the source URL of the image
-    /// - parameter position: the position to insert the image
-    /// - parameter placeHolderImage: an image to display while the image from sourceURL is being prepared
-    ///
-    /// - returns: the attachment object that was created and inserted on the text
-    ///
-    func insertImage(sourceURL url: URL, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> ImageAttachment {
-        let attachment = ImageAttachment(identifier: identifier)
-        attachment.delegate = self
-        attachment.url = url
-        attachment.image = placeHolderImage
-
-        // Inject the Attachment and Layout
-        let insertionRange = NSMakeRange(position, 0)
-        let attachmentString = NSAttributedString(attachment: attachment)
-        replaceCharacters(in: insertionRange, with: attachmentString)
-
-        return attachment
-    }
-
-    /// Insert Video Element at the specified range using url as source
-    ///
-    /// - parameter sourceURL: the source URL of the video
-    /// - parameter posterURL: an URL pointing to a frame/thumbnail of the video
-    /// - parameter position: the position to insert the image
-    /// - parameter placeHolderImage: an image to display while the image from sourceURL is being prepared
-    ///
-    /// - returns: the attachment object that was created and inserted on the text
-    ///
-    func insertVideo(sourceURL: URL, posterURL: URL?, atPosition position:Int, placeHolderImage: UIImage, identifier: String = UUID().uuidString) -> VideoAttachment {
-        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
-        attachment.delegate = self
-        attachment.image = placeHolderImage
-
-        // Inject the Attachment and Layout
-        let insertionRange = NSMakeRange(position, 0)
-        let attachmentString = NSAttributedString(attachment: attachment)
-        replaceCharacters(in: insertionRange, with: attachmentString)
-
-        return attachment
-    }
-
     /// Insert an HR element at the specifice range
     ///
     /// - Parameter range: the range where the element will be inserted
