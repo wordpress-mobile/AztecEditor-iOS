@@ -91,7 +91,8 @@ class TextStorageTests: XCTestCase
         let storage = TextStorage()
         storage.attachmentsDelegate = mockDelegate
 
-        let attachment = storage.insertImage(sourceURL: URL(string:"test://")!, atPosition: 0, placeHolderImage: UIImage())
+        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"test://")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
         storage.replaceCharacters(in: NSRange(location: 0, length: 1) , with: NSAttributedString(string:""))
 
@@ -132,7 +133,8 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        let attachment = storage.insertImage(sourceURL: URL(string:"test://")!, atPosition: 0, placeHolderImage: UIImage())
+        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"test://")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
         storage.remove(attachmentID: attachment.identifier)
 
@@ -144,7 +146,9 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        let attachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
+
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
@@ -156,7 +160,9 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
         let url = URL(string: "https://wordpress.com")!
-        let attachment = storage.insertImage(sourceURL: url, atPosition: 0, placeHolderImage: UIImage())
+        let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
+
         storage.update(attachment: attachment, alignment: .left, size: .medium, url: url)
         let html = storage.getHTML()
 
@@ -297,8 +303,12 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        let firstAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
-        let secondAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.org")!, atPosition: 1, placeHolderImage: UIImage())
+        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
+
+        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.org")!)
+        storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
+
         let html = storage.getHTML()
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
@@ -313,8 +323,11 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        let firstAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
-        let secondAttachment = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 1, placeHolderImage: UIImage())
+        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
+
+        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
         let html = storage.getHTML()
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
@@ -340,7 +353,8 @@ class TextStorageTests: XCTestCase
 
         for _ in 0 ..< count {
             let sourceURL = URL(string:"test://")!
-            let attachment = storage.insertImage(sourceURL: sourceURL, atPosition: 0, placeHolderImage: UIImage())
+            let attachment = ImageAttachment(identifier: UUID().uuidString, url: sourceURL)
+            storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
             identifiers.append(attachment.identifier)
         }
@@ -394,7 +408,9 @@ class TextStorageTests: XCTestCase
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
 
-        let _ = storage.insertImage(sourceURL: URL(string: "https://wordpress.com")!, atPosition: 0, placeHolderImage: UIImage())
+        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
+
         storage.replaceRangeWithHorizontalRuler(NSRange(location: 0, length:1))
         let html = storage.getHTML()
 
