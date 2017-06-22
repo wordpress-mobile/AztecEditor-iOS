@@ -61,11 +61,11 @@ class NSAttributedStringToNodes: Converter {
     /// - Returns: Array of Node instances.
     ///
     private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
-        var children = [Node]()
-
         guard paragraph.length > 0 else {
             return []
         }
+
+        var children = [Node]()
 
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
