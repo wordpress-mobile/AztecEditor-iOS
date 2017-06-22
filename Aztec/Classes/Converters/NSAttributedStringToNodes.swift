@@ -65,7 +65,7 @@ class NSAttributedStringToNodes: Converter {
             return []
         }
 
-        var children = [Node]()
+        var branches = [Branch]()
 
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
@@ -73,19 +73,26 @@ class NSAttributedStringToNodes: Converter {
             let leafNodes = createLeafNodes(from: substring)
             let styleNodes = createStyleNodes(from: attrs)
 
-            let subtree = reduce(nodes: styleNodes, leaves: leafNodes)
-            children.append(contentsOf: subtree)
+            let branch = Branch(styles: styleNodes, leaves: leafNodes)
+            branches.append(branch)
         }
 
         let paragraphNodes = createParagraphNodes(from: paragraph)
-        return reduce(nodes: paragraphNodes, leaves: children)
-    }
+        let paragraphChildren = merge(branches: branches)
 
+        return reduce(nodes: paragraphNodes, leaves: paragraphChildren)
+    }
+}
+
+
+// MARK: - Merge: Helpers
+//
+private extension NSAttributedStringToNodes {
 
     /// Sets Up a collection of Nodes and Leaves as a chain of Parent-Children, and returns the root node.and
     /// If the collection of nodes is empty, will return the leaves parameters 'as is'.
     ///
-    private func reduce(nodes: [ElementNode], leaves: [Node]) -> [Node] {
+    func reduce(nodes: [ElementNode], leaves: [Node]) -> [Node] {
         return nodes.reduce(leaves) { (result, node) in
             node.children = result
             return [node]
@@ -94,7 +101,26 @@ class NSAttributedStringToNodes: Converter {
 }
 
 
-// MARK: - Merge
+// MARK: - Merge: Styles
+//
+private extension NSAttributedStringToNodes {
+
+    ///
+    ///
+    typealias Branch = (styles: [ElementNode], leaves: [Node])
+
+
+    ///
+    ///
+    func merge(branches: [Branch]) -> [Node] {
+        return branches.flatMap { branch in
+            return self.reduce(nodes: branch.styles, leaves: branch.leaves)
+        }
+    }
+}
+
+
+// MARK: - Merge: Paragraphs
 //
 private extension NSAttributedStringToNodes {
 
