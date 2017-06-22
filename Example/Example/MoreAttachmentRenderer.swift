@@ -30,7 +30,11 @@ extension MoreAttachmentRenderer: TextViewAttachmentImageProvider {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let label = attachment.text.uppercased()
-        let attributes = [NSForegroundColorAttributeName: textColor]
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.baseWritingDirection = .leftToRight
+        let attributes: [String: Any] = [NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: paragraphStyle]
+
         let colorMessage = NSAttributedString(string: label, attributes: attributes)
 
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
