@@ -290,7 +290,10 @@ open class TextView: UITextView {
 
     override open var keyCommands: [UIKeyCommand]? {
         get {
-            return [UIKeyCommand(input: "\r", modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
+            // When the keyboard "enter" key is pressed, the keycode corresponds to .carriageReturn,
+            // even if it's later converted to .lineFeed by default.
+            //
+            return [UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
         }
     }
 
@@ -803,7 +806,7 @@ open class TextView: UITextView {
     /// Blockquote's background.
     ///
     private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
-        guard text == String(.newline) else {
+        guard text == String(.lineFeed) else {
             return
         }
 
@@ -870,7 +873,7 @@ open class TextView: UITextView {
     /// This method was meant as a workaround for Issue #144.
     ///
     func ensureCursorRedraw(afterEditing text: String) {
-        guard text == String(.newline) else {
+        guard text == String(.lineFeed) else {
             return
         }
 

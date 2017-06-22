@@ -46,7 +46,7 @@ extension String {
     ///
     func isEndOfLine() -> Bool {
         return self == String(.lineSeparator)
-            || self == String(.newline)
+            || self == String(.lineFeed)
             || self == String(.paragraphSeparator)
     }
 
