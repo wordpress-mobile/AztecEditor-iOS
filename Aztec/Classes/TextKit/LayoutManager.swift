@@ -84,26 +84,30 @@ private extension LayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, let list = paragraphStyle.lists.last else {
-                return
-            }
 
-            let listGlyphRange = glyphRange(forCharacterRange:range, actualCharacterRange: nil)
+        textStorage.enumerateParagraphRanges(spanning: characterRange) { (range, enclosingRange) in
 
-            // Draw Paragraph Markers
-            enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let location = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil).location
-
-                guard textStorage.string.isStartOfNewLine(atUTF16Offset: location) else {
+            guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
+                let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle,
+                let list = paragraphStyle.lists.last else {
                     return
-                }
-
-                let markerNumber = textStorage.itemNumber(in: list, at: location)
-                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-
-                self.drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
             }
+
+            let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
+
+            // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
+            //
+            let lineFragmentRect = self.lineFragmentRect(forGlyphAt: glyphRange.location, effectiveRange: nil)
+            let lineFragmentRectWithOffset = lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
+
+            let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
+
+            self.drawItem(
+                number: markerNumber,
+                in: lineFragmentRectWithOffset,
+                from: list,
+                using: paragraphStyle,
+                at: enclosingRange.location)
         }
     }
 

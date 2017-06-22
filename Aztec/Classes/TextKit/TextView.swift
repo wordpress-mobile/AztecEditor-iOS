@@ -286,6 +286,17 @@ open class TextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
+    // MARK: - Intercept Keystrokes
+
+    override open var keyCommands: [UIKeyCommand]? {
+        get {
+            return [UIKeyCommand(input: "\r", modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
+        }
+    }
+
+    func handleShiftEnter(command: UIKeyCommand) {
+        insertText(String(.lineSeparator))
+    }
 
     // MARK: - Pasteboard Helpers
 

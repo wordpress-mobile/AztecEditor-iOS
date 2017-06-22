@@ -91,7 +91,7 @@ extension Libxml2 {
             case .video:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
-                return NSAttributedString(.newline, attributes: attributes)
+                return NSAttributedString(.lineSeparator, attributes: attributes)
             case .hr:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             default:

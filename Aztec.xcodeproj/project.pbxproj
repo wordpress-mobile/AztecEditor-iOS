@@ -494,8 +494,8 @@
 				B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */,
 				B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */,
 				599F25271D8BC9A1002871D6 /* UITextView+Helpers.swift */,
-				F1A218141E02D5B3000AF5EB /* UndoManager.swift */,
 				F1DE83D41EF20493009269E6 /* UIColor+Parsers.swift */,
+				F1A218141E02D5B3000AF5EB /* UndoManager.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
