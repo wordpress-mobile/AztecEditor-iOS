@@ -73,18 +73,19 @@ class NSAttributedStringToNodes: Converter {
             let leafNodes = createLeafNodes(from: substring)
             let styleNodes = createStyleNodes(from: attrs)
 
-            let subtree = generateTree(nodes: styleNodes, leaves: leafNodes)
+            let subtree = reduce(nodes: styleNodes, leaves: leafNodes)
             children.append(contentsOf: subtree)
         }
 
         let paragraphNodes = createParagraphNodes(from: paragraph)
-        return generateTree(nodes: paragraphNodes, leaves: children)
+        return reduce(nodes: paragraphNodes, leaves: children)
     }
 
 
+    /// Sets Up a collection of Nodes and Leaves as a chain of Parent-Children, and returns the root node.and
+    /// If the collection of nodes is empty, will return the leaves parameters 'as is'.
     ///
-    ///
-    private func generateTree(nodes: [ElementNode], leaves: [Node]) -> [Node] {
+    private func reduce(nodes: [ElementNode], leaves: [Node]) -> [Node] {
         return nodes.reduce(leaves) { (result, node) in
             node.children = result
             return [node]
