@@ -4,7 +4,7 @@ extension Libxml2 {
 
     /// Base class for all node types.
     ///
-    class Node: Equatable, CustomReflectable {
+    class Node: Equatable, CustomReflectable, Hashable {
         
         let name: String
         
@@ -29,7 +29,14 @@ extension Libxml2 {
                 return Mirror(self, children: ["name": name, "parent": parent as Any])
             }
         }
-        
+
+
+        // MARK - Hashable
+
+        public var hashValue: Int {
+            return name.hashValue
+        }
+
         // MARK: - Initializers
 
         init(name: String) {
