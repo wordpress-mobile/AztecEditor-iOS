@@ -32,7 +32,7 @@ extension ParagraphAttributeFormatter {
     func applyAttributes(to text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         let rangeToApply = applicationRange(for: range, in: text)
 
-        text.replaceOcurrences(of: String(.newline), with: String(.paragraphSeparator), within: rangeToApply)
+        text.replaceOcurrences(of: String(.lineFeed), with: String(.paragraphSeparator), within: rangeToApply)
 
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, _) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
@@ -51,7 +51,7 @@ extension ParagraphAttributeFormatter {
     func removeAttributes(from text: NSMutableAttributedString, at range: NSRange) -> NSRange {
         let rangeToApply = applicationRange(for: range, in: text)
 
-        text.replaceOcurrences(of: String(.paragraphSeparator), with: String(.newline), within: rangeToApply)
+        text.replaceOcurrences(of: String(.paragraphSeparator), with: String(.lineFeed), within: rangeToApply)
 
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)

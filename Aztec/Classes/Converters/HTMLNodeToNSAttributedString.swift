@@ -54,11 +54,11 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     fileprivate func convert(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
-            return convertTextNode(textNode, inheriting: attributes)
+            return convert(textNode, inheriting: attributes)
         case let commentNode as CommentNode:
-            return convertCommentNode(commentNode, inheriting: attributes)
+            return convert(commentNode, inheriting: attributes)
         case let elementNode as ElementNode:
-            return convertElementNode(elementNode, inheriting: attributes)
+            return convert(elementNode, inheriting: attributes)
         default:
             fatalError("Nodes can be either text, comment or element nodes.")
         }
@@ -72,7 +72,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertTextNode(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
 
         let string: NSAttributedString
 
@@ -97,7 +97,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertCommentNode(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func convert(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -112,11 +112,34 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convertElementNode(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
-        guard !element.isSupportedByEditor() else {
-            return string(for: element, inheriting: attributes)
+    fileprivate func convert(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+
+        guard element.isSupportedByEditor() else {
+            return convert(unsupported: element, inheriting: attributes)
         }
 
+        let childAttributes = self.attributes(for: element, inheriting: attributes)
+        let content = NSMutableAttributedString()
+
+        if let nodeType = element.standardName,
+            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
+
+            content.append(implicitRepresentation)
+        } else {
+            for child in element.children {
+                let childContent = convert(child, inheriting: childAttributes)
+                content.append(childContent)
+            }
+        }
+
+        guard !element.needsClosingParagraphSeparator() else {
+            return appendParagraphSeparator(to: content, inheriting: attributes)
+        }
+
+        return content
+    }
+
+    fileprivate func convert(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let converter = Libxml2.Out.HTMLConverter()
         let attachment = HTMLAttachment()
 
