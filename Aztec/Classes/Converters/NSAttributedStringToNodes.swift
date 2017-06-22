@@ -555,6 +555,10 @@ private extension NSAttributedStringToNodes {
             node.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
+        for (key,value) in attachment.namedAttributes {
+            node.updateAttribute(named: key, value: value)
+        }
+
         return [node]
     }
 

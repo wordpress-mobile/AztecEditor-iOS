@@ -1349,4 +1349,21 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
     }
 
+    func testParseVideoWithExtraAttributes() {
+        let videoHTML = "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video>"
+        let textView = createTextView(withHTML: videoHTML)
+
+        XCTAssertEqual(textView.getHTML(), videoHTML)
+
+        guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
+            XCTFail("An video attachment should be present")
+            return
+        }
+        XCTAssertEqual(attachment.namedAttributes["data-wpvideopress"], "videopress", "Property should be available")
+
+        attachment.namedAttributes["data-wpvideopress"] = "ABCDE"
+
+        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
+    }
+
 }
