@@ -51,6 +51,10 @@ open class FormatBar: UIView {
 
             let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
             setOverflowItemsVisible(overflowVisible, animated: false)
+            
+            if overflowVisible {
+                rotateOverflowToggleItem(.vertical, animated: false)
+            }
 
             let hasOverflowItems = !overflowItems.isEmpty
             overflowToggleItem.isHidden = !hasOverflowItems
@@ -313,6 +317,8 @@ open class FormatBar: UIView {
         rotateOverflowToggleItem(direction, animated: true)
 
         UserDefaults.standard.set(shouldExpand, forKey: Constants.overflowExpandedUserDefaultsKey)
+
+        formatter?.formatBar(self, didChangeOverflowState: (shouldExpand) ? .visible : .hidden)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {

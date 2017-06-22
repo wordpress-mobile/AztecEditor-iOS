@@ -167,7 +167,14 @@ extension Libxml2.In {
             let hasAnEndingSpace = text.hasSuffix(String(.space))
             let hasAStartingSpace = text.hasPrefix(String(.space))
 
-            let trimmedText = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            // We cannot use CharacterSet.whitespacesAndNewlines directly, because it includes
+            // U+000A, which is non-breaking space.  We need to maintain it.
+            //
+            let whitespace = CharacterSet.whitespacesAndNewlines
+            let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace))
+            let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
+
+            let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)
             var singleSpaceText = trimmedText
             let doubleSpace = "  "
             let singleSpace = " "
