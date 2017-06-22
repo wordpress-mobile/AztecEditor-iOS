@@ -23,10 +23,18 @@ class VideoFormatter: StandardAttributeFormatter {
 
         if let representation = representation {
 
+            var namedAttributes = [String:String]()
+            for attributeRepresentation in representation.attributes {
+                if let value = attributeRepresentation.value {
+                    namedAttributes[attributeRepresentation.name] = value
+                }
+            }
+
             let srcURL: URL?
 
             if let urlString = representation.valueForAttribute(named: "src") {
                 srcURL = URL(string: urlString)
+                namedAttributes.removeValue(forKey: "src")
             } else {
                 srcURL = nil
             }
@@ -35,12 +43,15 @@ class VideoFormatter: StandardAttributeFormatter {
 
             if let urlString = representation.valueForAttribute(named: "poster") {
                 posterURL = URL(string: urlString)
+                namedAttributes.removeValue(forKey: "poster")
             } else {
                 posterURL = nil
             }
 
             let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
-            
+
+            attachment.namedAttributes = namedAttributes
+
             attributeValue = attachment
         }
 
