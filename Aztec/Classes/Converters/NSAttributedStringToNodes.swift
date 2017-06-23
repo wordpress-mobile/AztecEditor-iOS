@@ -131,29 +131,6 @@ private extension NSAttributedStringToNodes {
 
         return matching.isEmpty ? nil : matching
     }
-
-
-    /// Debug Helper. Disregard!
-    ///
-    func print(node: Node, indentation: String = "") {
-        NSLog(indentation + "Node \(node.name) \(ObjectIdentifier(node))")
-
-        switch node {
-        case let text as TextNode:
-            NSLog(indentation + "Text.Content \(text.contents)")
-
-        case let element as ElementNode:
-            NSLog(indentation + "Element.Children:")
-
-            let deeperIndentation = indentation + String(.space) + String(.space)
-            for child in element.children {
-                print(node: child, indentation: deeperIndentation)
-            }
-
-        default:
-            break
-        }
-    }
 }
 
 
@@ -161,10 +138,10 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
-    /// Given a collection of branches, this helper will iterate branch by branch and will:
+    /// Given a collection of branches, this method will iterate branch by branch and will:
     ///
     /// A. Reduce the Nodes: An actuall Parent/Child relationship will be set
-    /// B. Attempt to merge the current Branch with the Left-most-branch
+    /// B. Attempt to merge the current Branch with the Previous Branch
     /// C. Return the collection of Reduced + Merged Nodes
     ///
     func process(branches: [Branch]) -> [Node] {
@@ -173,8 +150,8 @@ private extension NSAttributedStringToNodes {
         var previous: Branch?
 
         for branch in sorted {
-            if let left = previous , let something = merge(left: left, right: branch) {
-                previous = something
+            if let left = previous , let current = merge(left: left, right: branch) {
+                previous = current
                 continue
             }
 
@@ -225,8 +202,6 @@ private extension NSAttributedStringToNodes {
         var previous = [ElementNode]()
 
         for (index, branch) in branches.enumerated() {
-
-            // Calculate Lengths
             let lengths = lengthOfElements(atColumnIndex: index, in: branches)
 
             // Split Duplicates: Nodes that existed in the previous collection (while retaining their original position!)
@@ -235,7 +210,6 @@ private extension NSAttributedStringToNodes {
             // Sort 'Branch New Items' + Consolidate
             let consolidated = sorted + unsorted.sorted(by: { lengths[$0]! > lengths[$1]! })
 
-            // New Branch
             let updated = Branch(nodes: consolidated, leaves: branch.leaves)
             output.append(updated)
             previous = consolidated
