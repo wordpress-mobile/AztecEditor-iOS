@@ -295,8 +295,12 @@ open class MediaAttachment: NSTextAttachment
             return CGRect.zero
         }
 
-        let padding = textContainer?.lineFragmentPadding ?? 0
-        let width = floor((lineFrag.width - position.x ) - ( padding * 2))
+        var padding = (textContainer?.lineFragmentPadding ?? 0)
+        if let storage = textContainer?.layoutManager?.textStorage,
+           let paragraphStyle = storage.attribute(NSParagraphStyleAttributeName, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+            padding += paragraphStyle.firstLineHeadIndent + paragraphStyle.tailIndent
+        }
+        let width = floor(lineFrag.width - (padding * 2))
 
         let size = CGSize(width: width, height: onScreenHeight(width))
         
