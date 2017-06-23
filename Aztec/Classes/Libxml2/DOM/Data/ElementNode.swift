@@ -10,7 +10,7 @@ extension Libxml2 {
         var attributes = [Attribute]()
         var children: [Node] {
             didSet {
-                for child in children where child.parent != self {
+                for child in children where child.parent !== self {
                     child.parent?.remove(child)
                     child.parent = self
                 }
@@ -27,7 +27,8 @@ extension Libxml2 {
         }
 
         private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
-        private static let mergeableElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .li, .blockquote]
+        private static let mergeableBlocklevelElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .li, .blockquote]
+        private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u]
 
         internal var standardName: StandardElementType? {
             get {
@@ -42,6 +43,17 @@ extension Libxml2 {
                 return Mirror(self, children: ["type": "element", "name": name, "parent": parent.debugDescription, "attributes": attributes, "children": children], ancestorRepresentation: .suppressed)
             }
         }
+
+        // MARK - Hashable
+
+        override public var hashValue: Int {
+            let attributesHash = attributes.reduce(0) { (result, attribute) in
+                return result ^ attribute.hashValue
+            }
+
+            return name.hashValue ^ attributesHash
+        }
+
         
         // MARK: - Initializers
 
@@ -208,7 +220,7 @@ extension Libxml2 {
         ///
         /// - Returns: true if both nodes can be merged, or not.
         ///
-        func canMergeChildren(of node: ElementNode) -> Bool {
+        func canMergeChildren(of node: ElementNode, blocklevelEnforced: Bool) -> Bool {
             guard name == node.name && Set(attributes) == Set(node.attributes) else {
                 return false
             }
@@ -217,7 +229,11 @@ extension Libxml2 {
                 return false
             }
 
-            return ElementNode.mergeableElements.contains(standardName)
+            guard blocklevelEnforced else {
+                return ElementNode.mergeableStyleElements.contains(standardName)
+            }
+
+            return ElementNode.mergeableBlocklevelElements.contains(standardName)
         }
 
 

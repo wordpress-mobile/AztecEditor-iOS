@@ -4,7 +4,7 @@ extension Libxml2 {
 
     /// Base class for all node types.
     ///
-    class Node: Equatable, CustomReflectable {
+    class Node: Equatable, CustomReflectable, Hashable {
         
         let name: String
         
@@ -29,7 +29,14 @@ extension Libxml2 {
                 return Mirror(self, children: ["name": name, "parent": parent as Any])
             }
         }
-        
+
+
+        // MARK - Hashable
+
+        public var hashValue: Int {
+            return name.hashValue
+        }
+
         // MARK: - Initializers
 
         init(name: String) {
@@ -39,7 +46,7 @@ extension Libxml2 {
         // MARK: - DOM Queries
 
         func isLastIn(blockLevelElement element: ElementNode) -> Bool {
-            return element.isBlockLevelElement() && element.children.last == self
+            return element.isBlockLevelElement() && element.children.last === self
         }
 
         /// Checks if the receiver is the last node in its parent.
@@ -108,7 +115,7 @@ extension Libxml2 {
                 return false
             }
 
-            return parent.children.last == self
+            return parent.children.last === self
                 && (parent.isBlockLevelElement()
                     || parent.hasRightBlockLevelSibling()
                     || parent.isLastInAncestorEndingInBlockLevelSeparation())
@@ -142,5 +149,5 @@ extension Libxml2 {
 // MARK: - Node Equatable
 
 func ==(lhs: Libxml2.Node, rhs: Libxml2.Node) -> Bool {
-    return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    return lhs.name == rhs.name
 }
