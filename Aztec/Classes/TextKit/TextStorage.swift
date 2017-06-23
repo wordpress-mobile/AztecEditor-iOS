@@ -244,19 +244,7 @@ open class TextStorage: NSTextStorage {
         return formatter.toggle(in: self, at: applicationRange)
     }
 
-    /// Insert an HR element at the specifice range
-    ///
-    /// - Parameter range: the range where the element will be inserted
-    ///
-    func replaceRangeWithHorizontalRuler(_ range: NSRange) {
-        let line = LineAttachment()
-
-        let attachmentString = NSAttributedString(attachment: line)
-        replaceCharacters(in: range, with: attachmentString)        
-    }
-
     // MARK: - Attachments
-
 
     /// Return the attachment, if any, corresponding to the id provided
     ///

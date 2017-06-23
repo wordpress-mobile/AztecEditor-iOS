@@ -704,19 +704,9 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
-        let originalText = attributedText.attributedSubstring(from: range)
-        let finalRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
-
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
-
-        storage.replaceRangeWithHorizontalRuler(range)
-        let length = NSAttributedString.lengthOfTextAttachment
-        textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
-        selectedRange = NSMakeRange(range.location + length, 0)
-        delegate?.textViewDidChange?(self)
+    open func insertHorizontalRuler(at range: NSRange) {
+        let line = LineAttachment()
+        insert(attachment: line, at: range)
     }
 
     fileprivate lazy var defaultAttributes: [String: Any] = {

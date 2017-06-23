@@ -1390,4 +1390,41 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
     }
 
+    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
+    ///
+    func testReplaceRangeWithHorizontalRuler() {
+        let textView = createEmptyTextView()
+
+        textView.insertHorizontalRuler(at: .zero)
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
+        let textView = createEmptyTextView()
+
+        textView.insertHorizontalRuler(at: .zero)
+        textView.insertHorizontalRuler(at: .zero)
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<hr><hr>")
+    }
+
+    /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
+        let textView = createEmptyTextView()
+
+        textView.insertImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+        textView.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+
+        let html = textView.getHTML()
+        
+        XCTAssertEqual(html, "<hr>")
+    }
+
+
 }

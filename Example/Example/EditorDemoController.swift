@@ -584,7 +584,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertHorizontalRuler() {
-        richTextView.replaceRangeWithHorizontalRuler(richTextView.selectedRange)
+        richTextView.insertHorizontalRuler(at: richTextView.selectedRange)
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {

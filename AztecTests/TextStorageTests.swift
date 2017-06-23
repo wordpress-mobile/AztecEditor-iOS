@@ -374,49 +374,6 @@ class TextStorageTests: XCTestCase
         }
     }
 
-    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
-    ///
-    func testReplaceRangeWithHorizontalRuler() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        storage.replaceRangeWithHorizontalRuler(.zero)
-        let html = storage.getHTML()
-
-        XCTAssertEqual(html, "<hr>")
-    }
-
-    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
-    ///
-    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        storage.replaceRangeWithHorizontalRuler(.zero)
-        storage.replaceRangeWithHorizontalRuler(.zero)
-        let html = storage.getHTML()
-
-        XCTAssertEqual(html, "<hr><hr>")
-    }
-
-    /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
-    ///
-    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
-        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
-
-        storage.replaceRangeWithHorizontalRuler(NSRange(location: 0, length:1))
-        let html = storage.getHTML()
-
-        XCTAssertEqual(html, "<hr>")
-    }
-
     /// This test verifies if we can delete all the content from a storage object that has html with a comment
     ///
     func testDeleteAllSelectionWhenContentHasComments() {
