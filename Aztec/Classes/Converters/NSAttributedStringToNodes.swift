@@ -108,6 +108,29 @@ private extension NSAttributedStringToNodes {
             return [node]
         }
     }
+
+
+    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
+    ///
+    func findMergeableNodes(left: [ElementNode], right: [ElementNode], blocklevelEnforced: Bool = true) -> [MergeablePair]? {
+        var currentIndex = 0
+        var matching = [MergeablePair]()
+
+        while currentIndex < left.count && currentIndex < right.count {
+            let left = left[currentIndex]
+            let right = right[currentIndex]
+
+            guard left.canMergeChildren(of: right, blocklevelEnforced: blocklevelEnforced) else {
+                break
+            }
+
+            let pair = MergeablePair(left: left, right: right)
+            matching.append(pair)
+            currentIndex += 1
+        }
+
+        return matching.isEmpty ? nil : matching
+    }
 }
 
 
@@ -161,7 +184,7 @@ private extension NSAttributedStringToNodes {
     ///
     ///
     private func merge(left: Branch, right: Branch) -> Branch? {
-        guard let mergeableCandidate = findMergeableNodes(left: left.nodes, right: right.nodes),
+        guard let mergeableCandidate = findMergeableNodes(left: left.nodes, right: right.nodes, blocklevelEnforced: false),
             let target = mergeableCandidate.last?.left
         else {
             return nil
@@ -207,8 +230,6 @@ private extension NSAttributedStringToNodes {
             output.append(updated)
             previous = consolidated
         }
-
-        NSLog("Sorted:\n\(output)")
 
         return output
     }
@@ -266,29 +287,6 @@ private extension NSAttributedStringToNodes {
         }
 
         return length
-    }
-
-
-    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
-    ///
-    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair]? {
-        var currentIndex = 0
-        var matching = [MergeablePair]()
-
-        while currentIndex < left.count && currentIndex < right.count {
-            let left = left[currentIndex]
-            let right = right[currentIndex]
-
-            guard left == right else {
-                break
-            }
-
-            let pair = MergeablePair(left: left, right: right)
-            matching.append(pair)
-            currentIndex += 1
-        }
-
-        return matching.isEmpty ? nil : matching
     }
 }
 
@@ -359,29 +357,6 @@ private extension NSAttributedStringToNodes {
         }
 
         return nodes[0..<sliceIndex]
-    }
-
-
-    /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
-    ///
-    private func findMergeableNodes(left: [ElementNode], right: [ElementNode]) -> [MergeablePair]? {
-        var currentIndex = 0
-        var matching = [MergeablePair]()
-
-        while currentIndex < left.count && currentIndex < right.count {
-            let left = left[currentIndex]
-            let right = right[currentIndex]
-
-            guard left.canMergeChildren(of: right) else {
-                break
-            }
-
-            let pair = MergeablePair(left: left, right: right)
-            matching.append(pair)
-            currentIndex += 1
-        }
-
-        return matching.isEmpty ? nil : matching
     }
 }
 
