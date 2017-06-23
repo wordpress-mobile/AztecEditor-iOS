@@ -42,7 +42,9 @@ open class VideoAttachment: MediaAttachment {
         
         super.init(identifier: identifier, url: posterURL)
 
-        self.overlayImage = UIImage()
+        let bundle = Bundle(for: VideoAttachment.self)
+        let playImage = UIImage(named: "play", in: bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        self.overlayImage = playImage
     }
 
     /// Required Initializer
