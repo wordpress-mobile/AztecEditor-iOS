@@ -909,7 +909,8 @@ open class TextView: UITextView {
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
 
         let originalText = attributedText.attributedSubstring(from: range)
-        let finalRange = range
+        let attributedTitle = NSAttributedString(string: title)
+        let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
