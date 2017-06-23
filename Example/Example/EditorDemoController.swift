@@ -422,10 +422,10 @@ class EditorDemoController: UIViewController {
                      UIKeyCommand(input:"M", modifierFlags:[.command,.alternate], action:#selector(showImagePicker), discoverabilityTitle: NSLocalizedString("Insert Media", comment: "Discoverability title for insert media keyboard shortcut.")),
                      UIKeyCommand(input:"U", modifierFlags:[.command, .alternate], action:#selector(toggleUnorderedList), discoverabilityTitle:NSLocalizedString("Bullet List", comment: "Discoverability title for bullet list keyboard shortcut.")),
                      UIKeyCommand(input:"O", modifierFlags:[.command, .alternate], action:#selector(toggleOrderedList), discoverabilityTitle:NSLocalizedString("Numbered List", comment:"Discoverability title for numbered list keyboard shortcut.")),
-                     UIKeyCommand(input:"H", modifierFlags:[.control, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+                     UIKeyCommand(input:"H", modifierFlags:[.command, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
             ]
         } else if htmlTextView.isFirstResponder {
-            return [UIKeyCommand(input:"H", modifierFlags:[.control, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+            return [UIKeyCommand(input:"H", modifierFlags:[.command, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
             ]
         }
         return []
