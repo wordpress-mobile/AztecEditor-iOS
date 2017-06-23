@@ -411,6 +411,26 @@ class EditorDemoController: UIViewController {
         toolbar.selectItemsMatchingIdentifiers(identifiers)
     }
 
+    override var keyCommands: [UIKeyCommand] {
+        if richTextView.isFirstResponder {
+            return [ UIKeyCommand(input:"B", modifierFlags: .command, action:#selector(toggleBold), discoverabilityTitle:NSLocalizedString("Bold", comment: "Discoverability title for bold formatting keyboard shortcut.")),
+                     UIKeyCommand(input:"I", modifierFlags: .command, action:#selector(toggleItalic), discoverabilityTitle:NSLocalizedString("Italic", comment: "Discoverability title for italic formatting keyboard shortcut.")),
+                     UIKeyCommand(input:"D", modifierFlags: [.command, .alternate], action:#selector(toggleStrikethrough), discoverabilityTitle: NSLocalizedString("Strikethrough", comment:"Discoverability title for strikethrough formatting keyboard shortcut.")),
+                     UIKeyCommand(input:"U", modifierFlags: .command, action:#selector(EditorDemoController.toggleUnderline(_:)), discoverabilityTitle: NSLocalizedString("Underline", comment:"Discoverability title for underline formatting keyboard shortcut.")),
+                     UIKeyCommand(input:"Q", modifierFlags:[.command,.alternate], action: #selector(toggleBlockquote), discoverabilityTitle: NSLocalizedString("Block Quote", comment: "Discoverability title for block quote keyboard shortcut.")),
+                     UIKeyCommand(input:"K", modifierFlags:.command, action:#selector(toggleLink), discoverabilityTitle: NSLocalizedString("Insert Link", comment: "Discoverability title for insert link keyboard shortcut.")),
+                     UIKeyCommand(input:"M", modifierFlags:[.command,.alternate], action:#selector(showImagePicker), discoverabilityTitle: NSLocalizedString("Insert Media", comment: "Discoverability title for insert media keyboard shortcut.")),
+                     UIKeyCommand(input:"U", modifierFlags:[.command, .alternate], action:#selector(toggleUnorderedList), discoverabilityTitle:NSLocalizedString("Bullet List", comment: "Discoverability title for bullet list keyboard shortcut.")),
+                     UIKeyCommand(input:"O", modifierFlags:[.command, .alternate], action:#selector(toggleOrderedList), discoverabilityTitle:NSLocalizedString("Numbered List", comment:"Discoverability title for numbered list keyboard shortcut.")),
+                     UIKeyCommand(input:"H", modifierFlags:[.control, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+            ]
+        } else if htmlTextView.isFirstResponder {
+            return [UIKeyCommand(input:"H", modifierFlags:[.control, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+            ]
+        }
+        return []
+    }
+
 
     // MARK: - Sample Content
 
@@ -634,6 +654,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
             self?.optionsViewController = nil
         })
+    }
+
+    func toggleUnorderedList() {
+        richTextView.toggleUnorderedList(range: richTextView.selectedRange)
+    }
+
+    func toggleOrderedList() {
+        richTextView.toggleOrderedList(range: richTextView.selectedRange)
     }
 
     func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption],
@@ -1168,7 +1196,6 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
         }
     }
 }
-
 
 // MARK: - Misc
 //
