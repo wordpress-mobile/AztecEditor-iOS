@@ -909,7 +909,8 @@ open class TextView: UITextView {
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
 
         let originalText = attributedText.attributedSubstring(from: range)
-        let finalRange = range
+        let attributedTitle = NSAttributedString(string: title)
+        let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
@@ -918,11 +919,11 @@ open class TextView: UITextView {
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
-        let linkWasPresent = formatter.present(in: storage, at: range)
+
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
-        if range.length == 0 && !linkWasPresent {
-            selectedRange = NSMakeRange(range.location + (title as NSString).length, 0)
-        }
+
+        selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
+
         delegate?.textViewDidChange?(self)
     }
 
