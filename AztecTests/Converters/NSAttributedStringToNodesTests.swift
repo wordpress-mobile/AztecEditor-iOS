@@ -676,6 +676,34 @@ class NSAttributedStringToNodesTests: XCTestCase {
             }
         }
     }
+
+
+    /// Verifies that the Pre Element is effectively converted into an ElementNode.
+    ///
+    /// - Input: <pre>Ehlo World!</pre>
+    ///
+    /// - Output: The same!!
+    ///
+    func testPreIsEffectivelySerializedIntoPreElement() {
+        let text = "Ehlo World!"
+        let testingString = NSMutableAttributedString(string: text)
+
+        let range = testingString.rangeOfEntireString
+
+        let formatter = PreFormatter()
+        formatter.applyAttributes(to: testingString, at: range)
+
+        // Convert + Verify
+        let node = rootNode(from: testingString)
+        XCTAssert(node.children.count == 1)
+
+        let restoredSpanNode = node.children.first as? ElementNode
+        XCTAssert(restoredSpanNode?.name == "pre")
+        XCTAssert(restoredSpanNode?.children.count == 1)
+
+        let restoredTextNode = restoredSpanNode?.children.first as? TextNode
+        XCTAssert(restoredTextNode?.contents == text)
+    }
 }
 
 
