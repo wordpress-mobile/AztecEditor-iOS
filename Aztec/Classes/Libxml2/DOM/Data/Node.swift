@@ -46,7 +46,7 @@ extension Libxml2 {
         // MARK: - DOM Queries
 
         func isLastIn(blockLevelElement element: ElementNode) -> Bool {
-            return element.isBlockLevelElement() && element.children.last == self
+            return element.isBlockLevelElement() && element.children.last === self
         }
 
         /// Checks if the receiver is the last node in its parent.
@@ -115,7 +115,7 @@ extension Libxml2 {
                 return false
             }
 
-            return parent.children.last == self
+            return parent.children.last === self
                 && (parent.isBlockLevelElement()
                     || parent.hasRightBlockLevelSibling()
                     || parent.isLastInAncestorEndingInBlockLevelSeparation())
