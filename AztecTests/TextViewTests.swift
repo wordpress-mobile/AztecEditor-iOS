@@ -1337,7 +1337,7 @@ class TextViewTests: XCTestCase {
 
     func testInsertVideo() {
         let textView = createEmptyTextView()
-        let _ = textView.insertVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 
@@ -1372,7 +1372,7 @@ class TextViewTests: XCTestCase {
     func testInsertComment() {
         let textView = createEmptyTextView()
 
-        textView.insertComment(at: .zero, text: "more")
+        textView.replaceWithComment(at: .zero, text: "more")
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
@@ -1382,8 +1382,8 @@ class TextViewTests: XCTestCase {
     ///
     func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
         let textView = createEmptyTextView()
-        textView.insertComment(at: .zero, text: "more")
-        textView.insertComment(at: .zero, text: "some other comment should go here")
+        textView.replaceWithComment(at: .zero, text: "more")
+        textView.replaceWithComment(at: .zero, text: "some other comment should go here")
 
         let html = textView.getHTML()
 
@@ -1395,7 +1395,7 @@ class TextViewTests: XCTestCase {
     func testReplaceRangeWithHorizontalRuler() {
         let textView = createEmptyTextView()
 
-        textView.insertHorizontalRuler(at: .zero)
+        textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<hr>")
@@ -1406,8 +1406,8 @@ class TextViewTests: XCTestCase {
     func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
         let textView = createEmptyTextView()
 
-        textView.insertHorizontalRuler(at: .zero)
-        textView.insertHorizontalRuler(at: .zero)
+        textView.replaceWithHorizontalRuler(at: .zero)
+        textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<hr><hr>")
@@ -1418,8 +1418,8 @@ class TextViewTests: XCTestCase {
     func testReplaceRangeWithHorizontalRulerRulerOverImage() {
         let textView = createEmptyTextView()
 
-        textView.insertImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
-        textView.insertHorizontalRuler(at: NSRange(location: 0, length:1))
+        textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+        textView.replaceWithHorizontalRuler(at: NSRange(location: 0, length:1))
 
         let html = textView.getHTML()
         

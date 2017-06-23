@@ -704,9 +704,9 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func insertHorizontalRuler(at range: NSRange) {
+    open func replaceWithHorizontalRuler(at range: NSRange) {
         let line = LineAttachment()
-        insert(attachment: line, at: range)
+        replace(at: range, with: line)
     }
 
     fileprivate lazy var defaultAttributes: [String: Any] = {
@@ -930,7 +930,7 @@ open class TextView: UITextView {
 
     // MARK: - Embeds
 
-    func insert(attachment: NSTextAttachment, at range: NSRange) {
+    func replace(at range: NSRange, with attachment: NSTextAttachment) {
         let originalText = textStorage.attributedSubstring(from: range)
         let finalRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
 
@@ -954,12 +954,12 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func insertImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
+    open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
         let attachment = ImageAttachment(identifier: identifier)
         attachment.delegate = storage
         attachment.url = url
         attachment.image = placeHolderImage
-        insert(attachment: attachment, at: range)
+        replace(at: range, with: attachment)
         return attachment
     }
 
@@ -1000,11 +1000,11 @@ open class TextView: UITextView {
     /// - Returns: the video attachment object that was inserted.
     ///
     @discardableResult
-    open func insertVideo(at range: NSRange, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+    open func replaceWithVideo(at range: NSRange, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
         let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
         attachment.delegate = storage
         attachment.image = placeHolderImage
-        insert(attachment: attachment, at: range)
+        replace(at: range, with: attachment)
         return attachment
     }
 
@@ -1210,10 +1210,10 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func insertComment(at range: NSRange, text: String) -> CommentAttachment {
+    open func replaceWithComment(at range: NSRange, text: String) -> CommentAttachment {
         let attachment = CommentAttachment()
         attachment.text = text
-        insert(attachment: attachment, at: range)
+        replace(at: range, with: attachment)
 
         return attachment
     }
