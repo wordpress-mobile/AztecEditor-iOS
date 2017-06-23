@@ -700,7 +700,7 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
-    /// Inserts an horizontal ruler on the specified range
+    /// Replaces with an horizontal ruler on the specified range
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
@@ -943,7 +943,7 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
-    /// Inserts an image at the specified index
+    /// Replaces with an image attachment at the specified range
     ///
     /// - Parameters:
     ///     - range: the range where the image will be inserted
@@ -988,7 +988,7 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
-    /// Inserts a Video attachment at the specified index
+    /// Replaces a Video attachment at the specified range
     ///
     /// - Parameters:
     ///   - range: the range in the text to insert the video
@@ -1201,7 +1201,7 @@ open class TextView: UITextView {
 
     // MARK: - More
 
-    /// Inserts an HTML Comment at the specified position.
+    /// Replaces with an HTML Comment at the specified range.
     ///
     /// - Parameters:
     ///     - range: The character range that must be replaced with a Comment Attachment.
