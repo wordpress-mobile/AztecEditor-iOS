@@ -89,7 +89,7 @@ class NSAttributedStringToNodes: Converter {
 //
 private extension NSAttributedStringToNodes {
 
-    ///
+    /// Defines a Tree Branch: Collection of Nodes, with a set of Leaves
     ///
     typealias Branch = (nodes: [ElementNode], leaves: [Node])
 
@@ -208,7 +208,10 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Arranges a collection of Branches in a (Hopefully) "Defragmented" way:
     ///
+    /// - Nodes will be sorted 'By Length'. Longer nodes will appear on top
+    /// - Nodes that existed in the previous branch are expected to maintain the exact same position
     ///
     private func sort(branches: [Branch]) -> [Branch] {
         var output = [Branch]()
@@ -235,7 +238,11 @@ private extension NSAttributedStringToNodes {
     }
 
 
+    /// Splits a collection of Nodes in two groups: 'Nodes that also exist in a Reference Collection', and
+    /// 'Completely New Nodes'. 
     ///
+    /// *Note*: The order of those Pre Existing nodes will be arranged in the exact same way as they appear
+    /// in the reference collection.
     ///
     private func splitDuplicateNodes(in current: [ElementNode], comparingWith previous: [ElementNode]) -> ([ElementNode], [ElementNode]) {
         var duplicates = [ElementNode]()
@@ -258,7 +265,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Determines the length of (ALL) of the Nodes at a specified Column, given a collection of Branches.
     ///
     private func lengthOfElements(atColumnIndex index: Int, in branches: [Branch]) -> [ElementNode: Int] {
         var lengths = [ElementNode: Int]()
@@ -273,7 +280,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Determines the length of a Node, given a collection of branches.
     ///
     private func length(of element: ElementNode, in branches: [Branch]) -> Int {
         var length = 0
@@ -742,7 +749,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts the Video Source Attribute from a VideoAttachment Instance.
     ///
     private func videoSourceAttribute(from attachment: VideoAttachment) -> StringAttribute? {
         guard let source = attachment.srcURL?.absoluteString else {
@@ -753,7 +760,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts the Video Poster Attribute from a VideoAttachment Instance.
     ///
     private func videoPosterAttribute(from attachment: VideoAttachment) -> StringAttribute? {
         guard let poster = attachment.posterURL?.absoluteString else {
