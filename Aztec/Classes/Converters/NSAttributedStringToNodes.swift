@@ -78,9 +78,9 @@ class NSAttributedStringToNodes: Converter {
         }
 
         let paragraphNodes = createParagraphNodes(from: paragraph)
-        let mergedBranches = merge(branches: branches)
+        let processedBranches = process(branches: branches)
 
-        return reduce(nodes: paragraphNodes, leaves: mergedBranches)
+        return reduce(nodes: paragraphNodes, leaves: processedBranches)
     }
 }
 
@@ -131,6 +131,29 @@ private extension NSAttributedStringToNodes {
 
         return matching.isEmpty ? nil : matching
     }
+
+
+    /// Debug Helper. Disregard!
+    ///
+    func print(node: Node, indentation: String = "") {
+        NSLog(indentation + "Node \(node.name) \(ObjectIdentifier(node))")
+
+        switch node {
+        case let text as TextNode:
+            NSLog(indentation + "Text.Content \(text.contents)")
+
+        case let element as ElementNode:
+            NSLog(indentation + "Element.Children:")
+
+            let deeperIndentation = indentation + String(.space) + String(.space)
+            for child in element.children {
+                print(node: child, indentation: deeperIndentation)
+            }
+
+        default:
+            break
+        }
+    }
 }
 
 
@@ -138,30 +161,13 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
-//    func print(node: Node, indentation: String = "") {
-//        NSLog(indentation + "=================")
-//
-//
-//        NSLog(indentation + "Node \(node.name) \(ObjectIdentifier(node))")
-//
-//        if let text = node as? TextNode {
-//            NSLog(indentation + "Content \(text.contents)")
-//        }
-//
-//        if let element = node as? ElementNode {
-//            NSLog(indentation + "Children:")
-//
-//            for child in element.children {
-//                print(node: child, indentation: indentation + "  ")
-//            }
-//        }
-//
-//        NSLog(indentation + "=================")
-//    }
-
+    /// Given a collection of branches, this helper will iterate branch by branch and will:
     ///
+    /// A. Reduce the Nodes: An actuall Parent/Child relationship will be set
+    /// B. Attempt to merge the current Branch with the Left-most-branch
+    /// C. Return the collection of Reduced + Merged Nodes
     ///
-    func merge(branches: [Branch]) -> [Node] {
+    func process(branches: [Branch]) -> [Node] {
         let sorted = sort(branches: branches)
         var merged = [Node]()
         var previous: Branch?
@@ -181,7 +187,8 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Attempts to merge the Right Branch into the Left Branch. On success, we'll return a newly created
+    /// branch, containing the 'Left-Matched-Elements' + 'Right-Unmathed-Elements' + 'Right-Leaves'.
     ///
     private func merge(left: Branch, right: Branch) -> Branch? {
         guard let mergeableCandidate = findMergeableNodes(left: left.nodes, right: right.nodes, blocklevelEnforced: false),
@@ -455,7 +462,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Blockquote Elements contained within a collection of Attributes.
     ///
     private func processBlockquoteStyle(blockquote: Blockquote) -> [ElementNode] {
         let node = blockquote.representation?.toNode() ?? ElementNode(type: .blockquote)
@@ -463,7 +470,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Header Elements contained within a collection of Attributes.
     ///
     private func processHeaderStyle(header: Header) -> [ElementNode] {
         guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
@@ -475,7 +482,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
     private func processListStyle(list: TextList) -> [ElementNode] {
         let elementType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
@@ -487,7 +494,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Paragraph Elements contained within a collection of Attributes.
     ///
     private func processParagraphStyle(paragraph: HTMLParagraph) -> [ElementNode] {
         let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
@@ -495,7 +502,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Pre Elements contained within a collection of Attributes.
     ///
     private func processPreStyle(pre: HTMLPre) -> [ElementNode] {
         let node = pre.representation?.toNode() ?? ElementNode(type: .pre)
@@ -528,7 +535,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Font Elements contained within a collection of Attributes.
     ///
     private func processFontStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
@@ -555,7 +562,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
     private func processLinkStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard let url = attributes[NSLinkAttributeName] as? URL else {
@@ -570,7 +577,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Strike Elements contained within a collection of Attributes.
     ///
     private func processStrikethruStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard attributes[NSStrikethroughStyleAttributeName] != nil else {
@@ -584,7 +591,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Underline Elements contained within a collection of Attributes.
     ///
     private func processUnderlineStyle(in attributes: [String: Any]) -> [ElementNode] {
         guard attributes[NSUnderlineStyleAttributeName] != nil else {
@@ -598,7 +605,7 @@ private extension NSAttributedStringToNodes {
     }
 
 
-    ///
+    /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
     private func processUnsupportedHTML(in attributes: [String: Any]) -> [ElementNode] {
         guard let unsupported = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
