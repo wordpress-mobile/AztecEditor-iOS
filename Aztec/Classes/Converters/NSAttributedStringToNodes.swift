@@ -115,6 +115,27 @@ private extension NSAttributedStringToNodes {
 //
 private extension NSAttributedStringToNodes {
 
+//    func print(node: Node, indentation: String = "") {
+//        NSLog(indentation + "=================")
+//
+//
+//        NSLog(indentation + "Node \(node.name) \(ObjectIdentifier(node))")
+//
+//        if let text = node as? TextNode {
+//            NSLog(indentation + "Content \(text.contents)")
+//        }
+//
+//        if let element = node as? ElementNode {
+//            NSLog(indentation + "Children:")
+//
+//            for child in element.children {
+//                print(node: child, indentation: indentation + "  ")
+//            }
+//        }
+//
+//        NSLog(indentation + "=================")
+//    }
+
     ///
     ///
     func merge(branches: [Branch]) -> [Node] {
@@ -123,8 +144,8 @@ private extension NSAttributedStringToNodes {
         var previous: Branch?
 
         for branch in sorted {
-            if let left = previous , let merged = merge(left: left, right: branch) {
-                previous = merged
+            if let left = previous , let something = merge(left: left, right: branch) {
+                previous = something
                 continue
             }
 
@@ -167,20 +188,27 @@ private extension NSAttributedStringToNodes {
     ///
     ///
     private func sort(branches: [Branch]) -> [Branch] {
-        let weights = elementCount(for: branches)
         var output = [Branch]()
+        var previous = [ElementNode]()
 
-        for branch in branches {
-            let sorted = branch.nodes.sorted {
-                let leftWeight = weights[$0] ?? 0
-                let rightWeight = weights[$1] ?? 0
+        for (index, branch) in branches.enumerated() {
 
-                return leftWeight > rightWeight
-            }
+            // Calculate Lengths
+            let lengths = lengthOfElements(atColumnIndex: index, in: branches)
 
-            let updated = Branch(nodes: sorted, leaves: branch.leaves)
+            // Split Duplicates: Nodes that existed in the previous collection (while retaining their original position!)
+            let (sorted, unsorted) = splitDuplicateNodes(in: branch.nodes, comparingWith: previous)
+
+            // Sort 'Branch New Items' + Consolidate
+            let consolidated = sorted + unsorted.sorted(by: { lengths[$0]! > lengths[$1]! })
+
+            // New Branch
+            let updated = Branch(nodes: consolidated, leaves: branch.leaves)
             output.append(updated)
+            previous = consolidated
         }
+
+        NSLog("Sorted:\n\(output)")
 
         return output
     }
@@ -188,17 +216,56 @@ private extension NSAttributedStringToNodes {
 
     ///
     ///
-    private func elementCount(for branches: [Branch]) -> [ElementNode: Int] {
-        var weights = [ElementNode: Int]()
+    private func splitDuplicateNodes(in current: [ElementNode], comparingWith previous: [ElementNode]) -> ([ElementNode], [ElementNode]) {
+        var duplicates = [ElementNode]()
+        var nonDuplicates = [ElementNode]()
 
-        for branch in branches {
-            for node in branch.nodes {
-                let count = weights[node] ?? 0
-                weights[node] = count + 1
+        for node in previous where current.contains(node) {
+            guard let index = current.index(of: node) else {
+                continue
             }
+
+            let target = current[index]
+            duplicates.append(target)
         }
 
-        return weights
+        for node in current where !duplicates.contains(node) {
+            nonDuplicates.append(node)
+        }
+
+        return (duplicates, nonDuplicates)
+    }
+
+
+    ///
+    ///
+    private func lengthOfElements(atColumnIndex index: Int, in branches: [Branch]) -> [ElementNode: Int] {
+        var lengths = [ElementNode: Int]()
+        var rightmost = branches
+        rightmost.removeFirst(index)
+
+        for node in branches[index].nodes {
+            lengths[node] = length(of: node, in: rightmost)
+        }
+
+        return lengths
+    }
+
+
+    ///
+    ///
+    private func length(of element: ElementNode, in branches: [Branch]) -> Int {
+        var length = 0
+
+        for branch in branches {
+            if !branch.nodes.contains(element) {
+                break
+            }
+
+            length += 1
+        }
+
+        return length
     }
 
 
