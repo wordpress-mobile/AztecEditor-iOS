@@ -1220,11 +1220,10 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String) -> CommentAttachment {
-        let attachment = storage.replaceRangeWithCommentAttachment(range, text: text, attributes: typingAttributes)
-
-        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
-        delegate?.textViewDidChange?(self)
+    open func insertComment(at range: NSRange, text: String) -> CommentAttachment {
+        let attachment = CommentAttachment()
+        attachment.text = text
+        insert(attachment: attachment, at: range)
 
         return attachment
     }

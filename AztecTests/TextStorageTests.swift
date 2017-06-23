@@ -417,41 +417,13 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<hr>")
     }
 
-    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
-    ///
-    func testReplaceRangeWithCommentAttachmentGeneratesExpectedHTMLComment() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
-        let html = storage.getHTML()
-
-        XCTAssertEqual(html, "<!--more-->")
-    }
-
-    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
-    ///
-    func testReplaceRangeWithCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        storage.replaceRangeWithCommentAttachment(.zero, text: "more", attributes: [:])
-        storage.replaceRangeWithCommentAttachment(.zero, text: "some other comment should go here", attributes: [:])
-
-        let html = storage.getHTML()
-
-        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
-    }
-
     /// This test verifies if we can delete all the content from a storage object that has html with a comment
     ///
     func testDeleteAllSelectionWhenContentHasComments() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
-        
+         
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
         storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)

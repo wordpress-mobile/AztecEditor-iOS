@@ -771,7 +771,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceRangeWithCommentAttachment(richTextView.selectedRange, text: Constants.moreAttachmentText)
+        richTextView.insertComment(at: richTextView.selectedRange, text: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {

@@ -337,16 +337,16 @@ open class TextStorage: NSTextStorage {
 
     /// Inserts the Comment Attachment at the specified position
     ///
-    @discardableResult
-    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String, attributes: [String: Any]) -> CommentAttachment {
-        let attachment = CommentAttachment()
-        attachment.text = text
-
-        let stringWithAttachment = NSAttributedString(attachment: attachment, attributes: attributes)
-        replaceCharacters(in: range, with: stringWithAttachment)
-
-        return attachment
-    }
+//    @discardableResult
+//    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String, attributes: [String: Any]) -> CommentAttachment {
+//        let attachment = CommentAttachment()
+//        attachment.text = text
+//
+//        let stringWithAttachment = NSAttributedString(attachment: attachment, attributes: attributes)
+//        replaceCharacters(in: range, with: stringWithAttachment)
+//
+//        return attachment
+//    }
 
     // MARK: - HTML Interaction
 

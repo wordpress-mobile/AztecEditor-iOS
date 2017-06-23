@@ -27,6 +27,7 @@ class TextViewTests: XCTestCase {
     func createEmptyTextView() -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
         richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView
     }
 
@@ -1364,6 +1365,29 @@ class TextViewTests: XCTestCase {
         attachment.namedAttributes["data-wpvideopress"] = "ABCDE"
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
+    }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testInsertComment() {
+        let textView = createEmptyTextView()
+
+        textView.insertComment(at: .zero, text: "more")
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<!--more-->")
+    }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
+        let textView = createEmptyTextView()
+        textView.insertComment(at: .zero, text: "more")
+        textView.insertComment(at: .zero, text: "some other comment should go here")
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
     }
 
 }
