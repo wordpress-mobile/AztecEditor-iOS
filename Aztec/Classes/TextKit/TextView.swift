@@ -909,7 +909,8 @@ open class TextView: UITextView {
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
 
         let originalText = attributedText.attributedSubstring(from: range)
-        let finalRange = range
+        let attributedTitle = NSAttributedString(string: title)
+        let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
@@ -918,11 +919,11 @@ open class TextView: UITextView {
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
-        let linkWasPresent = formatter.present(in: storage, at: range)
+
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
-        if range.length == 0 && !linkWasPresent {
-            selectedRange = NSMakeRange(range.location + (title as NSString).length, 0)
-        }
+
+        selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
+
         delegate?.textViewDidChange?(self)
     }
 
@@ -940,29 +941,36 @@ open class TextView: UITextView {
 
     // MARK: - Embeds
 
-    /// Inserts an image at the specified index
-    ///
-    /// - Parameters:
-    ///     - image: the image object to be inserted.
-    ///     - sourceURL: The url of the image to be inserted.
-    ///     - position: The character index at which to insert the image.
-    ///
-    /// - Returns: the attachment object that can be used for further calls
-    ///
-    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
-
-        let originalText = NSAttributedString(string: "")
-        let finalRange = NSRange(location: position, length: NSAttributedString.lengthOfTextAttachment)
+    func insert(attachment: NSTextAttachment, at range: NSRange) {
+        let originalText = textStorage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
-        let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString.lengthOfTextAttachment
-        textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
-        selectedRange = NSMakeRange(position+length, 0)
+        storage.replaceCharacters(in: range, with: NSAttributedString(attachment: attachment))
+        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         delegate?.textViewDidChange?(self)
+    }
+
+    /// Inserts an image at the specified index
+    ///
+    /// - Parameters:
+    ///     - range: the range where the image will be inserted
+    ///     - sourceURL: The url of the image to be inserted.
+    ///     - placeHolderImage: the image to be used as an placeholder.
+    ///     - identifier: an unique identifier for the image
+    ///
+    /// - Returns: the attachment object that can be used for further calls
+    ///
+    @discardableResult
+    open func insertImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
+        let attachment = ImageAttachment(identifier: identifier)
+        attachment.delegate = storage
+        attachment.url = url
+        attachment.image = placeHolderImage
+        insert(attachment: attachment, at: range)
         return attachment
     }
 
@@ -994,7 +1002,7 @@ open class TextView: UITextView {
     /// Inserts a Video attachment at the specified index
     ///
     /// - Parameters:
-    ///   - location: the location in the text to insert the video
+    ///   - range: the range in the text to insert the video
     ///   - sourceURL: the video source URL
     ///   - posterURL: the video poster image URL
     ///   - placeHolderImage: an image to use has an placeholder while the video poster is being loaded
@@ -1002,19 +1010,12 @@ open class TextView: UITextView {
     ///
     /// - Returns: the video attachment object that was inserted.
     ///
-    open func insertVideo(atLocation location: Int, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
-        let originalText = NSAttributedString(string: "")
-        let finalRange = NSRange(location: location, length: NSAttributedString.lengthOfTextAttachment)
-
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
-
-        let attachment = storage.insertVideo(sourceURL: sourceURL, posterURL: posterURL, atPosition: location, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString.lengthOfTextAttachment
-        textStorage.addAttributes(typingAttributes, range: NSMakeRange(location, length))
-        selectedRange = NSMakeRange(location+length, 0)
-        delegate?.textViewDidChange?(self)
+    @discardableResult
+    open func insertVideo(at range: NSRange, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
+        attachment.delegate = storage
+        attachment.image = placeHolderImage
+        insert(attachment: attachment, at: range)
         return attachment
     }
 

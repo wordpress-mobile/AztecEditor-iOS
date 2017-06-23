@@ -1336,7 +1336,7 @@ class TextViewTests: XCTestCase {
 
     func testInsertVideo() {
         let textView = createEmptyTextView()
-        let _ = textView.insertVideo(atLocation: 0, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        let _ = textView.insertVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 
@@ -1347,6 +1347,23 @@ class TextViewTests: XCTestCase {
         let _ = textView.update(attachment: videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
+    }
+
+    func testParseVideoWithExtraAttributes() {
+        let videoHTML = "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video>"
+        let textView = createTextView(withHTML: videoHTML)
+
+        XCTAssertEqual(textView.getHTML(), videoHTML)
+
+        guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
+            XCTFail("An video attachment should be present")
+            return
+        }
+        XCTAssertEqual(attachment.namedAttributes["data-wpvideopress"], "videopress", "Property should be available")
+
+        attachment.namedAttributes["data-wpvideopress"] = "ABCDE"
+
+        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
     }
 
 }
