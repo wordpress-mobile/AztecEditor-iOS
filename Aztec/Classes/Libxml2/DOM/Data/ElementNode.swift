@@ -219,7 +219,7 @@ extension Libxml2 {
         ///
         /// - Returns: true if both nodes can be merged, or not.
         ///
-        func canMergeChildren(of node: ElementNode) -> Bool {
+        func canMergeChildren(of node: ElementNode, blocklevelEnforced: Bool) -> Bool {
             guard name == node.name && Set(attributes) == Set(node.attributes) else {
                 return false
             }
@@ -228,7 +228,7 @@ extension Libxml2 {
                 return false
             }
 
-            return ElementNode.mergeableElements.contains(standardName)
+            return blocklevelEnforced == false || ElementNode.mergeableElements.contains(standardName)
         }
 
 
