@@ -584,7 +584,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertHorizontalRuler() {
-        richTextView.replaceRangeWithHorizontalRuler(richTextView.selectedRange)
+        richTextView.replaceWithHorizontalRuler(at: richTextView.selectedRange)
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {
@@ -771,7 +771,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceRangeWithCommentAttachment(richTextView.selectedRange, text: Constants.moreAttachmentText)
+        richTextView.replaceWithComment(at: richTextView.selectedRange, text: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -1194,7 +1194,7 @@ private extension EditorDemoController
         
         let fileURL = saveToDisk(image: image)
         
-        let attachment = richTextView.insertImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
+        let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1211,7 +1211,7 @@ private extension EditorDemoController
         }
         let posterImage = UIImage(cgImage: cgImage)
         let posterURL = saveToDisk(image: posterImage)
-        let attachment = richTextView.insertVideo(at: richTextView.selectedRange, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
+        let attachment = richTextView.replaceWithVideo(at: richTextView.selectedRange, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
         let mediaID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
         progress.totalUnitCount = 100

@@ -2,7 +2,7 @@ import Foundation
 import Aztec
 import Gridicons
 
-class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate {
+class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttachmentImageProvider {
 
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
         return placeholderImage(for: attachment)
@@ -40,5 +40,17 @@ class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate {
     }
     
     func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint) {        
+    }
+
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+        return true
+    }
+
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        return CGRect.zero
+    }
+
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+        return nil
     }
 }

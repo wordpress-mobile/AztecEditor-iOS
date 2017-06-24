@@ -27,6 +27,7 @@ class TextViewTests: XCTestCase {
     func createEmptyTextView() -> Aztec.TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
         richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView
     }
 
@@ -1336,7 +1337,7 @@ class TextViewTests: XCTestCase {
 
     func testInsertVideo() {
         let textView = createEmptyTextView()
-        let _ = textView.insertVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 
@@ -1365,5 +1366,65 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
     }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testInsertComment() {
+        let textView = createEmptyTextView()
+
+        textView.replaceWithComment(at: .zero, text: "more")
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<!--more-->")
+    }
+
+    /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
+    ///
+    func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
+        let textView = createEmptyTextView()
+        textView.replaceWithComment(at: .zero, text: "more")
+        textView.replaceWithComment(at: .zero, text: "some other comment should go here")
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
+    }
+
+    /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
+    ///
+    func testReplaceRangeWithHorizontalRuler() {
+        let textView = createEmptyTextView()
+
+        textView.replaceWithHorizontalRuler(at: .zero)
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<hr>")
+    }
+
+    /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
+        let textView = createEmptyTextView()
+
+        textView.replaceWithHorizontalRuler(at: .zero)
+        textView.replaceWithHorizontalRuler(at: .zero)
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<hr><hr>")
+    }
+
+    /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
+    ///
+    func testReplaceRangeWithHorizontalRulerRulerOverImage() {
+        let textView = createEmptyTextView()
+
+        textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+        textView.replaceWithHorizontalRuler(at: NSRange(location: 0, length:1))
+
+        let html = textView.getHTML()
+        
+        XCTAssertEqual(html, "<hr>")
+    }
+
 
 }
