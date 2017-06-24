@@ -311,6 +311,10 @@ open class FormatBar: UIView {
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
         let shouldExpand = overflowItemsHidden
 
+        overflowToolbar(expand: shouldExpand)
+    }
+
+    open func overflowToolbar(expand shouldExpand: Bool) {
         setOverflowItemsVisible(shouldExpand)
 
         let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
