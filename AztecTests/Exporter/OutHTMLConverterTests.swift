@@ -6,8 +6,8 @@ import XCTest
 //
 class OutHTMLConverterTests: XCTestCase {
 
-    typealias InConverter   = Libxml2.In.HTMLConverter
-    typealias OutConverter  = Libxml2.Out.HTMLConverter
+    typealias InConverter   = InHTMLConverter
+    typealias OutConverter  = OutHTMLConverter
 
 
     /// Verifies that single level lists gets properly prettified and indented.

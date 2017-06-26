@@ -2,11 +2,9 @@ import XCTest
 @testable import Aztec
 import libxml2
 
+// MARK: - InNodeConverterTests
+//
 class InNodeConverterTests: XCTestCase {
-
-    typealias ElementNode = Libxml2.ElementNode
-    typealias Node = Libxml2.Node
-    typealias TextNode = Libxml2.TextNode
 
     let textNodeName = "text"
 
@@ -31,7 +29,7 @@ class InNodeConverterTests: XCTestCase {
             return
         }
         
-        let outNode = Libxml2.In.NodeConverter().convert(node.pointee)
+        let outNode = InNodeConverter().convert(node.pointee)
         xmlFreeNode(node)
 
         guard let elementNode = outNode as? ElementNode else {
@@ -56,7 +54,7 @@ class InNodeConverterTests: XCTestCase {
             return
         }
         
-        let converter = Libxml2.In.NodeConverter()
+        let converter = InNodeConverter()
         let outNode = converter.convert(node.pointee)
         xmlFreeNode(node)
 
@@ -84,7 +82,7 @@ class InNodeConverterTests: XCTestCase {
 
         xmlAddChild(parentNode, childNode)
 
-        let converter = Libxml2.In.NodeConverter()
+        let converter = InNodeConverter()
         let outParentNode = converter.convert(parentNode.pointee)
 
         xmlFreeNode(parentNode) // frees all children

@@ -128,9 +128,6 @@ public protocol TextViewFormattingDelegate: class {
 //
 open class TextView: UITextView {
 
-    typealias ElementNode = Libxml2.ElementNode
-
-
     // MARK: - Properties: Attachments & Media
 
     /// The media delegate takes care of providing remote media when requested by the `TextView`.

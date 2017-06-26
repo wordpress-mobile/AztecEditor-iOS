@@ -5,9 +5,6 @@ import Foundation
 //
 class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
-    typealias Attribute = Libxml2.Attribute
-    typealias StringAttribute = Libxml2.StringAttribute
-
     /// The element that owns this attribute.
     ///
     var element: HTMLElementRepresentation?
