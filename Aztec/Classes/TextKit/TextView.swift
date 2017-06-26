@@ -195,7 +195,7 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
-        defaultMissingImage = UIImage()
+        defaultMissingImage = Assets.imageIcon
         super.init(coder: aDecoder)
         commonInit()
     }

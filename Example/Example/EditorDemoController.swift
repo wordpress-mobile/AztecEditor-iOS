@@ -1243,8 +1243,9 @@ private extension EditorDemoController
         if progress.fractionCompleted >= 1 {
             timer.invalidate()
             attachment.progress = nil
-            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.mediaID] as? URL {
+            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
                 videoAttachment.srcURL = videoURL
+                videoAttachment.overlayColor = UIColor.clear
                 richTextView.update(attachment: videoAttachment)
             }
         }
