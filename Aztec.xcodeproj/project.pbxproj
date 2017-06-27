@@ -124,12 +124,14 @@
 		F1FA0E861E6EF514009D98EE /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7E1E6EF514009D98EE /* Node.swift */; };
 		F1FA0E871E6EF514009D98EE /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */; };
 		F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E801E6EF514009D98EE /* TextNode.swift */; };
+		FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF0714001EFD78AF00E50713 /* Media.xcassets */; };
 		FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */; };
 		FF20D6401EDC389A00294B78 /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */; };
 		FF20D6411EDC389A00294B78 /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */; };
 		FF20D6421EDC389A00294B78 /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63F1EDC389A00294B78 /* Processor.swift */; };
 		FF20D6441EDC395E00294B78 /* NSTextingResult+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */; };
 		FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */; };
+		FF24AC991F0146AF003CA91D /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF24AC981F0146AF003CA91D /* Assets.swift */; };
 		FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
@@ -288,12 +290,14 @@
 		F1FA0E7E1E6EF514009D98EE /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 		F1FA0E801E6EF514009D98EE /* TextNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
+		FF0714001EFD78AF00E50713 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRangeConversionTests.swift; sourceTree = "<group>"; };
 		FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
 		FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
 		FF20D63F1EDC389A00294B78 /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
 		FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSTextingResult+Helpers.swift"; sourceTree = "<group>"; };
 		FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessorTests.swift; sourceTree = "<group>"; };
+		FF24AC981F0146AF003CA91D /* Assets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
@@ -357,6 +361,7 @@
 		5951CB901D8BC93600E1866F /* Aztec */ = {
 			isa = PBXGroup;
 			children = (
+				FF0713FE1EFD78AF00E50713 /* Assets */,
 				5951CB921D8BC93600E1866F /* Info.plist */,
 				599F25001D8BC9A1002871D6 /* Classes */,
 				599F25911D8BDCA9002871D6 /* Documentation */,
@@ -504,6 +509,7 @@
 			isa = PBXGroup;
 			children = (
 				599F25291D8BC9A1002871D6 /* FormatBar */,
+				FF24AC981F0146AF003CA91D /* Assets.swift */,
 			);
 			path = GUI;
 			sourceTree = "<group>";
@@ -781,6 +787,14 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
+		FF0713FE1EFD78AF00E50713 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				FF0714001EFD78AF00E50713 /* Media.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
 		FF20D63C1EDC389A00294B78 /* Processor */ = {
 			isa = PBXGroup;
 			children = (
@@ -896,6 +910,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F138062A1E3651DC00CFB9ED /* ControlCharacters.rtf in Resources */,
+				FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1002,6 +1017,7 @@
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
+				FF24AC991F0146AF003CA91D /* Assets.swift in Sources */,
 				599F254D1D8BC9A1002871D6 /* FormatBar.swift in Sources */,
 				F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */,
 				599F253A1D8BC9A1002871D6 /* InNodeConverter.swift in Sources */,

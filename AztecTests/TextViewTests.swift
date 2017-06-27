@@ -1,6 +1,5 @@
 import XCTest
 @testable import Aztec
-import Gridicons
 
 class TextViewTests: XCTestCase {
 
@@ -25,14 +24,14 @@ class TextViewTests: XCTestCase {
     // MARK: - TextView construction
 
     func createEmptyTextView() -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView
     }
 
     func createTextView(withHTML html: String) -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.setHTML(html)
 
@@ -41,7 +40,7 @@ class TextViewTests: XCTestCase {
 
     func createTextViewWithContent() -> Aztec.TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
@@ -59,7 +58,7 @@ class TextViewTests: XCTestCase {
 
     func testTextViewReferencesStorage() {
 
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -80,7 +79,7 @@ class TextViewTests: XCTestCase {
     // MARK: - Test Index Wrangling
 
     func testMaxIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "foo"
 
@@ -93,7 +92,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testAdjustedIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "foobarbaz"
 

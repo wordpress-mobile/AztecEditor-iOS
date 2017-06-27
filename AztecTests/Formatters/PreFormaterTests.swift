@@ -1,5 +1,4 @@
 import XCTest
-import Gridicons
 @testable import Aztec
 
 
