@@ -938,8 +938,7 @@ open class TextView: UITextView {
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
-        let attachmentString = NSMutableAttributedString(attributedString: NSAttributedString(attachment: attachment))
-        attachmentString.addAttributes(typingAttributes, range: NSRange(location:0, length: NSAttributedString.lengthOfTextAttachment))
+        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)        
         storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         delegate?.textViewDidChange?(self)
