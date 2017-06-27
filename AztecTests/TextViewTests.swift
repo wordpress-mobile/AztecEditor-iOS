@@ -1426,5 +1426,20 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<hr>")
     }
 
+    func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
+        let textView = createEmptyTextView()
 
+        textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+
+        textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
+        guard let font = textView.typingAttributes[NSFontAttributeName] as? UIFont else {
+            XCTFail("Font should be set")
+            return
+        }
+        XCTAssertEqual(font, textView.defaultFont)
+    }
 }
