@@ -972,7 +972,7 @@ open class TextView: UITextView {
         return storage.attachment(withId: id)
     }
 
-    /// Removes the attachment that match the attachment identifier provided from the storage
+    /// Removes the attachment that matches the attachment identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
     ///
