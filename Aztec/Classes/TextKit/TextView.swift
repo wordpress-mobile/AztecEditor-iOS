@@ -972,18 +972,28 @@ open class TextView: UITextView {
         return storage.attachment(withId: id)
     }
 
-    /// Removes the attachments that match the attachament identifier provided from the storage
+    /// Removes the attachment that matches the attachment identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
     ///
     open func remove(attachmentID: String) {
-        storage.remove(attachmentID: attachmentID)
+        guard let range = storage.rangeFor(attachmentID: attachmentID) else {
+            return
+        }
+        let originalText = storage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: 0)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributes))
         delegate?.textViewDidChange?(self)
     }
 
     /// Removes all of the text attachments contained within the storage
     ///
-    open func removeTextAttachments() {
+    open func removeMediaAttachments() {
         storage.removeMediaAttachments()
         delegate?.textViewDidChange?(self)
     }

@@ -126,20 +126,7 @@ class TextStorageTests: XCTestCase
         func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
             return UIImage()
         }
-    }
-
-    func testRemovalOfAttachment() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
-        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"test://")!)
-        storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
-
-        storage.remove(attachmentID: attachment.identifier)
-
-        XCTAssertTrue(mockDelegate.deletedAttachmendIDCalledWithString == attachment.identifier)
-    }
+    }    
 
     func testInsertImage() {
         let storage = TextStorage()
