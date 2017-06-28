@@ -38,6 +38,15 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
+    let anotherFont = UIFont(name:"HelveticaNeue", size: 14)!
+
+    func createEmptyTextViewWithAnotherFont() -> Aztec.TextView {
+        let richTextView = Aztec.TextView(defaultFont: anotherFont, defaultMissingImage: UIImage())
+        richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.registerAttachmentImageProvider(attachmentDelegate)
+        return richTextView
+    }
+
     func createTextViewWithContent() -> Aztec.TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
@@ -1441,4 +1450,14 @@ class TextViewTests: XCTestCase {
         }
         XCTAssertEqual(font, textView.defaultFont)
     }
+
+    func testInsertEmojiKeepsDefaultFont() {
+        let textView = createEmptyTextViewWithAnotherFont()
+
+        textView.insertText("😘")
+        let currentTypingFont = textView.typingAttributes[NSFontAttributeName] as! UIFont
+        XCTAssertEqual(currentTypingFont, anotherFont, "Font should be set to default")
+    }
+
+
 }
