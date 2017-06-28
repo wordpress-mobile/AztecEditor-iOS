@@ -13,7 +13,6 @@ class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttach
     }
 
     func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
-        let imageSize = CGSize(width:32, height:32)
         let placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
