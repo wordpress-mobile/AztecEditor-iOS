@@ -1029,6 +1029,18 @@ open class TextView: UITextView {
         bounds.origin.x += textContainerInset.left
         bounds.origin.y += textContainerInset.top
 
+        // Let's check if we have media attachment in place
+        var mediaBounds: CGRect = .zero
+        if let mediaAttachment = attachment as? MediaAttachment {
+            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        }
+
+        // Correct the bounds taking in account the dimesion of the media image being used
+        bounds.origin.x += mediaBounds.origin.x
+        bounds.origin.y += mediaBounds.origin.y
+        bounds.size.width = mediaBounds.size.width
+        bounds.size.height = mediaBounds.size.height
+
         if bounds.contains(point) {
             return attachment
         }
