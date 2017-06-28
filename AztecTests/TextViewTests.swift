@@ -1441,4 +1441,20 @@ class TextViewTests: XCTestCase {
         }
         XCTAssertEqual(font, textView.defaultFont)
     }
+
+    func testRemovalOfAttachment() {
+        let textView = createEmptyTextView()
+
+        let attachment = textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+
+        var html = textView.getHTML()
+
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+
+        textView.remove(attachmentID: attachment.identifier)
+
+        html = textView.getHTML()
+
+        XCTAssertEqual(html, "")
+    }
 }

@@ -298,6 +298,7 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Parameter attachmentID: the id of the attachment
     /// - Returns: the range of the attachment
+    ///
     open func rangeFor(attachmentID: String) -> NSRange? {
         var foundRange: NSRange?
         enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
@@ -307,19 +308,6 @@ open class TextStorage: NSTextStorage {
             }
         }
         return foundRange
-    }
-
-    /// Removes the attachments that match the attachament identifier provided from the storage
-    ///
-    /// - Parameter attachmentID: the unique id of the attachment
-    ///
-    open func remove(attachmentID: String) {
-        enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
-            if attachment.identifier == attachmentID {
-                self.replaceCharacters(in: range, with: NSAttributedString(string: ""))
-                stop.pointee = true
-            }
-        }
     }
 
     /// Removes all of the TextAttachments from the storage
