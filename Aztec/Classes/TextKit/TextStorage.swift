@@ -293,7 +293,22 @@ open class TextStorage: NSTextStorage {
         let stringWithAttachment = NSAttributedString(attachment: attachment)
         replaceCharacters(in: range, with: stringWithAttachment)
     }
-    
+
+    /// Return the range of an attachment with the specified identifier if any
+    ///
+    /// - Parameter attachmentID: the id of the attachment
+    /// - Returns: the range of the attachment
+    open func rangeFor(attachmentID: String) -> NSRange? {
+        var foundRange: NSRange?
+        enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, stop) in
+            if attachment.identifier == attachmentID {
+                foundRange = range
+                stop.pointee = true
+            }
+        }
+        return foundRange
+    }
+
     /// Removes the attachments that match the attachament identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
