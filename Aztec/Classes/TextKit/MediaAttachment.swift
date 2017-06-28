@@ -208,15 +208,22 @@ open class MediaAttachment: NSTextAttachment
         return glyphImage
     }
 
-    fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
-
+    func mediaBounds(forBounds bounds: CGRect) -> CGRect {
         let containerWidth = bounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - imageMargin)
+        return CGRect(origin: origin, size: size)
+    }
+
+    fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
-        image.draw(in: CGRect(origin: origin, size: size))
+        let mediaBounds = self.mediaBounds(forBounds: bounds)
+        let origin = mediaBounds.origin
+        let size = mediaBounds.size
+
+        image.draw(in: mediaBounds)
 
         drawOverlay(at: origin, size: size)
         drawProgress(at: origin, size: size)
