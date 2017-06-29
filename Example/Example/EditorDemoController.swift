@@ -1268,8 +1268,7 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL
-                videoAttachment.overlayColor = UIColor.clear
+                videoAttachment.srcURL = videoURL                
                 richTextView.update(attachment: videoAttachment)
             }
         }
