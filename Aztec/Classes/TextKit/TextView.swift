@@ -1,7 +1,6 @@
 
 import UIKit
 import Foundation
-import Gridicons
 
 
 // MARK: - TextViewAttachmentDelegate
@@ -193,7 +192,7 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
-        defaultMissingImage = Gridicon.iconOfType(.image)
+        defaultMissingImage = Assets.imageIcon
         super.init(coder: aDecoder)
         commonInit()
     }
@@ -935,8 +934,8 @@ open class TextView: UITextView {
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
-
-        storage.replaceCharacters(in: range, with: NSAttributedString(attachment: attachment))
+        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)        
+        storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         delegate?.textViewDidChange?(self)
     }
@@ -970,18 +969,28 @@ open class TextView: UITextView {
         return storage.attachment(withId: id)
     }
 
-    /// Removes the attachments that match the attachament identifier provided from the storage
+    /// Removes the attachment that matches the attachment identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
     ///
     open func remove(attachmentID: String) {
-        storage.remove(attachmentID: attachmentID)
+        guard let range = storage.rangeFor(attachmentID: attachmentID) else {
+            return
+        }
+        let originalText = storage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: 0)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributes))
         delegate?.textViewDidChange?(self)
     }
 
     /// Removes all of the text attachments contained within the storage
     ///
-    open func removeTextAttachments() {
+    open func removeMediaAttachments() {
         storage.removeMediaAttachments()
         delegate?.textViewDidChange?(self)
     }
@@ -1026,6 +1035,18 @@ open class TextView: UITextView {
         var bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
         bounds.origin.x += textContainerInset.left
         bounds.origin.y += textContainerInset.top
+
+        // Let's check if we have media attachment in place
+        var mediaBounds: CGRect = .zero
+        if let mediaAttachment = attachment as? MediaAttachment {
+            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        }
+
+        // Correct the bounds taking in account the dimesion of the media image being used
+        bounds.origin.x += mediaBounds.origin.x
+        bounds.origin.y += mediaBounds.origin.y
+        bounds.size.width = mediaBounds.size.width
+        bounds.size.height = mediaBounds.size.height
 
         if bounds.contains(point) {
             return attachment

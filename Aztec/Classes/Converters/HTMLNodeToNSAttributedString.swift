@@ -1,5 +1,4 @@
 import Foundation
-import Gridicons
 import UIKit
 
 class HTMLNodeToNSAttributedString: SafeConverter {

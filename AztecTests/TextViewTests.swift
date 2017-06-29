@@ -1,6 +1,5 @@
 import XCTest
 @testable import Aztec
-import Gridicons
 
 class TextViewTests: XCTestCase {
 
@@ -25,23 +24,32 @@ class TextViewTests: XCTestCase {
     // MARK: - TextView construction
 
     func createEmptyTextView() -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView
     }
 
     func createTextView(withHTML html: String) -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.setHTML(html)
 
         return richTextView
     }
 
+    let nonStandardSystemFont = UIFont(name:"HelveticaNeue", size: 14)!
+
+    func createEmptyTextViewWithNonStandardSystemFont() -> Aztec.TextView {
+        let richTextView = Aztec.TextView(defaultFont: nonStandardSystemFont, defaultMissingImage: UIImage())
+        richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.registerAttachmentImageProvider(attachmentDelegate)
+        return richTextView
+    }
+
     func createTextViewWithContent() -> Aztec.TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
@@ -59,7 +67,7 @@ class TextViewTests: XCTestCase {
 
     func testTextViewReferencesStorage() {
 
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "Foo"
         XCTAssert(textView.text == "Foo")
@@ -80,7 +88,7 @@ class TextViewTests: XCTestCase {
     // MARK: - Test Index Wrangling
 
     func testMaxIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "foo"
 
@@ -93,7 +101,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testAdjustedIndex() {
-        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.attachment))
+        let textView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
 
         textView.text = "foobarbaz"
 
@@ -1426,5 +1434,46 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<hr>")
     }
 
+    func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
+        let textView = createEmptyTextView()
 
+        textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+
+        textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
+        guard let font = textView.typingAttributes[NSFontAttributeName] as? UIFont else {
+            XCTFail("Font should be set")
+            return
+        }
+        XCTAssertEqual(font, textView.defaultFont)
+    }
+
+    func testInsertEmojiKeepsDefaultFont() {
+        let textView = createEmptyTextViewWithNonStandardSystemFont()
+
+        textView.insertText("😘")
+        let currentTypingFont = textView.typingAttributes[NSFontAttributeName] as! UIFont
+        XCTAssertEqual(currentTypingFont, nonStandardSystemFont, "Font should be set to default")
+    }
+
+
+
+    func testRemovalOfAttachment() {
+        let textView = createEmptyTextView()
+
+        let attachment = textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
+
+        var html = textView.getHTML()
+
+        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+
+        textView.remove(attachmentID: attachment.identifier)
+
+        html = textView.getHTML()
+
+        XCTAssertEqual(html, "")
+    }
 }
