@@ -31,6 +31,7 @@ Pod::Spec.new do |s|
 
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
+  s.resources = 'Aztec/Assets/**/*'
 
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
