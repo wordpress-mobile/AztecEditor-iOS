@@ -144,7 +144,7 @@ open class FormatBar: UIView {
     ///
     override open var tintColor: UIColor? {
         didSet {
-            for item in items {
+            for item in items + [overflowToggleItem] {
                 item.normalTintColor = tintColor
             }
         }
@@ -155,7 +155,7 @@ open class FormatBar: UIView {
     ///
     open var selectedTintColor: UIColor? {
         didSet {
-            for item in items {
+            for item in items + [overflowToggleItem] {
                 item.selectedTintColor = selectedTintColor
             }
         }
@@ -166,7 +166,7 @@ open class FormatBar: UIView {
     ///
     open var highlightedTintColor: UIColor? {
         didSet {
-            for item in items {
+            for item in items + [overflowToggleItem] {
                 item.highlightedTintColor = highlightedTintColor
             }
         }
@@ -177,7 +177,7 @@ open class FormatBar: UIView {
     ///
     open var disabledTintColor: UIColor? {
         didSet {
-            for item in items {
+            for item in items + [overflowToggleItem] {
                 item.disabledTintColor = disabledTintColor
             }
         }
