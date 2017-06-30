@@ -1480,7 +1480,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
 {
     let textView: TextView
-    fileprivate var currentSelectedAttachment: ImageAttachment?
+    fileprivate var currentSelectedAttachment: MediaAttachment?
 
     public init(textView: TextView) {
         self.textView = textView
@@ -1527,7 +1527,7 @@ extension TextView: TextStorageAttachmentsDelegate {
             return
         }
 
-        currentSelectedAttachment = attachment as? ImageAttachment
+        currentSelectedAttachment = attachment as? MediaAttachment
         textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
     }
 }
