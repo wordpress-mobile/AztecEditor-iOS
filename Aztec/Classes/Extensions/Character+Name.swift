@@ -11,6 +11,7 @@ extension Character {
         case objectReplacement = "\u{FFFC}"
         case paragraphSeparator = "\u{2029}"
         case space = " "
+        case tab = "\t"
         case zeroWidthSpace = "\u{200B}"
     }
     
