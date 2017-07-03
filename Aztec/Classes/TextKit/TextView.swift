@@ -145,6 +145,10 @@ open class TextView: UITextView {
 
     open weak var formattingDelegate: TextViewFormattingDelegate?
 
+    // MARK: - Properties: Text Lists
+
+    var maximumListIndentationLevels = 7
+
     // MARK: - Properties: GUI Defaults
 
     let defaultFont: UIFont
@@ -305,22 +309,33 @@ open class TextView: UITextView {
     }
 
     func handleShiftTab(command: UIKeyCommand) {
-        guard let list = TextListFormatter.lastListPresent(in: typingAttributes) else {
+        guard let list = TextListFormatter.lists(in: typingAttributes).last else {
             return
         }
 
         let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
-        formatter.removeAttributes(from: storage, at: selectedRange)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) {
+            formatter.removeAttributes(from: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+        }
     }
 
     func handleTab(command: UIKeyCommand) {
-        guard let list = TextListFormatter.lastListPresent(in: typingAttributes) else {
+        let lists = TextListFormatter.lists(in: typingAttributes)
+        guard let list = lists.last, lists.count < maximumListIndentationLevels else {
             insertText(String(.tab))
             return
         }
 
         let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
-        formatter.applyAttributes(to: storage, at: selectedRange)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) { 
+            formatter.applyAttributes(to: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+        }
     }
 
 
@@ -1558,8 +1573,20 @@ extension TextView: TextStorageAttachmentsDelegate {
 
 //MARK: - Undo implementation
 
-extension TextView {
-    
+private extension TextView {
+
+    func performUndoable(at range: NSRange, block: (() -> Void)) {
+        let originalString = storage.attributedSubstring(from: range)
+
+        block()
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: range)
+        })
+
+        delegate?.textViewDidChange?(self)
+    }
+
     func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
 
         let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)
