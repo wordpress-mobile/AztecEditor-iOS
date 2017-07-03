@@ -64,19 +64,20 @@ class TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle, let list = style.lists.last else {
-            return false
-        }
-
-        return list.style == listStyle
+    func present(in attributes: [String: Any]) -> Bool {
+        return TextListFormatter.lastListPresent(in: attributes)?.style == listStyle
     }
 
+
+    // MARK: - Static Helpers
+
     static func listsOfAnyKindPresent(in attributes: [String: Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
-            return false
-        }
-        return !(style.lists.isEmpty)
+        return lastListPresent(in: attributes) != nil
+    }
+
+    static func lastListPresent(in attributes: [String: Any]) -> TextList? {
+        let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+        return style?.lists.last
     }
 }
 
