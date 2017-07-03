@@ -318,9 +318,9 @@ private extension NSAttributedStringToNodes {
         }
 
         var mergeCandidates = mergeableNodes.dropLast()
-        
-        if lastNodeName != "li" {
-            mergeCandidates = prefix(upToLast: "li", from: mergeCandidates)
+
+        if lastNodeName != StandardElementType.li.rawValue {
+            mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
         }
         
         return mergeCandidates.last
