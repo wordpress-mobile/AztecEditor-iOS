@@ -6,7 +6,6 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     typealias ElementNode = Libxml2.ElementNode
     typealias Node = Libxml2.Node
     typealias RootNode = Libxml2.RootNode
-    typealias StringAttribute = Libxml2.StringAttribute
     typealias TextNode = Libxml2.TextNode
     typealias CommentNode = Libxml2.CommentNode
     typealias StandardElementType = Libxml2.StandardElementType
@@ -216,6 +215,9 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         .video: VideoFormatter()
     ]
 
+    let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [
+    ]
+
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
@@ -337,6 +339,9 @@ extension HTMLNodeToNSAttributedString {
     // MARK: - Formatters
 
     func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
+
+
+
         // TODO: implement attribute representation formatters
         //
         return nil

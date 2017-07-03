@@ -23,13 +23,13 @@ class HTMLElementRepresentation: HTMLRepresentation, Equatable, CustomReflectabl
         }
     }
 
-    func valueForAttribute(named name: String) -> String? {
+    func stringForAttribute(named name: String) -> String? {
         for attribute in attributes {
             guard attribute.name == name else {
                 continue
             }
 
-            return attribute.value
+            return attribute.value.toString()
         }
 
         return nil

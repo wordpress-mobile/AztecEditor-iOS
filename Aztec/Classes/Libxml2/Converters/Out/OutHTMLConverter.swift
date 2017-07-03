@@ -9,13 +9,12 @@ extension Libxml2.Out {
 
         // MARK: - Typealiases
 
-        typealias Attribute         = Libxml2.Attribute
-        typealias StringAttribute   = Libxml2.StringAttribute
-        typealias ElementNode       = Libxml2.ElementNode
-        typealias Node              = Libxml2.Node
-        typealias TextNode          = Libxml2.TextNode
-        typealias CommentNode       = Libxml2.CommentNode
-        typealias RootNode          = Libxml2.RootNode
+        typealias Attribute = Libxml2.Attribute
+        typealias ElementNode = Libxml2.ElementNode
+        typealias Node = Libxml2.Node
+        typealias TextNode = Libxml2.TextNode
+        typealias CommentNode = Libxml2.CommentNode
+        typealias RootNode = Libxml2.RootNode
 
         /// Indentation Spaces to be applied
         ///

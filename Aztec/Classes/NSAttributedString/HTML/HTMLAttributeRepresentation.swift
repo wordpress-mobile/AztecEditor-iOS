@@ -6,7 +6,27 @@ import Foundation
 class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
     typealias Attribute = Libxml2.Attribute
-    typealias StringAttribute = Libxml2.StringAttribute
+
+    enum Value {
+        case none
+        case string(String)
+        case inlineCss([CSSPropertyRepresentation])
+
+        func toString() -> String {
+            switch(self) {
+            case .none:
+                return ""
+            case .string(let string):
+                return string
+            case .inlineCss(let cssProperties):
+                return cssProperties.reduce("", { (previousString, property) -> String in
+                    let initialString = previousString.characters.count > 0 ? previousString + "; " : ""
+
+                    return initialString + property.toString()
+                })
+            }
+        }
+    }
 
     /// The element that owns this attribute.
     ///
@@ -18,7 +38,7 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflecta
 
     /// The attribute's value, if present.
     ///
-    let value: String?
+    let value: Value
 
     /// Initializes the HTMLAttributeRepresentation Instance
     ///
@@ -27,8 +47,11 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflecta
         self.element = element
         name = attribute.name
 
-        let stringAttribute = attribute as? StringAttribute
-        value = stringAttribute?.value
+        if let stringAttribute = attribute as? StringAttribute {
+            value = .string(stringAttribute.value)
+        } else if let inlineCssAttribute = attribute as? [String] {
+            value = .inlineCss(inlineCssAttribute)
+        }
     }
 
 

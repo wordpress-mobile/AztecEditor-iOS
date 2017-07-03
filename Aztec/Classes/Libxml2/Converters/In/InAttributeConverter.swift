@@ -5,7 +5,10 @@ extension Libxml2.In {
     class AttributeConverter: SafeConverter {
 
         typealias Attribute = Libxml2.Attribute
-        typealias StringAttribute = Libxml2.StringAttribute
+
+        /// Used to identify any attribute that contains inline CSS styling info.
+        ///
+        let cssStyleAttribute = "style"
 
         /// Converts a single attribute (from libxml2) into an HTML.Attribute
         ///
