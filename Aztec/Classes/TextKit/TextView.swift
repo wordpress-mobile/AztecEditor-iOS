@@ -317,8 +317,9 @@ open class TextView: UITextView {
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) {
-            formatter.removeAttributes(from: storage, at: targetRange)
+            let finalRange = formatter.removeAttributes(from: storage, at: targetRange)
             typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
         }
     }
 
@@ -333,8 +334,9 @@ open class TextView: UITextView {
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) { 
-            formatter.applyAttributes(to: storage, at: targetRange)
+            let finalRange = formatter.applyAttributes(to: storage, at: targetRange)
             typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
         }
     }
 
@@ -1571,17 +1573,32 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 }
 
-//MARK: - Undo implementation
+
+// MARK: - Undo implementation
 
 private extension TextView {
 
-    func performUndoable(at range: NSRange, block: (() -> Void)) {
-        let originalString = storage.attributedSubstring(from: range)
+    /// Undoable Operation. Returns the Final Text Range, resulting from applying the undoable Operation
+    /// Note that for Styling Operations, the Final Range will most likely match the Initial Range.
+    /// For text editing it will only match the initial range if the original string was replaced with a 
+    /// string of the same length.
+    ///
+    typealias Undoable = () -> NSRange
 
-        block()
+
+    /// Registers an Undoable Operation, which will be applied at the specified Initial Range.
+    ///
+    /// - Parameters:
+    ///     - initialRange: Initial Storage Range upon which we'll apply a transformation.
+    ///     - block: Undoable Operation. Should return the resulting Substring's Range.
+    ///
+    func performUndoable(at initialRange: NSRange, block: Undoable) {
+        let originalString = storage.attributedSubstring(from: initialRange)
+
+        let finalRange = block()
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalString, finalRange: range)
+            self?.undoTextReplacement(of: originalString, finalRange: finalRange)
         })
 
         delegate?.textViewDidChange?(self)
