@@ -292,13 +292,37 @@ open class TextView: UITextView {
             // When the keyboard "enter" key is pressed, the keycode corresponds to .carriageReturn,
             // even if it's later converted to .lineFeed by default.
             //
-            return [UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
+            return [
+                UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift, action: #selector(handleShiftEnter(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: .shift, action: #selector(handleShiftTab(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: [], action: #selector(handleTab(command:)))
+            ]
         }
     }
 
     func handleShiftEnter(command: UIKeyCommand) {
         insertText(String(.lineSeparator))
     }
+
+    func handleShiftTab(command: UIKeyCommand) {
+        guard let list = TextListFormatter.lastListPresent(in: typingAttributes) else {
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        formatter.removeAttributes(from: storage, at: selectedRange)
+    }
+
+    func handleTab(command: UIKeyCommand) {
+        guard let list = TextListFormatter.lastListPresent(in: typingAttributes) else {
+            insertText(String(.tab))
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        formatter.applyAttributes(to: storage, at: selectedRange)
+    }
+
 
     // MARK: - Pasteboard Helpers
 
