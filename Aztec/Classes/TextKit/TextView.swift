@@ -142,6 +142,10 @@ open class TextView: UITextView {
 
     open weak var formattingDelegate: TextViewFormattingDelegate?
 
+    // MARK: - Properties: Text Lists
+
+    var maximumListIndentationLevels = 7
+
     // MARK: - Properties: GUI Defaults
 
     let defaultFont: UIFont
@@ -289,13 +293,50 @@ open class TextView: UITextView {
             // When the keyboard "enter" key is pressed, the keycode corresponds to .carriageReturn,
             // even if it's later converted to .lineFeed by default.
             //
-            return [UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift , action: #selector(handleShiftEnter(command:)))]
+            return [
+                UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift, action: #selector(handleShiftEnter(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: .shift, action: #selector(handleShiftTab(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: [], action: #selector(handleTab(command:)))
+            ]
         }
     }
 
     func handleShiftEnter(command: UIKeyCommand) {
         insertText(String(.lineSeparator))
     }
+
+    func handleShiftTab(command: UIKeyCommand) {
+        guard let list = TextListFormatter.lists(in: typingAttributes).last else {
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) {
+            let finalRange = formatter.removeAttributes(from: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
+        }
+    }
+
+    func handleTab(command: UIKeyCommand) {
+        let lists = TextListFormatter.lists(in: typingAttributes)
+        guard let list = lists.last, lists.count < maximumListIndentationLevels else {
+            insertText(String(.tab))
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) { 
+            let finalRange = formatter.applyAttributes(to: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
+        }
+    }
+
 
     // MARK: - Pasteboard Helpers
 
@@ -1477,7 +1518,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
 {
     let textView: TextView
-    fileprivate var currentSelectedAttachment: ImageAttachment?
+    fileprivate var currentSelectedAttachment: MediaAttachment?
 
     public init(textView: TextView) {
         self.textView = textView
@@ -1524,15 +1565,42 @@ extension TextView: TextStorageAttachmentsDelegate {
             return
         }
 
-        currentSelectedAttachment = attachment as? ImageAttachment
+        currentSelectedAttachment = attachment as? MediaAttachment
         textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
     }
 }
 
-//MARK: - Undo implementation
 
-extension TextView {
-    
+// MARK: - Undo implementation
+
+private extension TextView {
+
+    /// Undoable Operation. Returns the Final Text Range, resulting from applying the undoable Operation
+    /// Note that for Styling Operations, the Final Range will most likely match the Initial Range.
+    /// For text editing it will only match the initial range if the original string was replaced with a 
+    /// string of the same length.
+    ///
+    typealias Undoable = () -> NSRange
+
+
+    /// Registers an Undoable Operation, which will be applied at the specified Initial Range.
+    ///
+    /// - Parameters:
+    ///     - initialRange: Initial Storage Range upon which we'll apply a transformation.
+    ///     - block: Undoable Operation. Should return the resulting Substring's Range.
+    ///
+    func performUndoable(at initialRange: NSRange, block: Undoable) {
+        let originalString = storage.attributedSubstring(from: initialRange)
+
+        let finalRange = block()
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: finalRange)
+        })
+
+        delegate?.textViewDidChange?(self)
+    }
+
     func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
 
         let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)

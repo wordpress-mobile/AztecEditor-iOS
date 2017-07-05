@@ -114,8 +114,8 @@ open class FormatBarItem: UIButton {
 
         super.init(frame: frame)
         self.setImage(image, for: UIControlState())
-        self.adjustsImageWhenDisabled = true
-        self.adjustsImageWhenHighlighted = true
+        self.adjustsImageWhenDisabled = false
+        self.adjustsImageWhenHighlighted = false
     }
 
 

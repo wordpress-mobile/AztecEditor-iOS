@@ -310,7 +310,7 @@ open class TextStorage: NSTextStorage {
         return foundRange
     }
 
-    /// Removes all of the TextAttachments from the storage
+    /// Removes all of the MediaAttachments from the storage
     ///
     open func removeMediaAttachments() {
         var ranges = [NSRange]()
