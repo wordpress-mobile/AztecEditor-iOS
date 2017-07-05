@@ -3,13 +3,6 @@ import UIKit
 
 class HTMLNodeToNSAttributedString: SafeConverter {
 
-    typealias ElementNode = Libxml2.ElementNode
-    typealias Node = Libxml2.Node
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-    typealias CommentNode = Libxml2.CommentNode
-    typealias StandardElementType = Libxml2.StandardElementType
-
     /// The default font descriptor that will be used as a base for conversions.
     /// 
     let defaultFontDescriptor: UIFontDescriptor
@@ -138,7 +131,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     }
 
     fileprivate func convert(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        let converter = Libxml2.Out.HTMLConverter()
+        let converter = OutHTMLConverter()
         let attachment = HTMLAttachment()
 
         attachment.rootTagName = element.name

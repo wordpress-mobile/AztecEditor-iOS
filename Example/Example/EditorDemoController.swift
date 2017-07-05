@@ -109,7 +109,7 @@ class EditorDemoController: UIViewController {
     }
 
 
-    fileprivate var currentSelectedAttachment: ImageAttachment?
+    fileprivate var currentSelectedAttachment: MediaAttachment?
 
     var loadSampleHTML = false
 
@@ -1052,13 +1052,8 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         switch attachment {
         case let attachment as HTMLAttachment:
             displayUnknownHtmlEditor(for: attachment)
-        case let attachment as ImageAttachment:
+        case let attachment as MediaAttachment:
             selected(textAttachment: attachment, atPosition: position)
-        case let attachment as VideoAttachment:
-            if let imageAttachment = currentSelectedAttachment {
-                deselected(textAttachment: imageAttachment, atPosition: position)
-            }
-            selected(videoAttachment: attachment, atPosition: position)
         default:
             break
         }
@@ -1068,19 +1063,24 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         deselected(textAttachment: attachment, atPosition: position)
     }
 
-    func selected(textAttachment attachment: ImageAttachment, atPosition position: CGPoint) {
+    func selected(textAttachment attachment: MediaAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
             if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.clearAllOverlays()
+                selectedAttachment.message = nil
+                if selectedAttachment is ImageAttachment {
+                    selectedAttachment.overlayImage = nil
+                }
                 richTextView.refreshLayout(for: selectedAttachment)
             }
 
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap to edit\n And change options", comment: "Options to show when tapping on a image on the post/page editor.")
+            let message = NSLocalizedString("Tap for options", comment: "Options to show when tapping on a media object on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
-            attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+            if attachment.overlayImage == nil {
+                attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+            }
             richTextView.refreshLayout(for: attachment)
             currentSelectedAttachment = attachment
         }
@@ -1089,16 +1089,9 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
-            mediaAttachment.clearAllOverlays()
+            mediaAttachment.message = nil
             richTextView.refreshLayout(for: mediaAttachment)
         }
-    }
-
-    func selected(videoAttachment attachment: VideoAttachment, atPosition position: CGPoint) {
-        guard let videoURL = attachment.srcURL else {
-            return
-        }
-        displayVideoPlayer(for: videoURL)
     }
 
     func displayVideoPlayer(for videoURL: URL) {
@@ -1268,8 +1261,7 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL
-                videoAttachment.overlayColor = UIColor.clear
+                videoAttachment.srcURL = videoURL                
                 richTextView.update(attachment: videoAttachment)
             }
         }
@@ -1282,27 +1274,22 @@ private extension EditorDemoController
         let shadow = NSShadow()
         shadow.shadowOffset = CGSize(width: 1, height: 1)
         shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
-        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 20),
+        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
                                         NSParagraphStyleAttributeName: paragraphStyle,
                                         NSForegroundColorAttributeName: UIColor.white,
                                         NSShadowAttributeName: shadow]
         return attributes
     }
 
-    func displayActions(forAttachment attachment: ImageAttachment, position: CGPoint) {
+    func displayActions(forAttachment attachment: MediaAttachment, position: CGPoint) {
         let mediaID = attachment.identifier
         let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
         let message: String? = nil
         let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
         let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
                                           style: .cancel,
-                                          handler: { (action) in
-                                            if attachment == self.currentSelectedAttachment {
-                                                self.currentSelectedAttachment = nil
-                                                attachment.clearAllOverlays()
-                                                self.richTextView.refreshLayout(for: attachment)
-                                            }
-        })
+                                          handler: nil
+        )
         alertController.addAction(dismissAction)
 
         let removeAction = UIAlertAction(title: NSLocalizedString("Remove Media", comment: "User action to remove media."),
@@ -1312,12 +1299,21 @@ private extension EditorDemoController
         })
         alertController.addAction(removeAction)
 
-        let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to remove media."),
-                                          style: .default,
-                                          handler: { (action) in
-                                            self.displayDetailsForAttachment(attachment, position: position)
-        })
-        alertController.addAction(detailsAction)
+        if let imageAttachment = attachment as? ImageAttachment {
+            let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to change media details."),
+                                              style: .default,
+                                              handler: { (action) in
+                                                self.displayDetailsForAttachment(imageAttachment, position: position)
+            })
+            alertController.addAction(detailsAction)
+        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.srcURL {
+            let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
+                                              style: .default,
+                                              handler: { (action) in
+                                                self.displayVideoPlayer(for: videoURL)
+            })
+            alertController.addAction(detailsAction)
+        }
 
         alertController.title = title
         alertController.message = message

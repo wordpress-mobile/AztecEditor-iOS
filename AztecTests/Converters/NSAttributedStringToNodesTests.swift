@@ -356,7 +356,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
             return
         }
 
-        let reconvertedHTML = Libxml2.Out.HTMLConverter().convert(htmlNode)
+        let reconvertedHTML = OutHTMLConverter().convert(htmlNode)
 
         XCTAssertEqual(reconvertedHTML, htmlAttachment.rawHTML)
         XCTAssertEqual(textNode.contents, textString.string)
@@ -710,14 +710,6 @@ class NSAttributedStringToNodesTests: XCTestCase {
 // MARK: - Helpers
 //
 private extension NSAttributedStringToNodesTests {
-
-    /// Typealiases
-    ///
-    typealias Node = Libxml2.Node
-    typealias CommentNode = Libxml2.CommentNode
-    typealias ElementNode = Libxml2.ElementNode
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
 
     /// Constants
     ///

@@ -5,8 +5,6 @@ import Foundation
 //
 class HTMLElementRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
-    typealias ElementNode = Libxml2.ElementNode
-
     /// The element's name.
     ///
     let name: String

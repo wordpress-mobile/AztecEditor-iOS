@@ -3,20 +3,6 @@ import XCTest
 
 class HTMLToAttributedStringTests: XCTestCase {
 
-    typealias ElementNode = Libxml2.ElementNode
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
     /// Test the conversion of a single tag at the root level to `NSAttributedString`.
     ///
     /// Example: <bold>Hello</bold>

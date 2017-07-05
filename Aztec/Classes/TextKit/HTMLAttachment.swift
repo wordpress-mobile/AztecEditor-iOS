@@ -54,8 +54,8 @@ open class HTMLAttachment: NSTextAttachment {
     /// Returns the Pretty Printed version of the contained HTML
     ///
     open func prettyHTML() -> String {
-        let inParser = Libxml2.In.HTMLConverter()
-        let outParser = Libxml2.Out.HTMLConverter(prettyPrint: true)
+        let inParser = InHTMLConverter()
+        let outParser = OutHTMLConverter(prettyPrint: true)
 
         let inNode = inParser.convert(rawHTML)
         return outParser.convert(inNode)

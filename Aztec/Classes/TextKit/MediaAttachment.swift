@@ -225,7 +225,7 @@ open class MediaAttachment: NSTextAttachment
 
         image.draw(in: mediaBounds)
 
-        drawOverlay(at: origin, size: size)
+        drawOverlayBackground(at: origin, size: size)
         drawProgress(at: origin, size: size)
 
         var imagePadding: CGFloat = 0
@@ -254,8 +254,8 @@ open class MediaAttachment: NSTextAttachment
         return result;
     }
 
-    fileprivate func drawOverlay(at origin: CGPoint, size:CGSize) {
-        guard message != nil || progress != nil || overlayImage != nil else {
+    fileprivate func drawOverlayBackground(at origin: CGPoint, size:CGSize) {
+        guard message != nil || progress != nil else {
             return
         }
         let box = UIBezierPath()

@@ -3,24 +3,8 @@ import XCTest
 
 class InHTMLConverterTests: XCTestCase {
 
-    typealias ElementNode = Libxml2.ElementNode
-    typealias TextNode = Libxml2.TextNode
-
-    typealias Attribute = Libxml2.Attribute
-    typealias StringAttribute = Libxml2.StringAttribute
-
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
     func testSimpleHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "<bold>Hello!</bold>"
 
@@ -45,7 +29,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testComplexHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
@@ -92,7 +76,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testNonASCIIConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "Otro año más"
 

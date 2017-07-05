@@ -3,11 +3,6 @@ import XCTest
 
 class HTMLElementRepresentationTests: XCTestCase {
 
-    typealias Attribute = Libxml2.Attribute
-    typealias ElementNode = Libxml2.ElementNode
-    typealias StringAttribute = Libxml2.StringAttribute
-    typealias StandardElementType = Libxml2.StandardElementType
-
     /// Tests creating an element representation for a <strong> node with no attributes.
     ///
     func testInit1() {

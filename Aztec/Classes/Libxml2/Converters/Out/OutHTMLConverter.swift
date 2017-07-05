@@ -4,51 +4,40 @@ import libxml2
 
 // MARK: - HTML Prettifier!
 //
-extension Libxml2.Out {
-    class HTMLConverter: Converter {
+class OutHTMLConverter: Converter {
 
-        // MARK: - Typealiases
+    /// Indentation Spaces to be applied
+    ///
+    let indentationSpaces: Int
 
-        typealias Attribute = Libxml2.Attribute
-        typealias ElementNode = Libxml2.ElementNode
-        typealias Node = Libxml2.Node
-        typealias TextNode = Libxml2.TextNode
-        typealias CommentNode = Libxml2.CommentNode
-        typealias RootNode = Libxml2.RootNode
-
-        /// Indentation Spaces to be applied
-        ///
-        let indentationSpaces: Int
-
-        /// Indicates whether we want Pretty Print or not
-        ///
-        let prettyPrint: Bool
+    /// Indicates whether we want Pretty Print or not
+    ///
+    let prettyPrint: Bool
 
 
-        /// Default Initializer
-        ///
-        /// - Parameters:
-        ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
-        ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
-        ///
-        init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
-            self.indentationSpaces = indentationSpaces
-            self.prettyPrint = prettyPrint
-        }
+    /// Default Initializer
+    ///
+    /// - Parameters:
+    ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
+    ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
+    ///
+    init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
+        self.indentationSpaces = indentationSpaces
+        self.prettyPrint = prettyPrint
+    }
 
 
-        /// Converts a Node into it's HTML String Representation
-        ///
-        func convert(_ rawNode: Node) -> String {
-            return convert(node: rawNode).trimmingCharacters(in: CharacterSet.newlines)
-        }
+    /// Converts a Node into it's HTML String Representation
+    ///
+    func convert(_ rawNode: Node) -> String {
+        return convert(node: rawNode).trimmingCharacters(in: CharacterSet.newlines)
     }
 }
 
 
 // MARK: - Nodes: Serialization
 //
-private extension Libxml2.Out.HTMLConverter {
+private extension OutHTMLConverter {
 
     /// Serializes a Node into it's HTML String Representation
     ///
@@ -112,7 +101,7 @@ private extension Libxml2.Out.HTMLConverter {
 
 // MARK: - ElementNode: Helpers
 //
-private extension Libxml2.Out.HTMLConverter {
+private extension OutHTMLConverter {
 
     /// Returns the Opening Tag for a given Element Node
     ///
@@ -195,7 +184,7 @@ private extension Libxml2.Out.HTMLConverter {
 
 // MARK: - Attributes: Serialization
 //
-private extension Libxml2.Out.HTMLConverter {
+private extension OutHTMLConverter {
 
     /// Serializes a collection of Attributes into their HTML Form
     ///
@@ -243,7 +232,7 @@ private extension Libxml2.Out.HTMLConverter {
 
 // MARK: - Private Constants
 //
-private extension Libxml2.Out.HTMLConverter {
+private extension OutHTMLConverter {
 
     struct Constants {
 

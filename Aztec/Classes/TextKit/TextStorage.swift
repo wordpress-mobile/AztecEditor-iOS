@@ -310,7 +310,7 @@ open class TextStorage: NSTextStorage {
         return foundRange
     }
 
-    /// Removes all of the TextAttachments from the storage
+    /// Removes all of the MediaAttachments from the storage
     ///
     open func removeMediaAttachments() {
         var ranges = [NSRange]()
@@ -332,7 +332,7 @@ open class TextStorage: NSTextStorage {
         let converter = NSAttributedStringToNodes()
         let rootNode = converter.convert(self)
 
-        let serializer = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
+        let serializer = OutHTMLConverter(prettyPrint: prettyPrint)
         return serializer.convert(rootNode)
 
     }

@@ -5,29 +5,6 @@ import Foundation
 //
 class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflectable {
 
-    typealias Attribute = Libxml2.Attribute
-
-    enum Value {
-        case none
-        case string(String)
-        case inlineCss([CSSPropertyRepresentation])
-
-        func toString() -> String {
-            switch(self) {
-            case .none:
-                return ""
-            case .string(let string):
-                return string
-            case .inlineCss(let cssProperties):
-                return cssProperties.reduce("", { (previousString, property) -> String in
-                    let initialString = previousString.characters.count > 0 ? previousString + "; " : ""
-
-                    return initialString + property.toString()
-                })
-            }
-        }
-    }
-
     /// The element that owns this attribute.
     ///
     var element: HTMLElementRepresentation?
@@ -38,7 +15,7 @@ class HTMLAttributeRepresentation: HTMLRepresentation, Equatable, CustomReflecta
 
     /// The attribute's value, if present.
     ///
-    let value: Value
+    let value: Attribute.Value
 
     /// Initializes the HTMLAttributeRepresentation Instance
     ///

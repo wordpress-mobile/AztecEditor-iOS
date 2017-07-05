@@ -7,18 +7,6 @@ import libxml2
 //
 class NSAttributedStringToNodes: Converter {
 
-    /// Typealiases
-    ///
-    typealias Node = Libxml2.Node
-    typealias CommentNode = Libxml2.CommentNode
-    typealias ElementNode = Libxml2.ElementNode
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-    typealias Attribute = Libxml2.Attribute
-    typealias StringAttribute = Libxml2.StringAttribute
-    typealias StandardElementType = Libxml2.StandardElementType
-
-
     /// Converts an Attributed String Instance into it's HTML Tree Representation.
     ///
     /// -   Parameter attrString: Attributed String that should be converted.
@@ -318,9 +306,9 @@ private extension NSAttributedStringToNodes {
         }
 
         var mergeCandidates = mergeableNodes.dropLast()
-        
-        if lastNodeName != "li" {
-            mergeCandidates = prefix(upToLast: "li", from: mergeCandidates)
+
+        if lastNodeName != StandardElementType.li.rawValue {
+            mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
         }
         
         return mergeCandidates.last
@@ -649,7 +637,7 @@ private extension NSAttributedStringToNodes {
             return []
         }
 
-        let converter = Libxml2.In.HTMLConverter()
+        let converter = InHTMLConverter()
 
         let rootNode = converter.convert(attachment.rawHTML)
 
