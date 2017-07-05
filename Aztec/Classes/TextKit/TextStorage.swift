@@ -332,7 +332,7 @@ open class TextStorage: NSTextStorage {
         let converter = NSAttributedStringToNodes()
         let rootNode = converter.convert(self)
 
-        let serializer = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
+        let serializer = OutHTMLConverter(prettyPrint: prettyPrint)
         return serializer.convert(rootNode)
 
     }

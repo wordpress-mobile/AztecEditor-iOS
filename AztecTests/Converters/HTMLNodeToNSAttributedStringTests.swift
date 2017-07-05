@@ -6,16 +6,6 @@ import XCTest
 //
 class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
-    /// Typealiases
-    ///
-    typealias ElementNode = Libxml2.ElementNode
-    typealias Node = Libxml2.Node
-    typealias RootNode = Libxml2.RootNode
-    typealias StringAttribute = Libxml2.StringAttribute
-    typealias TextNode = Libxml2.TextNode
-    typealias CommentNode = Libxml2.CommentNode
-
-
     /// Verifies that <span> Nodes are preserved into the NSAttributedString instance, by means of the UnsupportedHTML
     /// attribute.
     ///

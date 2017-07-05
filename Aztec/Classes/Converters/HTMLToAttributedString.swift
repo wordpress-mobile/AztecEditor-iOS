@@ -3,9 +3,6 @@ import UIKit
 
 class HTMLToAttributedString: SafeConverter {
 
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-
     /// The default font descriptor that will be used as a base for conversions.
     ///
     let defaultFontDescriptor: UIFontDescriptor
@@ -15,7 +12,7 @@ class HTMLToAttributedString: SafeConverter {
     }
 
     func convert(_ html: String) -> (rootNode: RootNode, attributedString: NSAttributedString) {
-        let htmlToNode = Libxml2.In.HTMLConverter()
+        let htmlToNode = InHTMLConverter()
         let nodeToAttributedString = HTMLNodeToNSAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
         let rootNode = htmlToNode.convert(html)
