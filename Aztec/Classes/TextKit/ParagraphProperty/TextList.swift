@@ -4,8 +4,8 @@ import UIKit
 
 // MARK: - Text List
 //
-open class TextList: ParagraphProperty
-{
+open class TextList: ParagraphProperty {
+
     // MARK: - Nested Types
 
     /// List Styles
