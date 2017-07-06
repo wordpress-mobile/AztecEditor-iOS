@@ -97,11 +97,11 @@ class ElementNode: Node {
 
     // MARK: - Node Queries
 
-    func valueForStringAttribute(named attributeName: String) -> String? {
+    func stringValueForAttribute(named attributeName: String) -> String? {
 
         for attribute in attributes {
-            if let attribute = attribute as? StringAttribute, attribute.name == attributeName {
-                return attribute.value
+            if attribute.name == attributeName {
+                return attribute.value.toString()
             }
         }
 
@@ -110,18 +110,22 @@ class ElementNode: Node {
 
     /// Updates or adds an attribute with the specificed name with the corresponding value
     ///
-    /// - parameter attributeName: the name of the attribute
-    /// - parameter value:         the value to mark the attribute
+    /// - Parameters:
+    ///     - attributeName: the name of the attribute
+    ///     - value: the value for the attribute
     ///
-    func updateAttribute(named attributeName:String, value: String) {
+    func updateAttribute(named targetAttributeName: String, value: Attribute.Value) {
+
         for attribute in attributes {
-            if let attribute = attribute as? StringAttribute, attribute.name == attributeName {
+            if attribute.name == targetAttributeName {
                 attribute.value = value
                 return
             }
         }
+
+        let attribute = Attribute(name: targetAttributeName, value: value)
         
-        attributes.append(StringAttribute(name: attributeName, value: value))
+        attributes.append(attribute)
     }
     
     /// Check if the node is the first child in its parent node.

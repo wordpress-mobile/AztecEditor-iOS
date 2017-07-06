@@ -21,4 +21,10 @@ class CSSProperty: Hashable {
     static func ==(leftValue: CSSProperty, rightValue: CSSProperty) -> Bool {
         return leftValue.name == rightValue.name && leftValue.value == rightValue.value
     }
+
+    // MARK: - String Representation
+
+    func toString() -> String {
+        return name + ": " + value
+    }
 }

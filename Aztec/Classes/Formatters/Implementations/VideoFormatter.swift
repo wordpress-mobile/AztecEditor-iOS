@@ -16,11 +16,6 @@ class VideoFormatter: StandardAttributeFormatter {
             fatalError("This should not be possible.  Review the logic")
         }
 
-        return apply(to: attributes, andStore: elementRepresentation)
-    }
-
-    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
-
         if let representation = representation {
 
             var namedAttributes = [String:String]()

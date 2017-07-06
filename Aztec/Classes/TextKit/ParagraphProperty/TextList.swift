@@ -28,7 +28,7 @@ open class TextList: ParagraphProperty
     ///
     let style: Style
 
-    init(style: Style, with representation: HTMLElementRepresentation? = nil) {
+    init(style: Style, with representation: HTMLRepresentation? = nil) {
         self.style = style
         super.init(with: representation)
     }

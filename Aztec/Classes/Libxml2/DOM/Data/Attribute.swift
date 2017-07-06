@@ -63,26 +63,50 @@ class Attribute: CustomReflectable, Equatable, Hashable {
                 return false
             }
         }
+
+        // MARK: - String Representation
+
+        func toString() -> String? {
+            switch(self) {
+            case .none:
+                return nil
+            case .string(let string):
+                return string
+            case .inlineCss(let properties):
+                let cssPropertySeparator = "; "
+                var result = ""
+
+                for (index, property) in properties.enumerated() {
+                    result += property.toString()
+
+                    if index < properties.count - 1 {
+                        result += cssPropertySeparator
+                    }
+                }
+
+                return result
+            }
+        }
     }
 
     // MARK: - Attribute Definition Properties
 
     let name: String
-    let value: Value
-    
-    // MARK: - CustomReflectable
-    
-    public var customMirror: Mirror {
-        get {
-            return Mirror(self, children: ["name": name, "value": value])
-        }
-    }
+    var value: Value
     
     // MARK: - Initializers
     
     init(name: String, value: Value = .none) {
         self.name = name
         self.value = value
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "value": value])
+        }
     }
 
     // MARK - Hashable
@@ -95,5 +119,17 @@ class Attribute: CustomReflectable, Equatable, Hashable {
 
     static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
         return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    }
+
+    // MARK: - String Representation
+
+    func toString() -> String {
+        var result = name
+
+        if let stringValue = value.toString() {
+            result += "=\"" + stringValue + "\""
+        }
+
+        return result
     }
 }

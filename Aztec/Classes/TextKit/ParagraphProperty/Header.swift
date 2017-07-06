@@ -38,7 +38,7 @@ open class Header: ParagraphProperty
     ///
     let level: HeaderType
 
-    init(level: HeaderType, with representation: HTMLElementRepresentation? = nil) {
+    init(level: HeaderType, with representation: HTMLRepresentation? = nil) {
         self.level = level
         super.init(with: representation)
     }

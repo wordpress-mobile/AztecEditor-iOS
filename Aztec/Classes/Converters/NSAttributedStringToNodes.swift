@@ -426,33 +426,52 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts all of the Blockquote Elements contained within a collection of Attributes.
     ///
-    private func processBlockquoteStyle(blockquote: Blockquote) -> [ElementNode] {
-        let node = blockquote.representation?.toNode() ?? ElementNode(type: .blockquote)
-        return [node]
+    private func processBlockquoteStyle(blockquote: Blockquote) -> ElementNode {
+
+        guard let representation = blockquote.representation,
+            case let .element(element) = representation else {
+
+            return ElementNode(type: .blockquote)
+        }
+
+        return element
     }
 
 
     /// Extracts all of the Header Elements contained within a collection of Attributes.
     ///
-    private func processHeaderStyle(header: Header) -> [ElementNode] {
+    private func processHeaderStyle(header: Header) -> ElementNode? {
         guard let type = ElementNode.elementTypeForHeaderLevel(header.level.rawValue) else {
-            return []
+            return nil
         }
 
-        let node = header.representation?.toNode() ?? ElementNode(type: type)
-        return [node]
+        guard let representation = header.representation,
+            case let .element(element) = representation else {
+
+                return ElementNode(type: type)
+        }
+
+        return element
     }
 
 
     /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
     private func processListStyle(list: TextList) -> [ElementNode] {
-        let elementType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
-        let listElement = list.representation?.toNode() ?? ElementNode(type: elementType)
-        let itemElement = ElementNode(type: .li)
+        let listType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
 
-        // TODO: LI needs it's Original Attributes!!
-        return [itemElement, listElement]
+        let listElement: ElementNode
+        let lineElement = ElementNode(type: .li)
+
+        if let representation = list.representation,
+            case let .element(element) = representation {
+
+            listElement = element
+        } else {
+            listElement = ElementNode(type: listType)
+        }
+
+        return [lineElement, listElement]
     }
 
 
@@ -487,10 +506,22 @@ private extension NSAttributedStringToNodes {
     func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
-        nodes += processFontStyle(in: attributes)
-        nodes += processLinkStyle(in: attributes)
-        nodes += processStrikethruStyle(in: attributes)
-        nodes += processUnderlineStyle(in: attributes)
+        if let element = processFontStyle(in: attributes) {
+            nodes.append(element)
+        }
+
+        if let element = processLinkStyle(in: attributes) {
+            nodes.append(element)
+        }
+
+        if let element = processStrikethruStyle(in: attributes) {
+            nodes.append(element)
+        }
+
+        if let element = processUnderlineStyle(in: attributes) {
+            nodes.append(element)
+        }
+
         nodes += processUnsupportedHTML(in: attributes)
 
         return nodes
@@ -499,25 +530,21 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts all of the Font Elements contained within a collection of Attributes.
     ///
-    private func processFontStyle(in attributes: [String: Any]) -> [ElementNode] {
+    private func processFontStyle(in attributes: [String: Any]) -> ElementNode? {
         guard let font = attributes[NSFontAttributeName] as? UIFont else {
-            return []
+            return nil
         }
 
-        var nodes = [ElementNode]()
-
-        if font.containsTraits(.traitBold) {
-            let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-            let node = representation?.toNode() ?? ElementNode(type: .b)
-
-            nodes.append(node)
-        }
+        let element: ElementNode
 
         if font.containsTraits(.traitItalic) {
-            let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-            let node = representation?.toNode() ?? ElementNode(type: .i)
+            if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+                case let .element(representationElement) = representation {
 
-            nodes.append(node)
+                element = representationElement
+            } else {
+                element = ElementNode(type: .em)
+            }
         }
 
         return nodes
@@ -526,44 +553,67 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
-    private func processLinkStyle(in attributes: [String: Any]) -> [ElementNode] {
+    private func processLinkStyle(in attributes: [String: Any]) -> ElementNode? {
         guard let url = attributes[NSLinkAttributeName] as? URL else {
-            return []
+            return nil
         }
 
-        let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .a)
-        node.updateAttribute(named: "href", value: url.absoluteString)
+        let element: ElementNode
 
-        return [node]
+        if let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .a)
+        }
+
+        element.updateAttribute(named: "href", value: url.absoluteString)
+
+        return element
     }
 
 
     /// Extracts all of the Strike Elements contained within a collection of Attributes.
     ///
-    private func processStrikethruStyle(in attributes: [String: Any]) -> [ElementNode] {
+    private func processStrikethruStyle(in attributes: [String: Any]) -> ElementNode? {
         guard attributes[NSStrikethroughStyleAttributeName] != nil else {
-            return []
+            return nil
         }
 
-        let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .strike)
+        let element: ElementNode
 
-        return [node]
+        if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .strike)
+        }
+
+        return element
     }
 
 
     /// Extracts all of the Underline Elements contained within a collection of Attributes.
     ///
-    private func processUnderlineStyle(in attributes: [String: Any]) -> [ElementNode] {
+    private func processUnderlineStyle(in attributes: [String: Any]) -> ElementNode? {
         guard attributes[NSUnderlineStyleAttributeName] != nil else {
-            return []
+            return nil
         }
 
-        let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .u)
+        let element: ElementNode
 
-        return [node]
+        if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .u)
+        }
+
+
+        return element
     }
 
 
@@ -575,7 +625,7 @@ private extension NSAttributedStringToNodes {
         }
 
         return unsupported.elements.reversed().flatMap({ element in
-            return element.toNode()
+            return element
         })
     }
 }
@@ -614,6 +664,7 @@ private extension NSAttributedStringToNodes {
         let range = attrString.rangeOfEntireString
         let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
         let node = representation?.toNode() ?? ElementNode(type: .hr)
+
         return [node]
     }
 
@@ -724,40 +775,40 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts the Video Source Attribute from a VideoAttachment Instance.
     ///
-    private func videoSourceAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+    private func videoSourceAttribute(from attachment: VideoAttachment) -> Attribute? {
         guard let source = attachment.srcURL?.absoluteString else {
             return nil
         }
 
-        return StringAttribute(name: "src", value: source)
+        return Attribute(name: "src", value: .string(source))
     }
 
 
     /// Extracts the Video Poster Attribute from a VideoAttachment Instance.
     ///
-    private func videoPosterAttribute(from attachment: VideoAttachment) -> StringAttribute? {
+    private func videoPosterAttribute(from attachment: VideoAttachment) -> Attribute? {
         guard let poster = attachment.posterURL?.absoluteString else {
             return nil
         }
 
-        return StringAttribute(name: "poster", value: poster)
+        return Attribute(name: "poster", value: .string(poster))
     }
 
 
     /// Extracts the src attribute from an ImageAttachment Instance.
     ///
-    private func imageSourceAttribute(from attachment: ImageAttachment) -> StringAttribute? {
+    private func imageSourceAttribute(from attachment: ImageAttachment) -> Attribute? {
         guard let source = attachment.url?.absoluteString else {
             return nil
         }
 
-        return StringAttribute(name: "src", value: source)
+        return Attribute(name: "src", value: .string(source))
     }
 
 
     /// Extracts the class attribute from an ImageAttachment Instance.
     ///
-    private func imageClassAttribute(from attachment: ImageAttachment) -> StringAttribute? {
+    private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
         var style = String()
         if attachment.alignment != .center {
             style += attachment.alignment.htmlString()
@@ -772,6 +823,6 @@ private extension NSAttributedStringToNodes {
             return nil
         }
 
-        return StringAttribute(name: "class", value: style)
+        return Attribute(name: "class", value: .string(style))
     }
 }

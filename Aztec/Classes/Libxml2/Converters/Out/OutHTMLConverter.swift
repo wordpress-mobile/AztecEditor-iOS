@@ -190,41 +190,8 @@ private extension OutHTMLConverter {
     ///
     func convert(attributes: [Attribute]) -> String {
         return attributes.reduce("") { (html, attribute) in
-            return html + String(.space) + convert(attribute: attribute)
+            return html + String(.space) + attribute.toString()
         }
-    }
-
-
-    /// Serializes an Attribute into it's corresponding String Value, depending on the actual Attribute subclass.
-    ///
-    private func convert(attribute: Attribute) -> String {
-        switch attribute {
-        case let stringAttribute as StringAttribute where !isBooleanAttribute(name: attribute.name):
-            return convert(stringAttribute: stringAttribute)
-        default:
-            return convert(rawAttribute: attribute)
-        }
-    }
-
-
-    /// Serializes a given StringAttribute.
-    ///
-    private func convert(stringAttribute attribute: StringAttribute) -> String {
-        return attribute.name + "=\"" + attribute.value + "\""
-    }
-
-
-    /// Serializes a given Attribute
-    ///
-    private func convert(rawAttribute: Attribute) -> String {
-        return rawAttribute.name
-    }
-
-
-    /// Indicates whether if an Attribute is expected to have a value, or not.
-    ///
-    private func isBooleanAttribute(name: String) -> Bool {
-        return Constants.booleanAttributes.contains(name)
     }
 }
 
@@ -242,11 +209,5 @@ private extension OutHTMLConverter {
         ///
         static let voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link",
                                    "meta", "param", "source", "track", "wbr"]
-
-        /// List of Boolean Attributes, that are not expected to have an actual value
-        ///
-        static let booleanAttributes = ["checked", "compact", "declare", "defer", "disabled", "ismap",
-                                        "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
-                                        "selected"]
     }
 }
