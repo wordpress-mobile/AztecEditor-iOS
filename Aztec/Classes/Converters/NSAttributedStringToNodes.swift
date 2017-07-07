@@ -401,19 +401,27 @@ private extension NSAttributedStringToNodes {
         for property in paragraphStyle.properties.reversed() {
             switch property {
             case let blockquote as Blockquote:
-                paragraphNodes += processBlockquoteStyle(blockquote: blockquote)
+                let element = processBlockquoteStyle(blockquote: blockquote)
+                paragraphNodes.append(element)
 
             case let header as Header:
-                paragraphNodes += processHeaderStyle(header: header)
+                guard let element = processHeaderStyle(header: header) else {
+                    continue
+                }
+
+                paragraphNodes.append(element)
 
             case let list as TextList:
-                paragraphNodes += processListStyle(list: list)
+                let elements = processListStyle(list: list)
+                paragraphNodes += elements
 
             case let paragraph as HTMLParagraph:
-                paragraphNodes += processParagraphStyle(paragraph: paragraph)
+                let element = processParagraphStyle(paragraph: paragraph)
+                paragraphNodes.append(element)
 
             case let pre as HTMLPre:
-                paragraphNodes += processPreStyle(pre: pre)
+                let element = processPreStyle(pre: pre)
+                paragraphNodes.append(element)
 
             default:
                 continue
@@ -477,17 +485,37 @@ private extension NSAttributedStringToNodes {
 
     /// Extracts all of the Paragraph Elements contained within a collection of Attributes.
     ///
-    private func processParagraphStyle(paragraph: HTMLParagraph) -> [ElementNode] {
-        let node = paragraph.representation?.toNode() ?? ElementNode(type: .p)
-        return [node]
+    private func processParagraphStyle(paragraph: HTMLParagraph) -> ElementNode {
+
+        let element: ElementNode
+
+        if let representation = paragraph.representation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .p)
+        }
+
+        return element
     }
 
 
     /// Extracts all of the Pre Elements contained within a collection of Attributes.
     ///
-    private func processPreStyle(pre: HTMLPre) -> [ElementNode] {
-        let node = pre.representation?.toNode() ?? ElementNode(type: .pre)
-        return [node]
+    private func processPreStyle(pre: HTMLPre) -> ElementNode {
+
+        let element: ElementNode
+
+        if let representation = pre.representation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .pre)
+        }
+
+        return element
     }
 }
 
@@ -531,23 +559,22 @@ private extension NSAttributedStringToNodes {
     /// Extracts all of the Font Elements contained within a collection of Attributes.
     ///
     private func processFontStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard let font = attributes[NSFontAttributeName] as? UIFont else {
+        guard let font = attributes[NSFontAttributeName] as? UIFont,
+        font.containsTraits(.traitItalic) else {
             return nil
         }
 
         let element: ElementNode
 
-        if font.containsTraits(.traitItalic) {
-            if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-                case let .element(representationElement) = representation {
+        if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
 
-                element = representationElement
-            } else {
-                element = ElementNode(type: .em)
-            }
+            element = representationElement
+        } else {
+            element = ElementNode(type: .em)
         }
 
-        return nodes
+        return element
     }
 
 
@@ -568,7 +595,7 @@ private extension NSAttributedStringToNodes {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: "href", value: url.absoluteString)
+        element.updateAttribute(named: "href", value: .string(url.absoluteString))
 
         return element
     }
@@ -645,39 +672,58 @@ private extension NSAttributedStringToNodes {
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
         var nodes = [Node]()
 
-        nodes += processLineAttachment(from: attrString)
-        nodes += processCommentAttachment(from: attrString)
+        if let attachment = processLineAttachment(from: attrString) {
+            nodes.append(attachment)
+        }
+
+        if let attachment = processCommentAttachment(from: attrString) {
+            nodes.append(attachment)
+        }
+
         nodes += processHtmlAttachment(from: attrString)
-        nodes += processImageAttachment(from: attrString)
-        nodes += processVideoAttachment(from: attrString)
+
+        if let attachment = processImageAttachment(from: attrString) {
+            nodes.append(attachment)
+        }
+
+        if let attachment = processVideoAttachment(from: attrString) {
+            nodes.append(attachment)
+        }
 
         return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
     }
 
     /// Converts a Line Attachment into it's representing nodes.
     ///
-    private func processLineAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processLineAttachment(from attrString: NSAttributedString) -> ElementNode? {
         guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
-            return []
+            return nil
         }
 
+        let element: ElementNode
         let range = attrString.rangeOfEntireString
-        let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .hr)
 
-        return [node]
+        if let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .hr)
+        }
+
+        return element
     }
 
 
     /// Converts a Comment Attachment into it's representing nodes.
     ///
-    private func processCommentAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processCommentAttachment(from attrString: NSAttributedString) -> Node? {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
-            return []
+            return nil
         }
 
         let node = CommentNode(text: attachment.text)
-        return [node]
+        return node
     }
 
 
@@ -707,50 +753,64 @@ private extension NSAttributedStringToNodes {
 
     /// Converts an Image Attachment into it's representing nodes.
     ///
-    private func processImageAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processImageAttachment(from attrString: NSAttributedString) -> ElementNode? {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
-            return []
+            return nil
         }
 
+        let element: ElementNode
         let range = attrString.rangeOfEntireString
-        let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .img)
+
+        if let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .img)
+        }
 
         if let attribute = imageSourceAttribute(from: attachment) {
-            node.updateAttribute(named: attribute.name, value: attribute.value)
+            element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         if let attribute = imageClassAttribute(from: attachment) {
-            node.updateAttribute(named: attribute.name, value: attribute.value)
+            element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        return [node]
+        return element
     }
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
-    private func processVideoAttachment(from attrString: NSAttributedString) -> [Node] {
+    private func processVideoAttachment(from attrString: NSAttributedString) -> ElementNode? {
         guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
-            return []
+            return nil
         }
 
+        let element: ElementNode
         let range = attrString.rangeOfEntireString
-        let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLElementRepresentation
-        let node = representation?.toNode() ?? ElementNode(type: .video)
+
+        if let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .video)
+        }
 
         if let attribute = videoSourceAttribute(from: attachment) {
-            node.updateAttribute(named: attribute.name, value: attribute.value)
+            element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         if let attribute = videoPosterAttribute(from: attachment) {
-            node.updateAttribute(named: attribute.name, value: attribute.value)
+            element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         for (key,value) in attachment.namedAttributes {
-            node.updateAttribute(named: key, value: value)
+            element.updateAttribute(named: key, value: .string(value))
         }
 
-        return [node]
+        return element
     }
 
 

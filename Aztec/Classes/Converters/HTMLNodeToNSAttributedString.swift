@@ -208,8 +208,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         .video: VideoFormatter()
     ]
 
-    let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [
-    ]
+    let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [:]
 
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),

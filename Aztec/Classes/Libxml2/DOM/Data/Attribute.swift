@@ -5,6 +5,55 @@ import Foundation
 ///
 class Attribute: CustomReflectable, Equatable, Hashable {
 
+    // MARK: - Attribute Definition Properties
+
+    let name: String
+    var value: Value
+    
+    // MARK: - Initializers
+    
+    init(name: String, value: Value = .none) {
+        self.name = name
+        self.value = value
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "value": value])
+        }
+    }
+
+    // MARK - Hashable
+
+    var hashValue: Int {
+        return name.hashValue ^ value.hashValue()
+    }
+
+    // MARK: - Equatable
+
+    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    }
+
+    // MARK: - String Representation
+
+    func toString() -> String {
+        var result = name
+
+        if let stringValue = value.toString() {
+            result += "=\"" + stringValue + "\""
+        }
+
+        return result
+    }
+}
+
+// MARK: - Attribute.Value
+
+extension Attribute {
+
     /// Allowed attribute values
     ///
     enum Value: Equatable {
@@ -83,53 +132,9 @@ class Attribute: CustomReflectable, Equatable, Hashable {
                         result += cssPropertySeparator
                     }
                 }
-
+                
                 return result
             }
         }
-    }
-
-    // MARK: - Attribute Definition Properties
-
-    let name: String
-    var value: Value
-    
-    // MARK: - Initializers
-    
-    init(name: String, value: Value = .none) {
-        self.name = name
-        self.value = value
-    }
-
-    // MARK: - CustomReflectable
-
-    public var customMirror: Mirror {
-        get {
-            return Mirror(self, children: ["name": name, "value": value])
-        }
-    }
-
-    // MARK - Hashable
-
-    var hashValue: Int {
-        return name.hashValue ^ value.hashValue()
-    }
-
-    // MARK: - Equatable
-
-    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
-    }
-
-    // MARK: - String Representation
-
-    func toString() -> String {
-        var result = name
-
-        if let stringValue = value.toString() {
-            result += "=\"" + stringValue + "\""
-        }
-
-        return result
     }
 }
