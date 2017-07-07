@@ -534,7 +534,11 @@ private extension NSAttributedStringToNodes {
     func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
-        if let element = processFontStyle(in: attributes) {
+        if let element = processBold(in: attributes) {
+            nodes.append(element)
+        }
+
+        if let element = processItalic(in: attributes) {
             nodes.append(element)
         }
 
@@ -555,13 +559,30 @@ private extension NSAttributedStringToNodes {
         return nodes
     }
 
-
-    /// Extracts all of the Font Elements contained within a collection of Attributes.
-    ///
-    private func processFontStyle(in attributes: [String: Any]) -> ElementNode? {
+    private func processBold(in attributes: [String: Any]) -> ElementNode? {
         guard let font = attributes[NSFontAttributeName] as? UIFont,
-        font.containsTraits(.traitItalic) else {
-            return nil
+            font.containsTraits(.traitBold) else {
+                return nil
+        }
+
+        let element: ElementNode
+
+        if let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+            case let .element(representationElement) = representation {
+
+            element = representationElement
+        } else {
+            element = ElementNode(type: .strong)
+        }
+
+        return element
+    }
+
+
+    private func processItalic(in attributes: [String: Any]) -> ElementNode? {
+        guard let font = attributes[NSFontAttributeName] as? UIFont,
+            font.containsTraits(.traitItalic) else {
+                return nil
         }
 
         let element: ElementNode
@@ -576,7 +597,6 @@ private extension NSAttributedStringToNodes {
 
         return element
     }
-
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///

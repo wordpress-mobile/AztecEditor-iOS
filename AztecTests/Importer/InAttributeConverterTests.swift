@@ -22,7 +22,7 @@ class InAttributesConverterTests: XCTestCase {
         XCTAssertEqual(name, attribute.name)
     }
 
-    /// Tests that a string xmlAttr is properly converted into an HTML.StringAttribute object.
+    /// Tests that a string xmlAttr is properly stored
     ///
     func testStringAttributeConversion() {
 
@@ -45,6 +45,6 @@ class InAttributesConverterTests: XCTestCase {
 
         let attribute = converter.convert(xmlAttribute)
 
-        XCTAssertTrue(attribute is StringAttribute)
+        XCTAssertEqual(attribute.value.toString(), value)
     }
 }
