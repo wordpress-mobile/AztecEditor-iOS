@@ -249,7 +249,7 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let representation = HTMLRepresentation.element(element)
+        let representation = HTMLRepresentation.element(HTMLElementRepresentation(element))
         var finalAttributes = attributes
 
         if let elementFormatter = formatter(for: element) {

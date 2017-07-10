@@ -17,7 +17,7 @@ class ImageFormatter: StandardAttributeFormatter {
             case .element(let element):
                 let url: URL?
 
-                if let urlString = element.stringValueForAttribute(named: "src") {
+                if let urlString = element.attribute(named: "src")?.toString() {
                     url = URL(string: urlString)
                 } else {
                     url = nil
@@ -25,7 +25,7 @@ class ImageFormatter: StandardAttributeFormatter {
 
                 let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
 
-                if let elementClass = element.stringValueForAttribute(named: "class") {
+                if let elementClass = element.attribute(named: "class")?.toString() {
                     let classAttributes = elementClass.components(separatedBy: " ")
                     for classAttribute in classAttributes {
                         if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {

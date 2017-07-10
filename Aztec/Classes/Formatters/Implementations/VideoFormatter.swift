@@ -24,7 +24,7 @@ class VideoFormatter: StandardAttributeFormatter {
 
             let srcURL: URL?
 
-            if let urlString = element.stringValueForAttribute(named: "src") {
+            if let urlString = element.attribute(named: "src")?.toString() {
                 srcURL = URL(string: urlString)
                 namedAttributes.removeValue(forKey: "src")
             } else {
@@ -33,7 +33,7 @@ class VideoFormatter: StandardAttributeFormatter {
 
             let posterURL: URL?
 
-            if let urlString = element.stringValueForAttribute(named: "poster") {
+            if let urlString = element.attribute(named: "poster")?.toString() {
                 posterURL = URL(string: urlString)
                 namedAttributes.removeValue(forKey: "poster")
             } else {

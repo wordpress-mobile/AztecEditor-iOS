@@ -443,7 +443,7 @@ private extension NSAttributedStringToNodes {
             return ElementNode(type: .blockquote)
         }
 
-        return element
+        return element.toElementNode()
     }
 
 
@@ -460,7 +460,7 @@ private extension NSAttributedStringToNodes {
                 return ElementNode(type: type)
         }
 
-        return element
+        return element.toElementNode()
     }
 
 
@@ -475,7 +475,7 @@ private extension NSAttributedStringToNodes {
         if let representation = list.representation,
             case let .element(element) = representation {
 
-            listElement = element
+            listElement = element.toElementNode()
         } else {
             listElement = ElementNode(type: listType)
         }
@@ -493,7 +493,7 @@ private extension NSAttributedStringToNodes {
         if let representation = paragraph.representation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .p)
         }
@@ -511,7 +511,7 @@ private extension NSAttributedStringToNodes {
         if let representation = pre.representation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .pre)
         }
@@ -571,7 +571,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .strong)
         }
@@ -591,7 +591,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .em)
         }
@@ -611,7 +611,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .a)
         }
@@ -634,7 +634,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .strike)
         }
@@ -655,7 +655,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .u)
         }
@@ -727,7 +727,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .hr)
         }
@@ -785,7 +785,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .img)
         }
@@ -814,7 +814,7 @@ private extension NSAttributedStringToNodes {
         if let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement
+            element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .video)
         }
