@@ -836,12 +836,9 @@ open class TextView: UITextView {
     /// Blockquote's background.
     ///
     private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
-        guard text == String(.lineFeed) else {
-            return
-        }
-
-        guard selectedRange.location == storage.length else {
-            return
+        guard text.isEndOfLine(),
+            selectedRange.location == storage.length else {
+                return
         }
 
         let formatters: [AttributeFormatter] = [
@@ -1435,9 +1432,7 @@ private extension TextView {
 
     // MARK: - WORKAROUND: removing styles at EOF due to selection change
 
-    /// Removes paragraph attributes after a selection change.  The logic that defines if the
-    /// attributes must be removed is located in
-    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    /// Removes paragraph attributes after a selection change.
     ///
     func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
         guard mustRemoveParagraphAttributesAfterSelectionChange() else {
