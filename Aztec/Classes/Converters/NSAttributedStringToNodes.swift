@@ -9,9 +9,10 @@ class NSAttributedStringToNodes: Converter {
 
     /// Converts an Attributed String Instance into it's HTML Tree Representation.
     ///
-    /// -   Parameter attrString: Attributed String that should be converted.
+    /// - Parameters:
+    ///     - attrString: Attributed String that should be converted.
     ///
-    /// -   Returns: RootNode, representing the DOM Tree.
+    /// - Returns: RootNode, representing the DOM Tree.
     ///
     func convert(_ attrString: NSAttributedString) -> RootNode {
         var nodes = [Node]()
