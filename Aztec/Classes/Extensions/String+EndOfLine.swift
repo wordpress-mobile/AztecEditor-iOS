@@ -45,7 +45,8 @@ extension String {
     /// - Returns: `true` if the receiver is an end-of-line character.
     ///
     func isEndOfLine() -> Bool {
-        return self == String(.lineSeparator)
+        return self == String(.carriageReturn)
+            || self == String(.lineSeparator)
             || self == String(.lineFeed)
             || self == String(.paragraphSeparator)
     }
