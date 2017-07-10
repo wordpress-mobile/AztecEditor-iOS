@@ -3,8 +3,8 @@ import Foundation
 
 // MARK: - String NSRange and Location convertion Extensions
 //
-public extension String
-{
+public extension String {
+
     /// Converts a UTF16 NSRange into a Swift String NSRange for this string.
     ///
     /// - Parameters:

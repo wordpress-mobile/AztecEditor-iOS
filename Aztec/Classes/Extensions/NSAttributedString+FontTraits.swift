@@ -1,11 +1,10 @@
 import Foundation
 import UIKit
 
-/// Convenience extension to group font trait related methods.
-///
-public extension NSAttributedString
-{
 
+// MARK: -  Convenience extension to group font trait related methods.
+//
+public extension NSAttributedString {
 
     /// Checks if the specified font trait exists at the specified character index.
     ///

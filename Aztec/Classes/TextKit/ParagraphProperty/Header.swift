@@ -4,8 +4,8 @@ import UIKit
 
 // MARK: - Header property for paragraphs
 //
-open class Header: ParagraphProperty
-{
+open class Header: ParagraphProperty {
+
     // MARK: - Nested Types
 
     /// Available Heading Types

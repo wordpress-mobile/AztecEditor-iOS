@@ -1,4 +1,6 @@
 import Foundation
+
+
 /// Struct to represent a HTML element
 ///
 public struct HTMLElement {
