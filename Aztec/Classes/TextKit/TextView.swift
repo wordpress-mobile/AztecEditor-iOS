@@ -1,4 +1,3 @@
-
 import UIKit
 import Foundation
 
@@ -1281,15 +1280,14 @@ open class TextView: UITextView {
 
 
 // MARK: - Single line attributes removal
-
+//
 private extension TextView {
 
-    /// Removes paragraph attributes after a selection change.  The logic that defines if the
-    /// attributes must be removed is located in
-    /// `mustRemoveSingleLineParagraphAttributes()`.
+    // MARK: - WORKAROUND: Removing paragraph styles after entering a newline.
+
+    /// Removes paragraph attributes after a newline has been entered, and we're editing the End of File.
     ///
-    /// - Parameters:
-    ///     - text: the text that was just inserted into the TextView.
+    /// - Parameter input: the text that was just inserted into the TextView.
     ///
     func ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: String) {
         guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
@@ -1302,12 +1300,11 @@ private extension TextView {
     /// Analyzes whether paragraph attributes should be removed from the specified
     /// location, or not, after the selection range is changed.
     ///
-    /// - Parameters:
-    ///     - text: the text that was just inserted into the TextView.
+    /// - Parameter input: the text that was just inserted into the TextView.
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
+    private func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
         return input.isEndOfLine() && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
 
@@ -1315,7 +1312,7 @@ private extension TextView {
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
     /// is beyond the storage's contents, the typingAttributes will be modified
     ///
-    func removeSingleLineParagraphAttributes(at range: NSRange) {
+    private func removeSingleLineParagraphAttributes(at range: NSRange) {
 
         let formatters: [AttributeFormatter] = [
             HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
@@ -1334,12 +1331,11 @@ private extension TextView {
         }
     }
 
-    // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
+    // MARK: - WORKAROUND: Removing paragraph styles when pressing enter in an empty paragraph
 
     /// Removes paragraph attributes after pressing enter in an empty paragraph.
     ///
-    /// - Parameters:
-    ///     - input: the user's input.  This method must be called before the input is processed.
+    /// - Parameter input: the user's input.  This method must be called before the input is processed.
     ///
     func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
         guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
@@ -1356,7 +1352,7 @@ private extension TextView {
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+    private func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
         return input.isEndOfLine()
             && storage.string.isEmptyParagraph(at: selectedRange.location)
             && (BlockquoteFormatter().present(in: typingAttributes)
@@ -1364,26 +1360,8 @@ private extension TextView {
                 || PreFormatter().present(in: typingAttributes))
     }
 
-    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
-    /// is beyond the storage's contents, the typingAttributes will be modified
-    ///
-    func removeTextListAttributes(at range: NSRange) {
-        let formatters: [AttributeFormatter] = [
-            BlockquoteFormatter(),
-            PreFormatter(),
-            TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered)
-        ]
 
-        for formatter in formatters where formatter.present(in: super.typingAttributes) {
-            typingAttributes = formatter.remove(from: typingAttributes)
-
-            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
-            formatter.removeAttributes(from: textStorage, at: applicationRange)
-        }
-    }
-
-    // MARK: - Remove paragraph styles when pressing backspace and removing the last character
+    // MARK: - WORKAROUND: Removing paragraph styles when pressing backspace and removing the last character
 
     /// Removes paragraph attributes after pressing backspace, if the resulting document is empty.
     ///
@@ -1400,15 +1378,15 @@ private extension TextView {
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() -> Bool {
+    private func mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() -> Bool {
         return storage.length == 0
     }
 
-    // MARK: - WORKAROUND: removing styles at EOF due to selection change
 
-    /// Removes paragraph attributes after a selection change.  The logic that defines if the
-    /// attributes must be removed is located in
-    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    // MARK: - WORKAROUND: Removing styles at EOF due to selection change
+
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the attributes must
+    /// be removed is located in `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
     ///
     func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
         guard mustRemoveParagraphAttributesAfterSelectionChange() else {
@@ -1423,16 +1401,15 @@ private extension TextView {
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
-    func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
+    private func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
         return selectedRange.location == storage.length
             && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
 
-
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
-    /// is beyond the storage's contents, the typingAttributes will be modified
+    /// is beyond the storage's contents, the typingAttributes will be modified.
     ///
-    func removeParagraphAttributes(at range: NSRange) {
+    private func removeParagraphAttributes(at range: NSRange) {
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
             PreFormatter(placeholderAttributes: defaultAttributes),
@@ -1515,8 +1492,8 @@ extension TextView: TextStorageAttachmentsDelegate {
 
 // MARK: - UIGestureRecognizerDelegate
 //
-@objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
-{
+@objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate {
+
     let textView: TextView
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
@@ -1531,9 +1508,7 @@ extension TextView: TextStorageAttachmentsDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
 
         let locationInTextView = gestureRecognizer.location(in: textView)
-        // check if we have an attachment in the position we tapped
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
-            // if we have a current selected attachment let's notify of deselection
             if let selectedAttachment = currentSelectedAttachment {
                 textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
@@ -1547,13 +1522,11 @@ extension TextView: TextStorageAttachmentsDelegate {
         guard recognizer.state == .recognized else {
             return
         }
+
         let locationInTextView = recognizer.location(in: textView)
-        // check if we have an attachment in the position we tapped
         guard let attachment = textView.attachmentAtPoint(locationInTextView) else {
             return
         }
-
-        // move the selection to the position of the attachment
 
         textView.moveSelectionToPoint(locationInTextView)
 
@@ -1572,7 +1545,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 
 
 // MARK: - Undo implementation
-
+//
 private extension TextView {
 
     /// Undoable Operation. Returns the Final Text Range, resulting from applying the undoable Operation
@@ -1616,4 +1589,3 @@ private extension TextView {
         delegate?.textViewDidChange?(self)
     }
 }
-
