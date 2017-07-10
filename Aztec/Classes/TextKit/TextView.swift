@@ -409,11 +409,11 @@ open class TextView: UITextView {
             deletedString = storage.attributedSubstring(from: deletionRange)
         }
 
+        ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
+
         super.deleteBackward()
 
-        //refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
-
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -1282,6 +1282,32 @@ open class TextView: UITextView {
 // MARK: - Single line attributes removal
 //
 private extension TextView {
+
+    // MARK: - WORKAROUND: Removing paragraph styles after deleting the last character in the current line.
+
+    /// Ensures Paragraph Styles are removed, if needed, *before* a character gets removed from the storage,
+    /// at the specified range.
+    ///
+    /// - Parameter range: Range at which a character is about to be removed.
+    ///
+    func ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at range: NSRange) {
+        guard mustRemoveParagraphStylesBeforeRemovingCharacter(at: range) else {
+            return
+        }
+
+        removeParagraphAttributes(at: range)
+    }
+
+    /// Analyzes whether the attributes should be removed from the specified location, *before* removing a 
+    /// character at the specified location.
+    ///
+    /// - Parameter range: Range at which we'll remove a character
+    ///
+    /// - Returns: `true` if we should nuke the paragraph attributes.
+    ///
+    private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
+        return storage.string.isEmptyParagraph(at: range.location)
+    }
 
     // MARK: - WORKAROUND: Removing paragraph styles after entering a newline.
 
