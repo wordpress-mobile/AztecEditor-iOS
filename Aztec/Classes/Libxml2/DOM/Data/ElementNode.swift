@@ -62,10 +62,6 @@ class ElementNode: Node {
 
         super.init(name: name)
     }
-    
-    convenience init(descriptor: ElementNodeDescriptor, children: [Node] = []) {
-        self.init(name: descriptor.name, attributes: descriptor.attributes, children: children)
-    }
 
     convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
         self.init(name: type.rawValue, attributes: attributes, children: children)
