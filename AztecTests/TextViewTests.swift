@@ -972,7 +972,7 @@ class TextViewTests: XCTestCase {
     }
 
     /// When the caret is positioned at both EoF and EoL, inserting a line separator (in most
-    /// editors by pressing shift+enter) must not remove the list style.
+    /// editors by pressing shift + enter) must not remove the list style.
     ///
     /// This test is to avoid regressions on:
     /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/594
