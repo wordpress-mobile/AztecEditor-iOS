@@ -1408,9 +1408,9 @@ class TextViewTests: XCTestCase {
             XCTFail("An video attachment should be present")
             return
         }
-        XCTAssertEqual(attachment.namedAttributes["data-wpvideopress"], "videopress", "Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["data-wpvideopress"], "videopress", "Property should be available")
 
-        attachment.namedAttributes["data-wpvideopress"] = "ABCDE"
+        attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
     }
@@ -1527,11 +1527,11 @@ class TextViewTests: XCTestCase {
             XCTFail("An video attachment should be present")
             return
         }
-        XCTAssertEqual(attachment.namedAttributes["alt"], "Alt", "Alt Property should be available")
-        XCTAssertEqual(attachment.namedAttributes["title"], "Title", "Title Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["alt"], "Alt", "Alt Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["title"], "Title", "Title Property should be available")
 
-        attachment.namedAttributes["alt"] = "Changed Alt"
-        attachment.namedAttributes["class"] = "wp-image-169"
+        attachment.extraAttributes["alt"] = "Changed Alt"
+        attachment.extraAttributes["class"] = "wp-image-169"
 
         XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\">")
     }

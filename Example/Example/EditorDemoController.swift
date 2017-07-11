@@ -1332,7 +1332,7 @@ private extension EditorDemoController
                 return
             }
             if let alt = alt {
-                attachment.namedAttributes["alt"] = alt
+                attachment.extraAttributes["alt"] = alt
             }
             strongSelf.richTextView.update(attachment: attachment,
                                            alignment: alignment,

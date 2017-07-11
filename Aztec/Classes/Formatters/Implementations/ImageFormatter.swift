@@ -15,17 +15,17 @@ class ImageFormatter: StandardAttributeFormatter {
         if let representation = representation {
             switch representation {
             case .element(let element):
-                var namedAttributes = [String:String]()
+                var extraAttributes = [String:String]()
                 for attributeRepresentation in element.attributes {
                     if let value = attributeRepresentation.value.toString() {
-                        namedAttributes[attributeRepresentation.name] = value
+                        extraAttributes[attributeRepresentation.name] = value
                     }
                 }
 
                 let url: URL?
 
                 if let urlString = element.attribute(named: "src")?.value.toString() {
-                    namedAttributes.removeValue(forKey: "src")
+                    extraAttributes.removeValue(forKey: "src")
                     url = URL(string: urlString)
                 } else {
                     url = nil
@@ -51,13 +51,13 @@ class ImageFormatter: StandardAttributeFormatter {
                     })
                     let remainingClassAttributes = otherAttributes.joined(separator: " ")
                     if remainingClassAttributes.isEmpty {
-                        namedAttributes.removeValue(forKey: "class")
+                        extraAttributes.removeValue(forKey: "class")
                     } else {
-                        namedAttributes["class"] = remainingClassAttributes
+                        extraAttributes["class"] = remainingClassAttributes
                     }
                 }
 
-                attachment.namedAttributes = namedAttributes            
+                attachment.extraAttributes = extraAttributes
                 attributeValue = attachment
             default:
                 attributeValue = ImageAttachment(identifier: UUID().uuidString)
