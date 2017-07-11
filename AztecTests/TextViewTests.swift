@@ -1489,9 +1489,10 @@ class TextViewTests: XCTestCase {
         }
         XCTAssertEqual(attachment.namedAttributes["alt"], "Alt", "Alt Property should be available")
         XCTAssertEqual(attachment.namedAttributes["title"], "Title", "Title Property should be available")
-        
 
-        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"align-none\" alt=\"Alt\" title=\"Title\">")
+        attachment.namedAttributes["alt"] = "Changed Alt"
+
+        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"align-none\" alt=\"Changed Alt\" title=\"Title\">")
     }
 
 }
