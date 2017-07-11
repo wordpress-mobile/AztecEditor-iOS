@@ -7,9 +7,10 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
     @IBOutlet var sourceURLTextField: UITextField!
+    @IBOutlet var altTextField: UITextField!
 
     var attachment: ImageAttachment?
-    var onUpdate: ((ImageAttachment.Alignment, ImageAttachment.Size, URL) -> Void)?
+    var onUpdate: ((ImageAttachment.Alignment, ImageAttachment.Size, URL, String?) -> Void)?
 
 
     override func viewDidLoad() {
@@ -42,6 +43,8 @@ class AttachmentDetailsViewController: UITableViewController
         sizeSegmentedControl.selectedSegmentIndex = size.rawValue
 
         sourceURLTextField.text = attachment.url?.absoluteString
+
+        altTextField.text = attachment.namedAttributes["alt"]
     }
 
     @IBAction func cancelWasPressed() {
@@ -63,8 +66,8 @@ class AttachmentDetailsViewController: UITableViewController
             dismiss(animated: true, completion: nil)
             return
         }
-
-        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url)
+        let alt = altTextField.text
+        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url, alt)
         dismiss(animated: true, completion: nil)
     }
 
