@@ -629,17 +629,13 @@ private extension NSAttributedStringToNodes {
             return nil
         }
 
-        let element: ElementNode
-
         if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .strike)
+            return representationElement.toElementNode()
         }
 
-        return element
+        return ElementNode(type: .strike)
     }
 
 
@@ -650,18 +646,13 @@ private extension NSAttributedStringToNodes {
             return nil
         }
 
-        let element: ElementNode
-
         if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
             case let .element(representationElement) = representation {
 
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .u)
+            return representationElement.toElementNode()
         }
 
-
-        return element
+        return ElementNode(type: .u)
     }
 
 
