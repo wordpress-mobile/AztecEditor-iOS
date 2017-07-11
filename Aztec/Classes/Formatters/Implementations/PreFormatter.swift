@@ -25,7 +25,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
 
