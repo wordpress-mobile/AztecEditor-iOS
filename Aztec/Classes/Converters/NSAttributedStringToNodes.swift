@@ -674,7 +674,11 @@ private extension NSAttributedStringToNodes {
         }
 
         for (key,value) in attachment.namedAttributes {
-            node.updateAttribute(named: key, value: value)
+            var finalValue = value
+            if key == "class", let baseValue = node.valueForStringAttribute(named: "class"){
+                finalValue = baseValue + " " + finalValue
+            }
+            node.updateAttribute(named: key, value: finalValue)
         }
 
         return [node]

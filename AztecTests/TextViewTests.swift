@@ -1478,7 +1478,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testParseImageWithExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"align-none\" alt=\"Alt\" title=\"Title\">"
+        let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)
 
         XCTAssertEqual(textView.getHTML(), html)
@@ -1491,8 +1491,9 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(attachment.namedAttributes["title"], "Title", "Title Property should be available")
 
         attachment.namedAttributes["alt"] = "Changed Alt"
+        attachment.namedAttributes["class"] = "wp-image-169"
 
-        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"align-none\" alt=\"Changed Alt\" title=\"Title\">")
+        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\">")
     }
 
 }

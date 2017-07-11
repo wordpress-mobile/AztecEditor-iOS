@@ -43,13 +43,25 @@ class ImageFormatter: StandardAttributeFormatter {
 
             if let elementClass = representation.valueForAttribute(named: "class") {
                 let classAttributes = elementClass.components(separatedBy: " ")
+                var attributesToRemove = [String]()
                 for classAttribute in classAttributes {
                     if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
                         attachment.alignment = alignment
+                        attributesToRemove.append(classAttribute)
                     }
                     if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
                         attachment.size = size
+                        attributesToRemove.append(classAttribute)
                     }
+                }
+                let otherAttributes = classAttributes.filter({ (value) -> Bool in
+                    return !attributesToRemove.contains(value)
+                })
+                let remainingClassAttributes = otherAttributes.joined(separator: " ")
+                if remainingClassAttributes.isEmpty {
+                    namedAttributes.removeValue(forKey: "class")
+                } else {
+                    namedAttributes["class"] = remainingClassAttributes
                 }
             }
 
