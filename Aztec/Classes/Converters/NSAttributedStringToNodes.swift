@@ -672,9 +672,7 @@ private extension NSAttributedStringToNodes {
             return []
         }
 
-        return unsupported.elements.reversed().flatMap({ element in
-            return element
-        })
+        return unsupported.elements
     }
 }
 
