@@ -6,7 +6,7 @@ class Blockquote: ParagraphProperty {
         super.encode(with: aCoder)
     }
 
-    override public init(with representation: HTMLElementRepresentation? = nil) {
+    override public init(with representation: HTMLRepresentation? = nil) {
         super.init(with: representation)
     }
 

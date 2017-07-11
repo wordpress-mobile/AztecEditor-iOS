@@ -208,6 +208,8 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         .video: VideoFormatter()
     ]
 
+    let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [:]
+
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
@@ -247,42 +249,28 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let elementRepresentation = HTMLElementRepresentation(for: element)
-        return self.attributes(for: elementRepresentation, inheriting: attributes)
-    }
-
-    /// Calculates the attributes for the specified element representation.  Returns a dictionary
-    /// including inherited attributes.
-    ///
-    /// - Parameters:
-    ///     - elementRepresentation: the element representation.
-    ///     - inheritedAttributes: the attributes that will be inherited.
-    ///
-    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
-    ///
-    private func attributes(for elementRepresentation: HTMLElementRepresentation, inheriting attributes: [String: Any]) -> [String: Any] {
-
+        let representation = HTMLRepresentation.element(HTMLElementRepresentation(element))
         var finalAttributes = attributes
 
-        if let elementFormatter = formatter(for: elementRepresentation) {
-            finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: elementRepresentation)
-        } else  if elementRepresentation.name == StandardElementType.li.rawValue {
+        if let elementFormatter = formatter(for: element) {
+            finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
+        } else  if element.name == StandardElementType.li.rawValue {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
 
             finalAttributes = attributes
         } else {
-            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
+            finalAttributes = self.attributes(storing: element, in: finalAttributes)
         }
 
-        for attributeRepresentation in elementRepresentation.attributes {
-            finalAttributes = self.attributes(for: attributeRepresentation, inheriting: finalAttributes)
+        for attribute in element.attributes {
+            finalAttributes = self.stringAttributes(for: attribute, inheriting: finalAttributes)
         }
-
+        
         return finalAttributes
     }
 
 
-    /// Calculates the attributes for the specified element representation.  Returns a dictionary
+    /// Calculates the string attributes for the specified HTML attribute.  Returns a dictionary
     /// including inherited attributes.
     ///
     /// - Parameters:
@@ -291,12 +279,14 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attributeRepresentation: HTMLAttributeRepresentation, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func stringAttributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         let attributes: [String:Any]
 
-        if let attributeFormatter = formatter(for: attributeRepresentation) {
-            attributes = attributeFormatter.apply(to: inheritedAttributes, andStore: attributeRepresentation)
+        if let attributeFormatter = formatter(for: attribute) {
+            let attributeHTMLRepresentation = HTMLRepresentation.attribute(attribute)
+
+            attributes = attributeFormatter.apply(to: inheritedAttributes, andStore: attributeHTMLRepresentation)
         } else {
             attributes = inheritedAttributes
         }
@@ -313,9 +303,9 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing elementRepresentation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+    private func attributes(storing element: ElementNode, in attributes: [String: Any]) -> [String: Any] {
         let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
-        unsupportedHTML.add(element: elementRepresentation)
+        unsupportedHTML.add(element: element)
 
         var updated = attributes
         updated[UnsupportedHTMLAttributeName] = unsupportedHTML
@@ -328,15 +318,15 @@ extension HTMLNodeToNSAttributedString {
 
     // MARK: - Formatters
 
-    func formatter(for representation: HTMLAttributeRepresentation) -> AttributeFormatter? {
+    func formatter(for attribute: Attribute) -> AttributeFormatter? {
         // TODO: implement attribute representation formatters
         //
         return nil
     }
 
-    func formatter(for representation: HTMLElementRepresentation) -> AttributeFormatter? {
+    func formatter(for element: ElementNode) -> AttributeFormatter? {
 
-        guard let standardType = StandardElementType(rawValue: representation.name) else {
+        guard let standardType = element.standardName else {
             return nil
         }
 

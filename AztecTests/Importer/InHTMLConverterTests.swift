@@ -45,23 +45,15 @@ class InHTMLConverterTests: XCTestCase {
         XCTAssertEqual(divNode.name, "div")
         XCTAssertEqual(divNode.attributes.count, 3)
 
-        guard let attribute1 = divNode.attributes[0] as? StringAttribute else {
-            XCTFail("Expected a string attribute.")
-            return
-        }
-
+        let attribute1 = divNode.attributes[0]
         let attribute2 = divNode.attributes[1]
-
-        guard let attribute3 = divNode.attributes[2] as? StringAttribute else {
-            XCTFail("Expected a string attribute.")
-            return
-        }
+        let attribute3 = divNode.attributes[2]
 
         XCTAssertEqual(attribute1.name, "style")
-        XCTAssertEqual(attribute1.value, "a")
+        XCTAssertEqual(attribute1.value.toString(), "a")
         XCTAssertEqual(attribute2.name, "nostyle")
         XCTAssertEqual(attribute3.name, "peace")
-        XCTAssertEqual(attribute3.value, "123")
+        XCTAssertEqual(attribute3.value.toString(), "123")
 
         XCTAssert(divNode.children[0] is TextNode)
         XCTAssert(divNode.children[2] is TextNode)

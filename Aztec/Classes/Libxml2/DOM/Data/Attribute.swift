@@ -1,72 +1,140 @@
 import Foundation
 
-
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
 class Attribute: CustomReflectable, Equatable, Hashable {
+
+    // MARK: - Attribute Definition Properties
+
     let name: String
-    
-    // MARK: - CustomReflectable
-    
-    public var customMirror: Mirror {
-        get {
-            return Mirror(self, children: ["name": name])
-        }
-    }
+    var value: Value
     
     // MARK: - Initializers
     
-    init(name: String) {
+    init(name: String, value: Value = .none) {
         self.name = name
+        self.value = value
     }
 
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "value": value])
+        }
+    }
 
     // MARK - Hashable
 
     var hashValue: Int {
-        return name.hashValue
+        return name.hashValue ^ value.hashValue()
     }
 
     // MARK: - Equatable
 
     static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    }
+
+    // MARK: - String Representation
+
+    func toString() -> String {
+        var result = name
+
+        if let stringValue = value.toString() {
+            result += "=\"" + stringValue + "\""
+        }
+
+        return result
     }
 }
 
+// MARK: - Attribute.Value
 
-/// Represents an attribute with an generic string value.  This is useful for storing attributes
-/// that do have a value, which we don't know how to parse.  This is only meant as a mechanism
-/// to maintain the attribute's information.
-///
-class StringAttribute: Attribute {
-    var value: String
-    
-    // MARK: - CustomReflectable
-    
-    override public var customMirror: Mirror {
-        return Mirror(self, children: ["name": name, "value": value], ancestorRepresentation: .suppressed)
-    }
-    
-    // MARK: - Initializers
-    
-    init(name: String, value: String) {
-        self.value = value
+extension Attribute {
 
-        super.init(name: name)
-    }
+    /// Allowed attribute values
+    ///
+    enum Value: Equatable {
+        case none
+        case string(String)
+        case inlineCss([CSSProperty])
 
-    // MARK - Hashable
+        func hashValue() -> Int {
+            switch(self) {
+            case .none:
+                return 0
+            case .string(let string):
+                return string.hashValue
+            case .inlineCss(let cssProperties):
+                return cssProperties.reduce(0, { (previousHash, property) -> Int in
+                    return previousHash ^ property.hashValue
+                })
+            }
+        }
 
-    override var hashValue: Int {
-        return name.hashValue ^ value.hashValue
-    }
+        // MARK: - Equatable
 
+        static func ==(lValue: Value, rValue: Value) -> Bool {
+            switch(lValue) {
+            case .none:
+                return true
+            case .string(let string):
+                return string == rValue
+            case .inlineCss(let cssProperties):
+                return cssProperties == rValue
+            }
+        }
 
-    // MARK: - Equatable
+        static func ==(lValue: Value, rString: String) -> Bool {
+            return rString == lValue
+        }
 
-    static func ==(lhs: StringAttribute, rhs: StringAttribute) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+        static func ==(lString: String, rValue: Value) -> Bool {
+            switch(rValue) {
+            case .string(let rString):
+                return lString == rString
+            default:
+                return false
+            }
+        }
+
+        static func ==(lValue: Value, rProperties: [CSSProperty]) -> Bool {
+            return rProperties == lValue
+        }
+
+        static func ==(lProperties: [CSSProperty], rValue: Value) -> Bool {
+            switch(rValue) {
+            case .inlineCss(let rProperties):
+                return lProperties == rProperties
+            default:
+                return false
+            }
+        }
+
+        // MARK: - String Representation
+
+        func toString() -> String? {
+            switch(self) {
+            case .none:
+                return nil
+            case .string(let string):
+                return string
+            case .inlineCss(let properties):
+                let cssPropertySeparator = "; "
+                var result = ""
+
+                for (index, property) in properties.enumerated() {
+                    result += property.toString()
+
+                    if index < properties.count - 1 {
+                        result += cssPropertySeparator
+                    }
+                }
+                
+                return result
+            }
+        }
     }
 }
