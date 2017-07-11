@@ -971,6 +971,27 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
     }
 
+    /// When deleting the newline between lines 1 and 2 in the following example:
+    ///     Line 1: <empty>
+    ///     Line 2: <empty> (with list style)
+    ///     Line 3: <empty>
+    ///
+    /// Aztec tends to naturally maintain the list style alive, due to the newline between line 2 and
+    /// 3, since line 1 has no paragraph style once its closing newline is removed.
+    ///
+    /// This test makes sure that removing the newline between line 1 and 2, also removes the list
+    /// style in line 2.
+    ///
+    func testDeleteNewlineRemovesListStyleIfPreceededByAnEmptyLine() {
+        let textView = createEmptyTextView()
+
+        textView.insertText(String(.lineFeed))
+        textView.toggleUnorderedList(range: textView.selectedRange)
+        textView.deleteBackward()
+
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+    }
+
 
     // MARK: - Blockquotes
 
