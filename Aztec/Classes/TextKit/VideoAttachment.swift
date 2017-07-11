@@ -27,11 +27,7 @@ open class VideoAttachment: MediaAttachment {
         set {
             self.url = newValue
         }
-    }
-
-    /// Attributes accessible by the user, for general purposes.
-    ///
-    open var namedAttributes = [String: String]()
+    }    
     
     /// Creates a new attachment
     ///

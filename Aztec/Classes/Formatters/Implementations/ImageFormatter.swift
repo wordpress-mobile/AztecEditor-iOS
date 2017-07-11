@@ -23,9 +23,17 @@ class ImageFormatter: StandardAttributeFormatter {
     func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
 
         if let representation = representation {
+            var namedAttributes = [String:String]()
+            for attributeRepresentation in representation.attributes {
+                if let value = attributeRepresentation.value {
+                    namedAttributes[attributeRepresentation.name] = value
+                }
+            }
+
             let url: URL?
 
             if let urlString = representation.valueForAttribute(named: "src") {
+                namedAttributes.removeValue(forKey: "src")
                 url = URL(string: urlString)
             } else {
                 url = nil
@@ -45,6 +53,7 @@ class ImageFormatter: StandardAttributeFormatter {
                 }
             }
 
+            attachment.namedAttributes = namedAttributes            
             attributeValue = attachment
         } else {
             attributeValue = ImageAttachment(identifier: UUID().uuidString)

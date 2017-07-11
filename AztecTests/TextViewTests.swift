@@ -1476,4 +1476,22 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(html, "")
     }
+
+    func testParseImageWithExtraAttributes() {
+        let html = "<img src=\"image.jpg\" class=\"align-none\" alt=\"Alt\" title=\"Title\">"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+
+        guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
+            XCTFail("An video attachment should be present")
+            return
+        }
+        XCTAssertEqual(attachment.namedAttributes["alt"], "Alt", "Alt Property should be available")
+        XCTAssertEqual(attachment.namedAttributes["title"], "Title", "Title Property should be available")
+        
+
+        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"align-none\" alt=\"Alt\" title=\"Title\">")
+    }
+
 }
