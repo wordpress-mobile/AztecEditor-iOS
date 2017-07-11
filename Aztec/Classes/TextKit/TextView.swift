@@ -410,11 +410,11 @@ open class TextView: UITextView {
             deletedString = storage.attributedSubstring(from: deletionRange)
         }
 
+        ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
+
         super.deleteBackward()
 
-        //refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
-
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -833,12 +833,10 @@ open class TextView: UITextView {
     /// Blockquote's background.
     ///
     private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
-        guard text == String(.lineFeed) else {
-            return
-        }
 
-        guard selectedRange.location == storage.length else {
-            return
+        guard text.isEndOfLine(),
+            selectedRange.location == storage.length else {
+                return
         }
 
         let formatters: [AttributeFormatter] = [
@@ -1284,6 +1282,32 @@ open class TextView: UITextView {
 
 private extension TextView {
 
+    // MARK: - WORKAROUND: Removing paragraph styles after deleting the last character in the current line.
+
+    /// Ensures Paragraph Styles are removed, if needed, *before* a character gets removed from the storage,
+    /// at the specified range.
+    ///
+    /// - Parameter range: Range at which a character is about to be removed.
+    ///
+    func ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at range: NSRange) {
+        guard mustRemoveParagraphStylesBeforeRemovingCharacter(at: range) else {
+            return
+        }
+
+        removeParagraphAttributes(at: range)
+    }
+
+    /// Analyzes whether the attributes should be removed from the specified location, *before* removing a 
+    /// character at the specified location.
+    ///
+    /// - Parameter range: Range at which we'll remove a character
+    ///
+    /// - Returns: `true` if we should nuke the paragraph attributes.
+    ///
+    private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
+        return storage.string.isEmptyParagraph(at: range.location)
+    }
+
     /// Removes paragraph attributes after a selection change.  The logic that defines if the
     /// attributes must be removed is located in
     /// `mustRemoveSingleLineParagraphAttributes()`.
@@ -1406,9 +1430,7 @@ private extension TextView {
 
     // MARK: - WORKAROUND: removing styles at EOF due to selection change
 
-    /// Removes paragraph attributes after a selection change.  The logic that defines if the
-    /// attributes must be removed is located in
-    /// `mustRemoveSingleLineParagraphAttributesAfterSelectionChange()`.
+    /// Removes paragraph attributes after a selection change.
     ///
     func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
         guard mustRemoveParagraphAttributesAfterSelectionChange() else {
