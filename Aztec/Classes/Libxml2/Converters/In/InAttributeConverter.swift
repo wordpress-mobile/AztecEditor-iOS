@@ -16,11 +16,20 @@ class InAttributeConverter: SafeConverter {
         let attributeValueRef = attribute.children
 
         if let attributeValueRef = attributeValueRef {
-            let string = String(cString: attributeValueRef.pointee.content)
-            
-            return Attribute(name: attributeName, value: .string(string))
-        } else {
-            return Attribute(name: attributeName)
+            let attributeValue = String(cString: attributeValueRef.pointee.content)
+
+            // The HTML 5 spec, in Section 2.4.2 (named "Boolean attributes") provides some examples
+            // showing that attributes that have a value equal to their names are boolean attributes
+            // and can be equivalently written without their value.  The latter is the normalized
+            // representation we currently support.
+            //
+            // So we're only loading the attribute's value if it's not equal to the attribute name.
+            //
+            if attributeName != attributeValue {
+                return Attribute(name: attributeName, value: .string(attributeValue))
+            }
         }
+
+        return Attribute(name: attributeName)
     }
 }
