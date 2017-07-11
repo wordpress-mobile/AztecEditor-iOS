@@ -992,6 +992,25 @@ class TextViewTests: XCTestCase {
         XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
 
+    /// When the caret is positioned at both EoF and EoL, inserting a line separator (in most
+    /// editors by pressing shift + enter) must not remove the list style.
+    ///
+    /// This test is to avoid regressions on:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/594
+    ///
+    func testShiftEnterAtEndOfListAndEndOfFile() {
+        let textView = createEmptyTextView()
+
+        textView.insertText("First line")
+        textView.toggleUnorderedList(range: textView.selectedRange)
+        textView.insertText(String(.lineSeparator))
+
+        let unorderedListFormatter = TextListFormatter(style: .unordered)
+
+        XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: 0))
+        XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: textView.selectedRange))
+    }
+
 
     // MARK: - Blockquotes
 
