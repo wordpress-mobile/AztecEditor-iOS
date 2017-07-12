@@ -18,12 +18,28 @@ To run the example project, clone the repo, and run `carthage update` from the E
 - iOS 9 and above
 - Xcode 8
 
-## Installation
+## Running the Example App
+
+To run the Example app, you first need to make sure its dependencies are installed:
+
+- Make sure you have [Carthage](https://github.com/Carthage/Carthage) installed (we're currently using version 0.23.0).
+- Using the command line:
+
+```bash
+cd Example
+carthage update --platform iOS
+```
+
+Once Carthage finishes, you should open the file `Aztec.xcworkspace` from the root directory of Aztec.
+
+Make sure the `AztecExample` target it selected, and press CMD + R to run it.
+
+## Using the Library
 
 WordPress-Aztec-iOS is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
-```ruby
+```bash
 pod "WordPress-Aztec-iOS"
 ```
 
