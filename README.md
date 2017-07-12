@@ -22,7 +22,7 @@ To run the example project, clone the repo, and run `carthage update` from the E
 
 To run the Example app, you first need to make sure its dependencies are installed:
 
-- Make sure you have Carthage installed (we're currently using version 0.23.0).
+- Make sure you have [Carthage](https://github.com/Carthage/Carthage) installed (we're currently using version 0.23.0).
 - Using the command line:
 
 ```bash
