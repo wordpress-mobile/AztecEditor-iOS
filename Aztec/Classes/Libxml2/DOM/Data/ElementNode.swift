@@ -238,7 +238,7 @@ extension Libxml2 {
 
 
         // MARK: - DOM Queries
-        
+
         typealias NodeMatchTest = (_ node: Node) -> Bool
         typealias NodeIntersectionReport = (_ node: Node, _ intersection: NSRange) -> Void
         typealias RangeReport = (_ range: NSRange) -> Void
