@@ -1495,4 +1495,14 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(html, "")
     }
+
+    /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
+    ///
+    func testSetHtmlDoesNotLooseHeaderStyle() {
+        let pristineHTML = "<br><br><h1>Header</h1>"
+        let textView = createTextView(withHTML: pristineHTML)
+        let generatedHTML = textView.getHTML()
+
+        XCTAssertEqual(pristineHTML, generatedHTML)
+    }
 }
