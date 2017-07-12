@@ -1498,8 +1498,19 @@ class TextViewTests: XCTestCase {
 
     /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
     ///
-    func testSetHtmlDoesNotLooseHeaderStyle() {
+    func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br><br><h1>Header</h1>"
+        let textView = createTextView(withHTML: pristineHTML)
+        let generatedHTML = textView.getHTML()
+
+        XCTAssertEqual(pristineHTML, generatedHTML)
+    }
+
+    /// This test verifies that the H1 Header does not get lost, in the scenario in which the H1 is contained
+    /// within the second line of text (and thus, would be expected to get rendered below!).
+    ///
+    func testToggleHtmlWithTwoLineBreaksAndInlineHeaderDoesNotLooseHeaderStyle() {
+        let pristineHTML = "<br>1<br>2<h1>Heder</h1>"
         let textView = createTextView(withHTML: pristineHTML)
         let generatedHTML = textView.getHTML()
 
