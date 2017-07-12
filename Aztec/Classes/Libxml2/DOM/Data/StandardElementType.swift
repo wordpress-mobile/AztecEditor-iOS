@@ -91,7 +91,12 @@ extension Libxml2 {
             case .video:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             case .br:
-                return NSAttributedString(.lineSeparator, attributes: attributes)
+                if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+                    paragraphStyle.properties.count > 0 {
+                        return NSAttributedString(.lineSeparator, attributes: attributes)
+                } else {
+                    return NSAttributedString(.lineFeed, attributes: attributes)
+                }
             case .hr:
                 return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
             default:
