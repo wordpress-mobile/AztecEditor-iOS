@@ -32,6 +32,8 @@ carthage update --platform iOS
 
 Once Carthage finishes, you should open the file `Aztec.xcworkspace` from the root directory of Aztec.
 
+Make sure the `AztecExample` target it selected, and press CMD + R to run it.
+
 ## Using the Library
 
 WordPress-Aztec-iOS is available through [CocoaPods](http://cocoapods.org). To install
