@@ -14,35 +14,35 @@ class VideoFormatter: StandardAttributeFormatter {
         if let representation = representation,
             case let .element(element) = representation {
 
-            var namedAttributes = [String:String]()
+            var extraAttributes = [String:String]()
 
             for attribute in element.attributes {
                 if let value = attribute.value.toString() {
-                    namedAttributes[attribute.name] = value
+                    extraAttributes[attribute.name] = value
                 }
             }
 
             let srcURL: URL?
 
-            if let urlString = element.attribute(named: "src")?.toString() {
+            if let urlString = element.attribute(named: "src")?.value.toString() {
                 srcURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "src")
+                extraAttributes.removeValue(forKey: "src")
             } else {
                 srcURL = nil
             }
 
             let posterURL: URL?
 
-            if let urlString = element.attribute(named: "poster")?.toString() {
+            if let urlString = element.attribute(named: "poster")?.value.toString() {
                 posterURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "poster")
+                extraAttributes.removeValue(forKey: "poster")
             } else {
                 posterURL = nil
             }
 
             let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
 
-            attachment.namedAttributes = namedAttributes
+            attachment.extraAttributes = extraAttributes
             
             attributeValue = attachment
         } else {

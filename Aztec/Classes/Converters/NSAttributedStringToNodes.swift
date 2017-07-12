@@ -787,6 +787,14 @@ private extension NSAttributedStringToNodes {
             element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
+        for (key,value) in attachment.extraAttributes {
+            var finalValue = value
+            if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
+                finalValue = baseValue + " " + finalValue
+            }
+            element.updateAttribute(named: key, value: .string(finalValue))
+        }
+
         return element
     }
 
@@ -816,7 +824,7 @@ private extension NSAttributedStringToNodes {
             element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        for (key,value) in attachment.namedAttributes {
+        for (key,value) in attachment.extraAttributes {
             element.updateAttribute(named: key, value: .string(value))
         }
 

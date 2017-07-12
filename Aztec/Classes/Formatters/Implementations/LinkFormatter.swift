@@ -16,7 +16,7 @@ class LinkFormatter: StandardAttributeFormatter {
 
             let linkURL: NSURL
 
-            if let elementUrl = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.toString() {
+            if let elementUrl = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.value.toString() {
                 linkURL = NSURL(string: elementUrl)!
             } else {
                 linkURL = NSURL(string: "")!

@@ -1326,10 +1326,13 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url, alt) in
 
             guard let strongSelf = self else {
                 return
+            }
+            if let alt = alt {
+                attachment.extraAttributes["alt"] = alt
             }
             strongSelf.richTextView.update(attachment: attachment,
                                            alignment: alignment,

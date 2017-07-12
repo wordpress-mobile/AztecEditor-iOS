@@ -15,6 +15,10 @@ protocol MediaAttachmentDelegate: class {
 ///
 open class MediaAttachment: NSTextAttachment
 {
+    /// Attributes accessible by the user, for general purposes.
+    ///
+    public var extraAttributes = [String: String]()
+
     public struct Appearance {
         public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
 
