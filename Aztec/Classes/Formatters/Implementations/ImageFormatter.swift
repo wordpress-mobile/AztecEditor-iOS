@@ -16,9 +16,9 @@ class ImageFormatter: StandardAttributeFormatter {
             switch representation {
             case .element(let element):
                 var extraAttributes = [String:String]()
-                for attributeRepresentation in element.attributes {
-                    if let value = attributeRepresentation.value.toString() {
-                        extraAttributes[attributeRepresentation.name] = value
+                for attribute in element.attributes {
+                    if let value = attribute.value.toString() {
+                        extraAttributes[attribute.name] = value
                     }
                 }
 

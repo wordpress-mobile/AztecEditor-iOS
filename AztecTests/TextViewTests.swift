@@ -1517,6 +1517,10 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "")
     }
 
+
+    /// This methos test the parsing of img tag that contains attributes thar are not directly supported by Image attachments
+    /// It also tests if changes on those attributes is correctly reflected on the generated HTML
+    ///
     func testParseImageWithExtraAttributes() {
         let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)

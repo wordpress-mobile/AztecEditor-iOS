@@ -792,7 +792,7 @@ private extension NSAttributedStringToNodes {
             if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
                 finalValue = baseValue + " " + finalValue
             }
-            element.updateAttribute(named: key, value: Attribute.Value.string(finalValue))
+            element.updateAttribute(named: key, value: .string(finalValue))
         }
 
         return element
