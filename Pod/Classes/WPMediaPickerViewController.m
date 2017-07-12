@@ -32,25 +32,25 @@
 @implementation WPMediaPickerViewController
 
 static CGFloat SelectAnimationTime = 0.2;
-static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (instancetype)init
 {
+    return [self initWithOptions:[WPMediaPickerOptions new]];
+}
+
+- (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self = [self initWithCollectionViewLayout:layout];
     if (self) {
         _layout = layout;
         _selectedAssets = [[NSMutableArray alloc] init];
-        _allowCaptureOfMedia = YES;
-        _preferFrontCamera = NO;
-        _showMostRecentFirst = NO;
-        _filter = WPMediaTypeVideoOrImage;
+        _options = [options copy];
         _refreshGroupFirstTime = YES;
-        _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];
-        _cameraPreviewSize = CameraPreviewSize;
+        _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];        
         _viewControllerToUseToPresent = self;
     }
     return self;
+
 }
 
 - (void)dealloc
@@ -70,7 +70,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     // Configure collection view behaviour
     self.clearsSelectionOnViewWillAppear = NO;
     self.collectionView.allowsSelection = YES;
-    self.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
+    self.collectionView.allowsMultipleSelection = self.options.allowMultipleSelection;
     self.collectionView.bounces = YES;
     self.collectionView.alwaysBounceHorizontal = NO;
     self.collectionView.alwaysBounceVertical = YES;
@@ -86,8 +86,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self setupLayout];    
 
     //setup data
-    [self.dataSource setMediaTypeFilter:self.filter];
-    [self.dataSource setAscendingOrdering:!self.showMostRecentFirst];
+    [self.dataSource setMediaTypeFilter:self.options.filter];
+    [self.dataSource setAscendingOrdering:!self.options.showMostRecentFirst];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:
                             ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
@@ -107,18 +107,12 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     [self refreshDataAnimated:NO];
 }
 
-- (void)setFilter:(WPMediaType)filter {
-    _filter = filter;
+- (void)setOptions:(WPMediaPickerOptions *)options {
+    _options = [options copy];
     if (self.viewLoaded) {
-        [self.dataSource setMediaTypeFilter:filter];
-        [self refreshDataAnimated:NO];
-    }
-}
-
-- (void)setShowMostRecentFirst:(BOOL)showMostRecentFirst {
-    _showMostRecentFirst = showMostRecentFirst;
-    if (self.viewLoaded) {
-        [self.dataSource setAscendingOrdering:!showMostRecentFirst];
+        [self.dataSource setMediaTypeFilter:options.filter];
+        [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
+        self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
         [self refreshDataAnimated:NO];
     }
 }
@@ -188,16 +182,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
 
 - (BOOL)isShowingCaptureCell
 {
-    return self.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
-}
-
-- (void)setAllowMultipleSelection:(BOOL)allowMultipleSelection
-{
-    _allowMultipleSelection = allowMultipleSelection;
-
-    if (self.isViewLoaded) {
-        self.collectionView.allowsMultipleSelection = allowMultipleSelection;
-    }
+    return self.options.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
 }
 
 - (void)clearSelectedAssets:(BOOL)animated
@@ -220,7 +205,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     }
 
     NSInteger sectionToScroll = 0;
-    NSInteger itemToScroll = self.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
+    NSInteger itemToScroll = self.options.showMostRecentFirst ? 0 : [self.dataSource numberOfAssets] - 1;
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemToScroll inSection:sectionToScroll];
     UICollectionViewScrollPosition position = UICollectionViewScrollPositionCenteredVertically;
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
@@ -305,7 +290,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
             [strongSelf refreshSelection];
             dispatch_async(dispatch_get_main_queue(), ^{                
                 strongSelf.collectionView.allowsSelection = YES;
-                strongSelf.collectionView.allowsMultipleSelection = self.allowMultipleSelection;
+                strongSelf.collectionView.allowsMultipleSelection = self.options.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
                 [strongSelf.collectionView reloadData];
 
@@ -426,7 +411,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     NSUInteger position = [self positionOfAssetInSelection:asset];
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-        if (self.allowMultipleSelection) {
+        if (self.options.allowMultipleSelection) {
             [cell setPosition:position + 1];
         } else {
             [cell setPosition:NSNotFound];
@@ -444,9 +429,9 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
                   layout:(UICollectionViewLayout *)collectionViewLayout
 referenceSizeForHeaderInSection:(NSInteger)section
 {
-    if ( [self isShowingCaptureCell] && self.showMostRecentFirst)
+    if ( [self isShowingCaptureCell] && self.options.showMostRecentFirst)
     {
-        return self.cameraPreviewSize;
+        return self.options.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -455,9 +440,9 @@ referenceSizeForHeaderInSection:(NSInteger)section
                   layout:(UICollectionViewLayout *)collectionViewLayout
 referenceSizeForFooterInSection:(NSInteger)section
 {
-    if ( [self isShowingCaptureCell] && !self.showMostRecentFirst)
+    if ( [self isShowingCaptureCell] && !self.options.showMostRecentFirst)
     {
-        return self.cameraPreviewSize;
+        return self.options.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -466,8 +451,8 @@ referenceSizeForFooterInSection:(NSInteger)section
            viewForSupplementaryElementOfKind:(NSString *)kind
                                  atIndexPath:(NSIndexPath *)indexPath
 {
-    if ((kind == UICollectionElementKindSectionHeader && self.showMostRecentFirst) ||
-       (kind == UICollectionElementKindSectionFooter && !self.showMostRecentFirst))
+    if ((kind == UICollectionElementKindSectionHeader && self.options.showMostRecentFirst) ||
+       (kind == UICollectionElementKindSectionFooter && !self.options.showMostRecentFirst))
     {
         if (!self.captureCell) {
             self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
@@ -475,7 +460,7 @@ referenceSizeForFooterInSection:(NSInteger)section
                 UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
                 [self.captureCell addGestureRecognizer:tapGestureRecognizer];
             }
-            self.captureCell.preferFrontCamera = self.preferFrontCamera;
+            self.captureCell.preferFrontCamera = self.options.preferFrontCamera;
             [self.captureCell startCapture];
         }
         return self.captureCell;
@@ -521,13 +506,13 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (asset == nil) {
         return;
     }
-    if (!self.allowMultipleSelection) {
+    if (!self.options.allowMultipleSelection) {
         [self.selectedAssets removeAllObjects];
     }
     [self.selectedAssets addObject:asset];
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-    if (self.allowMultipleSelection) {
+    if (self.options.allowMultipleSelection) {
         [cell setPosition:self.selectedAssets.count];
     } else {
         [cell setPosition:NSNotFound];
@@ -537,7 +522,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.mediaPickerDelegate mediaPickerController:self didSelectAsset:asset];
     }
-    if (!self.allowMultipleSelection) {
+    if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
             [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.selectedAssets copy]];
         }
@@ -572,7 +557,7 @@ referenceSizeForFooterInSection:(NSInteger)section
             id<WPMediaAsset> asset = [self assetForPosition:selectedIndexPath];
             NSUInteger position = [self positionOfAssetInSelection:asset];
             if (position != NSNotFound) {
-                if (self.allowMultipleSelection) {
+                if (self.options.allowMultipleSelection) {
                     [cell setPosition:position + 1];
                 } else {
                     [cell setPosition:NSNotFound];
@@ -615,7 +600,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
                            UIImagePickerControllerSourceTypeCamera]];
-    switch (self.filter) {
+    switch (self.options.filter) {
         case(WPMediaTypeImage): {
             [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeImage]]];
         } break;
@@ -637,7 +622,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (UIImagePickerControllerCameraDevice)cameraDevice
 {
-    if (self.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
+    if (self.options.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
         return UIImagePickerControllerCameraDeviceFront;
     } else {
         return UIImagePickerControllerCameraDeviceRear;
@@ -730,12 +715,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.mediaPickerDelegate mediaPickerController:self didSelectAsset:asset];
     }
-    if (!self.allowMultipleSelection) {
+    if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
             [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.selectedAssets copy]];
         }
     }
-    NSInteger positionToUpdate = self.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
+    NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
     [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
                                       animated:YES
                                 scrollPosition:UICollectionViewScrollPositionNone];
