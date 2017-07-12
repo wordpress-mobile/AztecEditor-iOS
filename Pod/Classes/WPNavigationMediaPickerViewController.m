@@ -22,11 +22,7 @@ static NSString *const ArrowDown = @"\u25be";
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _allowCaptureOfMedia = YES;
-        _preferFrontCamera = NO;
-        _showMostRecentFirst = NO;
-        _allowMultipleSelection = YES;
-        _filter = WPMediaTypeVideoOrImage;
+        _options = [WPMediaPickerOptions new];
     }
 
     return self;
@@ -53,12 +49,8 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)setupNavigationController
 {
-    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
-    vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
-    vc.preferFrontCamera = self.preferFrontCamera;
-    vc.showMostRecentFirst = self.showMostRecentFirst;
-    vc.filter = self.filter;
-    vc.allowMultipleSelection = self.allowMultipleSelection;
+    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] initWithOptions:self.options];
+    
     if (!self.dataSource) {
         self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
@@ -82,7 +74,7 @@ static NSString *const ArrowDown = @"\u25be";
     vc.navigationItem.titleView = self.titleButton;
     vc.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
 
-    if (self.allowMultipleSelection) {
+    if (self.options.allowMultipleSelection) {
         vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     }
 }

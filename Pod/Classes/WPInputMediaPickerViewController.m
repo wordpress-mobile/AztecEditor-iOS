@@ -46,7 +46,7 @@
 
     CGFloat spacing = 1.0f;
     CGFloat size = floorf((self.view.frame.size.height - spacing) / 2.0);
-    self.mediaPicker.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
+    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     layout.itemSize = CGSizeMake(size, size);

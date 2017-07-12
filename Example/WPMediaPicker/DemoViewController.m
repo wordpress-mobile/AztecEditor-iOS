@@ -219,17 +219,24 @@
     [self.tableView reloadData];
 }
 
+- (WPMediaPickerOptions *)selectedOptions {
+    WPMediaPickerOptions *options = [WPMediaPickerOptions new];
+    options.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    options.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    options.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+    options.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    options.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    return options;
+}
+
 - (void) showPicker:(id) sender
 {
     self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
     self.mediaPicker.delegate = self;
     self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
     self.mediaPicker.dataSource = self.pickerDataSource;
-    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+
+    self.mediaPicker.options = [self selectedOptions];
     self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
     UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;
@@ -264,11 +271,7 @@
 {
     if (textField == self.quickInputTextField) {
         [self setupMediaKeyboardForInputField];
-        self.mediaInputViewController.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-        self.mediaInputViewController.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-        self.mediaInputViewController.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-        self.mediaInputViewController.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-        self.mediaInputViewController.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+        self.mediaInputViewController.mediaPicker.options = [self selectedOptions];        
         [self.mediaInputViewController.mediaPicker resetState:NO];
     }
     return YES;
