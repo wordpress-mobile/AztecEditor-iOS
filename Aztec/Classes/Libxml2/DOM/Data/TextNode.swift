@@ -45,10 +45,22 @@ extension Libxml2 {
             return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
         }
 
+        // MARK - Hashable
+
+        override public var hashValue: Int {
+            return name.hashValue ^ contents.hashValue
+        }
+
         // MARK: - LeafNode
         
         func text() -> String {
             return contents
+        }
+
+        // MARK: - Node Equatable
+
+        static func ==(lhs: Libxml2.TextNode, rhs: Libxml2.TextNode) -> Bool {
+            return lhs.name == rhs.name && lhs.contents == rhs.contents
         }
     }
 }

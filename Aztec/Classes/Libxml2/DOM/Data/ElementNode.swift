@@ -239,25 +239,6 @@ extension Libxml2 {
 
         // MARK: - DOM Queries
         
-        /// Returns the index of the specified child node.  This method should only be called when
-        /// there's 100% certainty that this node should contain the specified child node, as it
-        /// fails otherwise.
-        ///
-        /// Call `children.indexOf()` if you need to test the parent-child relationship instead.
-        ///
-        /// - Parameters:
-        ///     - childNode: the child node to find the index of.
-        ///
-        /// - Returns: the index of the specified child node.
-        ///
-        func indexOf(childNode: Node) -> Int {
-            guard let index = children.index(of: childNode) else {
-                fatalError("Broken parent-child relationship found.")
-            }
-            
-            return index
-        }
-
         typealias NodeMatchTest = (_ node: Node) -> Bool
         typealias NodeIntersectionReport = (_ node: Node, _ intersection: NSRange) -> Void
         typealias RangeReport = (_ range: NSRange) -> Void
