@@ -18,7 +18,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     return self;
 }
 
-- (id)copy {
+- (id)copyWithZone:(NSZone *)zone {
     WPMediaPickerOptions *options = [WPMediaPickerOptions new];
     options.allowCaptureOfMedia = self.allowCaptureOfMedia;
     options.preferFrontCamera = self.preferFrontCamera;
