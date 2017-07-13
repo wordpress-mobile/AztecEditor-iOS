@@ -1517,7 +1517,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "")
     }
 
-    /// This methos test the parsing of img tag that contains attributes thar are not directly supported by Image attachments
+    /// This method test the parsing of img tag that contains attributes thar are not directly supported by Image attachments
     /// It also tests if changes on those attributes is correctly reflected on the generated HTML
     ///
     func testParseImageWithExtraAttributes() {
@@ -1558,5 +1558,14 @@ class TextViewTests: XCTestCase {
         let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(pristineHTML, generatedHTML)
+    }
+
+    /// This test verifies that img class attributes are not duplicated
+    ///
+    func testParseImageDoesntDuplicateExtraAttributes() {
+        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" alt=\"Alt\" title=\"Title\">"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)        
     }
 }
