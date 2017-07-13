@@ -340,7 +340,7 @@ open class TextView: UITextView {
     // MARK: - Pasteboard Helpers
 
     private func storeInPasteboard(encoded data: Data) {
-        let pasteboard  = UIPasteboard.general
+        let pasteboard = UIPasteboard.general
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
@@ -762,29 +762,6 @@ open class TextView: UITextView {
         HeaderFormatter(headerLevel:.h6),
         PreFormatter(placeholderAttributes: self.defaultAttributes)
     ]
-
-    /// After text deletion, this helper will re-apply the Text Formatters at the specified range, if they were
-    /// present in the segment previous to the modified range.
-    ///
-    /// - Parameters:
-    ///     - deletedText: String that was deleted.
-    ///     - range: Position in which the deletedText was present in the storage.
-    ///
-    private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        guard deletedText.string.isEndOfLine() || range.location == 0 else {
-            return
-        }
-
-        for formatter in paragraphFormatters {
-            if let locationBefore = storage.string.location(before: range.location),
-                formatter.present(in: textStorage, at: locationBefore) {
-                if range.endLocation < storage.length {
-                    formatter.applyAttributes(to: storage, at: range)
-                }
-            }
-        }
-    }
-
 
     /// Verifies if the Active Font's Family Name matches with our Default Font, or not. If the family diverges,
     /// this helper will proceed to restore the defaultFont's Typing Attributes
