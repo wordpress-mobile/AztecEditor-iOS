@@ -15,14 +15,11 @@ public protocol TextViewAttachmentDelegate: class {
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
     ///
-    /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
-    ///         of the images.
-    ///
     func textView(_ textView: TextView,
                   attachment: NSTextAttachment,
                   imageAt url: URL,
                   onSuccess success: @escaping (UIImage) -> Void,
-                  onFailure failure: @escaping () -> Void) -> UIImage
+                  onFailure failure: @escaping () -> Void)
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
@@ -40,9 +37,10 @@ public protocol TextViewAttachmentDelegate: class {
     /// - Parameters:
     ///   - textView: the textview that is requesting the image
     ///   - attachment: the attachment that does not an have image source
+    ///
     /// - Returns: an UIImage to represent the attachment graphically
-    func textView(_ textView: TextView,
-                  placeholderForAttachment attachment: NSTextAttachment) -> UIImage
+    ///
+    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage
 
     /// Called after a attachment is removed from the storage.
     ///
@@ -1458,20 +1456,21 @@ extension TextView: TextStorageAttachmentsDelegate {
         attachment: NSTextAttachment,
         imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage {
+        onFailure failure: @escaping () -> ()) {
         
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        return textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
+        textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
-    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
-        return textAttachmentDelegate.textView(self, placeholderForAttachment: attachment)
+
+        return textAttachmentDelegate.textView(self, placeholderFor: attachment)
     }
     
     func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
