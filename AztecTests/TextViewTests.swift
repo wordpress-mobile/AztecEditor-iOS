@@ -1517,8 +1517,6 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "")
     }
 
-<<<<<<< HEAD
-
     /// This methos test the parsing of img tag that contains attributes thar are not directly supported by Image attachments
     /// It also tests if changes on those attributes is correctly reflected on the generated HTML
     ///
@@ -1541,7 +1539,6 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\">")
     }
 
-=======
     /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
     ///
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
@@ -1562,5 +1559,4 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(pristineHTML, generatedHTML)
     }
->>>>>>> release/1.0.0-beta.8
 }
