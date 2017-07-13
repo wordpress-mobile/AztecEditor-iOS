@@ -130,7 +130,9 @@ class Node: Equatable, CustomReflectable, Hashable {
             return nil
         }
 
-        let index = parent.indexOf(childNode: self)
+        let index = parent.children.index { node -> Bool in
+            return node === self
+        }!
 
         return parent.sibling(rightOf: index)
     }
