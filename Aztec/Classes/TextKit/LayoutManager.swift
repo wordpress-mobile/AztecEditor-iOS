@@ -53,12 +53,26 @@ private extension LayoutManager {
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
+            let blockquoteDepth = CGFloat(paragraphStyle.properties.filter({ (property) -> Bool in
+                return property is Blockquote || property is TextList
+                }).index(where: { (property) -> Bool in
+                return property is Blockquote
+            }) ?? 0)
 
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                self.drawBlockquote(in: lineRect.integral, with: context)
+                let paddingWidth = (blockquoteDepth == 0 ? 0: blockquoteDepth + 1) * Metrics.defaultIndentation
+                var paddingHeight: CGFloat = blockquoteDepth == 0 ? 0 : (Metrics.paragraphSpacing / 2)
+                //cheking if we this a middle line inside a blockquote paragraph
+                let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+                let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
+                if !lineCharacters.isEndOfLine(before: lineCharacters.endIndex) {
+                    paddingHeight = 0
+                }
+                let lineRect = rect.offsetBy(dx: origin.x , dy: origin.y)
+                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth, y: lineRect.origin.y, width: lineRect.size.width - paddingWidth, height: lineRect.size.height - (paddingHeight*2))
+                self.drawBlockquote(in: finalRect.integral, with: context)
             }
         }
 
@@ -132,7 +146,7 @@ private extension LayoutManager {
         textStorage.enumerateParagraphRanges(spanning: characterRange) { (range, enclosingRange) in
 
             guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
-                let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle,
+                let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
                 let list = paragraphStyle.lists.last else {
                     return
             }
@@ -176,7 +190,7 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        var yOffset = -style.paragraphSpacing
+        var yOffset = -style.paragraphSpacingBefore
 
         if let font = markerAttributes[NSFontAttributeName] as? UIFont {
             yOffset += (rect.height - font.lineHeight)
