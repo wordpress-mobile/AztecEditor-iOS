@@ -994,14 +994,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
+        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, _, error) in
             DispatchQueue.main.async(execute: {
-                    guard
-                        error == nil,
+                    guard error == nil,
                         let data = data,
-                        let image = UIImage(data: data, scale:UIScreen.main.scale)
+                        let image = UIImage(data: data, scale: UIScreen.main.scale)
                     else {
                         failure()
                         return
@@ -1010,11 +1009,9 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             })
         }) 
         task.resume()
-
-        return placeholderImage(for: attachment)
     }
 
-    func textView(_ textView: TextView, placeholderForAttachment attachment: NSTextAttachment) -> UIImage {
+    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
         return placeholderImage(for: attachment)
     }
 
@@ -1028,7 +1025,6 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             placeholderImage = Gridicon.iconOfType(.video, withSize: imageSize)
         default:
             placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
-
         }
 
         return placeholderImage
