@@ -157,7 +157,7 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
-    func testUpdateHtmlAttachmentEffectivelyUpdatesTheDom() {
+    func testUpdatingHtmlAttachmentEffectivelyUpdatesTheDom() {
         let initialHTML = "<unknown>html</unknown>"
         let updatedHTML = "<updated>NEW HTML</updated>"
 
@@ -176,7 +176,7 @@ class TextStorageTests: XCTestCase
 
         // Update
         XCTAssertNotNil(theAttachment)
-        storage.update(attachment: theAttachment, html: updatedHTML)
+        theAttachment.rawHTML = updatedHTML
 
         // Verify
         XCTAssertEqual(storage.getHTML(), updatedHTML)
