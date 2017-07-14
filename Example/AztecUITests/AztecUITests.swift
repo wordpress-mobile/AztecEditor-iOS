@@ -124,6 +124,21 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         XCTAssertEqual(expected, text)
     }
 
+    func testSimpleUnderlineLinkedText() {
+        enterTextInField(text: "1")
+        selectAllTextInField()
+
+        // Copy link to be auto-filled in URL field
+        UIPasteboard.general.string = "https://wordpress.com/"
+        app.scrollViews.otherElements.buttons[elementStringIDs.linkButton].tap()
+        app.alerts.buttons[elementStringIDs.insertLinkConfirmButton].tap()
+
+        let text = getHTMLContent()
+        let expected = "<a href=\"https://wordpress.com/\"><u>1</u></a>"
+        XCTAssertEqual(expected, text)
+    }
+
+
     func testHorizontalRuler() {
         app.scrollViews.otherElements.buttons[elementStringIDs.horizontalrulerButton].tap()
 

@@ -918,31 +918,12 @@ open class TextView: UITextView {
         let formatter = LinkFormatter()
         formatter.attributeValue = url
         let attributes = formatter.apply(to: typingAttributes)
-        let underLineStr = addUnderlineInLink(title: title, attributes: attributes)
 
-        storage.replaceCharacters(in: range, with: underLineStr)
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
 
         selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
 
         delegate?.textViewDidChange?(self)
-    }
-
-    /// Create underline link to the designated string with existing attributes.
-    ///
-    /// - Parameters:
-    ///     - title: the text for the link.
-    ///     - attributes: Existing atributes for formatting.
-    ///
-
-    open func addUnderlineInLink(title: String?, attributes:[String: Any]?) -> NSMutableAttributedString{
-
-        guard let textString = title, let attrbutes = attributes else{
-            return NSMutableAttributedString(string:"")
-        }
-        let attrStrMutable = NSMutableAttributedString(string: textString, attributes: [NSUnderlineStyleAttributeName: NSUnderlineStyle.styleSingle.rawValue])
-        let textRange = NSRange(location: 0,length: textString.characters.count)
-        attrStrMutable.addAttributes(attrbutes, range: textRange)
-        return attrStrMutable
     }
 
 
