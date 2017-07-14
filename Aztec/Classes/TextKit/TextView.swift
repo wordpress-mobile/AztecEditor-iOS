@@ -1262,7 +1262,7 @@ open class TextView: UITextView {
     ///
     /// - Parameters:
     ///     - range: The character range that must be replaced with a Comment Attachment.
-    ///     - text: The Comment Attachment's Text.
+    ///     - comment: The text for the comment.
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
