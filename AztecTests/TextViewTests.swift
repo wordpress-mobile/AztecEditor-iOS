@@ -1420,7 +1420,7 @@ class TextViewTests: XCTestCase {
     func testInsertComment() {
         let textView = createEmptyTextView()
 
-        textView.replaceWithComment(at: .zero, text: "more")
+        textView.replace(.zero, withComment: "more")
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
@@ -1430,8 +1430,8 @@ class TextViewTests: XCTestCase {
     ///
     func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
         let textView = createEmptyTextView()
-        textView.replaceWithComment(at: .zero, text: "more")
-        textView.replaceWithComment(at: .zero, text: "some other comment should go here")
+        textView.replace(.zero, withComment: "more")
+        textView.replace(.zero, withComment: "some other comment should go here")
 
         let html = textView.getHTML()
 

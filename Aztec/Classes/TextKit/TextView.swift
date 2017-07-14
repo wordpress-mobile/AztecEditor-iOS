@@ -1258,7 +1258,7 @@ open class TextView: UITextView {
 
     // MARK: - More
 
-    /// Replaces with an HTML Comment at the specified range.
+    /// Replaces a range with a comment.
     ///
     /// - Parameters:
     ///     - range: The character range that must be replaced with a Comment Attachment.
@@ -1267,9 +1267,9 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func replaceWithComment(at range: NSRange, text: String) -> CommentAttachment {
+    open func replace(_ range: NSRange, withComment comment: String) -> CommentAttachment {
         let attachment = CommentAttachment()
-        attachment.text = text
+        attachment.text = comment
         replace(at: range, with: attachment)
 
         return attachment
