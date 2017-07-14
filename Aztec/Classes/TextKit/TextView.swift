@@ -1181,48 +1181,12 @@ open class TextView: UITextView {
 
     // MARK: - Attachments
 
-    /// Updates the attachment properties to the new values
-    ///
-    /// - Parameters:
-    ///     - attachment: the attachment to update
-    ///     - alignment: the alignment value
-    ///     - size: the size value
-    ///     - url: the attachment url
-    ///
-    open func update(attachment: ImageAttachment,
-                     alignment: ImageAttachment.Alignment,
-                     size: ImageAttachment.Size,
-                     url: URL) {
-        storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
-        layoutManager.invalidateLayout(for: attachment)
-        layoutManager.ensureLayoutForContainers()
-        delegate?.textViewDidChange?(self)
-    }
-
-    open func update(attachment: VideoAttachment) {        
-        layoutManager.invalidateLayout(for: attachment)
-        layoutManager.ensureLayoutForContainers()
-        delegate?.textViewDidChange?(self)
-    }
-
-
-    /// Updates the Attachment's HTML contents to the new specified value.
-    ///
-    /// - Parameters:
-    ///     - attachment: The attachment to be updated
-    ///     - html: New *VALID* HTML to be set
-    ///
-    open func update(attachment: HTMLAttachment, html: String) {
-        storage.update(attachment: attachment, html: html)
-        delegate?.textViewDidChange?(self)
-    }
-
     /// Invalidates the layout of the attachment and marks it to be refresh on the next update
     ///
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayout(for attachment: MediaAttachment) {
+    open func refreshLayout(for attachment: NSTextAttachment) {
         layoutManager.invalidateLayout(for: attachment)
         layoutManager.ensureLayoutForContainers()
     }
