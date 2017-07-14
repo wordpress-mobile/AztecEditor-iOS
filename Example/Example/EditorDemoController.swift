@@ -800,7 +800,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceWithComment(at: richTextView.selectedRange, text: Constants.moreAttachmentText)
+        richTextView.replace(richTextView.selectedRange, withComment: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
