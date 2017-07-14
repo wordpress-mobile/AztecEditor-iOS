@@ -15,16 +15,22 @@ protocol TextStorageAttachmentsDelegate {
     ///     - success: Callback block to be invoked with the image fetched from the url.
     ///     - failure: Callback block to be invoked when an error occurs when fetching the image.
     ///
-    /// - Returns: returns a temporary UIImage to be used while the request is happening
-    ///
     func storage(
         _ storage: TextStorage,
         attachment: NSTextAttachment,
         imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
-    
-    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage
+        onFailure failure: @escaping () -> ())
+
+    /// Provides an image placeholder for a specified attachment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the image.
+    ///     - attachment: The attachment that is requesting the image.
+    ///
+    /// - Returns: An Image placeholder to be rendered onscreen.
+    ///
+    func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
     /// delegate can specify an URL where that image is available.
@@ -363,39 +369,45 @@ open class TextStorage: NSTextStorage {
 }
 
 
-// MARK: - TextStorage: TextAttachmentDelegate Methods
+// MARK: - TextStorage: MediaAttachmentDelegate Methods
 //
 extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, missingImageFor: attachment)
+        return attachmentsDelegate.storage(self, placeholderFor: attachment)
     }
-
 
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
+
+// MARK: - TextStorage: VideoAttachmentDelegate Methods
+//
 extension TextStorage: VideoAttachmentDelegate {
+
+    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+    }
 
     func videoAttachment(
         _ videoAttachment: VideoAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
-    
 }
 
 

@@ -4,11 +4,11 @@ import UIKit
 
 class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
-        return placeholderImage(for: attachment)
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
+        // NO OP!
     }
 
-    func textView(_ textView: TextView, placeholderForAttachment attachment: NSTextAttachment) -> UIImage {
+    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
         return placeholderImage(for: attachment)
     }
 

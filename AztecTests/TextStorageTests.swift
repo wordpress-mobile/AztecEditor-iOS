@@ -111,12 +111,12 @@ class TextStorageTests: XCTestCase
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
-            return UIImage()
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) {
+            // NO OP
         }
 
         func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {

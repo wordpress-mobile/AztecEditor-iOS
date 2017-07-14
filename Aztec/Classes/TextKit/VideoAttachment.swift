@@ -6,7 +6,9 @@ protocol VideoAttachmentDelegate: class {
         _ videoAttachment: VideoAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
+
+    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage
 }
 
 /// Custom text attachment.
