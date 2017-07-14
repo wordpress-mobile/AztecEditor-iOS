@@ -11,6 +11,8 @@ class LinkFormatter: StandardAttributeFormatter {
 
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
+        var updatedAttributes = attributes
+
         if let representation = representation,
             case let .element(element) = representation {
 
@@ -30,7 +32,46 @@ class LinkFormatter: StandardAttributeFormatter {
             //
             assert(representation == nil)
         }
-        
-        return super.apply(to: attributes, andStore: representation)
+
+        updatedAttributes = addUnderlineInLink(attributes: attributes)
+
+        return super.apply(to: updatedAttributes, andStore: representation)
     }
+}
+
+
+extension LinkFormatter{
+
+    /// Create underline link to the designated string with existing attributes.
+    ///
+    /// - Parameters:
+    ///     - attributes: Existing atributes for formatting.
+    ///
+
+    internal func addUnderlineInLink(attributes:[String: Any]?) -> [String: Any]{
+        guard let attrbutes = attributes else{
+            return ["":""]
+        }
+        var modifiedAttributes : [String : Any] = [NSUnderlineStyleAttributeName: NSUnderlineStyle.styleSingle.rawValue]
+        for (attributeKey, attributeValue) in attrbutes{
+            modifiedAttributes[attributeKey] = attributeValue
+        }
+        return modifiedAttributes
+    }
+
+    /// Remove underline from URL link
+    ///
+    /// - Parameters:
+    ///     - attributes: Existing atributes for formatting.
+    ///
+
+    internal func removeUnderlineInLink(attributes:[String: Any]?) -> [String: Any]{
+        guard let attrbutes = attributes else{
+            return ["":""]
+        }
+        var modifiedAttributes = attrbutes
+        modifiedAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
+        return modifiedAttributes
+    }
+
 }

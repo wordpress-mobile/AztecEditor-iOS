@@ -653,6 +653,20 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
 
+    func testInsertingUnderlineLinkWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: 0)
+
+        let textView = createTextView(withHTML: "")
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, title: linkTitle, inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\"><u>\(linkTitle)</u></a>")
+    }
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
         let textView = createEmptyTextView()
 

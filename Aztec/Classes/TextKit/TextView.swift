@@ -909,14 +909,14 @@ open class TextView: UITextView {
 
         let originalText = attributedText.attributedSubstring(from: range)
         let attributedTitle = NSAttributedString(string: title)
-        let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
+        let finalRange = NSRange(location: range.location, length: attributedTitle.length)
 
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
         let formatter = LinkFormatter()
-        formatter.attributeValue = url        
+        formatter.attributeValue = url
         let attributes = formatter.apply(to: typingAttributes)
 
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
