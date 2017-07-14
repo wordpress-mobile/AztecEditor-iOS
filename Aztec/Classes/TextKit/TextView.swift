@@ -1050,22 +1050,19 @@ open class TextView: UITextView {
         bounds.origin.y += textContainerInset.top
 
         // Let's check if we have media attachment in place
-        var mediaBounds: CGRect = .zero
-        if let mediaAttachment = attachment as? MediaAttachment {
-            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        guard let mediaAttachment = attachment as? MediaAttachment else {
+            return bounds.contains(point) ? attachment : nil
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
+        let mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
         bounds.size.width = mediaBounds.size.width
         bounds.size.height = mediaBounds.size.height
 
-        if bounds.contains(point) {
-            return attachment
-        }
-
-        return nil
+        return bounds.contains(point) ? attachment : nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
