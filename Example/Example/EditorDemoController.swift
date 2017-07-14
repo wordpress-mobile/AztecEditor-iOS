@@ -1147,7 +1147,8 @@ private extension EditorDemoController {
     func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
-            self?.richTextView.update(attachment: attachment, html: html)
+            attachment.rawHTML = html
+            self?.richTextView.refreshLayout(for: attachment)
             self?.dismiss(animated: true, completion: nil)
         }
 
@@ -1258,7 +1259,7 @@ private extension EditorDemoController
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
                 videoAttachment.srcURL = videoURL                
-                richTextView.update(attachment: videoAttachment)
+                richTextView.refreshLayout(for: videoAttachment)
             }
         }
         richTextView.refreshLayout(for: attachment)
@@ -1322,18 +1323,16 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, alt) in
-
-            guard let strongSelf = self else {
-                return
-            }
+        detailsViewController.onUpdate = { (alignment, size, url, alt) in
             if let alt = alt {
                 attachment.extraAttributes["alt"] = alt
             }
-            strongSelf.richTextView.update(attachment: attachment,
-                                           alignment: alignment,
-                                           size: size,
-                                           url: url)
+
+            attachment.alignment = alignment
+            attachment.size = size
+            attachment.url = url
+
+            self.richTextView.refreshLayout(for: attachment)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
