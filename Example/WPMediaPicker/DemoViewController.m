@@ -41,7 +41,7 @@
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
-                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage),
+                     MediaPickerOptionsFilterType:@(WPMediaTypeImage | WPMediaTypeVideo),
                      MediaPickerOptionsCustomPreview:@(NO)
                      };
 

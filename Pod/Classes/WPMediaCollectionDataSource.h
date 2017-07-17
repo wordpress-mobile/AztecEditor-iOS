@@ -1,12 +1,11 @@
 @import AVFoundation;
 
-typedef NS_ENUM(NSInteger, WPMediaType){
-    WPMediaTypeImage,
-    WPMediaTypeVideo,
-    WPMediaTypeVideoOrImage,
-    WPMediaTypeAudio,
-    WPMediaTypeOther,
-    WPMediaTypeAll
+typedef NS_OPTIONS(NSInteger, WPMediaType){
+    WPMediaTypeImage = 1,
+    WPMediaTypeVideo = 1 << 1,
+    WPMediaTypeAudio = 1 << 2,
+    WPMediaTypeOther = 1 << 3,
+    WPMediaTypeAll= 0XFF
 };
 
 static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
