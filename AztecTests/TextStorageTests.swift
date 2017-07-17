@@ -142,17 +142,20 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
     }
 
-    func testUpdateImage() {
+    func testEditingImageAttachmentAfterItHasBeenInsertedCausesItsAttributesToProperlySerialize() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
+
         let url = URL(string: "https://wordpress.com")!
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
-        storage.update(attachment: attachment, alignment: .left, size: .medium, url: url)
-        let html = storage.getHTML()
+        attachment.alignment = .left
+        attachment.size = .medium
 
+        let html = storage.getHTML()
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }

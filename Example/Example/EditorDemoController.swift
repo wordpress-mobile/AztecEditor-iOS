@@ -1068,7 +1068,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
                 if selectedAttachment is ImageAttachment {
                     selectedAttachment.overlayImage = nil
                 }
-                richTextView.refreshLayout(for: selectedAttachment)
+                richTextView.edited(selectedAttachment)
             }
 
             // and mark the newly tapped attachment
@@ -1077,7 +1077,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             if attachment.overlayImage == nil {
                 attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             }
-            richTextView.refreshLayout(for: attachment)
+            richTextView.edited(attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -1086,7 +1086,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.message = nil
-            richTextView.refreshLayout(for: mediaAttachment)
+            richTextView.edited(mediaAttachment)
         }
     }
 
@@ -1148,7 +1148,8 @@ private extension EditorDemoController {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
             attachment.rawHTML = html
-            self?.richTextView.refreshLayout(for: attachment)
+            self?.richTextView.edited(attachment)
+
             self?.dismiss(animated: true, completion: nil)
         }
 
@@ -1258,11 +1259,10 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL                
-                richTextView.refreshLayout(for: videoAttachment)
+                videoAttachment.srcURL = videoURL
             }
         }
-        richTextView.refreshLayout(for: attachment)
+        richTextView.edited(attachment)
     }
 
     var mediaMessageAttributes: [String: Any] {
@@ -1330,9 +1330,9 @@ private extension EditorDemoController
 
             attachment.alignment = alignment
             attachment.size = size
-            attachment.url = url
+            attachment».url = url
 
-            self.richTextView.refreshLayout(for: attachment)
+            self.richTextView.edited(attachment)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
