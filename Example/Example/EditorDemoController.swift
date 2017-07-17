@@ -1330,7 +1330,7 @@ private extension EditorDemoController
 
             attachment.alignment = alignment
             attachment.size = size
-            attachment».url = url
+            attachment.url = url
 
             self.richTextView.edited(attachment)
         }
