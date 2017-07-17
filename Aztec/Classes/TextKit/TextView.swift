@@ -1180,16 +1180,23 @@ open class TextView: UITextView {
         return max(0, index - 1)
     }
 
+
     // MARK: - Attachments
 
-    /// Invalidates the layout of the attachment and marks it to be refresh on the next update
+    /// Invalidates the layout of the attachment and marks it to be refresh on the next update cycle.
+    /// This method should be called after editing any kind of *Attachment, since, whenever its bounds
+    /// do change, we'll need to perform a layout pass. Otherwise, TextKit's inner map won't match with
+    /// what's actually onscreen.
     ///
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayout(for attachment: NSTextAttachment) {
-        layoutManager.invalidateLayout(for: attachment)
-        layoutManager.ensureLayoutForContainers()
+    open func edited(_ attachment: NSTextAttachment) {
+        guard let range = storage.range(for: attachment) else {
+            return
+        }
+
+        storage.edited(.editedAttributes, range: range, changeInLength: 0)
     }
 
 
