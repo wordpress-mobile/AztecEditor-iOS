@@ -53,17 +53,13 @@ private extension LayoutManager {
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
-            let blockquoteDepth = CGFloat(paragraphStyle.properties.filter({ (property) -> Bool in
-                return property is Blockquote || property is TextList
-                }).index(where: { (property) -> Bool in
-                return property is Blockquote
-            }) ?? 0)
+            let blockquoteIndent = paragraphStyle.blockquoteIndent
 
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let paddingWidth = (blockquoteDepth == 0 ? 0: blockquoteDepth + 1) * Metrics.defaultIndentation
-                var paddingHeight: CGFloat = blockquoteDepth == 0 ? 0 : (Metrics.paragraphSpacing / 2)
+                let paddingWidth = blockquoteIndent
+                var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
                 //cheking if we this a middle line inside a blockquote paragraph
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string

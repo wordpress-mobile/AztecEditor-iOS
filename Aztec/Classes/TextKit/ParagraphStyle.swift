@@ -183,6 +183,22 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
 
+    /// The amount of indent for the blockquote of the paragraph if any.
+    ///
+    public var blockquoteIndent: CGFloat {
+        let blockquoteIndex = self.properties.filter({ (property) -> Bool in
+            return property is Blockquote || property is TextList
+        }).index(where: { (property) -> Bool in
+            return property is Blockquote
+        })
+
+        guard let depth = blockquoteIndex, depth > 0 else {
+            return 0
+        }
+
+        return CGFloat(depth + 1) * Metrics.defaultIndentation
+    }
+
     var baseHeadIndent: CGFloat = 0
     var baseFirstLineHeadIndent: CGFloat = 0
     var baseTailIndent: CGFloat = 0
