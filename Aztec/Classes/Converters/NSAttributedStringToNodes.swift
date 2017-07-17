@@ -790,7 +790,9 @@ private extension NSAttributedStringToNodes {
         for (key,value) in attachment.extraAttributes {
             var finalValue = value
             if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
-                finalValue = baseValue + " " + finalValue
+                let baseComponents = Set(baseValue.components(separatedBy: " "))
+                let extraComponents = Set(value.components(separatedBy: " "))
+                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
             element.updateAttribute(named: key, value: .string(finalValue))
         }

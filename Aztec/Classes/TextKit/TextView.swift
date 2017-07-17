@@ -15,14 +15,11 @@ public protocol TextViewAttachmentDelegate: class {
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
     ///
-    /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
-    ///         of the images.
-    ///
     func textView(_ textView: TextView,
                   attachment: NSTextAttachment,
                   imageAt url: URL,
                   onSuccess success: @escaping (UIImage) -> Void,
-                  onFailure failure: @escaping () -> Void) -> UIImage
+                  onFailure failure: @escaping () -> Void)
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
@@ -40,9 +37,10 @@ public protocol TextViewAttachmentDelegate: class {
     /// - Parameters:
     ///   - textView: the textview that is requesting the image
     ///   - attachment: the attachment that does not an have image source
+    ///
     /// - Returns: an UIImage to represent the attachment graphically
-    func textView(_ textView: TextView,
-                  placeholderForAttachment attachment: NSTextAttachment) -> UIImage
+    ///
+    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage
 
     /// Called after a attachment is removed from the storage.
     ///
@@ -1052,22 +1050,19 @@ open class TextView: UITextView {
         bounds.origin.y += textContainerInset.top
 
         // Let's check if we have media attachment in place
-        var mediaBounds: CGRect = .zero
-        if let mediaAttachment = attachment as? MediaAttachment {
-            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        guard let mediaAttachment = attachment as? MediaAttachment else {
+            return bounds.contains(point) ? attachment : nil
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
+        let mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
         bounds.size.width = mediaBounds.size.width
         bounds.size.height = mediaBounds.size.height
 
-        if bounds.contains(point) {
-            return attachment
-        }
-
-        return nil
+        return bounds.contains(point) ? attachment : nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
@@ -1235,18 +1230,18 @@ open class TextView: UITextView {
 
     // MARK: - More
 
-    /// Replaces with an HTML Comment at the specified range.
+    /// Replaces a range with a comment.
     ///
     /// - Parameters:
     ///     - range: The character range that must be replaced with a Comment Attachment.
-    ///     - text: The Comment Attachment's Text.
+    ///     - comment: The text for the comment.
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func replaceWithComment(at range: NSRange, text: String) -> CommentAttachment {
+    open func replace(_ range: NSRange, withComment comment: String) -> CommentAttachment {
         let attachment = CommentAttachment()
-        attachment.text = text
+        attachment.text = comment
         replace(at: range, with: attachment)
 
         return attachment
@@ -1435,20 +1430,21 @@ extension TextView: TextStorageAttachmentsDelegate {
         attachment: NSTextAttachment,
         imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage {
+        onFailure failure: @escaping () -> ()) {
         
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        return textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
+        textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
-    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
+    func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
-        return textAttachmentDelegate.textView(self, placeholderForAttachment: attachment)
+
+        return textAttachmentDelegate.textView(self, placeholderFor: attachment)
     }
     
     func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
