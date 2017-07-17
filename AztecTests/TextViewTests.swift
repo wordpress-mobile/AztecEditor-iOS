@@ -1393,7 +1393,6 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
         guard let videoAttachment = textView.storage.mediaAttachments.first! as? VideoAttachment else {
             fatalError()
-            return
         }
 
         videoAttachment.srcURL = URL(string:"newVideo.mp4")!
