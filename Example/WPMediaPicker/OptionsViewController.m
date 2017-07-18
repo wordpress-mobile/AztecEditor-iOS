@@ -73,7 +73,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     UISegmentedControl *segment = [[UISegmentedControl alloc] initWithItems:@[@"Photos", @"Videos", @"Photos & Videos"]];
     self.filterMediaCell.accessoryView = segment;
     NSInteger filterOption = [self.options[MediaPickerOptionsFilterType] intValue];
-    if (filterOption & (WPMediaTypeImage | WPMediaTypeVideo)) {
+    if ((filterOption & WPMediaTypeImage) && (filterOption & WPMediaTypeVideo)) {
         segment.selectedSegmentIndex = 2;
     } else if (filterOption & WPMediaTypeImage) {
         segment.selectedSegmentIndex = 0;

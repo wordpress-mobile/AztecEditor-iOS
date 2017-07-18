@@ -244,7 +244,7 @@
     [self presentViewController:self.mediaPicker animated:YES completion:nil];
 }
 
-- (void) showOptions:(id) sender
+- (void)showOptions:(id) sender
 {
     OptionsViewController *optionsViewController = [[OptionsViewController alloc] init];
     optionsViewController.delegate = self;
