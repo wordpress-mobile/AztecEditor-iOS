@@ -887,9 +887,13 @@ open class TextView: UITextView {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
-            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            var location = max(pristine.location - 1, 0)
+            if pristine.location == location {
+                location = min(pristine.location + 1, self.storage.length)
+            }
+
             let beforeTypingAttributes = self.typingAttributes
-            self.selectedRange = updated
+            self.selectedRange = NSMakeRange(location, 0)
             self.selectedRange = pristine
             self.typingAttributes = beforeTypingAttributes
         }
