@@ -1068,7 +1068,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
                 if selectedAttachment is ImageAttachment {
                     selectedAttachment.overlayImage = nil
                 }
-                richTextView.edited(selectedAttachment)
+                richTextView.refresh(selectedAttachment)
             }
 
             // and mark the newly tapped attachment
@@ -1077,7 +1077,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             if attachment.overlayImage == nil {
                 attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             }
-            richTextView.edited(attachment)
+            richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -1086,7 +1086,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.message = nil
-            richTextView.edited(mediaAttachment)
+            richTextView.refresh(mediaAttachment)
         }
     }
 
@@ -1148,7 +1148,7 @@ private extension EditorDemoController {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
             attachment.rawHTML = html
-            self?.richTextView.edited(attachment)
+            self?.richTextView.refresh(attachment)
 
             self?.dismiss(animated: true, completion: nil)
         }
@@ -1262,7 +1262,7 @@ private extension EditorDemoController
                 videoAttachment.srcURL = videoURL
             }
         }
-        richTextView.edited(attachment)
+        richTextView.refresh(attachment)
     }
 
     var mediaMessageAttributes: [String: Any] {
@@ -1332,7 +1332,7 @@ private extension EditorDemoController
             attachment.size = size
             attachment.url = url
 
-            self.richTextView.edited(attachment)
+            self.richTextView.refresh(attachment)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        

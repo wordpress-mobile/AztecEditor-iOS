@@ -1190,7 +1190,7 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func edited(_ attachment: NSTextAttachment) {
+    open func refresh(_ attachment: NSTextAttachment) {
         guard let range = storage.range(for: attachment) else {
             return
         }
