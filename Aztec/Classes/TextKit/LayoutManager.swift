@@ -15,10 +15,13 @@ class LayoutManager: NSLayoutManager {
     ///
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
-
     /// HTML Pre Background Color
     ///
     var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+
+    /// Link underlines Color
+    ///
+    var linkUnderlineColor = UIColor.blue
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -28,6 +31,7 @@ class LayoutManager: NSLayoutManager {
         drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
         drawHTMLPre(forGlyphRange: glyphsToShow, at: origin)
         drawLists(forGlyphRange: glyphsToShow, at: origin)
+        drawLinkUnderlines(forGlyphRange: glyphsToShow, at: origin)
     }
 }
 
@@ -236,5 +240,33 @@ private extension LayoutManager {
 
         let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
         return UIFont(descriptor: descriptor!, size: font.pointSize)
+    }
+}
+
+// MARK: - Link Underline Helpers
+//
+private extension LayoutManager {
+
+    /// Draws a Underline associated to a Range + Graphics Origin.
+    ///
+    func drawLinkUnderlines(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+        guard let textStorage = textStorage else {
+            return
+        }
+
+        linkUnderlineColor.setStroke()
+
+        enumerateLineFragments(forGlyphRange: glyphsToShow) { (rect, usedRect, textContainer, glyphRange, stop) in
+            let characterRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
+            //draw underline
+            textStorage.enumerateAttribute(NSLinkAttributeName, in: characterRange, options: []){ (object, range, stop) in
+                guard object is URL || object is String else {
+                    return
+                }
+                let linkGlyphRange = self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+                self.drawUnderline(forGlyphRange: linkGlyphRange, underlineType: .styleSingle, baselineOffset: 0, lineFragmentRect: usedRect, lineFragmentGlyphRange: glyphRange, containerOrigin: origin)
+            }
+        }
+
     }
 }
