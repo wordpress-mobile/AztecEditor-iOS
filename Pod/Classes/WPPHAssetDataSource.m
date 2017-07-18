@@ -37,7 +37,7 @@
     if (!self) {
         return nil;
     }
-    _mediaTypeFilter = WPMediaTypeVideoOrImage;
+    _mediaTypeFilter = WPMediaTypeVideo | WPMediaTypeImage;
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
     _cachedCollections = [[NSMutableArray alloc] init];
@@ -198,26 +198,23 @@
 
 + (NSPredicate *)predicateForFilterMediaType:(WPMediaType)mediaType
 {
-    switch (mediaType) {
-        case WPMediaTypeVideoOrImage:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
-            break;
-        case WPMediaTypeImage:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeImage];
-            break;
-        case WPMediaTypeVideo:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo];
-            break;
-        case WPMediaTypeAudio:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeAudio];
-            break;
-        case WPMediaTypeOther:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown];
-            break;
-        case WPMediaTypeAll:
-            return [NSPredicate predicateWithFormat:@"(mediaType == %d) || (mediaType == %d) || (mediaType == %d)", PHAssetMediaTypeImage, PHAssetMediaTypeVideo, PHAssetMediaTypeAudio];
-            break;
+    NSMutableArray *predicates = [[NSMutableArray alloc] init];
+
+    if (mediaType & WPMediaTypeImage) {
+        [predicates addObject:[NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeImage]];
     }
+    if (mediaType & WPMediaTypeVideo) {
+        [predicates addObject:[NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeVideo]];
+    }
+    if (mediaType & WPMediaTypeAudio) {
+        [predicates addObject:[NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeAudio]];
+    }
+    if (mediaType & WPMediaTypeOther) {
+        [predicates addObject:[NSPredicate predicateWithFormat:@"(mediaType == %d)", PHAssetMediaTypeUnknown]];
+    }
+
+    NSCompoundPredicate *compoundPredicate = [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:predicates];
+    return compoundPredicate;
 }
 
 - (void)loadAssetsWithSuccess:(WPMediaSuccessBlock)successBlock

@@ -1,4 +1,5 @@
 #import "OptionsViewController.h"
+#import "WPMediaCollectionDataSource.h"
 
 NSString const *MediaPickerOptionsShowMostRecentFirst = @"MediaPickerOptionsShowMostRecentFirst";
 NSString const *MediaPickerOptionsUsePhotosLibrary = @"MediaPickerOptionsUsePhotosLibrary";
@@ -71,7 +72,14 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.filterMediaCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     UISegmentedControl *segment = [[UISegmentedControl alloc] initWithItems:@[@"Photos", @"Videos", @"Photos & Videos"]];
     self.filterMediaCell.accessoryView = segment;
-    segment.selectedSegmentIndex = [self.options[MediaPickerOptionsFilterType] intValue];
+    NSInteger filterOption = [self.options[MediaPickerOptionsFilterType] intValue];
+    if ((filterOption & WPMediaTypeImage) && (filterOption & WPMediaTypeVideo)) {
+        segment.selectedSegmentIndex = 2;
+    } else if (filterOption & WPMediaTypeImage) {
+        segment.selectedSegmentIndex = 0;
+    } else {
+        segment.selectedSegmentIndex = 1;
+    }
     self.filterMediaCell.textLabel.text = @"Media Type";
 
     self.customPreviewCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
@@ -124,6 +132,14 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
 - (void)done:(id) sender
 {
+    NSInteger selectedFilterOption = ((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex;
+    NSInteger filterType = WPMediaTypeImage;
+    if (selectedFilterOption == 1) {
+        filterType = WPMediaTypeVideo;
+    } else if (selectedFilterOption == 2) {
+        filterType = WPMediaTypeImage | WPMediaTypeVideo;
+    }
+
     if ([self.delegate respondsToSelector:@selector(optionsViewController:changed:)]){
         id<OptionsViewControllerDelegate> delegate = self.delegate;
         NSDictionary *newOptions = @{
@@ -132,7 +148,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
              MediaPickerOptionsPreferFrontCamera:@(((UISwitch *)self.preferFrontCameraCell.accessoryView).on),
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on),
              MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on),
-             MediaPickerOptionsFilterType:@(((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex),
+             MediaPickerOptionsFilterType:@(filterType),
              MediaPickerOptionsCustomPreview:@(((UISwitch *)self.customPreviewCell.accessoryView).on),
              };
         

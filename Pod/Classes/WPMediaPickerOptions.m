@@ -11,7 +11,7 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _allowCaptureOfMedia = YES;
         _preferFrontCamera = NO;
         _showMostRecentFirst = NO;
-        _filter = WPMediaTypeVideoOrImage;
+        _filter = WPMediaTypeVideo | WPMediaTypeImage;
         _cameraPreviewSize = CameraPreviewSize;
         _allowMultipleSelection = YES;
     }
