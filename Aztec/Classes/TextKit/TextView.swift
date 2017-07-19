@@ -889,14 +889,23 @@ open class TextView: UITextView {
     func forceRedrawCursorAfterDelay() {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let pristine = self.selectedRange
-            var location = max(pristine.location - 1, 0)
-            if pristine.location == location {
-                location = min(pristine.location + 1, self.storage.length)
-            }
-
             let beforeTypingAttributes = self.typingAttributes
+            let pristine = self.selectedRange
+            let maxLength = self.storage.length
+
+            // Determine the Temporary Shift Location:
+            // - If we're at the end of the document, we'll move the caret minus one character
+            // - Otherwise, we'll move the caret plus one position
+            //
+            let delta = pristine.location == maxLength ? -1 : 1
+            let location = min(max(pristine.location + delta, 0), maxLength)
+
+            // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+            //
             self.selectedRange = NSMakeRange(location, 0)
+
+            // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
+            //
             self.selectedRange = pristine
             self.typingAttributes = beforeTypingAttributes
         }
