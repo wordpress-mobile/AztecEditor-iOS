@@ -1220,11 +1220,11 @@ open class TextView: UITextView {
     /// - Undo Support comes for free!
     /// - Layout will be ensured right after executing the edition block
     ///
-    /// *Note:* Your NSTextAttachment MUST implement NSCopying protocol. This is a requirement!
-    ///
     /// - Parameters:
     ///     - attachment: Instance to be edited
     ///     - block: Edition closure to be executed
+    ///
+    /// *Note:* Your NSTextAttachment MUST implement NSCopying protocol. This is a requirement!
     ///
     open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
         guard let copying = attachment as? NSCopying else {
