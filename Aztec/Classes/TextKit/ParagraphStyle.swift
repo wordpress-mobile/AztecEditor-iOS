@@ -121,7 +121,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var headIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = (CGFloat(lists.count + blockquotes.count) * Metrics.listTextIndentation)
 
             return baseHeadIndent + extra
         }
@@ -133,7 +133,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var firstLineHeadIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = (CGFloat(lists.count + blockquotes.count) * Metrics.listTextIndentation)
 
             return baseFirstLineHeadIndent + extra
         }
@@ -192,11 +192,28 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             return property is Blockquote
         })
 
-        guard let depth = blockquoteIndex, depth > 0 else {
+        guard let depth = blockquoteIndex else {
             return 0
         }
 
-        return CGFloat(depth + 1) * Metrics.defaultIndentation
+        return CGFloat(depth) * Metrics.listTextIndentation
+    }
+
+    /// The amount of indent for the list of the paragraph if any.
+    ///
+    public var listIndent: CGFloat {
+        let listAndBlockquotes = self.properties.filter({ (property) -> Bool in
+            return property is Blockquote || property is TextList
+        })
+        var depth = 0
+        for position in (0..<listAndBlockquotes.count).reversed() {
+            if listAndBlockquotes[position] is TextList {
+                depth = position
+                break
+            }
+        }
+
+        return CGFloat(depth) * Metrics.listTextIndentation
     }
 
     var baseHeadIndent: CGFloat = 0

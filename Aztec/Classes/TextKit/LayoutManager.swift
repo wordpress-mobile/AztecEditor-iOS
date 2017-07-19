@@ -58,7 +58,7 @@ private extension LayoutManager {
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let paddingWidth = blockquoteIndent
+                let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
                 var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
                 //cheking if we this a middle line inside a blockquote paragraph
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
@@ -202,8 +202,8 @@ private extension LayoutManager {
     private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
         var resultAttributes = attributes
         var indent: CGFloat = 0
-        if let style = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
-            indent = style.headIndent
+        if let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
+            indent = style.listIndent + Metrics.listTextIndentation
         }
 
         resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle(indent: indent)
