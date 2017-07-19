@@ -884,13 +884,29 @@ open class TextView: UITextView {
     /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
     /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
     ///
+    /// Workaround: By changing the selectedRange back and forth, we're forcing UITextView to effectively re-render
+    /// the caret.
+    ///
     func forceRedrawCursorAfterDelay() {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let pristine = self.selectedRange
-            let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
             let beforeTypingAttributes = self.typingAttributes
-            self.selectedRange = updated
+            let pristine = self.selectedRange
+            let maxLength = self.storage.length
+
+            // Determine the Temporary Shift Location:
+            // - If we're at the end of the document, we'll move the caret minus one character
+            // - Otherwise, we'll move the caret plus one position
+            //
+            let delta = pristine.location == maxLength ? -1 : 1
+            let location = min(max(pristine.location + delta, 0), maxLength)
+
+            // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+            //
+            self.selectedRange = NSMakeRange(location, 0)
+
+            // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
+            //
             self.selectedRange = pristine
             self.typingAttributes = beforeTypingAttributes
         }
