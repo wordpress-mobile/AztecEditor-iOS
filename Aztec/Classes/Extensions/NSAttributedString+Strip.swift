@@ -15,14 +15,22 @@ extension NSAttributedString {
         let range = clean.rangeOfEntireString
         clean.enumerateAttributes(in: range, options: []) { (attributes, range, _) in
             for (key, value) in attributes {
-                guard kinds.contains(where: { type(of: value) == $0 }) else {
-                    continue
-                }
+                let contained = kinds.contains(where: { kind in
+                    return self.isObject(value, kindOf: kind)
+                })
 
-                clean.removeAttribute(key, range: range)
+                if contained {
+                    clean.removeAttribute(key, range: range)
+                }
             }
         }
 
         return clean
+    }
+
+    /// Returns true if a given instance's kind matches with a specified type.
+    ///
+    private func isObject<T>(_ object: Any, kindOf type: T) -> Bool {
+        return type(of: object) is T
     }
 }
