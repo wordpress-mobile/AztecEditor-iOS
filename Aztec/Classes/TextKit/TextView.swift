@@ -1202,7 +1202,11 @@ open class TextView: UITextView {
     ///
     ///
     open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
-        guard let range = storage.range(for: attachment), let copy = attachment.copy() as? T else {
+        guard let copying = attachment as? NSCopying else {
+            fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
+        }
+
+        guard let range = storage.range(for: attachment), let copy = copying.copy() as? T else {
             return
         }
 
