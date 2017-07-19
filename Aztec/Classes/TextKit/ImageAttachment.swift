@@ -115,7 +115,7 @@ open class ImageAttachment: MediaAttachment {
 extension ImageAttachment {
 
     override public func copy(with zone: NSZone? = nil) -> Any {
-        guard let clone = super.copy() as? ImageAttachment else {
+        guard let clone = super.copy(with: nil) as? ImageAttachment else {
             fatalError()
         }
 
