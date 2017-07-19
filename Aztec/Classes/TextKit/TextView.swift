@@ -1199,6 +1199,21 @@ open class TextView: UITextView {
         storage.edited(.editedAttributes, range: range, changeInLength: 0)
     }
 
+    ///
+    ///
+    open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
+        guard let range = storage.range(for: attachment), let copy = attachment.copy() as? T else {
+            return
+        }
+
+        block(copy)
+
+        performUndoable(at: range) {
+            storage.setAttributes([NSAttachmentAttributeName: copy], range: range)
+            return range
+        }
+    }
+
 
     // MARK: - More
 
