@@ -26,7 +26,7 @@ open class HTMLAttachment: NSTextAttachment {
     ///
     open var rawHTML: String = "" {
         didSet {
-            glyphImage = nil
+            rootTagName = extractRootTagName(from: rawHTML)
         }
     }
 
@@ -48,6 +48,16 @@ open class HTMLAttachment: NSTextAttachment {
 
         self.rootTagName = rootTagName
         self.rawHTML = rawHTML
+    }
+
+
+    /// Extracts the root tag name from a given HTML string
+    ///
+    private func extractRootTagName(from html: String) -> String {
+        let root = InHTMLConverter().convert(html)
+        let firstChildren = root.children.first
+
+        return firstChildren?.name ?? NSLocalizedString("Unknown", comment: "Unknown Tag Name")
     }
 
 
