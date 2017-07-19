@@ -202,7 +202,6 @@ open class TextView: UITextView {
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
         font = defaultFont
-        linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
         setupMenuController()
         setupAttachmentTouchDetection()
     }
@@ -1067,19 +1066,22 @@ open class TextView: UITextView {
         bounds.origin.y += textContainerInset.top
 
         // Let's check if we have media attachment in place
-        guard let mediaAttachment = attachment as? MediaAttachment else {
-            return bounds.contains(point) ? attachment : nil
+        var mediaBounds: CGRect = .zero
+        if let mediaAttachment = attachment as? MediaAttachment {
+            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
-        let mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
-
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
         bounds.size.width = mediaBounds.size.width
         bounds.size.height = mediaBounds.size.height
 
-        return bounds.contains(point) ? attachment : nil
+        if bounds.contains(point) {
+            return attachment
+        }
+
+        return nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
@@ -1196,23 +1198,52 @@ open class TextView: UITextView {
         return max(0, index - 1)
     }
 
-
     // MARK: - Attachments
 
-    /// Invalidates the layout of the attachment and marks it to be refresh on the next update cycle.
-    /// This method should be called after editing any kind of *Attachment, since, whenever its bounds
-    /// do change, we'll need to perform a layout pass. Otherwise, TextKit's inner map won't match with
-    /// what's actually onscreen.
+    /// Updates the attachment properties to the new values
+    ///
+    /// - Parameters:
+    ///     - attachment: the attachment to update
+    ///     - alignment: the alignment value
+    ///     - size: the size value
+    ///     - url: the attachment url
+    ///
+    open func update(attachment: ImageAttachment,
+                     alignment: ImageAttachment.Alignment,
+                     size: ImageAttachment.Size,
+                     url: URL) {
+        storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+    open func update(attachment: VideoAttachment) {        
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+
+    /// Updates the Attachment's HTML contents to the new specified value.
+    ///
+    /// - Parameters:
+    ///     - attachment: The attachment to be updated
+    ///     - html: New *VALID* HTML to be set
+    ///
+    open func update(attachment: HTMLAttachment, html: String) {
+        storage.update(attachment: attachment, html: html)
+        delegate?.textViewDidChange?(self)
+    }
+
+    /// Invalidates the layout of the attachment and marks it to be refresh on the next update
     ///
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refresh(_ attachment: NSTextAttachment) {
-        guard let range = storage.range(for: attachment) else {
-            return
-        }
-
-        storage.edited(.editedAttributes, range: range, changeInLength: 0)
+    open func refreshLayout(for attachment: MediaAttachment) {
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
     }
 
 
