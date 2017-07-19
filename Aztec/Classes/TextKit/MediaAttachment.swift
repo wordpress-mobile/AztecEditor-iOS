@@ -143,7 +143,7 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
-    override init(data contentData: Data?, ofType uti: String?) {
+    override required public init(data contentData: Data?, ofType uti: String?) {
         identifier = ""
         url = nil
         super.init(data: contentData, ofType: uti)
