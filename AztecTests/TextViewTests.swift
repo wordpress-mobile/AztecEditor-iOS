@@ -1389,6 +1389,9 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 
+    /// Verifies that any edition performed on VideoAttachment's srcURL attribute is properly serialized back,
+    /// during the HTML generation step.
+    ///
     func testEditingVideoAttachmentAttributesCausesAttributesToProperlySerializeBack() {
         let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
         guard let videoAttachment = textView.storage.mediaAttachments.first! as? VideoAttachment else {

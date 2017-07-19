@@ -142,6 +142,9 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
     }
 
+    /// Verifies that any edition performed on ImageAttachment attributes is properly serialized back during
+    /// the HTML generation step.
+    ///
     func testEditingImageAttachmentAfterItHasBeenInsertedCausesItsAttributesToProperlySerialize() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
@@ -160,6 +163,9 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
+    /// Verifies that any edition performed on HTMLttachment attributes is properly serialized back during
+    /// the HTML generation step.
+    ///
     func testUpdatingHtmlAttachmentEffectivelyUpdatesTheDom() {
         let initialHTML = "<unknown>html</unknown>"
         let updatedHTML = "<updated>NEW HTML</updated>"
