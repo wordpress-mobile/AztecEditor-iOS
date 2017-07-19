@@ -248,7 +248,9 @@ open class TextView: UITextView {
     }
 
     open override func copy(_ sender: Any?) {
-        let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        let unsupportedAttributes: [Any.Type] = [HTMLElementRepresentation.self, UnsupportedHTML.self]
+        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedAttributes)
+        let data = substring.archivedData()
         super.copy(sender)
 
         storeInPasteboard(encoded: data)
