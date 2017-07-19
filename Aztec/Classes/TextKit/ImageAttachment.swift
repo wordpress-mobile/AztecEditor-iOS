@@ -3,8 +3,8 @@ import UIKit
 
 /// Custom text attachment.
 ///
-open class ImageAttachment: MediaAttachment
-{
+open class ImageAttachment: MediaAttachment {
+
     /// Attachment Alignment
     ///
     open var alignment: Alignment = .center {
@@ -25,6 +25,7 @@ open class ImageAttachment: MediaAttachment
         }
     }
 
+
     /// Creates a new attachment
     ///
     /// - Parameters:
@@ -34,6 +35,7 @@ open class ImageAttachment: MediaAttachment
     required public init(identifier: String, url: URL? = nil) {
         super.init(identifier: identifier, url: url)
     }
+
 
     /// Required Initializer
     ///
@@ -53,6 +55,9 @@ open class ImageAttachment: MediaAttachment
             }
         }
     }
+
+
+    // MARK: - Overriden Methods
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
@@ -105,11 +110,27 @@ open class ImageAttachment: MediaAttachment
 }
 
 
+// MARK: - NSCopying
+//
+extension ImageAttachment {
 
-/// Nested Types
-///
-extension ImageAttachment
-{
+    override public func copy(with zone: NSZone? = nil) -> Any {
+        guard let clone = super.copy() as? ImageAttachment else {
+            fatalError()
+        }
+
+        clone.size = size
+        clone.alignment = alignment
+
+        return clone
+    }
+}
+
+
+// MARL: - Nested Types
+//
+extension ImageAttachment {
+
     /// Alignment
     ///
     public enum Alignment: Int {
