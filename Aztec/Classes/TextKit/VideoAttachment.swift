@@ -54,11 +54,22 @@ open class VideoAttachment: MediaAttachment {
             srcURL = aDecoder.decodeObject(forKey: EncodeKeys.srcURL.rawValue) as? URL
         }
     }
-    
+
+    /// Required Initializer
+    ///
     required public init(identifier: String, url: URL?) {
         self.srcURL = nil
         super.init(identifier: identifier, url: url)
     }
+
+    /// Required Initializer
+    ///
+    required public init(data contentData: Data?, ofType uti: String?) {
+        super.init(data: contentData, ofType: uti)
+    }
+
+
+    // MARK: - NSCoder Support
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
@@ -70,6 +81,8 @@ open class VideoAttachment: MediaAttachment {
     fileprivate enum EncodeKeys: String {
         case srcURL
     }
+
+
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {

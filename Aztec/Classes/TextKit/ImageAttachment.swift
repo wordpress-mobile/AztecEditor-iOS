@@ -3,8 +3,8 @@ import UIKit
 
 /// Custom text attachment.
 ///
-open class ImageAttachment: MediaAttachment
-{
+open class ImageAttachment: MediaAttachment {
+
     /// Attachment Alignment
     ///
     open var alignment: Alignment = .center {
@@ -54,6 +54,15 @@ open class ImageAttachment: MediaAttachment
         }
     }
 
+    /// Required Initializer
+    ///
+    required public init(data contentData: Data?, ofType uti: String?) {
+        super.init(data: contentData, ofType: uti)
+    }
+
+
+    // MARK: - NSCoder Support
+
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
@@ -64,6 +73,7 @@ open class ImageAttachment: MediaAttachment
         case alignment
         case size
     }
+
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
