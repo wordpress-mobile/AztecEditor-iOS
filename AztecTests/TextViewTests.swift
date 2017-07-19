@@ -23,14 +23,14 @@ class TextViewTests: XCTestCase {
 
     // MARK: - TextView construction
 
-    func createEmptyTextView() -> Aztec.TextView {
+    func createEmptyTextView() -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView
     }
 
-    func createTextView(withHTML html: String) -> Aztec.TextView {
+    func createTextView(withHTML html: String) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.setHTML(html)
@@ -47,7 +47,7 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
-    func createTextViewWithContent() -> Aztec.TextView {
+    func createTextViewWithContent() -> TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
@@ -62,6 +62,24 @@ class TextViewTests: XCTestCase {
         
         return richTextView
     }
+
+    func createTextViewWithSampleHTML() -> TextView {
+        return createTextView(withHTML: loadSampleHTML())
+    }
+
+
+    // MARK: - Sample HTML Retrieval
+
+    func loadSampleHTML() -> String {
+        guard let path = Bundle(for: type(of: self)).path(forResource: "content", ofType: "html"),
+            let sample = try? String(contentsOfFile: path)
+        else {
+            fatalError()
+        }
+
+        return sample
+    }
+
 
     // Confirm the composed textView is property configured.
 
@@ -1515,5 +1533,23 @@ class TextViewTests: XCTestCase {
         let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(pristineHTML, generatedHTML)
+    }
+
+    /// This test verifies that copying the Sample HTML Document does not trigger a crash.
+    /// Ref. Issue #626: NSKeyedArchiver Crash
+    ///
+    func testCopyDoesNotCauseAztecToCrash() {
+        let textView = createTextViewWithSampleHTML()
+        textView.selectedRange = textView.storage.rangeOfEntireString
+        textView.copy(nil)
+    }
+
+    /// This test verifies that cutting the Sample HTML Document does not trigger a crash.
+    /// Ref. Issue #626: NSKeyedArchiver Crash
+    ///
+    func testCutDoesNotCauseAztecToCrash() {
+        let textView = createTextViewWithSampleHTML()
+        textView.selectedRange = textView.storage.rangeOfEntireString
+        textView.cut(nil)
     }
 }
