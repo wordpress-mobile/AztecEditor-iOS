@@ -68,6 +68,8 @@ open class VideoAttachment: MediaAttachment {
     fileprivate enum EncodeKeys: String {
         case srcURL
     }
+
+
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
@@ -93,5 +95,22 @@ open class VideoAttachment: MediaAttachment {
         } else {
             return 0
         }
+    }
+}
+
+
+// MARK: - NSCopying
+//
+extension VideoAttachment {
+
+    override public func copy(with zone: NSZone? = nil) -> Any {
+        guard let clone = super.copy() as? VideoAttachment else {
+            fatalError()
+        }
+
+        clone.srcURL = srcURL
+        clone.posterURL = posterURL
+
+        return clone
     }
 }
