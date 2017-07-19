@@ -883,6 +883,9 @@ open class TextView: UITextView {
     /// Force the SDK to Redraw the cursor, asynchronously, after a delay. This method was meant as a workaround
     /// for Issue #144: the Caret might end up redrawn below the Blockquote's custom background.
     ///
+    /// Workaround: By changing the selectedRange back and forth, we're forcing UITextView to effectively re-render
+    /// the caret.
+    ///
     func forceRedrawCursorAfterDelay() {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
