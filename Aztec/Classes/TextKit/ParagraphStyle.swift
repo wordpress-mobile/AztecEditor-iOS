@@ -186,9 +186,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     /// The amount of indent for the blockquote of the paragraph if any.
     ///
     public var blockquoteIndent: CGFloat {
-        let blockquoteIndex = self.properties.filter({ (property) -> Bool in
+        let blockquoteIndex = properties.filter({ property in
             return property is Blockquote || property is TextList
-        }).index(where: { (property) -> Bool in
+        }).index(where: { property in
             return property is Blockquote
         })
 
@@ -202,7 +202,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     /// The amount of indent for the list of the paragraph if any.
     ///
     public var listIndent: CGFloat {
-        let listAndBlockquotes = self.properties.filter({ (property) -> Bool in
+        let listAndBlockquotes = properties.filter({ property in
             return property is Blockquote || property is TextList
         })
         var depth = 0
