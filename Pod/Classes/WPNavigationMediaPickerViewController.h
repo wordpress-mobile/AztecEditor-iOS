@@ -2,6 +2,7 @@
 #import "WPMediaCollectionDataSource.h"
 #import "WPMediaPickerOptions.h"
 
+@class WPMediaPickerViewController;
 @protocol WPMediaPickerViewControllerDelegate;
 
 @interface WPNavigationMediaPickerViewController : UIViewController
@@ -17,18 +18,17 @@
 @property (nonatomic, weak) _Nullable id<WPMediaPickerViewControllerDelegate> delegate;
 
 /**
+The internal WPMediaPickerViewController that is used to display the media.
+*/
+@property (nonatomic, readonly)  WPMediaPickerViewController * _Nonnull mediaPicker;
+
+/**
  The object that acts as the data source of the media picker.
  
  @Discussion
  If no object is defined before the picker is show then the picker will use a shared data source that access the user media library.
 */
 @property (nonatomic, weak) _Nullable id<WPMediaCollectionDataSource> dataSource;
-
-/**
- Options to use on the internal WPMediaPickerViewController.
- */
-@property (nonatomic, copy) WPMediaPickerOptions * _Nonnull options;
-
 
 /**
  Pushes a given ViewController into the internal UINavigationController. Useful for post-processing steps.
