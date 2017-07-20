@@ -11,6 +11,31 @@
 
 @implementation WPInputMediaPickerViewController
 
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[options copy]];
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
+    return self;
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -21,8 +46,7 @@
 - (void)setupMediaPickerViewController {
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-    self.privateDataSource = [[WPPHAssetDataSource alloc] init];
-    self.mediaPicker = [[WPMediaPickerViewController alloc] init];
+    self.privateDataSource = [[WPPHAssetDataSource alloc] init];    
     self.mediaPicker.dataSource = self.privateDataSource;
 
 

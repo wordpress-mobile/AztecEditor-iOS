@@ -9,8 +9,8 @@
 /**
  Init a WPNavigationMediaPickerViewController with the selection options
 
- @param options an options object
- @return am initiated WPNavigationMediaPickerViewController
+ @param options an WPMediaPickerOption object
+ @return an initiated WPNavigationMediaPickerViewController with the designated options
  */
 - (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
 

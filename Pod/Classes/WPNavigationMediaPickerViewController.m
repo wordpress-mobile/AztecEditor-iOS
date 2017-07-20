@@ -21,7 +21,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        _options = options;
+        _options = [options copy];
     }
     return self;
 }
