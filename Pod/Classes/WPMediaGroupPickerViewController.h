@@ -13,7 +13,7 @@
 /**
  The WPMediaCollectionDataSource that is being used to display the assets and groups. If not set the picker will create a new one.
  */
-@property (nonatomic, strong) id<WPMediaCollectionDataSource> dataSource;
+@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
 @end
 

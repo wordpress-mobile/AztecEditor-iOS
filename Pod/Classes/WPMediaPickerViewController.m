@@ -91,7 +91,7 @@ static CGFloat SelectAnimationTime = 0.2;
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:
                             ^(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray *moves) {
-                                if (incrementalChanges && !self.refreshGroupFirstTime) {
+                                if (incrementalChanges && !weakSelf.refreshGroupFirstTime) {
                                     [weakSelf updateDataWithRemoved:removed inserted:inserted changed:changed moved:moves];
                                 } else {
                                     [weakSelf refreshData];
@@ -290,7 +290,7 @@ static CGFloat SelectAnimationTime = 0.2;
             [strongSelf refreshSelection];
             dispatch_async(dispatch_get_main_queue(), ^{                
                 strongSelf.collectionView.allowsSelection = YES;
-                strongSelf.collectionView.allowsMultipleSelection = self.options.allowMultipleSelection;
+                strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
                 strongSelf.collectionView.scrollEnabled = YES;
                 [strongSelf.collectionView reloadData];
 
