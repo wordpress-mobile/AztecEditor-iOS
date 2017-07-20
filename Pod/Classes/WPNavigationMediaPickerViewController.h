@@ -6,6 +6,14 @@
 
 @interface WPNavigationMediaPickerViewController : UIViewController
 
+/**
+ Init a WPNavigationMediaPickerViewController with the selection options
+
+ @param options an options object
+ @return am initiated WPNavigationMediaPickerViewController
+ */
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
+
 @property (nonatomic, weak) _Nullable id<WPMediaPickerViewControllerDelegate> delegate;
 
 /**

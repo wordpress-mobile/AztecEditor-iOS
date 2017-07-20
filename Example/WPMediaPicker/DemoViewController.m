@@ -231,12 +231,11 @@
 
 - (void) showPicker:(id) sender
 {
-    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
+    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] initWithOptions:[self selectedOptions]];
     self.mediaPicker.delegate = self;
     self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
     self.mediaPicker.dataSource = self.pickerDataSource;
 
-    self.mediaPicker.options = [self selectedOptions];
     self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
     UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;

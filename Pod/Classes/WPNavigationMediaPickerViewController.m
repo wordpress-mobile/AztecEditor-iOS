@@ -18,6 +18,14 @@ UIPopoverPresentationControllerDelegate
 
 static NSString *const ArrowDown = @"\u25be";
 
+- (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _options = options;
+    }
+    return self;
+}
+
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -120,6 +128,11 @@ static NSString *const ArrowDown = @"\u25be";
     ppc.sourceView = sender;
     ppc.sourceRect = [sender bounds];
     [self presentViewController:groupViewController animated:YES completion:nil];
+}
+
+- (void)setOptions:(WPMediaPickerOptions *)options {
+    _options = options;
+    self.mediaPicker.options = _options;
 }
 
 
