@@ -268,6 +268,38 @@ open class TextStorage: NSTextStorage {
         return foundAttachment
     }
 
+
+    /// Updates the attachment attributes to the values provided.
+    ///
+    /// - Parameters:
+    ///   - attachment: the attachment to update
+    ///   - alignment: the alignment value
+    ///   - size: the size to use
+    ///   - url: the image URL for the image
+    ///
+    func update(attachment: ImageAttachment,
+                alignment: ImageAttachment.Alignment,
+                size: ImageAttachment.Size,
+                url: URL) {
+        attachment.alignment = alignment
+        attachment.size = size
+        attachment.url = url
+    }
+
+    /// Updates the specified HTMLAttachment with new HTML contents
+    ///
+    func update(attachment: HTMLAttachment, html: String) {
+        guard let range = range(for: attachment) else {
+            assertionFailure("Couldn't determine the range for an Attachment")
+            return
+        }
+
+        attachment.rawHTML = html
+
+        let stringWithAttachment = NSAttributedString(attachment: attachment)
+        replaceCharacters(in: range, with: stringWithAttachment)
+    }
+
     /// Return the range of an attachment with the specified identifier if any
     ///
     /// - Parameter attachmentID: the id of the attachment
