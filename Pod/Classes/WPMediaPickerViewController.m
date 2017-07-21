@@ -108,12 +108,16 @@ static CGFloat SelectAnimationTime = 0.2;
 }
 
 - (void)setOptions:(WPMediaPickerOptions *)options {
+    WPMediaPickerOptions *originalOptions = _options;
     _options = [options copy];
+    BOOL refreshNeeded = (originalOptions.filter != options.filter) | (originalOptions.showMostRecentFirst != options.showMostRecentFirst) | (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
     if (self.viewLoaded) {
         [self.dataSource setMediaTypeFilter:options.filter];
         [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
         self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
-        [self refreshDataAnimated:NO];
+        if (refreshNeeded) {
+            [self refreshDataAnimated:NO];
+        }
     }
 }
 

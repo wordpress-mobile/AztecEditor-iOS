@@ -18,13 +18,29 @@ UIPopoverPresentationControllerDelegate
 
 static NSString *const ArrowDown = @"\u25be";
 
+- (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+    }
+    return self;
+}
+
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _options = [WPMediaPickerOptions new];
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
     }
 
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
     return self;
 }
 
@@ -49,14 +65,13 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)setupNavigationController
 {
-    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] initWithOptions:self.options];
+    WPMediaPickerViewController *vc = self.mediaPicker;
     
     if (!self.dataSource) {
         self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
     vc.dataSource = self.dataSource;
     vc.mediaPickerDelegate = self;
-    self.mediaPicker = vc;
 
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.delegate = self;
@@ -74,7 +89,7 @@ static NSString *const ArrowDown = @"\u25be";
     vc.navigationItem.titleView = self.titleButton;
     vc.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
 
-    if (self.options.allowMultipleSelection) {
+    if (self.mediaPicker.options.allowMultipleSelection) {
         vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     }
 }
@@ -121,7 +136,6 @@ static NSString *const ArrowDown = @"\u25be";
     ppc.sourceRect = [sender bounds];
     [self presentViewController:groupViewController animated:YES completion:nil];
 }
-
 
 #pragma mark - WPMediaGroupViewControllerDelegate
 
