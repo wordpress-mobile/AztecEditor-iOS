@@ -18,13 +18,21 @@ class HTMLRepresentation: NSObject {
     public required init?(coder aDecoder: NSCoder) {
         if let attribute = aDecoder.decodeObject(forKey: Keys.attribute) as? Attribute {
             kind = .attribute(attribute)
-        } else if let element = aDecoder.decodeObject(forKey: Keys.element) as? HTMLElementRepresentation {
-            kind = .element(element)
-        } else if let css = aDecoder.decodeObject(forKey: Keys.inline) as? CSSProperty {
-            kind = .inlineCss(css)
-        } else {
-            fatalError()
+            return
         }
+
+        if let element = aDecoder.decodeObject(forKey: Keys.element) as? HTMLElementRepresentation {
+            kind = .element(element)
+            return
+        }
+
+        if let rawCSS = aDecoder.decodeObject(forKey: Keys.inline) as? String,
+            let decodedCSS = CSSProperty(for: rawCSS) {
+            kind = .inlineCss(decodedCSS)
+            return
+        }
+
+        fatalError()
     }
 }
 
@@ -46,7 +54,7 @@ extension HTMLRepresentation: NSCoding {
         case .element(let element):
             aCoder.encode(element, forKey: Keys.element)
         case .inlineCss(let css):
-            aCoder.encode(css, forKey: Keys.inline)
+            aCoder.encode(css.toString(), forKey: Keys.inline)
         }
     }
 }
