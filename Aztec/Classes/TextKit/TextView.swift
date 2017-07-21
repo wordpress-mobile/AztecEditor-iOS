@@ -1221,6 +1221,34 @@ open class TextView: UITextView {
         storage.edited(.editedAttributes, range: range, changeInLength: 0)
     }
 
+    /// Helper that allows us to Edit a NSTextAttachment instance, with two extras:
+    ///
+    /// - Undo Support comes for free!
+    /// - Layout will be ensured right after executing the edition block
+    ///
+    /// - Parameters:
+    ///     - attachment: Instance to be edited
+    ///     - block: Edition closure to be executed
+    ///
+    /// *Note:* Your NSTextAttachment MUST implement NSCopying protocol. This is a requirement!
+    ///
+    open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
+        guard let copying = attachment as? NSCopying else {
+            fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
+        }
+
+        guard let range = storage.range(for: attachment), let copy = copying.copy() as? T else {
+            return
+        }
+
+        block(copy)
+
+        performUndoable(at: range) {
+            storage.setAttributes([NSAttachmentAttributeName: copy], range: range)
+            return range
+        }
+    }
+
 
     // MARK: - More
 

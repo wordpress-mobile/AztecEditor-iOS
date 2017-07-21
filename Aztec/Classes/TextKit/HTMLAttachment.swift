@@ -71,6 +71,7 @@ open class HTMLAttachment: NSTextAttachment {
         return outParser.convert(inNode)
     }
 
+
     // MARK: - NSCoder Methods
 
     open override func encode(with aCoder: NSCoder) {
@@ -79,7 +80,6 @@ open class HTMLAttachment: NSTextAttachment {
         aCoder.encode(rootTagName, forKey: Keys.rootTagName)
         aCoder.encode(rawHTML, forKey: Keys.rawHTML)
     }
-
 
 
     // MARK: - NSTextAttachmentContainer
@@ -101,6 +101,19 @@ open class HTMLAttachment: NSTextAttachment {
         }
 
         return bounds
+    }
+}
+
+
+// MARK: - NSCopying
+//
+extension HTMLAttachment: NSCopying {
+
+    public func copy(with zone: NSZone? = nil) -> Any {
+        let clone = HTMLAttachment()
+        clone.rawHTML = rawHTML
+        clone.delegate = delegate
+        return clone
     }
 }
 

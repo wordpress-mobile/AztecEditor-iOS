@@ -1147,8 +1147,9 @@ private extension EditorDemoController {
     func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
-            attachment.rawHTML = html
-            self?.richTextView.refresh(attachment)
+            self?.richTextView.edit(attachment) { updated in
+                updated.rawHTML = html
+            }
 
             self?.dismiss(animated: true, completion: nil)
         }
@@ -1324,15 +1325,15 @@ private extension EditorDemoController
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
         detailsViewController.onUpdate = { (alignment, size, url, alt) in
-            if let alt = alt {
-                attachment.extraAttributes["alt"] = alt
+            self.richTextView.edit(attachment) { updated in
+                if let alt = alt {
+                    updated.extraAttributes["alt"] = alt
+                }
+
+                updated.alignment = alignment
+                updated.size = size
+                updated.url = url
             }
-
-            attachment.alignment = alignment
-            attachment.size = size
-            attachment.url = url
-
-            self.richTextView.refresh(attachment)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        

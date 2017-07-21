@@ -361,3 +361,20 @@ open class MediaAttachment: NSTextAttachment {
         textContainer?.layoutManager?.invalidateLayout(for: self)
     }
 }
+
+
+// MARK: - NSCopying
+//
+extension MediaAttachment: NSCopying {
+
+    public func copy(with zone: NSZone? = nil) -> Any {
+        let clone = type(of: self).init(identifier: identifier, url: url)
+        clone.image = image
+        clone.extraAttributes = extraAttributes
+        clone.url = url
+        clone.lastRequestedURL = lastRequestedURL
+        clone.imageMargin = imageMargin
+        clone.delegate = delegate
+        return clone
+    }
+}
