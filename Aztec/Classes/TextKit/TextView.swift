@@ -239,7 +239,7 @@ open class TextView: UITextView {
 
     open override func cut(_ sender: Any?) {
         // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
+        let substring = storage.attributedSubstring(from: selectedRange).stripNonStandardAttributes()
         let data = substring.archivedData()
         super.cut(sender)
 
@@ -248,7 +248,7 @@ open class TextView: UITextView {
 
     open override func copy(_ sender: Any?) {
         // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
+        let substring = storage.attributedSubstring(from: selectedRange).stripNonStandardAttributes()
         let data = substring.archivedData()
         super.copy(sender)
 
