@@ -56,6 +56,15 @@ open class ImageAttachment: MediaAttachment {
         }
     }
 
+    /// Required Initializer
+    ///
+    required public init(data contentData: Data?, ofType uti: String?) {
+        super.init(data: contentData, ofType: uti)
+    }
+
+
+    // MARK: - NSCoder Support
+
 
     // MARK: - Overriden Methods
 
@@ -69,6 +78,7 @@ open class ImageAttachment: MediaAttachment {
         case alignment
         case size
     }
+
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
