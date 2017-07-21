@@ -15,6 +15,41 @@ class HTMLRepresentation: NSObject {
         self.kind = kind
     }
 
+    public required init?(coder aDecoder: NSCoder) {
+        if let attribute = aDecoder.decodeObject(forKey: Keys.attribute) as? Attribute {
+            kind = .attribute(attribute)
+        } else if let element = aDecoder.decodeObject(forKey: Keys.element) as? HTMLElementRepresentation {
+            kind = .element(element)
+        } else if let css = aDecoder.decodeObject(forKey: Keys.inline) as? CSSProperty {
+            kind = .inlineCss(css)
+        } else {
+            fatalError()
+        }
+    }
+}
+
+
+// MARK: - NSCoding Conformance
+//
+extension HTMLRepresentation: NSCoding {
+
+    struct Keys {
+        let kind = "kind"
+        static let attribute = "attribute"
+        static let element = "element"
+        static let inline = "inline"
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        switch kind {
+        case .attribute(let attribute):
+            aCoder.encode(attribute, forKey: Keys.attribute)
+        case .element(let element):
+            aCoder.encode(element, forKey: Keys.element)
+        case .inlineCss(let css):
+            aCoder.encode(css, forKey: Keys.inline)
+        }
+    }
 }
 
 
