@@ -1,29 +1,90 @@
 import Foundation
 import UIKit
 
-open class ParagraphStyle: NSMutableParagraphStyle {
+open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["blockquotes": blockquotes as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": lists as Any])
+        }
+    }
 
     private enum EncodingKeys: String {
         case headerLevel
     }
 
-    var textList: TextList?
-    var blockquote: Blockquote?
-    var headerLevel: Int = 0
+    var properties = [ParagraphProperty]()
+
+    var blockquotes: [Blockquote] {
+        return properties.flatMap { (property) -> Blockquote? in
+            if let blockquote = property as? Blockquote {
+                return blockquote
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var htmlParagraph: [HTMLParagraph] {
+        return properties.flatMap { (property) -> HTMLParagraph? in
+            if let paragraph = property as? HTMLParagraph {
+                return paragraph
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var lists : [TextList] {
+        return properties.flatMap { (property) -> TextList? in
+            if let textList = property as? TextList {
+                return textList
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var headers: [Header] {
+        return properties.flatMap { (property) -> Header? in
+            if let header = property as? Header {
+                return header
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var headerLevel: Int {
+        let availableHeaders = headers
+        if availableHeaders.isEmpty {
+            return 0
+        } else {
+            return availableHeaders.last!.level.rawValue
+        }
+    }
+
+    var htmlPre: HTMLPre? {
+        let htmlPres = properties.flatMap { (property) -> HTMLPre? in
+            if let htmlPre = property as? HTMLPre {
+                return htmlPre
+            } else {
+                return nil
+            }
+        }
+        return htmlPres.first
+    }
 
     override init() {
         super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        if aDecoder.containsValue(forKey: String(describing: TextList.self)) {
-            let styleRaw = aDecoder.decodeInteger(forKey: String(describing: TextList.self))
-            if let style = TextList.Style(rawValue:styleRaw) {
-                textList = TextList(style: style)
-            }
-        }
-        if aDecoder.containsValue(forKey: String(describing: Blockquote.self)) {
-            blockquote = aDecoder.decodeObject(forKey: String(describing: Blockquote.self)) as? Blockquote
+
+        if let encodedProperties = aDecoder.decodeObject(forKey:String(describing: ParagraphProperty.self)) as? [ParagraphProperty] {
+            properties = encodedProperties
         }
 
         aDecoder.decodeInteger(forKey: EncodingKeys.headerLevel.rawValue)
@@ -33,13 +94,8 @@ open class ParagraphStyle: NSMutableParagraphStyle {
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
-        if let textListSet = textList {
-            aCoder.encode(textListSet.style.rawValue, forKey: String(describing: TextList.self))
-        }
 
-        if let blockquote = self.blockquote {
-            aCoder.encode(blockquote, forKey: String(describing: Blockquote.self))
-        }
+        aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))        
 
         aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
     }
@@ -47,11 +103,91 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
         super.setParagraphStyle(obj)
         if let paragrahStyle = obj as? ParagraphStyle {
-            textList = paragrahStyle.textList
-            blockquote = paragrahStyle.blockquote
-            headerLevel = paragrahStyle.headerLevel
+            headIndent = 0
+            firstLineHeadIndent = 0
+            tailIndent = 0
+            paragraphSpacing = 0
+            paragraphSpacingBefore = 0
+
+            baseHeadIndent = paragrahStyle.baseHeadIndent
+            baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
+            baseTailIndent = paragrahStyle.baseTailIndent
+            baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
+            baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
+
+            properties = paragrahStyle.properties
         }
     }
+
+    open override var headIndent: CGFloat {
+        get {
+            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
+
+            return baseHeadIndent + extra
+        }
+
+        set {
+            baseHeadIndent = newValue
+        }
+    }
+
+    open override var firstLineHeadIndent: CGFloat {
+        get {
+            let extra: CGFloat = (CGFloat(lists.count) * Metrics.listTextIndentation)
+
+            return baseFirstLineHeadIndent + extra
+        }
+
+        set {
+            baseFirstLineHeadIndent = newValue
+        }
+    }
+
+    open override var tailIndent: CGFloat {
+        get {
+            let extra: CGFloat = CGFloat(self.blockquotes.count) * Metrics.defaultIndentation
+
+            return baseTailIndent - extra
+        }
+
+        set {
+            baseTailIndent = newValue
+        }
+    }
+
+    private func calculateExtraParagraphSpacing() -> CGFloat {         
+        return min(((CGFloat(self.blockquotes.count)) + (self.headerLevel == 0 ? 0.0 : 1.0)), 1.0) * Metrics.paragraphSpacing
+    }
+
+    open override var paragraphSpacing: CGFloat {
+        get {
+            let extra = calculateExtraParagraphSpacing()
+
+            return baseParagraphSpacing + extra
+        }
+
+        set {
+            baseParagraphSpacing = newValue
+        }
+    }
+
+    open override var paragraphSpacingBefore: CGFloat {
+        get {
+            let extra = calculateExtraParagraphSpacing()
+
+            return baseParagraphSpacingBefore + extra
+        }
+
+        set {
+            baseParagraphSpacingBefore = newValue
+        }
+    }
+
+    var baseHeadIndent: CGFloat = 0
+    var baseFirstLineHeadIndent: CGFloat = 0
+    var baseTailIndent: CGFloat = 0
+    var baseParagraphSpacing: CGFloat = 0
+    var baseParagraphSpacingBefore: CGFloat = 0
 
     open override class var `default`: NSParagraphStyle {
         let style = ParagraphStyle()
@@ -75,15 +211,9 @@ open class ParagraphStyle: NSMutableParagraphStyle {
             return false
         }
 
-        if textList != otherParagraph.textList {
-            return false
-        }
-
-        if blockquote != otherParagraph.blockquote {
-            return false
-        }
-
-        if headerLevel != otherParagraph.headerLevel {
+        if headerLevel != otherParagraph.headerLevel
+            || htmlParagraph != otherParagraph.htmlParagraph           
+            || properties != otherParagraph.properties {
             return false
         }
         
@@ -95,37 +225,28 @@ open class ParagraphStyle: NSMutableParagraphStyle {
     }
 
     open override func copy(with zone: NSZone? = nil) -> Any {
-        let originalCopy = super.copy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
-        copy.setParagraphStyle(originalCopy)
-        copy.textList = textList
-        copy.blockquote = blockquote
-        copy.headerLevel = headerLevel
+
+        copy.setParagraphStyle(self)
 
         return copy
     }
 
     open override func mutableCopy(with zone: NSZone? = nil) -> Any {
-        let originalCopy = super.mutableCopy(with: zone) as! NSParagraphStyle
         let copy = ParagraphStyle()
-        copy.setParagraphStyle(originalCopy)
-        copy.textList = textList
-        copy.blockquote = blockquote
-        copy.headerLevel = headerLevel
+
+        copy.setParagraphStyle(self)
 
         return copy
     }
 
     open override var hash: Int {
         var hash: Int = super.hash
-        if blockquote != nil {
-            hash = hash ^ String(describing: Blockquote.self).hashValue
-        }
-        if let listStyle = textList?.style {
-            hash = hash ^ listStyle.hashValue
-        }
 
-        hash = hash ^ headerLevel.hashValue
+        for property in properties {
+            hash = hash ^ property.hashValue
+        }        
+        
         return hash
     }
 
@@ -133,7 +254,34 @@ open class ParagraphStyle: NSMutableParagraphStyle {
         return description
     }
 
-    open override var description:String {
-        return super.description + "\nTextList:\(textList?.style)\nBlockquote:\(blockquote)\nHeaderLevel:\(headerLevel)"
+    open override var description: String {
+        return super.description + " Blockquotes: \(String(describing:blockquotes)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(lists)"
+    }
+}
+
+// MARK: - Add method to manipulate properties array
+
+extension ParagraphStyle {
+
+    func add(property: ParagraphProperty) {
+        properties.append(property)
+    }
+
+    func removeProperty(ofType type: AnyClass) {
+        for index in (0..<properties.count).reversed() {
+            if type(of: properties[index]) == type {
+                properties.remove(at: index)
+                return
+            }
+        }
+    }
+
+    func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
+        for index in (0..<properties.count).reversed() {
+            if type(of: properties[index]) == type {
+                properties[index] = newProperty
+                return
+            }
+        }
     }
 }

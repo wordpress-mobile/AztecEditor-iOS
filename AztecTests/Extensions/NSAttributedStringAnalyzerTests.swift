@@ -106,4 +106,21 @@ class NSAttributedStringAnalyzerTests: XCTestCase {
             XCTAssertTrue(fullString.isLocationSuccededByLink(i))
         }
     }
+
+    /// Verifies that *safeSubstring* returns nil, whenever the range parameter is not valid within the receiver.
+    ///
+    func testSafeSubstringAtRangeReturnsNilWhenQueriedWithOutOfBoundsRanges() {
+        let fullString = LinkedSample.fullString
+        let empty = NSAttributedString()
+
+        let ranges = [
+            NSRange(location: fullString.length, length: 1),
+            NSRange(location: -1, length: 1)
+        ]
+
+        for range in ranges {
+            XCTAssertNil(fullString.safeSubstring(at: range))
+            XCTAssertNil(empty.safeSubstring(at: range))
+        }
+    }
 }

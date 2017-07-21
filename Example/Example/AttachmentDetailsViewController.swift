@@ -8,8 +8,8 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
     @IBOutlet var sourceURLTextField: UITextField!
 
-    var attachment: TextAttachment?
-    var onUpdate: ((TextAttachment.Alignment, TextAttachment.Size, URL) -> Void)?
+    var attachment: ImageAttachment?
+    var onUpdate: ((ImageAttachment.Alignment, ImageAttachment.Size, URL) -> Void)?
 
 
     override func viewDidLoad() {
@@ -82,8 +82,8 @@ private extension AttachmentDetailsViewController
 {
     /// Aliases
     ///
-    typealias AttachmentAlignment = TextAttachment.Alignment
-    typealias AttachmentSize = TextAttachment.Size
+    typealias AttachmentAlignment = ImageAttachment.Alignment
+    typealias AttachmentSize = ImageAttachment.Size
 
 
     /// Maps an TextAttachment.Alignment into a Integer based Enum, to aid in the mapping between

@@ -27,4 +27,15 @@ extension NSAttributedString {
 
         return attribute(NSLinkAttributeName, at: afterRange.location, effectiveRange: nil) != nil
     }
+
+    /// Returns the Substring at the specified range, whenever the received range is valid, or nil
+    /// otherwise.
+    ///
+    func safeSubstring(at range: NSRange) -> String? {
+        guard range.location >= 0 && range.endLocation <= length else {
+            return nil
+        }
+
+        return attributedSubstring(from: range).string
+    }
 }

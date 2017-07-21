@@ -3,41 +3,38 @@ import UIKit
 import Aztec
 
 
-// MARK: - MoreAttachmentRenderer: Renders More Comments!
+// MARK: - MoreAttachmentRenderer: This render is expected to only work with `<!--more-->` comments!
 //
 final class MoreAttachmentRenderer {
-
-    /// Attachment to be rendered
-    ///
-    let attachment: CommentAttachment
 
     /// Text Color
     ///
     var textColor = UIColor.gray
-
-
-    /// Default Initializer: Returns *nil* whenever the Attachment's text is not *more*.
-    /// This render is expected to only work with `<!--more-->` comments!
-    ///
-    init?(attachment: CommentAttachment) {
-        self.attachment = attachment
-
-        guard attachment.text == Constants.defaultCommentText else {
-            return nil
-        }
-    }
 }
 
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension MoreAttachmentRenderer: TextViewCommentsDelegate {
+extension MoreAttachmentRenderer: TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+        let commentAttachment = attachment as? CommentAttachment
+        return commentAttachment?.text == Constants.defaultCommentText
+    }
+
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+        guard let attachment = attachment as? CommentAttachment else {
+            return nil
+        }
+
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let label = attachment.text.uppercased()
-        let attributes = [NSForegroundColorAttributeName: textColor]
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.baseWritingDirection = .leftToRight
+        let attributes: [String: Any] = [NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: paragraphStyle]
+
         let colorMessage = NSAttributedString(string: label, attributes: attributes)
 
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
@@ -66,7 +63,7 @@ extension MoreAttachmentRenderer: TextViewCommentsDelegate {
         return result
     }
 
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
         let padding = textView.textContainer.lineFragmentPadding
         let width = lineFragment.width - padding * 2
 

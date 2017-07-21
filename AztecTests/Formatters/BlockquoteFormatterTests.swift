@@ -1,8 +1,10 @@
 import XCTest
-import Gridicons
 @testable import Aztec
 
+// MARK: - BlockquoteFormatterTests Tests
+//
 class BlockquoteFormatterTests: XCTestCase {
+
     func testApplyingBlockquoteOnFirstParagraph() {
         let textView = testTextView
         let storage = textView.storage
@@ -66,8 +68,12 @@ class BlockquoteFormatterTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
         let original = textView.storage.copy() as! NSAttributedString
-        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
-        formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
+
+        let toggleRange = NSUnionRange(paragraphs[0], paragraphs[1])
+
+        formatter.toggle(in: storage, at: toggleRange)
+        formatter.toggle(in: storage, at: toggleRange)
+
         XCTAssertTrue(original.isEqual(to: textView.storage))
     }
 
@@ -94,7 +100,7 @@ class BlockquoteFormatterTests: XCTestCase {
 
 private extension BlockquoteFormatterTests {
     var testTextView: TextView {
-        let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: Gridicon.iconOfType(.image))
+        let view = TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         view.text = plainText
         return view
     }
@@ -107,13 +113,13 @@ private extension BlockquoteFormatterTests {
     }
 
     func paragraphRanges(inString string: NSAttributedString) -> [NSRange] {
-        return string.paragraphRanges(spanningRange: string.rangeOfEntireString)
+        return string.paragraphRanges(spanning: string.rangeOfEntireString)
     }
 
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
         guard let paragraphStyle = string.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
-            let _ = paragraphStyle.blockquote else {
+            !paragraphStyle.blockquotes.isEmpty else {
             return false
         }
         // Blockquote attribute spans the whole range

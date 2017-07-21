@@ -1,17 +1,17 @@
 
 import UIKit
 import Foundation
-import Gridicons
 
 
-// MARK: - TextViewMediaDelegate
+// MARK: - TextViewAttachmentDelegate
 //
-public protocol TextViewMediaDelegate: class {
+public protocol TextViewAttachmentDelegate: class {
 
     /// This method requests from the delegate the image at the specified URL.
     ///
     /// - Parameters:
     ///     - textView: the `TextView` the call has been made from.
+    ///     - attachment: the attachment that is requesting the image
     ///     - imageURL: the url to download the image from.
     ///     - success: when the image is obtained, this closure should be executed.
     ///     - failure: if the image cannot be obtained, this closure should be executed.
@@ -19,78 +19,95 @@ public protocol TextViewMediaDelegate: class {
     /// - Returns: the placeholder for the requested image.  Also useful if showing low-res versions
     ///         of the images.
     ///
-    func textView(
-        _ textView: TextView,
-        imageAtUrl imageURL: URL,
-        onSuccess success: @escaping (UIImage) -> Void,
-        onFailure failure: @escaping (Void) -> Void) -> UIImage
+    func textView(_ textView: TextView,
+                  attachment: NSTextAttachment,
+                  imageAt url: URL,
+                  onSuccess success: @escaping (UIImage) -> Void,
+                  onFailure failure: @escaping () -> Void) -> UIImage
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the image.
-    ///     - attachment: The attachment that was added to the storage.
+    ///     - imageAttachment: The image attachment that was added to the storage.
     ///
     /// - Returns: the requested `NSURL` where the image is stored.
     ///
-    func textView(
-        _ textView: TextView,
-        urlForAttachment attachment: TextAttachment) -> URL
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL
 
+    /// Called when an attachment doesn't have an available source URL to provide an image representation.
+    ///
+    /// - Parameters:
+    ///   - textView: the textview that is requesting the image
+    ///   - attachment: the attachment that does not an have image source
+    /// - Returns: an UIImage to represent the attachment graphically
+    func textView(_ textView: TextView,
+                  placeholderForAttachment attachment: NSTextAttachment) -> UIImage
 
-    /// Called when a attachment is removed from the storage.
+    /// Called after a attachment is removed from the storage.
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
     ///   - attachmentID: The attachment identifier of the media removed.
-    func textView(_ textView: TextView, deletedAttachmentWithID attachmentID: String)
+    ///
+    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String)
 
-    /// Called when an attachment is selected with a single tap.
+    /// Called after an attachment is selected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was selected.
     ///   - position: touch position relative to the textview.
     ///
-    func textView(_ textView: TextView, selectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint)
 
-    /// Called when an attachment is deselected with a single tap.
+    /// Called after an attachment is deselected with a single tap.
     ///
     /// - Parameters:
     ///   - textView: the textview where the attachment is.
     ///   - attachment: the attachment that was deselected.
     ///   - position: touch position relative to the textView
     ///
-    func textView(_ textView: TextView, deselectedAttachment attachment: TextAttachment, atPosition position: CGPoint)
+    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint)
 }
 
 
-// MARK: - TextViewCommentsDelegate
+// MARK: - TextViewAttachmentImageProvider
 //
-public protocol TextViewCommentsDelegate: class {
+public protocol TextViewAttachmentImageProvider: class {
+
+    /// Indicates whether the current Attachment Renderer supports a given NSTextAttachment instance, or not.
+    ///
+    /// - Parameters:
+    ///     - textView: The textView that is requesting the bounds.
+    ///     - attachment: Attachment about to be rendered.
+    ///
+    /// - Returns: True when supported, false otherwise.
+    ///
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - lineFragment: Line Fragment in which the glyph would be rendered.
     ///
     /// - Returns: Rect specifying the Bounds for the comment attachment
     ///
-    func textView(_ textView: TextView, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect
 
     /// Provides the (Optional) Image Representation of the specified size, for a given Attachment.
     ///
     /// - Parameters:
     ///     - textView: The textView that is requesting the bounds.
-    ///     - attachment: CommentAttachment about to be rendered.
+    ///     - attachment: Attachment about to be rendered.
     ///     - size: Expected Image Size
     ///
     /// - Returns: (Optional) UIImage representation of the Comment Attachment.
     ///
-    func textView(_ textView: TextView, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage?
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage?
 }
 
 
@@ -118,15 +135,19 @@ open class TextView: UITextView {
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
     ///
-    open weak var mediaDelegate: TextViewMediaDelegate?
+    open weak var textAttachmentDelegate: TextViewAttachmentDelegate?
 
-    // MARK: - Properties: Comment Attachments
-
-    open weak var commentsDelegate: TextViewCommentsDelegate?
+    /// Maintains a reference to the user provided Text Attachment Image Providers
+    ///
+    fileprivate var textAttachmentImageProvider = [TextViewAttachmentImageProvider]()
 
     // MARK: - Properties: Formatting
 
     open weak var formattingDelegate: TextViewFormattingDelegate?
+
+    // MARK: - Properties: Text Lists
+
+    var maximumListIndentationLevels = 7
 
     // MARK: - Properties: GUI Defaults
 
@@ -139,13 +160,30 @@ open class TextView: UITextView {
         return textStorage as! TextStorage
     }
 
+    // MARK: - Overwritten Properties
+
+    /// Overwrites Typing Attributes:
+    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
+    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    ///
+    override open var typingAttributes: [String: Any] {
+        get {
+            ensureRemovalOfParagraphAttributesAfterSelectionChange()
+            return super.typingAttributes
+        }
+
+        set {
+            super.typingAttributes = newValue
+        }
+    }
+
     // MARK: - Init & deinit
 
     public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
         
         self.defaultFont = defaultFont
         self.defaultMissingImage = defaultMissingImage
-        
+
         let storage = TextStorage()
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
@@ -155,14 +193,13 @@ open class TextView: UITextView {
         container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
-        storage.undoManager = undoManager
         commonInit()
     }
-    
+
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
-        defaultMissingImage = Gridicon.iconOfType(.image)
+        defaultMissingImage = Assets.imageIcon
         super.init(coder: aDecoder)
         commonInit()
     }
@@ -203,13 +240,24 @@ open class TextView: UITextView {
 
     // MARK: - Intercept copy paste operations
 
+    private let unsupportedCopyAttributes: [Any.Type] = [HTMLElementRepresentation.self, UnsupportedHTML.self]
+
+    open override func cut(_ sender: Any?) {
+        // FIXME: This is a temporary workaround for Issue #626
+        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
+        let data = substring.archivedData()
+        super.cut(sender)
+
+        storeInPasteboard(encoded: data)
+    }
+
     open override func copy(_ sender: Any?) {
+        // FIXME: This is a temporary workaround for Issue #626
+        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
+        let data = substring.archivedData()
         super.copy(sender)
-        let data = self.storage.attributedSubstring(from: selectedRange).archivedData()
-        let pasteboard  = UIPasteboard.general
-        var items = pasteboard.items
-        items[0][NSAttributedString.pastesboardUTI] = data
-        pasteboard.items = items
+
+        storeInPasteboard(encoded: data)
     }
 
     open override func paste(_ sender: Any?) {
@@ -217,6 +265,13 @@ open class TextView: UITextView {
             super.paste(sender)
             return
         }
+
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
 
         string.loadLazyAttachments()
 
@@ -240,22 +295,94 @@ open class TextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
+    // MARK: - Intercept Keystrokes
+
+    override open var keyCommands: [UIKeyCommand]? {
+        get {
+            // When the keyboard "enter" key is pressed, the keycode corresponds to .carriageReturn,
+            // even if it's later converted to .lineFeed by default.
+            //
+            return [
+                UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift, action: #selector(handleShiftEnter(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: .shift, action: #selector(handleShiftTab(command:))),
+                UIKeyCommand(input: String(.tab), modifierFlags: [], action: #selector(handleTab(command:)))
+            ]
+        }
+    }
+
+    func handleShiftEnter(command: UIKeyCommand) {
+        insertText(String(.lineSeparator))
+    }
+
+    func handleShiftTab(command: UIKeyCommand) {
+        guard let list = TextListFormatter.lists(in: typingAttributes).last else {
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) {
+            let finalRange = formatter.removeAttributes(from: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
+        }
+    }
+
+    func handleTab(command: UIKeyCommand) {
+        let lists = TextListFormatter.lists(in: typingAttributes)
+        guard let list = lists.last, lists.count < maximumListIndentationLevels else {
+            insertText(String(.tab))
+            return
+        }
+
+        let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
+
+        performUndoable(at: targetRange) { 
+            let finalRange = formatter.applyAttributes(to: storage, at: targetRange)
+            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            return finalRange
+        }
+    }
+
+
+    // MARK: - Pasteboard Helpers
+
+    private func storeInPasteboard(encoded data: Data) {
+        let pasteboard  = UIPasteboard.general
+        pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
+    }
 
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
-        // Note:
-        // Whenever the entered text causes the Paragraph Attributes to be removed, we should prevent the actual
-        // text insertion to happen. Thus, we won't call super.insertText.
-        // But because we don't call the super we need to refresh the attributes ourselfs, and callback to the delegate.
-        if ensureRemovalOfParagraphAttributes(insertedText: text, at: selectedRange) {
-            if self.textStorage.length > 0 {
-                typingAttributes = textStorage.attributes(at: min(selectedRange.location, textStorage.length-1), effectiveRange: nil)
-            }
-            delegate?.textViewDidChangeSelection?(self)
-            delegate?.textViewDidChange?(self)
+        
+        // For some reason the text view is allowing the attachment style to be set in
+        // typingAttributes.  That's simply not acceptable.
+        //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
+        typingAttributes[NSAttachmentAttributeName] = nil
+
+        // For some reason the text view is allowing the attachment style to be set in
+        // typingAttributes.  That's simply not acceptable.
+        //
+        // This was causing the following issue:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
+        //
+        typingAttributes[NSAttachmentAttributeName] = nil
+
+        guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
         }
+
+        /// Whenever the user is at the end of the document, while editing a [List, Blockquote, Pre], we'll need
+        /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
+        /// (or Blockquote's BG).
+        ///
+        ensureInsertionOfEndOfLine(beforeInserting: text)
 
         // Emoji Fix:
         // Fallback to the default font, whenever the Active Font's Family doesn't match with the Default Font's family.
@@ -274,9 +401,9 @@ open class TextView: UITextView {
 
         super.insertText(text)
 
-        restoreDefaultFontIfNeeded()
+        ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
-        ensureRemovalOfSingleLineParagraphAttributes(insertedText: text, at: selectedRange)
+        restoreDefaultFontIfNeeded()
 
         ensureCursorRedraw(afterEditing: text)
     }
@@ -292,13 +419,11 @@ open class TextView: UITextView {
             deletedString = storage.attributedSubstring(from: deletionRange)
         }
 
+        ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
+
         super.deleteBackward()
 
-        if storage.string.isEmpty {
-            return
-        }
-
-        refreshStylesAfterDeletion(of: deletedString, at: deletionRange)
+        ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
     }
@@ -331,10 +456,12 @@ open class TextView: UITextView {
 
     /// Converts the current Attributed Text into a raw HTML String
     ///
+    /// - Parameter prettyPrint: Indicates if the output HTML should be pretty printed, or not
+    ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML() -> String {
-        return storage.getHTML()
+    open func getHTML(prettyPrint: Bool = false) -> String {
+        return storage.getHTML(prettyPrint: prettyPrint)
     }
 
 
@@ -361,6 +488,12 @@ open class TextView: UITextView {
     }
 
 
+    // MARK: - Attachment Helpers
+
+    open func registerAttachmentImageProvider(_ provider: TextViewAttachmentImageProvider) {
+        textAttachmentImageProvider.append(provider)
+    }
+
     // MARK: - Getting format identifiers
 
     private let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
@@ -378,6 +511,7 @@ open class TextView: UITextView {
         .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
         .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
         .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
+        .p: HTMLParagraphFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -450,24 +584,45 @@ open class TextView: UITextView {
     // MARK: - UIResponderStandardEditActions
 
     open override func toggleBoldface(_ sender: Any?) {
-        super.toggleBoldface(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleBold(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     open override func toggleItalics(_ sender: Any?) {
-        super.toggleItalics(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleItalic(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     open override func toggleUnderline(_ sender: Any?) {
-        super.toggleUnderline(sender)
+        // We need to make sure our formatter is called.  We can't go ahead with the default
+        // implementation.
+        //
+        toggleUnderline(range: selectedRange)
+
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     // MARK: - Formatting
 
     func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
-        let applicationRange = storage.toggle(formatter: formatter, at: range)        
+
+        let applicationRange = formatter.applicationRange(for: range, in: textStorage)
+        let originalString = storage.attributedSubstring(from: applicationRange)
+
+        storage.toggle(formatter: formatter, at: range)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+        })
+
         if applicationRange.length == 0 {
             typingAttributes = formatter.toggle(in: typingAttributes)
         } else {
@@ -519,6 +674,23 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
     }
 
+    /// Adds or removes a Pre style from the specified range.
+    /// Pre are applied to an entire paragrah regardless of the range.
+    /// If the range spans multiple paragraphs, the style is applied to all
+    /// affected paragraphs.
+    ///
+    /// - Parameters:
+    ///     - range: The NSRange to edit.
+    ///
+    open func togglePre(range: NSRange) {
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
+
+        let formatter = PreFormatter(placeholderAttributes: typingAttributes)
+        toggle(formatter: formatter, atRange: range)
+
+        forceRedrawCursorAfterDelay()
+    }
+
     /// Adds or removes a blockquote style from the specified range.
     /// Blockquotes are applied to an entire paragrah regardless of the range.
     /// If the range spans multiple paragraphs, the style is applied to all
@@ -528,8 +700,11 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func toggleBlockquote(range: NSRange) {
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
+
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -538,8 +713,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleOrderedList(range: NSRange) {
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
+
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -549,8 +727,11 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnorderedList(range: NSRange) {
+        ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
+
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -559,28 +740,29 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleHeader(_ headerType: HeaderFormatter.HeaderType, range: NSRange) {
+    open func toggleHeader(_ headerType: Header.HeaderType, range: NSRange) {
         let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
 
-    /// Inserts an horizontal ruler on the specified range
+    /// Replaces with an horizontal ruler on the specified range
     ///
     /// - Parameter range: the range where the ruler will be inserted
     ///
-    open func replaceRangeWithHorizontalRuler(_ range: NSRange) {
-        storage.replaceRangeWithHorizontalRuler(range)
-        let length = NSAttributedString(attachment:NSTextAttachment()).length
-        textStorage.addAttributes(typingAttributes, range: NSMakeRange(range.location, length))
-        selectedRange = NSMakeRange(range.location + length, 0)
-        delegate?.textViewDidChange?(self)
+    open func replaceWithHorizontalRuler(at range: NSRange) {
+        let line = LineAttachment()
+        replace(at: range, with: line)
     }
 
+    fileprivate lazy var defaultAttributes: [String: Any] = {
+        return [
+            NSFontAttributeName: self.defaultFont,
+            NSParagraphStyleAttributeName: ParagraphStyle.default
+        ]
+    }()
 
-    private let paragraphFormatters: [AttributeFormatter] = [
-        TextListFormatter(style: .ordered),
-        TextListFormatter(style: .unordered),
+    private lazy var paragraphFormatters: [AttributeFormatter] = [
         BlockquoteFormatter(),
         HeaderFormatter(headerLevel:.h1),
         HeaderFormatter(headerLevel:.h2),
@@ -588,8 +770,9 @@ open class TextView: UITextView {
         HeaderFormatter(headerLevel:.h4),
         HeaderFormatter(headerLevel:.h5),
         HeaderFormatter(headerLevel:.h6),
+        PreFormatter(placeholderAttributes: self.defaultAttributes)
     ]
-    
+
     /// After text deletion, this helper will re-apply the Text Formatters at the specified range, if they were
     /// present in the segment previous to the modified range.
     ///
@@ -598,17 +781,16 @@ open class TextView: UITextView {
     ///     - range: Position in which the deletedText was present in the storage.
     ///
     private func refreshStylesAfterDeletion(of deletedText: NSAttributedString, at range: NSRange) {
-        guard deletedText.string == String(.newline) || range.location == 0 else {
+        guard deletedText.string.isEndOfLine() || range.location == 0 else {
             return
         }
+
         for formatter in paragraphFormatters {
             if let locationBefore = storage.string.location(before: range.location),
                 formatter.present(in: textStorage, at: locationBefore) {
                 if range.endLocation < storage.length {
                     formatter.applyAttributes(to: storage, at: range)
                 }
-            } else if formatter.present(in: textStorage, at: range.location) || range.location == 0 {
-                formatter.removeAttributes(from: textStorage, at: range)
             }
         }
     }
@@ -627,92 +809,75 @@ open class TextView: UITextView {
     }
 
 
-    /// Indicates whether ParagraphStyles should be removed, when inserting the specified string, at a given location,
-    /// or not. Note that we should remove Paragraph Styles whenever:
+    /// Inserts an end-of-line character whenever the provided range is at end-of-file, in an
+    /// empty paragraph. This is useful when attempting to apply a paragraph-level style at EOF,
+    /// since it won't be possible without the paragraph having any characters.
     ///
-    /// -   The previous string contains just a newline
-    /// -   The next string is a newline (or we're at the end of the text storage)
-    /// -   We're at the beginning of a new line
-    /// -   The user just typed a new line
+    /// Call this method before applying the formatter.
     ///
     /// - Parameters:
-    ///     - insertedText: String that was just inserted
-    ///     - at: Location in which the string was just inserted
+    ///     - range: the range where the formatter will be applied.
     ///
-    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
-    ///
-    private func shouldRemoveParagraphAttributes(insertedText text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
-            return false
+    private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange range: NSRange) {
+
+        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: range) else {
+            assertionFailure("This should never happen.  Review the logic!")
+            return
         }
 
-        let afterRange = NSRange(location: location, length: 1)
-        let beforeRange = NSRange(location: location - 1, length: 1)
+        if selectedRangeForSwift.location == textStorage.length
+            && textStorage.string.isEmptyParagraph(at: selectedRangeForSwift.location) {
 
-        var afterString = String(.newline)
-        var beforeString = String(.newline)
-        if beforeRange.location >= 0 {
-            beforeString = storage.attributedSubstring(from: beforeRange).string
+            insertEndOfLineCharacter()
         }
-
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        return beforeString == String(.newline) && afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
     }
 
+    /// Inserts an end-of-line chracter whenever:
+    ///
+    ///     A.  We're about to insert a new line
+    ///     B.  We're at the end of the document
+    ///     C.  There's a List (OR) Blockquote (OR) Pre active
+    ///
+    /// We're doing this as a workaround, in order to force the LayoutManager render the Bullet (OR) 
+    /// Blockquote's background.
+    ///
+    private func ensureInsertionOfEndOfLine(beforeInserting text: String) {
 
-    /// This helper will proceed to remove the Paragraph attributes, in a given string, at the specified range,
-    /// if needed (please, check `shouldRemoveParagraphAttributes` to learn the conditions that would trigger this!).
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that just got inserted.
-    ///     - at: Range in which the string was inserted.
-    ///
-    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
-    ///
-    func ensureRemovalOfParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
-
-        guard shouldRemoveParagraphAttributes(insertedText: text, at: range.location) else {
-            return false
+        guard text.isEndOfLine(),
+            selectedRange.location == storage.length else {
+                return
         }
 
-        let formatters:[AttributeFormatter] = [TextListFormatter(style: .ordered), TextListFormatter(style: .unordered), BlockquoteFormatter()]
-        for formatter in formatters {
-            if formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
-                return true
-            }
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(placeholderAttributes: self.defaultAttributes),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        let found = formatters.first { formatter in
+            return formatter.present(in: typingAttributes)
         }
 
-        return false
+        guard found != nil else {
+            return
+        }
+
+        insertEndOfLineCharacter()
     }
 
-
-    /// Indicates whether a new empty paragraph was created after the insertion of text at the specified location
+    /// Inserts a end-of-line character at the current position, while retaining the selectedRange
+    /// and typingAttributes.
     ///
-    /// - Parameters:
-    ///     - insertedText: String that was just inserted
-    ///     - at: Location in which the string was just inserted
-    ///
-    /// - Returns: True if we should remove the paragraph attributes. False otherwise!
-    ///
-    private func isNewEmptyParagraphAfter(insertedText text: String, at location: Int) -> Bool {
-        guard text == String(.newline) else {
-            return false
-        }
+    private func insertEndOfLineCharacter() {
+        let previousRange = selectedRange
+        let previousStyle = typingAttributes
 
-        let afterRange = NSRange(location: location, length: 1)
-        var afterString = String(.newline)
+        super.insertText(String(.paragraphSeparator))
 
-        if afterRange.endLocation < storage.length {
-            afterString = storage.attributedSubstring(from: afterRange).string
-        }
-
-        return afterString == String(.newline) && storage.isStartOfNewLine(atLocation: location)
+        selectedRange = previousRange
+        typingAttributes = previousStyle
     }
-
 
     /// Upon Text Insertion, we'll remove the NSLinkAttribute whenever the new text **IS NOT** surrounded by
     /// the NSLinkAttribute. Meaning that:
@@ -738,45 +903,11 @@ open class TextView: UITextView {
     }
 
 
-    private let formattersThatBreakAfterEnter: [AttributeFormatter] = [
-        HeaderFormatter(headerLevel:.h1),
-        HeaderFormatter(headerLevel:.h2),
-        HeaderFormatter(headerLevel:.h3),
-        HeaderFormatter(headerLevel:.h4),
-        HeaderFormatter(headerLevel:.h5),
-        HeaderFormatter(headerLevel:.h6),
-    ]
-    /// This helper will proceed to remove the Paragraph attributes when a new line is inserted at the end of an paragraph.
-    /// Examples of this are the header attributes (Heading 1 to 6) When you start a new paragraph it shoudl reset to the standard style.
-    ///
-    /// - Parameters:
-    ///     - insertedText: String that just got inserted.
-    ///     - at: Range in which the string was inserted.
-    ///
-    /// - Returns: True if ParagraphAttributes were removed. False otherwise!
-    ///
-    @discardableResult func ensureRemovalOfSingleLineParagraphAttributes(insertedText text: String, at range: NSRange) -> Bool {
-
-        guard isNewEmptyParagraphAfter(insertedText: text, at: range.location) else {
-            return false
-        }
-
-        for formatter in formattersThatBreakAfterEnter {
-            if formatter.present(in: textStorage, at: range.location) {
-                formatter.removeAttributes(from: textStorage, at: range)
-                return true
-            }
-        }
-
-        return false
-    }
-
-
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
     ///
     func ensureCursorRedraw(afterEditing text: String) {
-        guard text == String(.newline) else {
+        guard text == String(.lineFeed) else {
             return
         }
 
@@ -792,8 +923,10 @@ open class TextView: UITextView {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             let pristine = self.selectedRange
             let updated = NSMakeRange(max(pristine.location - 1, 0), 0)
+            let beforeTypingAttributes = self.typingAttributes
             self.selectedRange = updated
             self.selectedRange = pristine
+            self.typingAttributes = beforeTypingAttributes
         }
     }
 
@@ -808,14 +941,23 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func setLink(_ url: URL, title: String, inRange range: NSRange) {
+
+        let originalText = attributedText.attributedSubstring(from: range)
+        let attributedTitle = NSAttributedString(string: title)
+        let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+
         let formatter = LinkFormatter()
         formatter.attributeValue = url        
         let attributes = formatter.apply(to: typingAttributes)
-        let linkWasPresent = formatter.present(in: storage, at: range)
+
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
-        if range.length == 0 && !linkWasPresent {
-            selectedRange = NSMakeRange(range.location + (title as NSString).length, 0)
-        }
+
+        selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
+
         delegate?.textViewDidChange?(self)
     }
 
@@ -833,72 +975,132 @@ open class TextView: UITextView {
 
     // MARK: - Embeds
 
-    /// Inserts an image at the specified index
+    func replace(at range: NSRange, with attachment: NSTextAttachment) {
+        let originalText = textStorage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: NSAttributedString.lengthOfTextAttachment)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)        
+        storage.replaceCharacters(in: range, with: attachmentString)
+        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
+        delegate?.textViewDidChange?(self)
+    }
+
+    /// Replaces with an image attachment at the specified range
     ///
     /// - Parameters:
-    ///     - image: the image object to be inserted.
+    ///     - range: the range where the image will be inserted
     ///     - sourceURL: The url of the image to be inserted.
-    ///     - position: The character index at which to insert the image.
+    ///     - placeHolderImage: the image to be used as an placeholder.
+    ///     - identifier: an unique identifier for the image
     ///
     /// - Returns: the attachment object that can be used for further calls
     ///
-    open func insertImage(sourceURL url: URL, atPosition position: Int, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> TextAttachment {
-        let attachment = storage.insertImage(sourceURL: url, atPosition: position, placeHolderImage: placeHolderImage ?? defaultMissingImage, identifier: identifier)
-        let length = NSAttributedString.lengthOfTextAttachment
-        textStorage.addAttributes(typingAttributes, range: NSMakeRange(position, length))
-        selectedRange = NSMakeRange(position+length, 0)
-        delegate?.textViewDidChange?(self)
+    @discardableResult
+    open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
+        let attachment = ImageAttachment(identifier: identifier)
+        attachment.delegate = storage
+        attachment.url = url
+        attachment.image = placeHolderImage
+        replace(at: range, with: attachment)
         return attachment
     }
 
 
-    /// Returns the TextAttachment instance with the matching identifier
+    /// Returns the MediaAttachment instance with the matching identifier
     ///
     /// - Parameter id: Identifier of the text attachment to be retrieved
     ///
-    open func attachment(withId id: String) -> TextAttachment? {
+    open func attachment(withId id: String) -> MediaAttachment? {
         return storage.attachment(withId: id)
     }
 
-    /// Removes the attachments that match the attachament identifier provided from the storage
+    /// Removes the attachment that matches the attachment identifier provided from the storage
     ///
     /// - Parameter attachmentID: the unique id of the attachment
     ///
     open func remove(attachmentID: String) {
-        storage.remove(attachmentID: attachmentID)
+        guard let range = storage.rangeFor(attachmentID: attachmentID) else {
+            return
+        }
+        let originalText = storage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: 0)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributes))
         delegate?.textViewDidChange?(self)
     }
 
     /// Removes all of the text attachments contained within the storage
     ///
-    open func removeTextAttachments() {
-        storage.removeTextAttachments()
+    open func removeMediaAttachments() {
+        storage.removeMediaAttachments()
         delegate?.textViewDidChange?(self)
     }
 
-    /// Inserts a Video attachment at the specified index
+    /// Replaces a Video attachment at the specified range
     ///
     /// - Parameters:
-    ///     - index: The character index at which to insert the image.
-    ///     - params: TBD
+    ///   - range: the range in the text to insert the video
+    ///   - sourceURL: the video source URL
+    ///   - posterURL: the video poster image URL
+    ///   - placeHolderImage: an image to use has an placeholder while the video poster is being loaded
+    ///   - identifier: an unique indentifier for the video
     ///
-    open func insertVideo(_ index: Int, params: [String: AnyObject]) {
-        print("video")
+    /// - Returns: the video attachment object that was inserted.
+    ///
+    @discardableResult
+    open func replaceWithVideo(at range: NSRange, sourceURL: URL, posterURL: URL?, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> VideoAttachment {
+        let attachment = VideoAttachment(identifier: identifier, srcURL: sourceURL, posterURL: posterURL)
+        attachment.delegate = storage
+        attachment.image = placeHolderImage
+        replace(at: range, with: attachment)
+        return attachment
     }
 
-    /// Returns the associated TextAttachment, at a given point, if any.
+    /// Returns the associated NSTextAttachment, at a given point, if any.
     ///
     /// - Parameter point: The point on screen to check for attachments.
     ///
-    /// - Returns: The associated TextAttachment.
+    /// - Returns: The associated NSTextAttachment.
     ///
-    open func attachmentAtPoint(_ point: CGPoint) -> TextAttachment? {
+    open func attachmentAtPoint(_ point: CGPoint) -> NSTextAttachment? {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         guard index < textStorage.length else {
             return nil
         }
 
-        return textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: nil) as? TextAttachment
+        var effectiveRange = NSRange()
+        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
+            return nil
+        }
+
+        var bounds = layoutManager.boundingRect(forGlyphRange: effectiveRange, in: textContainer)
+        bounds.origin.x += textContainerInset.left
+        bounds.origin.y += textContainerInset.top
+
+        // Let's check if we have media attachment in place
+        var mediaBounds: CGRect = .zero
+        if let mediaAttachment = attachment as? MediaAttachment {
+            mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        }
+
+        // Correct the bounds taking in account the dimesion of the media image being used
+        bounds.origin.x += mediaBounds.origin.x
+        bounds.origin.y += mediaBounds.origin.y
+        bounds.size.width = mediaBounds.size.width
+        bounds.size.height = mediaBounds.size.height
+
+        if bounds.contains(point) {
+            return attachment
+        }
+
+        return nil
     }
 
     /// Move the selected range to the nearest character of the point specified in the textView
@@ -930,7 +1132,7 @@ open class TextView: UITextView {
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
-        if let attachment = attachmentAtPoint(point) {
+        if let attachment = attachmentAtPoint(point) as? MediaAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
             if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
@@ -1019,17 +1221,37 @@ open class TextView: UITextView {
 
     /// Updates the attachment properties to the new values
     ///
-    /// - parameter attachment: the attachment to update
-    /// - parameter alignment:  the alignment value
-    /// - parameter size:       the size value
-    /// - parameter url:        the attachment url
+    /// - Parameters:
+    ///     - attachment: the attachment to update
+    ///     - alignment: the alignment value
+    ///     - size: the size value
+    ///     - url: the attachment url
     ///
-    open func update(attachment: TextAttachment,
-                     alignment: TextAttachment.Alignment,
-                     size: TextAttachment.Size,
+    open func update(attachment: ImageAttachment,
+                     alignment: ImageAttachment.Alignment,
+                     size: ImageAttachment.Size,
                      url: URL) {
         storage.update(attachment: attachment, alignment: alignment, size: size, url: url)
-        layoutManager.invalidateLayoutForAttachment(attachment)
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+    open func update(attachment: VideoAttachment) {        
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
+        delegate?.textViewDidChange?(self)
+    }
+
+
+    /// Updates the Attachment's HTML contents to the new specified value.
+    ///
+    /// - Parameters:
+    ///     - attachment: The attachment to be updated
+    ///     - html: New *VALID* HTML to be set
+    ///
+    open func update(attachment: HTMLAttachment, html: String) {
+        storage.update(attachment: attachment, html: html)
         delegate?.textViewDidChange?(self)
     }
 
@@ -1038,14 +1260,15 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refreshLayoutFor(attachment: TextAttachment) {
-        layoutManager.invalidateLayoutForAttachment(attachment)
+    open func refreshLayout(for attachment: MediaAttachment) {
+        layoutManager.invalidateLayout(for: attachment)
+        layoutManager.ensureLayoutForContainers()
     }
 
 
     // MARK: - More
 
-    /// Inserts an HTML Comment at the specified position.
+    /// Replaces with an HTML Comment at the specified range.
     ///
     /// - Parameters:
     ///     - range: The character range that must be replaced with a Comment Attachment.
@@ -1054,75 +1277,279 @@ open class TextView: UITextView {
     /// - Returns: the attachment object that can be used for further calls
     ///
     @discardableResult
-    open func replaceRangeWithCommentAttachment(_ range: NSRange, text: String) -> CommentAttachment {
-        let attachment = storage.replaceRangeWithCommentAttachment(range, text: text, attributes: typingAttributes)
-
-        selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
-        delegate?.textViewDidChange?(self)
+    open func replaceWithComment(at range: NSRange, text: String) -> CommentAttachment {
+        let attachment = CommentAttachment()
+        attachment.text = text
+        replace(at: range, with: attachment)
 
         return attachment
     }
 }
 
 
-// MARK: - TextStorageImageProvider
+// MARK: - Single line attributes removal
 
+private extension TextView {
+
+    // MARK: - WORKAROUND: Removing paragraph styles after deleting the last character in the current line.
+
+    /// Ensures Paragraph Styles are removed, if needed, *before* a character gets removed from the storage,
+    /// at the specified range.
+    ///
+    /// - Parameter range: Range at which a character is about to be removed.
+    ///
+    func ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at range: NSRange) {
+        guard mustRemoveParagraphStylesBeforeRemovingCharacter(at: range) else {
+            return
+        }
+
+        removeParagraphAttributes(at: range)
+    }
+
+    /// Analyzes whether the attributes should be removed from the specified location, *before* removing a 
+    /// character at the specified location.
+    ///
+    /// - Parameter range: Range at which we'll remove a character
+    ///
+    /// - Returns: `true` if we should nuke the paragraph attributes.
+    ///
+    private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
+        return storage.string.isEmptyParagraph(at: range.location)
+    }
+
+    /// Removes paragraph attributes after a selection change.  The logic that defines if the
+    /// attributes must be removed is located in
+    /// `mustRemoveSingleLineParagraphAttributes()`.
+    ///
+    /// - Parameters:
+    ///     - text: the text that was just inserted into the TextView.
+    ///
+    func ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: String) {
+        guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
+            return
+        }
+
+        removeSingleLineParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
+    ///
+    /// - Parameters:
+    ///     - text: the text that was just inserted into the TextView.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
+        return input.isEndOfLine() && storage.string.isEmptyParagraph(at: selectedRange.location)
+    }
+
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeSingleLineParagraphAttributes(at range: NSRange) {
+
+        let formatters: [AttributeFormatter] = [
+            HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
+            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
+        ]
+
+        for formatter in formatters where formatter.present(in: typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+
+    // MARK: - Remove paragraph styles when pressing enter in an empty paragraph
+
+    /// Removes paragraph attributes after pressing enter in an empty paragraph.
+    ///
+    /// - Parameters:
+    ///     - input: the user's input.  This method must be called before the input is processed.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        guard mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: input) else {
+            return false
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+
+        return true
+    }
+
+    /// Analyzes whether paragraph attributes should be removed after pressing enter in an empty
+    /// paragraph.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        return input.isEndOfLine()
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
+            && (BlockquoteFormatter().present(in: typingAttributes)
+                || TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
+                || PreFormatter().present(in: typingAttributes))
+    }
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeTextListAttributes(at range: NSRange) {
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+
+    // MARK: - Remove paragraph styles when pressing backspace and removing the last character
+
+    /// Removes paragraph attributes after pressing backspace, if the resulting document is empty.
+    ///
+    func ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() {
+        guard mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after pressing backspace.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument() -> Bool {
+        return storage.length == 0
+    }
+
+    // MARK: - WORKAROUND: removing styles at EOF due to selection change
+
+    /// Removes paragraph attributes after a selection change.
+    ///
+    func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
+        guard mustRemoveParagraphAttributesAfterSelectionChange() else {
+            return
+        }
+
+        removeParagraphAttributes(at: selectedRange)
+    }
+
+    /// Analyzes whether paragraph attributes should be removed from the specified
+    /// location, or not, after the selection range is changed.
+    ///
+    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
+    ///
+    func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
+        return selectedRange.location == storage.length
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
+    }
+
+
+    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
+    /// is beyond the storage's contents, the typingAttributes will be modified
+    ///
+    func removeParagraphAttributes(at range: NSRange) {
+        let formatters: [AttributeFormatter] = [
+            BlockquoteFormatter(),
+            PreFormatter(placeholderAttributes: defaultAttributes),
+            TextListFormatter(style: .ordered),
+            TextListFormatter(style: .unordered)
+        ]
+
+        for formatter in formatters where formatter.present(in: super.typingAttributes) {
+            super.typingAttributes = formatter.remove(from: super.typingAttributes)
+
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+            formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+    }
+}
+
+
+// MARK: - TextStorageImageProvider
+//
 extension TextView: TextStorageAttachmentsDelegate {
 
     func storage(
         _ storage: TextStorage,
-        attachment: TextAttachment,
-        imageForURL url: URL,
+        attachment: NSTextAttachment,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ()) -> UIImage {
         
-        guard let mediaDelegate = mediaDelegate else {
-            fatalError("This class requires a media delegate to be set.")
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        let placeholderImage = mediaDelegate.textView(self, imageAtUrl: url, onSuccess: success, onFailure: failure)
-        return placeholderImage
+        return textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
-    func storage(_ storage: TextStorage, missingImageForAttachment: TextAttachment) -> UIImage {
-        return defaultMissingImage
+    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
+        }
+        return textAttachmentDelegate.textView(self, placeholderForAttachment: attachment)
     }
     
-    func storage(_ storage: TextStorage, urlForAttachment attachment: TextAttachment) -> URL {
-        guard let mediaDelegate = mediaDelegate else {
-            fatalError("This class requires a media delegate to be set.")
+    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
+        guard let textAttachmentDelegate = textAttachmentDelegate else {
+            fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        return mediaDelegate.textView(self, urlForAttachment: attachment)
+        return textAttachmentDelegate.textView(self, urlFor: imageAttachment)
     }
 
-    func storage(_ storage: TextStorage, deletedAttachmentWithID attachmentID: String) {
-        mediaDelegate?.textView(self, deletedAttachmentWithID: attachmentID)
+    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
+        textAttachmentDelegate?.textView(self, deletedAttachmentWith: attachmentID)
     }
 
-    func storage(_ storage: TextStorage, imageForComment attachment: CommentAttachment, with size: CGSize) -> UIImage? {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+    func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+        let provider = textAttachmentImageProvider.first { provider in
+            return provider.textView(self, shouldRender: attachment)
         }
 
-        return commentsDelegate.textView(self, imageForComment: attachment, with: size)
-    }
-
-    func storage(_ storage: TextStorage, boundsForComment attachment: CommentAttachment, with lineFragment: CGRect) -> CGRect {
-        guard let commentsDelegate = commentsDelegate else {
-            fatalError("This class requires a comments delegate to be set.")
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
         }
 
-        return commentsDelegate.textView(self, boundsForComment: attachment, with: lineFragment)
+        return firstProvider.textView(self, imageFor: attachment, with: size)
+    }
+
+    func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        let provider = textAttachmentImageProvider.first {
+            $0.textView(self, shouldRender: attachment)
+        }
+
+        guard let firstProvider = provider else {
+            fatalError("This class requires at least one AttachmentImageProvider to be set.")
+        }
+
+        return firstProvider.textView(self, boundsFor: attachment, with: lineFragment)
     }
 }
 
-// MARK: - UIGestureRecognizerDelegate
 
+// MARK: - UIGestureRecognizerDelegate
+//
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate
 {
     let textView: TextView
-    fileprivate var currentSelectedAttachment: TextAttachment?
+    fileprivate var currentSelectedAttachment: MediaAttachment?
 
     public init(textView: TextView) {
         self.textView = textView
@@ -1139,7 +1566,7 @@ extension TextView: TextStorageAttachmentsDelegate {
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
             // if we have a current selected attachment let's notify of deselection
             if let selectedAttachment = currentSelectedAttachment {
-                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return false
@@ -1163,14 +1590,61 @@ extension TextView: TextStorageAttachmentsDelegate {
 
         if textView.isPointInsideAttachmentMargin(point: locationInTextView) {
             if let selectedAttachment = currentSelectedAttachment {
-                textView.mediaDelegate?.textView(textView, deselectedAttachment: selectedAttachment, atPosition: locationInTextView)
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
             }
             currentSelectedAttachment = nil
             return
         }
 
-        currentSelectedAttachment = attachment
-        textView.mediaDelegate?.textView(textView, selectedAttachment: attachment, atPosition: locationInTextView)
+        currentSelectedAttachment = attachment as? MediaAttachment
+        textView.textAttachmentDelegate?.textView(textView, selected: attachment, atPosition: locationInTextView)
+    }
+}
+
+
+// MARK: - Undo implementation
+
+private extension TextView {
+
+    /// Undoable Operation. Returns the Final Text Range, resulting from applying the undoable Operation
+    /// Note that for Styling Operations, the Final Range will most likely match the Initial Range.
+    /// For text editing it will only match the initial range if the original string was replaced with a 
+    /// string of the same length.
+    ///
+    typealias Undoable = () -> NSRange
+
+
+    /// Registers an Undoable Operation, which will be applied at the specified Initial Range.
+    ///
+    /// - Parameters:
+    ///     - initialRange: Initial Storage Range upon which we'll apply a transformation.
+    ///     - block: Undoable Operation. Should return the resulting Substring's Range.
+    ///
+    func performUndoable(at initialRange: NSRange, block: Undoable) {
+        let originalString = storage.attributedSubstring(from: initialRange)
+
+        let finalRange = block()
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: finalRange)
+        })
+
+        delegate?.textViewDidChange?(self)
+    }
+
+    func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
+
+        let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)
+        let redoOriginalText = storage.attributedSubstring(from: finalRange)
+
+        storage.replaceCharacters(in: finalRange, with: originalText)
+        selectedRange = redoFinalRange
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: redoOriginalText, finalRange: redoFinalRange)
+        })
+
+        delegate?.textViewDidChange?(self)
     }
 }
 

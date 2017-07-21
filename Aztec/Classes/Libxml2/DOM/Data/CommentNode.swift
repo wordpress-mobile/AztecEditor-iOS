@@ -3,7 +3,7 @@ import Foundation
 extension Libxml2 {
     /// Comment nodes use to hold HTML comments like this: <!-- This is a comment -->
     ///
-    class CommentNode: Node, LeafNode {
+    class CommentNode: Node {
 
         var comment: String
 
@@ -17,31 +17,10 @@ extension Libxml2 {
         
         // MARK: - Initializers
         
-        init(text: String, editContext: EditContext? = nil) {
+        init(text: String) {
             comment = text
 
-            super.init(name: "comment", editContext: editContext)
-        }
-
-        /// Node length.
-        ///
-        override func length() -> Int {
-            let nsString = text() as NSString
-            return nsString.length
-        }
-        
-        // MARK: - LeafNode
-        
-        override func text() -> String {
-            return String(.newline)
-        }
-
-        override func deleteCharacters(inRange range: NSRange) {
-            guard range.location == 0 && range.length == length() else {
-                return
-            }
-
-            removeFromParent()
+            super.init(name: "comment")
         }
     }
 }

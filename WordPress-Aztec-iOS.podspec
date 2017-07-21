@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '0.5a7.1'
+  s.version          = '1.0.0-beta.8.1'
   s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
@@ -31,13 +31,12 @@ Pod::Spec.new do |s|
 
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
+  s.resources = 'Aztec/Assets/**/*'
 
   # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
   # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
   s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Aztec/Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Aztec/Modulemaps/libxml2/**'}
   s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
   s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
-
-  s.dependency 'Gridicons', '0.5'
 
 end

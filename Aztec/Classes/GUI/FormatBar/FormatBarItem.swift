@@ -74,21 +74,48 @@ open class FormatBarItem: UIButton {
     }
 
 
+    // MARK: - Icons
+
+    /// A list of alternative icons that can be switched out for
+    /// this item's default icon if their formatting identifiers are detected
+    ///
+    public var alternativeIcons: [FormattingIdentifier: UIImage]? = nil
+
+    /// Switch out this item's icon for the icon that matches the specified identifier
+    ///
+    public func useAlternativeIconForIdentifier(_ identifier: FormattingIdentifier) {
+        if let icon = alternativeIcons?[identifier] {
+            setImage(icon, for: .normal)
+        }
+    }
+
+    /// Reset this item's icon back to default
+    ///
+    public func resetIcon() {
+        setImage(originalIcon, for: .normal)
+    }
+
+    private var originalIcon: UIImage
 
     // MARK: - Lifecycle
 
-    public convenience init(image: UIImage, identifier: FormattingIdentifier) {
+    public convenience init(image: UIImage, identifier: FormattingIdentifier? = nil) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
     }
 
+    open override var intrinsicContentSize: CGSize {
+        return CGSize(width: 44.0, height: 44.0)
+    }
 
     public init(image: UIImage, frame: CGRect) {
+        self.originalIcon = image
+
         super.init(frame: frame)
         self.setImage(image, for: UIControlState())
-        self.adjustsImageWhenDisabled = true
-        self.adjustsImageWhenHighlighted = true
+        self.adjustsImageWhenDisabled = false
+        self.adjustsImageWhenHighlighted = false
     }
 
 
@@ -116,5 +143,11 @@ open class FormatBarItem: UIButton {
         }
 
         tintColor = normalTintColor
+    }
+}
+
+class FormatBarDividerItem: UIView {
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: 1.0, height: 44.0)
     }
 }

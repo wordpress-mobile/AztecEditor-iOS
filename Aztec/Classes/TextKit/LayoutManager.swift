@@ -9,12 +9,16 @@ class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     ///
-    var blockquoteBorderColor: UIColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
 
     /// Blockquote's Background Color
     ///
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
+
+    /// HTML Pre Background Color
+    ///
+    var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -22,6 +26,7 @@ class LayoutManager: NSLayoutManager {
         super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
 
         drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
+        drawHTMLPre(forGlyphRange: glyphsToShow, at: origin)
         drawLists(forGlyphRange: glyphsToShow, at: origin)
     }
 }
@@ -45,7 +50,7 @@ private extension LayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         //draw blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.blockquote != nil else {
+            guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
 
@@ -53,12 +58,7 @@ private extension LayoutManager {
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-                self.drawBlockquote(in: lineRect, with: context)
-            }
-
-            if range.endLocation == textStorage.rangeOfEntireString.endLocation {
-                let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-                drawBlockquote(in: extraLineRect, with: context)
+                self.drawBlockquote(in: lineRect.integral, with: context)
             }
         }
 
@@ -76,6 +76,45 @@ private extension LayoutManager {
     }
 }
 
+// MARK: - PreFormatted Helpers
+//
+private extension LayoutManager {
+
+    /// Draws a HTML Pre associated to a Range + Graphics Origin.
+    ///
+    func drawHTMLPre(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+        guard let textStorage = textStorage else {
+            return
+        }
+
+        guard let context = UIGraphicsGetCurrentContext() else {
+            preconditionFailure("When drawBackgroundForGlyphRange is called, the graphics context is supposed to be set by UIKit")
+        }
+
+        let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
+        //draw html pre paragraphs
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+            guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.htmlPre != nil else {
+                return
+            }
+
+            let preGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+
+            enumerateLineFragments(forGlyphRange: preGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
+                self.drawHTMLPre(in: lineRect.integral, with: context)
+            }
+        }
+
+    }
+
+    /// Draws a single HTML Pre Line Fragment, in the specified Rectangle, using a given Graphics Context.
+    ///
+    private func drawHTMLPre(in rect: CGRect, with context: CGContext) {
+        preBackgroundColor.setFill()
+        context.fill(rect)
+    }
+}
 
 // MARK: - Lists Helpers
 //
@@ -89,36 +128,30 @@ private extension LayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
-            guard let paragraphStyle = object as? ParagraphStyle, let list = paragraphStyle.textList else {
-                return
-            }
 
-            let listGlyphRange = glyphRange(forCharacterRange:range, actualCharacterRange: nil)
+        textStorage.enumerateParagraphRanges(spanning: characterRange) { (range, enclosingRange) in
 
-            // Draw Paragraph Markers
-            enumerateLineFragments(forGlyphRange: listGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let location = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil).location
-                guard textStorage.isStartOfNewLine(atLocation: location) else {
+            guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
+                let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle,
+                let list = paragraphStyle.lists.last else {
                     return
-                }
-
-                let markerNumber = textStorage.itemNumber(in: list, at: location)
-                let lineRect = rect.offsetBy(dx: origin.x, dy: origin.y)
-
-                self.drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
             }
 
-            // Draw the Last Line's Item
-            guard range.endLocation == textStorage.rangeOfEntireString.endLocation, !extraLineFragmentRect.isEmpty else {
-                return
-            }
+            let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
 
-            let location = range.endLocation - 1
-            let lineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-            let markerNumber = textStorage.itemNumber(in: list, at: location) + 1
+            // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
+            //
+            let lineFragmentRect = self.lineFragmentRect(forGlyphAt: glyphRange.location, effectiveRange: nil)
+            let lineFragmentRectWithOffset = lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
 
-            drawItem(number: markerNumber, in: lineRect, from: list, using: paragraphStyle, at: location)
+            let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
+
+            self.drawItem(
+                number: markerNumber,
+                in: lineFragmentRectWithOffset,
+                from: list,
+                using: paragraphStyle,
+                at: enclosingRange.location)
         }
     }
 
@@ -140,10 +173,16 @@ private extension LayoutManager {
         let paragraphAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         let markerAttributes = markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
 
-        let markerRect = rect.offsetBy(dx: style.headIndent - Metrics.defaultIndentation, dy: style.paragraphSpacingBefore)
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
+        var yOffset = -style.paragraphSpacing
+
+        if let font = markerAttributes[NSFontAttributeName] as? UIFont {
+            yOffset += (rect.height - font.lineHeight)
+        }
+
+        let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
         markerText.draw(in: markerRect)
     }
 
@@ -152,18 +191,50 @@ private extension LayoutManager {
     ///
     private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
         var resultAttributes = attributes
-        resultAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+        var indent: CGFloat = 0
+        if let style = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+            indent = style.headIndent
+        }
+
+        resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle(indent: indent)
         resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
         resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
         resultAttributes.removeValue(forKey: NSLinkAttributeName)
+
         if let font = resultAttributes[NSFontAttributeName] as? UIFont {
-            var traits = font.fontDescriptor.symbolicTraits
-            traits.remove(.traitBold)
-            traits.remove(.traitItalic)
-            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-            let newFont = UIFont(descriptor: descriptor!, size: font.pointSize)
-            resultAttributes[NSFontAttributeName] = newFont
+            resultAttributes[NSFontAttributeName] = fixFontForMarkerAttributes(font: font)
         }
+
         return resultAttributes
+    }
+
+
+    /// Returns the Marker Paratraph Attributes
+    ///
+    private func markerParagraphStyle(indent: CGFloat) -> NSParagraphStyle {
+        let tabStop = NSTextTab(textAlignment: .right, location: indent, options: [:])
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.tabStops = [tabStop]
+
+        return paragraphStyle
+    }
+
+
+    /// Fixes a UIFont Instance for List Marker Usage:
+    ///
+    /// - Emoji Font is replaced by the System's font, of matching size
+    /// - Bold and Italic styling is neutralized
+    ///
+    private func fixFontForMarkerAttributes(font: UIFont) -> UIFont {
+        guard !font.isAppleEmojiFont else {
+            return UIFont.systemFont(ofSize: font.pointSize)
+        }
+
+        var traits = font.fontDescriptor.symbolicTraits
+        traits.remove(.traitBold)
+        traits.remove(.traitItalic)
+
+        let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+        return UIFont(descriptor: descriptor!, size: font.pointSize)
     }
 }

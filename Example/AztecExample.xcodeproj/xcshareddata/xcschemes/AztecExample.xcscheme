@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0800"
+   LastUpgradeVersion = "0900"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -36,6 +36,16 @@
                BuildableName = "AztecTests.xctest"
                BlueprintName = "AztecTests"
                ReferencedContainer = "container:../Aztec.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "607FACE41AFB9204008FA782"
+               BuildableName = "AztecExample-Tests.xctest"
+               BlueprintName = "AztecExample-Tests"
+               ReferencedContainer = "container:AztecExample.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
