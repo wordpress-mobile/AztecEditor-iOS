@@ -15,7 +15,7 @@ class CSSProperty: Hashable {
         self.value = value
     }
 
-    convenience init?(string: String) {
+    convenience init?(for string: String) {
         let components = string.components(separatedBy: CSSProperty.keyValueSeparator)
         guard let name = components.first, let value = components.last, components.count == 2 else {
             return nil
