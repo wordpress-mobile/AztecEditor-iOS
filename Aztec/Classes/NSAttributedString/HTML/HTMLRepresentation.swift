@@ -34,7 +34,6 @@ class HTMLRepresentation: NSObject {
 extension HTMLRepresentation: NSCoding {
 
     struct Keys {
-        let kind = "kind"
         static let attribute = "attribute"
         static let element = "element"
         static let inline = "inline"
