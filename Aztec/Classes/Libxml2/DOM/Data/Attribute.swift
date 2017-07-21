@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: CustomReflectable, Equatable, Hashable {
+class Attribute: NSObject, CustomReflectable {
 
     // MARK: - Attribute Definition Properties
 
@@ -17,6 +17,7 @@ class Attribute: CustomReflectable, Equatable, Hashable {
         self.value = value
     }
 
+
     // MARK: - CustomReflectable
 
     public var customMirror: Mirror {
@@ -27,7 +28,7 @@ class Attribute: CustomReflectable, Equatable, Hashable {
 
     // MARK - Hashable
 
-    var hashValue: Int {
+    override var hashValue: Int {
         return name.hashValue ^ value.hashValue()
     }
 
