@@ -62,6 +62,33 @@ extension Attribute {
         case string(String)
         case inlineCss([CSSProperty])
 
+        
+        // MARK: - Constants
+
+        static let cssPropertySeparator = "; "
+
+
+        // MARK: - Initializers
+
+        init(string: String?) {
+            let components = string?.components(separatedBy: Value.cssPropertySeparator) ?? []
+            if components.isEmpty {
+                self = .none
+                return
+            }
+
+            if components.count == 1, let first = components.first {
+                self = .string(first)
+                return
+            }
+
+            let properties = components.flatMap { CSSProperty(string: $0) }
+            self = .inlineCss(properties)
+        }
+
+
+        // MARK: - Hashable
+
         func hashValue() -> Int {
             switch(self) {
             case .none:
@@ -74,6 +101,7 @@ extension Attribute {
                 })
             }
         }
+
 
         // MARK: - Equatable
 
@@ -114,6 +142,7 @@ extension Attribute {
             }
         }
 
+
         // MARK: - String Representation
 
         func toString() -> String? {
@@ -123,14 +152,13 @@ extension Attribute {
             case .string(let string):
                 return string
             case .inlineCss(let properties):
-                let cssPropertySeparator = "; "
                 var result = ""
 
                 for (index, property) in properties.enumerated() {
                     result += property.toString()
 
                     if index < properties.count - 1 {
-                        result += cssPropertySeparator
+                        result += Value.cssPropertySeparator
                     }
                 }
                 
