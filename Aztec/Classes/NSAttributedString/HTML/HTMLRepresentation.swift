@@ -33,6 +33,16 @@ class HTMLElementRepresentation: NSObject {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
     }
 
+    public required convenience init?(coder aDecoder: NSCoder) {
+        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
+            let attributes = aDecoder.decodeObject(forKey: Keys.attributes) as? [Attribute]
+        else {
+            fatalError()
+        }
+
+        self.init(name: name, attributes: attributes)
+    }
+
     func attribute(named name: String) -> Attribute? {
         return attributes.first(where: { attribute -> Bool in
             return attribute.name == name
@@ -41,5 +51,21 @@ class HTMLElementRepresentation: NSObject {
 
     func toElementNode() -> ElementNode {
         return ElementNode(name: name, attributes: attributes, children: [])
+    }
+}
+
+
+// MARK: - NSCoding Conformance
+//
+extension HTMLElementRepresentation: NSCoding {
+
+    struct Keys {
+        static let name = "name"
+        static let attributes = "attributes"
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: Keys.name)
+        aCoder.encode(attributes, forKey: Keys.attributes)
     }
 }
