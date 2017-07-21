@@ -8,25 +8,49 @@ let UnsupportedHTMLAttributeName = "UnsupportedHTMLAttributeName"
 
 // MARK: - UnsupportedHTML
 //
-class UnsupportedHTML {
+class UnsupportedHTML: NSObject {
 
-    /// Nodes not supported by the Editor (which will be re-serialized!!)
+    /// HTML Snippets not (natively) supported by the Editor (which will be re-serialized!!)
     ///
-    private(set) var elements = [ElementNode]()
+    private(set) var snippets = [String]()
 
-    /// Adds the specified Element Representation
+    /// HTML Snippets not supported, converted back to their ElementNode representations
     ///
-    func add(element: ElementNode) {
-        elements.append(element)
+    var elements: [ElementNode] {
+        let converter = InHTMLConverter()
+
+        return snippets.flatMap { snippet in
+            // Strip the Root Node(s): Always return the first child element
+            let root = converter.convert(snippet)
+            return root.children.first as? ElementNode
+        }
     }
 
-    /// Removes the specified Element Representation
+    /// Required Initializers
     ///
-    func remove(element: ElementNode) {
-        guard let index = elements.index(where: { $0 == element }) else {
-            return
-        }
+    public required convenience init?(coder aDecoder: NSCoder) {
+        self.init()
+        self.snippets = aDecoder.decodeObject(forKey: Keys.elements) as? [String] ?? []
+    }
 
-        elements.remove(at: index)
+    /// Appends the specified Element Representation
+    ///
+    func append(element: ElementNode) {
+        let snippet = OutHTMLConverter().convert(element)
+        snippets.append(snippet)
+    }
+}
+
+
+// MARK: - NSCoding Conformance
+//
+extension UnsupportedHTML: NSCoding {
+
+    struct Keys {
+        static let elements = "elements"
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(snippets, forKey: Keys.elements)
     }
 }

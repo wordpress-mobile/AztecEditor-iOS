@@ -617,7 +617,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let spanElement = ElementNode(type: .span)
 
         let unsupported = UnsupportedHTML()
-        unsupported.add(element: spanElement)
+        unsupported.append(element: spanElement)
 
         testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupported, range: testingString.rangeOfEntireString)
 

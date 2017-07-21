@@ -305,7 +305,7 @@ private extension HTMLNodeToNSAttributedString {
     ///
     private func attributes(storing element: ElementNode, in attributes: [String: Any]) -> [String: Any] {
         let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
-        unsupportedHTML.add(element: element)
+        unsupportedHTML.append(element: element)
 
         var updated = attributes
         updated[UnsupportedHTMLAttributeName] = unsupportedHTML
