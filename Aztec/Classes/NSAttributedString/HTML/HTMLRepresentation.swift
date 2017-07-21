@@ -11,7 +11,7 @@ class HTMLRepresentation: NSObject {
 
     let kind: Kind
 
-    init(kind: Kind) {
+    init(for kind: Kind) {
         self.kind = kind
     }
 

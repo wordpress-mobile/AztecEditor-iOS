@@ -249,7 +249,7 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let representation = HTMLRepresentation(kind: .element(HTMLElementRepresentation(element)))
+        let representation = HTMLRepresentation(for: .element(HTMLElementRepresentation(element)))
         var finalAttributes = attributes
 
         if let elementFormatter = formatter(for: element) {
@@ -284,7 +284,7 @@ private extension HTMLNodeToNSAttributedString {
         let attributes: [String:Any]
 
         if let attributeFormatter = formatter(for: attribute) {
-            let attributeHTMLRepresentation = HTMLRepresentation(kind: .attribute(attribute))
+            let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
 
             attributes = attributeFormatter.apply(to: inheritedAttributes, andStore: attributeHTMLRepresentation)
         } else {
