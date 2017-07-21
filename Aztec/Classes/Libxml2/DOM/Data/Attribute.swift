@@ -41,7 +41,7 @@ class Attribute: NSObject, CustomReflectable {
             fatalError()
         }
 
-        let value = Value(string: valueAsString)
+        let value = Value(for: valueAsString)
         self.init(name: name, value: value)
     }
 
@@ -100,7 +100,7 @@ extension Attribute {
 
         // MARK: - Initializers
 
-        init(string: String?) {
+        init(for string: String?) {
             let components = string?.components(separatedBy: Value.cssPropertySeparator) ?? []
             if components.isEmpty {
                 self = .none
@@ -112,7 +112,7 @@ extension Attribute {
                 return
             }
 
-            let properties = components.flatMap { CSSProperty(string: $0) }
+            let properties = components.flatMap { CSSProperty(for: $0) }
             self = .inlineCss(properties)
         }
 
