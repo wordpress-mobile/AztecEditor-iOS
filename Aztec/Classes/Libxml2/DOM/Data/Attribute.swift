@@ -17,6 +17,11 @@ class Attribute: NSObject, CustomReflectable {
         self.value = value
     }
 
+    init(name: String, string: String?) {
+        self.name = name
+        self.value = Value(for: string)
+    }
+
 
     // MARK: - CustomReflectable
 
@@ -41,8 +46,7 @@ class Attribute: NSObject, CustomReflectable {
             fatalError()
         }
 
-        let value = Value(for: valueAsString)
-        self.init(name: name, value: value)
+        self.init(name: name, string: valueAsString)
     }
 
     // MARK: - Equatable
@@ -76,7 +80,7 @@ extension Attribute: NSCoding {
 
     open func encode(with aCoder: NSCoder) {
         aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(value.toString(), forKey: Keys.name)
+        aCoder.encode(value.toString(), forKey: Keys.value)
     }
 }
 
@@ -107,13 +111,14 @@ extension Attribute {
                 return
             }
 
-            if components.count == 1, let first = components.first {
-                self = .string(first)
+            let properties = components.flatMap { CSSProperty(for: $0) }
+            if !properties.isEmpty {
+                self = .inlineCss(properties)
                 return
             }
 
-            let properties = components.flatMap { CSSProperty(for: $0) }
-            self = .inlineCss(properties)
+            let first = components.first ?? String()
+            self = .string(first)
         }
 
 
