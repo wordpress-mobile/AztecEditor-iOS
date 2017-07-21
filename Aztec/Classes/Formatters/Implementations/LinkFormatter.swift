@@ -12,7 +12,7 @@ class LinkFormatter: StandardAttributeFormatter {
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
         if let representation = representation,
-            case let .element(element) = representation {
+            case let .element(element) = representation.kind {
 
             let linkURL: NSURL
 
