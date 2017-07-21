@@ -32,6 +32,19 @@ class Attribute: NSObject, CustomReflectable {
         return name.hashValue ^ value.hashValue()
     }
 
+    // MARK: - NSCoding
+
+    public required convenience init?(coder aDecoder: NSCoder) {
+        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
+            let valueAsString = aDecoder.decodeObject(forKey: Keys.value) as? String?
+        else {
+            fatalError()
+        }
+
+        let value = Value(string: valueAsString)
+        self.init(name: name, value: value)
+    }
+
     // MARK: - Equatable
 
     static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
@@ -51,6 +64,23 @@ class Attribute: NSObject, CustomReflectable {
     }
 }
 
+
+// MARK: - NSCoding Conformance
+//
+extension Attribute: NSCoding {
+
+    struct Keys {
+        static let name = "name"
+        static let value = "value"
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: Keys.name)
+        aCoder.encode(value.toString(), forKey: Keys.name)
+    }
+}
+
+
 // MARK: - Attribute.Value
 
 extension Attribute {
@@ -62,7 +92,7 @@ extension Attribute {
         case string(String)
         case inlineCss([CSSProperty])
 
-        
+
         // MARK: - Constants
 
         static let cssPropertySeparator = "; "
