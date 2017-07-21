@@ -33,4 +33,24 @@ extension NSAttributedString {
     private func isObject<T>(_ object: Any, kindOf type: T) -> Bool {
         return type(of: object) is T
     }
+
+    /// Removes attributes that not the standard attribute type of NSAttributedString
+    ///
+    func stripNonStandardAttributes() -> NSAttributedString {
+        guard let clean = mutableCopy() as? NSMutableAttributedString else {
+            fatalError()
+        }
+
+        let range = clean.rangeOfEntireString
+        clean.enumerateAttributes(in: range, options: []) { (attributes, range, _) in
+            for (key, _) in attributes {
+                if !key.hasPrefix("NS") {
+                    clean.removeAttribute(key, range: range)
+                }
+            }
+        }
+
+        return clean
+    }
+    
 }
