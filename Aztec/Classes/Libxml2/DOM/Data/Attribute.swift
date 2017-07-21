@@ -51,8 +51,12 @@ class Attribute: NSObject, CustomReflectable {
 
     // MARK: - Equatable
 
-    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Attribute else {
+            return false
+        }
+
+        return name == rhs.name && value == rhs.value
     }
 
     // MARK: - String Representation

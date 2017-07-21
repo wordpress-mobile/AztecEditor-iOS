@@ -24,14 +24,7 @@ class UnsupportedHTMLTests: XCTestCase {
 
         for element in elements {
             XCTAssert(element.children == sampleChildren)
-
-            for (i, lhs) in sampleAttributes.enumerated() {
-                let rhs = element.attributes[i]
-                XCTAssert(lhs == rhs)
-            }
-
-// TODO: Figure out why this brekas?
-//            XCTAssert(element.attributes == sampleAttributes)
+            XCTAssert(element.attributes == sampleAttributes)
         }
     }
 }
