@@ -235,21 +235,15 @@ open class TextView: UITextView {
 
     // MARK: - Intercept copy paste operations
 
-    private let unsupportedCopyAttributes: [Any.Type] = [HTMLRepresentation.self, HTMLElementRepresentation.self, UnsupportedHTML.self]
-
     open override func cut(_ sender: Any?) {
-        // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
-        let data = substring.archivedData()
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
         super.cut(sender)
 
         storeInPasteboard(encoded: data)
     }
 
     open override func copy(_ sender: Any?) {
-        // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
-        let data = substring.archivedData()
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
         super.copy(sender)
 
         storeInPasteboard(encoded: data)
