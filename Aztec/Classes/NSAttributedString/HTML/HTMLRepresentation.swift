@@ -86,6 +86,12 @@ class HTMLElementRepresentation: NSObject {
     func toElementNode() -> ElementNode {
         return ElementNode(name: name, attributes: attributes, children: [])
     }
+
+    // MARK: - Equatable
+
+    static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
+        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
+    }
 }
 
 
