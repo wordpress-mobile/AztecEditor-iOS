@@ -296,7 +296,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
 extension ParagraphStyle {
 
-    func add(property: ParagraphProperty) {
+    func append(property: ParagraphProperty) {
         properties.append(property)
     }
 

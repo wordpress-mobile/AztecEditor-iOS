@@ -26,7 +26,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.add(property: Blockquote(with: representation))
+        newParagraphStyle.append(property: Blockquote(with: representation))
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle

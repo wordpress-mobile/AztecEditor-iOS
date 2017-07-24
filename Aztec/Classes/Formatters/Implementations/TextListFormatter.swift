@@ -12,14 +12,14 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [String : Any]?
+    let placeholderAttributes: [String: Any]?
 
     /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
     let increaseDepth: Bool
 
     /// Designated Initializer
     ///
-    init(style: TextList.Style, placeholderAttributes: [String : Any]? = nil, increaseDepth: Bool = false) {
+    init(style: TextList.Style, placeholderAttributes: [String: Any]? = nil, increaseDepth: Bool = false) {
         self.listStyle = style
         self.placeholderAttributes = placeholderAttributes
         self.increaseDepth = increaseDepth
@@ -34,8 +34,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if  (increaseDepth || newParagraphStyle.lists.isEmpty) {
-            newParagraphStyle.add(property: TextList(style: self.listStyle, with: representation))
+        if increaseDepth || newParagraphStyle.lists.isEmpty {
+            newParagraphStyle.append(property: TextList(style: self.listStyle, with: representation))
         } else {
             newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
         }
