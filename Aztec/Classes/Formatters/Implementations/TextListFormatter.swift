@@ -34,10 +34,11 @@ class TextListFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if increaseDepth || newParagraphStyle.lists.isEmpty {
-            newParagraphStyle.append(property: TextList(style: self.listStyle, with: representation))
+        let newList = TextList(style: self.listStyle, with: representation)
+        if newParagraphStyle.lists.isEmpty || increaseDepth {
+            newParagraphStyle.insertProperty(newList, afterLastOfType: TextList.self)
         } else {
-            newParagraphStyle.replaceProperty(ofType: TextList.self, with: TextList(style: self.listStyle))
+            newParagraphStyle.replaceProperty(ofType: TextList.self, with: newList)
         }
 
         var resultingAttributes = attributes
