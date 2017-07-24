@@ -43,4 +43,13 @@ class StringHTMLTests: XCTestCase {
 
         XCTAssertEqual(original.encodeHtmlEntities(), original)
     }
+
+    /// Verifies that HTML Entities get properly escaped.
+    ///
+    func testEscapeNamedEntitiesEffectivelyEscapedSupportedNamedEntities() {
+        let original = "&<>\"' Some Text Here"
+        let expected = "&amp;&lt;&gt;&quot;&apos; Some Text Here"
+
+        XCTAssertEqual(original.escapeHtmlNamedEntities(), expected)
+    }
 }
