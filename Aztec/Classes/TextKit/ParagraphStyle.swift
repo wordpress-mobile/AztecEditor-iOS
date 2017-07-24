@@ -1,6 +1,9 @@
 import Foundation
 import UIKit
 
+
+// MARK: - ParagraphStyle
+//
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - CustomReflectable
@@ -95,28 +98,29 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
 
-        aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))        
-
+        aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))
         aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
     }
 
     override open func setParagraphStyle(_ obj: NSParagraphStyle) {
         super.setParagraphStyle(obj)
-        if let paragrahStyle = obj as? ParagraphStyle {
-            headIndent = 0
-            firstLineHeadIndent = 0
-            tailIndent = 0
-            paragraphSpacing = 0
-            paragraphSpacingBefore = 0
-
-            baseHeadIndent = paragrahStyle.baseHeadIndent
-            baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
-            baseTailIndent = paragrahStyle.baseTailIndent
-            baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
-            baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
-
-            properties = paragrahStyle.properties
+        guard let paragrahStyle = obj as? ParagraphStyle else {
+            return
         }
+
+        headIndent = 0
+        firstLineHeadIndent = 0
+        tailIndent = 0
+        paragraphSpacing = 0
+        paragraphSpacingBefore = 0
+
+        baseHeadIndent = paragrahStyle.baseHeadIndent
+        baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
+        baseTailIndent = paragrahStyle.baseTailIndent
+        baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
+        baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
+
+        properties = paragrahStyle.properties
     }
 
     open override var headIndent: CGFloat {
@@ -292,8 +296,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 }
 
-// MARK: - Add method to manipulate properties array
 
+// MARK: - Add method to manipulate properties array
+//
 extension ParagraphStyle {
 
     func append(property: ParagraphProperty) {
