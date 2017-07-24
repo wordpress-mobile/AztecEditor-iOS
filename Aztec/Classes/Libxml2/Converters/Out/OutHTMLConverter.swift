@@ -93,7 +93,7 @@ private extension OutHTMLConverter {
     /// Serializes a TextNode into it's HTML String Representation
     ///
     private func convert(text node: TextNode) -> String {
-        return node.text().encodeHtmlEntities()
+        return node.text().escapeHtmlNamedEntities()
     }
 }
 

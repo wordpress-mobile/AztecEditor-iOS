@@ -19,11 +19,25 @@ extension String {
 
     /// Escapes the following HTML entities: [&, <, >, ', "]
     ///
-    private func escapeHtmlNamedEntities() -> String {
-        return replacingOccurrences(of: "&", with: "&amp;")
-                .replacingOccurrences(of: "<", with: "&lt;")
-                .replacingOccurrences(of: ">", with: "&gt;")
-                .replacingOccurrences(of: "\"", with: "&quot;")
-                .replacingOccurrences(of: "\'", with: "&apos;")
+    public func escapeHtmlNamedEntities() -> String {
+        return entities.reduce(self) { (out, entity: Entity) in
+            return out.replacingOccurrences(of: entity.raw, with: entity.encoded)
+        }
+    }
+
+    /// Entity Typealias Helper
+    ///
+    private typealias Entity = (raw: String, encoded: String)
+
+    /// Named HTML Entities
+    ///
+    private var entities: [Entity] {
+        return [
+            ("&", "&amp;"),
+            ("<", "&lt;"),
+            (">", "&gt;"),
+            ("\"", "&quot;"),
+            ("\'", "&apos;")
+        ]
     }
 }
