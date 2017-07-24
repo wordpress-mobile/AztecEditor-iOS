@@ -301,10 +301,35 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 //
 extension ParagraphStyle {
 
-    func append(property: ParagraphProperty) {
+    /// Inserts the specified ParagraphProperty at the very end of the Properties array
+    ///
+    func appendProperty(_ property: ParagraphProperty) {
         properties.append(property)
     }
 
+    /// Inserts the specified ParagraphProperty at the specified index
+    ///
+    func insertProperty(_ property: ParagraphProperty, at index: Int) {
+        properties.insert(property, at: index)
+    }
+
+    /// Inserts the specified ParagraphProperty after the last Property of the specified kind. If none,
+    /// this method will simply append the given ParagraphProperty at the very end of the Properties array.
+    ///
+    /// *Note*: This is specially useful when adding a nested List Nested Level, where 'New Lists' should be
+    /// clustered at the 'Right Hand Side' of the currently existant list.
+    ///
+    func insertProperty(_ property: ParagraphProperty, afterLastOfType type: AnyClass) {
+        guard let targetIndex = properties.lastIndex(where: { type(of: $0) == type }) else {
+            properties.append(property)
+            return
+        }
+
+        properties.insert(property, at: targetIndex + 1)
+    }
+
+    /// Removes the first ParagraphProperty present in the Properties collection that matches the specified kind.
+    ///
     func removeProperty(ofType type: AnyClass) {
         for index in (0..<properties.count).reversed() {
             if type(of: properties[index]) == type {
@@ -314,6 +339,8 @@ extension ParagraphStyle {
         }
     }
 
+    /// Removes the first ParagraphProperty present in the Properties collection with a given instance
+    ///
     func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
         for index in (0..<properties.count).reversed() {
             if type(of: properties[index]) == type {
