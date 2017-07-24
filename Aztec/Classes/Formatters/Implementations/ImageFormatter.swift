@@ -13,7 +13,7 @@ class ImageFormatter: StandardAttributeFormatter {
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
         if let representation = representation {
-            switch representation {
+            switch representation.kind {
             case .element(let element):
                 var extraAttributes = [String:String]()
                 for attribute in element.attributes {

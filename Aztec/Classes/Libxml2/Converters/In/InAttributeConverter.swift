@@ -26,7 +26,7 @@ class InAttributeConverter: SafeConverter {
             // So we're only loading the attribute's value if it's not equal to the attribute name.
             //
             if attributeName != attributeValue {
-                return Attribute(name: attributeName, value: .string(attributeValue))
+                return Attribute(name: attributeName, string: attributeValue)
             }
         }
 
