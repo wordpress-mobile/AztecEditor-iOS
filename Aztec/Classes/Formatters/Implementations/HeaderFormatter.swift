@@ -34,7 +34,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         }
 
         if newParagraphStyle.headerLevel == 0 {
-            newParagraphStyle.append(property: Header(level: headerLevel, with: representation))
+            newParagraphStyle.appendProperty(Header(level: headerLevel, with: representation))
         } else {
             newParagraphStyle.replaceProperty(ofType: Header.self, with: Header(level: headerLevel))
         }

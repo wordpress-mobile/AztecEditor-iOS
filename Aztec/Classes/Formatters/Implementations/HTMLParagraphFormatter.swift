@@ -27,7 +27,7 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        newParagraphStyle.append(property: HTMLParagraph(with: representation))
+        newParagraphStyle.appendProperty(HTMLParagraph(with: representation))
 
         var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
