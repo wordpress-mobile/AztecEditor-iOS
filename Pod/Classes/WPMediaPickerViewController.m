@@ -373,7 +373,9 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (void)setSelectedAssets:(NSArray *)selectedAssets {
     self.internalSelectedAssets = [selectedAssets copy];
-    [self refreshDataAnimated: NO];
+    if ([self isViewLoaded]) {
+        [self refreshDataAnimated: NO];
+    }
 }
 
 - (NSArray *)selectedAssets {
