@@ -1622,4 +1622,37 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: pristineJapanese)
         XCTAssertEqual(textView.getHTML(), pristineJapanese)
     }
+
+    /// This test verifies that Nested Text Lists are 'Grouped Together', and not simply appended at the end of
+    /// the Properties collection. For instance, a 'broken' behavior would produce the following HTML:
+    ///
+    ///     <ol><li><blockquote><ol><li><ol><li>First Item</li></ol></li></ol></blockquote></li></ol>
+    ///
+    /// Ref. Issue #633: Hitting Tab causes the bullet to indent, but the blockquote is not moving
+    ///
+    func testNestedTextListsAreProperlyGroupedTogether() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText("First Item")
+
+        // Simulate TAB Event
+        let command = textView.keyCommands?.first { command in
+            return command.input == String(.tab) && command.modifierFlags.isEmpty
+        }
+
+        guard let tab = command else {
+            XCTFail()
+            return
+        }
+
+        // Insert Two Nested Levels
+        textView.handleTab(command: tab)
+        textView.handleTab(command: tab)
+
+        // Verify!
+        let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
+        XCTAssert(textView.getHTML() == expected)
+    }
 }
