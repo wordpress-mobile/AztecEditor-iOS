@@ -602,7 +602,12 @@ private extension NSAttributedStringToNodes {
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
     private func processLinkStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard let url = attributes[NSLinkAttributeName] as? URL else {
+        var urlString = ""
+        if let url = attributes[NSLinkAttributeName] as? URL {
+            urlString = url.absoluteString
+        } else if let link = attributes[NSLinkAttributeName] as? String {
+            urlString = link
+        } else {
             return nil
         }
 
@@ -616,7 +621,7 @@ private extension NSAttributedStringToNodes {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: "href", value: .string(url.absoluteString))
+        element.updateAttribute(named: "href", value: .string(urlString))
 
         return element
     }
