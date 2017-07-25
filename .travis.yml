@@ -1,0 +1,9 @@
+osx_image: xcode8.3
+language: objective-c
+xcode_workspace: Aztec.xcworkspace
+xcode_scheme: AztecExample
+xcode_sdk: iphonesimulator
+before_script:
+- cd Example && carthage update && cd -
+script:
+- Scripts/build.sh
