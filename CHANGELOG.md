@@ -16,7 +16,7 @@ Released on 2017-07-26. All issues associated with this milestone can be found u
 [filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.19).
 
 #### Fixed
-- Fixed some retain cycles that where causing issues with double notifications.
+- Fixed some retain cycles that were causing issues with double notifications.
 - Refactor options on the picker to allow better refresh of picker.
 - Allow selected assets to be pre-selected on the picker.
 
