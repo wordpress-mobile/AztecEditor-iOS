@@ -18,7 +18,7 @@
 >
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
-@property (nonatomic, strong) NSMutableArray *selectedAssets;
+@property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
@@ -43,7 +43,7 @@ static CGFloat SelectAnimationTime = 0.2;
     self = [self initWithCollectionViewLayout:layout];
     if (self) {
         _layout = layout;
-        _selectedAssets = [[NSMutableArray alloc] init];
+        _internalSelectedAssets = [[NSMutableArray alloc] init];
         _options = [options copy];
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];        
@@ -195,7 +195,7 @@ static CGFloat SelectAnimationTime = 0.2;
         [self.collectionView deselectItemAtIndexPath:indexPath animated:animated];
     }
 
-    [self.selectedAssets removeAllObjects];
+    [self.internalSelectedAssets removeAllObjects];
 }
 
 - (void)resetState:(BOOL)animated {
@@ -371,9 +371,20 @@ static CGFloat SelectAnimationTime = 0.2;
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
+- (void)setSelectedAssets:(NSArray *)selectedAssets {
+    self.internalSelectedAssets = [selectedAssets copy];
+    if ([self isViewLoaded]) {
+        [self refreshDataAnimated: NO];
+    }
+}
+
+- (NSArray *)selectedAssets {
+    return [self.internalSelectedAssets copy];
+}
+
 - (void)refreshSelection
 {
-    NSArray *selectedAssets = [NSArray arrayWithArray:self.selectedAssets];
+    NSArray *selectedAssets = [NSArray arrayWithArray:self.internalSelectedAssets];
     NSMutableArray *stillExistingSeletedAssets = [NSMutableArray array];
     for (id<WPMediaAsset> asset in selectedAssets) {
         NSString *assetIdentifier = [asset identifier];
@@ -381,7 +392,7 @@ static CGFloat SelectAnimationTime = 0.2;
             [stillExistingSeletedAssets addObject:asset];
         }
     }
-    self.selectedAssets = stillExistingSeletedAssets;
+    self.internalSelectedAssets = stillExistingSeletedAssets;
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -486,7 +497,7 @@ referenceSizeForFooterInSection:(NSInteger)section
  */
 - (NSUInteger)positionOfAssetInSelection:(id<WPMediaAsset>)asset
 {
-    NSUInteger position = [self.selectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaAsset> loopAsset, NSUInteger idx, BOOL *stop) {
+    NSUInteger position = [self.internalSelectedAssets indexOfObjectPassingTest:^BOOL(id<WPMediaAsset> loopAsset, NSUInteger idx, BOOL *stop) {
         BOOL found =  [[asset identifier]  isEqual:[loopAsset identifier]];
         return found;
     }];
@@ -511,13 +522,13 @@ referenceSizeForFooterInSection:(NSInteger)section
         return;
     }
     if (!self.options.allowMultipleSelection) {
-        [self.selectedAssets removeAllObjects];
+        [self.internalSelectedAssets removeAllObjects];
     }
-    [self.selectedAssets addObject:asset];
+    [self.internalSelectedAssets addObject:asset];
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     if (self.options.allowMultipleSelection) {
-        [cell setPosition:self.selectedAssets.count];
+        [cell setPosition:self.internalSelectedAssets.count];
     } else {
         [cell setPosition:NSNotFound];
     }
@@ -528,7 +539,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
     if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.selectedAssets copy]];
+            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.internalSelectedAssets copy]];
         }
     }
 }
@@ -551,7 +562,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
     NSUInteger deselectPosition = [self positionOfAssetInSelection:asset];
     if (deselectPosition != NSNotFound) {
-        [self.selectedAssets removeObjectAtIndex:deselectPosition];
+        [self.internalSelectedAssets removeObjectAtIndex:deselectPosition];
     }
 
     WPMediaCollectionViewCell *cell = (WPMediaCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
@@ -705,12 +716,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     BOOL willBeSelected = YES;
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         if ([self.mediaPickerDelegate mediaPickerController:self shouldSelectAsset:asset]) {
-            [self.selectedAssets addObject:asset];
+            [self.internalSelectedAssets addObject:asset];
         } else {
             willBeSelected = NO;
         }
     } else {
-        [self.selectedAssets addObject:asset];
+        [self.internalSelectedAssets addObject:asset];
     }
     
     if (!willBeSelected) {
@@ -721,7 +732,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
     if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.selectedAssets copy]];
+            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.internalSelectedAssets copy]];
         }
     }
     NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;

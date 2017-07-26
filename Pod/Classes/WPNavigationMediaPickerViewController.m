@@ -104,7 +104,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)finishPicker:(UIBarButtonItem *)sender
 {
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-        [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:[self.mediaPicker.selectedAssets copy]];
+        [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:self.mediaPicker.selectedAssets];
     }
 }
 

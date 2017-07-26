@@ -145,7 +145,7 @@
 /**
  An array with the the assets that are currently selected.
  */
-@property (nonatomic, readonly, nonnull) NSMutableArray *selectedAssets;
+@property (nonatomic, copy, nonnull) NSArray<WPMediaAsset> *selectedAssets;
 
 /**
   The object that acts as the data source of the media picker.
