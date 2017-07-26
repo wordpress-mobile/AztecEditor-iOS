@@ -50,7 +50,11 @@ class ElementNode: Node {
             return result ^ attribute.hashValue
         }
 
-        return name.hashValue ^ attributesHash
+        let childrenHash = children.reduce(0) { (result, child) in
+            return result ^ child.hashValue
+        }
+
+        return name.hashValue ^ attributesHash ^ childrenHash
     }
 
     
@@ -356,6 +360,7 @@ class ElementNode: Node {
         }
     }
 
+
     // MARK: - Editing behavior
 
     func isSupportedByEditor() -> Bool {
@@ -366,8 +371,17 @@ class ElementNode: Node {
 
         return ElementNode.knownElements.contains(standardName)
     }
+
+
+    // MARK: - ElementNode Equatable
+
+    static func ==(lhs: ElementNode, rhs: ElementNode) -> Bool {
+        return lhs.name == rhs.name && lhs.attributes == rhs.attributes && lhs.children == rhs.children
+    }
 }
 
+
+// MARK: - RootNode
 
 class RootNode: ElementNode {
 
