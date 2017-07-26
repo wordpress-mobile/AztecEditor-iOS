@@ -22,4 +22,11 @@ class CommentNode: Node {
 
         super.init(name: "comment")
     }
+
+
+    // MARK: - ElementNode Equatable
+
+    static func ==(lhs: CommentNode, rhs: CommentNode) -> Bool {
+        return lhs.name == rhs.name && lhs.comment == rhs.comment
+    }
 }
