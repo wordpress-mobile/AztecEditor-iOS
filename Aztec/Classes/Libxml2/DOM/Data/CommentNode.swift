@@ -25,8 +25,11 @@ class CommentNode: Node {
 
 
     // MARK: - ElementNode Equatable
-
-    static func ==(lhs: CommentNode, rhs: CommentNode) -> Bool {
-        return lhs.name == rhs.name && lhs.comment == rhs.comment
+    override func isEqual(other: Node) -> Bool {
+        guard let commentNode = other as? CommentNode else {
+            return false
+        }
+        return self.name == commentNode.name && self.comment == commentNode.comment
     }
+
 }

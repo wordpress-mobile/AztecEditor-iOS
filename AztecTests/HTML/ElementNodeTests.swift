@@ -18,5 +18,6 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssert((style1 == style2) == false)
         XCTAssert(style1 != style2)
+        XCTAssert(style1 == style1)
     }
 }

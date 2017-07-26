@@ -58,8 +58,10 @@ class TextNode: Node {
     }
 
     // MARK: - Node Equatable
-
-    static func ==(lhs: TextNode, rhs: TextNode) -> Bool {
-        return lhs.name == rhs.name && lhs.contents == rhs.contents
-    }
+    override func isEqual(other: Node) -> Bool {
+        guard let textNode = other as? TextNode else {
+            return false
+        }
+        return self.name == textNode.name && self.contents == textNode.contents
+    }    
 }

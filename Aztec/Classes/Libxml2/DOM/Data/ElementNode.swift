@@ -374,9 +374,11 @@ class ElementNode: Node {
 
 
     // MARK: - ElementNode Equatable
-
-    static func ==(lhs: ElementNode, rhs: ElementNode) -> Bool {
-        return lhs.name == rhs.name && lhs.attributes == rhs.attributes && lhs.children == rhs.children
+    override func isEqual(other: Node) -> Bool {
+        guard let elementNode = other as? ElementNode else {
+            return false
+        }
+        return self.name == elementNode.name && self.attributes == elementNode.attributes && self.children == elementNode.children
     }
 }
 
