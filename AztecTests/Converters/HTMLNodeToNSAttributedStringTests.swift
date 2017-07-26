@@ -50,6 +50,20 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         XCTAssertEqual(restoredSpanAttribute1?.name, "class")
         XCTAssertEqual(restoredSpanAttribute1?.value.toString(), "first")
     }
+
+    ///
+    ///
+    func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
+        let html = "<div class=\"entry-content\"><br><br>Aztec, don't forget me!</div><br>#yosemite"
+
+        let inNode = InHTMLConverter().convert(html)
+        let attrString = attributedString(from: inNode)
+
+        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outHtml = OutHTMLConverter().convert(outNode)
+
+        NSLog("HTML: \(outHtml)")
+    }
 }
 
 
@@ -58,7 +72,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 extension HTMLNodeToNSAttributedStringTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
-        let descriptor = UIFont.boldSystemFont(ofSize: 14).fontDescriptor
+        let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
         let converter = HTMLNodeToNSAttributedString(usingDefaultFontDescriptor: descriptor)
 
         return converter.convert(node)
