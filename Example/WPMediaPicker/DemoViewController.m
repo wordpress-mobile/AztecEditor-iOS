@@ -237,6 +237,7 @@
     self.mediaPicker.dataSource = self.pickerDataSource;
     if (self.mediaInputViewController) {
         self.mediaPicker.mediaPicker.selectedAssets = self.mediaInputViewController.mediaPicker.selectedAssets;
+        self.mediaInputViewController.mediaPicker.selectedAssets = (NSArray<WPMediaAsset> *)@[];
     }
     self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
     UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
