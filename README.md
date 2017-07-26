@@ -7,12 +7,14 @@
 
 WPMediaPicker is an iOS controller that allows capture and picking of media assets.
 It allows:
- * Multiple selection of media.
- * Capture of new media while selecting
+ * Allows selection of multiple media objects in one go.
+ * Capture of new media while inside the picker.
  * Use different data sources for the media library.
- * Selection of groups of media.
+ * Switch between different albums.
  * Filtering by media types.
  * Preview of media (images and video) in full screen.
+ * Show the media picker inside as a keyboard input view.
+ * Super quick and memory optimized
 
 ![Screenshot](screenshots_1.jpg "Screenshot")
 
@@ -46,18 +48,17 @@ mediaPicker.delegate = self;
 The delegate is responsible for dismissing the picker when the operation completes. To dismiss the picker, call the [dismissViewControllerAnimated:completion:](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewController_Class/index.html#//apple_ref/occ/instm/UIViewController/dismissViewControllerAnimated:completion:) method of the presenting controller responsible for displaying the `WPNavigationMediaPickerController` object. Please refer to the demo app.
 
 ```` objective-c
-- (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray *)assets
+- (void)mediaPickerController:(WPMediaPickerViewController *)picker didFinishPickingAssets:(NSArray<WPMediaAsset> *)assets
 {
-  [self dismissViewControllerAnimated:YES completion:nil];  
-  // assets contains WPMediaAsset objects.
+  [self dismissViewControllerAnimated:YES completion:nil];    
 }
 ````
 
 ### Other methods to display the picker
 
-The example above show the recommended way to show the picker in a modal mode. There are currently three available controllers to show the picker depending on your application needs:
+The example above shows the recommended way to show the picker in a modal. There are currently three available controllers to show the picker depending on your application needs:
 
- * [WPMediaPickerViewController](Pod/Classes/WPMediaPickerViewController.h), this is the base collection view controller that display the media.
+ * [WPMediaPickerViewController](Pod/Classes/WPMediaPickerViewController.h), this is the base collection view controller that displays the media. It can be used inside another view controllers using containment.
  * [WPInputMediaPickerViewController](Pod/Classes/WPInputMediaPickerViewController.h), a wrapper of the WPMediaPickerController to be used has an inputView of an UIControl. 
  * [WPNavigationMediaPickerViewController](Pod/Classes/WPNavigationMediaPickerViewController.h), a convenience wrapper of the `WPMediaPickerViewController` inside a UINavigationController to show in a modal context.
 
@@ -113,5 +114,5 @@ WordPress, mobile@automattic.com
 
 ## License
 
-WPMediaPicker is available under the GPL license. See the LICENSE file for more info.
+WPMediaPicker is available under the GPL license. See the [LICENSE file](./LICENSE) for more info.
 
