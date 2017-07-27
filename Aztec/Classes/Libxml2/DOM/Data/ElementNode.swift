@@ -43,18 +43,20 @@ class ElementNode: Node {
         }
     }
 
-    // MARK - Hashable
+    // MARK: - Hashable
 
     override public var hashValue: Int {
-        let attributesHash = attributes.reduce(0) { (result, attribute) in
-            return result ^ attribute.hashValue
+        var hash = name.hashValue
+
+        for attribute in attributes {
+            hash ^= attribute.hashValue
         }
 
-        let childrenHash = children.reduce(0) { (result, child) in
-            return result ^ child.hashValue
+        for child in children {
+            hash ^= child.hashValue
         }
 
-        return name.hashValue ^ attributesHash ^ childrenHash
+        return hash
     }
 
 

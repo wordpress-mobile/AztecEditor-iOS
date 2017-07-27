@@ -23,6 +23,12 @@ class CommentNode: Node {
         super.init(name: "comment")
     }
 
+    // MARK - Hashable
+
+    override public var hashValue: Int {
+        return name.hashValue ^ comment.hashValue
+    }
+
     // MARK: - Equatable
 
     override public func isEqual(_ object: Any?) -> Bool {
