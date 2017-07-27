@@ -58,6 +58,7 @@ class TextNode: Node {
     }
 
     // MARK: - Node Equatable
+
     override func isEqual(other: Node) -> Bool {
         guard let textNode = other as? TextNode else {
             return false

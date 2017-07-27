@@ -23,13 +23,13 @@ class CommentNode: Node {
         super.init(name: "comment")
     }
 
+    // MARK: - Equatable
 
-    // MARK: - ElementNode Equatable
-    override func isEqual(other: Node) -> Bool {
-        guard let commentNode = other as? CommentNode else {
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? CommentNode else {
             return false
         }
-        return self.name == commentNode.name && self.comment == commentNode.comment
-    }
 
+        return name == rhs.name && comment == rhs.comment
+    }
 }

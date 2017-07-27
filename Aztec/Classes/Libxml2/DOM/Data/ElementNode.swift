@@ -57,7 +57,18 @@ class ElementNode: Node {
         return name.hashValue ^ attributesHash ^ childrenHash
     }
 
-    
+
+    // MARK: - ElementNode Equatable
+
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? ElementNode else {
+            return false
+        }
+
+        return name == rhs.name && attributes == rhs.attributes && children == rhs.children
+    }
+
+
     // MARK: - Initializers
 
     init(name: String, attributes: [Attribute], children: [Node]) {
@@ -370,15 +381,6 @@ class ElementNode: Node {
         }
 
         return ElementNode.knownElements.contains(standardName)
-    }
-
-
-    // MARK: - ElementNode Equatable
-    override func isEqual(other: Node) -> Bool {
-        guard let elementNode = other as? ElementNode else {
-            return false
-        }
-        return self.name == elementNode.name && self.attributes == elementNode.attributes && self.children == elementNode.children
     }
 }
 
