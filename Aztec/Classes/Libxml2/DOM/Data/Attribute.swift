@@ -135,9 +135,12 @@ extension Attribute {
             case .string(let string):
                 return string.hashValue
             case .inlineCss(let cssProperties):
-                return cssProperties.reduce(0, { (previousHash, property) -> Int in
-                    return previousHash ^ property.hashValue
-                })
+                var hash = 0
+                for property in cssProperties {
+                    hash ^= property.hashValue
+                }
+
+                return hash
             }
         }
 
