@@ -11,6 +11,31 @@
 
 @implementation WPInputMediaPickerViewController
 
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[options copy]];
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
+    return self;
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -21,8 +46,7 @@
 - (void)setupMediaPickerViewController {
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-    self.privateDataSource = [[WPPHAssetDataSource alloc] init];
-    self.mediaPicker = [[WPMediaPickerViewController alloc] init];
+    self.privateDataSource = [[WPPHAssetDataSource alloc] init];    
     self.mediaPicker.dataSource = self.privateDataSource;
 
 
@@ -46,7 +70,7 @@
 
     CGFloat spacing = 1.0f;
     CGFloat size = floorf((self.view.frame.size.height - spacing) / 2.0);
-    self.mediaPicker.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
+    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     layout.itemSize = CGSizeMake(size, size);
@@ -76,7 +100,7 @@
 
 - (void)mediaSelected:(UIBarButtonItem *)sender {
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-        [self.mediaPickerDelegate mediaPickerController:self.mediaPicker didFinishPickingAssets:[self.mediaPicker.selectedAssets copy]];
+        [self.mediaPickerDelegate mediaPickerController:self.mediaPicker didFinishPickingAssets:self.mediaPicker.selectedAssets];
         [self.mediaPicker resetState:NO];
     }
     

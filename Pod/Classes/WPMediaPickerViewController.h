@@ -1,6 +1,7 @@
 @import UIKit;
 #import "WPMediaCollectionDataSource.h"
 #import "WPAssetViewController.h"
+#import "WPMediaPickerOptions.h"
 
 @class WPMediaPickerViewController;
 /**
@@ -137,31 +138,14 @@
 
 @interface WPMediaPickerViewController : UICollectionViewController<WPAssetViewControllerDelegate>
 
-@property (nonatomic, readonly, nonnull) NSMutableArray *selectedAssets;
-/**
- If set the picker will show a cell that allows capture of new media, that can be used immediatelly
- */
-@property (nonatomic, assign) BOOL allowCaptureOfMedia;
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
+
+@property (nonatomic, copy, nonnull) WPMediaPickerOptions *options;
 
 /**
- If the media picker allows media capturing, it will use the front camera by default when possible
+ An array with the the assets that are currently selected.
  */
-@property (nonatomic, assign) BOOL preferFrontCamera;
-
-/**
- If set the picker will show the most recent items on the top left. If not set it will show on the bottom right. Either way it will always scroll to the most recent item when showing the picker.
- */
-@property (nonatomic, assign) BOOL showMostRecentFirst;
-
-/**
- *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
- */
-@property (nonatomic, assign) WPMediaType filter;
-
-/**
- If set the picker will allow the selection of multiple items. By default this value is YES.
- */
-@property (nonatomic, assign) BOOL allowMultipleSelection;
+@property (nonatomic, copy, nonnull) NSArray<WPMediaAsset> *selectedAssets;
 
 /**
   The object that acts as the data source of the media picker.
@@ -177,8 +161,6 @@
  Allows to set a group as the current display group on the data source. 
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
-
-@property (nonatomic, assign) CGSize cameraPreviewSize;
 
 /**
  * Clears the current asset selection in the picker.
