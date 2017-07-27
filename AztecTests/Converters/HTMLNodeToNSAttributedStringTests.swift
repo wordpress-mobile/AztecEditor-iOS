@@ -64,6 +64,26 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
         NSLog("HTML: \(outHtml)")
     }
+
+    ///
+    ///
+    func testMultipleUnrelatedUnsupportedHTMLSnippetsDoNotGetAppliedToTheEntireStringRange() {
+        let html = "<div>" +
+            "<p><span>One/span></p>" +
+            "<p><span><br></span></p>" +
+            "<p><span>Two</span></p>" +
+            "<p><br></p>" +
+            "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
+            "</div>"
+
+        let inNode = InHTMLConverter().convert(html)
+        let attrString = attributedString(from: inNode)
+
+        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outHtml = OutHTMLConverter().convert(outNode)
+
+        NSLog("HTML: \(outHtml)")
+    }
 }
 
 
