@@ -54,7 +54,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     ///
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
-        let html = "<div class=\"entry-content\"><br><br>Aztec, don't forget me!</div><br>#yosemite"
+        let html = "<div><br>Aztec, don't forget me!</div>"
 
         let inNode = InHTMLConverter().convert(html)
         let attrString = attributedString(from: inNode)
