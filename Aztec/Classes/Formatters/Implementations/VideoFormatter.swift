@@ -10,49 +10,47 @@ class VideoFormatter: StandardAttributeFormatter {
     }
 
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
-        let elementRepresentation = representation as? HTMLElementRepresentation
 
-        guard representation == nil || elementRepresentation != nil else {
-            fatalError("This should not be possible.  Review the logic")
-        }
+        if let representation = representation,
+            case let .element(element) = representation.kind {
 
-        return apply(to: attributes, andStore: elementRepresentation)
-    }
+            var extraAttributes = [String:String]()
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
-
-        if let representation = representation {
-
-            var namedAttributes = [String:String]()
-            for attributeRepresentation in representation.attributes {
-                if let value = attributeRepresentation.value {
-                    namedAttributes[attributeRepresentation.name] = value
+            for attribute in element.attributes {
+                if let value = attribute.value.toString() {
+                    extraAttributes[attribute.name] = value
                 }
             }
 
             let srcURL: URL?
 
-            if let urlString = representation.valueForAttribute(named: "src") {
+            if let urlString = element.attribute(named: "src")?.value.toString() {
                 srcURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "src")
+                extraAttributes.removeValue(forKey: "src")
             } else {
                 srcURL = nil
             }
 
             let posterURL: URL?
 
-            if let urlString = representation.valueForAttribute(named: "poster") {
+            if let urlString = element.attribute(named: "poster")?.value.toString() {
                 posterURL = URL(string: urlString)
-                namedAttributes.removeValue(forKey: "poster")
+                extraAttributes.removeValue(forKey: "poster")
             } else {
                 posterURL = nil
             }
 
             let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL)
 
-            attachment.namedAttributes = namedAttributes
-
+            attachment.extraAttributes = extraAttributes
+            
             attributeValue = attachment
+        } else {
+
+            // There's no support fora link representation that's not an HTML element, so this
+            // scenario should only be possible if `representation == nil`.
+            //
+            assert(representation == nil)
         }
 
         return super.apply(to: attributes, andStore: representation)

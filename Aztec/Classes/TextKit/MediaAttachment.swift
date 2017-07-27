@@ -6,15 +6,19 @@ protocol MediaAttachmentDelegate: class {
         _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
 }
 
 /// Custom text attachment.
 ///
-open class MediaAttachment: NSTextAttachment
-{
+open class MediaAttachment: NSTextAttachment {
+
+    /// Attributes accessible by the user, for general purposes.
+    ///
+    public var extraAttributes = [String: String]()
+
     public struct Appearance {
         public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
 
@@ -329,8 +333,10 @@ open class MediaAttachment: NSTextAttachment
         }
         
         isFetchingImage = true
-        
-        let image = delegate.mediaAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
+
+        self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)
+
+        delegate.mediaAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
                 guard let strongSelf = self else {
                     return
                 }
@@ -349,11 +355,26 @@ open class MediaAttachment: NSTextAttachment
                 strongSelf.image = nil
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
             })
-
-        self.image = image
     }
     
     fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayout(for: self)
+    }
+}
+
+
+// MARK: - NSCopying
+//
+extension MediaAttachment: NSCopying {
+
+    public func copy(with zone: NSZone? = nil) -> Any {
+        let clone = type(of: self).init(identifier: identifier, url: url)
+        clone.image = image
+        clone.extraAttributes = extraAttributes
+        clone.url = url
+        clone.lastRequestedURL = lastRequestedURL
+        clone.imageMargin = imageMargin
+        clone.delegate = delegate
+        return clone
     }
 }

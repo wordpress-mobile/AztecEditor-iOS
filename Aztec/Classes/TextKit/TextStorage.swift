@@ -15,16 +15,22 @@ protocol TextStorageAttachmentsDelegate {
     ///     - success: Callback block to be invoked with the image fetched from the url.
     ///     - failure: Callback block to be invoked when an error occurs when fetching the image.
     ///
-    /// - Returns: returns a temporary UIImage to be used while the request is happening
-    ///
     func storage(
         _ storage: TextStorage,
         attachment: NSTextAttachment,
         imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
-    
-    func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage
+        onFailure failure: @escaping () -> ())
+
+    /// Provides an image placeholder for a specified attachment.
+    ///
+    /// - Parameters:
+    ///     - storage: The storage that is requesting the image.
+    ///     - attachment: The attachment that is requesting the image.
+    ///
+    /// - Returns: An Image placeholder to be rendered onscreen.
+    ///
+    func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage
     
     /// Called when an image is about to be added to the storage as an attachment, so that the
     /// delegate can specify an URL where that image is available.
@@ -262,38 +268,6 @@ open class TextStorage: NSTextStorage {
         return foundAttachment
     }
 
-
-    /// Updates the attachment attributes to the values provided.
-    ///
-    /// - Parameters:
-    ///   - attachment: the attachment to update
-    ///   - alignment: the alignment value
-    ///   - size: the size to use
-    ///   - url: the image URL for the image
-    ///
-    func update(attachment: ImageAttachment,
-                alignment: ImageAttachment.Alignment,
-                size: ImageAttachment.Size,
-                url: URL) {
-        attachment.alignment = alignment
-        attachment.size = size
-        attachment.url = url
-    }
-
-    /// Updates the specified HTMLAttachment with new HTML contents
-    ///
-    func update(attachment: HTMLAttachment, html: String) {
-        guard let range = range(for: attachment) else {
-            assertionFailure("Couldn't determine the range for an Attachment")
-            return
-        }
-
-        attachment.rawHTML = html
-
-        let stringWithAttachment = NSAttributedString(attachment: attachment)
-        replaceCharacters(in: range, with: stringWithAttachment)
-    }
-
     /// Return the range of an attachment with the specified identifier if any
     ///
     /// - Parameter attachmentID: the id of the attachment
@@ -310,7 +284,7 @@ open class TextStorage: NSTextStorage {
         return foundRange
     }
 
-    /// Removes all of the TextAttachments from the storage
+    /// Removes all of the MediaAttachments from the storage
     ///
     open func removeMediaAttachments() {
         var ranges = [NSRange]()
@@ -332,7 +306,7 @@ open class TextStorage: NSTextStorage {
         let converter = NSAttributedStringToNodes()
         let rootNode = converter.convert(self)
 
-        let serializer = Libxml2.Out.HTMLConverter(prettyPrint: prettyPrint)
+        let serializer = OutHTMLConverter(prettyPrint: prettyPrint)
         return serializer.convert(rootNode)
 
     }
@@ -363,39 +337,45 @@ open class TextStorage: NSTextStorage {
 }
 
 
-// MARK: - TextStorage: TextAttachmentDelegate Methods
+// MARK: - TextStorage: MediaAttachmentDelegate Methods
 //
 extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, missingImageFor: attachment)
+        return attachmentsDelegate.storage(self, placeholderFor: attachment)
     }
-
 
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
+
+// MARK: - TextStorage: VideoAttachmentDelegate Methods
+//
 extension TextStorage: VideoAttachmentDelegate {
+
+    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
+        assert(attachmentsDelegate != nil)
+        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+    }
 
     func videoAttachment(
         _ videoAttachment: VideoAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
-    
 }
 
 

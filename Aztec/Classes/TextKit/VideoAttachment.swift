@@ -6,7 +6,9 @@ protocol VideoAttachmentDelegate: class {
         _ videoAttachment: VideoAttachment,
         imageForURL url: URL,
         onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ()) -> UIImage
+        onFailure failure: @escaping () -> ())
+
+    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage
 }
 
 /// Custom text attachment.
@@ -27,11 +29,7 @@ open class VideoAttachment: MediaAttachment {
         set {
             self.url = newValue
         }
-    }
-
-    /// Attributes accessible by the user, for general purposes.
-    ///
-    open var namedAttributes = [String: String]()
+    }    
     
     /// Creates a new attachment
     ///
@@ -108,5 +106,22 @@ open class VideoAttachment: MediaAttachment {
         } else {
             return 0
         }
+    }
+}
+
+
+// MARK: - NSCopying
+//
+extension VideoAttachment {
+
+    override public func copy(with zone: NSZone? = nil) -> Any {
+        guard let clone = super.copy() as? VideoAttachment else {
+            fatalError()
+        }
+
+        clone.srcURL = srcURL
+        clone.posterURL = posterURL
+
+        return clone
     }
 }

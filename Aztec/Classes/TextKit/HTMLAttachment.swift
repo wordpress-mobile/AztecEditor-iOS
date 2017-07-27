@@ -26,7 +26,7 @@ open class HTMLAttachment: NSTextAttachment {
     ///
     open var rawHTML: String = "" {
         didSet {
-            glyphImage = nil
+            rootTagName = extractRootTagName(from: rawHTML)
         }
     }
 
@@ -51,15 +51,26 @@ open class HTMLAttachment: NSTextAttachment {
     }
 
 
+    /// Extracts the root tag name from a given HTML string
+    ///
+    private func extractRootTagName(from html: String) -> String {
+        let root = InHTMLConverter().convert(html)
+        let firstChildren = root.children.first
+
+        return firstChildren?.name ?? NSLocalizedString("Unknown", comment: "Unknown Tag Name")
+    }
+
+
     /// Returns the Pretty Printed version of the contained HTML
     ///
     open func prettyHTML() -> String {
-        let inParser = Libxml2.In.HTMLConverter()
-        let outParser = Libxml2.Out.HTMLConverter(prettyPrint: true)
+        let inParser = InHTMLConverter()
+        let outParser = OutHTMLConverter(prettyPrint: true)
 
         let inNode = inParser.convert(rawHTML)
         return outParser.convert(inNode)
     }
+
 
     // MARK: - NSCoder Methods
 
@@ -69,7 +80,6 @@ open class HTMLAttachment: NSTextAttachment {
         aCoder.encode(rootTagName, forKey: Keys.rootTagName)
         aCoder.encode(rawHTML, forKey: Keys.rawHTML)
     }
-
 
 
     // MARK: - NSTextAttachmentContainer
@@ -91,6 +101,19 @@ open class HTMLAttachment: NSTextAttachment {
         }
 
         return bounds
+    }
+}
+
+
+// MARK: - NSCopying
+//
+extension HTMLAttachment: NSCopying {
+
+    public func copy(with zone: NSZone? = nil) -> Any {
+        let clone = HTMLAttachment()
+        clone.rawHTML = rawHTML
+        clone.delegate = delegate
+        return clone
     }
 }
 

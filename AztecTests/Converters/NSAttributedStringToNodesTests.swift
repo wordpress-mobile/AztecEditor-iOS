@@ -17,11 +17,11 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let string = NSAttributedString(string: "Bold?", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
-        XCTAssert(node.children.count == 1)
+        let rootNode = NSAttributedStringToNodes().convert(string)
+        XCTAssert(rootNode.children.count == 1)
 
-        let bold = node.children.first as? ElementNode
-        XCTAssertEqual(bold?.name, "b")
+        let bold = rootNode.children.first as? ElementNode
+        XCTAssertEqual(bold?.name, "strong")
         XCTAssert(bold?.children.count == 1)
 
         let text = bold?.children.first as? TextNode
@@ -40,11 +40,11 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let string = NSAttributedString(string: "Italics!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
+        let node = NSAttributedStringToNodes().convert(string)
         XCTAssert(node.children.count == 1)
 
         let italic = node.children.first as? ElementNode
-        XCTAssertEqual(italic?.name, "i")
+        XCTAssertEqual(italic?.name, "em")
         XCTAssert(italic?.children.count == 1)
 
         let text = italic?.children.first as? TextNode
@@ -63,7 +63,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let string = NSAttributedString(string: "Underlined!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: string)
+        let node = NSAttributedStringToNodes().convert(string)
         XCTAssert(node.children.count == 1)
 
         let underlined = node.children.first as? ElementNode
@@ -86,7 +86,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSAttributedString(string: "Strike!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let strike = node.children.first as? ElementNode
@@ -112,7 +112,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSAttributedString(string: "Yo! Yose! Yosemite!", attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let link = node.children.first as? ElementNode
@@ -140,7 +140,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let list = node.children.first as? ElementNode
@@ -181,7 +181,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let list = node.children.first as? ElementNode
@@ -223,7 +223,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         testingString.append(stringWithAttachment)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 3)
 
         guard let headNode = node.children[0] as? CommentNode,
@@ -261,7 +261,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         testingString.append(stringWithAttachment)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 5)
 
         guard let firstLine = node.children[0] as? ElementNode,
@@ -304,7 +304,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
             testingString.append(regularText)
 
             // Convert + Verify
-            let node = rootNode(from: testingString)
+            let node = NSAttributedStringToNodes().convert(testingString)
             XCTAssert(node.children.count == 2)
 
             guard let headerNode = node.children[0] as? ElementNode,
@@ -345,7 +345,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         testingString.append(commentString)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 3)
 
         guard let htmlNode = node.children[0] as? ElementNode,
@@ -356,7 +356,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
             return
         }
 
-        let reconvertedHTML = Libxml2.Out.HTMLConverter().convert(htmlNode)
+        let reconvertedHTML = OutHTMLConverter().convert(htmlNode)
 
         XCTAssertEqual(reconvertedHTML, htmlAttachment.rawHTML)
         XCTAssertEqual(textNode.contents, textString.string)
@@ -375,7 +375,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSAttributedString(string: "Hello\nWorld")
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 3)
 
         guard let helloNode = node.children[0] as? TextNode,
@@ -405,7 +405,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSAttributedString(string: "Hello\nWorld", attributes: headingStyle)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         guard node.children.count == 2 else {
             XCTFail()
             return
@@ -446,7 +446,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         TextListFormatter(style: .ordered).applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         guard let blockquoteElementNode = node.children.first as? ElementNode,
@@ -503,7 +503,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         guard let unorderedElementNode = node.children.first as? ElementNode,
@@ -563,7 +563,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         HeaderFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         guard let unorderedElementNode = node.children.first as? ElementNode,
@@ -614,16 +614,15 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let text = "Ehlo World!"
         let testingString = NSMutableAttributedString(string: text)
 
-        let spanNode = ElementNode(type: .span)
-        let spanElement = HTMLElementRepresentation(for: spanNode)
+        let spanElement = ElementNode(type: .span)
 
         let unsupported = UnsupportedHTML()
-        unsupported.add(element: spanElement)
+        unsupported.append(element: spanElement)
 
         testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupported, range: testingString.rangeOfEntireString)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let restoredSpanNode = node.children.first as? ElementNode
@@ -647,7 +646,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
 
         let expectedNodes = [
             0: nil,
@@ -694,7 +693,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
         formatter.applyAttributes(to: testingString, at: range)
 
         // Convert + Verify
-        let node = rootNode(from: testingString)
+        let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
         let restoredSpanNode = node.children.first as? ElementNode
@@ -711,14 +710,6 @@ class NSAttributedStringToNodesTests: XCTestCase {
 //
 private extension NSAttributedStringToNodesTests {
 
-    /// Typealiases
-    ///
-    typealias Node = Libxml2.Node
-    typealias CommentNode = Libxml2.CommentNode
-    typealias ElementNode = Libxml2.ElementNode
-    typealias RootNode = Libxml2.RootNode
-    typealias TextNode = Libxml2.TextNode
-
     /// Constants
     ///
     struct Constants {
@@ -726,11 +717,5 @@ private extension NSAttributedStringToNodesTests {
             NSFontAttributeName: UIFont.systemFont(ofSize: UIFont.systemFontSize),
             NSParagraphStyleAttributeName: NSParagraphStyle()
         ]
-    }
-
-    /// Converts an AttributedString into it's RootNode Representation
-    ///
-    func rootNode(from attrString: NSAttributedString) -> RootNode {
-        return NSAttributedStringToNodes().convert(attrString)
     }
 }

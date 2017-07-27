@@ -3,8 +3,8 @@ import Foundation
 
 // MARK: - NSRange Extensions
 //
-extension NSRange
-{
+extension NSRange {
+
     /// Checks if the receiver contains the specified range.
     ///
     /// - Parameters:

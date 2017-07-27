@@ -4,8 +4,8 @@ import UIKit
 
 // MARK: - Header property for paragraphs
 //
-open class Header: ParagraphProperty
-{
+open class Header: ParagraphProperty {
+
     // MARK: - Nested Types
 
     /// Available Heading Types
@@ -38,7 +38,7 @@ open class Header: ParagraphProperty
     ///
     let level: HeaderType
 
-    init(level: HeaderType, with representation: HTMLElementRepresentation? = nil) {
+    init(level: HeaderType, with representation: HTMLRepresentation? = nil) {
         self.level = level
         super.init(with: representation)
     }

@@ -4,8 +4,8 @@ import UIKit
 
 // MARK: - Text List
 //
-open class TextList: ParagraphProperty
-{
+open class TextList: ParagraphProperty {
+
     // MARK: - Nested Types
 
     /// List Styles
@@ -16,8 +16,8 @@ open class TextList: ParagraphProperty
 
         func markerText(forItemNumber number: Int) -> String {
             switch self {
-            case .ordered:      return "\t\(number).\t"
-            case .unordered:    return "\t\u{2022}\t\t"
+            case .ordered:      return "\t\(number)."
+            case .unordered:    return "\t\u{2022}"
             }
         }
     }
@@ -28,7 +28,7 @@ open class TextList: ParagraphProperty
     ///
     let style: Style
 
-    init(style: Style, with representation: HTMLElementRepresentation? = nil) {
+    init(style: Style, with representation: HTMLRepresentation? = nil) {
         self.style = style
         super.init(with: representation)
     }

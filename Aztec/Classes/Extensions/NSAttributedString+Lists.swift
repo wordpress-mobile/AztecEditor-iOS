@@ -135,10 +135,6 @@ extension NSAttributedString {
         return list
     }
 
-    func paragraphRanges(includeParagraphSeparator: Bool = true) -> [NSRange] {
-        return paragraphRanges(spanning: rangeOfEntireString, includeParagraphSeparator: includeParagraphSeparator)
-    }
-
     /// Finds the paragraph ranges in the specified string intersecting the specified range.
     ///
     /// - Parameters range: The range within the specified string to find paragraphs.

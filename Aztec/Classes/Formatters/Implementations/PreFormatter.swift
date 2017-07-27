@@ -25,11 +25,11 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
+    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
 
-        newParagraphStyle.add(property: HTMLPre(with: representation))
+        newParagraphStyle.appendProperty(HTMLPre(with: representation))
 
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
         resultingAttributes[NSFontAttributeName] = monospaceFont

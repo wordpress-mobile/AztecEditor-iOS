@@ -10,31 +10,25 @@ class LinkFormatter: StandardAttributeFormatter {
     }
 
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
-        let elementRepresentation = representation as? HTMLElementRepresentation
 
-        guard representation == nil || elementRepresentation != nil else {
-            fatalError("This should not be possible.  Review the logic")
-        }
+        if let representation = representation,
+            case let .element(element) = representation.kind {
 
-        return apply(to: attributes, andStore: elementRepresentation)
-    }
-
-    func apply(to attributes: [String : Any], andStore representation: HTMLElementRepresentation?) -> [String: Any] {
-
-        if let representation = representation {
-            let linkURL: NSURL
-
-            if let attributeIndex = representation.attributes.index(where: { $0.name == HTMLLinkAttribute.Href.rawValue }),
-                let attributeValue = representation.attributes[attributeIndex].value {
-
-                linkURL = NSURL(string: attributeValue)!
+            if let elementURL = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.value.toString() {
+               if let url = NSURL(string: elementURL) {
+                   attributeValue = url
+               } else {
+                   attributeValue = elementURL
+               }
             } else {
-                // We got a link tag without an HREF attribute
-                //
-                linkURL = NSURL(string: "")!
-            }
+                attributeValue = NSURL(string: "")!
+            }            
+        } else {
 
-            attributeValue = linkURL
+            // There's no support fora link representation that's not an HTML element, so this
+            // scenario should only be possible if `representation == nil`.
+            //
+            assert(representation == nil)
         }
         
         return super.apply(to: attributes, andStore: representation)

@@ -111,12 +111,12 @@ class TextStorageTests: XCTestCase
             return URL(string:"test://")!
         }
 
-        func storage(_ storage: TextStorage, missingImageFor attachment: NSTextAttachment) -> UIImage {
+        func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) -> UIImage {
-            return UIImage()
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) {
+            // NO OP
         }
 
         func storage(_ storage: TextStorage, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
@@ -142,22 +142,31 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
     }
 
-    func testUpdateImage() {
+    /// Verifies that any edition performed on ImageAttachment attributes is properly serialized back during
+    /// the HTML generation step.
+    ///
+    func testEditingImageAttachmentAfterItHasBeenInsertedCausesItsAttributesToProperlySerialize() {
         let storage = TextStorage()
         let mockDelegate = MockAttachmentsDelegate()
         storage.attachmentsDelegate = mockDelegate
+
         let url = URL(string: "https://wordpress.com")!
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
-        storage.update(attachment: attachment, alignment: .left, size: .medium, url: url)
-        let html = storage.getHTML()
+        attachment.alignment = .left
+        attachment.size = .medium
 
+        let html = storage.getHTML()
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<img src=\"https://wordpress.com\" class=\"alignleft size-medium\">")
     }
 
-    func testUpdateHtmlAttachmentEffectivelyUpdatesTheDom() {
+    /// Verifies that any edition performed on HTMLttachment attributes is properly serialized back during
+    /// the HTML generation step.
+    ///
+    func testUpdatingHtmlAttachmentEffectivelyUpdatesTheDom() {
         let initialHTML = "<unknown>html</unknown>"
         let updatedHTML = "<updated>NEW HTML</updated>"
 
@@ -176,7 +185,7 @@ class TextStorageTests: XCTestCase
 
         // Update
         XCTAssertNotNil(theAttachment)
-        storage.update(attachment: theAttachment, html: updatedHTML)
+        theAttachment.rawHTML = updatedHTML
 
         // Verify
         XCTAssertEqual(storage.getHTML(), updatedHTML)
@@ -215,7 +224,7 @@ class TextStorageTests: XCTestCase
 
         let html = storage.getHTML()
 
-        XCTAssertEqual(html, "Hello &#x1F30E;!<blockquote>Apply a blockquote!</blockquote>")
+        XCTAssertEqual(html, "Hello 🌎!<blockquote>Apply a blockquote!</blockquote>")
     }
 
     func testLinkInsert() {

@@ -800,7 +800,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     }
 
     func insertMoreAttachment() {
-        richTextView.replaceWithComment(at: richTextView.selectedRange, text: Constants.moreAttachmentText)
+        richTextView.replace(richTextView.selectedRange, withComment: Constants.moreAttachmentText)
     }
 
     func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
@@ -994,14 +994,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
+        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, _, error) in
             DispatchQueue.main.async(execute: {
-                    guard
-                        error == nil,
+                    guard error == nil,
                         let data = data,
-                        let image = UIImage(data: data, scale:UIScreen.main.scale)
+                        let image = UIImage(data: data, scale: UIScreen.main.scale)
                     else {
                         failure()
                         return
@@ -1010,11 +1009,9 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             })
         }) 
         task.resume()
-
-        return placeholderImage(for: attachment)
     }
 
-    func textView(_ textView: TextView, placeholderForAttachment attachment: NSTextAttachment) -> UIImage {
+    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
         return placeholderImage(for: attachment)
     }
 
@@ -1028,7 +1025,6 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             placeholderImage = Gridicon.iconOfType(.video, withSize: imageSize)
         default:
             placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
-
         }
 
         return placeholderImage
@@ -1072,7 +1068,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
                 if selectedAttachment is ImageAttachment {
                     selectedAttachment.overlayImage = nil
                 }
-                richTextView.refreshLayout(for: selectedAttachment)
+                richTextView.refresh(selectedAttachment)
             }
 
             // and mark the newly tapped attachment
@@ -1081,7 +1077,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             if attachment.overlayImage == nil {
                 attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
             }
-            richTextView.refreshLayout(for: attachment)
+            richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
         }
     }
@@ -1090,7 +1086,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
             mediaAttachment.message = nil
-            richTextView.refreshLayout(for: mediaAttachment)
+            richTextView.refresh(mediaAttachment)
         }
     }
 
@@ -1151,7 +1147,10 @@ private extension EditorDemoController {
     func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
         let targetVC = UnknownEditorViewController(attachment: attachment)
         targetVC.onDidSave = { [weak self] html in
-            self?.richTextView.update(attachment: attachment, html: html)
+            self?.richTextView.edit(attachment) { updated in
+                updated.rawHTML = html
+            }
+
             self?.dismiss(animated: true, completion: nil)
         }
 
@@ -1261,11 +1260,10 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL                
-                richTextView.update(attachment: videoAttachment)
+                videoAttachment.srcURL = videoURL
             }
         }
-        richTextView.refreshLayout(for: attachment)
+        richTextView.refresh(attachment)
     }
 
     var mediaMessageAttributes: [String: Any] {
@@ -1326,15 +1324,16 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url) in
+        detailsViewController.onUpdate = { (alignment, size, url, alt) in
+            self.richTextView.edit(attachment) { updated in
+                if let alt = alt {
+                    updated.extraAttributes["alt"] = alt
+                }
 
-            guard let strongSelf = self else {
-                return
+                updated.alignment = alignment
+                updated.size = size
+                updated.url = url
             }
-            strongSelf.richTextView.update(attachment: attachment,
-                                           alignment: alignment,
-                                           size: size,
-                                           url: url)
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        

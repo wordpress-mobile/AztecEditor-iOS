@@ -3,24 +3,8 @@ import XCTest
 
 class InHTMLConverterTests: XCTestCase {
 
-    typealias ElementNode = Libxml2.ElementNode
-    typealias TextNode = Libxml2.TextNode
-
-    typealias Attribute = Libxml2.Attribute
-    typealias StringAttribute = Libxml2.StringAttribute
-
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
     func testSimpleHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "<bold>Hello!</bold>"
 
@@ -45,7 +29,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testComplexHTMLConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
@@ -61,23 +45,15 @@ class InHTMLConverterTests: XCTestCase {
         XCTAssertEqual(divNode.name, "div")
         XCTAssertEqual(divNode.attributes.count, 3)
 
-        guard let attribute1 = divNode.attributes[0] as? StringAttribute else {
-            XCTFail("Expected a string attribute.")
-            return
-        }
-
+        let attribute1 = divNode.attributes[0]
         let attribute2 = divNode.attributes[1]
-
-        guard let attribute3 = divNode.attributes[2] as? StringAttribute else {
-            XCTFail("Expected a string attribute.")
-            return
-        }
+        let attribute3 = divNode.attributes[2]
 
         XCTAssertEqual(attribute1.name, "style")
-        XCTAssertEqual(attribute1.value, "a")
+        XCTAssertEqual(attribute1.value.toString(), "a")
         XCTAssertEqual(attribute2.name, "nostyle")
         XCTAssertEqual(attribute3.name, "peace")
-        XCTAssertEqual(attribute3.value, "123")
+        XCTAssertEqual(attribute3.value.toString(), "123")
 
         XCTAssert(divNode.children[0] is TextNode)
         XCTAssert(divNode.children[2] is TextNode)
@@ -92,7 +68,7 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testNonASCIIConversion() {
-        let parser = Libxml2.In.HTMLConverter()
+        let parser = InHTMLConverter()
 
         let html = "Otro año más"
 

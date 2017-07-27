@@ -671,6 +671,13 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
 
+    func testParsingOfInvalidLink() {
+        let html = "<a href=\"\\http:\\badlink&?\">link</a>"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+    }
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
         let textView = createEmptyTextView()
 
@@ -987,6 +994,27 @@ class TextViewTests: XCTestCase {
         textView.insertText(String(.lineFeed))
 
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+    }
+
+    /// When deleting the newline between lines 1 and 2 in the following example:
+    ///     Line 1: <empty>
+    ///     Line 2: <empty> (with list style)
+    ///     Line 3: <empty>
+    ///
+    /// Aztec tends to naturally maintain the list style alive, due to the newline between line 2 and
+    /// 3, since line 1 has no paragraph style once its closing newline is removed.
+    ///
+    /// This test makes sure that removing the newline between line 1 and 2, also removes the list
+    /// style in line 2.
+    ///
+    func testDeleteNewlineRemovesListStyleIfPreceededByAnEmptyLine() {
+        let textView = createEmptyTextView()
+
+        textView.insertText(String(.lineFeed))
+        textView.toggleUnorderedList(range: textView.selectedRange)
+        textView.deleteBackward()
+
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
     }
 
     /// When the caret is positioned at both EoF and EoL, inserting a line separator (in most
@@ -1386,11 +1414,17 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
     }
 
-    func testUpdateVideo() {
+    /// Verifies that any edition performed on VideoAttachment's srcURL attribute is properly serialized back,
+    /// during the HTML generation step.
+    ///
+    func testEditingVideoAttachmentAttributesCausesAttributesToProperlySerializeBack() {
         let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
-        let videoAttachment = textView.storage.mediaAttachments.first! as! VideoAttachment
+        guard let videoAttachment = textView.storage.mediaAttachments.first! as? VideoAttachment else {
+            fatalError()
+        }
+
         videoAttachment.srcURL = URL(string:"newVideo.mp4")!
-        let _ = textView.update(attachment: videoAttachment)
+        textView.refresh(videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
     }
@@ -1405,9 +1439,9 @@ class TextViewTests: XCTestCase {
             XCTFail("An video attachment should be present")
             return
         }
-        XCTAssertEqual(attachment.namedAttributes["data-wpvideopress"], "videopress", "Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["data-wpvideopress"], "videopress", "Property should be available")
 
-        attachment.namedAttributes["data-wpvideopress"] = "ABCDE"
+        attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
 
         XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
     }
@@ -1417,7 +1451,7 @@ class TextViewTests: XCTestCase {
     func testInsertComment() {
         let textView = createEmptyTextView()
 
-        textView.replaceWithComment(at: .zero, text: "more")
+        textView.replace(.zero, withComment: "more")
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<!--more-->")
@@ -1427,8 +1461,8 @@ class TextViewTests: XCTestCase {
     ///
     func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
         let textView = createEmptyTextView()
-        textView.replaceWithComment(at: .zero, text: "more")
-        textView.replaceWithComment(at: .zero, text: "some other comment should go here")
+        textView.replace(.zero, withComment: "more")
+        textView.replace(.zero, withComment: "some other comment should go here")
 
         let html = textView.getHTML()
 
@@ -1514,6 +1548,28 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "")
     }
 
+    /// This method test the parsing of img tag that contains attributes thar are not directly supported by Image attachments
+    /// It also tests if changes on those attributes is correctly reflected on the generated HTML
+    ///
+    func testParseImageWithExtraAttributes() {
+        let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+
+        guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
+            XCTFail("An video attachment should be present")
+            return
+        }
+        XCTAssertEqual(attachment.extraAttributes["alt"], "Alt", "Alt Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["title"], "Title", "Title Property should be available")
+
+        attachment.extraAttributes["alt"] = "Changed Alt"
+        attachment.extraAttributes["class"] = "wp-image-169"
+
+        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\">")
+    }
+
     /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
     ///
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
@@ -1535,6 +1591,15 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(pristineHTML, generatedHTML)
     }
 
+    /// This test verifies that img class attributes are not duplicated
+    ///
+    func testParseImageDoesntDuplicateExtraAttributes() {
+        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" alt=\"Alt\" title=\"Title\">"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+    }
+
     /// This test verifies that copying the Sample HTML Document does not trigger a crash.
     /// Ref. Issue #626: NSKeyedArchiver Crash
     ///
@@ -1551,5 +1616,50 @@ class TextViewTests: XCTestCase {
         let textView = createTextViewWithSampleHTML()
         textView.selectedRange = textView.storage.rangeOfEntireString
         textView.cut(nil)
+    }
+
+    /// This test verifies that Japanese Characters do not get hexa encoded anymore, since we actually support UTF8!
+    /// Ref. Issue #632: Stop encoding non-latin characters
+    ///
+    func testJapaneseCharactersWillNotGetEscaped() {
+        let pristineJapanese = "国ドぼゆ九会以つまにの市賛済ツ聞数ナシ私35奨9企め全談ヱマヨワ全竹スレフヨ積済イナ続害ホテ" +
+            "ソト聞長津装げ。16北夢みは殻容ク洋意能緯ざた投記ぐだもみ学徳局みそイし済更離ラレミネ展至察畑しのわぴ。航リむは" +
+            "素希ホソ元不サト国十リ産望イげ地年ニヲネ将広ぴん器学サナチ者一か新米だしず災9識じざい総台男みのちフ。"
+
+        let textView = createTextView(withHTML: pristineJapanese)
+        XCTAssertEqual(textView.getHTML(), pristineJapanese)
+    }
+
+    /// This test verifies that Nested Text Lists are 'Grouped Together', and not simply appended at the end of
+    /// the Properties collection. For instance, a 'broken' behavior would produce the following HTML:
+    ///
+    ///     <ol><li><blockquote><ol><li><ol><li>First Item</li></ol></li></ol></blockquote></li></ol>
+    ///
+    /// Ref. Issue #633: Hitting Tab causes the bullet to indent, but the blockquote is not moving
+    ///
+    func testNestedTextListsAreProperlyGroupedTogether() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText("First Item")
+
+        // Simulate TAB Event
+        let command = textView.keyCommands?.first { command in
+            return command.input == String(.tab) && command.modifierFlags.isEmpty
+        }
+
+        guard let tab = command else {
+            XCTFail()
+            return
+        }
+
+        // Insert Two Nested Levels
+        textView.handleTab(command: tab)
+        textView.handleTab(command: tab)
+
+        // Verify!
+        let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
+        XCTAssert(textView.getHTML() == expected)
     }
 }

@@ -6,16 +6,6 @@ import XCTest
 //
 class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
-    /// Typealiases
-    ///
-    typealias ElementNode = Libxml2.ElementNode
-    typealias Node = Libxml2.Node
-    typealias RootNode = Libxml2.RootNode
-    typealias StringAttribute = Libxml2.StringAttribute
-    typealias TextNode = Libxml2.TextNode
-    typealias CommentNode = Libxml2.CommentNode
-
-
     /// Verifies that <span> Nodes are preserved into the NSAttributedString instance, by means of the UnsupportedHTML
     /// attribute.
     ///
@@ -23,11 +13,11 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         let textNode = TextNode(text: "Ehlo World!")
 
         // <span class="aztec">
-        let spanAttribute2 = StringAttribute(name: "class", value: "aztec")
+        let spanAttribute2 = Attribute(name: "class", value: .string("aztec"))
         let spanNode2 = ElementNode(type: .span, attributes: [spanAttribute2], children: [textNode])
 
         // <span class="first"><span class="aztec">
-        let spanAttribute1 = StringAttribute(name: "class", value: "first")
+        let spanAttribute1 = Attribute(name: "class", value: .string("first"))
         let spanNode1 = ElementNode(type: .span, attributes: [spanAttribute1], children: [spanNode2])
 
         // <h1><span class="first"><span class="aztec">
@@ -51,14 +41,14 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
         let restoredSpanAttribute2 = restoredSpanElement2?.attributes.first
         XCTAssertEqual(restoredSpanAttribute2?.name, "class")
-        XCTAssertEqual(restoredSpanAttribute2?.value, "aztec")
+        XCTAssertEqual(restoredSpanAttribute2?.value.toString(), "aztec")
 
         let restoredSpanElement1 = unsupportedHTML.elements.first
         XCTAssertEqual(restoredSpanElement1?.name, "span")
 
         let restoredSpanAttribute1 = restoredSpanElement1?.attributes.first
         XCTAssertEqual(restoredSpanAttribute1?.name, "class")
-        XCTAssertEqual(restoredSpanAttribute1?.value, "first")
+        XCTAssertEqual(restoredSpanAttribute1?.value.toString(), "first")
     }
 }
 
