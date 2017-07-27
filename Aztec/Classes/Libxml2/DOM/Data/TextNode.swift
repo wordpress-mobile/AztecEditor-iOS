@@ -57,10 +57,10 @@ class TextNode: Node {
         return name.hashValue ^ contents.hashValue
     }
 
-    // MARK: - Node Equatable
+    // MARK: - Equatable
 
-    override func isEqual(other: Node) -> Bool {
-        guard let textNode = other as? TextNode else {
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let textNode = object as? TextNode else {
             return false
         }
         return self.name == textNode.name && self.contents == textNode.contents
