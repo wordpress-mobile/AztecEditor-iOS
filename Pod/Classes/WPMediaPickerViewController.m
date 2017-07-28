@@ -615,17 +615,18 @@ referenceSizeForFooterInSection:(NSInteger)section
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
                            UIImagePickerControllerSourceTypeCamera]];
-    switch (self.options.filter) {
-        case(WPMediaTypeImage): {
-            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeImage]]];
-        } break;
-        case(WPMediaTypeVideo): {
-            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeMovie]]];
-        } break;
-        default: {
-            //Don't intersect at all
-        }
+    NSMutableSet *mediaDesired = [NSMutableSet new];
+    if (self.options.filter & WPMediaTypeImage) {
+        [mediaDesired addObject:(__bridge NSString *)kUTTypeImage];
     }
+    if (self.options.filter & WPMediaTypeVideo) {
+        [mediaDesired addObject:(__bridge NSString *)kUTTypeMovie];
+
+    }
+    if (mediaDesired.count > 0){
+        [mediaTypes intersectSet:mediaDesired];
+    }
+        
     imagePickerController.mediaTypes = [mediaTypes allObjects];
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
