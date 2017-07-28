@@ -671,6 +671,13 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
 
+    func testParsingOfInvalidLink() {
+        let html = "<a href=\"\\http:\\badlink&?\">link</a>"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+    }
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
         let textView = createEmptyTextView()
 
