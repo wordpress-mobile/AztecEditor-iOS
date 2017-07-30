@@ -69,12 +69,12 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     ///
     func testMultipleUnrelatedUnsupportedHTMLSnippetsDoNotGetAppliedToTheEntireStringRange() {
         let html = "<div>" +
-            "<p><span>One/span></p>" +
+            "<p><span>One</span></p>" +
             "<p><span><br></span></p>" +
             "<p><span>Two</span></p>" +
             "<p><br></p>" +
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
-            "</div>"
+        "</div>"
 
         let inNode = InHTMLConverter().convert(html)
         let attrString = attributedString(from: inNode)
