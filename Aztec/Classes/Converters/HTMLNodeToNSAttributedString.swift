@@ -249,15 +249,16 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let representation = HTMLRepresentation(for: .element(HTMLElementRepresentation(element)))
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = attributes
 
-        let ignoredAttributes = [StandardElementType.li.rawValue, StandardElementType.br.rawValue]
+        let ignoredAttributes = [StandardElementType.li.rawValue]
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
         } else if ignoredAttributes.contains(element.name) {
-            // Ignored Attributes: LI is handled by Formatters. BR, unsupported for now!
+            // Ignored Attributes: LI is handled by Formatters
             finalAttributes = attributes
         } else {
             // Unknown HTML
