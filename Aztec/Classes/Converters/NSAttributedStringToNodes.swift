@@ -18,9 +18,8 @@ class NSAttributedStringToNodes: Converter {
         var nodes = [Node]()
         var previous: [Node]?
 
-        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
-            let paragraph = attrString.attributedSubstring(from: paragraphRange)
-            let children = createNodes(fromParagraph: paragraph)
+        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
+            let children = createNodes(fromString: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
 
             if let previous = previous {
                 let left = rightmostParagraphStyleElements(from: previous)
@@ -43,6 +42,31 @@ class NSAttributedStringToNodes: Converter {
     }
 
 
+    /// Converts a Substring, defined by it's paragraphRange and enclosingRange, into a collection of Nodes,
+    /// representing the internal HTML Entities.
+    ///
+    /// Note:
+    /// Whenever the paragraph defined by the paragraphRange is zero, we'll proceed extracting all of the attributes
+    /// present in the Enclosing Range. Otherwise, we might loose data!
+    ///
+    /// - Parameter:
+    ///     - attrString: Reference to the document to be converted.
+    ///     - paragraphRange: Defines the Paragraph Range to be converted into Nodes.
+    ///     - enclosingRange: Defines the Paragraph's Enclosing Range (containing newline characters).
+    ///
+    /// - Returns: Array of Node instances.
+    ///
+    private func createNodes(fromString attrString: NSAttributedString, paragraphRange: NSRange, enclosingRange: NSRange) -> [Node] {
+        guard paragraphRange.length > 0 else {
+            let attributes = attrString.attributes(at: enclosingRange.location, longestEffectiveRange: nil, in: enclosingRange)
+            return createNodes(fromAttributes: attributes)
+        }
+
+        let paragraph = attrString.attributedSubstring(from: paragraphRange)
+        return createNodes(fromParagraph: paragraph)
+    }
+
+
     /// Converts a *Paragraph* into a collection of Nodes, representing the internal HTML Entities.
     ///
     /// - Parameter paragraph: Paragraph's Attributed String that should be converted.
@@ -59,17 +83,33 @@ class NSAttributedStringToNodes: Converter {
         paragraph.enumerateAttributes(in: paragraph.rangeOfEntireString, options: []) { (attrs, range, _) in
 
             let substring = paragraph.attributedSubstring(from: range)
-            let leafNodes = createLeafNodes(from: substring)
-            let styleNodes = createStyleNodes(from: attrs)
+            let leafNodes = createLeafNodes(fromString: substring)
+            let styleNodes = createStyleNodes(fromAttributes: attrs)
 
             let branch = Branch(nodes: styleNodes, leaves: leafNodes)
             branches.append(branch)
         }
 
-        let paragraphNodes = createParagraphNodes(from: paragraph)
+        let paragraphNodes = createParagraphNodes(fromParagraph: paragraph)
         let processedBranches = process(branches: branches)
 
         return reduce(nodes: paragraphNodes, leaves: processedBranches)
+    }
+
+
+    /// Converts a collection of Attributes into their Node(s) representation.
+    ///
+    /// - Parameter attributes: Attributes to be mapped into nodes
+    ///
+    /// - Returns: Array of Node instances.
+    ///
+    private func createNodes(fromAttributes attributes: [String: Any]) -> [Node] {
+        let nodes = createParagraphNodes(fromAttributes: attributes) + createStyleNodes(fromAttributes: attributes)
+
+        return nodes.reversed().reduce([]) { (result, node) in
+            node.children = result
+            return [node]
+        }
     }
 }
 
@@ -392,14 +432,42 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from attrString: NSAttributedString) -> [ElementNode] {
-        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+    func createParagraphNodes(fromParagraph attrString: NSAttributedString) -> [ElementNode] {
+        guard let style = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
             return []
         }
 
+        return createParagraphNodes(fromStyle: style)
+    }
+
+
+    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
+    ///
+    /// - Parameters:
+    ///     - attributes: Paragraph's Attributes from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    func createParagraphNodes(fromAttributes attributes: [String: Any]) -> [ElementNode] {
+        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+            return []
+        }
+
+        return createParagraphNodes(fromStyle: style)
+    }
+
+
+    /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
+    ///
+    /// - Parameters:
+    ///     - style: ParagraphStyle from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    private func createParagraphNodes(fromStyle style: ParagraphStyle) -> [ElementNode] {
         var paragraphNodes = [ElementNode]()
 
-        for property in paragraphStyle.properties.reversed() {
+        for property in style.properties.reversed() {
             switch property {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
@@ -532,7 +600,7 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
-    func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
+    func createStyleNodes(fromAttributes attributes: [String: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
         if let element = processBold(in: attributes) {
@@ -686,7 +754,7 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
-    func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
+    func createLeafNodes(fromString attrString: NSAttributedString) -> [Node] {
         var nodes = [Node]()
 
         if let attachment = processLineAttachment(from: attrString) {
