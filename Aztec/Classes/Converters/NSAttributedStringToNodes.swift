@@ -214,6 +214,7 @@ private extension NSAttributedStringToNodes {
     /// *Note*: The order of those Pre Existing nodes will be arranged in the exact same way as they appear
     /// in the reference collection.
     ///
+    @inline(__always)
     private func splitDuplicateNodes(in current: [ElementNode], comparingWith previous: [ElementNode]) -> ([ElementNode], [ElementNode]) {
         var duplicates = [ElementNode]()
         var nonDuplicates = [ElementNode]()
@@ -237,6 +238,7 @@ private extension NSAttributedStringToNodes {
 
     /// Determines the length of (ALL) of the Nodes at a specified Column, given a collection of Branches.
     ///
+    @inline(__always)
     private func lengthOfElements(atColumnIndex index: Int, in branches: [Branch]) -> [ElementNode: Int] {
         var lengths = [ElementNode: Int]()
         var rightmost = branches
@@ -252,6 +254,7 @@ private extension NSAttributedStringToNodes {
 
     /// Determines the length of a Node, given a collection of branches.
     ///
+    @inline(__always)
     private func length(of element: ElementNode, in branches: [Branch]) -> Int {
         var length = 0
 
@@ -438,7 +441,7 @@ private extension NSAttributedStringToNodes {
     private func processBlockquoteStyle(blockquote: Blockquote) -> ElementNode {
 
         guard let representation = blockquote.representation,
-            case let .element(element) = representation else {
+            case let .element(element) = representation.kind else {
 
             return ElementNode(type: .blockquote)
         }
@@ -455,7 +458,7 @@ private extension NSAttributedStringToNodes {
         }
 
         guard let representation = header.representation,
-            case let .element(element) = representation else {
+            case let .element(element) = representation.kind else {
 
                 return ElementNode(type: type)
         }
@@ -473,7 +476,7 @@ private extension NSAttributedStringToNodes {
         let lineElement = ElementNode(type: .li)
 
         if let representation = list.representation,
-            case let .element(element) = representation {
+            case let .element(element) = representation.kind {
 
             listElement = element.toElementNode()
         } else {
@@ -491,7 +494,7 @@ private extension NSAttributedStringToNodes {
         let element: ElementNode
 
         if let representation = paragraph.representation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -509,7 +512,7 @@ private extension NSAttributedStringToNodes {
         let element: ElementNode
 
         if let representation = pre.representation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -569,7 +572,7 @@ private extension NSAttributedStringToNodes {
         let element: ElementNode
 
         if let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -589,7 +592,7 @@ private extension NSAttributedStringToNodes {
         let element: ElementNode
 
         if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -602,21 +605,26 @@ private extension NSAttributedStringToNodes {
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
     private func processLinkStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard let url = attributes[NSLinkAttributeName] as? URL else {
+        var urlString = ""
+        if let url = attributes[NSLinkAttributeName] as? URL {
+            urlString = url.absoluteString
+        } else if let link = attributes[NSLinkAttributeName] as? String {
+            urlString = link
+        } else {
             return nil
         }
 
         let element: ElementNode
 
         if let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: "href", value: .string(url.absoluteString))
+        element.updateAttribute(named: "href", value: .string(urlString))
 
         return element
     }
@@ -630,7 +638,7 @@ private extension NSAttributedStringToNodes {
         }
 
         if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
         }
@@ -647,7 +655,7 @@ private extension NSAttributedStringToNodes {
         }
 
         if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
         }
@@ -714,7 +722,7 @@ private extension NSAttributedStringToNodes {
         let range = attrString.rangeOfEntireString
 
         if let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -772,7 +780,7 @@ private extension NSAttributedStringToNodes {
         let range = attrString.rangeOfEntireString
 
         if let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {
@@ -811,7 +819,7 @@ private extension NSAttributedStringToNodes {
         let range = attrString.rangeOfEntireString
 
         if let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation {
+            case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
         } else {

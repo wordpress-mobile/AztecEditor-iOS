@@ -43,17 +43,34 @@ class ElementNode: Node {
         }
     }
 
-    // MARK - Hashable
+    // MARK: - Hashable
 
     override public var hashValue: Int {
-        let attributesHash = attributes.reduce(0) { (result, attribute) in
-            return result ^ attribute.hashValue
+        var hash = name.hashValue
+
+        for attribute in attributes {
+            hash ^= attribute.hashValue
         }
 
-        return name.hashValue ^ attributesHash
+        for child in children {
+            hash ^= child.hashValue
+        }
+
+        return hash
     }
 
-    
+
+    // MARK: - ElementNode Equatable
+
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? ElementNode else {
+            return false
+        }
+
+        return name == rhs.name && attributes == rhs.attributes && children == rhs.children
+    }
+
+
     // MARK: - Initializers
 
     init(name: String, attributes: [Attribute], children: [Node]) {
@@ -356,6 +373,7 @@ class ElementNode: Node {
         }
     }
 
+
     // MARK: - Editing behavior
 
     func isSupportedByEditor() -> Bool {
@@ -368,6 +386,8 @@ class ElementNode: Node {
     }
 }
 
+
+// MARK: - RootNode
 
 class RootNode: ElementNode {
 

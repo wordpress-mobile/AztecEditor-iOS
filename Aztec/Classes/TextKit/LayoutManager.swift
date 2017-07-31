@@ -60,7 +60,7 @@ private extension LayoutManager {
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
                 var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
-                //cheking if we this a middle line inside a blockquote paragraph
+                // Cheking if we this a middle line inside a blockquote paragraph
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 if !lineCharacters.isEndOfLine(before: lineCharacters.endIndex) {

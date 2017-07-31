@@ -33,8 +33,6 @@
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
-		599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25921D8BDCFC002871D6 /* TextStorageTests.swift */; };
-		599F25951D8BDCFC002871D6 /* TextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25931D8BDCFC002871D6 /* TextViewTests.swift */; };
 		59FEA0741D8BDFA700D138DF /* ElementNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0651D8BDFA700D138DF /* ElementNodeTests.swift */; };
 		59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA0661D8BDFA700D138DF /* NodeTests.swift */; };
 		59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06A1D8BDFA700D138DF /* HTMLToAttributedStringTests.swift */; };
@@ -48,6 +46,8 @@
 		B5657C151EE99A8600579FE1 /* NSAttributedStringToNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657C141EE99A8600579FE1 /* NSAttributedStringToNodes.swift */; };
 		B5657C181EE99AF500579FE1 /* NSAttributedStringToNodesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657C171EE99AF500579FE1 /* NSAttributedStringToNodesTests.swift */; };
 		B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B572AC271E817CFE008948C2 /* CommentAttachment.swift */; };
+		B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B575344F1F267D0B009D4904 /* Array+Helpers.swift */; };
+		B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57534511F267D63009D4904 /* ArrayHelperTests.swift */; };
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
 		B5A5277C1EF1B44800E7D2FD /* UnsupportedHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A5277B1EF1B44800E7D2FD /* UnsupportedHTML.swift */; };
@@ -59,6 +59,11 @@
 		B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */; };
 		B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */; };
 		B5C99D3F1E72E2E700335355 /* UIStackView+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */; };
+		B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */; };
+		B5D575831F22820A003A62F6 /* HTMLRepresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */; };
+		B5D575871F2288E2003A62F6 /* TextStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575841F2288E2003A62F6 /* TextStorageTests.swift */; };
+		B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */; };
+		B5D575891F2288E2003A62F6 /* TextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575861F2288E2003A62F6 /* TextViewTests.swift */; };
 		B5DA1C1D1EBD1CCE000AAB45 /* OutHTMLConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DA1C1C1EBD1CCE000AAB45 /* OutHTMLConverter.swift */; };
 		B5DA1C1F1EBD1EA7000AAB45 /* OutHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DA1C1E1EBD1EA7000AAB45 /* OutHTMLConverterTests.swift */; };
 		B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */; };
@@ -113,7 +118,6 @@
 		F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E791E6EF514009D98EE /* Attribute.swift */; };
 		F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */; };
 		F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */; };
-		F1FA0E851E6EF514009D98EE /* MarkerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */; };
 		F1FA0E861E6EF514009D98EE /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7E1E6EF514009D98EE /* Node.swift */; };
 		F1FA0E871E6EF514009D98EE /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */; };
 		F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E801E6EF514009D98EE /* TextNode.swift */; };
@@ -129,7 +133,6 @@
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
 		FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */; };
-		FF8669EC1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
@@ -195,8 +198,6 @@
 		599F25571D8BCA01002871D6 /* libxml2-umbrella.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "libxml2-umbrella.h"; sourceTree = "<group>"; };
 		599F25581D8BCA01002871D6 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		599F255B1D8BCDB4002871D6 /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Example/Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
-		599F25921D8BDCFC002871D6 /* TextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextStorageTests.swift; sourceTree = "<group>"; };
-		599F25931D8BDCFC002871D6 /* TextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewTests.swift; sourceTree = "<group>"; };
 		59FEA0651D8BDFA700D138DF /* ElementNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNodeTests.swift; sourceTree = "<group>"; };
 		59FEA0661D8BDFA700D138DF /* NodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeTests.swift; sourceTree = "<group>"; };
 		59FEA06A1D8BDFA700D138DF /* HTMLToAttributedStringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLToAttributedStringTests.swift; sourceTree = "<group>"; };
@@ -212,6 +213,8 @@
 		B5657C141EE99A8600579FE1 /* NSAttributedStringToNodes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringToNodes.swift; sourceTree = "<group>"; };
 		B5657C171EE99AF500579FE1 /* NSAttributedStringToNodesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringToNodesTests.swift; sourceTree = "<group>"; };
 		B572AC271E817CFE008948C2 /* CommentAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachment.swift; sourceTree = "<group>"; };
+		B575344F1F267D0B009D4904 /* Array+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Helpers.swift"; sourceTree = "<group>"; };
+		B57534511F267D63009D4904 /* ArrayHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArrayHelperTests.swift; path = Extensions/ArrayHelperTests.swift; sourceTree = "<group>"; };
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
 		B5A5277B1EF1B44800E7D2FD /* UnsupportedHTML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnsupportedHTML.swift; sourceTree = "<group>"; };
@@ -222,6 +225,11 @@
 		B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Lists.swift"; sourceTree = "<group>"; };
 		B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringListsTests.swift; path = Extensions/NSAttributedStringListsTests.swift; sourceTree = "<group>"; };
 		B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Helpers.swift"; sourceTree = "<group>"; };
+		B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnsupportedHTMLTests.swift; path = TextKit/UnsupportedHTMLTests.swift; sourceTree = "<group>"; };
+		B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HTMLRepresentationTests.swift; path = TextKit/HTMLRepresentationTests.swift; sourceTree = "<group>"; };
+		B5D575841F2288E2003A62F6 /* TextStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextStorageTests.swift; path = TextKit/TextStorageTests.swift; sourceTree = "<group>"; };
+		B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewStubAttachmentDelegate.swift; path = TextKit/TextViewStubAttachmentDelegate.swift; sourceTree = "<group>"; };
+		B5D575861F2288E2003A62F6 /* TextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewTests.swift; path = TextKit/TextViewTests.swift; sourceTree = "<group>"; };
 		B5DA1C1C1EBD1CCE000AAB45 /* OutHTMLConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverter.swift; sourceTree = "<group>"; };
 		B5DA1C1E1EBD1EA7000AAB45 /* OutHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutHTMLConverterTests.swift; sourceTree = "<group>"; };
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
@@ -277,7 +285,6 @@
 		F1FA0E791E6EF514009D98EE /* Attribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentNode.swift; sourceTree = "<group>"; };
 		F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNode.swift; sourceTree = "<group>"; };
-		F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkerNode.swift; sourceTree = "<group>"; };
 		F1FA0E7E1E6EF514009D98EE /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 		F1FA0E801E6EF514009D98EE /* TextNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
@@ -297,9 +304,9 @@
 		FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineAttachment.swift; sourceTree = "<group>"; };
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
 		FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIColorHexParserTests.swift; path = Extensions/UIColorHexParserTests.swift; sourceTree = "<group>"; };
-		FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewStubAttachmentDelegate.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
+		FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
@@ -333,6 +340,7 @@
 				FF5B98E41DC355B400571CA4 /* LICENSE */,
 				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */,
+				FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */,
 				5951CB901D8BC93600E1866F /* Aztec */,
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
@@ -465,6 +473,7 @@
 		599F25241D8BC9A1002871D6 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B575344F1F267D0B009D4904 /* Array+Helpers.swift */,
 				F1C05B981E37F99D007510EA /* Character+Name.swift */,
 				B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */,
 				FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */,
@@ -642,9 +651,11 @@
 		F10DB19F1E63390700358E7E /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
-				599F25931D8BDCFC002871D6 /* TextViewTests.swift */,
-				599F25921D8BDCFC002871D6 /* TextStorageTests.swift */,
-				FF8669EB1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift */,
+				B5D575841F2288E2003A62F6 /* TextStorageTests.swift */,
+				B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */,
+				B5D575861F2288E2003A62F6 /* TextViewTests.swift */,
+				B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */,
+				B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */,
 			);
 			name = TextKit;
 			sourceTree = "<group>";
@@ -732,6 +743,7 @@
 		F18733C61DA0970E005AEB80 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B57534511F267D63009D4904 /* ArrayHelperTests.swift */,
 				B5F84B621E706B720089A76C /* NSAttributedStringAnalyzerTests.swift */,
 				B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */,
 				F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */,
@@ -752,7 +764,6 @@
 				F127F7131F0591AD008A00D7 /* CSSProperty.swift */,
 				F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */,
 				F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */,
-				F1FA0E7D1E6EF514009D98EE /* MarkerNode.swift */,
 				F1FA0E7E1E6EF514009D98EE /* Node.swift */,
 				F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */,
 				F127F7111F058B20008A00D7 /* StandardAttribute.swift */,
@@ -932,6 +943,7 @@
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
 				599F25371D8BC9A1002871D6 /* InAttributeConverter.swift in Sources */,
+				B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */,
 				599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */,
 				B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */,
 				F1FA0E861E6EF514009D98EE /* Node.swift in Sources */,
@@ -999,7 +1011,6 @@
 				F11326AF1EF1AA91007FEE9A /* Blockquote.swift in Sources */,
 				FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */,
 				E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */,
-				F1FA0E851E6EF514009D98EE /* MarkerNode.swift in Sources */,
 				B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */,
 				B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */,
 				B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */,
@@ -1027,6 +1038,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */,
+				B5D575891F2288E2003A62F6 /* TextViewTests.swift in Sources */,
 				594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */,
 				B5A5277E1EF1BAC000E7D2FD /* HTMLNodeToNSAttributedStringTests.swift in Sources */,
 				B5F84B631E706B720089A76C /* NSAttributedStringAnalyzerTests.swift in Sources */,
@@ -1034,24 +1046,26 @@
 				59FEA0751D8BDFA700D138DF /* NodeTests.swift in Sources */,
 				59FEA0781D8BDFA700D138DF /* HTMLToAttributedStringTests.swift in Sources */,
 				B5375F491EC2569500F5D7EC /* StringHTMLTests.swift in Sources */,
+				B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */,
 				F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */,
 				B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */,
 				FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
+				B5D575831F22820A003A62F6 /* HTMLRepresentationTests.swift in Sources */,
+				B5D575871F2288E2003A62F6 /* TextStorageTests.swift in Sources */,
 				F11904A51D9D857500BFF9A1 /* TextNodeTests.swift in Sources */,
-				FF8669EC1EE7677F00F071A6 /* TextViewStubAttachmentDelegate.swift in Sources */,
 				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
 				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
-				599F25951D8BDCFC002871D6 /* TextViewTests.swift in Sources */,
+				B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */,
 				B5DA1C1F1EBD1EA7000AAB45 /* OutHTMLConverterTests.swift in Sources */,
 				F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */,
 				B5657C181EE99AF500579FE1 /* NSAttributedStringToNodesTests.swift in Sources */,
 				B542D6421E9EB122009D12D3 /* PreFormaterTests.swift in Sources */,
-				599F25941D8BDCFC002871D6 /* TextStorageTests.swift in Sources */,
 				59FEA0741D8BDFA700D138DF /* ElementNodeTests.swift in Sources */,
 				B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */,
+				B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */,
 				FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

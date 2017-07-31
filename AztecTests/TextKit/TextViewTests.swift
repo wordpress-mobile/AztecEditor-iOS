@@ -671,6 +671,13 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
     }
 
+    func testParsingOfInvalidLink() {
+        let html = "<a href=\"\\http:\\badlink&?\">link</a>"
+        let textView = createTextView(withHTML: html)
+
+        XCTAssertEqual(textView.getHTML(), html)
+    }
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
         let textView = createEmptyTextView()
 
@@ -1590,7 +1597,7 @@ class TextViewTests: XCTestCase {
         let html = "<img src=\"image.jpg\" class=\"wp-image-test\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)
 
-        XCTAssertEqual(textView.getHTML(), html)        
+        XCTAssertEqual(textView.getHTML(), html)
     }
 
     /// This test verifies that copying the Sample HTML Document does not trigger a crash.
@@ -1609,5 +1616,50 @@ class TextViewTests: XCTestCase {
         let textView = createTextViewWithSampleHTML()
         textView.selectedRange = textView.storage.rangeOfEntireString
         textView.cut(nil)
+    }
+
+    /// This test verifies that Japanese Characters do not get hexa encoded anymore, since we actually support UTF8!
+    /// Ref. Issue #632: Stop encoding non-latin characters
+    ///
+    func testJapaneseCharactersWillNotGetEscaped() {
+        let pristineJapanese = "国ドぼゆ九会以つまにの市賛済ツ聞数ナシ私35奨9企め全談ヱマヨワ全竹スレフヨ積済イナ続害ホテ" +
+            "ソト聞長津装げ。16北夢みは殻容ク洋意能緯ざた投記ぐだもみ学徳局みそイし済更離ラレミネ展至察畑しのわぴ。航リむは" +
+            "素希ホソ元不サト国十リ産望イげ地年ニヲネ将広ぴん器学サナチ者一か新米だしず災9識じざい総台男みのちフ。"
+
+        let textView = createTextView(withHTML: pristineJapanese)
+        XCTAssertEqual(textView.getHTML(), pristineJapanese)
+    }
+
+    /// This test verifies that Nested Text Lists are 'Grouped Together', and not simply appended at the end of
+    /// the Properties collection. For instance, a 'broken' behavior would produce the following HTML:
+    ///
+    ///     <ol><li><blockquote><ol><li><ol><li>First Item</li></ol></li></ol></blockquote></li></ol>
+    ///
+    /// Ref. Issue #633: Hitting Tab causes the bullet to indent, but the blockquote is not moving
+    ///
+    func testNestedTextListsAreProperlyGroupedTogether() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleOrderedList(range: .zero)
+        textView.toggleBlockquote(range: .zero)
+        textView.insertText("First Item")
+
+        // Simulate TAB Event
+        let command = textView.keyCommands?.first { command in
+            return command.input == String(.tab) && command.modifierFlags.isEmpty
+        }
+
+        guard let tab = command else {
+            XCTFail()
+            return
+        }
+
+        // Insert Two Nested Levels
+        textView.handleTab(command: tab)
+        textView.handleTab(command: tab)
+
+        // Verify!
+        let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
+        XCTAssert(textView.getHTML() == expected)
     }
 }

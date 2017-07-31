@@ -108,3 +108,20 @@ open class VideoAttachment: MediaAttachment {
         }
     }
 }
+
+
+// MARK: - NSCopying
+//
+extension VideoAttachment {
+
+    override public func copy(with zone: NSZone? = nil) -> Any {
+        guard let clone = super.copy() as? VideoAttachment else {
+            fatalError()
+        }
+
+        clone.srcURL = srcURL
+        clone.posterURL = posterURL
+
+        return clone
+    }
+}

@@ -12,17 +12,17 @@ class LinkFormatter: StandardAttributeFormatter {
     override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
 
         if let representation = representation,
-            case let .element(element) = representation {
+            case let .element(element) = representation.kind {
 
-            let linkURL: NSURL
-
-            if let elementUrl = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.value.toString() {
-                linkURL = NSURL(string: elementUrl)!
+            if let elementURL = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.value.toString() {
+               if let url = NSURL(string: elementURL) {
+                   attributeValue = url
+               } else {
+                   attributeValue = elementURL
+               }
             } else {
-                linkURL = NSURL(string: "")!
-            }
-
-            attributeValue = linkURL
+                attributeValue = NSURL(string: "")!
+            }            
         } else {
 
             // There's no support fora link representation that's not an HTML element, so this

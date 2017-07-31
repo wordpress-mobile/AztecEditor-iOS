@@ -235,21 +235,15 @@ open class TextView: UITextView {
 
     // MARK: - Intercept copy paste operations
 
-    private let unsupportedCopyAttributes: [Any.Type] = [HTMLRepresentation.self, HTMLElementRepresentation.self, UnsupportedHTML.self]
-
     open override func cut(_ sender: Any?) {
-        // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
-        let data = substring.archivedData()
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
         super.cut(sender)
 
         storeInPasteboard(encoded: data)
     }
 
     open override func copy(_ sender: Any?) {
-        // FIXME: This is a temporary workaround for Issue #626
-        let substring = storage.attributedSubstring(from: selectedRange).stripAttributes(of: unsupportedCopyAttributes)
-        let data = substring.archivedData()
+        let data = storage.attributedSubstring(from: selectedRange).archivedData()
         super.copy(sender)
 
         storeInPasteboard(encoded: data)
@@ -1219,6 +1213,34 @@ open class TextView: UITextView {
         }
 
         storage.edited(.editedAttributes, range: range, changeInLength: 0)
+    }
+
+    /// Helper that allows us to Edit a NSTextAttachment instance, with two extras:
+    ///
+    /// - Undo Support comes for free!
+    /// - Layout will be ensured right after executing the edition block
+    ///
+    /// - Parameters:
+    ///     - attachment: Instance to be edited
+    ///     - block: Edition closure to be executed
+    ///
+    /// *Note:* Your NSTextAttachment MUST implement NSCopying protocol. This is a requirement!
+    ///
+    open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
+        guard let copying = attachment as? NSCopying else {
+            fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
+        }
+
+        guard let range = storage.range(for: attachment), let copy = copying.copy() as? T else {
+            return
+        }
+
+        block(copy)
+
+        performUndoable(at: range) {
+            storage.setAttributes([NSAttachmentAttributeName: copy], range: range)
+            return range
+        }
     }
 
 

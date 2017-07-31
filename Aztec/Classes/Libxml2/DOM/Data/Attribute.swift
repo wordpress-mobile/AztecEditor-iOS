@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: CustomReflectable, Equatable, Hashable {
+class Attribute: NSObject, CustomReflectable {
 
     // MARK: - Attribute Definition Properties
 
@@ -17,6 +17,12 @@ class Attribute: CustomReflectable, Equatable, Hashable {
         self.value = value
     }
 
+    init(name: String, string: String?) {
+        self.name = name
+        self.value = Value(for: string)
+    }
+
+
     // MARK: - CustomReflectable
 
     public var customMirror: Mirror {
@@ -27,14 +33,30 @@ class Attribute: CustomReflectable, Equatable, Hashable {
 
     // MARK - Hashable
 
-    var hashValue: Int {
-        return name.hashValue ^ value.hashValue()
+    override var hashValue: Int {
+        return name.hashValue ^ value.hashValue
+    }
+
+    // MARK: - NSCoding
+
+    public required convenience init?(coder aDecoder: NSCoder) {
+        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
+            let valueAsString = aDecoder.decodeObject(forKey: Keys.value) as? String?
+        else {
+            fatalError()
+        }
+
+        self.init(name: name, string: valueAsString)
     }
 
     // MARK: - Equatable
 
-    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.value == rhs.value
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Attribute else {
+            return false
+        }
+
+        return name == rhs.name && value == rhs.value
     }
 
     // MARK: - String Representation
@@ -50,29 +72,78 @@ class Attribute: CustomReflectable, Equatable, Hashable {
     }
 }
 
+
+// MARK: - NSCoding Conformance
+//
+extension Attribute: NSCoding {
+
+    struct Keys {
+        static let name = "name"
+        static let value = "value"
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: Keys.name)
+        aCoder.encode(value.toString(), forKey: Keys.value)
+    }
+}
+
+
 // MARK: - Attribute.Value
 
 extension Attribute {
 
     /// Allowed attribute values
     ///
-    enum Value: Equatable {
+    enum Value: Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSProperty])
 
-        func hashValue() -> Int {
+
+        // MARK: - Constants
+
+        static let cssPropertySeparator = "; "
+
+
+        // MARK: - Initializers
+
+        init(for string: String?) {
+            let components = string?.components(separatedBy: Value.cssPropertySeparator) ?? []
+            if components.isEmpty {
+                self = .none
+                return
+            }
+
+            let properties = components.flatMap { CSSProperty(for: $0) }
+            if !properties.isEmpty {
+                self = .inlineCss(properties)
+                return
+            }
+
+            let first = components.first ?? String()
+            self = .string(first)
+        }
+
+
+        // MARK: - Hashable
+
+        var hashValue: Int {
             switch(self) {
             case .none:
                 return 0
             case .string(let string):
                 return string.hashValue
             case .inlineCss(let cssProperties):
-                return cssProperties.reduce(0, { (previousHash, property) -> Int in
-                    return previousHash ^ property.hashValue
-                })
+                var hash = 0
+                for property in cssProperties {
+                    hash ^= property.hashValue
+                }
+
+                return hash
             }
         }
+
 
         // MARK: - Equatable
 
@@ -113,6 +184,7 @@ extension Attribute {
             }
         }
 
+
         // MARK: - String Representation
 
         func toString() -> String? {
@@ -122,14 +194,13 @@ extension Attribute {
             case .string(let string):
                 return string
             case .inlineCss(let properties):
-                let cssPropertySeparator = "; "
                 var result = ""
 
                 for (index, property) in properties.enumerated() {
                     result += property.toString()
 
                     if index < properties.count - 1 {
-                        result += cssPropertySeparator
+                        result += Value.cssPropertySeparator
                     }
                 }
                 
