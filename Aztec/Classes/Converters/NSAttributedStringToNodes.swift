@@ -664,11 +664,13 @@ private extension NSAttributedStringToNodes {
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
     private func processUnsupportedHTML(in attributes: [String: Any]) -> [ElementNode] {
-        guard let unsupported = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
+        guard let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
             return []
         }
 
-        return unsupported.elements
+        return unsupportedHTML.representations.map { representation in
+            return representation.toElementNode()
+        }
     }
 }
 
