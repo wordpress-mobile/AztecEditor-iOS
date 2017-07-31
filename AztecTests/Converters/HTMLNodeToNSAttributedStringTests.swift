@@ -67,7 +67,8 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         NSLog("HTML: \(outHtml)")
     }
 
-    ///
+    /// Verifies that nested Unsupported HTML snippets get applied to *their own* UnsupportedHTML container.
+    /// Ref. #658
     ///
     func testMultipleUnrelatedUnsupportedHTMLSnippetsDoNotGetAppliedToTheEntireStringRange() {
         let html = "<div>" +
@@ -76,7 +77,13 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             "<p><span>Two</span></p>" +
             "<p><br></p>" +
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
-        "</div>"
+            "</div>"
+
+        let expected = "<p><div><span>One</span></div></p>" +
+            "<p><div><span><br></span></div></p>" +
+            "<p><div><span>Two</span></div></p>" +
+            "<p><div><br></div></p>" +
+            "<p><div><span>Three</span></div><div><span>Four</span></div><div><span>Five</span></div></p>"
 
         let inNode = InHTMLConverter().convert(html)
         let attrString = attributedString(from: inNode)
@@ -84,7 +91,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         let outNode = NSAttributedStringToNodes().convert(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
-        NSLog("HTML: \(outHtml)")
+        XCTAssertEqual(outHtml, expected)
     }
 }
 
