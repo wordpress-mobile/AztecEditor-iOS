@@ -14,7 +14,10 @@
 - (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[options copy]];
+        WPMediaPickerOptions *optionsOverride = [options copy];
+        // Always turn off media capture in the input picker
+        optionsOverride.allowCaptureOfMedia = NO;
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:optionsOverride];
     }
     return self;
 }
@@ -22,7 +25,10 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+        WPMediaPickerOptions *options = [WPMediaPickerOptions new];
+        // Always turn off media capture in the input picker
+        options.allowCaptureOfMedia = NO;
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
     }
     return self;
 }
@@ -30,7 +36,10 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+        WPMediaPickerOptions *options = [WPMediaPickerOptions new];
+        // Always turn off media capture in the input picker
+        options.allowCaptureOfMedia = NO;
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
     }
     return self;
 }

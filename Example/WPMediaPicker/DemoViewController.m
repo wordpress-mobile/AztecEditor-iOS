@@ -275,7 +275,6 @@
 {
     if (textField == self.quickInputTextField) {
         [self setupMediaKeyboardForInputField];
-        self.mediaInputViewController.mediaPicker.options = [self selectedOptions];        
         [self.mediaInputViewController.mediaPicker resetState:NO];
     }
     return YES;
