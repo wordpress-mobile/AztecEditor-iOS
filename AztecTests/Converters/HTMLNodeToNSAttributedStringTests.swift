@@ -24,26 +24,28 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         let headerNode = ElementNode(type: .h1, attributes: [], children: [spanNode1])
         let rootNode = RootNode(children: [headerNode])
 
-        // Convert + Test
+        // Convert
         let output = attributedString(from: rootNode)
 
+        // Test
         var range = NSRange()
         guard let unsupportedHTML = output.attribute(UnsupportedHTMLAttributeName, at: 0, effectiveRange: &range) as? UnsupportedHTML else {
             XCTFail()
             return
         }
 
+        let representations = unsupportedHTML.representations
         XCTAssert(range.length == textNode.length())
-        XCTAssert(unsupportedHTML.elements.count == 2)
+        XCTAssert(representations.count == 2)
 
-        let restoredSpanElement2 = unsupportedHTML.elements.last
+        let restoredSpanElement2 = representations.last
         XCTAssertEqual(restoredSpanElement2?.name, "span")
 
         let restoredSpanAttribute2 = restoredSpanElement2?.attributes.first
         XCTAssertEqual(restoredSpanAttribute2?.name, "class")
         XCTAssertEqual(restoredSpanAttribute2?.value.toString(), "aztec")
 
-        let restoredSpanElement1 = unsupportedHTML.elements.first
+        let restoredSpanElement1 = representations.first
         XCTAssertEqual(restoredSpanElement1?.name, "span")
 
         let restoredSpanAttribute1 = restoredSpanElement1?.attributes.first
