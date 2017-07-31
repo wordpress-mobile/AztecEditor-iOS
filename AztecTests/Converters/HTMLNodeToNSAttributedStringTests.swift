@@ -71,7 +71,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     /// Ref. #658
     ///
     func testMultipleUnrelatedUnsupportedHTMLSnippetsDoNotGetAppliedToTheEntireStringRange() {
-        let html = "<div>" +
+        let inHtml = "<div>" +
             "<p><span>One</span></p>" +
             "<p><span><br></span></p>" +
             "<p><span>Two</span></p>" +
@@ -79,19 +79,20 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
             "</div>"
 
-        let expected = "<p><div><span>One</span></div></p>" +
+        let expectedHtml = "<p><div><span>One</span></div></p>" +
             "<p><div><span><br></span></div></p>" +
             "<p><div><span>Two</span></div></p>" +
             "<p><div><br></div></p>" +
             "<p><div><span>Three</span></div><div><span>Four</span></div><div><span>Five</span></div></p>"
 
-        let inNode = InHTMLConverter().convert(html)
+        let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)
 
         let outNode = NSAttributedStringToNodes().convert(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
-        XCTAssertEqual(outHtml, expected)
+        // TODO: replace expectedHTML with inHTML once the DivFormatter is in place
+        XCTAssertEqual(outHtml, expectedHtml)
     }
 }
 
