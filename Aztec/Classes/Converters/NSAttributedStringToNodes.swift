@@ -29,7 +29,11 @@ class NSAttributedStringToNodes: Converter {
                     return
                 }
 
-                if left.count == 0 && right.count == 0 {
+                let previousContainsBR = previous.contains { node in
+                    return node.name == StandardElementType.br.rawValue
+                }
+
+                if left.count == 0 && right.count == 0 && previousContainsBR == false {
                     nodes += [ ElementNode(type: .br) ]
                 }
             }
