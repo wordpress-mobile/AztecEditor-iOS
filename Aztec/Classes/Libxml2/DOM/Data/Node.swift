@@ -144,11 +144,26 @@ class Node: Equatable, CustomReflectable, Hashable {
     func removeFromParent() {
         parent?.remove(self)
     }
-}
 
+    // MARK: - Node Equatable
 
-// MARK: - Node Equatable
+    func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Node else {
+            return false
+        }
 
-func ==(lhs: Node, rhs: Node) -> Bool {
-    return lhs.name == rhs.name
+        return name == rhs.name
+    }
+
+    static func ==(lhs: Node, rhs: Node) -> Bool {
+        guard type(of: lhs) == type(of: rhs) else {
+            return false
+        }
+
+        guard ObjectIdentifier(lhs) != ObjectIdentifier(rhs) else {
+            return true
+        }
+
+        return lhs.isEqual(rhs)
+    }
 }
