@@ -53,19 +53,23 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         XCTAssertEqual(restoredSpanAttribute1?.value.toString(), "first")
     }
 
-    ///
+
+    /// Verifies that BR elements contained within div tags do not cause Data Loss.
+    /// Ref. #658
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
-        let html = "<div><br>Aztec, don't forget me!</div>"
+        let inHtml = "<div><br>Aztec, don't forget me!</div>"
+        let expectedHtml = "<div><br></div><div>Aztec, don't forget me!</div>"
 
-        let inNode = InHTMLConverter().convert(html)
+        let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)
 
         let outNode = NSAttributedStringToNodes().convert(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
-        NSLog("HTML: \(outHtml)")
+        XCTAssertEqual(outHtml, expectedHtml)
     }
+
 
     /// Verifies that nested Unsupported HTML snippets get applied to *their own* UnsupportedHTML container.
     /// Ref. #658
