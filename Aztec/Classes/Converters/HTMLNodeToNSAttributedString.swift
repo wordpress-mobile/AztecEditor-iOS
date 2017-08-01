@@ -112,7 +112,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let representation = implicitRepresentation(for: element, inheriting: attributes) {
+        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
             content.append(representation)
         } else {
             for child in element.children {
