@@ -21,42 +21,27 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var properties = [ParagraphProperty]()
 
     var blockquotes: [Blockquote] {
-        return properties.flatMap { (property) -> Blockquote? in
-            if let blockquote = property as? Blockquote {
-                return blockquote
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? Blockquote
+        }
         }
     }
 
     var htmlParagraph: [HTMLParagraph] {
-        return properties.flatMap { (property) -> HTMLParagraph? in
-            if let paragraph = property as? HTMLParagraph {
-                return paragraph
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? HTMLParagraph
         }
     }
 
     var lists : [TextList] {
-        return properties.flatMap { (property) -> TextList? in
-            if let textList = property as? TextList {
-                return textList
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? TextList
         }
     }
 
     var headers: [Header] {
-        return properties.flatMap { (property) -> Header? in
-            if let header = property as? Header {
-                return header
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? Header
         }
     }
 
@@ -70,12 +55,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     var htmlPre: HTMLPre? {
-        let htmlPres = properties.flatMap { (property) -> HTMLPre? in
-            if let htmlPre = property as? HTMLPre {
-                return htmlPre
-            } else {
-                return nil
-            }
+        let htmlPres = properties.flatMap { property in
+            return property as? HTMLPre
         }
         return htmlPres.first
     }
