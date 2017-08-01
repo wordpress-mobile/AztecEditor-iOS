@@ -309,7 +309,7 @@ extension HTMLNodeToNSAttributedString {
     }
 }
 
-extension HTMLNodeToNSAttributedString {
+private extension HTMLNodeToNSAttributedString {
 
     // MARK: - Implicit Representations
 
