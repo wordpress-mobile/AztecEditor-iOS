@@ -18,9 +18,8 @@ class NSAttributedStringToNodes: Converter {
         var nodes = [Node]()
         var previous: [Node]?
 
-        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, _) in
-            let paragraph = attrString.attributedSubstring(from: paragraphRange)
-            let children = createNodes(fromParagraph: paragraph)
+        attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
+            let children = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
 
             if let previous = previous {
                 let left = rightmostParagraphStyleElements(from: previous)
@@ -39,13 +38,38 @@ class NSAttributedStringToNodes: Converter {
     }
 
 
+    /// Converts a Substring, defined by it's paragraphRange and enclosingRange, into a collection of Nodes,
+    /// representing the internal HTML Entities.
+    ///
+    /// Note:
+    /// Whenever the paragraph defined by the paragraphRange is zero, we'll proceed extracting all of the attributes
+    /// present in the Enclosing Range. Otherwise, we might loose data!
+    ///
+    /// - Parameter:
+    ///     - attrString: Reference to the document to be converted.
+    ///     - paragraphRange: Defines the Paragraph Range to be converted into Nodes.
+    ///     - enclosingRange: Defines the Paragraph's Enclosing Range (containing newline characters).
+    ///
+    /// - Returns: Array of Node instances.
+    ///
+    private func createNodes(from attrString: NSAttributedString, paragraphRange: NSRange, enclosingRange: NSRange) -> [Node] {
+        guard paragraphRange.length > 0 else {
+            let attributes = attrString.attributes(at: enclosingRange.location, longestEffectiveRange: nil, in: enclosingRange)
+            return createNodes(from: attributes)
+        }
+
+        let paragraph = attrString.attributedSubstring(from: paragraphRange)
+        return createNodes(from: paragraph)
+    }
+
+
     /// Converts a *Paragraph* into a collection of Nodes, representing the internal HTML Entities.
     ///
     /// - Parameter paragraph: Paragraph's Attributed String that should be converted.
     ///
     /// - Returns: Array of Node instances.
     ///
-    private func createNodes(fromParagraph paragraph: NSAttributedString) -> [Node] {
+    private func createNodes(from paragraph: NSAttributedString) -> [Node] {
         guard paragraph.length > 0 else {
             return []
         }
@@ -66,6 +90,22 @@ class NSAttributedStringToNodes: Converter {
         let processedBranches = process(branches: branches)
 
         return reduce(nodes: paragraphNodes, leaves: processedBranches)
+    }
+
+
+    /// Converts a collection of Attributes into their Node(s) representation.
+    ///
+    /// - Parameter attributes: Attributes to be mapped into nodes
+    ///
+    /// - Returns: Array of Node instances.
+    ///
+    private func createNodes(from attributes: [String: Any]) -> [Node] {
+        let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
+
+        return nodes.reversed().reduce([]) { (result, node) in
+            node.children = result
+            return [node]
+        }
     }
 }
 
@@ -391,7 +431,7 @@ private extension NSAttributedStringToNodes {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from attrString: NSAttributedString) -> [ElementNode] {
+    func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
 
         // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
         // default.  The reason behind this decision is that no text can exist outside block-level
@@ -400,11 +440,41 @@ private extension NSAttributedStringToNodes {
         // See here for more info:
         // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
         //
-        guard let paragraphStyle = attrString.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle,
+        guard let paragraphStyle = paragraph.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle,
+            paragraphStyle.properties.count > 0
+        else {
+            return [ElementNode(type: .p)]
+        }
+
+        return createParagraphNodes(from: paragraphStyle)
+    }
+
+
+    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
+    ///
+    /// - Parameters:
+    ///     - attributes: Paragraph's Attributes from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    func createParagraphNodes(from attributes: [String: Any]) -> [ElementNode] {
+        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
             paragraphStyle.properties.count > 0 else {
                 return [ElementNode(type: .p)]
         }
 
+        return createParagraphNodes(from: paragraphStyle)
+    }
+
+
+    /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
+    ///
+    /// - Parameters:
+    ///     - paragraphStyle: ParagraphStyle from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    private func createParagraphNodes(from paragraphStyle: ParagraphStyle) -> [ElementNode] {
         var paragraphNodes = [ElementNode]()
 
         for property in paragraphStyle.properties.reversed() {
