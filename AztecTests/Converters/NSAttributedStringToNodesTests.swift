@@ -615,11 +615,11 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let testingString = NSMutableAttributedString(string: text)
 
         let spanElement = ElementNode(type: .span)
+        let representation = HTMLElementRepresentation(spanElement)
 
-        let unsupported = UnsupportedHTML()
-        unsupported.append(element: spanElement)
-
-        testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupported, range: testingString.rangeOfEntireString)
+        // Store
+        let unsupportedHTML = UnsupportedHTML(representations: [representation])
+        testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupportedHTML, range: testingString.rangeOfEntireString)
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
