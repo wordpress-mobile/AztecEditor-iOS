@@ -1,5 +1,8 @@
 import Foundation
 
+
+// MARK: - HTMLParagraph
+//
 class HTMLParagraph: ParagraphProperty {
     
     override public func encode(with aCoder: NSCoder) {
