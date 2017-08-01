@@ -112,10 +112,8 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let nodeType = element.standardName,
-            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
-
-            content.append(implicitRepresentation)
+        if let representation = implicitRepresentation(for: element, inheriting: attributes) {
+            content.append(representation)
         } else {
             for child in element.children {
                 let childContent = convert(child, inheriting: childAttributes)
@@ -168,10 +166,8 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let nodeType = element.standardName,
-            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
-
-            content.append(implicitRepresentation)
+        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
+            content.append(representation)
         } else {
             for child in element.children {
                 let childContent = convert(child, inheriting: childAttributes)
@@ -340,4 +336,63 @@ extension HTMLNodeToNSAttributedString {
 
         return nil
     }
+}
+
+extension HTMLNodeToNSAttributedString {
+
+    // MARK: - Implicit Representations
+
+    /// Some elements have an implicit representation that doesn't really follow the standard
+    /// conversion logic.  This method takes care of such specialized conversions.
+    ///
+    /// - Parameters:
+    ///     - element: the element to request an implicit representation for.
+    ///     - attributes: the attributes that the output attributed string will inherit.
+    ///
+    /// - Returns: the requested implicit representation, if one exists, or `nil`.
+    ///
+    func implicitRepresentation(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString? {
+
+        guard let elementType = element.standardName else {
+            return nil
+        }
+
+        return implicitRepresentation(for: elementType, inheriting: attributes)
+    }
+
+    /// Some element types have an implicit representation that doesn't really follow the standard
+    /// conversion logic.  This method takes care of such specialized conversions.
+    ///
+    /// - Parameters:
+    ///     - elementType: the element type to request an implicit representation for.
+    ///     - attributes: the attributes that the output attributed string will inherit.
+    ///
+    /// - Returns: the requested implicit representation, if one exists, or `nil`.
+    ///
+    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
+
+        switch elementType {
+        case .img:
+            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        case .video:
+            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        case .br:
+            // Since the user can type outside of paragraphs (or any block level element) we
+            // must ensure that when that happens, each line is treated as a separate paragraph.
+            // Otherwise the styles applied to each line will be overridden constantly
+            // by the lack of paragraph delimiters.
+            //
+            if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+                paragraphStyle.properties.count > 0 {
+                return NSAttributedString(.lineSeparator, attributes: attributes)
+            } else {
+                return NSAttributedString(.lineFeed, attributes: attributes)
+            }
+        case .hr:
+            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        default:
+            return nil
+        }
+    }
+
 }
