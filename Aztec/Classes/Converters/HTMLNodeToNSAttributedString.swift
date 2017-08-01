@@ -226,6 +226,7 @@ private extension HTMLNodeToNSAttributedString {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
             finalAttributes = attributes
         } else {
+            // Unknown HTML: Encode entities that do not have a Formatter attached to them.
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
