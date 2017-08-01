@@ -14,10 +14,7 @@
 - (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        WPMediaPickerOptions *optionsOverride = [options copy];
-        // Always turn off media capture in the input picker
-        optionsOverride.allowCaptureOfMedia = NO;
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:optionsOverride];
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[self overriddenOptions:options]];
     }
     return self;
 }
@@ -26,9 +23,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         WPMediaPickerOptions *options = [WPMediaPickerOptions new];
-        // Always turn off media capture in the input picker
-        options.allowCaptureOfMedia = NO;
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[self overriddenOptions:options]];
     }
     return self;
 }
@@ -37,9 +32,7 @@
     self = [super initWithCoder:aDecoder];
     if (self) {
         WPMediaPickerOptions *options = [WPMediaPickerOptions new];
-        // Always turn off media capture in the input picker
-        options.allowCaptureOfMedia = NO;
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[self overriddenOptions:options]];
     }
     return self;
 }
@@ -122,5 +115,24 @@
     }
 }
 
+- (void)setOptions:(WPMediaPickerOptions *)options
+{
+    self.mediaPicker.options = [self overriddenOptions:options];
+}
+
+- (WPMediaPickerOptions *)options
+{
+    return self.mediaPicker.options;
+}
+
+- (WPMediaPickerOptions *)overriddenOptions:(WPMediaPickerOptions *)options
+{
+    WPMediaPickerOptions *optionsOverride = [options copy];
+
+    // Always turn off media capture in the input picker
+    optionsOverride.allowCaptureOfMedia = NO;
+
+    return optionsOverride;
+}
 
 @end
