@@ -122,7 +122,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         }
 
         guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: attributes)
+            return appendParagraphSeparator(to: content, inheriting: childAttributes)
         }
 
         return content
