@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 
-// MARK: - Blockquote Formatter
+// MARK: - HTMLParagraph Formatter
 //
 class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
