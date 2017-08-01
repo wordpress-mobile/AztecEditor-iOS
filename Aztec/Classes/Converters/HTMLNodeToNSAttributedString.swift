@@ -348,24 +348,10 @@ private extension HTMLNodeToNSAttributedString {
     private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
 
         switch elementType {
-        case .img:
-            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-        case .video:
+        case .hr, .img, .video:
             return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
         case .br:
-            // Since the user can type outside of paragraphs (or any block level element) we
-            // must ensure that when that happens, each line is treated as a separate paragraph.
-            // Otherwise the styles applied to each line will be overridden constantly
-            // by the lack of paragraph delimiters.
-            //
-            if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-                paragraphStyle.properties.count > 0 {
-                return NSAttributedString(.lineSeparator, attributes: attributes)
-            } else {
-                return NSAttributedString(.lineFeed, attributes: attributes)
-            }
-        case .hr:
-            return NSAttributedString(string:String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+            return NSAttributedString(.lineSeparator, attributes: attributes)
         default:
             return nil
         }
