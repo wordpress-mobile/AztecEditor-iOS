@@ -10,7 +10,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": lists as Any])
+            return Mirror(self, children: ["blockquotes": blockquotes,
+                                           "headerLevel": headerLevel,
+                                           "htmlDiv": htmlDiv,
+                                           "htmlParagraph": htmlParagraph,
+                                           "textList": lists])
         }
     }
 
@@ -278,7 +282,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description + " Blockquotes: \(String(describing:blockquotes)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(lists)"
+        return super.description +
+            " Blockquotes: \(String(describing:blockquotes)),\n" +
+            " HeaderLevel: \(headerLevel),\n" +
+            " HTMLDiv: \(String(describing: htmlDiv)),\n" +
+            " HTMLParagraph: \(String(describing: htmlParagraph)),\n" +
+            " TextLists: \(lists)"
     }
 }
 
