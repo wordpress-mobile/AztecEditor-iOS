@@ -352,11 +352,18 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 3)
+        XCTAssert(node.children.count == 1)
 
-        guard let htmlNode = node.children[0] as? ElementNode,
-            let textNode = node.children[1] as? TextNode,
-            let commentNode = node.children[2] as? CommentNode
+        guard let paragraphNode = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssert(paragraphNode.children.count == 3)
+
+        guard let htmlNode = paragraphNode.children[0] as? ElementNode,
+            let textNode = paragraphNode.children[1] as? TextNode,
+            let commentNode = paragraphNode.children[2] as? CommentNode
         else {
             XCTFail()
             return
