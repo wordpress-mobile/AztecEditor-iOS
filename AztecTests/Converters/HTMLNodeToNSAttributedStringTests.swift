@@ -33,17 +33,18 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             return
         }
 
+        let representations = unsupportedHTML.representations
         XCTAssert(range.length == textNode.length())
-        XCTAssert(unsupportedHTML.elements.count == 2)
+        XCTAssert(representations.count == 2)
 
-        let restoredSpanElement2 = unsupportedHTML.elements.last
+        let restoredSpanElement2 = representations.last
         XCTAssertEqual(restoredSpanElement2?.name, "span")
 
         let restoredSpanAttribute2 = restoredSpanElement2?.attributes.first
         XCTAssertEqual(restoredSpanAttribute2?.name, "class")
         XCTAssertEqual(restoredSpanAttribute2?.value.toString(), "aztec")
 
-        let restoredSpanElement1 = unsupportedHTML.elements.first
+        let restoredSpanElement1 = representations.first
         XCTAssertEqual(restoredSpanElement1?.name, "span")
 
         let restoredSpanAttribute1 = restoredSpanElement1?.attributes.first
@@ -103,7 +104,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 extension HTMLNodeToNSAttributedStringTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
-        let descriptor = UIFont.boldSystemFont(ofSize: 14).fontDescriptor
+        let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
         let converter = HTMLNodeToNSAttributedString(usingDefaultFontDescriptor: descriptor)
 
         return converter.convert(node)
