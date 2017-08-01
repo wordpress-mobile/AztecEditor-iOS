@@ -28,10 +28,6 @@ class NSAttributedStringToNodes: Converter {
                 guard !merge(left: left, right: right) else {
                     return
                 }
-
-                if left.count == 0 && right.count == 0 {
-                    nodes += [ ElementNode(type: .br) ]
-                }
             }
 
             nodes += children
@@ -436,11 +432,21 @@ private extension NSAttributedStringToNodes {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
-        guard let style = paragraph.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle else {
-            return []
+
+        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
+        // default.  The reason behind this decision is that no text can exist outside block-level
+        // elements in Aztec.
+        //
+        // See here for more info:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
+        //
+        guard let paragraphStyle = paragraph.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle,
+            paragraphStyle.properties.count > 0
+        else {
+            return [ElementNode(type: .p)]
         }
 
-        return createParagraphNodes(from: style)
+        return createParagraphNodes(from: paragraphStyle)
     }
 
 
