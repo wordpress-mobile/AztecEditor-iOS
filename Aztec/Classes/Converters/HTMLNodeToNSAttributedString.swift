@@ -250,17 +250,17 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let representation = HTMLRepresentation(for: .element(HTMLElementRepresentation(element)))
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = attributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else  if element.name == StandardElementType.li.rawValue {
+        } else if element.name == StandardElementType.li.rawValue {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-
             finalAttributes = attributes
         } else {
-            finalAttributes = self.attributes(storing: element, in: finalAttributes)
+            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
         for attribute in element.attributes {
@@ -304,12 +304,17 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing element: ElementNode, in attributes: [String: Any]) -> [String: Any] {
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
-        unsupportedHTML.append(element: element)
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML
+        var representations = unsupportedHTML?.representations ?? []
+        representations.append(representation)
 
+        // Note:
+        // We'll *ALWAYS* store a copy of the UnsupportedHTML instance. Reason is: reusing the old instance
+        // would mean affecting a range that may fall beyond what we expected!
+        //
         var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
+        updated[UnsupportedHTMLAttributeName] = UnsupportedHTML(representations: representations)
 
         return updated
     }
