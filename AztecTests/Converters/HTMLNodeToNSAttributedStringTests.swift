@@ -52,6 +52,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         XCTAssertEqual(restoredSpanAttribute1?.value.toString(), "first")
     }
 
+
     /// Verifies that the DivFormatter effectively appends the DIV Element Representation, to the properties collection.
     ///
     func testHtmlDivFormatterEffectivelyAppendsNewDivProperty() {
@@ -95,6 +96,41 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
         XCTAssert(restoredDiv3.name == divNode3.name)
         XCTAssert(restoredDiv3.attributes == [divAttr3])
+    }
+
+
+    /// Verifies that BR elements contained within div tags do not cause any side effect.
+    /// Ref. #658
+    ///
+    func testLineBreakTagWithinHTMLDivGetsProperlyEncodedAndDecoded() {
+        let inHtml = "<div><br>Aztec, don't forget me!</div>"
+
+        let inNode = InHTMLConverter().convert(inHtml)
+        let attrString = attributedString(from: inNode)
+
+        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outHtml = OutHTMLConverter().convert(outNode)
+
+        XCTAssertEqual(outHtml, inHtml)
+    }
+
+
+    /// Verifies that BR elements contained within span tags do not cause Data Loss.
+    /// Ref. #658
+    ///
+    func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
+        let inHtml = "<span><br>Aztec, don't forget me!</span>"
+        let expectedHtml = "<br><span>Aztec, don't forget me!</span>"
+// TODO: The actual expected html should wrap the BR within a span tag. To be addressed in another PR!
+//        let expectedHtml = "<span><br></span><span>Aztec, don't forget me!</span>"
+
+        let inNode = InHTMLConverter().convert(inHtml)
+        let attrString = attributedString(from: inNode)
+
+        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outHtml = OutHTMLConverter().convert(outNode)
+
+        XCTAssertEqual(outHtml, expectedHtml)
     }
 }
 
