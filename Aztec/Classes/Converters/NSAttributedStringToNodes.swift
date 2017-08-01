@@ -458,11 +458,12 @@ private extension NSAttributedStringToNodes {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from attributes: [String: Any]) -> [ElementNode] {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
-            return [ElementNode(type: .p)]
+        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+            paragraphStyle.properties.count > 0 else {
+                return [ElementNode(type: .p)]
         }
 
-        return createParagraphNodes(from: style)
+        return createParagraphNodes(from: paragraphStyle)
     }
 
 
