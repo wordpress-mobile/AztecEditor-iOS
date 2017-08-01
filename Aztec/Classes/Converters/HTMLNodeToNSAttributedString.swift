@@ -152,36 +152,6 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Node Styling
 
-    /// Returns an attributed string representing the specified node.
-    ///
-    /// - Parameters:
-    ///     - node: the element node to generate a representation string of.
-    ///     - attributes: the inherited attributes from parent nodes.
-    ///
-    /// - Returns: the attributed string representing the specified element node.
-    ///
-    ///
-    fileprivate func string(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        
-        let childAttributes = self.attributes(for: element, inheriting: attributes)
-        let content = NSMutableAttributedString()
-
-        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
-            content.append(representation)
-        } else {
-            for child in element.children {
-                let childContent = convert(child, inheriting: childAttributes)
-                content.append(childContent)
-            }
-        }
-
-        guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: attributes)
-        }
-        
-        return content
-    }
-
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
         .ol: TextListFormatter(style: .ordered, increaseDepth: true),
         .ul: TextListFormatter(style: .unordered, increaseDepth: true),
