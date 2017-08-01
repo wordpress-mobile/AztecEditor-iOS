@@ -99,19 +99,13 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
             "</div>"
 
-        let expectedHtml = "<div><p><span>One</span></p></div>" +
-            "<div><p><span><br></span></p></div>" +
-            "<div><p><span>Two</span></p></div>" +
-            "<div><p><br></p></div>" +
-            "<div><p><span>Three</span><span>Four</span><span>Five</span></p></div>"
-
         let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)
 
         let outNode = NSAttributedStringToNodes().convert(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
-        XCTAssertEqual(outHtml, expectedHtml)
+        XCTAssertEqual(outHtml, inHtml)
     }
 
 
