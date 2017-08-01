@@ -54,12 +54,28 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     }
 
 
-    /// Verifies that BR elements contained within div tags do not cause Data Loss.
+    /// Verifies that BR elements contained within div tags do not cause any side effect.
+    /// Ref. #658
+    ///
+    func testLineBreakTagWithinHTMLDivGetsProperlyEncodedAndDecoded() {
+        let inHtml = "<div><br>Aztec, don't forget me!</div>"
+
+        let inNode = InHTMLConverter().convert(inHtml)
+        let attrString = attributedString(from: inNode)
+
+        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outHtml = OutHTMLConverter().convert(outNode)
+
+        XCTAssertEqual(outHtml, inHtml)
+    }
+
+
+    /// Verifies that BR elements contained within span tags do not cause Data Loss.
     /// Ref. #658
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
-        let inHtml = "<div><br>Aztec, don't forget me!</div>"
-        let expectedHtml = "<div><br></div><div>Aztec, don't forget me!</div>"
+        let inHtml = "<span><br>Aztec, don't forget me!</span>"
+        let expectedHtml = "<span><br></span><span>Aztec, don't forget me!</span>"
 
         let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)
@@ -83,11 +99,11 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
             "</div>"
 
-        let expectedHtml = "<p><div><span>One</span></div></p>" +
-            "<p><div><span><br></span></div></p>" +
-            "<p><div><span>Two</span></div></p>" +
-            "<p><div><br></div></p>" +
-            "<p><div><span>Three</span></div><div><span>Four</span></div><div><span>Five</span></div></p>"
+        let expectedHtml = "<div><p><span>One</span></p></div>" +
+            "<div><p><span><br></span></p></div>" +
+            "<div><p><span>Two</span></p></div>" +
+            "<div><p><br></p></div>" +
+            "<div><p><span>Three</span><span>Four</span><span>Five</span></p></div>"
 
         let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)
@@ -95,7 +111,6 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         let outNode = NSAttributedStringToNodes().convert(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
-        // TODO: replace expectedHTML with inHTML once the DivFormatter is in place
         XCTAssertEqual(outHtml, expectedHtml)
     }
 
