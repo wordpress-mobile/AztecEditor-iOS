@@ -703,6 +703,39 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let restoredTextNode = restoredSpanNode?.children.first as? TextNode
         XCTAssert(restoredTextNode?.contents == text)
     }
+
+
+    /// Verifies that the Div Element is effectively converted into an ElementNode.
+    ///
+    /// - Input: <div><div>Ehlo World!</div></div>
+    ///
+    /// - Output: Same as above!
+    ///
+    func testDivIsEffectivelySerializedIntoDivElement() {
+        let text = "Ehlo World!"
+        let testingString = NSMutableAttributedString(string: text)
+
+        let range = testingString.rangeOfEntireString
+
+        let formatter = HTMLDivFormatter()
+        formatter.applyAttributes(to: testingString, at: range)
+        formatter.applyAttributes(to: testingString, at: range)
+
+        // Convert + Verify
+        let node = NSAttributedStringToNodes().convert(testingString)
+        XCTAssert(node.children.count == 1)
+
+        let restoredDiv1Node = node.children.first as? ElementNode
+        XCTAssert(restoredDiv1Node?.name == "div")
+        XCTAssert(restoredDiv1Node?.children.count == 1)
+
+        let restoredDiv2Node = restoredDiv1Node?.children.first as? ElementNode
+        XCTAssert(restoredDiv2Node?.name == "div")
+        XCTAssert(restoredDiv2Node?.children.count == 1)
+
+        let restoredTextNode = restoredDiv2Node?.children.first as? TextNode
+        XCTAssert(restoredTextNode?.contents == text)
+    }
 }
 
 

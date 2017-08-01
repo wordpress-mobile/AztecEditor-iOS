@@ -186,6 +186,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         .ol: TextListFormatter(style: .ordered, increaseDepth: true),
         .ul: TextListFormatter(style: .unordered, increaseDepth: true),
         .blockquote: BlockquoteFormatter(),
+        .div: HTMLDivFormatter(),
         .strong: BoldFormatter(),
         .em: ItalicFormatter(),
         .u: UnderlineFormatter(),
