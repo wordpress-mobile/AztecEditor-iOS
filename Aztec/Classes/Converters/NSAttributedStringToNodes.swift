@@ -258,6 +258,7 @@ private extension NSAttributedStringToNodes {
     /// *Note*: The order of those Pre Existing nodes will be arranged in the exact same way as they appear
     /// in the reference collection.
     ///
+    @inline(__always)
     private func splitDuplicateNodes(in current: [ElementNode], comparingWith previous: [ElementNode]) -> ([ElementNode], [ElementNode]) {
         var duplicates = [ElementNode]()
         var nonDuplicates = [ElementNode]()
@@ -281,6 +282,7 @@ private extension NSAttributedStringToNodes {
 
     /// Determines the length of (ALL) of the Nodes at a specified Column, given a collection of Branches.
     ///
+    @inline(__always)
     private func lengthOfElements(atColumnIndex index: Int, in branches: [Branch]) -> [ElementNode: Int] {
         var lengths = [ElementNode: Int]()
         var rightmost = branches
@@ -296,6 +298,7 @@ private extension NSAttributedStringToNodes {
 
     /// Determines the length of a Node, given a collection of branches.
     ///
+    @inline(__always)
     private func length(of element: ElementNode, in branches: [Branch]) -> Int {
         var length = 0
 
@@ -488,6 +491,10 @@ private extension NSAttributedStringToNodes {
                 let elements = processListStyle(list: list)
                 paragraphNodes += elements
 
+            case let div as HTMLDiv:
+                let element = processDivStyle(div: div)
+                paragraphNodes.append(element)
+
             case let paragraph as HTMLParagraph:
                 let element = processParagraphStyle(paragraph: paragraph)
                 paragraphNodes.append(element)
@@ -516,6 +523,20 @@ private extension NSAttributedStringToNodes {
         }
 
         return element.toElementNode()
+    }
+
+
+    /// Extracts all of the Div Elements contained within a collection of Attributes.
+    ///
+    private func processDivStyle(div: HTMLDiv) -> ElementNode {
+
+        guard let representation = div.representation,
+            case let .element(representationElement) = representation.kind
+        else {
+            return ElementNode(type: .div)
+        }
+
+        return representationElement.toElementNode()
     }
 
 

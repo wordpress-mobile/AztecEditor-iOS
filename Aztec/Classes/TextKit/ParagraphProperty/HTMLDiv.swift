@@ -1,10 +1,10 @@
 import Foundation
 
 
-// MARK: - HTMLParagraph
+// MARK: - HTMLDiv
 //
-class HTMLParagraph: ParagraphProperty {
-    
+class HTMLDiv: ParagraphProperty {
+
     override public func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
     }
@@ -17,7 +17,7 @@ class HTMLParagraph: ParagraphProperty {
         super.init(coder: aDecoder)
     }
 
-    static func ==(lhs: HTMLParagraph, rhs: HTMLParagraph) -> Bool {
+    static func ==(lhs: HTMLDiv, rhs: HTMLDiv) -> Bool {
         return lhs === rhs
     }
 }
