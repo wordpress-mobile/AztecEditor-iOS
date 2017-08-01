@@ -24,6 +24,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         return properties.flatMap { property in
             return property as? Blockquote
         }
+    }
+
+    var htmlDiv: [HTMLDiv] {
+        return properties.flatMap { property in
+            return property as? HTMLDiv
         }
     }
 
