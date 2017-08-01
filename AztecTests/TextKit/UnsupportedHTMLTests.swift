@@ -9,9 +9,7 @@ class UnsupportedHTMLTests: XCTestCase {
     /// Verifies that a UnsupportedHTML Instance can get properly serialized back and forth
     ///
     func testSnippetsGetProperlyEncodedAndDecoded() {
-        let unsupported = UnsupportedHTML()
-        unsupported.append(element: sampleElement)
-        unsupported.append(element: sampleElement)
+        let unsupported = UnsupportedHTML(representations: [sampleRepresentation, sampleRepresentation])
 
         let data = NSKeyedArchiver.archivedData(withRootObject: unsupported)
         guard let restored = NSKeyedUnarchiver.unarchiveObject(with: data) as? UnsupportedHTML else {
@@ -19,12 +17,10 @@ class UnsupportedHTMLTests: XCTestCase {
             return
         }
 
-        let elements = restored.elements
-        XCTAssert(elements.count == 2)
+        XCTAssert(restored.representations.count == 2)
 
-        for element in elements {
-            XCTAssert(element.children == sampleChildren)
-            XCTAssert(element.attributes == sampleAttributes)
+        for representation in restored.representations {
+            XCTAssert(representation == sampleRepresentation)
         }
     }
 }
@@ -54,5 +50,9 @@ private extension UnsupportedHTMLTests {
 
     var sampleElement: ElementNode {
         return ElementNode(name: "Test", attributes: self.sampleAttributes, children: self.sampleChildren)
+    }
+
+    var sampleRepresentation: HTMLElementRepresentation {
+        return HTMLElementRepresentation(self.sampleElement)
     }
 }
