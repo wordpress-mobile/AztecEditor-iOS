@@ -262,13 +262,19 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 5)
 
-        guard let firstLine = node.children[0] as? ElementNode,
-            let firstText = node.children[1] as? TextNode,
-            let secondLine = node.children[2] as? ElementNode,
-            let secondText = node.children[3] as? TextNode,
-            let thirdLine = node.children[4] as? ElementNode
+        guard let paragraphElement = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssert(paragraphElement.children.count == 5)
+
+        guard let firstLine = paragraphElement.children[0] as? ElementNode,
+            let firstText = paragraphElement.children[1] as? TextNode,
+            let secondLine = paragraphElement.children[2] as? ElementNode,
+            let secondText = paragraphElement.children[3] as? TextNode,
+            let thirdLine = paragraphElement.children[4] as? ElementNode
         else {
             XCTFail()
             return
@@ -653,25 +659,24 @@ class NSAttributedStringToNodesTests: XCTestCase {
             1: "Hello",
             2: nil,
             3: nil,
-            4: nil,
-            5: "Everyone",
-            6: nil,
-            7: nil,
-            8: "YEAH",
-            9: nil,
-            10: "Sarasa"
+            4: "Everyone",
+            5: nil,
+            6: "YEAH",
+            7: "Sarasa"
         ]
 
-        XCTAssert(node.children.count == expectedNodes.count)
-
         for (index, text) in expectedNodes {
+            guard let paragraphElement = node.children[index] as? ElementNode else {
+                XCTFail()
+                return
+            }
+
             if let text = text {
-                let textNode = node.children[index] as? TextNode
+
+                let textNode = paragraphElement.children.first as? TextNode
                 XCTAssert(textNode?.contents == text)
             } else {
-                let breakNode = node.children[index] as? ElementNode
-                XCTAssert(breakNode?.name == "br")
-                XCTAssert(breakNode?.children.count == 0)
+                XCTAssert(paragraphElement.children.count == 0)
             }
         }
     }
