@@ -36,12 +36,6 @@ The delegate for the WPMediaPickerViewController events
 @property (nonatomic, readonly)  WPMediaPickerViewController * _Nonnull mediaPicker;
 
 /**
- Options passed to the internal media picker instance. Options should be set via
- this property instead of directly on the media picker itself.
- */
-@property (nonatomic, copy)  WPMediaPickerOptions * _Nonnull options;
-
-/**
  A toolbar that can be used as the inputAccessoryView for this inputView.
  */
 @property (nonatomic, readonly) UIToolbar * _Nonnull mediaToolbar;
