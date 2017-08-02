@@ -1454,7 +1454,7 @@ class TextViewTests: XCTestCase {
         textView.replace(.zero, withComment: "more")
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<!--more-->")
+        XCTAssertEqual(html, "<p><!--more--></p>")
     }
 
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
@@ -1466,7 +1466,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
+        XCTAssertEqual(html, "<p><!--some other comment should go here--><!--more--></p>")
     }
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
@@ -1477,7 +1477,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<hr>")
+        XCTAssertEqual(html, "<p><hr></p>")
     }
 
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
@@ -1489,7 +1489,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<hr><hr>")
+        XCTAssertEqual(html, "<p><hr><hr></p>")
     }
 
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
@@ -1502,7 +1502,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
         
-        XCTAssertEqual(html, "<hr>")
+        XCTAssertEqual(html, "<p><hr></p>")
     }
 
     func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
