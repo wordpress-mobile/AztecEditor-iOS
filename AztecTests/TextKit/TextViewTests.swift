@@ -497,7 +497,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "HelloWorld!")
+        XCTAssertEqual(textView.getHTML(), "<p>HelloWorld!</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -565,7 +565,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirst<ul><li>second</li><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -573,7 +573,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirstsecond<ul><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
 
         let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
         let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
@@ -581,7 +581,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range3, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "Listfirstsecondthird")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecondthird</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -603,7 +603,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi</li></ol>Arr!")
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -668,11 +668,11 @@ class TextViewTests: XCTestCase {
 
         textView.setLink(url, title: linkTitle, inRange: insertionRange)
 
-        XCTAssertEqual(textView.getHTML(), "<a href=\"\(linkUrl)\">\(linkTitle)</a>")
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
     }
 
     func testParsingOfInvalidLink() {
-        let html = "<a href=\"\\http:\\badlink&?\">link</a>"
+        let html = "<p><a href=\"\\http:\\badlink&?\">link</a></p>"
         let textView = createTextView(withHTML: html)
 
         XCTAssertEqual(textView.getHTML(), html)
@@ -731,7 +731,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1>1")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
     }
 
     /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
@@ -1411,7 +1411,7 @@ class TextViewTests: XCTestCase {
     func testInsertVideo() {
         let textView = createEmptyTextView()
         let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
-        XCTAssertEqual(textView.getHTML(), "<video src=\"video.mp4\" poster=\"video.jpg\"></video>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"video.mp4\" poster=\"video.jpg\"></video></p>")
     }
 
     /// Verifies that any edition performed on VideoAttachment's srcURL attribute is properly serialized back,
@@ -1426,14 +1426,14 @@ class TextViewTests: XCTestCase {
         videoAttachment.srcURL = URL(string:"newVideo.mp4")!
         textView.refresh(videoAttachment)
 
-        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video></p>")
     }
 
     func testParseVideoWithExtraAttributes() {
         let videoHTML = "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video>"
         let textView = createTextView(withHTML: videoHTML)
 
-        XCTAssertEqual(textView.getHTML(), videoHTML)
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
             XCTFail("An video attachment should be present")
@@ -1443,7 +1443,7 @@ class TextViewTests: XCTestCase {
 
         attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
 
-        XCTAssertEqual(textView.getHTML(), "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
     }
 
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
@@ -1454,7 +1454,7 @@ class TextViewTests: XCTestCase {
         textView.replace(.zero, withComment: "more")
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<!--more-->")
+        XCTAssertEqual(html, "<p><!--more--></p>")
     }
 
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
@@ -1466,7 +1466,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<!--some other comment should go here--><!--more-->")
+        XCTAssertEqual(html, "<p><!--some other comment should go here--><!--more--></p>")
     }
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
@@ -1477,7 +1477,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<hr>")
+        XCTAssertEqual(html, "<p><hr></p>")
     }
 
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
@@ -1489,7 +1489,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<hr><hr>")
+        XCTAssertEqual(html, "<p><hr><hr></p>")
     }
 
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
@@ -1502,7 +1502,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
         
-        XCTAssertEqual(html, "<hr>")
+        XCTAssertEqual(html, "<p><hr></p>")
     }
 
     func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
@@ -1512,7 +1512,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributes[NSFontAttributeName] as? UIFont else {
@@ -1539,7 +1539,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<img src=\"https://wordpress.com\">")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1555,7 +1555,7 @@ class TextViewTests: XCTestCase {
         let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)
 
-        XCTAssertEqual(textView.getHTML(), html)
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\"></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
             XCTFail("An video attachment should be present")
@@ -1567,7 +1567,7 @@ class TextViewTests: XCTestCase {
         attachment.extraAttributes["alt"] = "Changed Alt"
         attachment.extraAttributes["class"] = "wp-image-169"
 
-        XCTAssertEqual(textView.getHTML(), "<img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\">")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\"></p>")
     }
 
     /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
@@ -1577,7 +1577,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: pristineHTML)
         let generatedHTML = textView.getHTML()
 
-        XCTAssertEqual(pristineHTML, generatedHTML)
+        XCTAssertEqual(generatedHTML, "<p><br><br></p><h1>Header</h1>")
     }
 
     /// This test verifies that the H1 Header does not get lost, in the scenario in which the H1 is contained
@@ -1588,7 +1588,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: pristineHTML)
         let generatedHTML = textView.getHTML()
 
-        XCTAssertEqual(pristineHTML, generatedHTML)
+        XCTAssertEqual(generatedHTML, "<p><br>1<br>2</p><h1>Heder</h1>")
     }
 
     /// This test verifies that img class attributes are not duplicated
@@ -1596,8 +1596,9 @@ class TextViewTests: XCTestCase {
     func testParseImageDoesntDuplicateExtraAttributes() {
         let html = "<img src=\"image.jpg\" class=\"wp-image-test\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)
+        let generatedHTML = textView.getHTML()
 
-        XCTAssertEqual(textView.getHTML(), html)
+        XCTAssertEqual(generatedHTML, "<p>\(html)</p>")
     }
 
     /// This test verifies that copying the Sample HTML Document does not trigger a crash.
@@ -1627,7 +1628,7 @@ class TextViewTests: XCTestCase {
             "素希ホソ元不サト国十リ産望イげ地年ニヲネ将広ぴん器学サナチ者一か新米だしず災9識じざい総台男みのちフ。"
 
         let textView = createTextView(withHTML: pristineJapanese)
-        XCTAssertEqual(textView.getHTML(), pristineJapanese)
+        XCTAssertEqual(textView.getHTML(), "<p>\(pristineJapanese)</p>")
     }
 
     /// This test verifies that Nested Text Lists are 'Grouped Together', and not simply appended at the end of
