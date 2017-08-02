@@ -16,16 +16,27 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let attributes = BoldFormatter().apply(to: Constants.sampleAttributes)
         let string = NSAttributedString(string: "Bold?", attributes: attributes)
 
-        // Convert + Verify
         let rootNode = NSAttributedStringToNodes().convert(string)
-        XCTAssert(rootNode.children.count == 1)
+        XCTAssertEqual(rootNode.children.count, 1)
 
-        let bold = rootNode.children.first as? ElementNode
-        XCTAssertEqual(bold?.name, "strong")
-        XCTAssert(bold?.children.count == 1)
+        guard let paragraph = rootNode.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(paragraph.children.count, 1)
 
-        let text = bold?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, string.string)
+        guard let bold = paragraph.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(bold.name, "strong")
+        XCTAssertEqual(bold.children.count, 1)
+
+        guard let text = bold.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(text.contents, string.string)
     }
 
 
@@ -39,16 +50,27 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let attributes = ItalicFormatter().apply(to: Constants.sampleAttributes)
         let string = NSAttributedString(string: "Italics!", attributes: attributes)
 
-        // Convert + Verify
         let node = NSAttributedStringToNodes().convert(string)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let italic = node.children.first as? ElementNode
-        XCTAssertEqual(italic?.name, "em")
-        XCTAssert(italic?.children.count == 1)
+        guard let paragraph = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(paragraph.children.count, 1)
 
-        let text = italic?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, string.string)
+        guard let italic = paragraph.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(italic.name, "em")
+        XCTAssertEqual(italic.children.count, 1)
+
+        guard let text = italic.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(text.contents, string.string)
     }
 
 
@@ -62,16 +84,28 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let attributes = UnderlineFormatter().apply(to: Constants.sampleAttributes)
         let string = NSAttributedString(string: "Underlined!", attributes: attributes)
 
-        // Convert + Verify
         let node = NSAttributedStringToNodes().convert(string)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let underlined = node.children.first as? ElementNode
-        XCTAssertEqual(underlined?.name, "u")
-        XCTAssert(underlined?.children.count == 1)
+        guard let paragraph = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(paragraph.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraph.children.count, 1)
 
-        let text = underlined?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, string.string)
+        guard let underlined = paragraph.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(underlined.name, StandardElementType.u.rawValue)
+        XCTAssertEqual(underlined.children.count, 1)
+
+        guard let text = underlined.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(text.contents, string.string)
     }
 
 
@@ -87,14 +121,25 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let strike = node.children.first as? ElementNode
-        XCTAssertEqual(strike?.name, "strike")
-        XCTAssert(strike?.children.count == 1)
+        guard let paragraph = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
 
-        let text = strike?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, testingString.string)
+        guard let strike = paragraph.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(strike.name, StandardElementType.strike.rawValue)
+        XCTAssertEqual(strike.children.count, 1)
+
+        guard let text = strike.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(text.contents, testingString.string)
     }
 
 
@@ -113,14 +158,27 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let link = node.children.first as? ElementNode
-        XCTAssertEqual(link?.name, "a")
-        XCTAssert(link?.children.count == 1)
+        guard let paragraph = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(paragraph.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraph.children.count, 1)
 
-        let text = link?.children.first as? TextNode
-        XCTAssertEqual(text?.contents, testingString.string)
+        guard let link = paragraph.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(link.name, StandardElementType.a.rawValue)
+        XCTAssertEqual(link.children.count, 1)
+
+        guard let text = link.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(text.contents, testingString.string)
     }
 
 
@@ -222,13 +280,20 @@ class NSAttributedStringToNodesTests: XCTestCase {
         testingString.insert(stringWithAttachment, at: 0)
         testingString.append(stringWithAttachment)
 
-        // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 3)
+        XCTAssertEqual(node.children.count, 1)
 
-        guard let headNode = node.children[0] as? CommentNode,
-            let textNode = node.children[1] as? TextNode,
-            let tailNode = node.children[2] as? CommentNode
+        guard let paragraph = node.children.first as? ElementNode,
+            paragraph.name == StandardElementType.p.rawValue else {
+                XCTFail()
+                return
+        }
+
+        XCTAssertEqual(paragraph.children.count, 3)
+
+        guard let headNode = paragraph.children[0] as? CommentNode,
+            let textNode = paragraph.children[1] as? TextNode,
+            let tailNode = paragraph.children[2] as? CommentNode
         else {
             XCTFail()
             return
@@ -262,13 +327,19 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 5)
 
-        guard let firstLine = node.children[0] as? ElementNode,
-            let firstText = node.children[1] as? TextNode,
-            let secondLine = node.children[2] as? ElementNode,
-            let secondText = node.children[3] as? TextNode,
-            let thirdLine = node.children[4] as? ElementNode
+        guard let paragraphElement = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssert(paragraphElement.children.count == 5)
+
+        guard let firstLine = paragraphElement.children[0] as? ElementNode,
+            let firstText = paragraphElement.children[1] as? TextNode,
+            let secondLine = paragraphElement.children[2] as? ElementNode,
+            let secondText = paragraphElement.children[3] as? TextNode,
+            let thirdLine = paragraphElement.children[4] as? ElementNode
         else {
             XCTFail()
             return
@@ -307,9 +378,21 @@ class NSAttributedStringToNodesTests: XCTestCase {
             let node = NSAttributedStringToNodes().convert(testingString)
             XCTAssert(node.children.count == 2)
 
-            guard let headerNode = node.children[0] as? ElementNode,
-                let headerTextNode = headerNode.children[0] as? TextNode,
-                let regularTextNode = node.children[1] as? TextNode
+            guard let headerNode = node.children[0] as? ElementNode else {
+                XCTFail()
+                return
+            }
+
+            guard let paragraphElement = node.children[1] as? ElementNode else {
+                XCTFail()
+                return
+            }
+
+            XCTAssertEqual(headerNode.children.count, 1)
+            XCTAssertEqual(paragraphElement.children.count, 1)
+
+            guard let headerTextNode = headerNode.children.first as? TextNode,
+                let regularTextNode = paragraphElement.children.first as? TextNode
             else {
                 XCTFail()
                 return
@@ -346,11 +429,18 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 3)
+        XCTAssert(node.children.count == 1)
 
-        guard let htmlNode = node.children[0] as? ElementNode,
-            let textNode = node.children[1] as? TextNode,
-            let commentNode = node.children[2] as? CommentNode
+        guard let paragraphNode = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssert(paragraphNode.children.count == 3)
+
+        guard let htmlNode = paragraphNode.children[0] as? ElementNode,
+            let textNode = paragraphNode.children[1] as? TextNode,
+            let commentNode = paragraphNode.children[2] as? CommentNode
         else {
             XCTFail()
             return
@@ -376,18 +466,29 @@ class NSAttributedStringToNodesTests: XCTestCase {
 
         // Convert + Verify
         let node = NSAttributedStringToNodes().convert(testingString)
-        XCTAssert(node.children.count == 3)
+        XCTAssertEqual(node.children.count, 2)
 
-        guard let helloNode = node.children[0] as? TextNode,
-            let breakNode = node.children[1] as? ElementNode,
-            let worldNode = node.children[2] as? TextNode
+        guard let paragraphElement1 = node.children[0] as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        guard let paragraphElement2 = node.children[1] as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(paragraphElement1.children.count, 1)
+        XCTAssertEqual(paragraphElement2.children.count, 1)
+
+        guard let helloNode = paragraphElement1.children.first as? TextNode,
+            let worldNode = paragraphElement2.children.first as? TextNode
         else {
             XCTFail()
             return
         }
 
         XCTAssertEqual(helloNode.contents, "Hello")
-        XCTAssertEqual(breakNode.name, "br")
         XCTAssertEqual(worldNode.contents, "World")
     }
 
@@ -611,7 +712,7 @@ class NSAttributedStringToNodesTests: XCTestCase {
     /// - Output: The same!!
     ///
     func testUnsupportedHtmlIsPreservedAndSerializedBack() {
-        let text = "Ehlo World!"
+        let text = "Hello World!"
         let testingString = NSMutableAttributedString(string: text)
 
         let spanElement = ElementNode(type: .span)
@@ -625,8 +726,12 @@ class NSAttributedStringToNodesTests: XCTestCase {
         let node = NSAttributedStringToNodes().convert(testingString)
         XCTAssert(node.children.count == 1)
 
-        let restoredSpanNode = node.children.first as? ElementNode
-        XCTAssert(restoredSpanNode?.name == "span")
+        let paragraphElement = node.children.first as? ElementNode
+        XCTAssertEqual(paragraphElement?.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraphElement?.children.count, 1)
+
+        let restoredSpanNode = paragraphElement?.children.first as? ElementNode
+        XCTAssert(restoredSpanNode?.name == StandardElementType.span.rawValue)
         XCTAssert(restoredSpanNode?.children.count == 1)
 
         let restoredTextNode = restoredSpanNode?.children.first as? TextNode
@@ -653,25 +758,24 @@ class NSAttributedStringToNodesTests: XCTestCase {
             1: "Hello",
             2: nil,
             3: nil,
-            4: nil,
-            5: "Everyone",
-            6: nil,
-            7: nil,
-            8: "YEAH",
-            9: nil,
-            10: "Sarasa"
+            4: "Everyone",
+            5: nil,
+            6: "YEAH",
+            7: "Sarasa"
         ]
 
-        XCTAssert(node.children.count == expectedNodes.count)
-
         for (index, text) in expectedNodes {
+            guard let paragraphElement = node.children[index] as? ElementNode else {
+                XCTFail()
+                return
+            }
+
             if let text = text {
-                let textNode = node.children[index] as? TextNode
+
+                let textNode = paragraphElement.children.first as? TextNode
                 XCTAssert(textNode?.contents == text)
             } else {
-                let breakNode = node.children[index] as? ElementNode
-                XCTAssert(breakNode?.name == "br")
-                XCTAssert(breakNode?.children.count == 0)
+                XCTAssert(paragraphElement.children.count == 0)
             }
         }
     }
