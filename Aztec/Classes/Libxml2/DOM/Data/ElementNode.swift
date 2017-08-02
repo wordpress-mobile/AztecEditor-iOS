@@ -105,7 +105,7 @@ class ElementNode: Node {
             return true
         }
 
-        return isBlockLevelElement() && !isLastInTree()
+        return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
     }
 
     // MARK: - Node Queries
