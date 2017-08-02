@@ -121,9 +121,7 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
         let inHtml = "<span><br>Aztec, don't forget me!</span>"
-        let expectedHtml = "<br><span>Aztec, don't forget me!</span>"
-// TODO: The actual expected html should wrap the BR within a span tag. To be addressed in another PR!
-//        let expectedHtml = "<span><br></span><span>Aztec, don't forget me!</span>"
+        let expectedHtml = "<p><span><br></span><span>Aztec, don't forget me!</span></p>"
 
         let inNode = InHTMLConverter().convert(inHtml)
         let attrString = attributedString(from: inNode)

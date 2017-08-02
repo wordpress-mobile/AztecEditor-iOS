@@ -14,7 +14,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
                                            "headerLevel": headerLevel,
                                            "htmlDiv": htmlDiv,
                                            "htmlParagraph": htmlParagraph,
-                                           "textList": lists])
+                                           "textList": lists,
+                                           "properties": properties])
         }
     }
 
