@@ -49,7 +49,7 @@ open class MediaAttachment: NSTextAttachment {
     
     /// Attachment URL
     ///
-    open var url: URL? {
+    public var url: URL? {
         didSet {
             retryCount = 0
         }
@@ -215,7 +215,7 @@ open class MediaAttachment: NSTextAttachment {
         updateImage(inTextContainer: textContainer)
 
         guard let image = image else {
-            return nil
+            return delegate?.mediaAttachmentPlaceholderImageFor(attachment: self)
         }
 
         if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
@@ -368,7 +368,6 @@ open class MediaAttachment: NSTextAttachment {
                 
                 strongSelf.isFetchingImage = false
                 strongSelf.lastRequestedURL = nil
-                strongSelf.image = nil
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
             })
     }
