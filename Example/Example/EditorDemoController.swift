@@ -996,18 +996,21 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, _, error) in
-            DispatchQueue.main.async(execute: {
-                    guard error == nil,
-                        let data = data,
-                        let image = UIImage(data: data, scale: UIScreen.main.scale)
-                    else {
-                        failure()
-                        return
-                    }
-                    success(image)
-            })
-        }) 
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+            DispatchQueue.main.async {
+                guard self != nil else {
+                    return
+                }
+
+                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
+                    failure()
+                    return
+                }
+
+                success(image)
+            }
+        }
+
         task.resume()
     }
 

@@ -49,8 +49,23 @@ open class MediaAttachment: NSTextAttachment {
     
     /// Attachment URL
     ///
-    open var url: URL?
+    public var url: URL? {
+        didSet {
+            retryCount = 0
+        }
+    }
+
+    /// URL of the last successfully acquired asset
+    ///
     fileprivate var lastRequestedURL: URL?
+
+    /// Number of times we've tried to download the remote asset
+    ///
+    fileprivate var retryCount = 0
+
+    /// Maximum number of times to retry downloading the asset, upon error
+    ///
+    private let maxRetryCount = 3
 
     /// A progress value that indicates the progress of an attachment. It can be set between values 0 and 1
     ///
@@ -200,7 +215,7 @@ open class MediaAttachment: NSTextAttachment {
         updateImage(inTextContainer: textContainer)
 
         guard let image = image else {
-            return nil
+            return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
         }
 
         if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
@@ -324,17 +339,18 @@ open class MediaAttachment: NSTextAttachment {
             assertionFailure("This class doesn't really support not having an updater set.")
             return
         }
-        
-        guard let url = url, !isFetchingImage && url != lastRequestedURL else {
-            if self.url == nil {
-                self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)                
-            }
+
+        guard !isFetchingImage && url != lastRequestedURL && retryCount < maxRetryCount else {
             return
         }
-        
-        isFetchingImage = true
 
         self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)
+
+        guard let url = url else {
+            return
+        }
+        isFetchingImage = true
+        retryCount += 1
 
         delegate.mediaAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
                 guard let strongSelf = self else {
@@ -352,7 +368,6 @@ open class MediaAttachment: NSTextAttachment {
                 
                 strongSelf.isFetchingImage = false
                 strongSelf.lastRequestedURL = nil
-                strongSelf.image = nil
                 strongSelf.invalidateLayout(inTextContainer: textContainer)
             })
     }
