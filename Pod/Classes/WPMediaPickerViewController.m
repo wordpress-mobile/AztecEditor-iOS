@@ -772,10 +772,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         CGPoint location = [gestureRecognizer locationInView:self.collectionView];
         UIViewController *viewController = [self previewControllerForTouchLocation:location];
-
-        if (viewController) {
-            [self.navigationController pushViewController:viewController animated:YES];
-        }
+        [self displayPreviewController:viewController];
     }
 }
 
@@ -818,6 +815,28 @@ referenceSizeForFooterInSection:(NSInteger)section
     return fullScreenImageVC;
 }
 
+- (void)displayPreviewController:(UIViewController *)viewController {
+    if (viewController) {
+        if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:shouldPresentPreviewController:)]) {
+            // The delegate will handle presenting the preview controller
+            [self.mediaPickerDelegate mediaPickerController:self shouldPresentPreviewController:viewController];
+        } else {
+            // Default to presenting the preview via our nav controller
+            [self.navigationController pushViewController:viewController animated:YES];
+        }
+    }
+}
+
+- (void)dismissPreviewController {
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerShouldDismissPreviewController:)]) {
+        // The delegate will handle dismissing the preview controller
+        [self.mediaPickerDelegate mediaPickerControllerShouldDismissPreviewController:self];
+    } else {
+        // Default to popping the preview VC via our nav controller
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+}
+
 #pragma mark - UIViewControllerPreviewingDelegate
 
 - (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
@@ -835,14 +854,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    [self.navigationController pushViewController:viewControllerToCommit animated:YES];
+    [self displayPreviewController:viewControllerToCommit];
 }
 
 #pragma mark - WPAssetViewControllerDelegate
 
 - (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    [self dismissPreviewController];
 
     if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 
@@ -875,7 +894,7 @@ referenceSizeForFooterInSection:(NSInteger)section
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         if (needToPop) {
-            [self.navigationController popViewControllerAnimated:YES];
+            [self dismissPreviewController];
         }
     }];
     [alertController addAction:dismissAction];

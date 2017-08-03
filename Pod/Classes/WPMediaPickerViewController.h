@@ -122,6 +122,23 @@
 - (nullable UIViewController *)mediaPickerController:(nonnull WPMediaPickerViewController *)picker previewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
 
 /**
+ *  Asks the delegate to present the specified view controller to preview a specific asset.
+ *  If this method isn't implemented, the view controller will be dismissed/popped by the media picker.
+ *
+ *  @param picker The controller object managing the assets picker interface.
+ *  @param previewViewController The preview view controller to display.
+ */
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldPresentPreviewController:(nonnull UIViewController *)previewViewController;
+
+/**
+ *  Asks the delegate to dismiss the current preview view controller it is currently displaying.
+ *  If this method isn't implemented, the view controller will be dismissed/popped by the media picker.
+ *
+ *  @param picker The controller object managing the assets picker interface.
+ */
+- (void)mediaPickerControllerShouldDismissPreviewController:(nonnull WPMediaPickerViewController *)picker;
+
+/**
  *  Tells the delegate that the picker will begin requesting
  *  new data from its data source.
  */

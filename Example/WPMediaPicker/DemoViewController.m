@@ -192,10 +192,6 @@
 }
 
 - (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
-    if (picker == self.mediaInputViewController.mediaPicker) {
-        return nil;
-    }
-
     if (asset.assetType == WPMediaTypeAudio) {
         return nil;
     }
@@ -209,6 +205,14 @@
     assetViewController.selected = [picker.selectedAssets containsObject:asset];
     return assetViewController;
 
+}
+
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldPresentPreviewController:(nonnull UIViewController *)previewViewController {
+    NSLog(@"***** Should present a preview VC!");
+}
+
+- (void)mediaPickerControllerShouldDismissPreviewController:(nonnull WPMediaPickerViewController *)picker {
+    NSLog(@"***** Should dismiss a preview VC!");
 }
 
 #pragma - Actions

@@ -214,6 +214,19 @@ static NSString *const ArrowDown = @"\u25be";
     return [self.mediaPicker defaultPreviewViewControllerForAsset:asset];
 }
 
+// TODO: Decide if this should be here or not
+//- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldPresentPreviewController:(nonnull UIViewController *)previewViewController {
+//    if ([self.delegate respondsToSelector:@selector(mediaPickerController:shouldPresentPreviewController:)]) {
+//        [self.delegate mediaPickerController:picker shouldPresentPreviewController:previewViewController];
+//    }
+//}
+//
+//- (void)mediaPickerControllerShouldDismissPreviewController:(nonnull WPMediaPickerViewController *)picker {
+//    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerShouldDismissPreviewController:)]) {
+//        [self.delegate mediaPickerControllerShouldDismissPreviewController:picker];
+//    }
+//}
+
 - (void)mediaPickerControllerWillBeginLoadingData:(nonnull WPMediaPickerViewController *)picker {
     if ([self.delegate respondsToSelector:@selector(mediaPickerControllerWillBeginLoadingData:)]) {
         [self.delegate mediaPickerControllerWillBeginLoadingData:picker];
