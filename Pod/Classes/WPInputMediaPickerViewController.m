@@ -49,8 +49,9 @@
     self.privateDataSource = [[WPPHAssetDataSource alloc] init];    
     self.mediaPicker.dataSource = self.privateDataSource;
 
-
     [self addChildViewController:self.mediaPicker];
+    [self overridePickerTraits];
+    
     self.mediaPicker.view.frame = self.view.bounds;
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mediaPicker.view];
@@ -80,6 +81,20 @@
 
     self.mediaPicker.collectionView.collectionViewLayout = layout;
 
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [super traitCollectionDidChange:previousTraitCollection];
+    [self overridePickerTraits];
+}
+
+- (void)overridePickerTraits
+{
+    // Due to an inputView being displayed in its own window, the force touch peek transition
+    // doesn't display correctly. Because of this, we'll disable
+    UITraitCollection *traits = [UITraitCollection traitCollectionWithForceTouchCapability:UIForceTouchCapabilityUnavailable];
+    [self setOverrideTraitCollection:[UITraitCollection traitCollectionWithTraitsFromCollections:@[self.traitCollection, traits]] forChildViewController:self.mediaPicker];
 }
 
 - (void)setDataSource:(id<WPMediaCollectionDataSource>)dataSource {
