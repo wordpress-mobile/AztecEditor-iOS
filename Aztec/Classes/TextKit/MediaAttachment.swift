@@ -215,7 +215,7 @@ open class MediaAttachment: NSTextAttachment {
         updateImage(inTextContainer: textContainer)
 
         guard let image = image else {
-            return delegate?.mediaAttachmentPlaceholderImageFor(attachment: self)
+            return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
         }
 
         if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
