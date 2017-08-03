@@ -821,8 +821,17 @@ referenceSizeForFooterInSection:(NSInteger)section
             // The delegate will handle presenting the preview controller
             [self.mediaPickerDelegate mediaPickerController:self shouldPresentPreviewController:viewController];
         } else {
-            // Default to presenting the preview via our nav controller
-            [self.navigationController pushViewController:viewController animated:YES];
+            if (self.navigationController) {
+                [self.navigationController pushViewController:viewController animated:YES];
+            } else if (self.viewControllerToUseToPresent.navigationController) {
+                [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
+            } else {
+                UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:viewController];
+                viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                                                target:self
+                                                                                                                action:@selector(dismissPreviewController)];
+                [self.viewControllerToUseToPresent presentViewController:navController animated:YES completion:nil];
+            }
         }
     }
 }
@@ -832,8 +841,13 @@ referenceSizeForFooterInSection:(NSInteger)section
         // The delegate will handle dismissing the preview controller
         [self.mediaPickerDelegate mediaPickerControllerShouldDismissPreviewController:self];
     } else {
-        // Default to popping the preview VC via our nav controller
-        [self.navigationController popViewControllerAnimated:YES];
+        if (self.navigationController) {
+            [self.navigationController popViewControllerAnimated:YES];
+        } else if (self.viewControllerToUseToPresent.navigationController) {
+            [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
+        } else {
+            [self.viewControllerToUseToPresent dismissViewControllerAnimated:YES completion:nil];
+        }
     }
 }
 

@@ -207,19 +207,6 @@
 
 }
 
-- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldPresentPreviewController:(nonnull UIViewController *)previewViewController {
-    // Presenting a preview VC (just for the input picker now)
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:previewViewController];
-    previewViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                                                                           target:self
-                                                                                                           action:@selector(mediaPickerControllerShouldDismissPreviewController:)];
-    [self presentViewController:navController animated:YES completion:nil];
-}
-
-- (void)mediaPickerControllerShouldDismissPreviewController:(nonnull WPMediaPickerViewController *)picker {
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
 #pragma - Actions
 
 - (void) clearSelection:(id) sender
