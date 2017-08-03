@@ -208,11 +208,16 @@
 }
 
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldPresentPreviewController:(nonnull UIViewController *)previewViewController {
-    NSLog(@"***** Should present a preview VC!");
+    // Presenting a preview VC (just for the input picker now)
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:previewViewController];
+    previewViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                                           target:self
+                                                                                                           action:@selector(mediaPickerControllerShouldDismissPreviewController:)];
+    [self presentViewController:navController animated:YES completion:nil];
 }
 
 - (void)mediaPickerControllerShouldDismissPreviewController:(nonnull WPMediaPickerViewController *)picker {
-    NSLog(@"***** Should dismiss a preview VC!");
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma - Actions
