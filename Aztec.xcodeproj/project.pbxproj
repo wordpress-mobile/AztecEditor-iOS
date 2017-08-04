@@ -817,7 +817,7 @@
 			buildConfigurationList = E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */;
 			buildPhases = (
 			);
-			buildToolPath = "${PROJECT_DIR}/carthage_script.sh";
+			buildToolPath = "${PROJECT_DIR}/Scripts/carthage_script.sh";
 			buildWorkingDirectory = "";
 			dependencies = (
 			);
@@ -1590,6 +1590,7 @@
 				E8CE3F021F213AAA003254AB /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
