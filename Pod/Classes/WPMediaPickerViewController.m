@@ -817,37 +817,34 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)displayPreviewController:(UIViewController *)viewController {
     if (viewController) {
-        if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:shouldPresentPreviewController:)]) {
-            // The delegate will handle presenting the preview controller
-            [self.mediaPickerDelegate mediaPickerController:self shouldPresentPreviewController:viewController];
+        // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
+        if (!self.viewControllerToUseToPresent) {
+            self.viewControllerToUseToPresent = self;
+        }
+
+        // Attempt to use the viewControllerToUseToPresent's nav controller, otherwise lets create a new nav controller and present it.
+        if (self.viewControllerToUseToPresent.navigationController) {
+            [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
         } else {
-            if (self.navigationController) {
-                [self.navigationController pushViewController:viewController animated:YES];
-            } else if (self.viewControllerToUseToPresent.navigationController) {
-                [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
-            } else {
-                UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:viewController];
-                viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                                                                                target:self
-                                                                                                                action:@selector(dismissPreviewController)];
-                [self.viewControllerToUseToPresent presentViewController:navController animated:YES completion:nil];
-            }
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:viewController];
+            viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                                            target:self
+                                                                                                            action:@selector(dismissPreviewController)];
+            [self.viewControllerToUseToPresent presentViewController:navController animated:YES completion:nil];
         }
     }
 }
 
 - (void)dismissPreviewController {
-    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerControllerShouldDismissPreviewController:)]) {
-        // The delegate will handle dismissing the preview controller
-        [self.mediaPickerDelegate mediaPickerControllerShouldDismissPreviewController:self];
+    // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
+    if (!self.viewControllerToUseToPresent) {
+        self.viewControllerToUseToPresent = self;
+    }
+
+    if (self.viewControllerToUseToPresent.navigationController) {
+        [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
     } else {
-        if (self.navigationController) {
-            [self.navigationController popViewControllerAnimated:YES];
-        } else if (self.viewControllerToUseToPresent.navigationController) {
-            [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
-        } else {
-            [self.viewControllerToUseToPresent dismissViewControllerAnimated:YES completion:nil];
-        }
+        [self.viewControllerToUseToPresent dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
