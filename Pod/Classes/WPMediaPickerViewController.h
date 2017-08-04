@@ -186,5 +186,15 @@
  */
 - (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
 
+/**
+ Return the default preview view controller to use to preview assets
+
+ @param photosPerLine The number of desired photos per line
+ @param photoSpacing The amount of space inbetween photos
+ @param frameWidth The width of the frame which contains the photo cells
+ @return A CGFloat representing the height/width of the suggested cell size
+ */
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth;
+
 @end
 

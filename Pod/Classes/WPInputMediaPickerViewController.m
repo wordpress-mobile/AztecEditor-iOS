@@ -56,7 +56,7 @@
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mediaPicker.view];
     [self.mediaPicker didMoveToParentViewController:self];
-    self.mediaPicker.collectionView.alwaysBounceVertical = NO;
+    self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
 
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
@@ -68,19 +68,45 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    [self configureCollectionView];
+}
 
-    CGFloat spacing = 1.0f;
-    CGFloat size = floorf((self.view.frame.size.height - spacing) / 2.0);
-    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
+- (void)configureCollectionView {
+    CGFloat numberOfPhotosForLine = 4;
+    CGFloat photoSpacing = 1.0f;
+    CGFloat topInset = 5.0f;
+    CGFloat bottomInset = 10.0f;
+    CGFloat frameHeightWidth = self.view.frame.size.width;
+    CGFloat minFrameWidth = MIN(frameHeightWidth, frameHeightWidth);
+
+    CGFloat cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                          photoSpacing:photoSpacing
+                                                            frameWidth:minFrameWidth];
+
+    // Check the actual width of the content based on the computed cell size
+    // How many photos are we actually fitting per line?
+    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
+    numberOfPhotosForLine = floorf((frameHeightWidth - totalSpacing) / cellSize);
+
+    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
+
+    // If we have gaps in our layout, adjust to fit
+    if (contentWidth < frameHeightWidth) {
+        cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                      photoSpacing:photoSpacing
+                                                        frameWidth:frameHeightWidth];
+    }
+    
+    // Init and configure collection view layout
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    layout.itemSize = CGSizeMake(size, size);
-    layout.minimumLineSpacing = spacing;
-    layout.minimumInteritemSpacing = spacing;
-    layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 10);
+    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    layout.itemSize = CGSizeMake(cellSize, cellSize);
+    layout.minimumInteritemSpacing = photoSpacing;
+    layout.minimumLineSpacing = photoSpacing;
+    layout.sectionInset = UIEdgeInsetsMake(topInset, 0, bottomInset, 0);
 
+    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*cellSize, 1.5*cellSize);
     self.mediaPicker.collectionView.collectionViewLayout = layout;
-
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
