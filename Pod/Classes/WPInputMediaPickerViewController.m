@@ -92,7 +92,8 @@
 - (void)overridePickerTraits
 {
     // Due to an inputView being displayed in its own window, the force touch peek transition
-    // doesn't display correctly. Because of this, we'll disable
+    // doesn't display correctly. Because of this, we'll disable it for the input picker thus forcing
+    // long touch to be used instead.
     UITraitCollection *traits = [UITraitCollection traitCollectionWithForceTouchCapability:UIForceTouchCapabilityUnavailable];
     [self setOverrideTraitCollection:[UITraitCollection traitCollectionWithTraitsFromCollections:@[self.traitCollection, traits]] forChildViewController:self.mediaPicker];
 }

@@ -177,6 +177,16 @@ static CGFloat SelectAnimationTime = 0.2;
     [self.captureCell startCapture];
 }
 
+- (UIViewController *)viewControllerToUseToPresent
+{
+    // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
+    if (!_viewControllerToUseToPresent) {
+        _viewControllerToUseToPresent = self;
+    }
+
+    return _viewControllerToUseToPresent;
+}
+
 #pragma mark - Actions
 
 - (void)pullToRefresh:(id)sender
@@ -817,11 +827,6 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)displayPreviewController:(UIViewController *)viewController {
     if (viewController) {
-        // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
-        if (!self.viewControllerToUseToPresent) {
-            self.viewControllerToUseToPresent = self;
-        }
-
         // Attempt to use the viewControllerToUseToPresent's nav controller, otherwise lets create a new nav controller and present it.
         if (self.viewControllerToUseToPresent.navigationController) {
             [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
@@ -836,11 +841,6 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 - (void)dismissPreviewController {
-    // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
-    if (!self.viewControllerToUseToPresent) {
-        self.viewControllerToUseToPresent = self;
-    }
-
     if (self.viewControllerToUseToPresent.navigationController) {
         [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
     } else {
