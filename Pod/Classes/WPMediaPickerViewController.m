@@ -177,6 +177,16 @@ static CGFloat SelectAnimationTime = 0.2;
     [self.captureCell startCapture];
 }
 
+- (UIViewController *)viewControllerToUseToPresent
+{
+    // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
+    if (!_viewControllerToUseToPresent) {
+        _viewControllerToUseToPresent = self;
+    }
+
+    return _viewControllerToUseToPresent;
+}
+
 #pragma mark - Actions
 
 - (void)pullToRefresh:(id)sender
@@ -772,10 +782,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         CGPoint location = [gestureRecognizer locationInView:self.collectionView];
         UIViewController *viewController = [self previewControllerForTouchLocation:location];
-
-        if (viewController) {
-            [self.navigationController pushViewController:viewController animated:YES];
-        }
+        [self displayPreviewController:viewController];
     }
 }
 
@@ -818,6 +825,29 @@ referenceSizeForFooterInSection:(NSInteger)section
     return fullScreenImageVC;
 }
 
+- (void)displayPreviewController:(UIViewController *)viewController {
+    if (viewController) {
+        // Attempt to use the viewControllerToUseToPresent's nav controller, otherwise lets create a new nav controller and present it.
+        if (self.viewControllerToUseToPresent.navigationController) {
+            [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
+        } else {
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:viewController];
+            viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                                            target:self
+                                                                                                            action:@selector(dismissPreviewController)];
+            [self.viewControllerToUseToPresent presentViewController:navController animated:YES completion:nil];
+        }
+    }
+}
+
+- (void)dismissPreviewController {
+    if (self.viewControllerToUseToPresent.navigationController) {
+        [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
+    } else {
+        [self.viewControllerToUseToPresent dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 #pragma mark - UIViewControllerPreviewingDelegate
 
 - (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
@@ -835,14 +865,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    [self.navigationController pushViewController:viewControllerToCommit animated:YES];
+    [self displayPreviewController:viewControllerToCommit];
 }
 
 #pragma mark - WPAssetViewControllerDelegate
 
 - (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    [self dismissPreviewController];
 
     if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 
@@ -875,7 +905,7 @@ referenceSizeForFooterInSection:(NSInteger)section
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         if (needToPop) {
-            [self.navigationController popViewControllerAnimated:YES];
+            [self dismissPreviewController];
         }
     }];
     [alertController addAction:dismissAction];

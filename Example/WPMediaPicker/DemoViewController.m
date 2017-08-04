@@ -192,10 +192,6 @@
 }
 
 - (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
-    if (picker == self.mediaInputViewController.mediaPicker) {
-        return nil;
-    }
-
     if (asset.assetType == WPMediaTypeAudio) {
         return nil;
     }
