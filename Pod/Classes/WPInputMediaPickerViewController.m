@@ -71,28 +71,28 @@
 }
 
 - (void)configureCollectionView {
-    CGFloat frameHeightWidth = self.view.frame.size.width;
-    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameHeightWidth];
+    CGFloat frameWidth = self.view.frame.size.width;
+    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameWidth];
     CGFloat photoSpacing = 1.0f;
     CGFloat topInset = 5.0f;
     CGFloat bottomInset = 10.0f;
 
     CGFloat cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
                                                           photoSpacing:photoSpacing
-                                                            frameWidth:frameHeightWidth];
+                                                            frameWidth:frameWidth];
 
     // Check the actual width of the content based on the computed cell size
     // How many photos are we actually fitting per line?
     CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
-    numberOfPhotosForLine = floorf((frameHeightWidth - totalSpacing) / cellSize);
+    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
 
     CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
 
     // If we have gaps in our layout, adjust to fit
-    if (contentWidth < frameHeightWidth) {
+    if (contentWidth < frameWidth) {
         cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
                                                       photoSpacing:photoSpacing
-                                                        frameWidth:frameHeightWidth];
+                                                        frameWidth:frameWidth];
     }
     
     // Init and configure collection view layout
@@ -121,8 +121,12 @@
         numberOfPhotos = 4;
     } else if (frameWidth >= 500 && frameWidth < 667) {
         numberOfPhotos = 5;
-    } else if (frameWidth >= 667) {
+    } else if (frameWidth >= 667  && frameWidth < 768) {
         numberOfPhotos = 6;
+    } else if (frameWidth >= 768  && frameWidth < 1024) {
+        numberOfPhotos = 7;
+    } else if (frameWidth >= 1024) {
+        numberOfPhotos = 9;
     }
 
     return numberOfPhotos;
