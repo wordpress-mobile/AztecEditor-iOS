@@ -35,7 +35,6 @@
     return self;
 }
 
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -72,16 +71,15 @@
 }
 
 - (void)configureCollectionView {
-    CGFloat numberOfPhotosForLine = 4;
+    CGFloat frameHeightWidth = self.view.frame.size.width;
+    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameHeightWidth];
     CGFloat photoSpacing = 1.0f;
     CGFloat topInset = 5.0f;
     CGFloat bottomInset = 10.0f;
-    CGFloat frameHeightWidth = self.view.frame.size.width;
-    CGFloat minFrameWidth = MIN(frameHeightWidth, frameHeightWidth);
 
     CGFloat cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
                                                           photoSpacing:photoSpacing
-                                                            frameWidth:minFrameWidth];
+                                                            frameWidth:frameHeightWidth];
 
     // Check the actual width of the content based on the computed cell size
     // How many photos are we actually fitting per line?
@@ -109,6 +107,27 @@
     self.mediaPicker.collectionView.collectionViewLayout = layout;
 }
 
+/**
+ Returns the maximum number of photos to be used in a picker row given the provided frame width.
+ 
+ @param frameWidth Width size of the frame containing the picker
+
+ @return The number of photo cells to be used in a row. Defaults to 3.
+ */
+- (NSUInteger)numberOfPhotosPerRow:(CGFloat)frameWidth {
+    NSUInteger numberOfPhotos = 3;
+
+    if (frameWidth >= 375 && frameWidth < 500) {
+        numberOfPhotos = 4;
+    } else if (frameWidth >= 500 && frameWidth < 667) {
+        numberOfPhotos = 5;
+    } else if (frameWidth >= 667) {
+        numberOfPhotos = 6;
+    }
+
+    return numberOfPhotos;
+}
+
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
 {
     [super traitCollectionDidChange:previousTraitCollection];
@@ -124,6 +143,8 @@
     [self setOverrideTraitCollection:[UITraitCollection traitCollectionWithTraitsFromCollections:@[self.traitCollection, traits]] forChildViewController:self.mediaPicker];
 }
 
+#pragma mark - WPMediaCollectionDataSource
+
 - (void)setDataSource:(id<WPMediaCollectionDataSource>)dataSource {
     self.mediaPicker.dataSource = dataSource;
 }
@@ -131,6 +152,8 @@
 - (id<WPMediaCollectionDataSource>)dataSource {
     return self.mediaPicker.dataSource;
 }
+
+#pragma mark - WPMediaPickerViewControllerDelegate
 
 - (void)setMediaPickerDelegate:(id<WPMediaPickerViewControllerDelegate>)mediaPickerDelegate {
     self.mediaPicker.mediaPickerDelegate = mediaPickerDelegate;
