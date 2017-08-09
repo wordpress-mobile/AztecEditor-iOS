@@ -104,15 +104,15 @@ open class MediaAttachment: NSTextAttachment {
         overlayImage = nil
     }
 
-    ///
+    /// Image to be displayed: Contains the actual Asset + the overlays (if any), embedded
     ///
     internal var glyphImage: UIImage?
 
-    ///
+    /// Attachment's Delegate
     ///
     weak var delegate: MediaAttachmentDelegate?
 
-    ///
+    /// Indicates if there's a download OP in progress, or not.
     ///
     fileprivate var isFetchingImage = false
 
