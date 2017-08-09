@@ -211,7 +211,7 @@ open class MediaAttachment: NSTextAttachment {
             return cachedImage
         }
 
-        glyphImage = glyph(basedOnImage:image, forBounds: imageBounds)
+        glyphImage = glyph(for:image, in: imageBounds)
 
         return glyphImage
     }
@@ -223,7 +223,7 @@ open class MediaAttachment: NSTextAttachment {
         return CGRect(origin: origin, size: size)
     }
 
-    private func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
+    private func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
