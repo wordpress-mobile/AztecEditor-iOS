@@ -55,7 +55,9 @@
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mediaPicker.view];
     [self.mediaPicker didMoveToParentViewController:self];
+    self.mediaPicker.collectionView.bounces = NO;
     self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
+    self.mediaPicker.collectionView.alwaysBounceVertical = NO;
 
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
@@ -71,46 +73,52 @@
 }
 
 - (void)configureCollectionView {
-    CGFloat frameWidth = self.view.frame.size.width;
-    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameWidth];
     CGFloat photoSpacing = 1.0f;
-    CGFloat topInset = 5.0f;
-    CGFloat bottomInset = 10.0f;
-
-    CGFloat cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                                          photoSpacing:photoSpacing
-                                                            frameWidth:frameWidth];
-
-    // Check the actual width of the content based on the computed cell size
-    // How many photos are we actually fitting per line?
-    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
-    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
-
-    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
-
-    // If we have gaps in our layout, adjust to fit
-    if (contentWidth < frameWidth) {
-        cellSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                                      photoSpacing:photoSpacing
-                                                        frameWidth:frameWidth];
-    }
-    
-    // Init and configure collection view layout
+    CGFloat photoSize;
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
-    layout.itemSize = CGSizeMake(cellSize, cellSize);
-    layout.minimumInteritemSpacing = photoSpacing;
-    layout.minimumLineSpacing = photoSpacing;
-    layout.sectionInset = UIEdgeInsetsMake(topInset, 0, bottomInset, 0);
 
-    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*cellSize, 1.5*cellSize);
+    if (self.scrollVertically) {
+        CGFloat frameWidth = self.view.frame.size.width;
+        NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameWidth];
+
+        photoSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                       photoSpacing:photoSpacing
+                                                         frameWidth:frameWidth];
+
+        // Check the actual width of the content based on the computed cell size
+        // How many photos are we actually fitting per line?
+        CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
+        numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / photoSize);
+
+        CGFloat contentWidth = (numberOfPhotosForLine * photoSize) + totalSpacing;
+
+        // If we have gaps in our layout, adjust to fit
+        if (contentWidth < frameWidth) {
+            photoSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                           photoSpacing:photoSpacing
+                                                             frameWidth:frameWidth];
+        }
+
+        layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
+    } else {
+        photoSize = floorf((self.view.frame.size.height - photoSpacing) / 2.0);
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 5);
+    }
+
+    layout.itemSize = CGSizeMake(photoSize, photoSize);
+    layout.minimumLineSpacing = photoSpacing;
+    layout.minimumInteritemSpacing = photoSpacing;
+    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*photoSize, 1.5*photoSize);
     self.mediaPicker.collectionView.collectionViewLayout = layout;
 }
 
 /**
- Returns the maximum number of photos to be used in a picker row given the provided frame width.
+ Given the provided frame width, this method returns a progressively increasing number of photos 
+ to be used in a picker row.
  
- @param frameWidth Width size of the frame containing the picker
+ @param frameWidth Width of the frame containing the picker
 
  @return The number of photo cells to be used in a row. Defaults to 3.
  */

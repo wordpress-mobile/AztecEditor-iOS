@@ -7,6 +7,7 @@ extern NSString const *MediaPickerOptionsAllowMultipleSelection;
 extern NSString const *MediaPickerOptionsPostProcessingStep;
 extern NSString const *MediaPickerOptionsFilterType;
 extern NSString const *MediaPickerOptionsCustomPreview;
+extern NSString const *MediaPickerOptionsScrollInputPickerVertically;
 
 @class OptionsViewController;
 

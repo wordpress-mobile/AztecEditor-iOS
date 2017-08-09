@@ -40,4 +40,9 @@ The delegate for the WPMediaPickerViewController events
  */
 @property (nonatomic, readonly) UIToolbar * _Nonnull mediaToolbar;
 
+/**
+ If YES the picker will scroll media vertically. Defaults to NO (horizontal).
+ */
+@property (nonatomic, assign) BOOL scrollVertically;
+
 @end

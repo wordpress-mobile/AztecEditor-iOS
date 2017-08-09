@@ -42,7 +42,8 @@
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
                      MediaPickerOptionsFilterType:@(WPMediaTypeImage | WPMediaTypeVideo),
-                     MediaPickerOptionsCustomPreview:@(NO)
+                     MediaPickerOptionsCustomPreview:@(NO),
+                     MediaPickerOptionsScrollInputPickerVertically:@(NO)
                      };
 
 }
@@ -132,6 +133,9 @@
 
 - (void)setupMediaKeyboardForInputField {
     self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    if ([self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue]) {
+        self.mediaInputViewController.scrollVertically = YES;
+    }
 
     [self addChildViewController:self.mediaInputViewController];
     _quickInputTextField.inputView = self.mediaInputViewController.view;
