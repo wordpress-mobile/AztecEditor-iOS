@@ -1,6 +1,13 @@
 #import "WPInputMediaPickerViewController.h"
 #import "WPPHAssetDataSource.h"
 
+static CGFloat const IPhoneSELandscapeWidth = 568.0f;
+static CGFloat const IPhone7PortraitWidth = 375.0f;
+static CGFloat const IPhone7LandscapeWidth = 667.0f;
+static CGFloat const IPadPortraitWidth = 768.0f;
+static CGFloat const IPadLandscapeWidth = 1024.0f;
+static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
+
 @interface WPInputMediaPickerViewController()
 
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
@@ -35,7 +42,6 @@
     return self;
 }
 
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -56,7 +62,6 @@
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mediaPicker.view];
     [self.mediaPicker didMoveToParentViewController:self];
-    self.mediaPicker.collectionView.alwaysBounceVertical = NO;
 
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
@@ -68,19 +73,81 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    [self configureCollectionView];
+}
 
-    CGFloat spacing = 1.0f;
-    CGFloat size = floorf((self.view.frame.size.height - spacing) / 2.0);
-    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*size, 1.5*size);
+- (void)configureCollectionView {
+    CGFloat photoSpacing = 1.0f;
+    CGFloat photoSize;
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    layout.itemSize = CGSizeMake(size, size);
-    layout.minimumLineSpacing = spacing;
-    layout.minimumInteritemSpacing = spacing;
-    layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 10);
 
+    if (self.scrollVertically) {
+        CGFloat frameWidth = self.view.frame.size.width;
+        NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameWidth];
+
+        photoSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                       photoSpacing:photoSpacing
+                                                         frameWidth:frameWidth];
+
+        // Check the actual width of the content based on the computed cell size
+        // How many photos are we actually fitting per line?
+        CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
+        numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / photoSize);
+
+        CGFloat contentWidth = (numberOfPhotosForLine * photoSize) + totalSpacing;
+
+        // If we have gaps in our layout, adjust to fit
+        if (contentWidth < frameWidth) {
+            photoSize = [self.mediaPicker cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                                           photoSpacing:photoSpacing
+                                                             frameWidth:frameWidth];
+        }
+
+        layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
+        self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
+        self.mediaPicker.collectionView.alwaysBounceVertical = YES;
+    } else {
+        photoSize = floorf((self.view.frame.size.height - photoSpacing) / 2.0);
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 5);
+        self.mediaPicker.collectionView.alwaysBounceHorizontal = YES;
+        self.mediaPicker.collectionView.alwaysBounceVertical = NO;
+    }
+
+    layout.itemSize = CGSizeMake(photoSize, photoSize);
+    layout.minimumLineSpacing = photoSpacing;
+    layout.minimumInteritemSpacing = photoSpacing;
+    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*photoSize, 1.5*photoSize);
     self.mediaPicker.collectionView.collectionViewLayout = layout;
+}
 
+/**
+ Given the provided frame width, this method returns a progressively increasing number of photos 
+ to be used in a picker row.
+ 
+ @param frameWidth Width of the frame containing the picker
+
+ @return The number of photo cells to be used in a row. Defaults to 3.
+ */
+- (NSUInteger)numberOfPhotosPerRow:(CGFloat)frameWidth {
+    NSUInteger numberOfPhotos = 3;
+
+    if (frameWidth >= IPhone7PortraitWidth && frameWidth < IPhoneSELandscapeWidth) {
+        numberOfPhotos = 4;
+    } else if (frameWidth >= IPhoneSELandscapeWidth && frameWidth < IPhone7LandscapeWidth) {
+        numberOfPhotos = 5;
+    } else if (frameWidth >= IPhone7LandscapeWidth && frameWidth < IPadPortraitWidth) {
+        numberOfPhotos = 6;
+    } else if (frameWidth >= IPadPortraitWidth && frameWidth < IPadLandscapeWidth) {
+        numberOfPhotos = 7;
+    } else if (frameWidth >= IPadLandscapeWidth && frameWidth < IPadPro12LandscapeWidth) {
+        numberOfPhotos = 9;
+    } else if (frameWidth >= IPadPro12LandscapeWidth) {
+        numberOfPhotos = 12;
+    }
+
+    return numberOfPhotos;
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
@@ -98,6 +165,8 @@
     [self setOverrideTraitCollection:[UITraitCollection traitCollectionWithTraitsFromCollections:@[self.traitCollection, traits]] forChildViewController:self.mediaPicker];
 }
 
+#pragma mark - WPMediaCollectionDataSource
+
 - (void)setDataSource:(id<WPMediaCollectionDataSource>)dataSource {
     self.mediaPicker.dataSource = dataSource;
 }
@@ -105,6 +174,8 @@
 - (id<WPMediaCollectionDataSource>)dataSource {
     return self.mediaPicker.dataSource;
 }
+
+#pragma mark - WPMediaPickerViewControllerDelegate
 
 - (void)setMediaPickerDelegate:(id<WPMediaPickerViewControllerDelegate>)mediaPickerDelegate {
     self.mediaPicker.mediaPickerDelegate = mediaPickerDelegate;

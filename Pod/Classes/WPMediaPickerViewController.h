@@ -186,5 +186,16 @@
  */
 - (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
 
+/**
+ Calculates the appropriate cell height/width given the desired number of cells per line, desired space
+ between cells, and total width of the frame containing the cells.
+
+ @param photosPerLine The number of desired photos per line
+ @param photoSpacing The amount of space in between photos
+ @param frameWidth The width of the frame which contains the photo cells
+ @return A CGFloat representing the height/width of the suggested cell size
+ */
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth;
+
 @end
 
