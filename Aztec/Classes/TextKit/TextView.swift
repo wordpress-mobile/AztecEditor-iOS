@@ -449,7 +449,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML(prettyPrint: Bool = false) -> String {
+    open func getHTML(prettyPrint: Bool = true) -> String {
         return storage.getHTML(prettyPrint: prettyPrint)
     }
 
