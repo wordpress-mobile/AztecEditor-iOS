@@ -1,6 +1,13 @@
 #import "WPInputMediaPickerViewController.h"
 #import "WPPHAssetDataSource.h"
 
+static CGFloat const IPhoneSELandscapeWidth = 568.0f;
+static CGFloat const IPhone7PortraitWidth = 375.0f;
+static CGFloat const IPhone7LandscapeWidth = 667.0f;
+static CGFloat const IPadPortraitWidth = 768.0f;
+static CGFloat const IPadLandscapeWidth = 1024.0f;
+static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
+
 @interface WPInputMediaPickerViewController()
 
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
@@ -55,9 +62,6 @@
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mediaPicker.view];
     [self.mediaPicker didMoveToParentViewController:self];
-    self.mediaPicker.collectionView.bounces = NO;
-    self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
-    self.mediaPicker.collectionView.alwaysBounceVertical = NO;
 
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
@@ -101,10 +105,14 @@
 
         layout.scrollDirection = UICollectionViewScrollDirectionVertical;
         layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
+        self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
+        self.mediaPicker.collectionView.alwaysBounceVertical = YES;
     } else {
         photoSize = floorf((self.view.frame.size.height - photoSpacing) / 2.0);
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 5);
+        self.mediaPicker.collectionView.alwaysBounceHorizontal = YES;
+        self.mediaPicker.collectionView.alwaysBounceVertical = NO;
     }
 
     layout.itemSize = CGSizeMake(photoSize, photoSize);
@@ -125,16 +133,18 @@
 - (NSUInteger)numberOfPhotosPerRow:(CGFloat)frameWidth {
     NSUInteger numberOfPhotos = 3;
 
-    if (frameWidth >= 375 && frameWidth < 500) {
+    if (frameWidth >= IPhone7PortraitWidth && frameWidth < IPhoneSELandscapeWidth) {
         numberOfPhotos = 4;
-    } else if (frameWidth >= 500 && frameWidth < 667) {
+    } else if (frameWidth >= IPhoneSELandscapeWidth && frameWidth < IPhone7LandscapeWidth) {
         numberOfPhotos = 5;
-    } else if (frameWidth >= 667  && frameWidth < 768) {
+    } else if (frameWidth >= IPhone7LandscapeWidth && frameWidth < IPadPortraitWidth) {
         numberOfPhotos = 6;
-    } else if (frameWidth >= 768  && frameWidth < 1024) {
+    } else if (frameWidth >= IPadPortraitWidth && frameWidth < IPadLandscapeWidth) {
         numberOfPhotos = 7;
-    } else if (frameWidth >= 1024) {
+    } else if (frameWidth >= IPadLandscapeWidth && frameWidth < IPadPro12LandscapeWidth) {
         numberOfPhotos = 9;
+    } else if (frameWidth >= IPadPro12LandscapeWidth) {
+        numberOfPhotos = 12;
     }
 
     return numberOfPhotos;
