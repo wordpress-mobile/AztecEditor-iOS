@@ -24,7 +24,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Appearance associated to the current TextAttachment Instance.
     ///
-    open var appearance: Appearance
+    open var appearance: Appearance = defaultAppearance
 
     /// Attributes accessible by the user, for general purposes.
     ///
@@ -113,8 +113,7 @@ open class MediaAttachment: NSTextAttachment {
     required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
-        self.appearance = MediaAttachment.defaultAppearance
-        
+
         super.init(data: nil, ofType: nil)
     }
 
@@ -122,7 +121,6 @@ open class MediaAttachment: NSTextAttachment {
     ///
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
-        appearance = MediaAttachment.defaultAppearance
 
         super.init(coder: aDecoder)
 
@@ -137,7 +135,6 @@ open class MediaAttachment: NSTextAttachment {
     override required public init(data contentData: Data?, ofType uti: String?) {
         identifier = ""
         url = nil
-        appearance = MediaAttachment.defaultAppearance
 
         super.init(data: contentData, ofType: uti)
     }
