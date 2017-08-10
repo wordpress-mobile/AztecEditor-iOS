@@ -170,10 +170,10 @@ class EditorDemoController: UIViewController {
 
         setHTML(html)
 
-        MediaAttachment.appearance.progressColor = UIColor.blue
-        MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.appearance.progressHeight = 2.0
-        MediaAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
