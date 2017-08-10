@@ -348,7 +348,7 @@ extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
-        imageForURL url: URL,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {

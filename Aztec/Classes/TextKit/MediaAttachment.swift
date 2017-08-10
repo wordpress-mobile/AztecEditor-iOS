@@ -1,51 +1,34 @@
 import Foundation
 import UIKit
 
+
+// MARK: - MediaAttachmentDelegate
+//
 protocol MediaAttachmentDelegate: class {
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
-        imageForURL url: URL,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
 }
 
-/// Custom text attachment.
-///
+// MARK: - MediaAttachment
+//
 open class MediaAttachment: NSTextAttachment {
+
+    /// This property allows the global customization of appearance properties of the TextAttachment
+    ///
+    open static var appearance = Appearance()
 
     /// Attributes accessible by the user, for general purposes.
     ///
     public var extraAttributes = [String: String]()
 
-    public struct Appearance {
-        public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
-
-        /// The height of the progress bar for progress indicators
-        public var progressHeight = CGFloat(2.0)
-
-        /// The color to use when drawing the backkground of the progress indicators
-        ///
-        public var progressBackgroundColor = UIColor.cyan
-
-        /// The color to use when drawing progress indicators
-        ///
-        public var progressColor = UIColor.blue
-
-        /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
-        ///
-        public var imageMargin = CGFloat(10.0)
-    }
-
-
-    /// This property allows the global customization of appearance properties of the TextAttachment
-    ///
-    open static var appearance: Appearance = Appearance()
-
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
-    fileprivate(set) open var identifier: String
+    private(set) open var identifier: String
     
     /// Attachment URL
     ///
@@ -57,15 +40,11 @@ open class MediaAttachment: NSTextAttachment {
 
     /// URL of the last successfully acquired asset
     ///
-    fileprivate var lastRequestedURL: URL?
+    fileprivate(set) var lastRequestedURL: URL?
 
     /// Number of times we've tried to download the remote asset
     ///
     fileprivate var retryCount = 0
-
-    /// Maximum number of times to retry downloading the asset, upon error
-    ///
-    private let maxRetryCount = 3
 
     /// A progress value that indicates the progress of an attachment. It can be set between values 0 and 1
     ///
@@ -125,11 +104,20 @@ open class MediaAttachment: NSTextAttachment {
         overlayImage = nil
     }
 
+    /// Image to be displayed: Contains the actual Asset + the overlays (if any), embedded
+    ///
     internal var glyphImage: UIImage?
 
+    /// Attachment's Delegate
+    ///
     weak var delegate: MediaAttachmentDelegate?
-    
-    var isFetchingImage: Bool = false
+
+    /// Indicates if there's a download OP in progress, or not.
+    ///
+    fileprivate var isFetchingImage = false
+
+
+    // MARK: - Initializers
 
     /// Creates a new attachment
     ///
@@ -164,12 +152,15 @@ open class MediaAttachment: NSTextAttachment {
         super.init(data: contentData, ofType: uti)
     }
 
-    fileprivate func setupDefaultAppearance() {
+    private func setupDefaultAppearance() {
         progressHeight = MediaAttachment.appearance.progressHeight
         progressBackgroundColor = MediaAttachment.appearance.progressBackgroundColor
         progressColor = MediaAttachment.appearance.progressColor
         overlayColor = MediaAttachment.appearance.overlayColor
     }
+
+
+    // MARK: - NSCoder
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
@@ -179,40 +170,38 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
-    fileprivate enum EncodeKeys: String {
-        case identifier
-        case url
-    }
 
     // MARK: - Position and size calculation
+
     func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
-            return 0
+        return 0
     }
 
     func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
-        if let image = image {
-            let targetWidth = onScreenWidth(containerWidth)
-            let scale = targetWidth / image.size.width
-
-            return floor(image.size.height * scale) + (imageMargin * 2)
-        } else {
+        guard let image = image else {
             return 0
         }
+
+        let targetWidth = onScreenWidth(containerWidth)
+        let scale = targetWidth / image.size.width
+
+        return floor(image.size.height * scale) + (imageMargin * 2)
     }
 
     func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
-        if let image = image {
-            return floor(min(image.size.width, containerWidth))
-        } else {
+        guard let image = image else {
             return 0
         }
+
+        return floor(min(image.size.width, containerWidth))
     }
+
 
     // MARK: - NSTextAttachmentContainer
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
-        updateImage(inTextContainer: textContainer)
+        updateImage(in: textContainer)
 
         guard let image = image else {
             return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
@@ -222,23 +211,23 @@ open class MediaAttachment: NSTextAttachment {
             return cachedImage
         }
 
-        glyphImage = glyph(basedOnImage:image, forBounds: imageBounds)
+        glyphImage = glyph(for:image, in: imageBounds)
 
         return glyphImage
     }
 
-    func mediaBounds(forBounds bounds: CGRect) -> CGRect {
+    func mediaBounds(for bounds: CGRect) -> CGRect {
         let containerWidth = bounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
         let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - imageMargin)
         return CGRect(origin: origin, size: size)
     }
 
-    fileprivate func glyph(basedOnImage image:UIImage, forBounds bounds: CGRect) -> UIImage? {
+    private func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
 
-        let mediaBounds = self.mediaBounds(forBounds: bounds)
+        let mediaBounds = self.mediaBounds(for: bounds)
         let origin = mediaBounds.origin
         let size = mediaBounds.size
 
@@ -273,10 +262,11 @@ open class MediaAttachment: NSTextAttachment {
         return result;
     }
 
-    fileprivate func drawOverlayBackground(at origin: CGPoint, size:CGSize) {
+    private func drawOverlayBackground(at origin: CGPoint, size:CGSize) {
         guard message != nil || progress != nil else {
             return
         }
+
         let box = UIBezierPath()
         box.move(to: CGPoint(x:origin.x, y:origin.y))
         box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
@@ -288,7 +278,7 @@ open class MediaAttachment: NSTextAttachment {
         box.fill()
     }
 
-    fileprivate func drawProgress(at origin: CGPoint, size:CGSize) {
+    private func drawProgress(at origin: CGPoint, size:CGSize) {
         guard let progress = progress else {
             return
         }
@@ -315,10 +305,10 @@ open class MediaAttachment: NSTextAttachment {
     ///
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         
-        updateImage(inTextContainer: textContainer)
+        updateImage(in: textContainer)
         
         if image == nil {
-            return CGRect.zero
+            return .zero
         }
 
         var padding = (textContainer?.lineFragmentPadding ?? 0)
@@ -332,15 +322,21 @@ open class MediaAttachment: NSTextAttachment {
         
         return CGRect(origin: CGPoint.zero, size: size)
     }
+}
 
-    func updateImage(inTextContainer textContainer: NSTextContainer? = nil) {
+
+// MARK: - Private Methods
+//
+private extension MediaAttachment {
+
+    func updateImage(in textContainer: NSTextContainer? = nil) {
 
         guard let delegate = delegate else {
             assertionFailure("This class doesn't really support not having an updater set.")
             return
         }
 
-        guard !isFetchingImage && url != lastRequestedURL && retryCount < maxRetryCount else {
+        guard !isFetchingImage && url != lastRequestedURL && retryCount < Constants.maxRetryCount else {
             return
         }
 
@@ -349,17 +345,18 @@ open class MediaAttachment: NSTextAttachment {
         guard let url = url else {
             return
         }
+
         isFetchingImage = true
         retryCount += 1
 
-        delegate.mediaAttachment(self, imageForURL: url, onSuccess: { [weak self] image in
+        delegate.mediaAttachment(self, imageFor: url, onSuccess: { [weak self] image in
                 guard let strongSelf = self else {
                     return
                 }
                 strongSelf.lastRequestedURL = url
                 strongSelf.isFetchingImage = false
                 strongSelf.image = image
-                strongSelf.invalidateLayout(inTextContainer: textContainer)
+                strongSelf.invalidateLayout(in: textContainer)
             }, onFailure: { [weak self] _ in
                 
                 guard let strongSelf = self else {
@@ -368,11 +365,11 @@ open class MediaAttachment: NSTextAttachment {
                 
                 strongSelf.isFetchingImage = false
                 strongSelf.lastRequestedURL = nil
-                strongSelf.invalidateLayout(inTextContainer: textContainer)
+                strongSelf.invalidateLayout(in: textContainer)
             })
     }
     
-    fileprivate func invalidateLayout(inTextContainer textContainer: NSTextContainer?) {
+    func invalidateLayout(in textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayout(for: self)
     }
 }
@@ -391,5 +388,56 @@ extension MediaAttachment: NSCopying {
         clone.imageMargin = imageMargin
         clone.delegate = delegate
         return clone
+    }
+}
+
+
+// MARK: - Nested Types (Private!)
+//
+private extension MediaAttachment {
+
+    /// NSCoder Keys
+    ///
+    enum EncodeKeys: String {
+        case identifier
+        case url
+    }
+
+    /// Constants
+    ///
+    struct Constants {
+        /// Maximum number of times to retry downloading the asset, upon error
+        ///
+        static let maxRetryCount = 3
+    }
+}
+
+
+// MARK: - Appearance
+//
+extension MediaAttachment {
+
+    public struct Appearance {
+
+        /// Overlay's Color
+        ///
+        public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
+
+        /// The height of the progress bar for progress indicators
+        ///
+        public var progressHeight = CGFloat(2.0)
+
+        /// The color to use when drawing the backkground of the progress indicators
+        ///
+        public var progressBackgroundColor = UIColor.cyan
+
+        /// The color to use when drawing progress indicators
+        ///
+        public var progressColor = UIColor.blue
+
+        /// The margin apply to the images being displayed. This is to avoid that two images in a row get
+        /// glued together.
+        ///
+        public var imageMargin = CGFloat(10.0)
     }
 }
