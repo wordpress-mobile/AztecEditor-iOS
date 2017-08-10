@@ -18,9 +18,13 @@ protocol MediaAttachmentDelegate: class {
 //
 open class MediaAttachment: NSTextAttachment {
 
-    /// This property allows the global customization of appearance properties of the TextAttachment
+    /// Default Appearance to be applied to new MediaAttachment Instances.
     ///
-    open static var appearance = Appearance()
+    open static var defaultAppearance = Appearance()
+
+    /// Appearance associated to the current TextAttachment Instance.
+    ///
+    open var appearance: Appearance = defaultAppearance
 
     /// Attributes accessible by the user, for general purposes.
     ///
@@ -56,25 +60,6 @@ open class MediaAttachment: NSTextAttachment {
             }
         }
     }
-
-    /// The color to use when drawing the background overlay for messages, icons, and progress
-    ///
-    open var overlayColor: UIColor = MediaAttachment.appearance.overlayColor
-
-    /// The height of the progress bar for progress indicators
-    open var progressHeight: CGFloat = MediaAttachment.appearance.progressHeight
-
-    /// The color to use when drawing the backkground of the progress indicators
-    ///
-    open var progressBackgroundColor: UIColor = MediaAttachment.appearance.progressBackgroundColor
-
-    /// The color to use when drawing progress indicators
-    ///
-    open var progressColor: UIColor = MediaAttachment.appearance.progressColor
-
-    /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
-    ///
-    open var imageMargin: CGFloat = MediaAttachment.appearance.imageMargin
 
     /// A message to display overlaid on top of the image
     ///
@@ -128,7 +113,7 @@ open class MediaAttachment: NSTextAttachment {
     required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
-        
+
         super.init(data: nil, ofType: nil)
     }
 
@@ -136,6 +121,7 @@ open class MediaAttachment: NSTextAttachment {
     ///
     required public init?(coder aDecoder: NSCoder) {
         identifier = ""
+
         super.init(coder: aDecoder)
 
         if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
@@ -149,14 +135,8 @@ open class MediaAttachment: NSTextAttachment {
     override required public init(data contentData: Data?, ofType uti: String?) {
         identifier = ""
         url = nil
-        super.init(data: contentData, ofType: uti)
-    }
 
-    private func setupDefaultAppearance() {
-        progressHeight = MediaAttachment.appearance.progressHeight
-        progressBackgroundColor = MediaAttachment.appearance.progressBackgroundColor
-        progressColor = MediaAttachment.appearance.progressColor
-        overlayColor = MediaAttachment.appearance.overlayColor
+        super.init(data: contentData, ofType: uti)
     }
 
 
@@ -185,7 +165,7 @@ open class MediaAttachment: NSTextAttachment {
         let targetWidth = onScreenWidth(containerWidth)
         let scale = targetWidth / image.size.width
 
-        return floor(image.size.height * scale) + (imageMargin * 2)
+        return floor(image.size.height * scale) + (appearance.imageMargin * 2)
     }
 
     func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
@@ -218,8 +198,8 @@ open class MediaAttachment: NSTextAttachment {
 
     func mediaBounds(for bounds: CGRect) -> CGRect {
         let containerWidth = bounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: imageMargin)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - imageMargin)
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: appearance.imageMargin)
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - appearance.imageMargin)
         return CGRect(origin: origin, size: size)
     }
 
@@ -274,7 +254,7 @@ open class MediaAttachment: NSTextAttachment {
         box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
         box.addLine(to: CGPoint(x: origin.x, y: origin.y))
         box.lineWidth = 2.0
-        overlayColor.setFill()
+        appearance.overlayColor.setFill()
         box.fill()
     }
 
@@ -282,18 +262,18 @@ open class MediaAttachment: NSTextAttachment {
         guard let progress = progress else {
             return
         }
-        let lineY = origin.y + (progressHeight / 2.0)
+        let lineY = origin.y + (appearance.progressHeight / 2.0)
 
         let backgroundPath = UIBezierPath()
-        backgroundPath.lineWidth = progressHeight
-        progressBackgroundColor.setStroke()
+        backgroundPath.lineWidth = appearance.progressHeight
+        appearance.progressBackgroundColor.setStroke()
         backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
         backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
         backgroundPath.stroke()
 
         let path = UIBezierPath()
-        path.lineWidth = progressHeight
-        progressColor.setStroke()
+        path.lineWidth = appearance.progressHeight
+        appearance.progressColor.setStroke()
         path.move(to: CGPoint(x:origin.x, y: lineY))
         path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
         path.stroke()
@@ -385,7 +365,7 @@ extension MediaAttachment: NSCopying {
         clone.extraAttributes = extraAttributes
         clone.url = url
         clone.lastRequestedURL = lastRequestedURL
-        clone.imageMargin = imageMargin
+        clone.appearance = appearance
         clone.delegate = delegate
         return clone
     }
@@ -419,7 +399,7 @@ extension MediaAttachment {
 
     public struct Appearance {
 
-        /// Overlay's Color
+        /// The color to use when drawing the background overlay for messages, icons, and progress
         ///
         public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
 

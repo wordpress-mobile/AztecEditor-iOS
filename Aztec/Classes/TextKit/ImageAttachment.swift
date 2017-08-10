@@ -99,7 +99,7 @@ open class ImageAttachment: MediaAttachment {
             let targetWidth = onScreenWidth(containerWidth)
             let scale = targetWidth / image.size.width
 
-            return floor(image.size.height * scale) + (imageMargin * 2)
+            return floor(image.size.height * scale) + (appearance.imageMargin * 2)
         } else {
             return 0
         }
