@@ -4,9 +4,8 @@ import UIKit
 protocol VideoAttachmentDelegate: class {
     func videoAttachment(
         _ videoAttachment: VideoAttachment,
-        imageForURL url: URL,
-        onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ())
+        imageFor url: URL,
+        onCompletion completion: @escaping (UIImage?) -> ())
 
     func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage
 }

@@ -994,7 +994,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onCompletion completion: @escaping (UIImage?) -> ()) {
 
         let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
             DispatchQueue.main.async {
@@ -1003,11 +1003,11 @@ extension EditorDemoController: TextViewAttachmentDelegate {
                 }
 
                 guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
-                    failure()
+                    completion(nil)
                     return
                 }
 
-                success(image)
+                completion(image)
             }
         }
 
