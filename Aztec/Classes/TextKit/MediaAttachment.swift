@@ -346,16 +346,25 @@ private extension MediaAttachment {
         isFetchingImage = true
         retryCount += 1
 
-        delegate!.mediaAttachment(self, imageFor: url) { [weak self] newImage in
+        delegate!.mediaAttachment(self, imageFor: url, onSuccess: { [weak self] newImage in
             guard let `self` = self else {
                 return
             }
 
             self.image = newImage
-            self.needsNewAsset = newImage != nil
+            self.needsNewAsset = false
             self.isFetchingImage = false
             self.invalidateLayout(in: textContainer)
-        }
+
+        }, onFailure: { [weak self] _ in
+
+            guard let `self` = self else {
+                return
+            }
+
+            self.isFetchingImage = false
+            self.invalidateLayout(in: textContainer)
+        })
     }
 
     /// Invalidates the Layout in the specified TextContainer.
