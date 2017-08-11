@@ -115,7 +115,7 @@ class TextStorageTests: XCTestCase
             return UIImage()
         }
 
-        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onSuccess success: @escaping (UIImage) -> (), onFailure failure: @escaping () -> ()) {
+        func storage(_ storage: TextStorage, attachment: NSTextAttachment, imageFor url: URL, onCompletion completion: @escaping (UIImage?) -> ()) {
             // NO OP
         }
 
