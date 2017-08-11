@@ -12,13 +12,15 @@ protocol TextStorageAttachmentsDelegate {
     ///     - storage: The storage that is requesting the image.
     ///     - attachment: The attachment that is requesting the image.
     ///     - url: url for the image.
-    ///     - completion: Callback block to be invoked with the retrieved image (on success), or nil on error.
+    ///     - success: Callback block to be invoked with the image fetched from the url.
+    ///     - failure: Callback block to be invoked when an error occurs when fetching the image.
     ///
     func storage(
         _ storage: TextStorage,
         attachment: NSTextAttachment,
         imageFor url: URL,
-        onCompletion completion: @escaping (UIImage?) -> ())
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ())
 
     /// Provides an image placeholder for a specified attachment.
     ///
@@ -349,10 +351,11 @@ extension TextStorage: MediaAttachmentDelegate {
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageFor url: URL,
-        onCompletion completion: @escaping (UIImage?) -> ())
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onCompletion: completion)
+        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -368,11 +371,12 @@ extension TextStorage: VideoAttachmentDelegate {
 
     func videoAttachment(
         _ videoAttachment: VideoAttachment,
-        imageFor url: URL,
-        onCompletion completion: @escaping (UIImage?) -> ())
+        imageForURL url: URL,
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ())
     {
         assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onCompletion: completion)
+        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 

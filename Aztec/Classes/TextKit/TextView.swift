@@ -12,12 +12,14 @@ public protocol TextViewAttachmentDelegate: class {
     ///     - textView: the `TextView` the call has been made from.
     ///     - attachment: the attachment that is requesting the image
     ///     - imageURL: the url to download the image from.
-    ///     - completion: Closure to be executed with the retrieved image, on success, or nil on error.
+    ///     - success: when the image is obtained, this closure should be executed.
+    ///     - failure: if the image cannot be obtained, this closure should be executed.
     ///
     func textView(_ textView: TextView,
                   attachment: NSTextAttachment,
                   imageAt url: URL,
-                  onCompletion completion: @escaping (UIImage?) -> ())
+                  onSuccess success: @escaping (UIImage) -> Void,
+                  onFailure failure: @escaping () -> Void)
 
     /// Called when an attachment is about to be added to the storage as an attachment (copy/paste), so that the
     /// delegate can specify an URL where that attachment is available.
@@ -1442,13 +1444,14 @@ extension TextView: TextStorageAttachmentsDelegate {
         _ storage: TextStorage,
         attachment: NSTextAttachment,
         imageFor url: URL,
-        onCompletion completion: @escaping (UIImage?) -> ()) {
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ()) {
         
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
         
-        textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onCompletion: completion)
+        textAttachmentDelegate.textView(self, attachment: attachment, imageAt: url, onSuccess: success, onFailure: failure)
     }
 
     func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {
