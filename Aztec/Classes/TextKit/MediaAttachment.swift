@@ -116,21 +116,16 @@ open class MediaAttachment: NSTextAttachment {
     /// Required Initializer
     ///
     required public init?(coder aDecoder: NSCoder) {
-        identifier = ""
+        identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? String()
+        url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
 
         super.init(coder: aDecoder)
-
-        if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
-            identifier = decodedIndentifier
-        }
-        if aDecoder.containsValue(forKey: EncodeKeys.url.rawValue) {
-            url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
-        }
     }
 
+    /// Required Initializer
+    ///
     override required public init(data contentData: Data?, ofType uti: String?) {
         identifier = ""
-        url = nil
 
         super.init(data: contentData, ofType: uti)
     }
