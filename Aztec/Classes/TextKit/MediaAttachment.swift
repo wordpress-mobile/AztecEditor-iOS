@@ -135,14 +135,14 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Updates the Media URL
     ///
-    open func updateURL(_ newURL: URL?) {
+    open func updateURL(_ newURL: URL?, refreshAsset: Bool = true) {
         guard newURL != url else {
             return
         }
 
         url = newURL
         retryCount = 0
-        needsNewAsset = true
+        needsNewAsset = refreshAsset
     }
 
 
