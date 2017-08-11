@@ -8,7 +8,8 @@ protocol MediaAttachmentDelegate: class {
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageFor url: URL,
-        onCompletion completion: @escaping (UIImage?) -> ())
+        onSuccess success: @escaping (UIImage) -> (),
+        onFailure failure: @escaping () -> ())
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
 }
