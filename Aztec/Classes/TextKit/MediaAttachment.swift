@@ -35,16 +35,7 @@ open class MediaAttachment: NSTextAttachment {
     
     /// Attachment URL
     ///
-    public var url: URL? {
-        willSet {
-            guard newValue != url else {
-                return
-            }
-
-            retryCount = 0
-            needsNewAsset = true
-        }
-    }
+    fileprivate(set) open var url: URL?
 
     /// Indicates if a new Asset should be retrieved, or we're current!.
     ///
@@ -109,6 +100,7 @@ open class MediaAttachment: NSTextAttachment {
     required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
+        self.needsNewAsset = true
 
         super.init(data: nil, ofType: nil)
     }
@@ -118,6 +110,7 @@ open class MediaAttachment: NSTextAttachment {
     required public init?(coder aDecoder: NSCoder) {
         identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? String()
         url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
+        needsNewAsset = true
 
         super.init(coder: aDecoder)
     }
@@ -139,6 +132,18 @@ open class MediaAttachment: NSTextAttachment {
         progress = nil
         message = nil
         overlayImage = nil
+    }
+
+    /// Updates the Media URL
+    ///
+    open func updateURL(_ newURL: URL?) {
+        guard newURL != url else {
+            return
+        }
+
+        url = newURL
+        retryCount = 0
+        needsNewAsset = true
     }
 
 

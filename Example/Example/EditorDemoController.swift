@@ -1335,7 +1335,8 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.url = url
+
+                updated.updateURL(url)
             }
         }
 
