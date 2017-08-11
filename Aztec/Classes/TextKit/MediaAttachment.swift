@@ -36,11 +36,11 @@ open class MediaAttachment: NSTextAttachment {
     
     /// Attachment URL
     ///
-    fileprivate(set) open var url: URL?
+    fileprivate(set) public var url: URL?
 
     /// Indicates if a new Asset should be retrieved, or we're current!.
     ///
-    fileprivate var needsNewAsset = false
+    fileprivate var needsNewAsset = true
 
     /// Indicates if there's a download OP in progress, or not.
     ///
@@ -101,7 +101,6 @@ open class MediaAttachment: NSTextAttachment {
     required public init(identifier: String, url: URL? = nil) {
         self.identifier = identifier
         self.url = url
-        self.needsNewAsset = true
 
         super.init(data: nil, ofType: nil)
     }
@@ -111,7 +110,6 @@ open class MediaAttachment: NSTextAttachment {
     required public init?(coder aDecoder: NSCoder) {
         identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? String()
         url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
-        needsNewAsset = true
 
         super.init(coder: aDecoder)
     }
@@ -358,12 +356,7 @@ private extension MediaAttachment {
 
         }, onFailure: { [weak self] _ in
 
-            guard let `self` = self else {
-                return
-            }
-
-            self.isFetchingImage = false
-            self.invalidateLayout(in: textContainer)
+            self?.isFetchingImage = false
         })
     }
 
