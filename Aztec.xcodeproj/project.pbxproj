@@ -39,6 +39,8 @@
 		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
 		B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */; };
 		B50CE7341F1FABA00018CAA1 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = B50CE7331F1FABA00018CAA1 /* content.html */; };
+		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
+		B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */; };
 		B5375F471EC2566200F5D7EC /* String+HTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5375F461EC2566200F5D7EC /* String+HTML.swift */; };
 		B5375F491EC2569500F5D7EC /* StringHTMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5375F481EC2569500F5D7EC /* StringHTMLTests.swift */; };
 		B542D6421E9EB122009D12D3 /* PreFormaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */; };
@@ -148,6 +150,13 @@
 			remoteGlobalIDString = 5951CB8D1D8BC93600E1866F;
 			remoteInfo = Aztec;
 		};
+		E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5951CB851D8BC93600E1866F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E8CE3EFE1F213AAA003254AB;
+			remoteInfo = "Carthage Update";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -199,6 +208,8 @@
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Strip.swift"; sourceTree = "<group>"; };
 		B50CE7331F1FABA00018CAA1 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = content.html; path = Example/Example/SampleContent/content.html; sourceTree = SOURCE_ROOT; };
+		B524228C1F30C039002E7C6C /* HTMLDiv.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDiv.swift; sourceTree = "<group>"; };
+		B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDivFormatter.swift; sourceTree = "<group>"; };
 		B5375F461EC2566200F5D7EC /* String+HTML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+HTML.swift"; sourceTree = "<group>"; };
 		B5375F481EC2569500F5D7EC /* StringHTMLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StringHTMLTests.swift; path = Extensions/StringHTMLTests.swift; sourceTree = "<group>"; };
 		B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreFormaterTests.swift; sourceTree = "<group>"; };
@@ -658,6 +669,7 @@
 			children = (
 				F11326A91EF1AA91007FEE9A /* Blockquote.swift */,
 				F11326AA1EF1AA91007FEE9A /* Header.swift */,
+				B524228C1F30C039002E7C6C /* HTMLDiv.swift */,
 				F11326AB1EF1AA91007FEE9A /* HTMLParagraph.swift */,
 				F11326AC1EF1AA91007FEE9A /* HTMLPre.swift */,
 				F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */,
@@ -695,6 +707,7 @@
 				F12F58571EF20394008AE298 /* ColorFormatter.swift */,
 				F12F58591EF20394008AE298 /* HeaderFormatter.swift */,
 				F12F585A1EF20394008AE298 /* HRFormatter.swift */,
+				B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */,
 				F12F585B1EF20394008AE298 /* HTMLParagraphFormatter.swift */,
 				F12F585C1EF20394008AE298 /* ImageFormatter.swift */,
 				F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */,
@@ -803,6 +816,23 @@
 		};
 /* End PBXHeadersBuildPhase section */
 
+/* Begin PBXLegacyTarget section */
+		E8CE3EFE1F213AAA003254AB /* Carthage Update */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */;
+			buildPhases = (
+			);
+			buildToolPath = "${PROJECT_DIR}/Scripts/carthage_script.sh";
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = "Carthage Update";
+			passBuildSettingsInEnvironment = 1;
+			productName = "Carthage Update";
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		5951CB8D1D8BC93600E1866F /* Aztec */ = {
 			isa = PBXNativeTarget;
@@ -816,6 +846,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E8CE3F051F213AD0003254AB /* PBXTargetDependency */,
 			);
 			name = Aztec;
 			productName = Aztec;
@@ -862,6 +893,10 @@
 						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
+					E8CE3EFE1F213AAA003254AB = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 5951CB881D8BC93600E1866F /* Build configuration list for PBXProject "Aztec" */;
@@ -878,6 +913,7 @@
 			targets = (
 				5951CB8D1D8BC93600E1866F /* Aztec */,
 				5951CB961D8BC93600E1866F /* AztecTests */,
+				E8CE3EFE1F213AAA003254AB /* Carthage Update */,
 			);
 		};
 /* End PBXProject section */
@@ -959,6 +995,7 @@
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
+				B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
 				F1DE83D51EF20493009269E6 /* UIColor+Parsers.swift in Sources */,
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
@@ -998,6 +1035,7 @@
 				B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */,
 				B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
+				B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
 				F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */,
 			);
@@ -1047,6 +1085,11 @@
 			isa = PBXTargetDependency;
 			target = 5951CB8D1D8BC93600E1866F /* Aztec */;
 			targetProxy = 5951CB991D8BC93600E1866F /* PBXContainerItemProxy */;
+		};
+		E8CE3F051F213AD0003254AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E8CE3EFE1F213AAA003254AB /* Carthage Update */;
+			targetProxy = E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1255,6 +1298,53 @@
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
+		};
+		E8CE3EFF1F213AAA003254AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E8CE3F001F213AAA003254AB /* Release-Alpha */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Release-Alpha";
+		};
+		E8CE3F011F213AAA003254AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		E8CE3F021F213AAA003254AB /* Profiling */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profiling;
 		};
 		F111A1101DA7E8B600294FD3 /* Profiling */ = {
 			isa = XCBuildConfiguration;
@@ -1495,6 +1585,17 @@
 				F1882B6B1D9E0F8E000B48D6 /* Release-Alpha */,
 				5951CBA71D8BC93600E1866F /* Release */,
 				F111A1121DA7E8B600294FD3 /* Profiling */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E8CE3EFF1F213AAA003254AB /* Debug */,
+				E8CE3F001F213AAA003254AB /* Release-Alpha */,
+				E8CE3F011F213AAA003254AB /* Release */,
+				E8CE3F021F213AAA003254AB /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

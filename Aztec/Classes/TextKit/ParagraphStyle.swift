@@ -10,7 +10,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes as Any, "headerLevel": headerLevel, "htmlParagraph": htmlParagraph as Any, "textList": lists as Any])
+            return Mirror(self, children: ["blockquotes": blockquotes,
+                                           "headerLevel": headerLevel,
+                                           "htmlDiv": htmlDiv,
+                                           "htmlParagraph": htmlParagraph,
+                                           "textList": lists,
+                                           "properties": properties])
         }
     }
 
@@ -21,42 +26,32 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var properties = [ParagraphProperty]()
 
     var blockquotes: [Blockquote] {
-        return properties.flatMap { (property) -> Blockquote? in
-            if let blockquote = property as? Blockquote {
-                return blockquote
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? Blockquote
+        }
+    }
+
+    var htmlDiv: [HTMLDiv] {
+        return properties.flatMap { property in
+            return property as? HTMLDiv
         }
     }
 
     var htmlParagraph: [HTMLParagraph] {
-        return properties.flatMap { (property) -> HTMLParagraph? in
-            if let paragraph = property as? HTMLParagraph {
-                return paragraph
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? HTMLParagraph
         }
     }
 
     var lists : [TextList] {
-        return properties.flatMap { (property) -> TextList? in
-            if let textList = property as? TextList {
-                return textList
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? TextList
         }
     }
 
     var headers: [Header] {
-        return properties.flatMap { (property) -> Header? in
-            if let header = property as? Header {
-                return header
-            } else {
-                return nil
-            }
+        return properties.flatMap { property in
+            return property as? Header
         }
     }
 
@@ -70,12 +65,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     var htmlPre: HTMLPre? {
-        let htmlPres = properties.flatMap { (property) -> HTMLPre? in
-            if let htmlPre = property as? HTMLPre {
-                return htmlPre
-            } else {
-                return nil
-            }
+        let htmlPres = properties.flatMap { property in
+            return property as? HTMLPre
         }
         return htmlPres.first
     }
@@ -292,7 +283,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description + " Blockquotes: \(String(describing:blockquotes)),\n HeaderLevel: \(headerLevel),\n HTMLParagraph: \(String(describing: htmlParagraph)),\n TextLists: \(lists)"
+        return super.description +
+            " Blockquotes: \(String(describing:blockquotes)),\n" +
+            " HeaderLevel: \(headerLevel),\n" +
+            " HTMLDiv: \(String(describing: htmlDiv)),\n" +
+            " HTMLParagraph: \(String(describing: htmlParagraph)),\n" +
+            " TextLists: \(lists)"
     }
 }
 

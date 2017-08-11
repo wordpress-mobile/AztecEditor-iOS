@@ -449,7 +449,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML(prettyPrint: Bool = false) -> String {
+    open func getHTML(prettyPrint: Bool = true) -> String {
         return storage.getHTML(prettyPrint: prettyPrint)
     }
 
@@ -982,9 +982,8 @@ open class TextView: UITextView {
     ///
     @discardableResult
     open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
-        let attachment = ImageAttachment(identifier: identifier)
+        let attachment = ImageAttachment(identifier: identifier, url: url)
         attachment.delegate = storage
-        attachment.url = url
         attachment.image = placeHolderImage
         replace(at: range, with: attachment)
         return attachment
@@ -1072,7 +1071,7 @@ open class TextView: UITextView {
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
-        let mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        let mediaBounds = mediaAttachment.mediaBounds(for: bounds)
 
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
@@ -1114,7 +1113,7 @@ open class TextView: UITextView {
         if let attachment = attachmentAtPoint(point) as? MediaAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
+            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2 * attachment.appearance.imageMargin)) {
                 return true
             }
         }

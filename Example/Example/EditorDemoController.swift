@@ -170,10 +170,10 @@ class EditorDemoController: UIViewController {
 
         setHTML(html)
 
-        MediaAttachment.appearance.progressColor = UIColor.blue
-        MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.appearance.progressHeight = 2.0
-        MediaAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -996,18 +996,21 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, _, error) in
-            DispatchQueue.main.async(execute: {
-                    guard error == nil,
-                        let data = data,
-                        let image = UIImage(data: data, scale: UIScreen.main.scale)
-                    else {
-                        failure()
-                        return
-                    }
-                    success(image)
-            })
-        }) 
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+            DispatchQueue.main.async {
+                guard self != nil else {
+                    return
+                }
+
+                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
+                    failure()
+                    return
+                }
+
+                success(image)
+            }
+        }
+
         task.resume()
     }
 
@@ -1332,7 +1335,8 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.url = url
+
+                updated.updateURL(url)
             }
         }
 

@@ -34,7 +34,7 @@ class Attribute: NSObject, CustomReflectable {
     // MARK - Hashable
 
     override var hashValue: Int {
-        return name.hashValue ^ value.hashValue()
+        return name.hashValue ^ value.hashValue
     }
 
     // MARK: - NSCoding
@@ -95,7 +95,7 @@ extension Attribute {
 
     /// Allowed attribute values
     ///
-    enum Value: Equatable {
+    enum Value: Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSProperty])
@@ -128,16 +128,19 @@ extension Attribute {
 
         // MARK: - Hashable
 
-        func hashValue() -> Int {
+        var hashValue: Int {
             switch(self) {
             case .none:
                 return 0
             case .string(let string):
                 return string.hashValue
             case .inlineCss(let cssProperties):
-                return cssProperties.reduce(0, { (previousHash, property) -> Int in
-                    return previousHash ^ property.hashValue
-                })
+                var hash = 0
+                for property in cssProperties {
+                    hash ^= property.hashValue
+                }
+
+                return hash
             }
         }
 
