@@ -27,7 +27,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Attributes accessible by the user, for general purposes.
     ///
-    public var extraAttributes = [String: String]()
+    open var extraAttributes = [String: String]()
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
@@ -80,14 +80,6 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
-    /// Clears all overlay information that is applied to the attachment
-    ///
-    open func clearAllOverlays() {
-        progress = nil
-        message = nil
-        overlayImage = nil
-    }
-
     /// Image to be displayed: Contains the actual Asset + the overlays (if any), embedded
     ///
     internal var glyphImage: UIImage?
@@ -136,6 +128,17 @@ open class MediaAttachment: NSTextAttachment {
         url = nil
 
         super.init(data: contentData, ofType: uti)
+    }
+
+
+    // MARK: - Open Helpers
+
+    /// Clears all overlay information that is applied to the attachment
+    ///
+    open func clearAllOverlays() {
+        progress = nil
+        message = nil
+        overlayImage = nil
     }
 
 
