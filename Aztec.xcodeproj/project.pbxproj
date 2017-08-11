@@ -150,6 +150,13 @@
 			remoteGlobalIDString = 5951CB8D1D8BC93600E1866F;
 			remoteInfo = Aztec;
 		};
+		E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5951CB851D8BC93600E1866F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E8CE3EFE1F213AAA003254AB;
+			remoteInfo = "Carthage Update";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -809,6 +816,23 @@
 		};
 /* End PBXHeadersBuildPhase section */
 
+/* Begin PBXLegacyTarget section */
+		E8CE3EFE1F213AAA003254AB /* Carthage Update */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */;
+			buildPhases = (
+			);
+			buildToolPath = "${PROJECT_DIR}/Scripts/carthage_script.sh";
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = "Carthage Update";
+			passBuildSettingsInEnvironment = 1;
+			productName = "Carthage Update";
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		5951CB8D1D8BC93600E1866F /* Aztec */ = {
 			isa = PBXNativeTarget;
@@ -822,6 +846,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E8CE3F051F213AD0003254AB /* PBXTargetDependency */,
 			);
 			name = Aztec;
 			productName = Aztec;
@@ -868,6 +893,10 @@
 						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
+					E8CE3EFE1F213AAA003254AB = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 5951CB881D8BC93600E1866F /* Build configuration list for PBXProject "Aztec" */;
@@ -884,6 +913,7 @@
 			targets = (
 				5951CB8D1D8BC93600E1866F /* Aztec */,
 				5951CB961D8BC93600E1866F /* AztecTests */,
+				E8CE3EFE1F213AAA003254AB /* Carthage Update */,
 			);
 		};
 /* End PBXProject section */
@@ -1055,6 +1085,11 @@
 			isa = PBXTargetDependency;
 			target = 5951CB8D1D8BC93600E1866F /* Aztec */;
 			targetProxy = 5951CB991D8BC93600E1866F /* PBXContainerItemProxy */;
+		};
+		E8CE3F051F213AD0003254AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E8CE3EFE1F213AAA003254AB /* Carthage Update */;
+			targetProxy = E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1263,6 +1298,53 @@
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
+		};
+		E8CE3EFF1F213AAA003254AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E8CE3F001F213AAA003254AB /* Release-Alpha */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Release-Alpha";
+		};
+		E8CE3F011F213AAA003254AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		E8CE3F021F213AAA003254AB /* Profiling */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profiling;
 		};
 		F111A1101DA7E8B600294FD3 /* Profiling */ = {
 			isa = XCBuildConfiguration;
@@ -1503,6 +1585,17 @@
 				F1882B6B1D9E0F8E000B48D6 /* Release-Alpha */,
 				5951CBA71D8BC93600E1866F /* Release */,
 				F111A1121DA7E8B600294FD3 /* Profiling */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E8CE3EFF1F213AAA003254AB /* Debug */,
+				E8CE3F001F213AAA003254AB /* Release-Alpha */,
+				E8CE3F011F213AAA003254AB /* Release */,
+				E8CE3F021F213AAA003254AB /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
