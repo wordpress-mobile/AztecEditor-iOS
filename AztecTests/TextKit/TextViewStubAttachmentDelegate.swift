@@ -4,7 +4,7 @@ import UIKit
 
 class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onCompletion completion: @escaping (UIImage?) -> Void) {
         // NO OP!
     }
 
