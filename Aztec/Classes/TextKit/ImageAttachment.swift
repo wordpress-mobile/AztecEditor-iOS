@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+
 /// Custom text attachment.
 ///
 open class ImageAttachment: MediaAttachment {
@@ -65,9 +66,6 @@ open class ImageAttachment: MediaAttachment {
 
     // MARK: - NSCoder Support
 
-
-    // MARK: - Overriden Methods
-
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
@@ -78,6 +76,7 @@ open class ImageAttachment: MediaAttachment {
         case alignment
         case size
     }
+
 
     // MARK: - Origin calculation
 

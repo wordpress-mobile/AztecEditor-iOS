@@ -28,7 +28,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Attributes accessible by the user, for general purposes.
     ///
-    public var extraAttributes = [String: String]()
+    open var extraAttributes = [String: String]()
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
@@ -36,15 +36,15 @@ open class MediaAttachment: NSTextAttachment {
     
     /// Attachment URL
     ///
-    public var url: URL? {
-        didSet {
-            retryCount = 0
-        }
-    }
+    fileprivate(set) public var url: URL?
 
-    /// URL of the last successfully acquired asset
+    /// Indicates if a new Asset should be retrieved, or we're current!.
     ///
-    fileprivate(set) var lastRequestedURL: URL?
+    fileprivate var needsNewAsset = true
+
+    /// Indicates if there's a download OP in progress, or not.
+    ///
+    fileprivate var isFetchingImage = false
 
     /// Number of times we've tried to download the remote asset
     ///
@@ -81,14 +81,6 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
-    /// Clears all overlay information that is applied to the attachment
-    ///
-    open func clearAllOverlays() {
-        progress = nil
-        message = nil
-        overlayImage = nil
-    }
-
     /// Image to be displayed: Contains the actual Asset + the overlays (if any), embedded
     ///
     internal var glyphImage: UIImage?
@@ -96,10 +88,6 @@ open class MediaAttachment: NSTextAttachment {
     /// Attachment's Delegate
     ///
     weak var delegate: MediaAttachmentDelegate?
-
-    /// Indicates if there's a download OP in progress, or not.
-    ///
-    fileprivate var isFetchingImage = false
 
 
     // MARK: - Initializers
@@ -120,23 +108,41 @@ open class MediaAttachment: NSTextAttachment {
     /// Required Initializer
     ///
     required public init?(coder aDecoder: NSCoder) {
-        identifier = ""
+        identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? String()
+        url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
 
         super.init(coder: aDecoder)
-
-        if let decodedIndentifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String {
-            identifier = decodedIndentifier
-        }
-        if aDecoder.containsValue(forKey: EncodeKeys.url.rawValue) {
-            url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
-        }
     }
 
+    /// Required Initializer
+    ///
     override required public init(data contentData: Data?, ofType uti: String?) {
         identifier = ""
-        url = nil
 
         super.init(data: contentData, ofType: uti)
+    }
+
+
+    // MARK: - Open Helpers
+
+    /// Clears all overlay information that is applied to the attachment
+    ///
+    open func clearAllOverlays() {
+        progress = nil
+        message = nil
+        overlayImage = nil
+    }
+
+    /// Updates the Media URL
+    ///
+    open func updateURL(_ newURL: URL?, refreshAsset: Bool = true) {
+        guard newURL != url else {
+            return
+        }
+
+        url = newURL
+        retryCount = 0
+        needsNewAsset = refreshAsset
     }
 
 
@@ -181,7 +187,7 @@ open class MediaAttachment: NSTextAttachment {
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
-        updateImage(in: textContainer)
+        ensureImageIsUpToDate(in: textContainer)
 
         guard let image = image else {
             return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
@@ -285,7 +291,7 @@ open class MediaAttachment: NSTextAttachment {
     ///
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         
-        updateImage(in: textContainer)
+        ensureImageIsUpToDate(in: textContainer)
         
         if image == nil {
             return .zero
@@ -305,22 +311,31 @@ open class MediaAttachment: NSTextAttachment {
 }
 
 
-// MARK: - Private Methods
+// MARK: - Image Loading Methods
 //
 private extension MediaAttachment {
 
-    func updateImage(in textContainer: NSTextContainer? = nil) {
-
-        guard let delegate = delegate else {
-            assertionFailure("This class doesn't really support not having an updater set.")
+    /// Whenever the asset is not up to date, this helper will retrieve the latest (remote) asset.
+    ///
+    func ensureImageIsUpToDate(in textContainer: NSTextContainer?) {
+        guard mustUpdateImage else {
             return
         }
 
-        guard !isFetchingImage && url != lastRequestedURL && retryCount < Constants.maxRetryCount else {
-            return
-        }
+        updateImage(in: textContainer)
+    }
 
-        self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)
+    /// Indicates if the asset must be updated, or not.
+    ///
+    private var mustUpdateImage: Bool {
+        return needsNewAsset && !isFetchingImage && retryCount < Constants.maxRetryCount
+    }
+
+    /// Requests a new asset (asynchronously), and on completion, triggers a relayout cycle.
+    ///
+    private func updateImage(in textContainer: NSTextContainer?) {
+
+        self.image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
 
         guard let url = url else {
             return
@@ -329,27 +344,25 @@ private extension MediaAttachment {
         isFetchingImage = true
         retryCount += 1
 
-        delegate.mediaAttachment(self, imageFor: url, onSuccess: { [weak self] image in
-                guard let strongSelf = self else {
-                    return
-                }
-                strongSelf.lastRequestedURL = url
-                strongSelf.isFetchingImage = false
-                strongSelf.image = image
-                strongSelf.invalidateLayout(in: textContainer)
-            }, onFailure: { [weak self] _ in
-                
-                guard let strongSelf = self else {
-                    return
-                }
-                
-                strongSelf.isFetchingImage = false
-                strongSelf.lastRequestedURL = nil
-                strongSelf.invalidateLayout(in: textContainer)
-            })
+        delegate!.mediaAttachment(self, imageFor: url, onSuccess: { [weak self] newImage in
+            guard let `self` = self else {
+                return
+            }
+
+            self.image = newImage
+            self.needsNewAsset = false
+            self.isFetchingImage = false
+            self.invalidateLayout(in: textContainer)
+
+        }, onFailure: { [weak self] _ in
+
+            self?.isFetchingImage = false
+        })
     }
-    
-    func invalidateLayout(in textContainer: NSTextContainer?) {
+
+    /// Invalidates the Layout in the specified TextContainer.
+    ///
+    private func invalidateLayout(in textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayout(for: self)
     }
 }
@@ -364,7 +377,7 @@ extension MediaAttachment: NSCopying {
         clone.image = image
         clone.extraAttributes = extraAttributes
         clone.url = url
-        clone.lastRequestedURL = lastRequestedURL
+        clone.needsNewAsset = needsNewAsset
         clone.appearance = appearance
         clone.delegate = delegate
         return clone

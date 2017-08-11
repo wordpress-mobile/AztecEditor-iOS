@@ -173,7 +173,9 @@ open class TextStorage: NSTextStorage {
                 let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
-                replacementAttachment.url = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+
+                let imageURL = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+                replacementAttachment.updateURL(imageURL)
 
                 finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
             }

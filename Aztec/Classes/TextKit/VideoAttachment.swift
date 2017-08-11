@@ -27,7 +27,7 @@ open class VideoAttachment: MediaAttachment {
         }
 
         set {
-            self.url = newValue
+            super.updateURL(newValue)
         }
     }    
     
