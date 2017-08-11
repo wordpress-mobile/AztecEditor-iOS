@@ -36,14 +36,23 @@ open class MediaAttachment: NSTextAttachment {
     /// Attachment URL
     ///
     public var url: URL? {
-        didSet {
+        willSet {
+            guard newValue != url else {
+                return
+            }
+
             retryCount = 0
+            needsNewAsset = true
         }
     }
 
-    /// URL of the last successfully acquired asset
+    /// Indicates if a new Asset should be retrieved, or we're current!.
     ///
-    fileprivate(set) var lastRequestedURL: URL?
+    fileprivate var needsNewAsset = false
+
+    /// Indicates if there's a download OP in progress, or not.
+    ///
+    fileprivate var isFetchingImage = false
 
     /// Number of times we've tried to download the remote asset
     ///
@@ -87,10 +96,6 @@ open class MediaAttachment: NSTextAttachment {
     /// Attachment's Delegate
     ///
     weak var delegate: MediaAttachmentDelegate?
-
-    /// Indicates if there's a download OP in progress, or not.
-    ///
-    fileprivate var isFetchingImage = false
 
 
     // MARK: - Initializers
@@ -183,7 +188,7 @@ open class MediaAttachment: NSTextAttachment {
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
         
-        updateImage(in: textContainer)
+        ensureImageIsUpToDate(in: textContainer)
 
         guard let image = image else {
             return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
@@ -287,7 +292,7 @@ open class MediaAttachment: NSTextAttachment {
     ///
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
         
-        updateImage(in: textContainer)
+        ensureImageIsUpToDate(in: textContainer)
         
         if image == nil {
             return .zero
@@ -307,22 +312,31 @@ open class MediaAttachment: NSTextAttachment {
 }
 
 
-// MARK: - Private Methods
+// MARK: - Image Loading Methods
 //
 private extension MediaAttachment {
 
-    func updateImage(in textContainer: NSTextContainer? = nil) {
-
-        guard let delegate = delegate else {
-            assertionFailure("This class doesn't really support not having an updater set.")
+    /// Whenever the asset is not up to date, this helper will retrieve the latest (remote) asset.
+    ///
+    func ensureImageIsUpToDate(in textContainer: NSTextContainer?) {
+        guard mustUpdateImage else {
             return
         }
 
-        guard !isFetchingImage && url != lastRequestedURL && retryCount < Constants.maxRetryCount else {
-            return
-        }
+        updateImage(in: textContainer)
+    }
 
-        self.image = delegate.mediaAttachmentPlaceholderImageFor(attachment: self)
+    /// Indicates if the asset must be updated, or not.
+    ///
+    private var mustUpdateImage: Bool {
+        return needsNewAsset && !isFetchingImage && retryCount < Constants.maxRetryCount
+    }
+
+    /// Requests a new asset (asynchronously), and on completion, triggers a relayout cycle.
+    ///
+    private func updateImage(in textContainer: NSTextContainer?) {
+
+        self.image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
 
         guard let url = url else {
             return
@@ -331,27 +345,21 @@ private extension MediaAttachment {
         isFetchingImage = true
         retryCount += 1
 
-        delegate.mediaAttachment(self, imageFor: url, onSuccess: { [weak self] image in
-                guard let strongSelf = self else {
-                    return
-                }
-                strongSelf.lastRequestedURL = url
-                strongSelf.isFetchingImage = false
-                strongSelf.image = image
-                strongSelf.invalidateLayout(in: textContainer)
-            }, onFailure: { [weak self] _ in
-                
-                guard let strongSelf = self else {
-                    return
-                }
-                
-                strongSelf.isFetchingImage = false
-                strongSelf.lastRequestedURL = nil
-                strongSelf.invalidateLayout(in: textContainer)
-            })
+        delegate!.mediaAttachment(self, imageFor: url) { [weak self] newImage in
+            guard let `self` = self else {
+                return
+            }
+
+            self.image = newImage
+            self.needsNewAsset = newImage != nil
+            self.isFetchingImage = false
+            self.invalidateLayout(in: textContainer)
+        }
     }
-    
-    func invalidateLayout(in textContainer: NSTextContainer?) {
+
+    /// Invalidates the Layout in the specified TextContainer.
+    ///
+    private func invalidateLayout(in textContainer: NSTextContainer?) {
         textContainer?.layoutManager?.invalidateLayout(for: self)
     }
 }
@@ -366,7 +374,7 @@ extension MediaAttachment: NSCopying {
         clone.image = image
         clone.extraAttributes = extraAttributes
         clone.url = url
-        clone.lastRequestedURL = lastRequestedURL
+        clone.needsNewAsset = needsNewAsset
         clone.appearance = appearance
         clone.delegate = delegate
         return clone
