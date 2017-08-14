@@ -796,14 +796,15 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
 
         linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
-        showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
+        let allowTextEdit = !richTextView.attributedText.containsAttachments(in: linkRange)
+        showLinkDialog(forURL: linkURL, text: linkTitle, range: linkRange, allowTextEdit: allowTextEdit)
     }
 
     func insertMoreAttachment() {
         richTextView.replace(richTextView.selectedRange, withComment: Constants.moreAttachmentText)
     }
 
-    func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
+    func showLinkDialog(forURL url: URL?, text: String?, range: NSRange, allowTextEdit: Bool = true) {
 
         let isInsertingNewLink = (url == nil)
         var urlToUse = url
@@ -834,18 +835,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             for:UIControlEvents.editingChanged)
             })
 
-        alertController.addTextField(configurationHandler: { textField in
-            textField.clearButtonMode = UITextFieldViewMode.always
-            textField.placeholder = NSLocalizedString("Link Name", comment:"Link name field placeholder")
-            textField.isSecureTextEntry = false
-            textField.autocapitalizationType = UITextAutocapitalizationType.sentences
-            textField.autocorrectionType = UITextAutocorrectionType.default
-            textField.spellCheckingType = UITextSpellCheckingType.default
+        if allowTextEdit {
+            alertController.addTextField(configurationHandler: { textField in
+                textField.clearButtonMode = UITextFieldViewMode.always
+                textField.placeholder = NSLocalizedString("Link Text", comment:"Link text field placeholder")
+                textField.isSecureTextEntry = false
+                textField.autocapitalizationType = UITextAutocapitalizationType.sentences
+                textField.autocorrectionType = UITextAutocorrectionType.default
+                textField.spellCheckingType = UITextSpellCheckingType.default
 
-            textField.text = title;
+                textField.text = text;
 
-            })
-
+                })
+        }
         let insertAction = UIAlertAction(title:insertButtonTitle,
                                          style:UIAlertActionStyle.default,
                                          handler:{ [weak self]action in
@@ -860,12 +862,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
                                             guard
                                                 let urlString = linkURLString,
-                                                let url = URL(string:urlString),
-                                                let title = linkTitle
+                                                let url = URL(string:urlString)
                                                 else {
                                                     return
                                             }
-                                            self?.richTextView.setLink(url, title:title, inRange: range)
+                                            if allowTextEdit {
+                                                if let title = linkTitle {
+                                                    self?.richTextView.setLink(url, title:title, inRange: range)
+                                                }
+                                            } else {
+                                                self?.richTextView.setLink(url, inRange: range)
+                                            }
                                             })
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
