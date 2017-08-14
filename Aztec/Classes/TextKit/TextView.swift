@@ -217,7 +217,7 @@ open class TextView: UITextView {
         return AttachmentGestureRecognizerDelegate(textView: self)
     }()
 
-    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = {
+    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = { [unowned self] in
         let attachmentGestureRecognizer = UITapGestureRecognizer(target: self.recognizerDelegate, action: #selector(AttachmentGestureRecognizerDelegate.richTextViewWasPressed))
         attachmentGestureRecognizer.cancelsTouchesInView = true
         attachmentGestureRecognizer.delaysTouchesBegan = true
