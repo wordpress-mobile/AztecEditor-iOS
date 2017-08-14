@@ -943,6 +943,20 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
+    /// Adds a link to the designated url on the specified range.
+    ///
+    /// - Parameters:
+    ///     - url: the NSURL to link to.
+    ///     - range: The NSRange to edit.
+    ///
+    open func setLink(_ url: URL, inRange range: NSRange) {
+        let formatter = LinkFormatter()
+        formatter.attributeValue = url
+        toggle(formatter: formatter, atRange: range)
+    }
+
+
+
 
     /// Removes the link, if any, at the specified range
     ///
