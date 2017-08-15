@@ -78,8 +78,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
     _selectionFrame.layer.borderWidth = 3.0;
 
+    CGFloat labelMargin = 5.0;
     CGFloat labelSize = 21;
-    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelSize, labelSize)];
+    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
     _positionLabel.backgroundColor = [UIColor lightGrayColor];
     _positionLabel.layer.borderWidth = 1.0;
     _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -89,13 +90,12 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _positionLabel.textAlignment = NSTextAlignmentCenter;
     _positionLabel.font = [UIFont systemFontOfSize:13];
 
-    [_selectionFrame addSubview:_positionLabel];
+    [self.contentView addSubview:_positionLabel];
 
     self.selectedBackgroundView = _selectionFrame;
 
     CGFloat labelTextSize = 12.0;
     CGFloat labelHeight = 30.0;
-    CGFloat labelMargin = 5.0;
     CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
     CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
 
