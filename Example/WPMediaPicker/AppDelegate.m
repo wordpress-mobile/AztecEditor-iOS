@@ -33,6 +33,9 @@
     [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
     //Configure color for activity indicator while loading media collection
     [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setColor:[UIColor grayColor]];
+
+    //Configure background color for media cell while loading image.
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setBackgroundColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
     return YES;
 }
 							
