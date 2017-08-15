@@ -79,16 +79,15 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _selectionFrame.layer.borderWidth = 3.0;
 
     CGFloat labelMargin = 5.0;
-    CGFloat labelSize = 21;
+    CGFloat labelSize = 20;
     _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
-    _positionLabel.backgroundColor = [UIColor lightGrayColor];
     _positionLabel.layer.borderWidth = 1.0;
-    _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
     _positionLabel.layer.cornerRadius = 10;
     _positionLabel.clipsToBounds = YES;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
     _positionLabel.font = [UIFont systemFontOfSize:13];
+    [self updatePositionLabelToSelectedState:NO];
 
     [self.contentView addSubview:_positionLabel];
 
@@ -295,8 +294,11 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)setPosition:(NSInteger)position
 {
     _position = position;
-    self.positionLabel.hidden = position == NSNotFound;
-    self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    if (position != NSNotFound) {
+        self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    } else {
+        self.positionLabel.text = @"";
+    }
 }
 
 - (void)setCaption:(NSString *)caption
@@ -317,22 +319,28 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)setSelected:(BOOL)selected
 {
     [super setSelected:selected];
-    if (self.isSelected) {
-    } else {
-        self.positionLabel.hidden = YES;
-    }
+    [self updatePositionLabelToSelectedState:self.isSelected];
 }
 
 - (void)tintColorDidChange
 {
     [super tintColorDidChange];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _positionLabel.backgroundColor = [self tintColor];
-    if (self.isSelected) {
 
+    [self updatePositionLabelToSelectedState:self.isSelected];
+}
+
+- (void)updatePositionLabelToSelectedState:(BOOL)selected
+{
+    if (selected) {
+        _positionLabel.backgroundColor = [self tintColor];
+        _positionLabel.layer.borderColor = [self tintColor].CGColor;
     } else {
-        
+        _positionLabel.text = @"";
+        _positionLabel.backgroundColor = [UIColor lightGrayColor];
+        _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
     }
+
 }
 
 @end
