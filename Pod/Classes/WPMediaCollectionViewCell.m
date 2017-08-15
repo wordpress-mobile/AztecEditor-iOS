@@ -76,15 +76,18 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _selectionFrame.layer.borderWidth = 3;
+    _selectionFrame.layer.borderWidth = 3.0;
 
-    CGFloat counterTextSize = [UIFont smallSystemFontSize];
-    CGFloat labelSize = (counterTextSize * 2) + 2;
+    CGFloat labelSize = 21;
     _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelSize, labelSize)];
-    _positionLabel.backgroundColor = [self tintColor];
+    _positionLabel.backgroundColor = [UIColor lightGrayColor];
+    _positionLabel.layer.borderWidth = 1.0;
+    _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+    _positionLabel.layer.cornerRadius = 10;
+    _positionLabel.clipsToBounds = YES;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
-    _positionLabel.font = [UIFont systemFontOfSize:counterTextSize];
+    _positionLabel.font = [UIFont systemFontOfSize:13];
 
     [_selectionFrame addSubview:_positionLabel];
 
