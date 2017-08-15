@@ -78,11 +78,12 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
     _selectionFrame.layer.borderWidth = 3.0;
 
-    CGFloat labelMargin = 5.0;
+    CGFloat labelMargin = 10.0;
     CGFloat labelSize = 20;
     _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
+    _positionLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     _positionLabel.layer.borderWidth = 1.0;
-    _positionLabel.layer.cornerRadius = 10;
+    _positionLabel.layer.cornerRadius = labelSize / 2;
     _positionLabel.clipsToBounds = YES;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
@@ -335,9 +336,12 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     if (selected) {
         _positionLabel.backgroundColor = [self tintColor];
         _positionLabel.layer.borderColor = [self tintColor].CGColor;
+        _positionLabel.layer.shadowColor = [UIColor colorWithWhite:0 alpha:1].CGColor;
+        _positionLabel.layer.shadowRadius = 10.0;
+        _positionLabel.layer.shadowOffset = CGSizeMake(10, 10);
     } else {
         _positionLabel.text = @"";
-        _positionLabel.backgroundColor = [UIColor lightGrayColor];
+        _positionLabel.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7];
         _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
     }
 
