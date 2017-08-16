@@ -217,7 +217,7 @@ open class TextView: UITextView {
         return AttachmentGestureRecognizerDelegate(textView: self)
     }()
 
-    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = {
+    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = { [unowned self] in
         let attachmentGestureRecognizer = UITapGestureRecognizer(target: self.recognizerDelegate, action: #selector(AttachmentGestureRecognizerDelegate.richTextViewWasPressed))
         attachmentGestureRecognizer.cancelsTouchesInView = true
         attachmentGestureRecognizer.delaysTouchesBegan = true
@@ -1518,7 +1518,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 //
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate {
 
-    let textView: TextView
+    private weak var textView: TextView?
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
     public init(textView: TextView) {
@@ -1530,6 +1530,10 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+
+        guard let textView = self.textView else {
+            return false
+        }
 
         let locationInTextView = gestureRecognizer.location(in: textView)
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
@@ -1543,8 +1547,9 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
-        guard recognizer.state == .recognized else {
-            return
+        guard let textView = self.textView,
+            recognizer.state == .recognized else {
+                return
         }
 
         let locationInTextView = recognizer.location(in: textView)
