@@ -3,6 +3,9 @@ import XCTest
 
 class HTMLToAttributedStringTests: XCTestCase {
 
+    let defaultFontDescriptor = UIFont.systemFont(ofSize: 12).fontDescriptor
+
+
     /// Test the conversion of a single tag at the root level to `NSAttributedString`.
     ///
     /// Example: <bold>Hello</bold>
@@ -12,7 +15,7 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
             let nodeText = "Hello"
             let html = "<\(tagName)>\(nodeText)</\(tagName)>"
@@ -51,7 +54,7 @@ class HTMLToAttributedStringTests: XCTestCase {
         let tagNames = ["bold", "italic", "customTag", "div", "p", "a"]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -100,7 +103,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
             let text = "Hello"
             let html = "<\(tagName.0)><\(tagName.1)>\(text)</\(tagName.1)></\(tagName.0)>"
@@ -153,7 +156,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -227,7 +230,7 @@ class HTMLToAttributedStringTests: XCTestCase {
                         ("a", "bold", "italic")]
 
         for (index, tagName) in tagNames.enumerated() {
-            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: UIFont.systemFont(ofSize: 12).fontDescriptor)
+            let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
             let firstText = "Hello "
             let secondText = "world"
@@ -292,5 +295,16 @@ class HTMLToAttributedStringTests: XCTestCase {
             XCTAssertEqual(thirdTextNode.parent, firstNode)
             XCTAssertEqual(thirdTextNode.text(), thirdText)
         }
+    }
+
+    /// Test that text contained within script tags, parsed by libxml as CData, does not trigger a crash.
+    ///
+    /// Example: <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    ///
+    func testScriptTagWithCDataDoesNotTriggerACrash() {
+        let parser = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
+        let html = "<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>"
+
+        XCTAssertNoThrow(parser.convert(html))
     }
 }

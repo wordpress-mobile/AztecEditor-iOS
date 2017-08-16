@@ -16,6 +16,8 @@ class InNodeConverter: SafeConverter {
         switch rawNode.type {
         case XML_TEXT_NODE:
             node = createTextNode(rawNode)
+        case XML_CDATA_SECTION_NODE:
+            node = createTextNode(rawNode)
         case XML_COMMENT_NODE:
             node = createCommentNode(rawNode)
         default:
