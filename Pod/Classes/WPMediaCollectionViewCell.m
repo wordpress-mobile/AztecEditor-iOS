@@ -76,7 +76,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _selectionFrame.layer.borderWidth = 3.0;
+    _selectionFrame.layer.borderWidth = 2.0;
     self.selectedBackgroundView = _selectionFrame;
 
     CGFloat labelMargin = 10.0;
