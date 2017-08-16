@@ -8,4 +8,6 @@
 
 @property (nonatomic, strong) UIColor *placeholderTintColor UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic, strong) UIColor *positionLabelUnselectedTintColor UI_APPEARANCE_SELECTOR;
+
 @end

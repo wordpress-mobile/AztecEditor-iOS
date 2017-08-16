@@ -55,7 +55,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setSelected:NO];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.backgroundColor = self.backgroundColor;
-
     self.placeholderStackView.hidden = YES;
     self.documentExtensionLabel.text = nil;
 }
@@ -78,9 +77,12 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
     _selectionFrame.layer.borderWidth = 3.0;
+    self.selectedBackgroundView = _selectionFrame;
 
     CGFloat labelMargin = 10.0;
     CGFloat labelSize = 20;
+
+    _positionLabelUnselectedTintColor = [UIColor colorWithRed:198.0/255.0 green:198.0/255.0 blue:198.0/255.0 alpha:0.7];
     _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
     _positionLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
     _positionLabel.layer.borderWidth = 1.0;
@@ -99,12 +101,10 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _positionLabelShadowView.layer.shadowOpacity = 0.5;
     _positionLabelShadowView.layer.shadowOffset = CGSizeMake(0, 0);
 
-    [self updatePositionLabelToSelectedState:NO];
-
     [self.contentView addSubview:_positionLabelShadowView];
     [self.contentView addSubview:_positionLabel];
 
-    self.selectedBackgroundView = _selectionFrame;
+    [self updatePositionLabelToSelectedState:NO];
 
     CGFloat labelTextSize = 12.0;
     CGFloat labelHeight = 30.0;
@@ -354,7 +354,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
         _positionLabelShadowView.hidden = NO;
     } else {
         _positionLabel.text = @"";
-        _positionLabel.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7];
+        _positionLabel.backgroundColor = _positionLabelUnselectedTintColor;
         _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
         _positionLabelShadowView.hidden = YES;
     }
