@@ -92,7 +92,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     CGFloat labelTextSize = 12.0;
     CGFloat labelHeight = 30.0;
-    CGFloat labelMargin = 5.0;
+    CGFloat labelMargin = 10.0;
     CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
     CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
 
@@ -298,7 +298,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setCaption:(NSString *)caption
 {
-    BOOL hide = !(caption.length > 0);
+    BOOL hide = caption.length <= 0;
     self.captionLabel.hidden = hide;
     self.gradientView.hidden = hide;
     self.captionLabel.text = caption;
