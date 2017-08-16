@@ -8,6 +8,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 @interface WPMediaCollectionViewCell ()
 
 @property (nonatomic, strong) UILabel *positionLabel;
+@property (nonatomic, strong) UIView *positionLabelShadowView;
 @property (nonatomic, strong) UIView *selectionFrame;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UILabel *captionLabel;
@@ -88,8 +89,19 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
     _positionLabel.font = [UIFont systemFontOfSize:13];
+
+    _positionLabelShadowView = [[UIView alloc] initWithFrame:_positionLabel.frame];
+    _positionLabelShadowView.autoresizingMask = _positionLabel.autoresizingMask;
+    _positionLabelShadowView.backgroundColor = [UIColor clearColor];
+    _positionLabelShadowView.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:_positionLabelShadowView.bounds cornerRadius:labelSize / 2].CGPath;
+    _positionLabelShadowView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _positionLabelShadowView.layer.shadowRadius = 5;
+    _positionLabelShadowView.layer.shadowOpacity = 0.5;
+    _positionLabelShadowView.layer.shadowOffset = CGSizeMake(0, 0);
+
     [self updatePositionLabelToSelectedState:NO];
 
+    [self.contentView addSubview:_positionLabelShadowView];
     [self.contentView addSubview:_positionLabel];
 
     self.selectedBackgroundView = _selectionFrame;
@@ -339,10 +351,12 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     if (selected) {
         _positionLabel.backgroundColor = [self tintColor];
         _positionLabel.layer.borderColor = [self tintColor].CGColor;
+        _positionLabelShadowView.hidden = NO;
     } else {
         _positionLabel.text = @"";
         _positionLabel.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7];
         _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+        _positionLabelShadowView.hidden = YES;
     }
 
 }
