@@ -91,8 +91,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
     _positionLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
-    _positionLabel.adjustsFontSizeToFitWidth = YES;
-    _positionLabel.minimumScaleFactor = 0.5;
 
     _positionLabelShadowView = [[UIView alloc] initWithFrame:_positionLabel.frame];
     _positionLabelShadowView.autoresizingMask = _positionLabel.autoresizingMask;
@@ -310,6 +308,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 {
     _position = position;
     if (position != NSNotFound) {
+        CGFloat fontSize = position < 100 ? 13.0 : 9.0;
+        _positionLabel.font = [UIFont systemFontOfSize:fontSize weight:UIFontWeightMedium];
         self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
     } else {
         self.positionLabel.text = @"";
