@@ -339,9 +339,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     if (selected) {
         _positionLabel.backgroundColor = [self tintColor];
         _positionLabel.layer.borderColor = [self tintColor].CGColor;
-        _positionLabel.layer.shadowColor = [UIColor colorWithWhite:0 alpha:1].CGColor;
-        _positionLabel.layer.shadowRadius = 10.0;
-        _positionLabel.layer.shadowOffset = CGSizeMake(10, 10);
     } else {
         _positionLabel.text = @"";
         _positionLabel.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7];
