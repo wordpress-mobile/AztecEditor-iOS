@@ -95,7 +95,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     self.selectedBackgroundView = _selectionFrame;
 
     CGFloat labelTextSize = 12.0;
-    CGFloat labelHeight = 30.0;    
+    CGFloat labelHeight = 30.0;
     CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
     CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
 
@@ -319,6 +319,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setSelected:(BOOL)selected
 {
+    if (selected == self.isSelected) {
+        return;
+    }
     [super setSelected:selected];
     [self updatePositionLabelToSelectedState:self.isSelected];
 }
