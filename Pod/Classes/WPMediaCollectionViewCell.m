@@ -11,6 +11,7 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 @property (nonatomic, strong) UIView *selectionFrame;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UILabel *captionLabel;
+@property (nonatomic, strong) UIView *gradientView;
 
 @property (nonatomic, strong) UIStackView *placeholderStackView;
 @property (nonatomic, strong) UIImageView *placeholderImageView;
@@ -58,6 +59,11 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     self.documentExtensionLabel.text = nil;
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.gradientView.layer.sublayers.firstObject.frame = self.gradientView.bounds;
+}
+
 - (void)commonInit
 {
     self.isAccessibilityElement = YES;
@@ -84,13 +90,28 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     self.selectedBackgroundView = _selectionFrame;
 
-    _captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.contentView.frame.size.height - counterTextSize, self.contentView.frame.size.width, counterTextSize)];
-    _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+    CGFloat labelTextSize = 12.0;
+    CGFloat labelHeight = 30.0;
+    CGFloat labelMargin = 10.0;
+    CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
+    CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
+
+    _gradientView = [[UIView alloc] initWithFrame:CGRectMake(0, self.contentView.frame.size.height - labelHeight, self.contentView.frame.size.width, labelHeight)];
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = _gradientView.bounds;
+    gradient.colors = @[(__bridge id)topGradientColor, (__bridge id)(bottomGradientColor)];
+    [_gradientView.layer addSublayer:gradient];
+    _gradientView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    _gradientView.hidden = YES;
+    [self.backgroundView addSubview:_gradientView];
+
+    _captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelMargin), self.contentView.frame.size.width - (2*labelMargin), - labelTextSize)];
+    _captionLabel.backgroundColor = [UIColor clearColor];
     _captionLabel.hidden = YES;
     _captionLabel.textColor = [UIColor whiteColor];
     _captionLabel.textAlignment = NSTextAlignmentRight;
-    _captionLabel.font = [UIFont systemFontOfSize:counterTextSize - 2];
-    _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
+    _captionLabel.font = [UIFont boldSystemFontOfSize:labelTextSize];
+    _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     [self.contentView addSubview:_captionLabel];
 
     _placeholderStackView = [UIStackView new];
@@ -277,7 +298,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setCaption:(NSString *)caption
 {
-    self.captionLabel.hidden = !(caption.length > 0);
+    BOOL hide = caption.length <= 0;
+    self.captionLabel.hidden = hide;
+    self.gradientView.hidden = hide;
     self.captionLabel.text = caption;
 }
 
@@ -292,10 +315,8 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 {
     [super setSelected:selected];
     if (self.isSelected) {
-        _captionLabel.backgroundColor = [self tintColor];
     } else {
         self.positionLabel.hidden = YES;
-        _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
     }
 }
 
@@ -305,9 +326,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
     _positionLabel.backgroundColor = [self tintColor];
     if (self.isSelected) {
-        _captionLabel.backgroundColor = [self tintColor];
+
     } else {
-        _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+        
     }
 }
 
