@@ -90,7 +90,9 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     _positionLabel.clipsToBounds = YES;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
-    _positionLabel.font = [UIFont systemFontOfSize:13];
+    _positionLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    _positionLabel.adjustsFontSizeToFitWidth = YES;
+    _positionLabel.minimumScaleFactor = 0.5;
 
     _positionLabelShadowView = [[UIView alloc] initWithFrame:_positionLabel.frame];
     _positionLabelShadowView.autoresizingMask = _positionLabel.autoresizingMask;
