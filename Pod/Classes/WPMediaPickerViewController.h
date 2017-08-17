@@ -168,6 +168,11 @@
 - (void)clearSelectedAssets:(BOOL)animated;
 
 /**
+ * Presents the system image / video capture view controller, presented from `viewControllerToUseToPresent`.
+ */
+- (void)showCapture;
+
+/**
  View controller to use when picker needs to present another controller. By default this is set to self.
  @note If the picker is being used within an input view, it's important to set this value to something besides the picker itself.
  */
