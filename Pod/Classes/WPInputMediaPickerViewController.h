@@ -45,4 +45,9 @@ The delegate for the WPMediaPickerViewController events
  */
 @property (nonatomic, assign) BOOL scrollVertically;
 
+/**
+ * Presents the system image / video capture view controller, presented from `viewControllerToUseToPresent`.
+ */
+- (void)showCapture;
+
 @end
