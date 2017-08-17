@@ -409,7 +409,7 @@ class EditorDemoController: UIViewController {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
 
-        toolbar.selectItemsMatchingIdentifiers(identifiers)
+        toolbar.selectItemsMatchingIdentifiers(identifiers.map({ $0.rawValue }))
     }
 
     override var keyCommands: [UIKeyCommand] {
@@ -492,7 +492,7 @@ extension EditorDemoController : UITextViewDelegate {
             formatBar.enabled = false
 
             // Disable the bar, except for the source code button
-            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode })
+            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode.rawValue })
             htmlButton?.isEnabled = true
         default: break
         }
@@ -550,8 +550,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
     }
 
-    func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem) {
-        switch identifier {
+    func handleActionForIdentifier(_ identifier: String, barItem: FormatBarItem) {
+        guard let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else { return }
+
+        switch formattingIdentifier {
         case .bold:
             toggleBold()
         case .italic:
@@ -930,7 +932,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     // MARK: -
 
     func makeToolbarButton(identifier: FormattingIdentifier) -> FormatBarItem {
-        let button = FormatBarItem(image: identifier.iconImage, identifier: identifier)
+        let button = FormatBarItem(image: identifier.iconImage, identifier: identifier.rawValue)
         button.accessibilityLabel = identifier.accessibilityLabel
         button.accessibilityIdentifier = identifier.accessibilityIdentifier
         return button
@@ -959,19 +961,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     var scrollableItemsForToolbar: [FormatBarItem] {
         let headerButton = makeToolbarButton(identifier: .p)
 
-        var alternativeIcons = [FormattingIdentifier: UIImage]()
+        var alternativeIcons = [String: UIImage]()
         let headings = Constants.headers.suffix(from: 1) // Remove paragraph style
         for heading in headings {
-            alternativeIcons[heading.formattingIdentifier] = heading.iconImage
+            alternativeIcons[heading.formattingIdentifier.rawValue] = heading.iconImage
         }
 
         headerButton.alternativeIcons = alternativeIcons
 
 
         let listButton = makeToolbarButton(identifier: .unorderedlist)
-        var listIcons = [FormattingIdentifier: UIImage]()
+        var listIcons = [String: UIImage]()
         for list in Constants.lists {
-            listIcons[list.formattingIdentifier] = list.iconImage
+            listIcons[list.formattingIdentifier.rawValue] = list.iconImage
         }
 
         listButton.alternativeIcons = listIcons

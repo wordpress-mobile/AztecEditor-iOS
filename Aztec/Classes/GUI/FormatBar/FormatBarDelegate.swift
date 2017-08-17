@@ -10,7 +10,7 @@ public protocol FormatBarDelegate : NSObjectProtocol {
     /// Prompts the delegate that the bar item with the specified identifier was tapped,
     /// and it should take appropriate action.
     ///
-    func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem)
+    func handleActionForIdentifier(_ identifier: String, barItem: FormatBarItem)
 
     /// Informs the delegate that a touch down event was received on the format bar.
     ///
