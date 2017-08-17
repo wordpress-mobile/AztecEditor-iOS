@@ -37,4 +37,11 @@ The internal WPMediaPickerViewController that is used to display the media.
 
 @property (nonatomic, strong, readonly) UICollectionViewFlowLayout * _Nonnull layout;
 
+/**
+ A localized string that reflect the action that will be done when the picker is selected.
+ This string can contain a a placeholder for a numeric value that will indicate the number of media items selected.
+ If this is nil the default value will be used. The default the value is 'Select %@'
+ */
+@property (nonatomic, copy, nullable) NSString *selectionActionTitle;
+
 @end

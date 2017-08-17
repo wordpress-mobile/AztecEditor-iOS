@@ -11,7 +11,7 @@ UIPopoverPresentationControllerDelegate
 >
 @property (nonatomic, strong) UINavigationController *internalNavigationController;
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
-@property (nonatomic, strong) UIButton *titleButton;
+@property (nonatomic, strong) UIBarButtonItem *selectionButton;
 @end
 
 @implementation WPNavigationMediaPickerViewController
@@ -65,13 +65,11 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)setupNavigationController
 {
-    WPMediaPickerViewController *vc = self.mediaPicker;
-    
     if (!self.dataSource) {
         self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
-    vc.dataSource = self.dataSource;
-    vc.mediaPickerDelegate = self;
+    self.mediaPicker.dataSource = self.dataSource;
+    self.mediaPicker.mediaPickerDelegate = self;
 
     WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
     groupViewController.delegate = self;
@@ -88,7 +86,7 @@ static NSString *const ArrowDown = @"\u25be";
     _internalNavigationController = nav;
 
     if (self.mediaPicker.options.allowMultipleSelection) {
-        vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
+        [self updateSelectionAction];
     }
 }
 
@@ -131,7 +129,9 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+        [self.delegate mediaPickerControllerDidCancel:self.mediaPicker];
+    }
 }
 
 #pragma mark - WPMediaPickerViewControllerDelegate
@@ -170,6 +170,7 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didSelectAsset:(nonnull id<WPMediaAsset>)asset {
+    [self updateSelectionAction];
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.delegate mediaPickerController:picker didSelectAsset:asset];
     }
@@ -183,6 +184,7 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset {
+    [self updateSelectionAction];
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.delegate mediaPickerController:picker didDeselectAsset:asset];
     }
@@ -206,6 +208,34 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
         [self.delegate mediaPickerControllerDidEndLoadingData:picker];
     }
+}
+
+- (void)updateSelectionAction {
+    if (self.mediaPicker.selectedAssets.count == 0) {
+        self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = nil;
+        return;
+    }
+    self.selectionButton = [[UIBarButtonItem alloc] initWithTitle:[self selectionActionValue]
+                                                            style:UIBarButtonItemStyleDone
+                                                           target:self
+                                                           action:@selector(finishPicker:)];
+    self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = self.selectionButton;
+}
+
+- (NSString *)selectionActionValue {
+    NSString *actionString = self.selectionActionTitle;
+    if (actionString == nil) {
+        actionString = NSLocalizedString(@"Select %@", @"");
+    }
+    NSNumberFormatter * numberFormatter = [[NSNumberFormatter alloc] init];
+    NSString * countString = [numberFormatter stringFromNumber:[NSNumber numberWithInteger:self.mediaPicker.selectedAssets.count]];
+    NSString * resultString = [NSString stringWithFormat:actionString, countString];
+
+    return resultString;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    [self updateSelectionAction];
 }
 
 #pragma mark - Public Methods
