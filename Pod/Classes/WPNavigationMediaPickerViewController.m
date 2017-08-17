@@ -87,12 +87,6 @@ static NSString *const ArrowDown = @"\u25be";
     [nav didMoveToParentViewController:self];
     _internalNavigationController = nav;
 
-    //setup navigation items
-    self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
-    vc.navigationItem.titleView = self.titleButton;
-    vc.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
-
     if (self.mediaPicker.options.allowMultipleSelection) {
         vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     }
@@ -110,21 +104,6 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
         [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:self.mediaPicker.selectedAssets];
     }
-}
-
-- (void)refreshTitle {
-    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
-    if (!mediaGroup) {
-        // mediaGroup can be nil in some cases. For instance if the
-        // user denied access to the device's Photos.
-        self.titleButton.hidden = YES;
-        return;
-    } else {
-        self.titleButton.hidden = NO;
-    }
-    NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
-    [self.titleButton setTitle:title forState:UIControlStateNormal];
-    [self.titleButton sizeToFit];
 }
 
 - (void)changeGroup:(UIButton *)sender
@@ -145,10 +124,9 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self.mediaPicker setGroup:group];
-        [self refreshTitle];
-    }];
+    [self.mediaPicker setGroup:group];
+    self.mediaPicker.title = group.name;
+    [self.internalNavigationController pushViewController:self.mediaPicker animated:YES];
 }
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
@@ -228,7 +206,6 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
         [self.delegate mediaPickerControllerDidEndLoadingData:picker];
     }
-    [self refreshTitle];
 }
 
 #pragma mark - Public Methods
@@ -238,17 +215,5 @@ static NSString *const ArrowDown = @"\u25be";
     NSParameterAssert(viewController);
     [self.internalNavigationController pushViewController:viewController animated:YES];
 }
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-{
-    return UIModalPresentationNone;
-}
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-                                                               traitCollection:(UITraitCollection *)traitCollection
-{
-    return UIModalPresentationNone;
-}
-
 
 @end
