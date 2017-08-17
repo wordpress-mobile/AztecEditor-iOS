@@ -1,7 +1,7 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static CGFloat const WPMediaGroupCellHeight = 50.0f;
+static CGFloat const WPMediaGroupCellHeight = 75.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
@@ -29,7 +29,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     [super viewDidLoad];
 
     self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
-
+    
     // configure table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if ([self respondsToSelector:@selector(popoverPresentationController)]
@@ -108,14 +108,8 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
-    if ([[group identifier] isEqual:[[self.dataSource selectedGroup] identifier]]) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
+    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
     return cell;
 }
@@ -132,8 +126,6 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [self notifySelectionOfGroup];
 }
 
