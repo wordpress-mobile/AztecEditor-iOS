@@ -211,7 +211,7 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)updateSelectionAction {
-    if (self.mediaPicker.selectedAssets.count == 0) {
+    if (self.mediaPicker.selectedAssets.count == 0 || !self.mediaPicker.options.allowMultipleSelection) {
         self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = nil;
         return;
     }
