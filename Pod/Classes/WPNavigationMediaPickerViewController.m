@@ -11,7 +11,7 @@ UIPopoverPresentationControllerDelegate
 >
 @property (nonatomic, strong) UINavigationController *internalNavigationController;
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
-@property (nonatomic, strong) UIBarButtonItem *selectionButton;
+@property (nonatomic, strong) WPMediaGroupPickerViewController *groupViewController;
 @end
 
 @implementation WPNavigationMediaPickerViewController
@@ -76,11 +76,11 @@ static NSString *const ArrowDown = @"\u25be";
     self.mediaPicker.dataSource = self.dataSource;
     self.mediaPicker.mediaPickerDelegate = self;
 
-    WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
-    groupViewController.delegate = self;
-    groupViewController.dataSource = self.dataSource;
+    self.groupViewController = [[WPMediaGroupPickerViewController alloc] init];
+    self.groupViewController.delegate = self;
+    self.groupViewController.dataSource = self.dataSource;
 
-    UIViewController *rootController = groupViewController;
+    UIViewController *rootController = self.groupViewController;
     if (!self.showGroupSelector) {
         rootController = self.mediaPicker;
     }
@@ -229,11 +229,11 @@ static NSString *const ArrowDown = @"\u25be";
         self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = nil;
         return;
     }
-    self.selectionButton = [[UIBarButtonItem alloc] initWithTitle:[self selectionActionValue]
+    UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] initWithTitle:[self selectionActionValue]
                                                             style:UIBarButtonItemStyleDone
                                                            target:self
                                                            action:@selector(finishPicker:)];
-    self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = self.selectionButton;
+    self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = rightButtonItem;
 }
 
 - (NSString *)selectionActionValue {
@@ -249,7 +249,9 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    [self updateSelectionAction];
+    if (viewController == self.mediaPicker || viewController == self.groupViewController) {
+        [self updateSelectionAction];
+    }
 }
 
 #pragma mark - Public Methods
