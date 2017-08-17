@@ -4,7 +4,7 @@ import UIKit
 
 /// Implemented by a class taking care of handling attachments for the storage.
 ///
-protocol TextStorageAttachmentsDelegate {
+protocol TextStorageAttachmentsDelegate: class {
 
     /// Provides images for attachments that are part of the storage
     ///
@@ -89,7 +89,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var attachmentsDelegate: TextStorageAttachmentsDelegate!
+    weak var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
