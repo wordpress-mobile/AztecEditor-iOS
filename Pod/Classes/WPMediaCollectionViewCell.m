@@ -4,10 +4,13 @@
 
 static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
+static const CGFloat LabelSmallFontSize = 9;
+static const CGFloat LabelRegularFontSize = 13;
 
 @interface WPMediaCollectionViewCell ()
 
 @property (nonatomic, strong) UILabel *positionLabel;
+@property (nonatomic, strong) UIView *positionLabelShadowView;
 @property (nonatomic, strong) UIView *selectionFrame;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UILabel *captionLabel;
@@ -54,7 +57,6 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setSelected:NO];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.backgroundColor = self.backgroundColor;
-
     self.placeholderStackView.hidden = YES;
     self.documentExtensionLabel.text = nil;
 }
@@ -76,23 +78,37 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _selectionFrame.layer.borderWidth = 3;
+    _selectionFrame.layer.borderWidth = 2.0;
+    self.selectedBackgroundView = _selectionFrame;
 
-    CGFloat counterTextSize = [UIFont smallSystemFontSize];
-    CGFloat labelSize = (counterTextSize * 2) + 2;
-    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelSize, labelSize)];
-    _positionLabel.backgroundColor = [self tintColor];
+    CGFloat labelMargin = 10.0;
+    CGFloat labelSize = 20;
+
+    _positionLabelUnselectedTintColor = [UIColor colorWithRed:198.0/255.0 green:198.0/255.0 blue:198.0/255.0 alpha:0.7];
+    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
+    _positionLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    _positionLabel.layer.borderWidth = 1.0;
+    _positionLabel.layer.cornerRadius = labelSize / 2;
+    _positionLabel.clipsToBounds = YES;
     _positionLabel.textColor = [UIColor whiteColor];
     _positionLabel.textAlignment = NSTextAlignmentCenter;
-    _positionLabel.font = [UIFont systemFontOfSize:counterTextSize];
 
-    [_selectionFrame addSubview:_positionLabel];
+    _positionLabelShadowView = [[UIView alloc] initWithFrame:_positionLabel.frame];
+    _positionLabelShadowView.autoresizingMask = _positionLabel.autoresizingMask;
+    _positionLabelShadowView.backgroundColor = [UIColor clearColor];
+    _positionLabelShadowView.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:_positionLabelShadowView.bounds cornerRadius:labelSize / 2].CGPath;
+    _positionLabelShadowView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _positionLabelShadowView.layer.shadowRadius = 5;
+    _positionLabelShadowView.layer.shadowOpacity = 0.5;
+    _positionLabelShadowView.layer.shadowOffset = CGSizeMake(0, 0);
 
-    self.selectedBackgroundView = _selectionFrame;
+    [self.contentView addSubview:_positionLabelShadowView];
+    [self.contentView addSubview:_positionLabel];
+
+    [self updatePositionLabelToSelectedState:NO];
 
     CGFloat labelTextSize = 12.0;
     CGFloat labelHeight = 30.0;
-    CGFloat labelMargin = 10.0;
     CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
     CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
 
@@ -292,8 +308,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)setPosition:(NSInteger)position
 {
     _position = position;
-    self.positionLabel.hidden = position == NSNotFound;
-    self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    if (position != NSNotFound) {
+        CGFloat fontSize = position < 100 ? LabelRegularFontSize : LabelSmallFontSize;
+        _positionLabel.font = [UIFont systemFontOfSize:fontSize weight:UIFontWeightMedium];
+        self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    } else {
+        self.positionLabel.text = @"";
+    }
 }
 
 - (void)setCaption:(NSString *)caption
@@ -313,23 +334,34 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setSelected:(BOOL)selected
 {
-    [super setSelected:selected];
-    if (self.isSelected) {
-    } else {
-        self.positionLabel.hidden = YES;
+    if (selected == self.isSelected) {
+        return;
     }
+    [super setSelected:selected];
+    [self updatePositionLabelToSelectedState:self.isSelected];
 }
 
 - (void)tintColorDidChange
 {
     [super tintColorDidChange];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _positionLabel.backgroundColor = [self tintColor];
-    if (self.isSelected) {
 
+    [self updatePositionLabelToSelectedState:self.isSelected];
+}
+
+- (void)updatePositionLabelToSelectedState:(BOOL)selected
+{
+    if (selected) {
+        _positionLabel.backgroundColor = [self tintColor];
+        _positionLabel.layer.borderColor = [self tintColor].CGColor;
+        _positionLabelShadowView.hidden = NO;
     } else {
-        
+        _positionLabel.text = @"";
+        _positionLabel.backgroundColor = _positionLabelUnselectedTintColor;
+        _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+        _positionLabelShadowView.hidden = YES;
     }
+
 }
 
 @end
