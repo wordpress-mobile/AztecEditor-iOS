@@ -44,4 +44,9 @@ The internal WPMediaPickerViewController that is used to display the media.
  */
 @property (nonatomic, copy, nullable) NSString *selectionActionTitle;
 
+/**
+ If this property is set to NO the picker will not show the interface to display groups. The default value is YES.
+ */
+@property (nonatomic, assign) BOOL showGroupSelector;
+
 @end
