@@ -1,11 +1,11 @@
 @import AVFoundation;
 
-typedef NS_ENUM(NSInteger, WPMediaType){
-    WPMediaTypeImage,
-    WPMediaTypeVideo,
-    WPMediaTypeVideoOrImage,
-    WPMediaTypeOther,
-    WPMediaTypeAll
+typedef NS_OPTIONS(NSInteger, WPMediaType){
+    WPMediaTypeImage = 1,
+    WPMediaTypeVideo = 1 << 1,
+    WPMediaTypeAudio = 1 << 2,
+    WPMediaTypeOther = 1 << 3,
+    WPMediaTypeAll= 0XFF
 };
 
 static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
@@ -43,9 +43,9 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Asynchronously fetches an image that represents the group
  *
- *  @param size, the target size for the image, this may not be respected if the requested size is not available
+ *  @param size the target size for the image, this may not be respected if the requested size is not available
  *
- *  @param completionHandler, a block that is invoked when the image is available or when an error occurs.
+ *  @param completionHandler a block that is invoked when the image is available or when an error occurs.
  *
  *  @return an unique ID of the fetch operation
  */
@@ -149,6 +149,18 @@ typedef int32_t WPMediaRequestID;
  */
 - (CGSize)pixelSize;
 
+@optional
+
+/**
+ *  @return The filename of this asset. Optional.
+ */
+- (NSString *)filename;
+
+/**
+ *  @return The file extension of this asset (PDF, doc, etc). Optional.
+ */
+- (NSString *)fileExtension;
+
 @end
 
 /**
@@ -169,7 +181,7 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Asks the data source for the group at a selected index.
  *
- *  @param an index location the group requested.
+ *  @param index index location the group requested.
  *
  *  @return an object implementing WPMediaGroup protocol.
  */
@@ -185,7 +197,7 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Ask the data source to select a specific group and update it's assets for that group.
  *
- *  @param an object implementing the WPMediaGroup protocol
+ *  @param group object implementing the WPMediaGroup protocol
  */
 - (void)setSelectedGroup:(id<WPMediaGroup>)group;
 
@@ -199,7 +211,7 @@ typedef int32_t WPMediaRequestID;
 /**
  *  Asks the data source for the asset at the selected index.
  *
- *  @param an index location of the asset requested.
+ *  @param index index location of the asset requested.
  *
  *  @return an object implementing the WPMediaAsset protocol
  */

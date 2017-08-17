@@ -73,17 +73,21 @@
     }
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.textColor = self.navigationController.navigationBar.tintColor;
-    NSString *dateString = [WPDateTimeHelpers userFriendlyStringDateFromDate:self.asset.date];
-    NSString *timeString = [WPDateTimeHelpers userFriendlyStringTimeFromDate:self.asset.date];
+    if (self.asset.date != nil) {
+        NSString *dateString = [WPDateTimeHelpers userFriendlyStringDateFromDate:self.asset.date];
+        NSString *timeString = [WPDateTimeHelpers userFriendlyStringTimeFromDate:self.asset.date];
 
-    NSAttributedString *dateAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", dateString] attributes:@{NSFontAttributeName: titleLabel.font}];
-    NSAttributedString *timeAttributedString = [[NSAttributedString alloc] initWithString:timeString attributes:@{NSFontAttributeName: [titleLabel.font fontWithSize:floorf(titleLabel.font.pointSize * 0.75)]}];
+        NSAttributedString *dateAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", dateString] attributes:@{NSFontAttributeName: titleLabel.font}];
+        NSAttributedString *timeAttributedString = [[NSAttributedString alloc] initWithString:timeString attributes:@{NSFontAttributeName: [titleLabel.font fontWithSize:floorf(titleLabel.font.pointSize * 0.75)]}];
 
-    NSMutableAttributedString *titleAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:dateAttributedString];
-    [titleAttributedString appendAttributedString:timeAttributedString];
-
+        NSMutableAttributedString *titleAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:dateAttributedString];
+        [titleAttributedString appendAttributedString:timeAttributedString];
+        titleLabel.attributedText = titleAttributedString;
+    } else {
+        titleLabel.text = @"";
+    }
     titleLabel.numberOfLines = 2;
-    titleLabel.attributedText = titleAttributedString;
+
     titleLabel.textAlignment = NSTextAlignmentCenter;
     [titleLabel sizeToFit];
     self.navigationItem.titleView = titleLabel;
@@ -141,10 +145,9 @@
         break;
         case WPMediaTypeVideo:
             [self showVideoAsset];
-        break;
+            break;
         default:
             return;
-        break;
     }
 }
 
@@ -220,7 +223,11 @@
     // Scale the preferred content size to be the same aspect
     // ratio as the asset we're displaying.
     CGSize pixelSize = [self.asset pixelSize];
-    CGFloat scaleFactor = pixelSize.height / pixelSize.width;
+
+    CGFloat scaleFactor = 1.0;
+    if (!CGSizeEqualToSize(pixelSize, CGSizeZero)) {
+        scaleFactor = pixelSize.height / pixelSize.width;
+    }
 
     return CGSizeMake(size.width, size.width * scaleFactor);
 }

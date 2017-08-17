@@ -1,6 +1,7 @@
 @import UIKit;
 #import "WPMediaCollectionDataSource.h"
 #import "WPAssetViewController.h"
+#import "WPMediaPickerOptions.h"
 
 @class WPMediaPickerViewController;
 /**
@@ -120,36 +121,31 @@
  */
 - (nullable UIViewController *)mediaPickerController:(nonnull WPMediaPickerViewController *)picker previewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
 
+/**
+ *  Tells the delegate that the picker will begin requesting
+ *  new data from its data source.
+ */
+- (void)mediaPickerControllerWillBeginLoadingData:(nonnull WPMediaPickerViewController *)picker;
+
+/**
+ *  Tells the delegate that the picker finished loading
+ *  new data from its data source.
+ */
+- (void)mediaPickerControllerDidEndLoadingData:(nonnull WPMediaPickerViewController *)picker;
+
 @end
 
 
 @interface WPMediaPickerViewController : UICollectionViewController<WPAssetViewControllerDelegate>
 
-@property (nonatomic, readonly, nonnull) NSMutableArray *selectedAssets;
-/**
- If set the picker will show a cell that allows capture of new media, that can be used immediatelly
- */
-@property (nonatomic, assign) BOOL allowCaptureOfMedia;
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
+
+@property (nonatomic, copy, nonnull) WPMediaPickerOptions *options;
 
 /**
- If the media picker allows media capturing, it will use the front camera by default when possible
+ An array with the the assets that are currently selected.
  */
-@property (nonatomic, assign) BOOL preferFrontCamera;
-
-/**
- If set the picker will show the most recent items on the top left. If not set it will show on the bottom right. Either way it will always scroll to the most recent item when showing the picker.
- */
-@property (nonatomic, assign) BOOL showMostRecentFirst;
-
-/**
- *  Sets what kind of elements the picker show: allAssets, allPhotos, allVideos
- */
-@property (nonatomic, assign) WPMediaType filter;
-
-/**
- If set the picker will allow the selection of multiple items. By default this value is YES.
- */
-@property (nonatomic, assign) BOOL allowMultipleSelection;
+@property (nonatomic, copy, nonnull) NSArray<WPMediaAsset> *selectedAssets;
 
 /**
   The object that acts as the data source of the media picker.
@@ -166,8 +162,6 @@
  */
 - (void)setGroup:(nonnull id<WPMediaGroup>)group;
 
-@property (nonatomic, assign) CGSize cameraPreviewSize;
-
 /**
  * Clears the current asset selection in the picker.
  */
@@ -175,6 +169,7 @@
 
 /**
  View controller to use when picker needs to present another controller. By default this is set to self.
+ @note If the picker is being used within an input view, it's important to set this value to something besides the picker itself.
  */
 @property (nonatomic, weak, nullable) UIViewController *viewControllerToUseToPresent;
 
@@ -182,6 +177,25 @@
  Clears all selection and scroll the picker to the starting position
  */
 - (void)resetState:(BOOL)animated;
+
+/**
+ Return the default preview view controller to use to preview assets
+
+ @param asset the asset to preview
+ @return a view controller to preview the asset
+ */
+- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
+
+/**
+ Calculates the appropriate cell height/width given the desired number of cells per line, desired space
+ between cells, and total width of the frame containing the cells.
+
+ @param photosPerLine The number of desired photos per line
+ @param photoSpacing The amount of space in between photos
+ @param frameWidth The width of the frame which contains the photo cells
+ @return A CGFloat representing the height/width of the suggested cell size
+ */
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth;
 
 @end
 

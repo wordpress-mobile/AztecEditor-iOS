@@ -5,6 +5,7 @@
 
 @interface WPNavigationMediaPickerViewController () <
 UINavigationControllerDelegate,
+WPMediaPickerViewControllerDelegate,
 WPMediaGroupPickerViewControllerDelegate,
 UIPopoverPresentationControllerDelegate
 >
@@ -17,17 +18,29 @@ UIPopoverPresentationControllerDelegate
 
 static NSString *const ArrowDown = @"\u25be";
 
+- (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+    }
+    return self;
+}
+
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _allowCaptureOfMedia = YES;
-        _preferFrontCamera = NO;
-        _showMostRecentFirst = NO;
-        _allowMultipleSelection = YES;
-        _filter = WPMediaTypeVideoOrImage;
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
     }
 
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+    }
     return self;
 }
 
@@ -52,18 +65,13 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)setupNavigationController
 {
-    WPMediaPickerViewController *vc = [[WPMediaPickerViewController alloc] init];
-    vc.allowCaptureOfMedia = self.allowCaptureOfMedia;
-    vc.preferFrontCamera = self.preferFrontCamera;
-    vc.showMostRecentFirst = self.showMostRecentFirst;
-    vc.filter = self.filter;
-    vc.allowMultipleSelection = self.allowMultipleSelection;
+    WPMediaPickerViewController *vc = self.mediaPicker;
+    
     if (!self.dataSource) {
         self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
     vc.dataSource = self.dataSource;
-    vc.mediaPickerDelegate = self.delegate;
-    self.mediaPicker = vc;
+    vc.mediaPickerDelegate = self;
 
     WPMediaGroupPickerViewController *groupViewController = [[WPMediaGroupPickerViewController alloc] init];
     groupViewController.delegate = self;
@@ -83,19 +91,9 @@ static NSString *const ArrowDown = @"\u25be";
     self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
     vc.navigationItem.titleView = self.titleButton;
-    [self.dataSource loadDataWithSuccess:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self refreshTitle];
-        });
-    } failure:^(NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self refreshTitle];
-        });
-    }];
-
     vc.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
 
-    if (self.allowMultipleSelection) {
+    if (self.mediaPicker.options.allowMultipleSelection) {
         vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
     }
 }
@@ -110,7 +108,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)finishPicker:(UIBarButtonItem *)sender
 {
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-        [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:[self.mediaPicker.selectedAssets copy]];
+        [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:self.mediaPicker.selectedAssets];
     }
 }
 
@@ -143,7 +141,6 @@ static NSString *const ArrowDown = @"\u25be";
     [self presentViewController:groupViewController animated:YES completion:nil];
 }
 
-
 #pragma mark - WPMediaGroupViewControllerDelegate
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
@@ -159,6 +156,80 @@ static NSString *const ArrowDown = @"\u25be";
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - WPMediaPickerViewControllerDelegate
+
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didFinishPickingAssets:(nonnull NSArray<WPMediaAsset> *)assets {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
+        [self.delegate mediaPickerController:picker didFinishPickingAssets:assets];
+    }
+}
+
+- (void)mediaPickerControllerDidCancel:(nonnull WPMediaPickerViewController *)picker {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+        [self.delegate mediaPickerControllerDidCancel:picker];
+    }
+}
+
+- (BOOL)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldShowAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:shouldShowAsset:)]) {
+        return [self.delegate mediaPickerController:picker shouldShowAsset:asset];
+    }
+    return YES;
+}
+
+- (BOOL)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldEnableAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:shouldEnableAsset:)]) {
+        return [self.delegate mediaPickerController:picker shouldEnableAsset:asset];
+    }
+    return YES;
+}
+
+- (BOOL)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldSelectAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
+        return [self.delegate mediaPickerController:picker shouldSelectAsset:asset];
+    }
+    return YES;
+}
+
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didSelectAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
+        [self.delegate mediaPickerController:picker didSelectAsset:asset];
+    }
+}
+
+- (BOOL)mediaPickerController:(nonnull WPMediaPickerViewController *)picker shouldDeselectAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:shouldDeselectAsset:)]) {
+        return [self.delegate mediaPickerController:picker shouldDeselectAsset:asset];
+    }
+    return YES;
+}
+
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
+        [self.delegate mediaPickerController:picker didDeselectAsset:asset];
+    }
+}
+
+- (nullable UIViewController *)mediaPickerController:(nonnull WPMediaPickerViewController *)picker previewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:previewViewControllerForAsset:)]) {
+        return [self.delegate mediaPickerController:picker previewViewControllerForAsset:asset];
+    }
+
+    return [self.mediaPicker defaultPreviewViewControllerForAsset:asset];
+}
+
+- (void)mediaPickerControllerWillBeginLoadingData:(nonnull WPMediaPickerViewController *)picker {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerWillBeginLoadingData:)]) {
+        [self.delegate mediaPickerControllerWillBeginLoadingData:picker];
+    }
+}
+
+- (void)mediaPickerControllerDidEndLoadingData:(nonnull WPMediaPickerViewController *)picker {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
+        [self.delegate mediaPickerControllerDidEndLoadingData:picker];
+    }
+    [self refreshTitle];
+}
 
 #pragma mark - Public Methods
 

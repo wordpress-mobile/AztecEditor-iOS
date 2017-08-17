@@ -10,6 +10,14 @@
 @interface WPInputMediaPickerViewController : UIViewController
 
 /**
+ Init a WPInputMediaPickerViewController with the selection options
+
+ @param options an WPMediaPickerOption object
+ @return an initiated WPInputMediaPickerViewController with the designated options
+ */
+- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
+
+/**
 The delegate for the WPMediaPickerViewController events
 */
 @property (nonatomic, weak) _Nullable id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
@@ -31,5 +39,10 @@ The delegate for the WPMediaPickerViewController events
  A toolbar that can be used as the inputAccessoryView for this inputView.
  */
 @property (nonatomic, readonly) UIToolbar * _Nonnull mediaToolbar;
+
+/**
+ If YES the picker will scroll media vertically. Defaults to NO (horizontal).
+ */
+@property (nonatomic, assign) BOOL scrollVertically;
 
 @end

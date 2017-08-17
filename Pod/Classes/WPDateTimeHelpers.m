@@ -3,6 +3,7 @@
 @implementation WPDateTimeHelpers
 
 + (NSString *)userFriendlyStringDateFromDate:(NSDate *)date {
+    NSAssert(date != nil, @"Date cannot be nil");
     NSDate *now = [NSDate date];
     NSString *dateString = [[[self class] sharedDateFormatter] stringFromDate:date];
 
@@ -19,6 +20,7 @@
 }
 
 + (NSString *)userFriendlyStringTimeFromDate:(NSDate *)date {
+    NSAssert(date != nil, @"Date cannot be nil");
     return [[[self class] sharedTimeFormatter] stringFromDate:date];
 }
 
@@ -52,6 +54,32 @@
         _sharedDateWeekFormatter.dateFormat = [NSDateFormatter dateFormatFromTemplate:@"cccc" options:0 locale:nil];
     });
     return _sharedDateWeekFormatter;
+}
+
++ (NSDateComponentsFormatter *)sharedDateComponentsFormatter {
+    static NSDateComponentsFormatter *_sharedDateComponentsFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedDateComponentsFormatter = [NSDateComponentsFormatter new];
+        _sharedDateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+        _sharedDateComponentsFormatter.allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    });
+
+    return _sharedDateComponentsFormatter;
+}
+
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval
+{
+    NSTimeInterval interval = ceil(timeInterval);
+    NSInteger hours = (interval / 3600);
+
+    if (hours > 0) {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond);
+    } else {
+        [[self class] sharedDateComponentsFormatter].allowedUnits = (NSCalendarUnitMinute | NSCalendarUnitSecond);
+    }
+
+    return [[[self class] sharedDateComponentsFormatter] stringFromTimeInterval:interval];
 }
 
 @end

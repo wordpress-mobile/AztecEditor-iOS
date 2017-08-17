@@ -1,4 +1,5 @@
 #import "OptionsViewController.h"
+#import "WPMediaCollectionDataSource.h"
 
 NSString const *MediaPickerOptionsShowMostRecentFirst = @"MediaPickerOptionsShowMostRecentFirst";
 NSString const *MediaPickerOptionsUsePhotosLibrary = @"MediaPickerOptionsUsePhotosLibrary";
@@ -8,6 +9,7 @@ NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsA
 NSString const *MediaPickerOptionsPostProcessingStep = @"MediaPickerOptionsPostProcessingStep";
 NSString const *MediaPickerOptionsFilterType = @"MediaPickerOptionsFilterType";
 NSString const *MediaPickerOptionsCustomPreview = @"MediaPickerOptionsCustomPreview";
+NSString const *MediaPickerOptionsScrollInputPickerVertically = @"MediaPickerOptionsScrollInputPickerVertically";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
@@ -17,6 +19,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellPostProcessingStep,
     OptionsViewControllerCellMediaType,
     OptionsViewControllerCellCustomPreview,
+    OptionsViewControllerCellInputPickerScroll,
     OptionsViewControllerCellTotal
 };
 
@@ -29,6 +32,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @property (nonatomic, strong) UITableViewCell *postProcessingStepCell;
 @property (nonatomic, strong) UITableViewCell *filterMediaCell;
 @property (nonatomic, strong) UITableViewCell *customPreviewCell;
+@property (nonatomic, strong) UITableViewCell *scrollInputPickerCell;
 
 @end
 
@@ -71,13 +75,25 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.filterMediaCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     UISegmentedControl *segment = [[UISegmentedControl alloc] initWithItems:@[@"Photos", @"Videos", @"Photos & Videos"]];
     self.filterMediaCell.accessoryView = segment;
-    segment.selectedSegmentIndex = [self.options[MediaPickerOptionsFilterType] intValue];
+    NSInteger filterOption = [self.options[MediaPickerOptionsFilterType] intValue];
+    if ((filterOption & WPMediaTypeImage) && (filterOption & WPMediaTypeVideo)) {
+        segment.selectedSegmentIndex = 2;
+    } else if (filterOption & WPMediaTypeImage) {
+        segment.selectedSegmentIndex = 0;
+    } else {
+        segment.selectedSegmentIndex = 1;
+    }
     self.filterMediaCell.textLabel.text = @"Media Type";
 
     self.customPreviewCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     self.customPreviewCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.customPreviewCell.accessoryView).on = [self.options[MediaPickerOptionsCustomPreview] boolValue];
     self.customPreviewCell.textLabel.text = @"Use Custom Preview Controller";
+
+    self.scrollInputPickerCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    self.scrollInputPickerCell.accessoryView = [[UISwitch alloc] init];
+    ((UISwitch *)self.scrollInputPickerCell.accessoryView).on = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
+    self.scrollInputPickerCell.textLabel.text = @"Scroll Input Picker Vertically";
 }
 
 #pragma mark - Table view data source
@@ -116,6 +132,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellCustomPreview:
             return self.customPreviewCell;
             break;
+        case OptionsViewControllerCellInputPickerScroll:
+            return self.scrollInputPickerCell;
+            break;
         default:
             break;
     }
@@ -124,6 +143,14 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 
 - (void)done:(id) sender
 {
+    NSInteger selectedFilterOption = ((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex;
+    NSInteger filterType = WPMediaTypeImage;
+    if (selectedFilterOption == 1) {
+        filterType = WPMediaTypeVideo;
+    } else if (selectedFilterOption == 2) {
+        filterType = WPMediaTypeImage | WPMediaTypeVideo;
+    }
+
     if ([self.delegate respondsToSelector:@selector(optionsViewController:changed:)]){
         id<OptionsViewControllerDelegate> delegate = self.delegate;
         NSDictionary *newOptions = @{
@@ -132,8 +159,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
              MediaPickerOptionsPreferFrontCamera:@(((UISwitch *)self.preferFrontCameraCell.accessoryView).on),
              MediaPickerOptionsAllowMultipleSelection:@(((UISwitch *)self.allowMultipleSelectionCell.accessoryView).on),
              MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on),
-             MediaPickerOptionsFilterType:@(((UISegmentedControl *)self.filterMediaCell.accessoryView).selectedSegmentIndex),
+             MediaPickerOptionsFilterType:@(filterType),
              MediaPickerOptionsCustomPreview:@(((UISwitch *)self.customPreviewCell.accessoryView).on),
+             MediaPickerOptionsScrollInputPickerVertically:@(((UISwitch *)self.scrollInputPickerCell.accessoryView).on),
              };
         
         [delegate optionsViewController:self changed:newOptions];

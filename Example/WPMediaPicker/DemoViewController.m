@@ -15,6 +15,7 @@
 @property (nonatomic, strong) UITextField *quickInputTextField;
 @property (nonatomic, strong) WPInputMediaPickerViewController *mediaInputViewController;
 @property (nonatomic, strong) UIView* wasFirstResponder;
+@property (nonatomic, strong) id<WPMediaCollectionDataSource> pickerDataSource;
 
 @end
 
@@ -40,8 +41,9 @@
                      MediaPickerOptionsShowCameraCapture:@(YES),
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
-                     MediaPickerOptionsFilterType:@(WPMediaTypeVideoOrImage),
-                     MediaPickerOptionsCustomPreview:@(NO)
+                     MediaPickerOptionsFilterType:@(WPMediaTypeImage | WPMediaTypeVideo),
+                     MediaPickerOptionsCustomPreview:@(NO),
+                     MediaPickerOptionsScrollInputPickerVertically:@(NO)
                      };
 
 }
@@ -96,6 +98,8 @@
         cell.countLabel.text = @"Image";
     } else if ([asset assetType] == WPMediaTypeVideo) {
         cell.countLabel.text = @"Video";
+    } else if ([asset assetType] == WPMediaTypeAudio) {
+        cell.countLabel.text = @"Audio";
     } else {
         cell.countLabel.text = @"Other";
     }
@@ -124,7 +128,14 @@
     _quickInputTextField.borderStyle = UITextBorderStyleRoundedRect;
     _quickInputTextField.delegate = self;
 
+    return _quickInputTextField;
+}
+
+- (void)setupMediaKeyboardForInputField {
     self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    if ([self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue]) {
+        self.mediaInputViewController.scrollVertically = YES;
+    }
 
     [self addChildViewController:self.mediaInputViewController];
     _quickInputTextField.inputView = self.mediaInputViewController.view;
@@ -133,8 +144,6 @@
     self.mediaInputViewController.mediaPickerDelegate = self;
     self.mediaInputViewController.mediaPicker.viewControllerToUseToPresent = self;
     _quickInputTextField.inputAccessoryView = self.mediaInputViewController.mediaToolbar;
-
-    return _quickInputTextField;
 }
 
 - (id<WPMediaCollectionDataSource>)defaultDataSource
@@ -152,6 +161,7 @@
 - (void)mediaPickerControllerDidCancel:(WPMediaPickerViewController *)picker
 {
     if (picker == self.mediaInputViewController.mediaPicker) {
+        self.quickInputTextField.inputView = nil;
         [self.quickInputTextField resignFirstResponder];
         return;
     }
@@ -165,6 +175,7 @@
     [self.tableView reloadData];
     
     if (picker == self.mediaInputViewController.mediaPicker) {
+        self.quickInputTextField.inputView = nil;
         [self.quickInputTextField resignFirstResponder];
         return;
     }
@@ -185,9 +196,10 @@
 }
 
 - (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
-    if (picker == self.mediaInputViewController.mediaPicker) {
+    if (asset.assetType == WPMediaTypeAudio) {
         return nil;
     }
+
     if ([self.options[MediaPickerOptionsCustomPreview] boolValue]) {
         return [[CustomPreviewViewController alloc] initWithAsset:asset];
     }
@@ -207,23 +219,36 @@
     [self.tableView reloadData];
 }
 
-- (void) showPicker:(id) sender
+- (WPMediaPickerOptions *)selectedOptions {
+    WPMediaPickerOptions *options = [WPMediaPickerOptions new];
+    options.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
+    options.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
+    options.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
+    options.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
+    options.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    return options;
+}
+
+- (void)showPicker:(id) sender
 {
-    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] init];
+    self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] initWithOptions:[self selectedOptions]];
     self.mediaPicker.delegate = self;
-    self.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-    self.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-    self.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-    self.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-    self.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
+    self.mediaPicker.dataSource = self.pickerDataSource;
+    if (self.mediaInputViewController) {
+        self.mediaPicker.mediaPicker.selectedAssets = self.mediaInputViewController.mediaPicker.selectedAssets;
+        self.mediaInputViewController.mediaPicker.selectedAssets = [NSArray<WPMediaAsset> new];
+    }
     self.mediaPicker.modalPresentationStyle = UIModalPresentationPopover;
     UIPopoverPresentationController *ppc = self.mediaPicker.popoverPresentationController;
     ppc.barButtonItem = sender;
     
     [self presentViewController:self.mediaPicker animated:YES completion:nil];
+    [self.quickInputTextField resignFirstResponder];
+    self.wasFirstResponder = nil;
 }
 
-- (void) showOptions:(id) sender
+- (void)showOptions:(id) sender
 {
     OptionsViewController *optionsViewController = [[OptionsViewController alloc] init];
     optionsViewController.delegate = self;
@@ -249,11 +274,8 @@
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
     if (textField == self.quickInputTextField) {
-        self.mediaInputViewController.mediaPicker.showMostRecentFirst = [self.options[MediaPickerOptionsShowMostRecentFirst] boolValue];
-        self.mediaInputViewController.mediaPicker.allowCaptureOfMedia = [self.options[MediaPickerOptionsShowCameraCapture] boolValue];
-        self.mediaInputViewController.mediaPicker.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
-        self.mediaInputViewController.mediaPicker.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
-        self.mediaInputViewController.mediaPicker.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+        [self setupMediaKeyboardForInputField];
+        self.mediaInputViewController.mediaPicker.options = [self selectedOptions];        
         [self.mediaInputViewController.mediaPicker resetState:NO];
     }
     return YES;

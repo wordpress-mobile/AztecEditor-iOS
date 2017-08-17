@@ -13,7 +13,7 @@
 /**
  The WPMediaCollectionDataSource that is being used to display the assets and groups. If not set the picker will create a new one.
  */
-@property (nonatomic, strong) id<WPMediaCollectionDataSource> dataSource;
+@property (nonatomic, weak) id<WPMediaCollectionDataSource> dataSource;
 
 @end
 
@@ -27,7 +27,7 @@
  *  Tells the delegate that the user finish picking photos or videos.
  *
  *  @param picker The controller object managing the assets picker interface.
- *  @param assets An array containing picked `ALAsset` objects.
+ *  @param group the user selected WPMediaGroup
  *
  */
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group;
