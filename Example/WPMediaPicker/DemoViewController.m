@@ -235,6 +235,7 @@
     self.mediaPicker.delegate = self;
     self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
     self.mediaPicker.dataSource = self.pickerDataSource;
+    self.mediaPicker.selectionActionTitle = NSLocalizedString(@"Insert %@", @"");
     if (self.mediaInputViewController) {
         self.mediaPicker.mediaPicker.selectedAssets = self.mediaInputViewController.mediaPicker.selectedAssets;
         self.mediaInputViewController.mediaPicker.selectedAssets = [NSArray<WPMediaAsset> new];
