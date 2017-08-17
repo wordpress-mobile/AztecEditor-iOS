@@ -15,6 +15,7 @@ static CGFloat const WPMediaGroupCellHeight = 75.0f;
 {
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
+        self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
     }
     return self;
 }
@@ -28,8 +29,6 @@ static CGFloat const WPMediaGroupCellHeight = 75.0f;
 {
     [super viewDidLoad];
 
-    self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
-    
     // configure table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if ([self respondsToSelector:@selector(popoverPresentationController)]

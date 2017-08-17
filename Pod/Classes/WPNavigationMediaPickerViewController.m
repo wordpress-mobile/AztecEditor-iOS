@@ -47,6 +47,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (void)commonInitWithOptions:(WPMediaPickerOptions *)options {
     _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
     _showGroupSelector = YES;
+    _startOnGroupSelector = YES;
 }
 
 - (void)viewDidLoad
@@ -89,6 +90,10 @@ static NSString *const ArrowDown = @"\u25be";
 
     if (!self.showGroupSelector) {
         nav.topViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
+    }
+
+    if (self.showGroupSelector && !self.startOnGroupSelector) {
+        [nav pushViewController:self.mediaPicker animated:NO];
     }
 
     [nav willMoveToParentViewController:self];

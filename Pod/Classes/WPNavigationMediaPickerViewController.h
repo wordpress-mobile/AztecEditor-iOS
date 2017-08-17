@@ -49,4 +49,9 @@ The internal WPMediaPickerViewController that is used to display the media.
  */
 @property (nonatomic, assign) BOOL showGroupSelector;
 
+/**
+ If this property is set the navigation start on the group selector otherwise it start directly on the default active group of the data source. The default value is YES.
+ */
+@property (nonatomic, assign) BOOL startOnGroupSelector;
+
 @end
