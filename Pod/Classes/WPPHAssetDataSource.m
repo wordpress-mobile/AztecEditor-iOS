@@ -104,20 +104,28 @@
 - (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
-    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusDenied ||
-            [PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusRestricted) {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    switch (status) {
+        case PHAuthorizationStatusRestricted:
+        case PHAuthorizationStatusDenied:
+        {
             if (failureBlock) {
                 NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
                 failureBlock(error);
             }
             return;
         }
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+        case PHAuthorizationStatusNotDetermined:
+        {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                [self loadDataWithSuccess:successBlock failure:failureBlock];
+            }];
+        }
+        case PHAuthorizationStatusAuthorized: {
             if (self.activeAssetsCollection == nil) {
                 self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                                                  subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
-                                                                                  options:nil] firstObject];
+                                                                                        subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+                                                                                        options:nil] firstObject];
             }
             if (self.refreshGroups) {
                 [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
@@ -126,8 +134,8 @@
                 } failure:nil];
             }
             [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-        });
-    }];
+        }
+    }
 }
 
 - (NSArray *)smartAlbumsToShow {
