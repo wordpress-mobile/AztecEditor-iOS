@@ -230,6 +230,14 @@ static NSString *const ArrowDown = @"\u25be";
     self.mediaPicker.title = picker.dataSource.selectedGroup.name;
 }
 
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<WPMediaAsset> *)assets {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:selectionChanged:)]) {
+        [self.delegate mediaPickerController:picker selectionChanged:assets];
+    }
+    [self updateSelectionAction];
+
+}
+
 - (void)updateSelectionAction {
     if (self.mediaPicker.selectedAssets.count == 0 || !self.mediaPicker.options.allowMultipleSelection) {
         self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = nil;

@@ -200,5 +200,9 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
     }
 }
 
+- (void)showCapture
+{
+    [self.mediaPicker showCapture];
+}
 
 @end
