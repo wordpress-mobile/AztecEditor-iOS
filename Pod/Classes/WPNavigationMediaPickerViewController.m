@@ -11,7 +11,7 @@ UIPopoverPresentationControllerDelegate
 >
 @property (nonatomic, strong) UINavigationController *internalNavigationController;
 @property (nonatomic, strong) WPMediaPickerViewController *mediaPicker;
-@property (nonatomic, strong) UIButton *titleButton;
+@property (nonatomic, strong) WPMediaGroupPickerViewController *groupViewController;
 @end
 
 @implementation WPNavigationMediaPickerViewController
@@ -21,7 +21,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (instancetype)initWithOptions:(WPMediaPickerOptions *)options {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+        [self commonInitWithOptions:options];
     }
     return self;
 }
@@ -30,7 +30,7 @@ static NSString *const ArrowDown = @"\u25be";
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+        [self commonInitWithOptions:[WPMediaPickerOptions new]];
     }
 
     return self;
@@ -39,9 +39,15 @@ static NSString *const ArrowDown = @"\u25be";
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:[WPMediaPickerOptions new]];
+        [self commonInitWithOptions:[WPMediaPickerOptions new]];
     }
     return self;
+}
+
+- (void)commonInitWithOptions:(WPMediaPickerOptions *)options {
+    _mediaPicker = [[WPMediaPickerViewController alloc] initWithOptions:options];
+    _showGroupSelector = YES;
+    _startOnGroupSelector = YES;
 }
 
 - (void)viewDidLoad
@@ -65,32 +71,41 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)setupNavigationController
 {
-    WPMediaPickerViewController *vc = self.mediaPicker;
-    
     if (!self.dataSource) {
         self.dataSource = [WPPHAssetDataSource sharedInstance];
     }
-    vc.dataSource = self.dataSource;
-    vc.mediaPickerDelegate = self;
+    self.mediaPicker.dataSource = self.dataSource;
+    self.mediaPicker.mediaPickerDelegate = self;
 
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    self.groupViewController = [[WPMediaGroupPickerViewController alloc] init];
+    self.groupViewController.delegate = self;
+    self.groupViewController.dataSource = self.dataSource;
+    self.dataSource.mediaTypeFilter = self.mediaPicker.options.filter;
+
+    UIViewController *rootController = self.groupViewController;
+    if (!self.showGroupSelector) {
+        rootController = self.mediaPicker;
+    }
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController: rootController];
     nav.delegate = self;
+
+    if (!self.showGroupSelector) {
+        nav.topViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
+    }
+
+    if (self.showGroupSelector && !self.startOnGroupSelector) {
+        [nav pushViewController:self.mediaPicker animated:NO];
+    }
 
     [nav willMoveToParentViewController:self];
     [nav.view setFrame:self.view.bounds];
     [self.view addSubview:nav.view];
     [self addChildViewController:nav];
     [nav didMoveToParentViewController:self];
-    _internalNavigationController = nav;
-
-    //setup navigation items
-    self.titleButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.titleButton addTarget:self action:@selector(changeGroup:) forControlEvents:UIControlEventTouchUpInside];
-    vc.navigationItem.titleView = self.titleButton;
-    vc.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
+    self.internalNavigationController = nav;
 
     if (self.mediaPicker.options.allowMultipleSelection) {
-        vc.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(finishPicker:)];
+        [self updateSelectionAction];
     }
 }
 
@@ -106,21 +121,6 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
         [self.delegate mediaPickerController:self.mediaPicker didFinishPickingAssets:self.mediaPicker.selectedAssets];
     }
-}
-
-- (void)refreshTitle {
-    id<WPMediaGroup> mediaGroup = [self.dataSource selectedGroup];
-    if (!mediaGroup) {
-        // mediaGroup can be nil in some cases. For instance if the
-        // user denied access to the device's Photos.
-        self.titleButton.hidden = YES;
-        return;
-    } else {
-        self.titleButton.hidden = NO;
-    }
-    NSString *title = [NSString stringWithFormat:@"%@ %@", [mediaGroup name], ArrowDown];
-    [self.titleButton setTitle:title forState:UIControlStateNormal];
-    [self.titleButton sizeToFit];
 }
 
 - (void)changeGroup:(UIButton *)sender
@@ -141,15 +141,16 @@ static NSString *const ArrowDown = @"\u25be";
 
 - (void)mediaGroupPickerViewController:(WPMediaGroupPickerViewController *)picker didPickGroup:(id<WPMediaGroup>)group
 {
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self.mediaPicker setGroup:group];
-        [self refreshTitle];
-    }];
+    [self.mediaPicker setGroup:group];
+    self.mediaPicker.title = group.name;
+    [self.internalNavigationController pushViewController:self.mediaPicker animated:YES];
 }
 
 - (void)mediaGroupPickerViewControllerDidCancel:(WPMediaGroupPickerViewController *)picker
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidCancel:)]) {
+        [self.delegate mediaPickerControllerDidCancel:self.mediaPicker];
+    }
 }
 
 #pragma mark - WPMediaPickerViewControllerDelegate
@@ -188,6 +189,7 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didSelectAsset:(nonnull id<WPMediaAsset>)asset {
+    [self updateSelectionAction];
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.delegate mediaPickerController:picker didSelectAsset:asset];
     }
@@ -201,6 +203,7 @@ static NSString *const ArrowDown = @"\u25be";
 }
 
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset {
+    [self updateSelectionAction];
     if ([self.delegate respondsToSelector:@selector(mediaPickerController:didSelectAsset:)]) {
         [self.delegate mediaPickerController:picker didDeselectAsset:asset];
     }
@@ -224,7 +227,45 @@ static NSString *const ArrowDown = @"\u25be";
     if ([self.delegate respondsToSelector:@selector(mediaPickerControllerDidEndLoadingData:)]) {
         [self.delegate mediaPickerControllerDidEndLoadingData:picker];
     }
-    [self refreshTitle];
+    self.mediaPicker.title = picker.dataSource.selectedGroup.name;
+}
+
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<WPMediaAsset> *)assets {
+    if ([self.delegate respondsToSelector:@selector(mediaPickerController:selectionChanged:)]) {
+        [self.delegate mediaPickerController:picker selectionChanged:assets];
+    }
+    [self updateSelectionAction];
+
+}
+
+- (void)updateSelectionAction {
+    if (self.mediaPicker.selectedAssets.count == 0 || !self.mediaPicker.options.allowMultipleSelection) {
+        self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = nil;
+        return;
+    }
+    UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] initWithTitle:[self selectionActionValue]
+                                                            style:UIBarButtonItemStyleDone
+                                                           target:self
+                                                           action:@selector(finishPicker:)];
+    self.internalNavigationController.topViewController.navigationItem.rightBarButtonItem = rightButtonItem;
+}
+
+- (NSString *)selectionActionValue {
+    NSString *actionString = self.selectionActionTitle;
+    if (actionString == nil) {
+        actionString = NSLocalizedString(@"Select %@", @"");
+    }
+    NSNumberFormatter * numberFormatter = [[NSNumberFormatter alloc] init];
+    NSString * countString = [numberFormatter stringFromNumber:[NSNumber numberWithInteger:self.mediaPicker.selectedAssets.count]];
+    NSString * resultString = [NSString stringWithFormat:actionString, countString];
+
+    return resultString;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    if (viewController == self.mediaPicker || viewController == self.groupViewController) {
+        [self updateSelectionAction];
+    }
 }
 
 #pragma mark - Public Methods
@@ -234,17 +275,5 @@ static NSString *const ArrowDown = @"\u25be";
     NSParameterAssert(viewController);
     [self.internalNavigationController pushViewController:viewController animated:YES];
 }
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-{
-    return UIModalPresentationNone;
-}
-
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
-                                                               traitCollection:(UITraitCollection *)traitCollection
-{
-    return UIModalPresentationNone;
-}
-
 
 @end

@@ -1,8 +1,10 @@
 
 #import "WPMediaGroupTableViewCell.h"
 
-static CGFloat const WPMediaGroupTableViewCellImagePadding = 2.0;
-static CGFloat const WPMediaGroupTableViewCellImageMargin = 15.0;
+static CGFloat const WPMediaGroupTableViewCellImagePadding = 8.0;
+static CGFloat const WPMediaGroupTableViewCellImageMargin = 8.0;
+static CGFloat const WPMediaGroupTableViewCellLabelMargin = 15.0;
+static CGFloat const WPMediaGroupTableViewCellCountLabelMargin = 2.0;
 
 @implementation WPMediaGroupTableViewCell
 
@@ -26,18 +28,19 @@ static CGFloat const WPMediaGroupTableViewCellImageMargin = 15.0;
     _countLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _countLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
     _countLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _countLabel.textColor = [UIColor lightGrayColor];
     [self.contentView addSubview:_countLabel];
 
     [_imagePosterView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:WPMediaGroupTableViewCellImageMargin].active = YES;
     [_imagePosterView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:WPMediaGroupTableViewCellImagePadding].active = YES;
-    [_imagePosterView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:WPMediaGroupTableViewCellImagePadding].active = YES;
+    [_imagePosterView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-WPMediaGroupTableViewCellImagePadding].active = YES;
     [_imagePosterView.widthAnchor constraintEqualToAnchor:_imagePosterView.heightAnchor].active = YES;
-    [_titleLabel.leadingAnchor constraintEqualToAnchor:_imagePosterView.trailingAnchor constant:WPMediaGroupTableViewCellImageMargin].active = YES;
+    [_titleLabel.leadingAnchor constraintEqualToAnchor:_imagePosterView.trailingAnchor constant:WPMediaGroupTableViewCellLabelMargin].active = YES;
     [_titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor].active = YES;
-    [_titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.centerYAnchor].active = YES;
-    [_countLabel.leadingAnchor constraintEqualToAnchor:_imagePosterView.trailingAnchor constant:WPMediaGroupTableViewCellImageMargin].active = YES;
+    [_titleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.centerYAnchor].active = YES;    
+    [_countLabel.leadingAnchor constraintEqualToAnchor:_imagePosterView.trailingAnchor constant:WPMediaGroupTableViewCellLabelMargin].active = YES;
     [_countLabel.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor].active = YES;
-    [_countLabel.topAnchor constraintEqualToAnchor:self.contentView.centerYAnchor].active = YES;
+    [_countLabel.topAnchor constraintEqualToAnchor:self.contentView.centerYAnchor constant:WPMediaGroupTableViewCellCountLabelMargin].active = YES;
 
     return self;
 }

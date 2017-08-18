@@ -104,30 +104,68 @@
 - (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
-    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusDenied ||
-            [PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusRestricted) {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    switch (status) {
+        case PHAuthorizationStatusRestricted:
+        case PHAuthorizationStatusDenied:
+        {
             if (failureBlock) {
                 NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
                 failureBlock(error);
             }
             return;
         }
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-            if (self.activeAssetsCollection == nil) {
-                self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                                                  subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
-                                                                                  options:nil] firstObject];
+        case PHAuthorizationStatusNotDetermined:
+        {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                [self loadDataWithSuccess:successBlock failure:failureBlock];
+            }];
+        }
+        case PHAuthorizationStatusAuthorized: {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                if (self.activeAssetsCollection == nil) {
+                    self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                                            subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+                                                                                            options:nil] firstObject];
+                }
+                if (self.refreshGroups) {
+                    [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
+                    [self loadGroupsWithSuccess:^{
+                        self.refreshGroups = NO;
+                    } failure:nil];
+                }
+                [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+            });
+        }
+    }
+}
+
+- (void)loadGroupDataWithSuccess:(WPMediaSuccessBlock)successBlock
+                         failure:(WPMediaFailureBlock)failureBlock
+{
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    switch (status) {
+        case PHAuthorizationStatusRestricted:
+        case PHAuthorizationStatusDenied:
+        {
+            if (failureBlock) {
+                NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
+                failureBlock(error);
             }
-            if (self.refreshGroups) {
-                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-                [self loadGroupsWithSuccess:^{
-                    self.refreshGroups = NO;
-                } failure:nil];
-            }
-            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-        });
-    }];
+            return;
+        }
+        case PHAuthorizationStatusNotDetermined:
+        {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                [self loadGroupDataWithSuccess:successBlock failure:failureBlock];
+            }];
+        }
+        case PHAuthorizationStatusAuthorized: {
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                [self loadGroupsWithSuccess:successBlock failure:failureBlock];
+            });
+        }
+    }
 }
 
 - (NSArray *)smartAlbumsToShow {

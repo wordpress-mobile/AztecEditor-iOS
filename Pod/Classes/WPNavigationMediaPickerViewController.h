@@ -37,4 +37,21 @@ The internal WPMediaPickerViewController that is used to display the media.
 
 @property (nonatomic, strong, readonly) UICollectionViewFlowLayout * _Nonnull layout;
 
+/**
+ A localized string that reflect the action that will be done when the picker is selected.
+ This string can contain a a placeholder for a numeric value that will indicate the number of media items selected.
+ If this is nil the default value will be used. The default the value is 'Select %@'
+ */
+@property (nonatomic, copy, nullable) NSString *selectionActionTitle;
+
+/**
+ If this property is set to NO the picker will not show the interface to display groups. The default value is YES.
+ */
+@property (nonatomic, assign) BOOL showGroupSelector;
+
+/**
+ If this property is set the navigation start on the group selector otherwise it start directly on the default active group of the data source. The default value is YES.
+ */
+@property (nonatomic, assign) BOOL startOnGroupSelector;
+
 @end

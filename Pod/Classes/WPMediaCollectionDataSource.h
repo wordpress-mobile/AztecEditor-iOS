@@ -256,6 +256,10 @@ typedef int32_t WPMediaRequestID;
 - (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock;
 
+- (void)loadGroupDataWithSuccess:(WPMediaSuccessBlock)successBlock
+                         failure:(WPMediaFailureBlock)failureBlock;
+
+
 /**
  *  Requests to the data source to add an image to the library.
  *
