@@ -112,6 +112,15 @@
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset;
 
 /**
+ *  Tells the delegate that the selection changed because of external events ( assets being deleted )
+ *
+ *  @param picker The controller object managing the assets picker interface.
+ *  @param assets  The updated selected assets that was deselected.
+ *
+ */
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<WPMediaAsset> *)assets;
+
+/**
  *  Asks the delegate for a view controller to push when previewing the specified asset.
  *  If this method isn't implemented, the default view controller will be used.
  *  If it returns nil, no preview will be displayed.

@@ -403,6 +403,9 @@ static CGFloat SelectAnimationTime = 0.2;
         }
     }
     self.internalSelectedAssets = stillExistingSeletedAssets;
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:selectionChanged:)]) {
+        [self.mediaPickerDelegate mediaPickerController:self selectionChanged:[self.internalSelectedAssets copy]];
+    }
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
