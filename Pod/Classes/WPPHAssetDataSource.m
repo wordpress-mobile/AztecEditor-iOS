@@ -122,18 +122,20 @@
             }];
         }
         case PHAuthorizationStatusAuthorized: {
-            if (self.activeAssetsCollection == nil) {
-                self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                                                        subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
-                                                                                        options:nil] firstObject];
-            }
-            if (self.refreshGroups) {
-                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-                [self loadGroupsWithSuccess:^{
-                    self.refreshGroups = NO;
-                } failure:nil];
-            }
-            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                if (self.activeAssetsCollection == nil) {
+                    self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                                                            subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
+                                                                                            options:nil] firstObject];
+                }
+                if (self.refreshGroups) {
+                    [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
+                    [self loadGroupsWithSuccess:^{
+                        self.refreshGroups = NO;
+                    } failure:nil];
+                }
+                [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+            });
         }
     }
 }
