@@ -26,15 +26,32 @@ open class FormatBar: UIView {
     fileprivate let topDivider = UIView()
     fileprivate let bottomDivider = UIView()
 
+    /// A leading item that will displayed in front of any default items.
+    /// A divider will be drawn between the leading item and any default items.
+    /// If set to a FormatBarItem, the appearance will match the default items in the bar.
+    ///
+    open var leadingItem: UIButton? = nil {
+        didSet {
+            /// If there was already a leading item in the bar, remove it
+            if let existingItem = oldValue,
+                let firstView = scrollableStackView.arrangedSubviews.first,
+                existingItem == firstView {
+                scrollableStackView.removeArrangedSubview(firstView)
+            }
+
+            if let item = leadingItem {
+                configure(item: item)
+                populateLeadingItem()
+            }
+        }
+    }
+
 
     /// FormatBarItems to be displayed when the bar is in its default collapsed state.
-    /// Each sub-array of items will be divided into a separate section in the bar.
     ///
-    open var defaultItems = [[FormatBarItem]]() {
+    open var defaultItems = [FormatBarItem]() {
         didSet {
-            let allItems = defaultItems.flatMap({ $0 })
-
-            configure(items: allItems)
+            configure(items: defaultItems)
 
             populateItems()
         }
@@ -117,10 +134,12 @@ open class FormatBar: UIView {
         let visibleItemCount = Int(floor(availableWidth / Constants.stackButtonWidth))
 
         let allItems = items
-        guard visibleItemCount < defaultItems.flatMap({ $0 }).count else { return [] }
+        let leadingItemCount = leadingItem != nil ? 1 : 0
+        guard visibleItemCount < (defaultItems.flatMap({ $0 }).count + leadingItemCount) else { return [] }
 
         return allItems.suffix(from: visibleItemCount)
     }
+
 
     /// Returns the current width currently available to fit toolbar items without scrolling.
     ///
@@ -352,18 +371,25 @@ private extension FormatBar {
     func populateItems() {
         scrollableStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        for items in defaultItems {
-            scrollableStackView.addArrangedSubviews(items)
+        populateLeadingItem()
 
-            if let last = defaultItems.last,
-                items != last {
-                addDivider()
-            }
-        }
-
+        scrollableStackView.addArrangedSubviews(defaultItems)
         scrollableStackView.addArrangedSubviews(overflowItems)
 
         updateVisibleItemsForCurrentBounds()
+    }
+
+    func populateLeadingItem() {
+        if let leadingItem = leadingItem {
+            let hasDivider = scrollableStackView.arrangedSubviews.first is FormatBarDividerItem
+            if !hasDivider {
+                let divider = FormatBarDividerItem()
+                divider.backgroundColor = dividerTintColor
+                scrollableStackView.insertArrangedSubview(divider, at: 0)
+            }
+
+            scrollableStackView.insertArrangedSubview(leadingItem, at: 0)
+        }
     }
 
     /// Inserts a divider into the bar.
@@ -377,17 +403,19 @@ private extension FormatBar {
 
     /// Sets up a given collection of FormatBarItem's
     ///
-    func configure(items: [FormatBarItem]) {
+    func configure(items: [UIButton]) {
         for item in items {
             configure(item: item)
         }
     }
 
 
-    /// Sets up a given FormatBarItem
+    /// Sets up a given bar item
     ///
-    func configure(item: FormatBarItem) {
-        configureStylesFor(item)
+    func configure(item: UIButton) {
+        if let formatBarItem = item as? FormatBarItem {
+            configureStylesFor(formatBarItem)
+        }
 
         item.addTarget(self, action: #selector(handleButtonAction), for: .touchUpInside)
         item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)

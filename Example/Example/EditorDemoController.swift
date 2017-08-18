@@ -947,7 +947,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
-        toolbar.defaultItems = [[mediaItem], scrollableItems]
+        toolbar.leadingItem = mediaItem
+        toolbar.defaultItems = scrollableItems
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
