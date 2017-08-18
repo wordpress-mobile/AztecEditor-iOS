@@ -7,10 +7,10 @@ public enum FormatBarOverflowState {
 }
 
 public protocol FormatBarDelegate : NSObjectProtocol {
-    /// Prompts the delegate that the bar item with the specified identifier was tapped,
+    /// Prompts the delegate that the specified bar item was tapped,
     /// and it should take appropriate action.
     ///
-    func handleActionForIdentifier(_ identifier: String, barItem: FormatBarItem)
+    func handleAction(for barItem: FormatBarItem)
 
     /// Informs the delegate that a touch down event was received on the format bar.
     ///

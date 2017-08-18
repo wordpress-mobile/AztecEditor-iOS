@@ -550,8 +550,11 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
     }
 
-    func handleActionForIdentifier(_ identifier: String, barItem: FormatBarItem) {
-        guard let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else { return }
+    func handleAction(for barItem: FormatBarItem) {
+        guard let identifier = barItem.identifier,
+            let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else {
+                return
+        }
 
         switch formattingIdentifier {
         case .bold:

@@ -303,9 +303,7 @@ open class FormatBar: UIView {
     }
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
-        guard let identifier = sender.identifier else { return }
-
-        formatter?.handleActionForIdentifier(identifier, barItem: sender)
+        formatter?.handleAction(for: sender)
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
