@@ -558,6 +558,7 @@
 @property(nonatomic, strong) PHAsset *posterAsset;
 @property(nonatomic, assign) WPMediaType mediaType;
 @property(nonatomic, strong) PHFetchResult *fetchResult;
+@property(nonatomic, strong) PHFetchResult *posterAssetFetchResult;
 
 @end
 
@@ -626,9 +627,20 @@
     return _fetchResult;
 }
 
+- (PHFetchResult *)posterAssetFetchResult {
+    if (!_posterAssetFetchResult) {
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.fetchLimit = 1;
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
+        _posterAssetFetchResult = [PHAsset fetchKeyAssetsInAssetCollection:self.collection options:fetchOptions];
+    }
+
+    return _posterAssetFetchResult;
+}
+
 - (PHAsset *)posterAsset {
     if (!_posterAsset) {
-        _posterAsset = [[self fetchResult] lastObject];
+        _posterAsset = [[self posterAssetFetchResult] lastObject];
     }
 
     return _posterAsset;
