@@ -407,7 +407,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    return self.refreshGroupFirstTime ? 0 : 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -772,6 +772,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 
     self.refreshGroupFirstTime = YES;
+    [self.collectionView reloadData];
     [self.dataSource setSelectedGroup:group];
     [self refreshData];
 }
