@@ -157,17 +157,12 @@
         case PHAuthorizationStatusNotDetermined:
         {
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                [self loadDataWithSuccess:successBlock failure:failureBlock];
+                [self loadGroupDataWithSuccess:successBlock failure:failureBlock];
             }];
         }
         case PHAuthorizationStatusAuthorized: {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                if (self.activeAssetsCollection == nil) {
-                    self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
-                                                                                            subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
-                                                                                            options:nil] firstObject];
-                }
-                    [self loadGroupsWithSuccess:successBlock failure:failureBlock];
+                [self loadGroupsWithSuccess:successBlock failure:failureBlock];
             });
         }
     }
