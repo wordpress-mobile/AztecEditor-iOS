@@ -10,6 +10,17 @@ open class FormatBar: UIView {
     ///
     open weak var formatter: FormatBarDelegate?
 
+    /// Called whenever a default or overflow bar item is tapped
+    ///
+    open var barItemHandler: ((FormatBarItem) -> Void)? = nil
+
+    /// Called whenever the leading item (if present) is tapped
+    ///
+    open var leadingItemHandler: ((UIButton) -> Void)? = nil
+
+    /// Called whenever the trailing item (if present) is tapped
+    ///
+    open var trailingItemHandler: ((UIButton) -> Void)? = nil
 
     /// Container ScrollView
     ///
@@ -36,15 +47,46 @@ open class FormatBar: UIView {
             if let existingItem = oldValue,
                 let firstView = scrollableStackView.arrangedSubviews.first,
                 existingItem == firstView {
-                scrollableStackView.removeArrangedSubview(firstView)
+                firstView.removeFromSuperview()
             }
 
             if let item = leadingItem {
-                configure(item: item)
+                if let formatBarItem = item as? FormatBarItem {
+                    configureStylesFor(formatBarItem)
+                }
+
+                item.addTarget(self, action: #selector(handleLeadingButtonAction), for: .touchUpInside)
+                item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
+
                 populateLeadingItem()
             }
         }
     }
+
+    /// A trailing item that will displayed after any default items.
+    /// No divider will be drawn before the trailing item.
+    /// If set to a FormatBarItem, the appearance will match the default items in the bar.
+    /// If a custom trailing item is set, no overflow toggle will be shown.
+    ///
+    open var trailingItem: UIButton? = nil {
+        didSet {
+            trailingItemContainer.arrangedSubviews.forEach({ $0.removeFromSuperview() })
+
+            if let item = trailingItem {
+                if let formatBarItem = item as? FormatBarItem {
+                    configureStylesFor(formatBarItem)
+                }
+
+                item.addTarget(self, action: #selector(handleTrailingButtonAction), for: .touchUpInside)
+                item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
+
+                trailingItemContainer.addArrangedSubview(item)
+            }
+
+            updateOverflowToggleItemVisibility()
+        }
+    }
+    fileprivate var trailingItemContainer = UIStackView()
 
 
     /// FormatBarItems to be displayed when the bar is in its default collapsed state.
@@ -73,11 +115,14 @@ open class FormatBar: UIView {
                 rotateOverflowToggleItem(.vertical, animated: false)
             }
 
-            let hasOverflowItems = !overflowItems.isEmpty
-            overflowToggleItem.isHidden = !hasOverflowItems
+            updateOverflowToggleItemVisibility()
         }
     }
 
+    fileprivate func updateOverflowToggleItemVisibility() {
+        let hasOverflowItems = !overflowItems.isEmpty
+        overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
+    }
 
     /// FormatBarItem used to toggle the bar's expanded state
     ///
@@ -271,6 +316,8 @@ open class FormatBar: UIView {
         overflowToggleItem.translatesAutoresizingMaskIntoConstraints = false
         addSubview(overflowToggleItem)
 
+        trailingItemContainer.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(trailingItemContainer)
         configureConstraints()
     }
 
@@ -322,7 +369,15 @@ open class FormatBar: UIView {
     }
 
     @IBAction func handleButtonAction(_ sender: FormatBarItem) {
-        formatter?.handleAction(for: sender)
+        barItemHandler?(sender)
+    }
+
+    @IBAction func handleLeadingButtonAction(_ sender: FormatBarItem) {
+        leadingItemHandler?(sender)
+    }
+
+    @IBAction func handleTrailingButtonAction(_ sender: FormatBarItem) {
+        trailingItemHandler?(sender)
     }
 
     @IBAction func handleToggleButtonAction(_ sender: FormatBarItem) {
@@ -466,11 +521,21 @@ private extension FormatBar {
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
         overflowTrailingConstraint.priority = UILayoutPriorityDefaultLow
 
+        let trailingItemTrailingConstraint = trailingItemContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.trailingButtonMargin)
+        trailingItemTrailingConstraint.priority = UILayoutPriorityDefaultLow
+
         NSLayoutConstraint.activate([
             overflowToggleItem.topAnchor.constraint(equalTo: topAnchor),
             overflowToggleItem.bottomAnchor.constraint(equalTo: bottomAnchor),
             overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
             overflowTrailingConstraint
+        ])
+
+        NSLayoutConstraint.activate([
+            trailingItemContainer.topAnchor.constraint(equalTo: topAnchor),
+            trailingItemContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
+            trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
+            trailingItemTrailingConstraint
         ])
 
         NSLayoutConstraint.activate([
@@ -625,6 +690,7 @@ private extension FormatBar {
         static let stackViewRegularSpacing = CGFloat(0)
         static let stackButtonWidth = CGFloat(44)
         static let horizontalDividerHeight = CGFloat(1)
+        static let trailingButtonMargin = CGFloat(12)
     }
 }
 
