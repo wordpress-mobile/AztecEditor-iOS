@@ -192,14 +192,15 @@
 {
     PHFetchOptions *fetchOptions = [PHFetchOptions new];
     fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
+    fetchOptions.fetchLimit = 1;
     NSMutableArray *collectionsArray=[NSMutableArray array];
     for (NSNumber *subType in [self smartAlbumsToShow]) {
         PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                            subtype:[subType intValue]
                                                                            options:nil];
         PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
-        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0 || [subType intValue] == PHAssetCollectionSubtypeSmartAlbumUserLibrary){
-            [collectionsArray addObjectsFromArray:[smartAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, smartAlbum.count)]]];
+        if ([subType intValue] == PHAssetCollectionSubtypeSmartAlbumUserLibrary || [PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0){
+            [collectionsArray addObject:collection];
         }
     }
     
@@ -605,11 +606,6 @@
 
 - (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
 {
-    NSInteger count = self.collection.estimatedAssetCount;
-    if (count != NSNotFound) {
-        return count;
-    }
-
     if (self.assetCount == NSNotFound) {
         self.assetCount = [self.fetchResult count];
     }
