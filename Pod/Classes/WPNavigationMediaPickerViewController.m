@@ -80,6 +80,7 @@ static NSString *const ArrowDown = @"\u25be";
     self.groupViewController = [[WPMediaGroupPickerViewController alloc] init];
     self.groupViewController.delegate = self;
     self.groupViewController.dataSource = self.dataSource;
+    self.dataSource.mediaTypeFilter = self.mediaPicker.options.filter;
 
     UIViewController *rootController = self.groupViewController;
     if (!self.showGroupSelector) {
