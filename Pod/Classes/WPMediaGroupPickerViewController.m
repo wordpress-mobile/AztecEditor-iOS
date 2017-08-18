@@ -1,7 +1,7 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static CGFloat const WPMediaGroupCellHeight = 75.0f;
+static CGFloat const WPMediaGroupCellHeight = 86.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
