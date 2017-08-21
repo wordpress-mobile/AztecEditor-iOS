@@ -190,18 +190,13 @@
 - (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
-    fetchOptions.fetchLimit = 1;
     NSMutableArray *collectionsArray=[NSMutableArray array];
     for (NSNumber *subType in [self smartAlbumsToShow]) {
         PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                            subtype:[subType intValue]
                                                                            options:nil];
         PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
-        if ([subType intValue] == PHAssetCollectionSubtypeSmartAlbumUserLibrary || [PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0){
-            [collectionsArray addObject:collection];
-        }
+        [collectionsArray addObject:collection];
     }
     
     self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
@@ -209,9 +204,7 @@
                                                            options:nil];
 
     [self.albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
-        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0) {
-            [collectionsArray addObject:collection];
-        }
+        [collectionsArray addObject:collection];
     }];
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
