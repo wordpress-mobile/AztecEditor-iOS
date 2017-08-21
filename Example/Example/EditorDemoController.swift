@@ -170,10 +170,10 @@ class EditorDemoController: UIViewController {
 
         setHTML(html)
 
-        MediaAttachment.appearance.progressColor = UIColor.blue
-        MediaAttachment.appearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.appearance.progressHeight = 2.0
-        MediaAttachment.appearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -409,7 +409,7 @@ class EditorDemoController: UIViewController {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()
         }
 
-        toolbar.selectItemsMatchingIdentifiers(identifiers)
+        toolbar.selectItemsMatchingIdentifiers(identifiers.map({ $0.rawValue }))
     }
 
     override var keyCommands: [UIKeyCommand] {
@@ -492,7 +492,7 @@ extension EditorDemoController : UITextViewDelegate {
             formatBar.enabled = false
 
             // Disable the bar, except for the source code button
-            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode })
+            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode.rawValue })
             htmlButton?.isEnabled = true
         default: break
         }
@@ -550,8 +550,13 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
     }
 
-    func handleActionForIdentifier(_ identifier: FormattingIdentifier, barItem: FormatBarItem) {
-        switch identifier {
+    func handleAction(for barItem: FormatBarItem) {
+        guard let identifier = barItem.identifier,
+            let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else {
+                return
+        }
+
+        switch formattingIdentifier {
         case .bold:
             toggleBold()
         case .italic:
@@ -796,14 +801,15 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         }
 
         linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
-        showLinkDialog(forURL: linkURL, title: linkTitle, range: linkRange)
+        let allowTextEdit = !richTextView.attributedText.containsAttachments(in: linkRange)
+        showLinkDialog(forURL: linkURL, text: linkTitle, range: linkRange, allowTextEdit: allowTextEdit)
     }
 
     func insertMoreAttachment() {
         richTextView.replace(richTextView.selectedRange, withComment: Constants.moreAttachmentText)
     }
 
-    func showLinkDialog(forURL url: URL?, title: String?, range: NSRange) {
+    func showLinkDialog(forURL url: URL?, text: String?, range: NSRange, allowTextEdit: Bool = true) {
 
         let isInsertingNewLink = (url == nil)
         var urlToUse = url
@@ -834,18 +840,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             for:UIControlEvents.editingChanged)
             })
 
-        alertController.addTextField(configurationHandler: { textField in
-            textField.clearButtonMode = UITextFieldViewMode.always
-            textField.placeholder = NSLocalizedString("Link Name", comment:"Link name field placeholder")
-            textField.isSecureTextEntry = false
-            textField.autocapitalizationType = UITextAutocapitalizationType.sentences
-            textField.autocorrectionType = UITextAutocorrectionType.default
-            textField.spellCheckingType = UITextSpellCheckingType.default
+        if allowTextEdit {
+            alertController.addTextField(configurationHandler: { textField in
+                textField.clearButtonMode = UITextFieldViewMode.always
+                textField.placeholder = NSLocalizedString("Link Text", comment:"Link text field placeholder")
+                textField.isSecureTextEntry = false
+                textField.autocapitalizationType = UITextAutocapitalizationType.sentences
+                textField.autocorrectionType = UITextAutocorrectionType.default
+                textField.spellCheckingType = UITextSpellCheckingType.default
 
-            textField.text = title;
+                textField.text = text;
 
-            })
-
+                })
+        }
         let insertAction = UIAlertAction(title:insertButtonTitle,
                                          style:UIAlertActionStyle.default,
                                          handler:{ [weak self]action in
@@ -860,12 +867,17 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
                                             guard
                                                 let urlString = linkURLString,
-                                                let url = URL(string:urlString),
-                                                let title = linkTitle
+                                                let url = URL(string:urlString)
                                                 else {
                                                     return
                                             }
-                                            self?.richTextView.setLink(url, title:title, inRange: range)
+                                            if allowTextEdit {
+                                                if let title = linkTitle {
+                                                    self?.richTextView.setLink(url, title:title, inRange: range)
+                                                }
+                                            } else {
+                                                self?.richTextView.setLink(url, inRange: range)
+                                            }
                                             })
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
@@ -923,7 +935,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     // MARK: -
 
     func makeToolbarButton(identifier: FormattingIdentifier) -> FormatBarItem {
-        let button = FormatBarItem(image: identifier.iconImage, identifier: identifier)
+        let button = FormatBarItem(image: identifier.iconImage, identifier: identifier.rawValue)
         button.accessibilityLabel = identifier.accessibilityLabel
         button.accessibilityIdentifier = identifier.accessibilityIdentifier
         return button
@@ -952,19 +964,19 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
     var scrollableItemsForToolbar: [FormatBarItem] {
         let headerButton = makeToolbarButton(identifier: .p)
 
-        var alternativeIcons = [FormattingIdentifier: UIImage]()
+        var alternativeIcons = [String: UIImage]()
         let headings = Constants.headers.suffix(from: 1) // Remove paragraph style
         for heading in headings {
-            alternativeIcons[heading.formattingIdentifier] = heading.iconImage
+            alternativeIcons[heading.formattingIdentifier.rawValue] = heading.iconImage
         }
 
         headerButton.alternativeIcons = alternativeIcons
 
 
         let listButton = makeToolbarButton(identifier: .unorderedlist)
-        var listIcons = [FormattingIdentifier: UIImage]()
+        var listIcons = [String: UIImage]()
         for list in Constants.lists {
-            listIcons[list.formattingIdentifier] = list.iconImage
+            listIcons[list.formattingIdentifier.rawValue] = list.iconImage
         }
 
         listButton.alternativeIcons = listIcons
@@ -996,18 +1008,21 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, _, error) in
-            DispatchQueue.main.async(execute: {
-                    guard error == nil,
-                        let data = data,
-                        let image = UIImage(data: data, scale: UIScreen.main.scale)
-                    else {
-                        failure()
-                        return
-                    }
-                    success(image)
-            })
-        }) 
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+            DispatchQueue.main.async {
+                guard self != nil else {
+                    return
+                }
+
+                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
+                    failure()
+                    return
+                }
+
+                success(image)
+            }
+        }
+
         task.resume()
     }
 
@@ -1332,7 +1347,8 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.url = url
+
+                updated.updateURL(url)
             }
         }
 

@@ -4,7 +4,7 @@ import UIKit
 
 /// Implemented by a class taking care of handling attachments for the storage.
 ///
-protocol TextStorageAttachmentsDelegate {
+protocol TextStorageAttachmentsDelegate: class {
 
     /// Provides images for attachments that are part of the storage
     ///
@@ -89,7 +89,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Attachments
 
-    var attachmentsDelegate: TextStorageAttachmentsDelegate!
+    weak var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
@@ -173,7 +173,9 @@ open class TextStorage: NSTextStorage {
                 let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
-                replacementAttachment.url = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+
+                let imageURL = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+                replacementAttachment.updateURL(imageURL)
 
                 finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
             }
@@ -348,7 +350,7 @@ extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
-        imageForURL url: URL,
+        imageFor url: URL,
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {

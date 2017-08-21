@@ -112,10 +112,8 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let nodeType = element.standardName,
-            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
-
-            content.append(implicitRepresentation)
+        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
+            content.append(representation)
         } else {
             for child in element.children {
                 let childContent = convert(child, inheriting: childAttributes)
@@ -124,7 +122,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         }
 
         guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: attributes)
+            return appendParagraphSeparator(to: content, inheriting: childAttributes)
         }
 
         return content
@@ -154,42 +152,11 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Node Styling
 
-    /// Returns an attributed string representing the specified node.
-    ///
-    /// - Parameters:
-    ///     - node: the element node to generate a representation string of.
-    ///     - attributes: the inherited attributes from parent nodes.
-    ///
-    /// - Returns: the attributed string representing the specified element node.
-    ///
-    ///
-    fileprivate func string(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        
-        let childAttributes = self.attributes(for: element, inheriting: attributes)
-        let content = NSMutableAttributedString()
-
-        if let nodeType = element.standardName,
-            let implicitRepresentation = nodeType.implicitRepresentation(withAttributes: childAttributes) {
-
-            content.append(implicitRepresentation)
-        } else {
-            for child in element.children {
-                let childContent = convert(child, inheriting: childAttributes)
-                content.append(childContent)
-            }
-        }
-
-        guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: attributes)
-        }
-        
-        return content
-    }
-
     public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
         .ol: TextListFormatter(style: .ordered, increaseDepth: true),
         .ul: TextListFormatter(style: .unordered, increaseDepth: true),
         .blockquote: BlockquoteFormatter(),
+        .div: HTMLDivFormatter(),
         .strong: BoldFormatter(),
         .em: ItalicFormatter(),
         .u: UnderlineFormatter(),
@@ -249,17 +216,17 @@ private extension HTMLNodeToNSAttributedString {
             return attributes
         }
 
-        let representation = HTMLRepresentation(for: .element(HTMLElementRepresentation(element)))
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = attributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else  if element.name == StandardElementType.li.rawValue {
+        } else if element.name == StandardElementType.li.rawValue {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-
             finalAttributes = attributes
         } else {
-            finalAttributes = self.attributes(storing: element, in: finalAttributes)
+            finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
         for attribute in element.attributes {
@@ -303,12 +270,17 @@ private extension HTMLNodeToNSAttributedString {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing element: ElementNode, in attributes: [String: Any]) -> [String: Any] {
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML ?? UnsupportedHTML()
-        unsupportedHTML.append(element: element)
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
+        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML
+        var representations = unsupportedHTML?.representations ?? []
+        representations.append(representation)
 
+        // Note:
+        // We'll *ALWAYS* store a copy of the UnsupportedHTML instance. Reason is: reusing the old instance
+        // would mean affecting a range that may fall beyond what we expected!
+        //
         var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = unsupportedHTML
+        updated[UnsupportedHTMLAttributeName] = UnsupportedHTML(representations: representations)
 
         return updated
     }
@@ -340,4 +312,49 @@ extension HTMLNodeToNSAttributedString {
 
         return nil
     }
+}
+
+private extension HTMLNodeToNSAttributedString {
+
+    // MARK: - Implicit Representations
+
+    /// Some elements have an implicit representation that doesn't really follow the standard
+    /// conversion logic.  This method takes care of such specialized conversions.
+    ///
+    /// - Parameters:
+    ///     - element: the element to request an implicit representation for.
+    ///     - attributes: the attributes that the output attributed string will inherit.
+    ///
+    /// - Returns: the requested implicit representation, if one exists, or `nil`.
+    ///
+    func implicitRepresentation(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString? {
+
+        guard let elementType = element.standardName else {
+            return nil
+        }
+
+        return implicitRepresentation(for: elementType, inheriting: attributes)
+    }
+
+    /// Some element types have an implicit representation that doesn't really follow the standard
+    /// conversion logic.  This method takes care of such specialized conversions.
+    ///
+    /// - Parameters:
+    ///     - elementType: the element type to request an implicit representation for.
+    ///     - attributes: the attributes that the output attributed string will inherit.
+    ///
+    /// - Returns: the requested implicit representation, if one exists, or `nil`.
+    ///
+    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
+
+        switch elementType {
+        case .hr, .img, .video:
+            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+        case .br:
+            return NSAttributedString(.lineSeparator, attributes: attributes)
+        default:
+            return nil
+        }
+    }
+
 }

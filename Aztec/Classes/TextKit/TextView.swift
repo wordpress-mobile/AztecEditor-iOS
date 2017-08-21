@@ -217,7 +217,7 @@ open class TextView: UITextView {
         return AttachmentGestureRecognizerDelegate(textView: self)
     }()
 
-    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = {
+    fileprivate lazy var attachmentGestureRecognizer: UITapGestureRecognizer = { [unowned self] in
         let attachmentGestureRecognizer = UITapGestureRecognizer(target: self.recognizerDelegate, action: #selector(AttachmentGestureRecognizerDelegate.richTextViewWasPressed))
         attachmentGestureRecognizer.cancelsTouchesInView = true
         attachmentGestureRecognizer.delaysTouchesBegan = true
@@ -449,7 +449,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML(prettyPrint: Bool = false) -> String {
+    open func getHTML(prettyPrint: Bool = true) -> String {
         return storage.getHTML(prettyPrint: prettyPrint)
     }
 
@@ -943,6 +943,20 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
+    /// Adds a link to the designated url on the specified range.
+    ///
+    /// - Parameters:
+    ///     - url: the NSURL to link to.
+    ///     - range: The NSRange to edit.
+    ///
+    open func setLink(_ url: URL, inRange range: NSRange) {
+        let formatter = LinkFormatter()
+        formatter.attributeValue = url
+        toggle(formatter: formatter, atRange: range)
+    }
+
+
+
 
     /// Removes the link, if any, at the specified range
     ///
@@ -982,9 +996,8 @@ open class TextView: UITextView {
     ///
     @discardableResult
     open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
-        let attachment = ImageAttachment(identifier: identifier)
+        let attachment = ImageAttachment(identifier: identifier, url: url)
         attachment.delegate = storage
-        attachment.url = url
         attachment.image = placeHolderImage
         replace(at: range, with: attachment)
         return attachment
@@ -1072,7 +1085,7 @@ open class TextView: UITextView {
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
-        let mediaBounds = mediaAttachment.mediaBounds(forBounds: bounds)
+        let mediaBounds = mediaAttachment.mediaBounds(for: bounds)
 
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
@@ -1114,7 +1127,7 @@ open class TextView: UITextView {
         if let attachment = attachmentAtPoint(point) as? MediaAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2*attachment.imageMargin)) {
+            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2 * attachment.appearance.imageMargin)) {
                 return true
             }
         }
@@ -1505,7 +1518,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 //
 @objc class AttachmentGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate {
 
-    let textView: TextView
+    private weak var textView: TextView?
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
     public init(textView: TextView) {
@@ -1517,6 +1530,10 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+
+        guard let textView = self.textView else {
+            return false
+        }
 
         let locationInTextView = gestureRecognizer.location(in: textView)
         guard textView.attachmentAtPoint(locationInTextView) != nil else {
@@ -1530,8 +1547,9 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
-        guard recognizer.state == .recognized else {
-            return
+        guard let textView = self.textView,
+            recognizer.state == .recognized else {
+                return
         }
 
         let locationInTextView = recognizer.location(in: textView)

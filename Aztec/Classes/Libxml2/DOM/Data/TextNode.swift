@@ -5,7 +5,7 @@ import Foundation
 ///
 class TextNode: Node {
 
-    var contents: String
+    let contents: String
 
     // MARK: - CustomReflectable
     

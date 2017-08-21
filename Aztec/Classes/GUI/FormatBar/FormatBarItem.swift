@@ -6,9 +6,10 @@ import UIKit
 //
 open class FormatBarItem: UIButton {
 
-    /// Formatting Identifier
+    /// Identifier for this item. It's recommended to use a custom String enum
+    /// to encapsulate the values used here.
     ///
-    open var identifier: FormattingIdentifier?
+    open var identifier: String?
 
 
     /// Tint Color to be applied whenever the button is selected
@@ -77,13 +78,13 @@ open class FormatBarItem: UIButton {
     // MARK: - Icons
 
     /// A list of alternative icons that can be switched out for
-    /// this item's default icon if their formatting identifiers are detected
+    /// this item's default icon if their identifiers are detected
     ///
-    public var alternativeIcons: [FormattingIdentifier: UIImage]? = nil
+    public var alternativeIcons: [String: UIImage]? = nil
 
     /// Switch out this item's icon for the icon that matches the specified identifier
     ///
-    public func useAlternativeIconForIdentifier(_ identifier: FormattingIdentifier) {
+    public func useAlternativeIconForIdentifier(_ identifier: String) {
         if let icon = alternativeIcons?[identifier] {
             setImage(icon, for: .normal)
         }
@@ -99,7 +100,7 @@ open class FormatBarItem: UIButton {
 
     // MARK: - Lifecycle
 
-    public convenience init(image: UIImage, identifier: FormattingIdentifier? = nil) {
+    public convenience init(image: UIImage, identifier: String? = nil) {
         let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier

@@ -11,11 +11,7 @@ class Node: Equatable, CustomReflectable, Hashable {
     
     /// A weak reference to the parent of this node.
     ///
-    private weak var rawParent: ElementNode? = nil
-    
-    /// Parent-node-reference setter and getter, with undo support.
-    ///
-    var parent: ElementNode?
+    weak var parent: ElementNode?
 
     // MARK: - Properties: Editing traits
 
