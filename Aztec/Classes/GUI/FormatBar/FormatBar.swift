@@ -70,6 +70,8 @@ open class FormatBar: UIView {
     ///
     open var trailingItem: UIButton? = nil {
         didSet {
+            updateScrollViewInsets()
+
             trailingItemContainer.arrangedSubviews.forEach({ $0.removeFromSuperview() })
 
             if let item = trailingItem {
@@ -81,6 +83,8 @@ open class FormatBar: UIView {
                 item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
 
                 trailingItemContainer.addArrangedSubview(item)
+
+                setOverflowItemsVisible(false)
             }
 
             updateOverflowToggleItemVisibility()
@@ -109,7 +113,7 @@ open class FormatBar: UIView {
             populateItems()
 
             let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
-            setOverflowItemsVisible(overflowVisible, animated: false)
+            setOverflowItemsVisible(overflowVisible && trailingItem == nil, animated: false)
             
             if overflowVisible {
                 rotateOverflowToggleItem(.vertical, animated: false)
@@ -192,6 +196,14 @@ open class FormatBar: UIView {
         return frame.width - scrollView.contentInset.left - scrollView.contentInset.right
     }
 
+    fileprivate var trailingInset: CGFloat {
+        if let trailingItem = trailingItem {
+            trailingItem.sizeToFit()
+            return trailingItem.bounds.size.width + Constants.trailingButtonMargin
+        } else {
+            return Constants.stackButtonWidth
+        }
+    }
 
     /// Returns true if any of the overflow items in the bar are currently hidden
     ///
@@ -504,13 +516,17 @@ private extension FormatBar {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
 
+        updateScrollViewInsets()
+    }
+
+    func updateScrollViewInsets() {
         // Add padding at the end to account for overflow button
         let layoutDirection = UIView.userInterfaceLayoutDirection(for: semanticContentAttribute)
         switch layoutDirection {
         case .leftToRight:
-            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Constants.stackButtonWidth)
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: trailingInset)
         case .rightToLeft:
-            scrollView.contentInset = UIEdgeInsets(top: 0, left: Constants.stackButtonWidth, bottom: 0, right: 0)
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: trailingInset, bottom: 0, right: 0)
         }
     }
 
