@@ -28,6 +28,7 @@ typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef void (^WPMediaCountBlock)(NSInteger result, NSError *error);
 typedef void (^WPMediaAssetBlock)(AVAsset *asset, NSError *error);
 typedef int32_t WPMediaRequestID;
 
@@ -68,11 +69,13 @@ typedef int32_t WPMediaRequestID;
 - (NSString *)identifier;
 
 /**
- *  The numbers of assets that exist in the group
- *
- *  @return The numbers of assets that exist in the group
+ The numbers of assets that exist in the group of a certain mediaType
+
+ @param mediaType the asset type to count
+ @param completionHandler a block that is executed when the real number of assets is know.
+ @return return an estimation of the current number of assets, if no estimate is known return NSNotFound
  */
-- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType;
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler;
 
 @end
 

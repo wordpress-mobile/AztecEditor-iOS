@@ -597,13 +597,13 @@
     return [self.collection localIdentifier];
 }
 
-- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler
 {
-    if (self.assetCount == NSNotFound) {
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         self.assetCount = [self.fetchResult count];
-    }
-
-    return self.assetCount;
+        completionHandler(self.assetCount, nil);
+    });
+    return self.collection.estimatedAssetCount;
 }
 
 - (PHFetchResult *)fetchResult {
