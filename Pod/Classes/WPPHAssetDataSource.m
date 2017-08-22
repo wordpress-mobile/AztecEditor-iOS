@@ -123,8 +123,7 @@
             }];
         }
         case PHAuthorizationStatusAuthorized: {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
                 if (self.activeAssetsCollection == nil) {
                     self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                                             subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
@@ -213,9 +212,8 @@
                                                            subtype:PHAssetCollectionSubtypeAny
                                                            options:nil];
 
-    [self.albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
-        [collectionsArray addObject:collection];
-    }];
+    [collectionsArray addObjectsFromArray:[self.albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.albums.count)]]];
+
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
