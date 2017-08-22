@@ -101,7 +101,8 @@
     });
 }
 
-- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
+- (void)loadDataWithOptions:(WPMediaLoadOptions)options
+                    success:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
     PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
@@ -118,51 +119,31 @@
         case PHAuthorizationStatusNotDetermined:
         {
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                [self loadDataWithSuccess:successBlock failure:failureBlock];
+                [self loadDataWithOptions:options success:successBlock failure:failureBlock];
             }];
         }
         case PHAuthorizationStatusAuthorized: {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
                 if (self.activeAssetsCollection == nil) {
                     self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                                             subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
                                                                                             options:nil] firstObject];
                 }
-                if (self.refreshGroups) {
-                    [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-                    [self loadGroupsWithSuccess:^{
-                        self.refreshGroups = NO;
-                    } failure:nil];
+                switch (options) {
+                    case (WPMediaLoadOptionsGroups): {
+                        [self loadGroupsWithSuccess:successBlock failure:failureBlock];
+                        return;
+                    }
+                    case (WPMediaLoadOptionsAssets): {
+                        [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                        return;
+                    }
+                    case (WPMediaLoadOptionsGroupsAndAssets): {
+                        [self loadGroupsWithSuccess:^{
+                            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                        } failure:failureBlock];
+                    }
                 }
-                [self loadAssetsWithSuccess:successBlock failure:failureBlock];
-            });
-        }
-    }
-}
-
-- (void)loadGroupDataWithSuccess:(WPMediaSuccessBlock)successBlock
-                         failure:(WPMediaFailureBlock)failureBlock
-{
-    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
-    switch (status) {
-        case PHAuthorizationStatusRestricted:
-        case PHAuthorizationStatusDenied:
-        {
-            if (failureBlock) {
-                NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
-                failureBlock(error);
-            }
-            return;
-        }
-        case PHAuthorizationStatusNotDetermined:
-        {
-            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                [self loadGroupDataWithSuccess:successBlock failure:failureBlock];
-            }];
-        }
-        case PHAuthorizationStatusAuthorized: {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                [self loadGroupsWithSuccess:successBlock failure:failureBlock];
             });
         }
     }
@@ -190,28 +171,21 @@
 - (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
-    PHFetchOptions *fetchOptions = [PHFetchOptions new];
-    fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
     NSMutableArray *collectionsArray=[NSMutableArray array];
     for (NSNumber *subType in [self smartAlbumsToShow]) {
         PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                            subtype:[subType intValue]
                                                                            options:nil];
         PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
-        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0 || [subType intValue] == PHAssetCollectionSubtypeSmartAlbumUserLibrary){
-            [collectionsArray addObjectsFromArray:[smartAlbum objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, smartAlbum.count)]]];
-        }
+        [collectionsArray addObject:collection];
     }
     
     self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
                                                            subtype:PHAssetCollectionSubtypeAny
                                                            options:nil];
 
-    [self.albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger index, BOOL *stop){
-        if ([PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0) {
-            [collectionsArray addObject:collection];
-        }
-    }];
+    [collectionsArray addObjectsFromArray:[self.albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.albums.count)]]];
+
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
@@ -232,6 +206,10 @@
         }
 
     }
+
+    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                           subtype:PHAssetCollectionSubtypeAny
+                                                           options:nil];
 }
 
 + (NSPredicate *)predicateForFilterMediaType:(WPMediaType)mediaType
@@ -558,6 +536,7 @@
 @property(nonatomic, strong) PHAsset *posterAsset;
 @property(nonatomic, assign) WPMediaType mediaType;
 @property(nonatomic, strong) PHFetchResult *fetchResult;
+@property(nonatomic, strong) PHFetchResult *posterAssetFetchResult;
 
 @end
 
@@ -584,7 +563,10 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    return [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+    });
+    return 0;
 }
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
@@ -602,18 +584,13 @@
     return [self.collection localIdentifier];
 }
 
-- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler
 {
-    NSInteger count = self.collection.estimatedAssetCount;
-    if (count != NSNotFound) {
-        return count;
-    }
-
-    if (self.assetCount == NSNotFound) {
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         self.assetCount = [self.fetchResult count];
-    }
-
-    return self.assetCount;
+        completionHandler(self.assetCount, nil);
+    });
+    return self.collection.estimatedAssetCount;
 }
 
 - (PHFetchResult *)fetchResult {
@@ -626,9 +603,20 @@
     return _fetchResult;
 }
 
+- (PHFetchResult *)posterAssetFetchResult {
+    if (!_posterAssetFetchResult) {
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.fetchLimit = 1;
+        fetchOptions.predicate = [WPPHAssetDataSource predicateForFilterMediaType:_mediaType];
+        _posterAssetFetchResult = [PHAsset fetchKeyAssetsInAssetCollection:self.collection options:fetchOptions];
+    }
+
+    return _posterAssetFetchResult;
+}
+
 - (PHAsset *)posterAsset {
     if (!_posterAsset) {
-        _posterAsset = [[self fetchResult] lastObject];
+        _posterAsset = [[self posterAssetFetchResult] firstObject];
     }
 
     return _posterAsset;

@@ -296,7 +296,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
     __weak __typeof__(self) weakSelf = self;
 
-    [self.dataSource loadDataWithSuccess:^{
+    [self.dataSource loadDataWithOptions:WPMediaLoadOptionsAssets success:^{
         __typeof__(self) strongSelf = weakSelf;
         BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
         strongSelf.refreshGroupFirstTime = NO;
