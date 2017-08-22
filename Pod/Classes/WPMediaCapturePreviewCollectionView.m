@@ -30,7 +30,7 @@
     self.backgroundColor = [UIColor blackColor];
     _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCapturePreviewCollectionView", DISPATCH_QUEUE_SERIAL);
     _previewView = [[UIView alloc] initWithFrame:self.bounds];
-    _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;    
     [self addSubview:_previewView];
     
     UIImage *cameraImage = [[WPMediaPickerResources imageNamed:@"gridicons-camera-large" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
@@ -101,10 +101,11 @@
         }
         if (!self.session.isRunning ||  !self.captureVideoPreviewLayer.connection.enabled){
             [self.session startRunning];
+            AVCaptureVideoPreviewLayer * newLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (!self.captureVideoPreviewLayer || !self.captureVideoPreviewLayer.connection.enabled) {
                     [self.captureVideoPreviewLayer removeFromSuperlayer];
-                    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+                    self.captureVideoPreviewLayer = newLayer;
                     CALayer *viewLayer = self.previewView.layer;
                     self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                     self.captureVideoPreviewLayer.frame = viewLayer.bounds;
