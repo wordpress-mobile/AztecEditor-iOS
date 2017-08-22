@@ -101,7 +101,8 @@
     });
 }
 
-- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
+- (void)loadDataWithOptions:(WPMediaLoadOptions)options
+                    success:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock
 {
     PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
@@ -118,23 +119,32 @@
         case PHAuthorizationStatusNotDetermined:
         {
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                [self loadDataWithSuccess:successBlock failure:failureBlock];
+                [self loadDataWithOptions:options success:successBlock failure:failureBlock];
             }];
         }
         case PHAuthorizationStatusAuthorized: {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
                 if (self.activeAssetsCollection == nil) {
                     self.activeAssetsCollection = [[PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                                             subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
                                                                                             options:nil] firstObject];
                 }
-                if (self.refreshGroups) {
-                    [[[self class] sharedImageManager] stopCachingImagesForAllAssets];
-                    [self loadGroupsWithSuccess:^{
-                        self.refreshGroups = NO;
-                    } failure:nil];
+                switch (options) {
+                    case (WPMediaLoadOptionsGroups): {
+                        [self loadGroupsWithSuccess:successBlock failure:failureBlock];
+                        return;
+                    }
+                    case (WPMediaLoadOptionsAssets): {
+                        [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                        return;
+                    }
+                    case (WPMediaLoadOptionsGroupsAndAssets): {
+                        [self loadGroupsWithSuccess:^{
+                            [self loadAssetsWithSuccess:successBlock failure:failureBlock];
+                        } failure:failureBlock];
+                    }
                 }
-                [self loadAssetsWithSuccess:successBlock failure:failureBlock];
             });
         }
     }

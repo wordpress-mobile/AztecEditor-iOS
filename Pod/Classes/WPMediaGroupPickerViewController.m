@@ -51,7 +51,7 @@ static CGFloat const WPMediaGroupCellHeight = 86.0f;
 
 - (void)loadData
 {
-    [self.dataSource loadGroupDataWithSuccess:^{
+    [self.dataSource loadDataWithOptions:WPMediaLoadOptionsGroups success:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
         });

@@ -21,6 +21,13 @@ typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
 - (NSUInteger)to;
 @end
 
+typedef NS_ENUM(NSInteger, WPMediaLoadOptions){
+    WPMediaLoadOptionsGroups,
+    WPMediaLoadOptionsAssets,
+    WPMediaLoadOptionsGroupsAndAssets
+};
+
+
 @protocol WPMediaAsset;
 
 typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray<id<WPMediaMove>> *moves);
@@ -253,15 +260,13 @@ typedef int32_t WPMediaRequestID;
  *  Asks the data source to reload the data available of the media library. This should be invoked after changing the 
  *  current active group or if a change is detected.
  *
+ *  @param options specifiy what type of data to load
  *  @param successBlock a block that is invoked when the data is loaded with success.
  *  @param failureBlock a block that is invoked when the are is any kind of error when loading the data.
  */
-- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
+- (void)loadDataWithOptions:(WPMediaLoadOptions)options
+                    success:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock;
-
-- (void)loadGroupDataWithSuccess:(WPMediaSuccessBlock)successBlock
-                         failure:(WPMediaFailureBlock)failureBlock;
-
 
 /**
  *  Requests to the data source to add an image to the library.
