@@ -132,7 +132,11 @@
 }
 
 - (void)setupMediaKeyboardForInputField {
-    self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    if (self.mediaInputViewController) {
+        [self.mediaInputViewController removeFromParentViewController];
+    } else {
+        self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    }
     if ([self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue]) {
         self.mediaInputViewController.scrollVertically = YES;
     }
