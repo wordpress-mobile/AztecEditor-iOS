@@ -113,7 +113,8 @@ class EditorDemoController: UIViewController {
 
     var loadSampleHTML = false
 
-    fileprivate var shortcodePreProcessors = [Processor]()
+    private var shortcodePreProcessors = [Processor]()
+    private var shortcodePostProcessors = [Processor]()
 
     func setHTML(_ html: String) {
         var processedHTML = html
@@ -122,8 +123,6 @@ class EditorDemoController: UIViewController {
         }
         richTextView.setHTML(processedHTML)
     }
-
-    fileprivate var shortcodePostProcessors = [Processor]()
 
     func getHTML() -> String {
         var processedHTML = richTextView.getHTML(prettyPrint: true)
@@ -294,8 +293,86 @@ class EditorDemoController: UIViewController {
         }
     }
 
+    // MARK: - Shortcode Processors: Main Registration Point
+
     private func registerShortcodeProcessors() {
-        let videoPressProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
+
+        // This method should not be called more than once.
+        //
+        assert(shortcodePreProcessors.count == 0)
+        assert(shortcodePostProcessors.count == 0)
+
+        registerCaptionShortcodeProcessors()
+        registerVideoShortcodeProcessors()
+    }
+
+    // MARK: - Shortcode Processors: Captions
+
+    private func registerCaptionShortcodeProcessors() {
+        registerCaptionShortcodePreProcessors()
+        registerCaptionShortcodePostProcessors()
+    }
+
+    private func registerCaptionShortcodePreProcessors() {
+        let captionPreProcessor = ShortcodeProcessor(tag: "caption") { shortcode -> String in
+            var html = "<div data-shortcode=\"caption\" "
+
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
+            }
+
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
+            }
+
+            if let content = shortcode.content {
+                html += ">" + content + "</div>"
+            } else {
+                html += "/>"
+            }
+
+            return html
+        }
+
+        shortcodePreProcessors.append(captionPreProcessor)
+    }
+
+    private func registerCaptionShortcodePostProcessors() {
+        let captionPostProcessor = HTMLProcessor(tag:"div", replacer: { (shortcode) in
+
+            guard let shortcodeType = shortcode.attributes.named["data-shortcode"],
+                shortcodeType.lowercased() == "caption" else {
+                    return nil
+            }
+
+            var html = "[caption "
+
+            for (key, value) in shortcode.attributes.named {
+                html += "\(key)=\"\(value)\" "
+            }
+
+            for value in shortcode.attributes.unamed {
+                html += "\(value) "
+            }
+
+            html += "]" + (shortcode.content ?? "") + "[/caption]"
+
+            return html
+        })
+
+        shortcodePostProcessors.append(captionPostProcessor)
+
+    }
+
+    // MARK: - Shortcode Processors: Video
+
+    private func registerVideoShortcodeProcessors() {
+        registerVideoShortcodePreProcessors()
+        registerVideoShortcodePostProcessors()
+    }
+
+    private func registerVideoShortcodePreProcessors() {
+        let wpVideoShortcodeProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
             var html = "<video "
             if let src = shortcode.attributes.unamed.first {
                 html += "src=\"videopress://\(src)\" "
@@ -312,7 +389,7 @@ class EditorDemoController: UIViewController {
             return html
         })
 
-        let wordPressVideoProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
+        let videoShortcodeProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
             var html = "<video "
             for (key, value) in shortcode.attributes.named {
                 html += "\(key)=\"\(value)\" "
@@ -323,11 +400,14 @@ class EditorDemoController: UIViewController {
             html += "/>"
             return html
         })
-        
-        shortcodePreProcessors.append(videoPressProcessor)
-        shortcodePreProcessors.append(wordPressVideoProcessor)
 
-        let postWordPressVideoProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
+        shortcodePreProcessors.append(wpVideoShortcodeProcessor)
+        shortcodePreProcessors.append(videoShortcodeProcessor)
+    }
+
+    private func registerVideoShortcodePostProcessors() {
+
+        let videoShortcodeProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
             var html = "[video "
             for (key, value) in shortcode.attributes.named {
                 html += "\(key)=\"\(value)\" "
@@ -339,7 +419,7 @@ class EditorDemoController: UIViewController {
             return html
         })
 
-        shortcodePostProcessors.append(postWordPressVideoProcessor)
+        shortcodePostProcessors.append(videoShortcodeProcessor)
     }
 
 
