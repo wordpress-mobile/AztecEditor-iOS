@@ -549,7 +549,10 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
             print("Format bar expanded")
         }
     }
+}
 
+// MARK: - Format Bar Actions
+extension EditorDemoController {
     func handleAction(for barItem: FormatBarItem) {
         guard let identifier = barItem.identifier,
             let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else {
@@ -572,7 +575,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         case .link:
             toggleLink()
         case .media:
-            showImagePicker()
+            break
         case .sourcecode:
             toggleEditingMode()
         case .p, .header1, .header2, .header3, .header4, .header5, .header6:
@@ -947,7 +950,8 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
-        toolbar.defaultItems = [[mediaItem], scrollableItems]
+        toolbar.leadingItem = mediaItem
+        toolbar.defaultItems = scrollableItems
         toolbar.overflowItems = overflowItems
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
@@ -957,6 +961,14 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
+
+        toolbar.barItemHandler = { [weak self] item in
+            self?.handleAction(for: item)
+        }
+
+        toolbar.leadingItemHandler = { [weak self] item in
+            self?.showImagePicker()
+        }
 
         return toolbar
     }
