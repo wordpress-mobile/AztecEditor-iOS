@@ -206,6 +206,10 @@
         }
 
     }
+
+    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                           subtype:PHAssetCollectionSubtypeAny
+                                                           options:nil];
 }
 
 + (NSPredicate *)predicateForFilterMediaType:(WPMediaType)mediaType
@@ -559,7 +563,10 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    return [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+    });
+    return 0;
 }
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID
@@ -609,7 +616,7 @@
 
 - (PHAsset *)posterAsset {
     if (!_posterAsset) {
-        _posterAsset = [[self posterAssetFetchResult] lastObject];
+        _posterAsset = [[self posterAssetFetchResult] firstObject];
     }
 
     return _posterAsset;
