@@ -149,34 +149,6 @@
     }
 }
 
-- (void)loadGroupDataWithSuccess:(WPMediaSuccessBlock)successBlock
-                         failure:(WPMediaFailureBlock)failureBlock
-{
-    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
-    switch (status) {
-        case PHAuthorizationStatusRestricted:
-        case PHAuthorizationStatusDenied:
-        {
-            if (failureBlock) {
-                NSError *error = [NSError errorWithDomain:WPMediaPickerErrorDomain code:WPMediaErrorCodePermissionsFailed userInfo:nil];
-                failureBlock(error);
-            }
-            return;
-        }
-        case PHAuthorizationStatusNotDetermined:
-        {
-            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                [self loadGroupDataWithSuccess:successBlock failure:failureBlock];
-            }];
-        }
-        case PHAuthorizationStatusAuthorized: {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                [self loadGroupsWithSuccess:successBlock failure:failureBlock];
-            });
-        }
-    }
-}
-
 - (NSArray *)smartAlbumsToShow {
     NSMutableArray *smartAlbumsOrder = [NSMutableArray arrayWithArray:@[
                                                                         @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
