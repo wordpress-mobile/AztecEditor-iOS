@@ -1458,7 +1458,7 @@ private extension EditorDemoController
 extension EditorDemoController {
 
     struct Constants {
-        static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
+        static let defaultContentFont   = UIFont.systemFont(ofSize: 16)
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
