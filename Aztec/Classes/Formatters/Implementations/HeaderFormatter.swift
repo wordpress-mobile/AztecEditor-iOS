@@ -25,44 +25,48 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
-        var resultingAttributes = attributes
-        let newParagraphStyle = ParagraphStyle()
+    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+        guard let font = attributes[NSFontAttributeName] as? UIFont else {
+            return attributes
+        }
 
+        let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
-        if newParagraphStyle.headerLevel == 0 {
-            newParagraphStyle.appendProperty(Header(level: headerLevel, with: representation))
+        let defaultSize = defaultFontSize(from: attributes)
+        let header = Header(level: headerLevel, with: representation, defaultFontSize: defaultSize)
+        if newParagraphStyle.headers.isEmpty {
+            newParagraphStyle.appendProperty(header)
         } else {
-            newParagraphStyle.replaceProperty(ofType: Header.self, with: Header(level: headerLevel))
+            newParagraphStyle.replaceProperty(ofType: Header.self, with: header)
         }
 
+        var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
-
-        if let font = attributes[NSFontAttributeName] as? UIFont {
-            let newFont = font.withSize(headerLevel.fontSize)
-            resultingAttributes[NSFontAttributeName] = newFont
-        }
+        resultingAttributes[NSFontAttributeName] = font.withSize(headerLevel.fontSize)
 
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
-        var resultingAttributes = attributes
-        let newParagraphStyle = ParagraphStyle()
+    func remove(from attributes: [String: Any]) -> [String: Any] {
         guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
-            paragraphStyle.headerLevel != 0 else {
-            return resultingAttributes
+            let header = paragraphStyle.headers.last,
+            header.level != .none
+        else {
+            return attributes
         }
+
+        let newParagraphStyle = ParagraphStyle()
         newParagraphStyle.setParagraphStyle(paragraphStyle)
         newParagraphStyle.removeProperty(ofType: Header.self)
+
+        var resultingAttributes = attributes
         resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
 
         if let font = attributes[NSFontAttributeName] as? UIFont {
-            let newFont = font.withSize(Header.HeaderType.none.fontSize)
-            resultingAttributes[NSFontAttributeName] = newFont
+            resultingAttributes[NSFontAttributeName] = font.withSize(header.defaultFontSize)
         }
 
         return resultingAttributes
@@ -77,3 +81,22 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
     }
 }
 
+
+// MARK: - Private Helpers
+//
+private extension HeaderFormatter {
+
+    func defaultFontSize(from attributes: [String: Any]) -> CGFloat? {
+        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+            let lastHeader = paragraphStyle.headers.last
+        {
+            return lastHeader.defaultFontSize
+        }
+
+        if let font = attributes[NSFontAttributeName] as? UIFont {
+            return font.pointSize
+        }
+
+        return nil
+    }
+}
