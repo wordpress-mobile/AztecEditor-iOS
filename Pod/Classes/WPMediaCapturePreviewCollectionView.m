@@ -26,11 +26,11 @@
 {
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.backgroundColor = [UIColor blackColor];
     _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCapturePreviewCollectionView", DISPATCH_QUEUE_SERIAL);
     _previewView = [[UIView alloc] initWithFrame:self.bounds];
-    _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;    
+    _previewView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_previewView];
     
     UIImage *cameraImage = [[WPMediaPickerResources imageNamed:@"gridicons-camera-large" withExtension:@"png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
@@ -49,6 +49,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    self.previewView.frame = self.bounds;
     self.captureVideoPreviewLayer.frame = self.previewView.bounds;
 }
 
