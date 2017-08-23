@@ -697,10 +697,13 @@ extension EditorDemoController {
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {
-        let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
-            return OptionsTableViewOption(image: headerType.iconImage,
-                                          title: NSAttributedString(string: headerType.description,
-                                                                    attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
+        let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
+            let attributes = [
+                NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)
+            ]
+
+            let title = NSAttributedString(string: headerType.description, attributes: attributes)
+            return OptionsTableViewOption(image: headerType.iconImage, title: title)
         }
 
         let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
@@ -709,7 +712,9 @@ extension EditorDemoController {
                                                   fromBarItem: item,
                                                   selectedRowIndex: selectedIndex,
                                                   onSelect: { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
+            guard let range = self?.richTextView.selectedRange else {
+                return
+            }
 
             self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
             self?.optionsViewController = nil
