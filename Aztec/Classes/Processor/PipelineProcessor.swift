@@ -1,6 +1,6 @@
 import Foundation
 
-open class ProcessorPipeline: Processor {
+open class PipelineProcessor: Processor {
     private let processors: [Processor]
 
     public init(_ processors: [Processor]) {

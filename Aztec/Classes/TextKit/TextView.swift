@@ -153,11 +153,11 @@ open class TextView: UITextView {
     /// These processors will be executed on any HTML you provide to the method `setHTML()` and
     /// before Aztec attempts to parse it.
     ///
-    public var preProcessors: ProcessorPipeline?
+    public var preProcessors: PipelineProcessor?
 
     /// These processors will be executed right before returning the HTML in `getHTML()`.
     ///
-    public var postProcessors: ProcessorPipeline?
+    public var postProcessors: PipelineProcessor?
 
     // MARK: - Properties: Text Storage
 

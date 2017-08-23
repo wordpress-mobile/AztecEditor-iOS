@@ -19,12 +19,12 @@ class EditorDemoController: UIViewController {
         let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
         textView.preProcessors =
-            ProcessorPipeline([CaptionShortcodePreProcessor(),
+            PipelineProcessor([CaptionShortcodePreProcessor(),
                                VideoShortcodePreProcessor(),
                                WPVideoShortcodePreProcessor()])
 
         textView.postProcessors =
-            ProcessorPipeline([CaptionShortcodePostProcessor(),
+            PipelineProcessor([CaptionShortcodePostProcessor(),
                                VideoShortcodePostProcessor()])
 
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
