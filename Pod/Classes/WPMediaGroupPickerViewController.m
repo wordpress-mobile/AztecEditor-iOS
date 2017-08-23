@@ -42,16 +42,14 @@ static CGFloat const WPMediaGroupCellHeight = 86.0f;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^(BOOL incrementalChanges, NSIndexSet *deleted, NSIndexSet *inserted, NSIndexSet *reload, NSArray *moves) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf loadData];
-            });
+            [weakSelf loadData];            
         }];
     [self loadData];
 }
 
 - (void)loadData
 {
-    [self.dataSource loadGroupDataWithSuccess:^{
+    [self.dataSource loadDataWithOptions:WPMediaLoadOptionsGroups success:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.tableView reloadData];
         });
@@ -135,7 +133,11 @@ static CGFloat const WPMediaGroupCellHeight = 86.0f;
     }];
     cell.tag = requestKey;
     cell.titleLabel.text = [group name];
-    NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter]];
+    NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter] completionHandler:^(NSInteger result, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)result];            
+        });
+    }];
     if (numberOfAssets != NSNotFound) {
         cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];
     } else {
