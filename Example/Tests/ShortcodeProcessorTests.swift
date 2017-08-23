@@ -28,7 +28,7 @@ class ShortcodeProcessorTests: XCTestCase {
             return html
         })
         let sampleText = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true] Some Text"
-        let parsedText = shortCodeParser.process(text: sampleText)
+        let parsedText = shortCodeParser.process(sampleText)
         XCTAssertEqual(parsedText, "<video src=\"videopress://OcobLTqC\" data-wpvideopress=\"OcobLTqC\" width=640 height=400 /> Some Text")
     }
 
@@ -42,7 +42,7 @@ class ShortcodeProcessorTests: XCTestCase {
             return html
         })
         let sampleText = "[video src=\"video-source.mp4\"]"
-        let parsedText = shortCodeParser.process(text: sampleText)
+        let parsedText = shortCodeParser.process(sampleText)
         XCTAssertEqual(parsedText, "<video src=\"video-source.mp4\" />")
     }
     
