@@ -2,20 +2,20 @@ import Foundation
 import libxml2
 
 
-class InHTMLConverter: SafeConverter {
+class HTMLParser {
     
     enum Error: String, Swift.Error {
         case NoRootNode = "No root node"
     }
 
-    /// Converts HTML data into an HTML Node representing the same data.
+    /// Parses HTML data into an HTML Node representing the same data.
     ///
     /// - Parameters:
-    ///     - html: the HTML string to convert.
+    ///     - html: the HTML string to parse.
     ///
     /// - Returns: the HTML root node.
     ///
-    func convert(_ html: String) -> RootNode {
+    func parse(_ html: String) -> RootNode {
 
         // We wrap the HTML into a special root node, since it helps avoid conversion issues
         // with libxml2, where the library would add custom tags to "fix" the HTML code we
@@ -69,7 +69,13 @@ class InHTMLConverter: SafeConverter {
 
         guard let rootNode = rootNodePtr?.pointee,
             let node = nodeConverter.convert(rootNode) as? RootNode else {
-                return RootNode(children: [])
+                return RootNode(children: [TextNode(text: "")])
+        }
+
+        // Don't let this method return an empty root node.
+        //
+        if node.children.count == 0 {
+            node.children.append(TextNode(text: html))
         }
 
         return node

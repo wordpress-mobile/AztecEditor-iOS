@@ -6,8 +6,7 @@ import XCTest
 //
 class OutHTMLConverterTests: XCTestCase {
 
-    typealias InConverter   = InHTMLConverter
-    typealias OutConverter  = OutHTMLConverter
+    typealias OutConverter = OutHTMLConverter
 
 
     /// Verifies that single level lists gets properly prettified and indented.
@@ -16,7 +15,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "<ul><li>Item</li><li>Item</li></ul>"
         let expected = "<ul>\n  <li>Item</li>\n  <li>Item</li>\n</ul>"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -28,7 +27,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "<ul><li><ol><li>Nested 1</li><li>Nested 2</li></ol></li><li>Regular</li></ul>"
         let expected = "<ul>\n  <li>\n    <ol>\n      <li>Nested 1</li>\n      <li>Nested 2</li>\n    </ol>\n  </li>\n  <li>Regular</li>\n</ul>"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -41,7 +40,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "<h1>Header</h1>Tail"
         let expected = "<h1>Header</h1>\nTail"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -54,7 +53,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "something something <something>"
         let expected = "something something <something></something>"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -66,7 +65,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "something something <img unknown=\"true\">"
         let expected =  "something something <img unknown=\"true\">"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter(prettyPrint: true).convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -78,7 +77,7 @@ class OutHTMLConverterTests: XCTestCase {
         let sample = "<h1><i>italic heading</h1>"
         let expected = "<h1><i>italic heading</i></h1>"
 
-        let inNode = InConverter().convert(sample)
+        let inNode = HTMLParser().parse(sample)
         let outHtml = OutConverter().convert(inNode)
 
         XCTAssertEqual(outHtml, expected)
@@ -89,7 +88,7 @@ class OutHTMLConverterTests: XCTestCase {
     func testConverterProperlySerializesImportedHtml() {
         let html = "<bold><i>Hello!</i></bold>"
 
-        let inNode = InConverter().convert(html)
+        let inNode = HTMLParser().parse(html)
         let outHtml = OutConverter().convert(inNode)
 
         XCTAssertEqual(outHtml, html)
@@ -100,7 +99,7 @@ class OutHTMLConverterTests: XCTestCase {
     func testConverterProperlySerializesImportedHtmlWithComments() {
         let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
 
-        let inNode = InConverter().convert(html)
+        let inNode = HTMLParser().parse(html)
         let outHtml = OutConverter().convert(inNode)
 
         XCTAssertEqual(outHtml, html)

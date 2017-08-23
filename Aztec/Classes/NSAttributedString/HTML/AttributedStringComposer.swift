@@ -1,12 +1,13 @@
 import Foundation
 import UIKit
 
-class HTMLNodeToNSAttributedString: SafeConverter {
+/// Composes an attributed string from an HTML tree.
+///
+class AttributedStringComposer {
 
     /// The default font descriptor that will be used as a base for conversions.
     /// 
     let defaultFontDescriptor: UIFontDescriptor
-
 
     // MARK: - Initializers
 
@@ -22,14 +23,14 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Conversion
 
-    /// Main conversion method.
+    /// Composes an attributed string with the specified node hierarchy.
     ///
     /// - Parameters:
-    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - node: the head of the tree to compose into an attributed string.
     ///
-    /// - Returns: the converted node as an `NSAttributedString`.
+    /// - Returns: the requested attributed string.
     ///
-    func convert(_ node: Node) -> NSAttributedString {
+    func compose(_ node: Node) -> NSAttributedString {
         return convert(node, inheriting: defaultAttributes)
     }
 
@@ -198,7 +199,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     }
 }
 
-private extension HTMLNodeToNSAttributedString {
+private extension AttributedStringComposer {
 
     // MARK: - NSAttributedString attribute generation
 
@@ -286,7 +287,7 @@ private extension HTMLNodeToNSAttributedString {
     }
 }
 
-extension HTMLNodeToNSAttributedString {
+extension AttributedStringComposer {
 
     // MARK: - Formatters
 
@@ -314,7 +315,7 @@ extension HTMLNodeToNSAttributedString {
     }
 }
 
-private extension HTMLNodeToNSAttributedString {
+private extension AttributedStringComposer {
 
     // MARK: - Implicit Representations
 

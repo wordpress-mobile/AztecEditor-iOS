@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - HTMLNodeToNSAttributedStringTests
 //
-class HTMLNodeToNSAttributedStringTests: XCTestCase {
+class AttributedStringComposerTests: XCTestCase {
 
     /// Verifies that <span> Nodes are preserved into the NSAttributedString instance, by means of the UnsupportedHTML
     /// attribute.
@@ -106,10 +106,10 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
     func testLineBreakTagWithinHTMLDivGetsProperlyEncodedAndDecoded() {
         let inHtml = "<div><br>Aztec, don't forget me!</div>"
 
-        let inNode = InHTMLConverter().convert(inHtml)
+        let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
 
-        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outNode = AttributedStringParser().parse(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
@@ -123,10 +123,10 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
         let inHtml = "<span><br>Aztec, don't forget me!</span>"
         let expectedHtml = "<p><span><br></span><span>Aztec, don't forget me!</span></p>"
 
-        let inNode = InHTMLConverter().convert(inHtml)
+        let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
 
-        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outNode = AttributedStringParser().parse(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
         XCTAssertEqual(outHtml, expectedHtml)
@@ -145,10 +145,10 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
         "</div>"
 
-        let inNode = InHTMLConverter().convert(inHtml)
+        let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
 
-        let outNode = NSAttributedStringToNodes().convert(attrString)
+        let outNode = AttributedStringParser().parse(attrString)
         let outHtml = OutHTMLConverter().convert(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
@@ -158,12 +158,12 @@ class HTMLNodeToNSAttributedStringTests: XCTestCase {
 
 // MARK: - Helpers
 //
-extension HTMLNodeToNSAttributedStringTests {
+extension AttributedStringComposerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
         let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
-        let converter = HTMLNodeToNSAttributedString(usingDefaultFontDescriptor: descriptor)
+        let composer = AttributedStringComposer(usingDefaultFontDescriptor: descriptor)
 
-        return converter.convert(node)
+        return composer.compose(node)
     }
 }
