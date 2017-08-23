@@ -18,12 +18,12 @@ class EditorDemoController: UIViewController {
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
-        textView.preProcessors =
+        textView.inputProcessor =
             PipelineProcessor([CaptionShortcodePreProcessor(),
                                VideoShortcodePreProcessor(),
                                WPVideoShortcodePreProcessor()])
 
-        textView.postProcessors =
+        textView.outputProcessor =
             PipelineProcessor([CaptionShortcodePostProcessor(),
                                VideoShortcodePostProcessor()])
 

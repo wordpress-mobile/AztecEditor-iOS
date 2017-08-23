@@ -150,14 +150,14 @@ open class TextView: UITextView {
 
     // MARK: - Properties: Processors
 
-    /// These processors will be executed on any HTML you provide to the method `setHTML()` and
+    /// This processor will be executed on any HTML you provide to the method `setHTML()` and
     /// before Aztec attempts to parse it.
     ///
-    public var preProcessors: PipelineProcessor?
+    public var inputProcessor: Processor?
 
-    /// These processors will be executed right before returning the HTML in `getHTML()`.
+    /// This processor will be executed right before returning the HTML in `getHTML()`.
     ///
-    public var postProcessors: PipelineProcessor?
+    public var outputProcessor: Processor?
 
     // MARK: - Properties: Text Storage
 
@@ -463,7 +463,7 @@ open class TextView: UITextView {
     open func getHTML(prettyPrint: Bool = true) -> String {
 
         let html = storage.getHTML(prettyPrint: prettyPrint)
-        let processedHTML = postProcessors?.process(html) ?? html
+        let processedHTML = outputProcessor?.process(html) ?? html
 
         return processedHTML
     }
@@ -475,7 +475,7 @@ open class TextView: UITextView {
     ///
     open func setHTML(_ html: String) {
 
-        let processedHTML = preProcessors?.process(html) ?? html
+        let processedHTML = inputProcessor?.process(html) ?? html
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
