@@ -18,6 +18,15 @@ class EditorDemoController: UIViewController {
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
         let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
 
+        textView.inputProcessor =
+            PipelineProcessor([CaptionShortcodePreProcessor(),
+                               VideoShortcodePreProcessor(),
+                               WPVideoShortcodePreProcessor()])
+
+        textView.outputProcessor =
+            PipelineProcessor([CaptionShortcodePostProcessor(),
+                               VideoShortcodePostProcessor()])
+
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
 
@@ -108,28 +117,16 @@ class EditorDemoController: UIViewController {
         }
     }
 
-
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
     var loadSampleHTML = false
 
-    private var shortcodePreProcessors = [Processor]()
-    private var shortcodePostProcessors = [Processor]()
-
     func setHTML(_ html: String) {
-        var processedHTML = html
-        for shortcodeProcessor in shortcodePreProcessors {
-            processedHTML = shortcodeProcessor.process(text: processedHTML)
-        }
-        richTextView.setHTML(processedHTML)
+        richTextView.setHTML(html)
     }
 
     func getHTML() -> String {
-        var processedHTML = richTextView.getHTML(prettyPrint: true)
-        for shortcodeProcessor in shortcodePostProcessors {
-            processedHTML = shortcodeProcessor.process(text: processedHTML)
-        }
-        return processedHTML
+        return richTextView.getHTML(prettyPrint: true)
     }
 
     fileprivate var optionsViewController: OptionsTableViewController!
@@ -157,7 +154,6 @@ class EditorDemoController: UIViewController {
         view.addSubview(separatorView)
         configureConstraints()
         registerAttachmentImageProviders()
-        registerShortcodeProcessors()
 
         let html: String
 
@@ -292,136 +288,6 @@ class EditorDemoController: UIViewController {
             richTextView.registerAttachmentImageProvider(provider)
         }
     }
-
-    // MARK: - Shortcode Processors: Main Registration Point
-
-    private func registerShortcodeProcessors() {
-
-        // This method should not be called more than once.
-        //
-        assert(shortcodePreProcessors.count == 0)
-        assert(shortcodePostProcessors.count == 0)
-
-        registerCaptionShortcodeProcessors()
-        registerVideoShortcodeProcessors()
-    }
-
-    // MARK: - Shortcode Processors: Captions
-
-    private func registerCaptionShortcodeProcessors() {
-        registerCaptionShortcodePreProcessors()
-        registerCaptionShortcodePostProcessors()
-    }
-
-    private func registerCaptionShortcodePreProcessors() {
-        let captionPreProcessor = ShortcodeProcessor(tag: "caption") { shortcode -> String in
-            var html = "<div data-shortcode=\"caption\" "
-
-            for (key, value) in shortcode.attributes.named {
-                html += "\(key)=\"\(value)\" "
-            }
-
-            for value in shortcode.attributes.unamed {
-                html += "\(value) "
-            }
-
-            if let content = shortcode.content {
-                html += ">" + content + "</div>"
-            } else {
-                html += "/>"
-            }
-
-            return html
-        }
-
-        shortcodePreProcessors.append(captionPreProcessor)
-    }
-
-    private func registerCaptionShortcodePostProcessors() {
-        let captionPostProcessor = HTMLProcessor(tag:"div", replacer: { (shortcode) in
-
-            guard let shortcodeType = shortcode.attributes.named["data-shortcode"],
-                shortcodeType.lowercased() == "caption" else {
-                    return nil
-            }
-
-            var html = "[caption "
-
-            for (key, value) in shortcode.attributes.named {
-                html += "\(key)=\"\(value)\" "
-            }
-
-            for value in shortcode.attributes.unamed {
-                html += "\(value) "
-            }
-
-            html += "]" + (shortcode.content ?? "") + "[/caption]"
-
-            return html
-        })
-
-        shortcodePostProcessors.append(captionPostProcessor)
-
-    }
-
-    // MARK: - Shortcode Processors: Video
-
-    private func registerVideoShortcodeProcessors() {
-        registerVideoShortcodePreProcessors()
-        registerVideoShortcodePostProcessors()
-    }
-
-    private func registerVideoShortcodePreProcessors() {
-        let wpVideoShortcodeProcessor = ShortcodeProcessor(tag:"wpvideo", replacer: { (shortcode) in
-            var html = "<video "
-            if let src = shortcode.attributes.unamed.first {
-                html += "src=\"videopress://\(src)\" "
-                html += "data-wpvideopress=\"\(src)\" "
-            }
-            if let width = shortcode.attributes.named["w"] {
-                html += "width=\(width) "
-            }
-            if let height = shortcode.attributes.named["h"] {
-                html += "height=\(height) "
-            }
-
-            html += "/>"
-            return html
-        })
-
-        let videoShortcodeProcessor = ShortcodeProcessor(tag:"video", replacer: { (shortcode) in
-            var html = "<video "
-            for (key, value) in shortcode.attributes.named {
-                html += "\(key)=\"\(value)\" "
-            }
-            for value in shortcode.attributes.unamed {
-                html += "\(value) "
-            }
-            html += "/>"
-            return html
-        })
-
-        shortcodePreProcessors.append(wpVideoShortcodeProcessor)
-        shortcodePreProcessors.append(videoShortcodeProcessor)
-    }
-
-    private func registerVideoShortcodePostProcessors() {
-
-        let videoShortcodeProcessor = HTMLProcessor(tag:"video", replacer: { (shortcode) in
-            var html = "[video "
-            for (key, value) in shortcode.attributes.named {
-                html += "\(key)=\"\(value)\" "
-            }
-            for value in shortcode.attributes.unamed {
-                html += "\(value) "
-            }
-            html += "/]"
-            return html
-        })
-
-        shortcodePostProcessors.append(videoShortcodeProcessor)
-    }
-
 
     // MARK: - Helpers
 

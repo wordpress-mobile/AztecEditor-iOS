@@ -25,6 +25,11 @@
 		CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F191E9EC04200859AB4 /* AztecUITests.swift */; };
 		CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
+		F13CE5421F4DD2520043368D /* CaptionShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */; };
+		F13CE5461F4DD8930043368D /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */; };
+		F13CE5481F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */; };
+		F13CE54A1F4DDA8B0043368D /* VideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */; };
+		F13CE54C1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */; };
 		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */; };
@@ -117,6 +122,11 @@
 		CC400F1B1E9EC04200859AB4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
+		F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessor.swift; sourceTree = "<group>"; };
+		F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
+		F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WPVideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
+		F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
+		F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePostProcessor.swift; sourceTree = "<group>"; };
 		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
@@ -275,7 +285,12 @@
 		FF9D82941ED452340080ACAF /* Processors */ = {
 			isa = PBXGroup;
 			children = (
+				F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */,
+				F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */,
 				FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */,
+				F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */,
+				F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */,
+				F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */,
 			);
 			name = Processors;
 			sourceTree = "<group>";
@@ -447,7 +462,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
+				F13CE5461F4DD8930043368D /* CaptionShortcodePostProcessor.swift in Sources */,
+				F13CE5421F4DD2520043368D /* CaptionShortcodePreProcessor.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
+				F13CE54A1F4DDA8B0043368D /* VideoShortcodePreProcessor.swift in Sources */,
+				F13CE5481F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift in Sources */,
 				FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
@@ -455,6 +474,7 @@
 				B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				F13CE54C1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift in Sources */,
 				B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

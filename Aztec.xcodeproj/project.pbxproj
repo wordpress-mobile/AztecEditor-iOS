@@ -105,6 +105,8 @@
 		F12F58711EF20394008AE298 /* TextListFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58601EF20394008AE298 /* TextListFormatter.swift */; };
 		F12F58721EF20394008AE298 /* UnderlineFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58611EF20394008AE298 /* UnderlineFormatter.swift */; };
 		F12F58731EF20394008AE298 /* VideoFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58621EF20394008AE298 /* VideoFormatter.swift */; };
+		F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */; };
+		F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */; };
 		F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F16DD2CB1EE99B850083A098 /* HTMLRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16DD2CA1EE99B850083A098 /* HTMLRepresentation.swift */; };
 		F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */; };
@@ -273,6 +275,8 @@
 		F12F58601EF20394008AE298 /* TextListFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatter.swift; sourceTree = "<group>"; };
 		F12F58611EF20394008AE298 /* UnderlineFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnderlineFormatter.swift; sourceTree = "<group>"; };
 		F12F58621EF20394008AE298 /* VideoFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoFormatter.swift; sourceTree = "<group>"; };
+		F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PipelineProcessor.swift; sourceTree = "<group>"; };
+		F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegexProcessor.swift; sourceTree = "<group>"; };
 		F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F16DD2CA1EE99B850083A098 /* HTMLRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLRepresentation.swift; sourceTree = "<group>"; };
 		F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRange+Helpers.swift"; sourceTree = "<group>"; };
@@ -792,6 +796,8 @@
 				FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */,
 				FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */,
 				FF20D63F1EDC389A00294B78 /* Processor.swift */,
+				F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */,
+				F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */,
 			);
 			path = Processor;
 			sourceTree = "<group>";
@@ -947,6 +953,7 @@
 				F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */,
 				F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */,
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
+				F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */,
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
 				599F25371D8BC9A1002871D6 /* InAttributeConverter.swift in Sources */,
 				B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */,
@@ -1027,6 +1034,7 @@
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
+				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
 				FF24AC991F0146AF003CA91D /* Assets.swift in Sources */,
 				599F254D1D8BC9A1002871D6 /* FormatBar.swift in Sources */,
 				F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */,

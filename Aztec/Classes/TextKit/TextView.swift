@@ -148,6 +148,17 @@ open class TextView: UITextView {
     let defaultFont: UIFont
     var defaultMissingImage: UIImage
 
+    // MARK: - Properties: Processors
+
+    /// This processor will be executed on any HTML you provide to the method `setHTML()` and
+    /// before Aztec attempts to parse it.
+    ///
+    public var inputProcessor: Processor?
+
+    /// This processor will be executed right before returning the HTML in `getHTML()`.
+    ///
+    public var outputProcessor: Processor?
+
     // MARK: - Properties: Text Storage
 
     var storage: TextStorage {
@@ -450,7 +461,11 @@ open class TextView: UITextView {
     /// - Returns: The HTML version of the current Attributed String.
     ///
     open func getHTML(prettyPrint: Bool = true) -> String {
-        return storage.getHTML(prettyPrint: prettyPrint)
+
+        let html = storage.getHTML(prettyPrint: prettyPrint)
+        let processedHTML = outputProcessor?.process(html) ?? html
+
+        return processedHTML
     }
 
 
@@ -459,6 +474,8 @@ open class TextView: UITextView {
     /// - Parameter html: The raw HTML we'd be editing.
     ///
     open func setHTML(_ html: String) {
+
+        let processedHTML = inputProcessor?.process(html) ?? html
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
@@ -468,7 +485,7 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(html, withDefaultFontDescriptor: font!.fontDescriptor)
+        storage.setHTML(processedHTML, withDefaultFontDescriptor: font!.fontDescriptor)
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
         }

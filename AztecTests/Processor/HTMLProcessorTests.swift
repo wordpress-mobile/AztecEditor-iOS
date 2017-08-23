@@ -31,7 +31,7 @@ class HTMLProcessorTests: XCTestCase {
             return html
         })
         let sampleText = "<video src=\"videopress://OcobLTqC\" width=640 height=400 data-wpvideopress=\"OcobLTqC\" />"
-        let parsedText = processor.process(text: sampleText)
+        let parsedText = processor.process(sampleText)
         XCTAssertEqual(parsedText, "[wpvideo OcobLTqC height=\"400\" width=\"640\" /]")
     }
     
