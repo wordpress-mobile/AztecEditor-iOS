@@ -17,7 +17,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [String : Any]? = nil) {
+    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [String: Any]? = nil) {
         self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
@@ -68,11 +68,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : Any]) -> Bool {
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
-            return paragraphStyle.headerLevel != 0 && paragraphStyle.headerLevel == headerLevel.rawValue
+    func present(in attributes: [String: Any]) -> Bool {
+        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+            return false
         }
-        return false
+
+        return paragraphStyle.headerLevel != 0 && paragraphStyle.headerLevel == headerLevel.rawValue
     }
 }
 
