@@ -26,7 +26,7 @@
 {
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.backgroundColor = [UIColor blackColor];
     _sessionQueue = dispatch_queue_create("org.wordpress.WPMediaCapturePreviewCollectionView", DISPATCH_QUEUE_SERIAL);
     _previewView = [[UIView alloc] initWithFrame:self.bounds];
@@ -49,6 +49,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    self.previewView.frame = self.bounds;
     self.captureVideoPreviewLayer.frame = self.previewView.bounds;
 }
 
@@ -101,10 +102,11 @@
         }
         if (!self.session.isRunning ||  !self.captureVideoPreviewLayer.connection.enabled){
             [self.session startRunning];
+            AVCaptureVideoPreviewLayer * newLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (!self.captureVideoPreviewLayer || !self.captureVideoPreviewLayer.connection.enabled) {
                     [self.captureVideoPreviewLayer removeFromSuperlayer];
-                    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+                    self.captureVideoPreviewLayer = newLayer;
                     CALayer *viewLayer = self.previewView.layer;
                     self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
                     self.captureVideoPreviewLayer.frame = viewLayer.bounds;
