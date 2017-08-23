@@ -15,12 +15,7 @@ class CaptionShortcodePostProcessor: Aztec.HTMLProcessor {
 
             var html = "[caption "
 
-            for (key, value) in shortcode.attributes.named {
-
-                guard key != dataShortcodeAttributeKey else {
-                    continue
-                }
-
+            for (key, value) in shortcode.attributes.named where key != dataShortcodeAttributeKey {
                 html += "\(key)=\"\(value)\" "
             }
 
