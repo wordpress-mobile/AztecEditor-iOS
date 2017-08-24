@@ -21,7 +21,7 @@ open class Header: ParagraphProperty {
 
         public var fontSize: CGFloat {
             switch self {
-            case .none: return 14
+            case .none: return Constants.defaultFontSize
             case .h1: return 36
             case .h2: return 24
             case .h3: return 21
@@ -38,27 +38,61 @@ open class Header: ParagraphProperty {
     ///
     let level: HeaderType
 
-    init(level: HeaderType, with representation: HTMLRepresentation? = nil) {
+    /// Default Font Size (corresponding to HeaderType.none)
+    ///
+    let defaultFontSize: CGFloat
+
+
+    // MARK: - Initializers
+
+    init(level: HeaderType, with representation: HTMLRepresentation? = nil, defaultFontSize: CGFloat? = nil) {
+        self.defaultFontSize = defaultFontSize ?? Constants.defaultFontSize
         self.level = level
         super.init(with: representation)
     }
     
     public required init?(coder aDecoder: NSCoder) {
-        if aDecoder.containsValue(forKey: String(describing: HeaderType.self)),
-            let decodedStyle = HeaderType(rawValue:aDecoder.decodeInteger(forKey: String(describing: HeaderType.self))) {
-            level = decodedStyle
+        if aDecoder.containsValue(forKey: Keys.level),
+            let decodedLevel = HeaderType(rawValue: aDecoder.decodeInteger(forKey: Keys.level))
+        {
+            level = decodedLevel
         } else {
             level = .none
         }
+
+        if aDecoder.containsValue(forKey: Keys.level) {
+            defaultFontSize = CGFloat(aDecoder.decodeFloat(forKey: Keys.defaultFontSize))
+        } else {
+            defaultFontSize = Constants.defaultFontSize
+        }
+
         super.init(coder: aDecoder)
     }
 
+
+    // MARK: - NSCoder
+
     public override func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
-        aCoder.encode(level.rawValue, forKey: String(describing: HeaderType.self))
+        aCoder.encode(defaultFontSize, forKey: Keys.defaultFontSize)
+        aCoder.encode(level.rawValue, forKey: Keys.level)
     }
 
     static func ==(lhs: Header, rhs: Header) -> Bool {
         return lhs.level == rhs.level
+    }
+}
+
+
+// MARK: - Private Helpers
+//
+private extension Header {
+    struct Constants {
+        static let defaultFontSize = CGFloat(14)
+    }
+
+    struct Keys {
+        static let defaultFontSize = "defaultFontSize"
+        static let level = String(describing: HeaderType.self)
     }
 }
