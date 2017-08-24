@@ -19,6 +19,7 @@
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
+@property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
@@ -44,6 +45,7 @@ static CGFloat SelectAnimationTime = 0.2;
     if (self) {
         _layout = layout;
         _internalSelectedAssets = [[NSMutableArray alloc] init];
+        _capturedAsset = nil;
         _options = [options copy];
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];        
@@ -300,30 +302,27 @@ static CGFloat SelectAnimationTime = 0.2;
         __typeof__(self) strongSelf = weakSelf;
         BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
         strongSelf.refreshGroupFirstTime = NO;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{                
+            strongSelf.collectionView.allowsSelection = YES;
+            strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
+            strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf refreshSelection];
-            dispatch_async(dispatch_get_main_queue(), ^{                
-                strongSelf.collectionView.allowsSelection = YES;
-                strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
-                strongSelf.collectionView.scrollEnabled = YES;
-                [strongSelf.collectionView reloadData];
+            [strongSelf.collectionView reloadData];
 
-                if (animated) {
+            if (animated) {
+                [strongSelf.refreshControl endRefreshing];
+            } else {
+                [UIView performWithoutAnimation:^{
                     [strongSelf.refreshControl endRefreshing];
-                } else {
-                    [UIView performWithoutAnimation:^{
-                        [strongSelf.refreshControl endRefreshing];
-                    }];
-                }
+                }];
+            }
 
-                // Scroll to the correct position
-                if (refreshGroupFirstTime){
-                    [strongSelf scrollToStart:NO];
-                }
+            // Scroll to the correct position
+            if (refreshGroupFirstTime){
+                [strongSelf scrollToStart:NO];
+            }
 
-                [strongSelf informDelegateDidEndLoadingData];
-            });
- 
+            [strongSelf informDelegateDidEndLoadingData];
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
@@ -402,6 +401,18 @@ static CGFloat SelectAnimationTime = 0.2;
             [stillExistingSeletedAssets addObject:asset];
         }
     }
+    if (self.capturedAsset != nil) {
+        NSString *assetIdentifier = [self.capturedAsset identifier];
+        if ([self.dataSource mediaWithIdentifier:assetIdentifier]) {
+            [stillExistingSeletedAssets addObject:self.capturedAsset];
+        }
+        NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
+        [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
+                                          animated:NO
+                                    scrollPosition:UICollectionViewScrollPositionNone];
+        self.capturedAsset = nil;
+    }
+
     self.internalSelectedAssets = stillExistingSeletedAssets;
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:selectionChanged:)]) {
         [self.mediaPickerDelegate mediaPickerController:self selectionChanged:[self.internalSelectedAssets copy]];
@@ -730,12 +741,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     BOOL willBeSelected = YES;
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         if ([self.mediaPickerDelegate mediaPickerController:self shouldSelectAsset:asset]) {
-            [self.internalSelectedAssets addObject:asset];
+            self.capturedAsset = asset;
         } else {
             willBeSelected = NO;
         }
     } else {
-        [self.internalSelectedAssets addObject:asset];
+        self.capturedAsset = asset;
     }
     
     if (!willBeSelected) {
@@ -749,10 +760,6 @@ referenceSizeForFooterInSection:(NSInteger)section
             [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.internalSelectedAssets copy]];
         }
     }
-    NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
-    [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
-                                      animated:YES
-                                scrollPosition:UICollectionViewScrollPositionNone];
 }
 
 #pragma mark - UIImagePickerControllerDelegate
