@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 `WPMediaPicker` adheres to [Semantic Versioning](http://semver.org/).
 
 #### 0.x Releases
+- `0.20` Release  - [0.20](#20)
 - `0.19` Release  - [0.19](#19)
 - `0.18` Releases - [0.18](#18)
 - `0.17` Releases - [0.17](#17)
@@ -10,6 +11,18 @@ All notable changes to this project will be documented in this file.
 - `0.15` Releases - [0.15](#15)
 
 ---
+## [0.20](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.20)
+Released on 2017-08-25. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.20).
+
+### Added
+- New design for the picker media cells. #203 #205
+- New design and interaction for album selector. #207
+
+### Fixed
+- Improved perfomanced of loading albums and assets on the picker. #209
+- Fixed selection bug when capturing new cell. #214
+- Improved performance when capturing new media inside the picker. #211
 
 ## [0.19](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.19)
 Released on 2017-07-26. All issues associated with this milestone can be found using this
