@@ -1,7 +1,7 @@
 import XCTest
 @testable import Aztec
 
-class HTMLToAttributedStringTests: XCTestCase {
+class NSAttributedStringHTMLInitializerTests: XCTestCase {
 
     let defaultFontDescriptor = UIFont.systemFont(ofSize: 12).fontDescriptor
 
