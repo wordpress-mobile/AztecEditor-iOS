@@ -279,13 +279,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (void)refreshDataAnimated:(BOOL)animated
 {
-    if (self.refreshGroupFirstTime) {
-        if (![self.refreshControl isRefreshing]) {
-            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
-            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
-            [self.refreshControl beginRefreshing];
-        }        
-    }
+    [self.refreshControl beginRefreshing];
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
