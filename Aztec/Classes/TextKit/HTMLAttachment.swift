@@ -54,7 +54,7 @@ open class HTMLAttachment: NSTextAttachment {
     /// Extracts the root tag name from a given HTML string
     ///
     private func extractRootTagName(from html: String) -> String {
-        let root = InHTMLConverter().convert(html)
+        let root = HTMLParser().parse(html)
         let firstChildren = root.children.first
 
         return firstChildren?.name ?? NSLocalizedString("Unknown", comment: "Unknown Tag Name")
@@ -64,11 +64,11 @@ open class HTMLAttachment: NSTextAttachment {
     /// Returns the Pretty Printed version of the contained HTML
     ///
     open func prettyHTML() -> String {
-        let inParser = InHTMLConverter()
-        let outParser = OutHTMLConverter(prettyPrint: true)
+        let htmlParser = HTMLParser()
+        let serializer = HTMLSerializer(prettyPrint: true)
 
-        let inNode = inParser.convert(rawHTML)
-        return outParser.convert(inNode)
+        let inNode = htmlParser.parse(rawHTML)
+        return serializer.serialize(inNode)
     }
 
 

@@ -305,21 +305,19 @@ open class TextStorage: NSTextStorage {
     // MARK: - HTML Interaction
 
     open func getHTML(prettyPrint: Bool = false) -> String {
-        let converter = NSAttributedStringToNodes()
-        let rootNode = converter.convert(self)
+        let parser = AttributedStringParser()
+        let rootNode = parser.parse(self)
 
-        let serializer = OutHTMLConverter(prettyPrint: prettyPrint)
-        return serializer.convert(rootNode)
+        let serializer = HTMLSerializer(prettyPrint: prettyPrint)
+        return serializer.serialize(rootNode)
 
     }
 
     func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
 
         let originalLength = textStore.length
-        let converter = HTMLToAttributedString(usingDefaultFontDescriptor: defaultFontDescriptor)
 
-        let (_, attributedString) = converter.convert(html)
-        textStore = NSMutableAttributedString(attributedString: attributedString)
+        textStore = NSMutableAttributedString(withHTML: html, usingDefaultFontDescriptor: defaultFontDescriptor)
 
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self

@@ -2,19 +2,18 @@ import Foundation
 import UIKit
 import libxml2
 
+/// Parses an attributed string into an HTML tree.
+///
+class AttributedStringParser {
 
-// MARK: - NSAttributedStringToNodes
-//
-class NSAttributedStringToNodes: Converter {
-
-    /// Converts an Attributed String Instance into it's HTML Tree Representation.
+    /// Parses an attributed string and returns the corresponding HTML tree.
     ///
     /// - Parameters:
-    ///     - attrString: Attributed String that should be converted.
+    ///     - attrString: the attributed string to parse
     ///
-    /// - Returns: RootNode, representing the DOM Tree.
+    /// - Returns: the HTML tree.
     ///
-    func convert(_ attrString: NSAttributedString) -> RootNode {
+    func parse(_ attrString: NSAttributedString) -> RootNode {
         var nodes = [Node]()
         var previous: [Node]?
 
@@ -112,7 +111,7 @@ class NSAttributedStringToNodes: Converter {
 
 // MARK: - Merge: Helpers
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Defines a Tree Branch: Collection of Nodes, with a set of Leaves
     ///
@@ -161,7 +160,7 @@ private extension NSAttributedStringToNodes {
 
 // MARK: - Merge: Styles
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Given a collection of branches, this method will iterate branch by branch and will:
     ///
@@ -309,7 +308,7 @@ private extension NSAttributedStringToNodes {
 
 // MARK: - Merge: Paragraphs
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
@@ -379,7 +378,7 @@ private extension NSAttributedStringToNodes {
 
 // MARK: - Paragraph Nodes Extraction
 //
-extension NSAttributedStringToNodes {
+extension AttributedStringParser {
 
     /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
     ///
@@ -422,7 +421,7 @@ extension NSAttributedStringToNodes {
 
 // MARK: - Paragraph Nodes: Alloc'ation
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
     ///
@@ -619,7 +618,7 @@ private extension NSAttributedStringToNodes {
 
 // MARK: - Style Nodes: Alloc'ation
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Extracts all of the Style Nodes contained within a collection of AttributedString Attributes.
     ///
@@ -771,9 +770,9 @@ private extension NSAttributedStringToNodes {
 }
 
 
-// MARK: - Leaf Nodes: Alloc'ation
+// MARK: - Leaf Nodes: Allocation
 //
-private extension NSAttributedStringToNodes {
+private extension AttributedStringParser {
 
     /// Extract all of the Leaf Nodes contained within an Attributed String. We consider the following as Leaf:
     /// Plain Text, Attachments of any kind [Line, Comment, HTML, Image].
@@ -847,9 +846,9 @@ private extension NSAttributedStringToNodes {
             return []
         }
 
-        let converter = InHTMLConverter()
+        let htmlParser = HTMLParser()
 
-        let rootNode = converter.convert(attachment.rawHTML)
+        let rootNode = htmlParser.parse(attachment.rawHTML)
 
         guard let firstChild = rootNode.children.first else {
             return processTextNodes(from: attachment.rawHTML)

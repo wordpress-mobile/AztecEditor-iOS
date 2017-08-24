@@ -460,7 +460,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    open func getHTML(prettyPrint: Bool = true) -> String {
+    public func getHTML(prettyPrint: Bool = true) -> String {
 
         let html = storage.getHTML(prettyPrint: prettyPrint)
         let processedHTML = outputProcessor?.process(html) ?? html
@@ -468,12 +468,11 @@ open class TextView: UITextView {
         return processedHTML
     }
 
-
     /// Loads the specified HTML into the editor.
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    open func setHTML(_ html: String) {
+    public func setHTML(_ html: String) {
 
         let processedHTML = inputProcessor?.process(html) ?? html
         
@@ -486,9 +485,11 @@ open class TextView: UITextView {
         font = defaultFont
         
         storage.setHTML(processedHTML, withDefaultFontDescriptor: font!.fontDescriptor)
+
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
         }
+
         delegate?.textViewDidChange?(self)
         formattingDelegate?.textViewCommandToggledAStyle()
     }

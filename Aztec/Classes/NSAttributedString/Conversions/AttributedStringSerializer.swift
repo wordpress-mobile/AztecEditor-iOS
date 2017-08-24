@@ -1,12 +1,13 @@
 import Foundation
 import UIKit
 
-class HTMLNodeToNSAttributedString: SafeConverter {
+/// Composes an attributed string from an HTML tree.
+///
+class AttributedStringSerializer {
 
     /// The default font descriptor that will be used as a base for conversions.
     /// 
     let defaultFontDescriptor: UIFontDescriptor
-
 
     // MARK: - Initializers
 
@@ -22,19 +23,18 @@ class HTMLNodeToNSAttributedString: SafeConverter {
 
     // MARK: - Conversion
 
-    /// Main conversion method.
+    /// Serializes an attributed string with the specified node hierarchy.
     ///
     /// - Parameters:
-    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - node: the head of the tree to compose into an attributed string.
     ///
-    /// - Returns: the converted node as an `NSAttributedString`.
+    /// - Returns: the requested attributed string.
     ///
-    func convert(_ node: Node) -> NSAttributedString {
-        return convert(node, inheriting: defaultAttributes)
+    func serialize(_ node: Node) -> NSAttributedString {
+        return serialize(node, inheriting: defaultAttributes)
     }
 
-    /// Recursive conversion method.  Useful for maintaining the font style of parent nodes when
-    /// converting.
+    /// Recursive serialization method.  Useful for maintaining the font style of parent nodes.
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
@@ -42,20 +42,20 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
-            return convert(textNode, inheriting: attributes)
+            return serialize(textNode, inheriting: attributes)
         case let commentNode as CommentNode:
-            return convert(commentNode, inheriting: attributes)
+            return serialize(commentNode, inheriting: attributes)
         case let elementNode as ElementNode:
-            return convert(elementNode, inheriting: attributes)
+            return serialize(elementNode, inheriting: attributes)
         default:
             fatalError("Nodes can be either text, comment or element nodes.")
         }
     }
 
-    /// Converts a `TextNode` to `NSAttributedString`.
+    /// Serializes a `TextNode`.
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
@@ -63,7 +63,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
 
         let string: NSAttributedString
 
@@ -80,7 +80,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         return string
     }
 
-    /// Converts a `CommentNode` to `NSAttributedString`.
+    /// Serializes a `CommentNode`.
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
@@ -88,14 +88,14 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
-    /// Converts an `ElementNode` to `NSAttributedString`.
+    /// Serializes an `ElementNode`.
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
@@ -103,10 +103,10 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func convert(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
 
         guard element.isSupportedByEditor() else {
-            return convert(unsupported: element, inheriting: attributes)
+            return serialize(unsupported: element, inheriting: attributes)
         }
 
         let childAttributes = self.attributes(for: element, inheriting: attributes)
@@ -116,7 +116,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
             content.append(representation)
         } else {
             for child in element.children {
-                let childContent = convert(child, inheriting: childAttributes)
+                let childContent = serialize(child, inheriting: childAttributes)
                 content.append(childContent)
             }
         }
@@ -128,12 +128,14 @@ class HTMLNodeToNSAttributedString: SafeConverter {
         return content
     }
 
-    fileprivate func convert(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        let converter = OutHTMLConverter()
+    /// Serializes an unsupported element.
+    ///
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+        let serializer = HTMLSerializer()
         let attachment = HTMLAttachment()
 
         attachment.rootTagName = element.name
-        attachment.rawHTML = converter.convert(element)
+        attachment.rawHTML = serializer.serialize(element)
 
         return NSAttributedString(attachment: attachment, attributes: attributes)
     }
@@ -198,7 +200,7 @@ class HTMLNodeToNSAttributedString: SafeConverter {
     }
 }
 
-private extension HTMLNodeToNSAttributedString {
+private extension AttributedStringSerializer {
 
     // MARK: - NSAttributedString attribute generation
 
@@ -286,7 +288,7 @@ private extension HTMLNodeToNSAttributedString {
     }
 }
 
-extension HTMLNodeToNSAttributedString {
+extension AttributedStringSerializer {
 
     // MARK: - Formatters
 
@@ -314,7 +316,7 @@ extension HTMLNodeToNSAttributedString {
     }
 }
 
-private extension HTMLNodeToNSAttributedString {
+private extension AttributedStringSerializer {
 
     // MARK: - Implicit Representations
 

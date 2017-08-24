@@ -1,14 +1,14 @@
 import XCTest
 @testable import Aztec
 
-class InHTMLConverterTests: XCTestCase {
+class HTMLParserTests: XCTestCase {
 
     func testSimpleHTMLConversion() {
-        let parser = InHTMLConverter()
+        let parser = HTMLParser()
 
         let html = "<bold>Hello!</bold>"
 
-        let rootNode = parser.convert(html)
+        let rootNode = parser.parse(html)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -29,11 +29,11 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testComplexHTMLConversion() {
-        let parser = InHTMLConverter()
+        let parser = HTMLParser()
 
         let html = "<div styLe='a' nostyle peace='123'>Hello <b>World</b>!</div>"
 
-        let rootNode = parser.convert(html)
+        let rootNode = parser.parse(html)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
@@ -68,11 +68,11 @@ class InHTMLConverterTests: XCTestCase {
     }
 
     func testNonASCIIConversion() {
-        let parser = InHTMLConverter()
+        let parser = HTMLParser()
 
         let html = "Otro año más"
 
-        let rootNode = parser.convert(html)
+        let rootNode = parser.parse(html)
 
         XCTAssertEqual(rootNode.children.count, 1)
 
