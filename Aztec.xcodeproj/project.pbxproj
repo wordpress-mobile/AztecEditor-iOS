@@ -52,6 +52,7 @@
 		B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */; };
 		B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */; };
 		B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */; };
+		B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */; };
 		B5C99D3F1E72E2E700335355 /* UIStackView+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */; };
 		B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */; };
 		B5D575831F22820A003A62F6 /* HTMLRepresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */; };
@@ -222,6 +223,7 @@
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
 		B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Lists.swift"; sourceTree = "<group>"; };
 		B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringListsTests.swift; path = Extensions/NSAttributedStringListsTests.swift; sourceTree = "<group>"; };
+		B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderFormatterTests.swift; sourceTree = "<group>"; };
 		B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Helpers.swift"; sourceTree = "<group>"; };
 		B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnsupportedHTMLTests.swift; path = TextKit/UnsupportedHTMLTests.swift; sourceTree = "<group>"; };
 		B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HTMLRepresentationTests.swift; path = TextKit/HTMLRepresentationTests.swift; sourceTree = "<group>"; };
@@ -614,6 +616,7 @@
 				E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */,
 				FFD436971E3180A500A0E26F /* FontFormatterTests.swift */,
 				B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */,
+				B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -1083,6 +1086,7 @@
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				F17BC8A21F4E4F5A00398E2B /* HTMLSerializerTests.swift in Sources */,
 				F1953E251F4E544A00C717C9 /* HTMLParserTests.swift in Sources */,
+				B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */,
 				B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */,
 				F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */,
 				F17BC8751F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift in Sources */,

@@ -335,7 +335,7 @@ extension ParagraphStyle {
         }
     }
 
-    /// Removes the first ParagraphProperty present in the Properties collection with a given instance
+    /// Replaces the first ParagraphProperty present in the Properties collection with a given instance
     ///
     func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
         for index in (0..<properties.count).reversed() {

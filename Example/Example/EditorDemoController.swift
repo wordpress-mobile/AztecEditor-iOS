@@ -563,10 +563,13 @@ extension EditorDemoController {
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {
-        let headerOptions = Constants.headers.map { (headerType) -> OptionsTableViewOption in
-            return OptionsTableViewOption(image: headerType.iconImage,
-                                          title: NSAttributedString(string: headerType.description,
-                                                                    attributes:[NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)]))
+        let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
+            let attributes = [
+                NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)
+            ]
+
+            let title = NSAttributedString(string: headerType.description, attributes: attributes)
+            return OptionsTableViewOption(image: headerType.iconImage, title: title)
         }
 
         let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
@@ -575,7 +578,9 @@ extension EditorDemoController {
                                                   fromBarItem: item,
                                                   selectedRowIndex: selectedIndex,
                                                   onSelect: { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
+            guard let range = self?.richTextView.selectedRange else {
+                return
+            }
 
             self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
             self?.optionsViewController = nil
@@ -1319,7 +1324,7 @@ private extension EditorDemoController
 extension EditorDemoController {
 
     struct Constants {
-        static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
+        static let defaultContentFont   = UIFont.systemFont(ofSize: 16)
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
         static let defaultMissingImage  = Gridicon.iconOfType(.image)
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
