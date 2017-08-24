@@ -33,7 +33,7 @@
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
-		59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */; };
+		59FEA07A1D8BDFA700D138DF /* HTMLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06C1D8BDFA700D138DF /* HTMLParserTests.swift */; };
 		B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */; };
 		B50CE7341F1FABA00018CAA1 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = B50CE7331F1FABA00018CAA1 /* content.html */; };
 		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
@@ -204,7 +204,7 @@
 		599F25581D8BCA01002871D6 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		599F255B1D8BCDB4002871D6 /* Gridicons.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gridicons.framework; path = Example/Carthage/Build/iOS/Gridicons.framework; sourceTree = "<group>"; };
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
-		59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InHTMLConverterTests.swift; sourceTree = "<group>"; };
+		59FEA06C1D8BDFA700D138DF /* HTMLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLParserTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Strip.swift"; sourceTree = "<group>"; };
 		B50CE7331F1FABA00018CAA1 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = content.html; path = Example/Example/SampleContent/content.html; sourceTree = SOURCE_ROOT; };
@@ -588,7 +588,7 @@
 			isa = PBXGroup;
 			children = (
 				59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */,
-				59FEA06C1D8BDFA700D138DF /* InHTMLConverterTests.swift */,
+				59FEA06C1D8BDFA700D138DF /* HTMLParserTests.swift */,
 				59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */,
 			);
 			path = Importer;
@@ -1083,7 +1083,7 @@
 				B5D575871F2288E2003A62F6 /* TextStorageTests.swift in Sources */,
 				F17BC8B61F4E517100398E2B /* AttributedStringSerializerTests.swift in Sources */,
 				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
-				59FEA07A1D8BDFA700D138DF /* InHTMLConverterTests.swift in Sources */,
+				59FEA07A1D8BDFA700D138DF /* HTMLParserTests.swift in Sources */,
 				F17BC8A41F4E4F5A00398E2B /* NodeTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				F17BC8A21F4E4F5A00398E2B /* HTMLSerializerTests.swift in Sources */,

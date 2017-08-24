@@ -1,7 +1,7 @@
 import XCTest
 @testable import Aztec
 
-class InHTMLConverterTests: XCTestCase {
+class HTMLParserTests: XCTestCase {
 
     func testSimpleHTMLConversion() {
         let parser = HTMLParser()
