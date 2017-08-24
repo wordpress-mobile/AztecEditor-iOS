@@ -774,11 +774,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (group == [self.dataSource selectedGroup]){
         return;
     }
-
-    self.refreshGroupFirstTime = YES;
-    [self.collectionView reloadData];
     [self.dataSource setSelectedGroup:group];
-    [self refreshData];
+    if (self.isViewLoaded) {
+        self.refreshGroupFirstTime = YES;
+        [self.collectionView reloadData];
+        [self refreshData];
+    }
 }
 
 #pragma mark - Long Press Handling
