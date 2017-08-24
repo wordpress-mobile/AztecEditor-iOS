@@ -1,10 +1,7 @@
 import XCTest
 @testable import Aztec
 
-
-// MARK: - HTMLNodeToNSAttributedStringTests
-//
-class AttributedStringComposerTests: XCTestCase {
+class AttributedStringSerializerTests: XCTestCase {
 
     /// Verifies that <span> Nodes are preserved into the NSAttributedString instance, by means of the UnsupportedHTML
     /// attribute.
@@ -110,7 +107,7 @@ class AttributedStringComposerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = OutHTMLConverter().convert(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
     }
@@ -127,7 +124,7 @@ class AttributedStringComposerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = OutHTMLConverter().convert(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, expectedHtml)
     }
@@ -149,7 +146,7 @@ class AttributedStringComposerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = OutHTMLConverter().convert(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
     }
@@ -158,11 +155,11 @@ class AttributedStringComposerTests: XCTestCase {
 
 // MARK: - Helpers
 //
-extension AttributedStringComposerTests {
+extension AttributedStringSerializerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
         let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
-        let composer = AttributedStringComposer(usingDefaultFontDescriptor: descriptor)
+        let composer = AttributedStringSerializer(usingDefaultFontDescriptor: descriptor)
 
         return composer.compose(node)
     }

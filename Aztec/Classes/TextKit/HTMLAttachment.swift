@@ -65,10 +65,10 @@ open class HTMLAttachment: NSTextAttachment {
     ///
     open func prettyHTML() -> String {
         let htmlParser = HTMLParser()
-        let outParser = OutHTMLConverter(prettyPrint: true)
+        let serializer = HTMLSerializer(prettyPrint: true)
 
         let inNode = htmlParser.parse(rawHTML)
-        return outParser.convert(inNode)
+        return serializer.serialize(inNode)
     }
 
 

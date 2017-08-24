@@ -2,9 +2,9 @@ import Foundation
 import libxml2
 
 
-// MARK: - HTML Prettifier!
-//
-class OutHTMLConverter: Converter {
+/// Composes the provided nodes into its HTML representation.
+///
+class HTMLSerializer {
 
     /// Indentation Spaces to be applied
     ///
@@ -13,7 +13,6 @@ class OutHTMLConverter: Converter {
     /// Indicates whether we want Pretty Print or not
     ///
     let prettyPrint: Bool
-
 
     /// Default Initializer
     ///
@@ -27,55 +26,53 @@ class OutHTMLConverter: Converter {
     }
 
 
-    /// Converts a Node into it's HTML String Representation
+    /// Serializes a node into its HTML representation
     ///
-    func convert(_ rawNode: Node) -> String {
-        return convert(node: rawNode).trimmingCharacters(in: CharacterSet.newlines)
+    func serialize(_ node: Node) -> String {
+        return serialize(node: node).trimmingCharacters(in: CharacterSet.newlines)
     }
 }
 
 
-// MARK: - Nodes: Serialization
+// MARK: - Nodes: Composition
 //
-private extension OutHTMLConverter {
+private extension HTMLSerializer {
 
-    /// Serializes a Node into it's HTML String Representation
+    /// Serializes a node into its HTML representation
     ///
-    func convert(node: Node, level: Int = 0) -> String {
+    func serialize(node: Node, level: Int = 0) -> String {
         switch node {
         case let node as RootNode:
-            return convert(root: node)
+            return serialize(root: node)
         case let node as CommentNode:
-            return convert(comment: node)
+            return serialize(comment: node)
         case let node as ElementNode:
-            return convert(element: node, level: level)
+            return serialize(element: node, level: level)
         case let node as TextNode:
-            return convert(text: node)
+            return serialize(text: node)
         default:
             fatalError("We're missing support for a node type.  This should not happen.")
         }
     }
 
 
-    /// Serializes a RootNode into it's HTML String Representation
+    /// Serializes a `RootNode` into its HTML representation
     ///
-    private func convert(root node: RootNode) -> String {
+    private func serialize(root node: RootNode) -> String {
         return node.children.reduce("") { (result, node) in
-            return result + convert(node: node)
+            return result + serialize(node: node)
         }
     }
 
-
-    /// Serializes a CommentNode into it's HTML String Representation
+    /// Serializes a `CommentNode` into its HTML representation
     ///
-    private func convert(comment node: CommentNode) -> String {
+    private func serialize(comment node: CommentNode) -> String {
         return "<!--" + node.comment + "-->"
     }
 
-
-    /// Serializes an ElementNode into it's HTML String Representation
+    /// Serializes an `ElementNode` into its HTML representation
     ///
-    private func convert(element node: ElementNode, level: Int) -> String {
+    private func serialize(element node: ElementNode, level: Int) -> String {
         let opening = openingTag(for: node, at: level)
 
         guard let closing = closingTag(for: node, at: level) else {
@@ -83,16 +80,15 @@ private extension OutHTMLConverter {
         }
 
         let children = node.children.reduce("") { (html, child)in
-            return html + convert(node: child, level: level + 1)
+            return html + serialize(node: child, level: level + 1)
         }
 
         return opening + children + closing
     }
 
-
-    /// Serializes a TextNode into it's HTML String Representation
+    /// Serializes an `TextNode` into its HTML representation
     ///
-    private func convert(text node: TextNode) -> String {
+    private func serialize(text node: TextNode) -> String {
         return node.text().escapeHtmlNamedEntities()
     }
 }
@@ -101,13 +97,13 @@ private extension OutHTMLConverter {
 
 // MARK: - ElementNode: Helpers
 //
-private extension OutHTMLConverter {
+private extension HTMLSerializer {
 
     /// Returns the Opening Tag for a given Element Node
     ///
     func openingTag(for node: ElementNode, at level: Int) -> String {
         let prefix = requiresOpeningTagPrefix(node) ? prefixForTag(at: level) : ""
-        let attributes = convert(attributes: node.attributes)
+        let attributes = serialize(attributes: node.attributes)
 
         return prefix + "<" + node.name + attributes + ">"
     }
@@ -184,11 +180,11 @@ private extension OutHTMLConverter {
 
 // MARK: - Attributes: Serialization
 //
-private extension OutHTMLConverter {
+private extension HTMLSerializer {
 
-    /// Serializes a collection of Attributes into their HTML Form
+    /// Serializes an array of attributes into their HTML representation
     ///
-    func convert(attributes: [Attribute]) -> String {
+    func serialize(attributes: [Attribute]) -> String {
         return attributes.reduce("") { (html, attribute) in
             return html + String(.space) + attribute.toString()
         }
@@ -199,7 +195,7 @@ private extension OutHTMLConverter {
 
 // MARK: - Private Constants
 //
-private extension OutHTMLConverter {
+private extension HTMLSerializer {
 
     struct Constants {
 

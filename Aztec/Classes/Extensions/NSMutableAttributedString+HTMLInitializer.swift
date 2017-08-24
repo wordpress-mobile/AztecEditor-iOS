@@ -8,8 +8,8 @@ extension NSMutableAttributedString {
         let htmlParser = HTMLParser()
         let rootNode = htmlParser.parse(html)
 
-        let attributedStringComposer = AttributedStringComposer(usingDefaultFontDescriptor: descriptor)
-        let attributedString = attributedStringComposer.compose(rootNode)
+        let serializer = AttributedStringSerializer(usingDefaultFontDescriptor: descriptor)
+        let attributedString = serializer.serialize(rootNode)
 
         self.init(attributedString: attributedString)
     }

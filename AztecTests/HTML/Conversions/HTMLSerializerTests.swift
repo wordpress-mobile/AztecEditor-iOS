@@ -1,13 +1,7 @@
 import XCTest
 @testable import Aztec
 
-
-// MARK: - OutHTMLConverterTests
-//
-class OutHTMLConverterTests: XCTestCase {
-
-    typealias OutConverter = OutHTMLConverter
-
+class HTMLSerializerTests: XCTestCase {
 
     /// Verifies that single level lists gets properly prettified and indented.
     ///
@@ -16,7 +10,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>Item</li>\n  <li>Item</li>\n</ul>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+        let outHtml = HTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -28,7 +22,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<ul>\n  <li>\n    <ol>\n      <li>Nested 1</li>\n      <li>Nested 2</li>\n    </ol>\n  </li>\n  <li>Regular</li>\n</ul>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+        let outHtml = HTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -41,7 +35,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<h1>Header</h1>\nTail"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+        let outHtml = HTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -54,7 +48,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "something something <something></something>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+        let outHtml = HTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -66,7 +60,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected =  "something something <img unknown=\"true\">"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter(prettyPrint: true).convert(inNode)
+        let outHtml = HTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -78,7 +72,7 @@ class OutHTMLConverterTests: XCTestCase {
         let expected = "<h1><i>italic heading</i></h1>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = OutConverter().convert(inNode)
+        let outHtml = HTMLSerializer().serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -89,7 +83,7 @@ class OutHTMLConverterTests: XCTestCase {
         let html = "<bold><i>Hello!</i></bold>"
 
         let inNode = HTMLParser().parse(html)
-        let outHtml = OutConverter().convert(inNode)
+        let outHtml = HTMLSerializer().serialize(inNode)
 
         XCTAssertEqual(outHtml, html)
     }
@@ -100,7 +94,7 @@ class OutHTMLConverterTests: XCTestCase {
         let html = "<!--Hello Sample--><bold><i>Hello!</i></bold>"
 
         let inNode = HTMLParser().parse(html)
-        let outHtml = OutConverter().convert(inNode)
+        let outHtml = HTMLSerializer().serialize(inNode)
 
         XCTAssertEqual(outHtml, html)
     }
