@@ -137,9 +137,7 @@
     } else {
         self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
     }
-    if ([self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue]) {
-        self.mediaInputViewController.scrollVertically = YES;
-    }
+    self.mediaInputViewController.scrollVertically = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
 
     [self addChildViewController:self.mediaInputViewController];
     _quickInputTextField.inputView = self.mediaInputViewController.view;

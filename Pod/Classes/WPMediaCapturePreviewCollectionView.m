@@ -102,18 +102,18 @@
         }
         if (!self.session.isRunning ||  !self.captureVideoPreviewLayer.connection.enabled){
             [self.session startRunning];
-            AVCaptureVideoPreviewLayer * newLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!self.captureVideoPreviewLayer || !self.captureVideoPreviewLayer.connection.enabled) {
-                    [self.captureVideoPreviewLayer removeFromSuperlayer];
-                    self.captureVideoPreviewLayer = newLayer;
-                    CALayer *viewLayer = self.previewView.layer;
-                    self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-                    self.captureVideoPreviewLayer.frame = viewLayer.bounds;
-                    self.captureVideoPreviewLayer.connection.videoOrientation = [self videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-                    [viewLayer addSublayer:_captureVideoPreviewLayer];
-                }
-            });
+            if (!self.captureVideoPreviewLayer || !self.captureVideoPreviewLayer.connection.enabled) {
+                AVCaptureVideoPreviewLayer * newLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.captureVideoPreviewLayer removeFromSuperlayer];
+                        self.captureVideoPreviewLayer = newLayer;
+                        CALayer *viewLayer = self.previewView.layer;
+                        self.captureVideoPreviewLayer.frame = viewLayer.bounds;
+                        self.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+                        self.captureVideoPreviewLayer.connection.videoOrientation = [self videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                        [viewLayer addSublayer:self.captureVideoPreviewLayer];
+                });
+            }
         }
     });
 }

@@ -44,8 +44,7 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    self.view.backgroundColor = [UIColor redColor];
+    [super viewDidLoad];    
     [self setupMediaPickerViewController];
 }
 
