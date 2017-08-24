@@ -159,8 +159,8 @@ extension AttributedStringSerializerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
         let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
-        let composer = AttributedStringSerializer(usingDefaultFontDescriptor: descriptor)
+        let serializer = AttributedStringSerializer(usingDefaultFontDescriptor: descriptor)
 
-        return composer.compose(node)
+        return serializer.serialize(node)
     }
 }
