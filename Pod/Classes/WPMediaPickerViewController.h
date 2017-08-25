@@ -28,7 +28,7 @@
  *  @param assets An array containing picked `WPMediaAsset` objects.
  *
  */
-- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didFinishPickingAssets:(nonnull NSArray<WPMediaAsset> *)assets;
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didFinishPickingAssets:(nonnull NSArray<id<WPMediaAsset>> *)assets;
 
 @optional
 
@@ -115,10 +115,10 @@
  *  Tells the delegate that the selection changed because of external events ( assets being deleted )
  *
  *  @param picker The controller object managing the assets picker interface.
- *  @param assets  The updated selected assets that was deselected.
+ *  @param assets  The updated selected assets.
  *
  */
-- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<WPMediaAsset> *)assets;
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<id<WPMediaAsset>> *)assets;
 
 /**
  *  Asks the delegate for a view controller to push when previewing the specified asset.
@@ -198,7 +198,7 @@
  @param asset the asset to preview
  @return a view controller to preview the asset
  */
-- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
+- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
 
 /**
  Calculates the appropriate cell height/width given the desired number of cells per line, desired space
