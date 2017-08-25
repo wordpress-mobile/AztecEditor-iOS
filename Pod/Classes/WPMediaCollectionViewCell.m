@@ -354,7 +354,8 @@ static const CGFloat LabelRegularFontSize = 13;
 - (void)updatePositionLabelToSelectedState:(BOOL)selected
 {
     _positionLabel.hidden = _hiddenSelectionIndicator;
-    _positionLabelShadowView.hidden = _hiddenSelectionIndicator;    
+    _positionLabelShadowView.hidden = _hiddenSelectionIndicator;
+    _selectionFrame.hidden = _hiddenSelectionIndicator;
 
     if (selected) {
         _positionLabel.backgroundColor = [self tintColor];
