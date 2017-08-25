@@ -112,13 +112,20 @@ static CGFloat SelectAnimationTime = 0.2;
 - (void)setOptions:(WPMediaPickerOptions *)options {
     WPMediaPickerOptions *originalOptions = _options;
     _options = [options copy];
-    BOOL refreshNeeded = (originalOptions.filter != options.filter) | (originalOptions.showMostRecentFirst != options.showMostRecentFirst) | (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
+    BOOL refreshNeeded = (originalOptions.filter != options.filter) ||
+                         (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
+                         (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
     if (self.viewLoaded) {
         [self.dataSource setMediaTypeFilter:options.filter];
         [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
         self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
         if (refreshNeeded) {
             [self refreshDataAnimated:NO];
+        } else {
+            // if just the selection mode changed we just need to reload the collection view not all the data.
+            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection) {
+                [self.collectionView reloadData];
+            }
         }
     }
 }
@@ -442,6 +449,7 @@ static CGFloat SelectAnimationTime = 0.2;
     // Configure the cell
     cell.asset = asset;
     NSUInteger position = [self positionOfAssetInSelection:asset];
+    cell.hiddenSelectionIndicator = !self.options.allowMultipleSelection;
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         if (self.options.allowMultipleSelection) {

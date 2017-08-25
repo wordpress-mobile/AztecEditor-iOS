@@ -84,6 +84,8 @@ static const CGFloat LabelRegularFontSize = 13;
     CGFloat labelMargin = 10.0;
     CGFloat labelSize = 20;
 
+    _hiddenSelectionIndicator = NO;
+    
     _positionLabelUnselectedTintColor = [UIColor colorWithRed:198.0/255.0 green:198.0/255.0 blue:198.0/255.0 alpha:0.7];
     _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
     _positionLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
@@ -351,6 +353,10 @@ static const CGFloat LabelRegularFontSize = 13;
 
 - (void)updatePositionLabelToSelectedState:(BOOL)selected
 {
+    _positionLabel.hidden = _hiddenSelectionIndicator;
+    _positionLabelShadowView.hidden = _hiddenSelectionIndicator;
+    _selectionFrame.hidden = _hiddenSelectionIndicator;
+
     if (selected) {
         _positionLabel.backgroundColor = [self tintColor];
         _positionLabel.layer.borderColor = [self tintColor].CGColor;
@@ -361,7 +367,11 @@ static const CGFloat LabelRegularFontSize = 13;
         _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
         _positionLabelShadowView.hidden = YES;
     }
+}
 
+- (void)setHiddenSelectionIndicator:(BOOL)hiddenSelectionIndicator {
+    _hiddenSelectionIndicator = hiddenSelectionIndicator;
+    [self updatePositionLabelToSelectedState:self.selected];
 }
 
 @end

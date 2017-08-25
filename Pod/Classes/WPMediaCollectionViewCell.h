@@ -10,4 +10,6 @@
 
 @property (nonatomic, strong) UIColor *positionLabelUnselectedTintColor UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic, assign) BOOL hiddenSelectionIndicator;
+
 @end
