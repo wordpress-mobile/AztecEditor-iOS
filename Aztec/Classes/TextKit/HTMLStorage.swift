@@ -147,7 +147,7 @@ private extension HTMLStorage {
     ///
     struct Styles {
         static let defaultCommentColor = UIColor.lightGray
-        static let defaultTagColor = UIColor(colorLiteralRed: 0x00/255.0, green: 0x75/255.0, blue: 0xB6/255.0, alpha: 0xFF/255.0)
-        static let defaultQuotedColor = UIColor(colorLiteralRed: 0x6E/255.0, green: 0x96/255.0, blue: 0xB1/255.0, alpha: 0xFF/255.0)
+        static let defaultTagColor = UIColor(red: 0x00/255.0, green: 0x75/255.0, blue: 0xB6/255.0, alpha: 0xFF/255.0)
+        static let defaultQuotedColor = UIColor(red: 0x6E/255.0, green: 0x96/255.0, blue: 0xB1/255.0, alpha: 0xFF/255.0)
     }
 }
