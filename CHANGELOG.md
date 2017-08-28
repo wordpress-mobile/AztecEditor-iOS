@@ -20,7 +20,7 @@ Released on 2017-08-25. All issues associated with this milestone can be found u
 - New design and interaction for album selector. #207
 
 ### Fixed
-- Improved perfomance of loading albums and assets on the picker. #209
+- Improved performance of loading albums and assets on the picker. #209
 - Fixed selection bug when capturing new cell. #214
 - Improved performance when capturing new media inside the picker. #211
 
