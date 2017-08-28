@@ -28,7 +28,7 @@
  *  @param assets An array containing picked `WPMediaAsset` objects.
  *
  */
-- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didFinishPickingAssets:(nonnull NSArray<WPMediaAsset> *)assets;
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didFinishPickingAssets:(nonnull NSArray<id<WPMediaAsset>> *)assets;
 
 @optional
 
@@ -112,6 +112,15 @@
 - (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker didDeselectAsset:(nonnull id<WPMediaAsset>)asset;
 
 /**
+ *  Tells the delegate that the selection changed because of external events ( assets being deleted )
+ *
+ *  @param picker The controller object managing the assets picker interface.
+ *  @param assets  The updated selected assets.
+ *
+ */
+- (void)mediaPickerController:(nonnull WPMediaPickerViewController *)picker selectionChanged:(nonnull NSArray<id<WPMediaAsset>> *)assets;
+
+/**
  *  Asks the delegate for a view controller to push when previewing the specified asset.
  *  If this method isn't implemented, the default view controller will be used.
  *  If it returns nil, no preview will be displayed.
@@ -145,7 +154,7 @@
 /**
  An array with the the assets that are currently selected.
  */
-@property (nonatomic, copy, nonnull) NSArray<WPMediaAsset> *selectedAssets;
+@property (nonatomic, copy, nonnull) NSArray<id<WPMediaAsset>> *selectedAssets;
 
 /**
   The object that acts as the data source of the media picker.
@@ -168,7 +177,13 @@
 - (void)clearSelectedAssets:(BOOL)animated;
 
 /**
+ * Presents the system image / video capture view controller, presented from `viewControllerToUseToPresent`.
+ */
+- (void)showCapture;
+
+/**
  View controller to use when picker needs to present another controller. By default this is set to self.
+ @note If the picker is being used within an input view, it's important to set this value to something besides the picker itself.
  */
 @property (nonatomic, weak, nullable) UIViewController *viewControllerToUseToPresent;
 
@@ -183,7 +198,18 @@
  @param asset the asset to preview
  @return a view controller to preview the asset
  */
-- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id <WPMediaAsset>)asset;
+- (nonnull UIViewController *)defaultPreviewViewControllerForAsset:(nonnull id<WPMediaAsset>)asset;
+
+/**
+ Calculates the appropriate cell height/width given the desired number of cells per line, desired space
+ between cells, and total width of the frame containing the cells.
+
+ @param photosPerLine The number of desired photos per line
+ @param photoSpacing The amount of space in between photos
+ @param frameWidth The width of the frame which contains the photo cells
+ @return A CGFloat representing the height/width of the suggested cell size
+ */
+- (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth;
 
 @end
 

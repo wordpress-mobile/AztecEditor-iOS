@@ -21,6 +21,13 @@ typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
 - (NSUInteger)to;
 @end
 
+typedef NS_ENUM(NSInteger, WPMediaLoadOptions){
+    WPMediaLoadOptionsGroups,
+    WPMediaLoadOptionsAssets,
+    WPMediaLoadOptionsGroupsAndAssets
+};
+
+
 @protocol WPMediaAsset;
 
 typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray<id<WPMediaMove>> *moves);
@@ -28,6 +35,7 @@ typedef void (^WPMediaSuccessBlock)();
 typedef void (^WPMediaFailureBlock)(NSError *error);
 typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
 typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
+typedef void (^WPMediaCountBlock)(NSInteger result, NSError *error);
 typedef void (^WPMediaAssetBlock)(AVAsset *asset, NSError *error);
 typedef int32_t WPMediaRequestID;
 
@@ -68,11 +76,13 @@ typedef int32_t WPMediaRequestID;
 - (NSString *)identifier;
 
 /**
- *  The numbers of assets that exist in the group
- *
- *  @return The numbers of assets that exist in the group
+ The numbers of assets that exist in the group of a certain mediaType
+
+ @param mediaType the asset type to count
+ @param completionHandler a block that is executed when the real number of assets is know.
+ @return return an estimation of the current number of assets, if no estimate is known return NSNotFound
  */
-- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType;
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler;
 
 @end
 
@@ -250,10 +260,12 @@ typedef int32_t WPMediaRequestID;
  *  Asks the data source to reload the data available of the media library. This should be invoked after changing the 
  *  current active group or if a change is detected.
  *
+ *  @param options specifiy what type of data to load
  *  @param successBlock a block that is invoked when the data is loaded with success.
  *  @param failureBlock a block that is invoked when the are is any kind of error when loading the data.
  */
-- (void)loadDataWithSuccess:(WPMediaSuccessBlock)successBlock
+- (void)loadDataWithOptions:(WPMediaLoadOptions)options
+                    success:(WPMediaSuccessBlock)successBlock
                     failure:(WPMediaFailureBlock)failureBlock;
 
 /**
@@ -275,7 +287,7 @@ typedef int32_t WPMediaRequestID;
  * On success the media parameter is returned with a new object implemeting the WPMedia protocol
  * If an error occurs the media is nil and the error parameter contains a value
  */
-- (void)addVideoFromURL:(NSURL *)url  completionBlock:(WPMediaAddedBlock)completionBlock;
+- (void)addVideoFromURL:(NSURL *)url completionBlock:(WPMediaAddedBlock)completionBlock;
 
 /**
  *  Filter the assets acording to their media type.

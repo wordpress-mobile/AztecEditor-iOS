@@ -9,6 +9,7 @@ NSString const *MediaPickerOptionsAllowMultipleSelection = @"MediaPickerOptionsA
 NSString const *MediaPickerOptionsPostProcessingStep = @"MediaPickerOptionsPostProcessingStep";
 NSString const *MediaPickerOptionsFilterType = @"MediaPickerOptionsFilterType";
 NSString const *MediaPickerOptionsCustomPreview = @"MediaPickerOptionsCustomPreview";
+NSString const *MediaPickerOptionsScrollInputPickerVertically = @"MediaPickerOptionsScrollInputPickerVertically";
 
 typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellShowMostRecentFirst,
@@ -18,6 +19,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     OptionsViewControllerCellPostProcessingStep,
     OptionsViewControllerCellMediaType,
     OptionsViewControllerCellCustomPreview,
+    OptionsViewControllerCellInputPickerScroll,
     OptionsViewControllerCellTotal
 };
 
@@ -30,6 +32,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
 @property (nonatomic, strong) UITableViewCell *postProcessingStepCell;
 @property (nonatomic, strong) UITableViewCell *filterMediaCell;
 @property (nonatomic, strong) UITableViewCell *customPreviewCell;
+@property (nonatomic, strong) UITableViewCell *scrollInputPickerCell;
 
 @end
 
@@ -86,6 +89,11 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
     self.customPreviewCell.accessoryView = [[UISwitch alloc] init];
     ((UISwitch *)self.customPreviewCell.accessoryView).on = [self.options[MediaPickerOptionsCustomPreview] boolValue];
     self.customPreviewCell.textLabel.text = @"Use Custom Preview Controller";
+
+    self.scrollInputPickerCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    self.scrollInputPickerCell.accessoryView = [[UISwitch alloc] init];
+    ((UISwitch *)self.scrollInputPickerCell.accessoryView).on = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
+    self.scrollInputPickerCell.textLabel.text = @"Scroll Input Picker Vertically";
 }
 
 #pragma mark - Table view data source
@@ -124,6 +132,9 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
         case OptionsViewControllerCellCustomPreview:
             return self.customPreviewCell;
             break;
+        case OptionsViewControllerCellInputPickerScroll:
+            return self.scrollInputPickerCell;
+            break;
         default:
             break;
     }
@@ -150,6 +161,7 @@ typedef NS_ENUM(NSInteger, OptionsViewControllerCell){
              MediaPickerOptionsPostProcessingStep:@(((UISwitch *)self.postProcessingStepCell.accessoryView).on),
              MediaPickerOptionsFilterType:@(filterType),
              MediaPickerOptionsCustomPreview:@(((UISwitch *)self.customPreviewCell.accessoryView).on),
+             MediaPickerOptionsScrollInputPickerVertically:@(((UISwitch *)self.scrollInputPickerCell.accessoryView).on),
              };
         
         [delegate optionsViewController:self changed:newOptions];

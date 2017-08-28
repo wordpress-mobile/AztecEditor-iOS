@@ -42,7 +42,8 @@
                      MediaPickerOptionsAllowMultipleSelection:@(YES),
                      MediaPickerOptionsPostProcessingStep:@(NO),
                      MediaPickerOptionsFilterType:@(WPMediaTypeImage | WPMediaTypeVideo),
-                     MediaPickerOptionsCustomPreview:@(NO)
+                     MediaPickerOptionsCustomPreview:@(NO),
+                     MediaPickerOptionsScrollInputPickerVertically:@(NO)
                      };
 
 }
@@ -131,7 +132,12 @@
 }
 
 - (void)setupMediaKeyboardForInputField {
-    self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    if (self.mediaInputViewController) {
+        [self.mediaInputViewController removeFromParentViewController];
+    } else {
+        self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
+    }
+    self.mediaInputViewController.scrollVertically = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
 
     [self addChildViewController:self.mediaInputViewController];
     _quickInputTextField.inputView = self.mediaInputViewController.view;
@@ -192,10 +198,6 @@
 }
 
 - (UIViewController *)mediaPickerController:(WPMediaPickerViewController *)picker previewViewControllerForAsset:(id<WPMediaAsset>)asset {
-    if (picker == self.mediaInputViewController.mediaPicker) {
-        return nil;
-    }
-
     if (asset.assetType == WPMediaTypeAudio) {
         return nil;
     }
@@ -235,6 +237,7 @@
     self.mediaPicker.delegate = self;
     self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
     self.mediaPicker.dataSource = self.pickerDataSource;
+    self.mediaPicker.selectionActionTitle = NSLocalizedString(@"Insert %@", @"");
     if (self.mediaInputViewController) {
         self.mediaPicker.mediaPicker.selectedAssets = self.mediaInputViewController.mediaPicker.selectedAssets;
         self.mediaInputViewController.mediaPicker.selectedAssets = [NSArray<WPMediaAsset> new];

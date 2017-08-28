@@ -4,13 +4,17 @@
 
 static const NSTimeInterval ThresholdForAnimation = 0.03;
 static const CGFloat TimeForFadeAnimation = 0.3;
+static const CGFloat LabelSmallFontSize = 9;
+static const CGFloat LabelRegularFontSize = 13;
 
 @interface WPMediaCollectionViewCell ()
 
 @property (nonatomic, strong) UILabel *positionLabel;
+@property (nonatomic, strong) UIView *positionLabelShadowView;
 @property (nonatomic, strong) UIView *selectionFrame;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UILabel *captionLabel;
+@property (nonatomic, strong) UIView *gradientView;
 
 @property (nonatomic, strong) UIStackView *placeholderStackView;
 @property (nonatomic, strong) UIImageView *placeholderImageView;
@@ -53,9 +57,13 @@ static const CGFloat TimeForFadeAnimation = 0.3;
     [self setSelected:NO];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.backgroundColor = self.backgroundColor;
-
     self.placeholderStackView.hidden = YES;
     self.documentExtensionLabel.text = nil;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.gradientView.layer.sublayers.firstObject.frame = self.gradientView.bounds;
 }
 
 - (void)commonInit
@@ -70,27 +78,58 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
     _selectionFrame = [[UIView alloc] initWithFrame:self.backgroundView.frame];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _selectionFrame.layer.borderWidth = 3;
-
-    CGFloat counterTextSize = [UIFont smallSystemFontSize];
-    CGFloat labelSize = (counterTextSize * 2) + 2;
-    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelSize, labelSize)];
-    _positionLabel.backgroundColor = [self tintColor];
-    _positionLabel.textColor = [UIColor whiteColor];
-    _positionLabel.textAlignment = NSTextAlignmentCenter;
-    _positionLabel.font = [UIFont systemFontOfSize:counterTextSize];
-
-    [_selectionFrame addSubview:_positionLabel];
-
+    _selectionFrame.layer.borderWidth = 2.0;
     self.selectedBackgroundView = _selectionFrame;
 
-    _captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.contentView.frame.size.height - counterTextSize, self.contentView.frame.size.width, counterTextSize)];
-    _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+    CGFloat labelMargin = 10.0;
+    CGFloat labelSize = 20;
+
+    _hiddenSelectionIndicator = NO;
+    
+    _positionLabelUnselectedTintColor = [UIColor colorWithRed:198.0/255.0 green:198.0/255.0 blue:198.0/255.0 alpha:0.7];
+    _positionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelSize + labelMargin), labelSize, labelSize)];
+    _positionLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    _positionLabel.layer.borderWidth = 1.0;
+    _positionLabel.layer.cornerRadius = labelSize / 2;
+    _positionLabel.clipsToBounds = YES;
+    _positionLabel.textColor = [UIColor whiteColor];
+    _positionLabel.textAlignment = NSTextAlignmentCenter;
+
+    _positionLabelShadowView = [[UIView alloc] initWithFrame:_positionLabel.frame];
+    _positionLabelShadowView.autoresizingMask = _positionLabel.autoresizingMask;
+    _positionLabelShadowView.backgroundColor = [UIColor clearColor];
+    _positionLabelShadowView.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:_positionLabelShadowView.bounds cornerRadius:labelSize / 2].CGPath;
+    _positionLabelShadowView.layer.shadowColor = [UIColor blackColor].CGColor;
+    _positionLabelShadowView.layer.shadowRadius = 5;
+    _positionLabelShadowView.layer.shadowOpacity = 0.5;
+    _positionLabelShadowView.layer.shadowOffset = CGSizeMake(0, 0);
+
+    [self.contentView addSubview:_positionLabelShadowView];
+    [self.contentView addSubview:_positionLabel];
+
+    [self updatePositionLabelToSelectedState:NO];
+
+    CGFloat labelTextSize = 12.0;
+    CGFloat labelHeight = 30.0;
+    CGColorRef topGradientColor = [[UIColor colorWithWhite:0 alpha:0] CGColor];
+    CGColorRef bottomGradientColor = [[UIColor colorWithWhite:0 alpha:0.5] CGColor];
+
+    _gradientView = [[UIView alloc] initWithFrame:CGRectMake(0, self.contentView.frame.size.height - labelHeight, self.contentView.frame.size.width, labelHeight)];
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = _gradientView.bounds;
+    gradient.colors = @[(__bridge id)topGradientColor, (__bridge id)(bottomGradientColor)];
+    [_gradientView.layer addSublayer:gradient];
+    _gradientView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    _gradientView.hidden = YES;
+    [self.backgroundView addSubview:_gradientView];
+
+    _captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(labelMargin, self.contentView.frame.size.height - (labelMargin), self.contentView.frame.size.width - (2*labelMargin), - labelTextSize)];
+    _captionLabel.backgroundColor = [UIColor clearColor];
     _captionLabel.hidden = YES;
     _captionLabel.textColor = [UIColor whiteColor];
     _captionLabel.textAlignment = NSTextAlignmentRight;
-    _captionLabel.font = [UIFont systemFontOfSize:counterTextSize - 2];
-    _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
+    _captionLabel.font = [UIFont boldSystemFontOfSize:labelTextSize];
+    _captionLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     [self.contentView addSubview:_captionLabel];
 
     _placeholderStackView = [UIStackView new];
@@ -271,13 +310,20 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 - (void)setPosition:(NSInteger)position
 {
     _position = position;
-    self.positionLabel.hidden = position == NSNotFound;
-    self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    if (position != NSNotFound) {
+        CGFloat fontSize = position < 100 ? LabelRegularFontSize : LabelSmallFontSize;
+        _positionLabel.font = [UIFont systemFontOfSize:fontSize weight:UIFontWeightMedium];
+        self.positionLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)(position)];
+    } else {
+        self.positionLabel.text = @"";
+    }
 }
 
 - (void)setCaption:(NSString *)caption
 {
-    self.captionLabel.hidden = !(caption.length > 0);
+    BOOL hide = caption.length <= 0;
+    self.captionLabel.hidden = hide;
+    self.gradientView.hidden = hide;
     self.captionLabel.text = caption;
 }
 
@@ -290,25 +336,42 @@ static const CGFloat TimeForFadeAnimation = 0.3;
 
 - (void)setSelected:(BOOL)selected
 {
-    [super setSelected:selected];
-    if (self.isSelected) {
-        _captionLabel.backgroundColor = [self tintColor];
-    } else {
-        self.positionLabel.hidden = YES;
-        _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+    if (selected == self.isSelected) {
+        return;
     }
+    [super setSelected:selected];
+    [self updatePositionLabelToSelectedState:self.isSelected];
 }
 
 - (void)tintColorDidChange
 {
     [super tintColorDidChange];
     _selectionFrame.layer.borderColor = [[self tintColor] CGColor];
-    _positionLabel.backgroundColor = [self tintColor];
-    if (self.isSelected) {
-        _captionLabel.backgroundColor = [self tintColor];
+
+    [self updatePositionLabelToSelectedState:self.isSelected];
+}
+
+- (void)updatePositionLabelToSelectedState:(BOOL)selected
+{
+    _positionLabel.hidden = _hiddenSelectionIndicator;
+    _positionLabelShadowView.hidden = _hiddenSelectionIndicator;
+    _selectionFrame.hidden = _hiddenSelectionIndicator;
+
+    if (selected) {
+        _positionLabel.backgroundColor = [self tintColor];
+        _positionLabel.layer.borderColor = [self tintColor].CGColor;
+        _positionLabelShadowView.hidden = NO;
     } else {
-        _captionLabel.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+        _positionLabel.text = @"";
+        _positionLabel.backgroundColor = _positionLabelUnselectedTintColor;
+        _positionLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+        _positionLabelShadowView.hidden = YES;
     }
+}
+
+- (void)setHiddenSelectionIndicator:(BOOL)hiddenSelectionIndicator {
+    _hiddenSelectionIndicator = hiddenSelectionIndicator;
+    [self updatePositionLabelToSelectedState:self.selected];
 }
 
 @end

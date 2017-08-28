@@ -22,17 +22,32 @@
     [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
 
     //Configure navigation bar background color
-    [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
+    UIColor *wordPressBlue = [UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f];
+    [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBarTintColor: wordPressBlue];
     //Configure navigation bar items text color
     [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
     //Configure navigation bar title text color
     [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
     //Configure background color for media scroll view
-    [[UICollectionView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
+    [[UICollectionView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:[UIColor whiteColor]];
+    [[UITableView appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setBackgroundColor:[UIColor whiteColor]];
     //Configure background color for media cell while loading image.
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
+    UIColor *cellBackgroundColor = [UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
+    [[WPMediaGroupTableViewCell appearance] setPosterBackgroundColor:cellBackgroundColor];
+
     //Configure color for activity indicator while loading media collection
     [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setColor:[UIColor grayColor]];
+
+    //Configure background color for media cell while loading image.
+
+    UIColor * lightGray = [UIColor colorWithRed:198.0/255.0 green:198.0/255.0 blue:198.0/255.0 alpha:0.7];
+
+    [[WPMediaCollectionViewCell appearance] setTintColor:wordPressBlue];
+    [[WPMediaCollectionViewCell appearance] setPositionLabelUnselectedTintColor:lightGray];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setPositionLabelUnselectedTintColor:lightGray];
+
     return YES;
 }
 							

@@ -1,7 +1,7 @@
 #import "WPMediaGroupPickerViewController.h"
 #import "WPMediaGroupTableViewCell.h"
 
-static CGFloat const WPMediaGroupCellHeight = 50.0f;
+static CGFloat const WPMediaGroupCellHeight = 86.0f;
 
 @interface WPMediaGroupPickerViewController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
@@ -15,6 +15,7 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 {
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
+        self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
     }
     return self;
 }
@@ -27,8 +28,6 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    self.title = NSLocalizedString(@"Albums", @"Description of albums in the photo libraries");
 
     // configure table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -43,16 +42,59 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPicker:)];
     __weak __typeof__(self) weakSelf = self;
     self.changesObserver = [self.dataSource registerChangeObserverBlock:^(BOOL incrementalChanges, NSIndexSet *deleted, NSIndexSet *inserted, NSIndexSet *reload, NSArray *moves) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf loadData];
-            });
+            [weakSelf loadData];            
         }];
     [self loadData];
 }
 
 - (void)loadData
 {
+    [self.dataSource loadDataWithOptions:WPMediaLoadOptionsGroups success:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self showError:error];
+        });
+    }];
+}
+
+- (void)showError:(NSError *)error {
+    [self.refreshControl endRefreshing];
     [self.tableView reloadData];
+    NSString *title = NSLocalizedString(@"Media Library", @"Title for alert when a generic error happened when loading media");
+    NSString *message = NSLocalizedString(@"There was a problem when trying to access your media. Please try again later.",  @"Explaining to the user there was an generic error accesing media.");
+    NSString *cancelText = NSLocalizedString(@"OK", "");
+    NSString *otherButtonTitle = nil;
+    if (error.domain == WPMediaPickerErrorDomain &&
+        error.code == WPMediaErrorCodePermissionsFailed) {
+        otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
+        title = NSLocalizedString(@"Media Library", @"Title for alert when access to the media library is not granted by the user");
+        message = NSLocalizedString(@"This app needs permission to access your device media library in order to add photos and/or video to your posts. Please change the privacy settings if you wish to allow this.",
+                                    @"Explaining to the user why the app needs access to the device media library.");
+    }
+
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:cancelText
+                                                       style:UIAlertActionStyleCancel
+                                                     handler:^(UIAlertAction *action) {
+                                                         if ([self.delegate respondsToSelector:@selector(mediaGroupPickerViewControllerDidCancel:)]) {
+                                                             [self.delegate mediaGroupPickerViewControllerDidCancel:self];
+                                                         }
+                                                     }];
+    [alertController addAction:okAction];
+
+    if (otherButtonTitle) {
+        UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+            [[UIApplication sharedApplication] openURL:settingsURL];
+        }];
+        [alertController addAction:otherAction];
+    }
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 #pragma mark - UITableViewDataSource methods
@@ -91,7 +133,11 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     }];
     cell.tag = requestKey;
     cell.titleLabel.text = [group name];
-    NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter]];
+    NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter] completionHandler:^(NSInteger result, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)result];            
+        });
+    }];
     if (numberOfAssets != NSNotFound) {
         cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];
     } else {
@@ -100,14 +146,8 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.detailTextLabel.backgroundColor = [UIColor clearColor];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
-    if ([[group identifier] isEqual:[[self.dataSource selectedGroup] identifier]]) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
+    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
     return cell;
 }
@@ -124,8 +164,6 @@ static CGFloat const WPMediaGroupCellHeight = 50.0f;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [self notifySelectionOfGroup];
 }
 

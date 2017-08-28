@@ -19,6 +19,7 @@
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
+@property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
@@ -44,6 +45,7 @@ static CGFloat SelectAnimationTime = 0.2;
     if (self) {
         _layout = layout;
         _internalSelectedAssets = [[NSMutableArray alloc] init];
+        _capturedAsset = nil;
         _options = [options copy];
         _refreshGroupFirstTime = YES;
         _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressOnAsset:)];        
@@ -110,13 +112,20 @@ static CGFloat SelectAnimationTime = 0.2;
 - (void)setOptions:(WPMediaPickerOptions *)options {
     WPMediaPickerOptions *originalOptions = _options;
     _options = [options copy];
-    BOOL refreshNeeded = (originalOptions.filter != options.filter) | (originalOptions.showMostRecentFirst != options.showMostRecentFirst) | (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
+    BOOL refreshNeeded = (originalOptions.filter != options.filter) ||
+                         (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
+                         (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
     if (self.viewLoaded) {
         [self.dataSource setMediaTypeFilter:options.filter];
         [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
         self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
         if (refreshNeeded) {
             [self refreshDataAnimated:NO];
+        } else {
+            // if just the selection mode changed we just need to reload the collection view not all the data.
+            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection) {
+                [self.collectionView reloadData];
+            }
         }
     }
 }
@@ -175,6 +184,16 @@ static CGFloat SelectAnimationTime = 0.2;
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.captureCell startCapture];
+}
+
+- (UIViewController *)viewControllerToUseToPresent
+{
+    // viewControllerToUseToPresent defaults to self but could be set to nil. Reset to self if needed.
+    if (!_viewControllerToUseToPresent) {
+        _viewControllerToUseToPresent = self;
+    }
+
+    return _viewControllerToUseToPresent;
 }
 
 #pragma mark - Actions
@@ -269,13 +288,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (void)refreshDataAnimated:(BOOL)animated
 {
-    if (self.refreshGroupFirstTime) {
-        if (![self.refreshControl isRefreshing]) {
-            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length]) animated:NO];
-            [self.collectionView setContentOffset:CGPointMake(0, - [[self topLayoutGuide] length] - (self.refreshControl.frame.size.height)) animated:animated];
-            [self.refreshControl beginRefreshing];
-        }        
-    }
+    [self.refreshControl beginRefreshing];
     self.collectionView.allowsSelection = NO;
     self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.scrollEnabled = NO;
@@ -286,34 +299,31 @@ static CGFloat SelectAnimationTime = 0.2;
 
     __weak __typeof__(self) weakSelf = self;
 
-    [self.dataSource loadDataWithSuccess:^{
+    [self.dataSource loadDataWithOptions:WPMediaLoadOptionsAssets success:^{
         __typeof__(self) strongSelf = weakSelf;
         BOOL refreshGroupFirstTime = strongSelf.refreshGroupFirstTime;
         strongSelf.refreshGroupFirstTime = NO;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{                
+            strongSelf.collectionView.allowsSelection = YES;
+            strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
+            strongSelf.collectionView.scrollEnabled = YES;
             [strongSelf refreshSelection];
-            dispatch_async(dispatch_get_main_queue(), ^{                
-                strongSelf.collectionView.allowsSelection = YES;
-                strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
-                strongSelf.collectionView.scrollEnabled = YES;
-                [strongSelf.collectionView reloadData];
+            [strongSelf.collectionView reloadData];
 
-                if (animated) {
+            if (animated) {
+                [strongSelf.refreshControl endRefreshing];
+            } else {
+                [UIView performWithoutAnimation:^{
                     [strongSelf.refreshControl endRefreshing];
-                } else {
-                    [UIView performWithoutAnimation:^{
-                        [strongSelf.refreshControl endRefreshing];
-                    }];
-                }
+                }];
+            }
 
-                // Scroll to the correct position
-                if (refreshGroupFirstTime){
-                    [strongSelf scrollToStart:NO];
-                }
+            // Scroll to the correct position
+            if (refreshGroupFirstTime){
+                [strongSelf scrollToStart:NO];
+            }
 
-                [strongSelf informDelegateDidEndLoadingData];
-            });
- 
+            [strongSelf informDelegateDidEndLoadingData];
         });
     } failure:^(NSError *error) {
         __typeof__(self) strongSelf = weakSelf;
@@ -392,12 +402,27 @@ static CGFloat SelectAnimationTime = 0.2;
             [stillExistingSeletedAssets addObject:asset];
         }
     }
+    if (self.capturedAsset != nil) {
+        NSString *assetIdentifier = [self.capturedAsset identifier];
+        if ([self.dataSource mediaWithIdentifier:assetIdentifier]) {
+            [stillExistingSeletedAssets addObject:self.capturedAsset];
+        }
+        NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
+        [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
+                                          animated:NO
+                                    scrollPosition:UICollectionViewScrollPositionNone];
+        self.capturedAsset = nil;
+    }
+
     self.internalSelectedAssets = stillExistingSeletedAssets;
+    if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:selectionChanged:)]) {
+        [self.mediaPickerDelegate mediaPickerController:self selectionChanged:[self.internalSelectedAssets copy]];
+    }
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    return self.refreshGroupFirstTime ? 0 : 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -424,6 +449,7 @@ static CGFloat SelectAnimationTime = 0.2;
     // Configure the cell
     cell.asset = asset;
     NSUInteger position = [self positionOfAssetInSelection:asset];
+    cell.hiddenSelectionIndicator = !self.options.allowMultipleSelection;
     if (position != NSNotFound) {
         [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         if (self.options.allowMultipleSelection) {
@@ -615,17 +641,18 @@ referenceSizeForFooterInSection:(NSInteger)section
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
                            UIImagePickerControllerSourceTypeCamera]];
-    switch (self.options.filter) {
-        case(WPMediaTypeImage): {
-            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeImage]]];
-        } break;
-        case(WPMediaTypeVideo): {
-            [mediaTypes intersectSet:[NSSet setWithArray:@[(__bridge NSString *)kUTTypeMovie]]];
-        } break;
-        default: {
-            //Don't intersect at all
-        }
+    NSMutableSet *mediaDesired = [NSMutableSet new];
+    if (self.options.filter & WPMediaTypeImage) {
+        [mediaDesired addObject:(__bridge NSString *)kUTTypeImage];
     }
+    if (self.options.filter & WPMediaTypeVideo) {
+        [mediaDesired addObject:(__bridge NSString *)kUTTypeMovie];
+
+    }
+    if (mediaDesired.count > 0){
+        [mediaTypes intersectSet:mediaDesired];
+    }
+        
     imagePickerController.mediaTypes = [mediaTypes allObjects];
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -716,12 +743,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     BOOL willBeSelected = YES;
     if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:shouldSelectAsset:)]) {
         if ([self.mediaPickerDelegate mediaPickerController:self shouldSelectAsset:asset]) {
-            [self.internalSelectedAssets addObject:asset];
+            self.capturedAsset = asset;
         } else {
             willBeSelected = NO;
         }
     } else {
-        [self.internalSelectedAssets addObject:asset];
+        self.capturedAsset = asset;
     }
     
     if (!willBeSelected) {
@@ -735,10 +762,6 @@ referenceSizeForFooterInSection:(NSInteger)section
             [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.internalSelectedAssets copy]];
         }
     }
-    NSInteger positionToUpdate = self.options.showMostRecentFirst ? 0 : self.dataSource.numberOfAssets-1;
-    [self.collectionView selectItemAtIndexPath:[NSIndexPath indexPathForRow:positionToUpdate inSection:0]
-                                      animated:YES
-                                scrollPosition:UICollectionViewScrollPositionNone];
 }
 
 #pragma mark - UIImagePickerControllerDelegate
@@ -759,10 +782,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (group == [self.dataSource selectedGroup]){
         return;
     }
-
-    self.refreshGroupFirstTime = YES;
     [self.dataSource setSelectedGroup:group];
-    [self refreshData];
+    if (self.isViewLoaded) {
+        self.refreshGroupFirstTime = YES;
+        [self.collectionView reloadData];
+        [self refreshData];
+    }
 }
 
 #pragma mark - Long Press Handling
@@ -771,10 +796,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         CGPoint location = [gestureRecognizer locationInView:self.collectionView];
         UIViewController *viewController = [self previewControllerForTouchLocation:location];
-
-        if (viewController) {
-            [self.navigationController pushViewController:viewController animated:YES];
-        }
+        [self displayPreviewController:viewController];
     }
 }
 
@@ -817,6 +839,29 @@ referenceSizeForFooterInSection:(NSInteger)section
     return fullScreenImageVC;
 }
 
+- (void)displayPreviewController:(UIViewController *)viewController {
+    if (viewController) {
+        // Attempt to use the viewControllerToUseToPresent's nav controller, otherwise lets create a new nav controller and present it.
+        if (self.viewControllerToUseToPresent.navigationController) {
+            [self.viewControllerToUseToPresent.navigationController pushViewController:viewController animated:YES];
+        } else {
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:viewController];
+            viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                                            target:self
+                                                                                                            action:@selector(dismissPreviewController)];
+            [self.viewControllerToUseToPresent presentViewController:navController animated:YES completion:nil];
+        }
+    }
+}
+
+- (void)dismissPreviewController {
+    if (self.viewControllerToUseToPresent.navigationController) {
+        [self.viewControllerToUseToPresent.navigationController popViewControllerAnimated:YES];
+    } else {
+        [self.viewControllerToUseToPresent dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 #pragma mark - UIViewControllerPreviewingDelegate
 
 - (nullable UIViewController *)previewingContext:(id <UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
@@ -834,14 +879,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    [self.navigationController pushViewController:viewControllerToCommit animated:YES];
+    [self displayPreviewController:viewControllerToCommit];
 }
 
 #pragma mark - WPAssetViewControllerDelegate
 
 - (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    [self dismissPreviewController];
 
     if ( [self.dataSource mediaWithIdentifier:[assetPreviewVC.asset identifier]] == nil ) {
 
@@ -874,7 +919,7 @@ referenceSizeForFooterInSection:(NSInteger)section
                                                                       preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"Action to show on alert when view asset fails.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         if (needToPop) {
-            [self.navigationController popViewControllerAnimated:YES];
+            [self dismissPreviewController];
         }
     }];
     [alertController addAction:dismissAction];
