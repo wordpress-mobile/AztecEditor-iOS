@@ -35,7 +35,7 @@
     UIColor *cellBackgroundColor = [UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f];
     [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
     [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
-    [[UIImageView appearanceWhenContainedIn:[WPMediaGroupTableViewCell class],nil] setBackgroundColor:cellBackgroundColor];
+    [[WPMediaGroupTableViewCell appearance] setPosterBackgroundColor:cellBackgroundColor];
 
     //Configure color for activity indicator while loading media collection
     [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setColor:[UIColor grayColor]];

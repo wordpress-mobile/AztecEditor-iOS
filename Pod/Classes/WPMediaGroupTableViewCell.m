@@ -14,10 +14,13 @@ static CGFloat const WPMediaGroupTableViewCellCountLabelMargin = 2.0;
     if (!self) {
         return nil;
     }
+    _posterBackgroundColor = UIColor.lightGrayColor;
+
     _imagePosterView = [[UIImageView alloc] initWithFrame:CGRectZero];
     _imagePosterView.contentMode = UIViewContentModeScaleAspectFill;
     _imagePosterView.clipsToBounds = YES;
     _imagePosterView.translatesAutoresizingMaskIntoConstraints = NO;
+    _imagePosterView.backgroundColor = _posterBackgroundColor;
     [self.contentView addSubview:_imagePosterView];
     
     _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -43,6 +46,11 @@ static CGFloat const WPMediaGroupTableViewCellCountLabelMargin = 2.0;
     [_countLabel.topAnchor constraintEqualToAnchor:self.contentView.centerYAnchor constant:WPMediaGroupTableViewCellCountLabelMargin].active = YES;
 
     return self;
+}
+
+- (void)setPosterBackgroundColor:(UIColor *)posterBackgroundColor {
+    _posterBackgroundColor = posterBackgroundColor;
+    _imagePosterView.backgroundColor = posterBackgroundColor;
 }
 
 @end
