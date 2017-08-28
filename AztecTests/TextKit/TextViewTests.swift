@@ -33,6 +33,7 @@ class TextViewTests: XCTestCase {
     func createTextView(withHTML html: String) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.registerAttachmentImageProvider(attachmentDelegate)
         richTextView.setHTML(html)
 
         return richTextView
