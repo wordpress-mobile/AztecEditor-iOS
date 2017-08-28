@@ -287,7 +287,7 @@ typedef int32_t WPMediaRequestID;
  * On success the media parameter is returned with a new object implemeting the WPMedia protocol
  * If an error occurs the media is nil and the error parameter contains a value
  */
-- (void)addVideoFromURL:(NSURL *)url  completionBlock:(WPMediaAddedBlock)completionBlock;
+- (void)addVideoFromURL:(NSURL *)url completionBlock:(WPMediaAddedBlock)completionBlock;
 
 /**
  *  Filter the assets acording to their media type.
