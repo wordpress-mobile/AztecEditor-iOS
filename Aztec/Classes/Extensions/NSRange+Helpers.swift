@@ -139,8 +139,13 @@ extension Sequence where Iterator.Element == NSRange {
     }
 }
 
-extension NSRange: Equatable {
-    public static func ==(lhs: NSRange, rhs: NSRange) -> Bool{
-        return lhs.location == rhs.location && lhs.length == rhs.length
+#if swift(>=3.2)
+    // No Op
+#else
+    extension NSRange: Equatable {
+        public static func ==(lhs: NSRange, rhs: NSRange) -> Bool{
+            return lhs.location == rhs.location && lhs.length == rhs.length
+        }
     }
-}
+#endif
+

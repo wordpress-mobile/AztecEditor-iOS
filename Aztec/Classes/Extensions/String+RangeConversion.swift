@@ -81,15 +81,6 @@ public extension String {
         return start ..< end
     }
 
-    func range(from unicodeNSRange: Range<String.UnicodeScalarView.Index>) -> Range<String.Index>? {
-        guard let lowerBound = unicodeNSRange.lowerBound.samePosition(in: self),
-            let upperBound = unicodeNSRange.upperBound.samePosition(in: self) else {
-                return nil
-        }
-
-        return lowerBound ..< upperBound
-    }
-
     func nsRange(of string: String) -> NSRange? {
         guard let range = self.range(of: string) else {
             return nil
@@ -127,20 +118,6 @@ public extension String {
 
         let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
         let length = utf16.distance(from: lowerBound, to: upperBound)
-
-        return NSRange(location: location, length: length)
-    }
-
-    /// Converts a `Range<String.UnicodeScalarView.Index>` into an Unicod Scalar `NSRange`.
-    ///
-    /// - Parameters:
-    ///     - range: the range to convert.
-    ///
-    /// - Returns: the requested `NSRange`.
-    ///
-    func nsRange(from range: Range<String.UnicodeScalarView.Index>) -> NSRange {
-        let location = unicodeScalars.distance(from: unicodeScalars.startIndex, to: range.lowerBound)
-        let length = unicodeScalars.distance(from: range.lowerBound, to: range.upperBound)
 
         return NSRange(location: location, length: length)
     }

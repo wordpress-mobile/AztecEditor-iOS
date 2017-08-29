@@ -28,7 +28,7 @@ class UIColorHexParserTests: XCTestCase {
 
         color = UIColor(hexString: "#FFFFFF")
 
-        XCTAssertEqual(color, UIColor.init(colorLiteralRed: 1, green: 1, blue: 1, alpha: 1))
+        XCTAssertEqual(color, UIColor(red: 1, green: 1, blue: 1, alpha: 1))
     }
 
     func testParseOf32bitsHexColors() {
@@ -46,7 +46,7 @@ class UIColorHexParserTests: XCTestCase {
 
         color = UIColor(hexString: "#FFFFFFFF")
 
-        XCTAssertEqual(color, UIColor.init(colorLiteralRed: 1, green: 1, blue: 1, alpha: 1))
+        XCTAssertEqual(color, UIColor(red: 1, green: 1, blue: 1, alpha: 1))
     }
 
     func testFailingColor() {
