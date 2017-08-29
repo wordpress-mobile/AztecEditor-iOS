@@ -6,7 +6,7 @@ class HTMLRepresentation: NSObject {
     enum Kind {
         case attribute(Attribute)
         case element(HTMLElementRepresentation)
-        case inlineCss(CSSProperty)
+        case inlineCss(CSSAttribute)
     }
 
     let kind: Kind
@@ -27,7 +27,7 @@ class HTMLRepresentation: NSObject {
         }
 
         if let rawCSS = aDecoder.decodeObject(forKey: Keys.inline) as? String,
-            let decodedCSS = CSSProperty(for: rawCSS) {
+            let decodedCSS = CSSAttribute(for: rawCSS) {
             kind = .inlineCss(decodedCSS)
             return
         }

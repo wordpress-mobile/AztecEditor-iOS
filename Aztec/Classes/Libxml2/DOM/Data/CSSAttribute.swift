@@ -1,12 +1,17 @@
 import Foundation
 
 
-// MARK: - CSSProperty
+// MARK: - CSSAttribute
 //
-class CSSProperty: Hashable {
+class CSSAttribute: Hashable {
     
     let name: String
     let value: String
+
+    // MARK: - Separators
+
+    static let attributeSeparator = ";"
+    static let keyValueSeparator = ":"
 
     // MARK: - Initializers
 
@@ -16,7 +21,7 @@ class CSSProperty: Hashable {
     }
 
     convenience init?(for string: String) {
-        let components = string.components(separatedBy: CSSProperty.keyValueSeparator)
+        let components = string.components(separatedBy: CSSAttribute.keyValueSeparator)
         guard let name = components.first, let value = components.last, components.count == 2 else {
             return nil
         }
@@ -33,19 +38,13 @@ class CSSProperty: Hashable {
     // MARK: - String Representation
 
     func toString() -> String {
-        return name + CSSProperty.keyValueSeparator + value
+        return name + CSSAttribute.keyValueSeparator + value
     }
 
     // MARK: - Equatable
 
-    static func ==(leftValue: CSSProperty, rightValue: CSSProperty) -> Bool {
+    static func ==(leftValue: CSSAttribute, rightValue: CSSAttribute) -> Bool {
         return leftValue.name == rightValue.name && leftValue.value == rightValue.value
     }
 }
 
-
-// MARK: - Helpers
-//
-private extension CSSProperty {
-    static let keyValueSeparator = ": "
-}

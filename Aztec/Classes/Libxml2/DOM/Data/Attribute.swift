@@ -9,7 +9,11 @@ class Attribute: NSObject, CustomReflectable {
 
     let name: String
     var value: Value
-    
+
+    // MARK: - CSS Support
+
+    let cssAttributeName = "style"
+
     // MARK: - Initializers
     
     init(name: String, value: Value = .none) {
@@ -19,8 +23,23 @@ class Attribute: NSObject, CustomReflectable {
 
     init(name: String, string: String?) {
         self.name = name
-        self.value = Value(for: string)
+
+        guard let string = string, !string.isEmpty else {
+            self.value = .none
+            return
+        }
+
+        guard name.lowercased() == cssAttributeName else {
+            self.value = .string(string)
+            return
+        }
+
+        self.value = Value(withCSSString: string)
     }
+
+    // MARK: - CSS Parsing
+
+
 
 
     // MARK: - CustomReflectable
@@ -98,31 +117,27 @@ extension Attribute {
     enum Value: Equatable, Hashable {
         case none
         case string(String)
-        case inlineCss([CSSProperty])
-
-
-        // MARK: - Constants
-
-        static let cssPropertySeparator = "; "
-
+        case inlineCss([CSSAttribute])
 
         // MARK: - Initializers
 
-        init(for string: String?) {
-            let components = string?.components(separatedBy: Value.cssPropertySeparator) ?? []
-            if components.isEmpty {
+        init(withCSSString cssString: String) {
+
+            let components = cssString.components(separatedBy: CSSAttribute.attributeSeparator)
+
+            guard !components.isEmpty else {
                 self = .none
                 return
             }
 
-            let properties = components.flatMap { CSSProperty(for: $0) }
-            if !properties.isEmpty {
-                self = .inlineCss(properties)
+            let properties = components.flatMap { CSSAttribute(for: $0) }
+
+            guard !properties.isEmpty else {
+                self = .string(cssString)
                 return
             }
 
-            let first = components.first ?? String()
-            self = .string(first)
+            self = .inlineCss(properties)
         }
 
 
@@ -134,13 +149,10 @@ extension Attribute {
                 return 0
             case .string(let string):
                 return string.hashValue
-            case .inlineCss(let cssProperties):
-                var hash = 0
-                for property in cssProperties {
-                    hash ^= property.hashValue
-                }
-
-                return hash
+            case .inlineCss(let cssAttributes):
+                return cssAttributes.reduce(0, { (previous, cssAttribute) -> Int in
+                    return previous ^ cssAttribute.hashValue
+                })
             }
         }
 
@@ -171,11 +183,11 @@ extension Attribute {
             }
         }
 
-        static func ==(lValue: Value, rProperties: [CSSProperty]) -> Bool {
+        static func ==(lValue: Value, rProperties: [CSSAttribute]) -> Bool {
             return rProperties == lValue
         }
 
-        static func ==(lProperties: [CSSProperty], rValue: Value) -> Bool {
+        static func ==(lProperties: [CSSAttribute], rValue: Value) -> Bool {
             switch(rValue) {
             case .inlineCss(let rProperties):
                 return lProperties == rProperties
@@ -200,7 +212,7 @@ extension Attribute {
                     result += property.toString()
 
                     if index < properties.count - 1 {
-                        result += Value.cssPropertySeparator
+                        result += CSSAttribute.attributeSeparator + " "
                     }
                 }
                 

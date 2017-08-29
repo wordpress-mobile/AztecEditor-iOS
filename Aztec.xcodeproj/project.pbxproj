@@ -77,7 +77,7 @@
 		F11326B31EF1AA91007FEE9A /* ParagraphProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */; };
 		F11326B41EF1AA91007FEE9A /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AE1EF1AA91007FEE9A /* TextList.swift */; };
 		F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7111F058B20008A00D7 /* StandardAttribute.swift */; };
-		F127F7141F0591AD008A00D7 /* CSSProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7131F0591AD008A00D7 /* CSSProperty.swift */; };
+		F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7131F0591AD008A00D7 /* CSSAttribute.swift */; };
 		F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58511EF20394008AE298 /* AttributeFormatter.swift */; };
 		F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58531EF20394008AE298 /* ParagraphAttributeFormatter.swift */; };
 		F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58541EF20394008AE298 /* StandardAttributeFormatter.swift */; };
@@ -248,7 +248,7 @@
 		F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphProperty.swift; sourceTree = "<group>"; };
 		F11326AE1EF1AA91007FEE9A /* TextList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextList.swift; sourceTree = "<group>"; };
 		F127F7111F058B20008A00D7 /* StandardAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttribute.swift; sourceTree = "<group>"; };
-		F127F7131F0591AD008A00D7 /* CSSProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSProperty.swift; sourceTree = "<group>"; };
+		F127F7131F0591AD008A00D7 /* CSSAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSAttribute.swift; sourceTree = "<group>"; };
 		F12F58511EF20394008AE298 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
 		F12F58531EF20394008AE298 /* ParagraphAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphAttributeFormatter.swift; sourceTree = "<group>"; };
 		F12F58541EF20394008AE298 /* StandardAttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttributeFormatter.swift; sourceTree = "<group>"; };
@@ -782,7 +782,7 @@
 			isa = PBXGroup;
 			children = (
 				F1FA0E791E6EF514009D98EE /* Attribute.swift */,
-				F127F7131F0591AD008A00D7 /* CSSProperty.swift */,
+				F127F7131F0591AD008A00D7 /* CSSAttribute.swift */,
 				F1FA0E7A1E6EF514009D98EE /* CommentNode.swift */,
 				F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */,
 				F1FA0E7E1E6EF514009D98EE /* Node.swift */,
@@ -988,7 +988,7 @@
 				FF20D6421EDC389A00294B78 /* Processor.swift in Sources */,
 				599F253B1D8BC9A1002871D6 /* InNodesConverter.swift in Sources */,
 				F18B81EB1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift in Sources */,
-				F127F7141F0591AD008A00D7 /* CSSProperty.swift in Sources */,
+				F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */,
 				F11326B31EF1AA91007FEE9A /* ParagraphProperty.swift in Sources */,
 				F11326B11EF1AA91007FEE9A /* HTMLParagraph.swift in Sources */,
 				FF20D6401EDC389A00294B78 /* HTMLAttributes.swift in Sources */,

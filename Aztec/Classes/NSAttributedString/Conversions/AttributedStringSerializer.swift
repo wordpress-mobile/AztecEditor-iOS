@@ -151,31 +151,59 @@ class AttributedStringSerializer {
         return NSAttributedString(attributedString: stringWithSeparator)
     }
 
+    // MARK: - Built-in formatter instances
 
-    // MARK: - Node Styling
+    let blockquoteFormatter = BlockquoteFormatter()
+    let boldFormatter = BoldFormatter()
+    let divFormatter = HTMLDivFormatter()
+    let h1Formatter = HeaderFormatter(headerLevel: .h1)
+    let h2Formatter = HeaderFormatter(headerLevel: .h2)
+    let h3Formatter = HeaderFormatter(headerLevel: .h3)
+    let h4Formatter = HeaderFormatter(headerLevel: .h4)
+    let h5Formatter = HeaderFormatter(headerLevel: .h5)
+    let h6Formatter = HeaderFormatter(headerLevel: .h6)
+    let hrFormatter = HRFormatter()
+    let imageFormatter = ImageFormatter()
+    let italicFormatter = ItalicFormatter()
+    let linkFormatter = LinkFormatter()
+    let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
+    let paragraphFormatter = HTMLParagraphFormatter()
+    let preFormatter = PreFormatter()
+    let strikethroughFormatter = StrikethroughFormatter()
+    let underlineFormatter = UnderlineFormatter()
+    let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
+    let videoFormatter = VideoFormatter()
 
-    public let elementToFormattersMap: [StandardElementType: AttributeFormatter] = [
-        .ol: TextListFormatter(style: .ordered, increaseDepth: true),
-        .ul: TextListFormatter(style: .unordered, increaseDepth: true),
-        .blockquote: BlockquoteFormatter(),
-        .div: HTMLDivFormatter(),
-        .strong: BoldFormatter(),
-        .em: ItalicFormatter(),
-        .u: UnderlineFormatter(),
-        .del: StrikethroughFormatter(),
-        .a: LinkFormatter(),
-        .img: ImageFormatter(),
-        .hr: HRFormatter(),
-        .h1: HeaderFormatter(headerLevel: .h1),
-        .h2: HeaderFormatter(headerLevel: .h2),
-        .h3: HeaderFormatter(headerLevel: .h3),
-        .h4: HeaderFormatter(headerLevel: .h4),
-        .h5: HeaderFormatter(headerLevel: .h5),
-        .h6: HeaderFormatter(headerLevel: .h6),
-        .p: HTMLParagraphFormatter(),
-        .pre: PreFormatter(),
-        .video: VideoFormatter()
-    ]
+    // MARK: - Formatter Maps
+
+    public lazy var attributeFormattersMap: [String: AttributeFormatter] = {
+        return [:]
+    }()
+
+    public lazy var elementFormattersMap: [StandardElementType: AttributeFormatter] = { [unowned self] in
+        return [
+            .blockquote: self.blockquoteFormatter,
+            .div: self.divFormatter,
+            .ol: self.orderedListFormatter,
+            .ul: self.unorderedListFormatter,
+            .strong: self.boldFormatter,
+            .em: self.italicFormatter,
+            .u: self.underlineFormatter,
+            .del: self.strikethroughFormatter,
+            .a: self.linkFormatter,
+            .img: self.imageFormatter,
+            .hr: self.hrFormatter,
+            .h1: self.h1Formatter,
+            .h2: self.h2Formatter,
+            .h3: self.h3Formatter,
+            .h4: self.h4Formatter,
+            .h5: self.h5Formatter,
+            .h6: self.h6Formatter,
+            .p: self.paragraphFormatter,
+            .pre: self.preFormatter,
+            .video: self.videoFormatter
+        ]
+    }()
 
     let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [:]
 
@@ -231,10 +259,26 @@ private extension AttributedStringSerializer {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
-        for attribute in element.attributes {
-            finalAttributes = self.stringAttributes(for: attribute, inheriting: finalAttributes)
-        }
+        finalAttributes = stringAttributes(for: element.attributes, inheriting: finalAttributes)
         
+        return finalAttributes
+    }
+
+    /// Calculates the string attributes for the specified HTML attributes.  Returns a dictionary
+    /// including the inherited attributes.
+    ///
+    /// - Parameters:
+    ///     - htmlAttributes: the HTML attributes to get calculate the string attributes from.
+    ///     - inheritedAttributes: the attributes that will be inherited.
+    ///
+    /// - Returns: an attributes dictionary, for use in an NSAttributedString.
+    ///
+    private func stringAttributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [String: Any] in
+            return stringAttributes(for: htmlAttribute, inheriting: previousAttributes)
+        }
+
         return finalAttributes
     }
 
@@ -249,6 +293,10 @@ private extension AttributedStringSerializer {
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
     private func stringAttributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+
+        if attribute.name.lowercased() == "style" {
+            return [:]
+        }
 
         let attributes: [String:Any]
 
@@ -306,7 +354,7 @@ extension AttributedStringSerializer {
 
         let equivalentNames = standardType.equivalentNames
 
-        for (key, formatter) in elementToFormattersMap {
+        for (key, formatter) in elementFormattersMap {
             if equivalentNames.contains(key.rawValue) {
                 return formatter
             }
