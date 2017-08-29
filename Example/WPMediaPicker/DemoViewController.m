@@ -133,7 +133,9 @@
 
 - (void)setupMediaKeyboardForInputField {
     if (self.mediaInputViewController) {
+        [self.mediaInputViewController.view removeFromSuperview];
         [self.mediaInputViewController removeFromParentViewController];
+        [self.mediaInputViewController didMoveToParentViewController:nil];
     } else {
         self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
     }
