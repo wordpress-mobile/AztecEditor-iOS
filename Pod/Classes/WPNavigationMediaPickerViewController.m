@@ -253,7 +253,7 @@ static NSString *const ArrowDown = @"\u25be";
 - (NSString *)selectionActionValue {
     NSString *actionString = self.selectionActionTitle;
     if (actionString == nil) {
-        actionString = NSLocalizedString(@"Select %@", @"Action for Navigation bar to indicate selection of media. The argument in the string is a numeral number that indicates the number of elements selected.");
+        actionString = NSLocalizedString(@"Select %@", @"Action for Navigation bar to indicate selection of media. The argument in the string represents the number of elements (as numeric digits) selected");
     }
     NSNumberFormatter * numberFormatter = [[NSNumberFormatter alloc] init];
     NSString * countString = [numberFormatter stringFromNumber:[NSNumber numberWithInteger:self.mediaPicker.selectedAssets.count]];
