@@ -364,7 +364,7 @@ open class FormatBar: UIView {
         self.defaultItems = defaultItems
         self.overflowItems = overflowItems
 
-        if defaultItems.count > 0 {
+        if newItems.count > 0 && oldItems.count > 0 {
             // Fade out all existing items and pop in new ones
             fadeItems(oldItems,
                       visible: false,
