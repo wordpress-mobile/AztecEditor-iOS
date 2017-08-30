@@ -438,7 +438,7 @@ extension EditorDemoController : UITextViewDelegate {
             formatBar.enabled = false
 
             // Disable the bar, except for the source code button
-            let htmlButton = formatBar.overflowItems.first(where: { $0.identifier == FormattingIdentifier.sourcecode.rawValue })
+            let htmlButton = formatBar.items.first(where: { $0.identifier == FormattingIdentifier.sourcecode.rawValue })
             htmlButton?.isEnabled = true
         default: break
         }
@@ -901,17 +901,20 @@ extension EditorDemoController {
         let overflowItems = overflowItemsForToolbar
 
         let toolbar = Aztec.FormatBar()
-        toolbar.leadingItem = mediaItem
-        toolbar.defaultItems = scrollableItems
-        toolbar.overflowItems = overflowItems
+
         toolbar.tintColor = .gray
         toolbar.highlightedTintColor = .blue
         toolbar.selectedTintColor = view.tintColor
         toolbar.disabledTintColor = .lightGray
         toolbar.dividerTintColor = .gray
+
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
+
+        toolbar.leadingItem = mediaItem
+        toolbar.setDefaultItems(scrollableItems,
+                                overflowItems: overflowItems)
 
         toolbar.barItemHandler = { [weak self] item in
             self?.handleAction(for: item)
