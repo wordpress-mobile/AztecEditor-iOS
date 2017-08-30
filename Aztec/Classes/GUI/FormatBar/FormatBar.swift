@@ -380,14 +380,16 @@ open class FormatBar: UIView {
     }
     
     fileprivate func updateOverflowItemVisibility() {
+        updateVisibleItemsForCurrentBounds()
+
         let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
-        self.setOverflowItemsVisible(overflowVisible && self.trailingItem == nil, animated: false)
+        setOverflowItemsVisible(overflowVisible && trailingItem == nil, animated: false)
 
         if overflowVisible {
-            self.rotateOverflowToggleItem(.vertical, animated: false)
+            rotateOverflowToggleItem(.vertical, animated: false)
         }
 
-        self.updateOverflowToggleItemVisibility()
+        updateOverflowToggleItemVisibility()
     }
 
     fileprivate func updateOverflowToggleItemVisibility() {
