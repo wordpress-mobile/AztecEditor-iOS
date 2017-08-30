@@ -759,11 +759,10 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
     if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-            NSMutableArray *selectedAssets = [NSMutableArray arrayWithArray:self.internalSelectedAssets];
             if (self.capturedAsset) {
-                [selectedAssets addObject:self.capturedAsset];
+                [self.internalSelectedAssets addObject:self.capturedAsset];
             }
-            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:selectedAssets];
+            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:self.internalSelectedAssets];
         }
     }
 }
