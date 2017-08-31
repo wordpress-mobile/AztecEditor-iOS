@@ -1,4 +1,3 @@
-import Foundation
 import UIKit
 
 
@@ -41,7 +40,7 @@ open class FormatBar: UIView {
     /// A divider will be drawn between the leading item and any default items.
     /// If set to a FormatBarItem, the appearance will match the default items in the bar.
     ///
-    open var leadingItem: UIButton? = nil {
+    public var leadingItem: UIButton? = nil {
         didSet {
             /// If there was already a leading item in the bar, remove it
             if let existingItem = oldValue,
@@ -68,7 +67,7 @@ open class FormatBar: UIView {
     /// If set to a FormatBarItem, the appearance will match the default items in the bar.
     /// If a custom trailing item is set, no overflow toggle will be shown.
     ///
-    open var trailingItem: UIButton? = nil {
+    public var trailingItem: UIButton? = nil {
         didSet {
             updateScrollViewInsets()
 
@@ -94,39 +93,16 @@ open class FormatBar: UIView {
 
 
     /// FormatBarItems to be displayed when the bar is in its default collapsed state.
+    /// Set using `setDefaultItems(_:overflowItems:)`.
     ///
-    open var defaultItems = [FormatBarItem]() {
-        didSet {
-            configure(items: defaultItems)
-
-            populateItems()
-        }
-    }
+    fileprivate(set) var defaultItems = [FormatBarItem]()
 
 
-    /// Extra FormatBarItems to be displayed when the bar is in its expanded state
+    /// Extra FormatBarItems to be displayed when the bar is in its expanded state.
+    /// Set using `setDefaultItems(_:overflowItems:)`.
     ///
-    open var overflowItems = [FormatBarItem]() {
-        didSet {
-            configure(items: overflowItems)
+    fileprivate(set) var overflowItems = [FormatBarItem]()
 
-            populateItems()
-
-            let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
-            setOverflowItemsVisible(overflowVisible && trailingItem == nil, animated: false)
-            
-            if overflowVisible {
-                rotateOverflowToggleItem(.vertical, animated: false)
-            }
-
-            updateOverflowToggleItemVisibility()
-        }
-    }
-
-    fileprivate func updateOverflowToggleItemVisibility() {
-        let hasOverflowItems = !overflowItems.isEmpty
-        overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
-    }
 
     /// FormatBarItem used to toggle the bar's expanded state
     ///
@@ -143,7 +119,7 @@ open class FormatBar: UIView {
 
     /// The icon to show on the overflow toggle button
     ///
-    open var overflowToggleIcon: UIImage? {
+    public var overflowToggleIcon: UIImage? {
         set {
             overflowToggleItem.setImage(newValue, for: .normal)
         }
@@ -155,7 +131,7 @@ open class FormatBar: UIView {
 
     /// Returns the collection of all of the FormatBarItems
     ///
-    private var items: [FormatBarItem] {
+    public var items: [FormatBarItem] {
         return scrollableStackView.arrangedSubviews.filter({ $0 is FormatBarItem }) as! [FormatBarItem]
     }
 
@@ -215,7 +191,6 @@ open class FormatBar: UIView {
         return false
     }
 
-    
     /// Tint Color
     ///
     override open var tintColor: UIColor? {
@@ -351,7 +326,7 @@ open class FormatBar: UIView {
 
     /// Selects all of the FormatBarItems matching a collection of identifiers
     ///
-    open func selectItemsMatchingIdentifiers(_ identifiers: [String]) {
+    public func selectItemsMatchingIdentifiers(_ identifiers: [String]) {
         let identifiers = Set(identifiers)
 
         for item in items {
@@ -376,6 +351,52 @@ open class FormatBar: UIView {
 
     // MARK: - Actions
 
+    /// Configure the set of default and overflow items used in the format bar. If a set of overflow
+    /// items is provided, an overflow toggle control will be displayed to allow a user to toggle
+    /// their visibility.
+    ///
+    public func setDefaultItems(_ defaultItems: [FormatBarItem], overflowItems: [FormatBarItem] = []) {
+        let newItems = defaultItems + overflowItems
+        let oldItems = self.defaultItems + self.overflowItems
+
+        configure(items: newItems)
+
+        self.defaultItems = defaultItems
+        self.overflowItems = overflowItems
+
+        if newItems.count > 0 && oldItems.count > 0 {
+            // Fade out all existing items and pop in new ones
+            fadeItems(oldItems,
+                      visible: false,
+                      completion: {
+                        self.populateItems()
+                        self.popItems(newItems, visible: true, animated: true)
+                        self.updateOverflowItemVisibility()
+            })
+        } else {
+            self.populateItems()
+            self.updateOverflowItemVisibility()
+        }
+    }
+    
+    fileprivate func updateOverflowItemVisibility() {
+        updateVisibleItemsForCurrentBounds()
+
+        let overflowVisible = UserDefaults.standard.bool(forKey: Constants.overflowExpandedUserDefaultsKey)
+        setOverflowItemsVisible(overflowVisible && trailingItem == nil, animated: false)
+
+        if overflowVisible {
+            rotateOverflowToggleItem(.vertical, animated: false)
+        }
+
+        updateOverflowToggleItemVisibility()
+    }
+
+    fileprivate func updateOverflowToggleItemVisibility() {
+        let hasOverflowItems = !overflowItems.isEmpty
+        overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
+    }
+    
     @IBAction func handleButtonTouch(_ sender: FormatBarItem) {
         formatter?.formatBarTouchesBegan(self)
     }
@@ -398,7 +419,9 @@ open class FormatBar: UIView {
         overflowToolbar(expand: shouldExpand)
     }
 
-    open func overflowToolbar(expand shouldExpand: Bool) {
+    /// Tell the toolbar to expand or collapse its overflow items.
+    ///
+    public func overflowToolbar(expand shouldExpand: Bool) {
         setOverflowItemsVisible(shouldExpand)
 
         let direction: OverflowToggleAnimationDirection = shouldExpand ? .vertical : .horizontal
@@ -415,15 +438,34 @@ open class FormatBar: UIView {
         // Animate backwards if we're disappearing
         let items = visible ? hiddenItems : (overflowedDefaultItems + overflowItems).reversed()
 
-        // Currently only doing the pop animation for appearance
+        popItems(items, visible: visible, animated: animated)
+    }
+
+    private func popItems(_ items: [FormatBarItem], visible: Bool, animated: Bool = true) {
         if animated && visible {
+            guard items.count > 0 else { return }
+
+            // Scale the individual item duration so it always takes the same amount of time
+            let itemCount = Double(items.count)
+            let duration = Animations.itemPop.totalAppearanceDuration / itemCount
+            let delay = Animations.itemPop.totalInterItemDelay / itemCount
+
             for (index, item) in items.enumerated() {
-                animate(item: item, visible: visible, withDelay: Double(index) * Animations.itemPop.interItemAnimationDelay)
+                animate(item: item, visible: visible, withDuration: duration, delay: Double(index) * delay)
             }
         } else {
             scrollView.contentOffset = .zero
             items.forEach({ $0.isHiddenInStackView = !visible })
         }
+    }
+
+    private func fadeItems(_ items: [FormatBarItem], visible: Bool, completion: (() -> Void)? = nil) {
+        let alpha: CGFloat = visible ? 1 : 0
+        UIView.animate(withDuration: Animations.durationShort, animations: {
+            items.forEach({ $0.alpha = alpha })
+        }, completion: { _ in
+            completion?()
+        })
     }
 }
 
@@ -598,7 +640,7 @@ private extension FormatBar {
         return scrollView.frame.size
     }
 
-    func animate(item: FormatBarItem, visible: Bool, withDelay delay: TimeInterval) {
+    func animate(item: FormatBarItem, visible: Bool, withDuration duration: TimeInterval, delay: TimeInterval) {
         let hide = {
             item.transform = Animations.itemPop.initialTransform
             item.alpha = 0
@@ -621,7 +663,7 @@ private extension FormatBar {
 
         if visible {
             hide()
-            UIView.animate(withDuration: Animations.durationShort,
+            UIView.animate(withDuration: duration,
                            animations: { item.isHiddenInStackView = false },
                            completion: { _ in
                             pop()
@@ -691,9 +733,10 @@ private extension FormatBar {
         }
 
         struct itemPop {
-            static let interItemAnimationDelay = TimeInterval(0.1)
             static let initialTransform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-            static let duration = TimeInterval(0.65)
+            static let duration = TimeInterval(0.6)
+            static let totalAppearanceDuration = TimeInterval(0.7)
+            static let totalInterItemDelay = TimeInterval(0.2)
             static let springDamping = CGFloat(0.4)
             static let springInitialVelocity = CGFloat(1.0)
         }
