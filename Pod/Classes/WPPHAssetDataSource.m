@@ -390,7 +390,7 @@
         }
         PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(localIdentifier == %@)", assetIdentifier];
-        PHFetchResult * result = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
+        PHFetchResult * result = [PHAsset fetchAssetsWithOptions:fetchOptions];
         if (result.count < 1){
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{
