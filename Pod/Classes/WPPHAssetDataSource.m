@@ -70,6 +70,9 @@
         PHFetchResultChangeDetails *albumChangeDetails = [changeInstance changeDetailsForFetchResult:self.albums];
 
         if (!groupChangeDetails && !assetsChangeDetails && !albumChangeDetails) {
+            [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+                block(true, [NSIndexSet new], [NSIndexSet new], [NSIndexSet new], @[]);
+            }];
             return;
         }
 
