@@ -55,8 +55,8 @@ class HTMLRepresentationTests: XCTestCase {
 //
 private extension HTMLRepresentationTests {
 
-    var sampleCSS: CSSProperty {
-        return CSSProperty(name: "some", value: "thing")
+    var sampleCSS: CSSAttribute {
+        return CSSAttribute(name: "some", value: "thing")
     }
 
     var sampleAttribute: Attribute {

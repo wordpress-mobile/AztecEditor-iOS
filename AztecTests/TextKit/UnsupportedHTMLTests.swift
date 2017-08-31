@@ -29,8 +29,8 @@ class UnsupportedHTMLTests: XCTestCase {
 // MARK: - Helpers
 //
 private extension UnsupportedHTMLTests {
-    var sampleCSS: CSSProperty {
-        return CSSProperty(name: "text", value: "bold")
+    var sampleCSS: CSSAttribute {
+        return CSSAttribute(name: "text", value: "bold")
     }
 
     var sampleAttributes: [Attribute] {
