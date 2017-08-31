@@ -6,22 +6,17 @@ import Foundation
 class CSSAttribute: Hashable {
     
     let name: String
-    let value: String
-
-    // MARK: - Separators
-
-    static let attributeSeparator = ";"
-    static let keyValueSeparator = ":"
+    let value: String?
 
     // MARK: - Initializers
 
-    init(name: String, value: String) {
+    init(name: String, value: String? = nil) {
         self.name = name
         self.value = value
     }
 
     convenience init?(for string: String) {
-        let components = string.components(separatedBy: CSSAttribute.keyValueSeparator)
+        let components = string.components(separatedBy: CSSParser.keyValueSeparator)
         guard let name = components.first, let value = components.last, components.count == 2 else {
             return nil
         }
@@ -32,13 +27,23 @@ class CSSAttribute: Hashable {
     // MARK: - Hashable
 
     var hashValue: Int {
+
+        guard let value = value else {
+            return name.hashValue
+        }
+
         return name.hashValue ^ value.hashValue
     }
 
     // MARK: - String Representation
 
     func toString() -> String {
-        return name + CSSAttribute.keyValueSeparator + value
+
+        guard let value = value else {
+            return name
+        }
+
+        return name + CSSParser.keyValueSeparator + value
     }
 
     // MARK: - Equatable

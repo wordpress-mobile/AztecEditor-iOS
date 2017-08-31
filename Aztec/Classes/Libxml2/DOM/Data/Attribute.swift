@@ -123,7 +123,7 @@ extension Attribute {
 
         init(withCSSString cssString: String) {
 
-            let components = cssString.components(separatedBy: CSSAttribute.attributeSeparator)
+            let components = cssString.components(separatedBy: CSSParser.attributeSeparator)
 
             guard !components.isEmpty else {
                 self = .none
@@ -212,7 +212,7 @@ extension Attribute {
                     result += property.toString()
 
                     if index < properties.count - 1 {
-                        result += CSSAttribute.attributeSeparator + " "
+                        result += CSSParser.attributeSeparator + " "
                     }
                 }
                 
