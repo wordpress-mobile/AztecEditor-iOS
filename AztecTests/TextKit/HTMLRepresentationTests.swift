@@ -60,7 +60,7 @@ private extension HTMLRepresentationTests {
     }
 
     var sampleAttribute: Attribute {
-        return Attribute(name: "css", value: .inlineCss([sampleCSS]))
+        return Attribute(name: "style", value: .inlineCss([sampleCSS]))
     }
 
     var sampleElement: HTMLElementRepresentation {
