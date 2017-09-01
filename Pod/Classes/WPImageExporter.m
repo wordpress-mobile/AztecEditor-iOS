@@ -6,7 +6,13 @@
 
 @implementation WPImageExporter
 
-+ (NSURL *)URLForTemporaryFileWithFileExtension:(NSString *)fileExtension
+/**
+ Retrieve an URL for a file on the temporary folder using the extension provided
+
+ @param fileExtension the extension to use.
+ @return an URL for a temporary file.
+ */
++ (NSURL *)temporaryFileURLWithExtension:(NSString *)fileExtension
 {
     NSAssert(fileExtension.length > 0, @"file Extension cannot be empty");
     NSString *fileName = [NSString stringWithFormat:@"%@_file.%@", NSProcessInfo.processInfo.globallyUniqueString, fileExtension];
@@ -14,10 +20,10 @@
     return fileURL;
 }
 
-+ (BOOL)writeImage:(UIImage *)image metadata:(NSDictionary *)metadata toURL:(NSURL *)url 
++ (BOOL)writeImage:(UIImage *)image withMetadata:(NSDictionary *)metadata toURL:(NSURL *)fileURL;
 {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:@{ (NSString *)kCGImageDestinationLossyCompressionQuality: @(1)}];
-    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((CFURLRef)url, kUTTypePNG, 1, nil);
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((CFURLRef)fileURL, kUTTypeJPEG, 0.9, nil);
     if (destination == NULL) {
         return NO;
     }

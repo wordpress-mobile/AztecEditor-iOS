@@ -354,8 +354,8 @@
  completionBlock:(WPMediaAddedBlock)completionBlock
 {
     [self addAssetWithChangeRequest:^PHAssetChangeRequest *{
-        NSURL * url = [WPImageExporter URLForTemporaryFileWithFileExtension:@"jpg"];
-        if (metadata != nil && [WPImageExporter writeImage:image metadata:metadata toURL:url ]) {
+        NSURL * url = [WPImageExporter temporaryFileURLWithExtension:@"jpg"];
+        if (metadata != nil && [WPImageExporter writeImage:image withMetadata:metadata toURL:url]) {
             return [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:url];
         } else {
             return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
