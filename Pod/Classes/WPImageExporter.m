@@ -6,12 +6,6 @@
 
 @implementation WPImageExporter
 
-/**
- Retrieve an URL for a file on the temporary folder using the extension provided
-
- @param fileExtension the extension to use.
- @return an URL for a temporary file.
- */
 + (NSURL *)temporaryFileURLWithExtension:(NSString *)fileExtension
 {
     NSAssert(fileExtension.length > 0, @"file Extension cannot be empty");
