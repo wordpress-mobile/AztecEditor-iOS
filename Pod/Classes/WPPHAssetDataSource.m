@@ -1,5 +1,7 @@
 #import "WPPHAssetDataSource.h"
 #import "WPIndexMove.h"
+#import "WPImageExporter.h"
+
 @import Photos;
 
 @interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
@@ -355,7 +357,12 @@
  completionBlock:(WPMediaAddedBlock)completionBlock
 {
     [self addAssetWithChangeRequest:^PHAssetChangeRequest *{
-        return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        NSURL * url = [WPImageExporter temporaryFileURLWithExtension:@"jpg"];
+        if (metadata != nil && [WPImageExporter writeImage:image withMetadata:metadata toURL:url]) {
+            return [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:url];
+        } else {
+            return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        }
     } completionBlock:completionBlock];
 }
 
