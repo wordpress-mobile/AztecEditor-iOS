@@ -18,7 +18,7 @@
 
  @param image the image to save
  @param metadata the metadata of the image
- @return the URL of the image if it was save properly.
+ @return the URL of the image if it was saved properly.
  */
 + (BOOL)writeImage:(UIImage *)image withMetadata:(NSDictionary *)metadata toURL:(NSURL *)fileURL;
 
