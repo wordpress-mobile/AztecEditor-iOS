@@ -4,6 +4,7 @@
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
 #import "WPPHAssetDataSource.h"
+#import "WPMediaCapturePresenter.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
@@ -21,6 +22,7 @@
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
 @property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
+@property (nonatomic, strong) WPMediaCapturePresenter *capturePresenter;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
@@ -205,7 +207,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (BOOL)isShowingCaptureCell
 {
-    return self.options.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
+    return self.options.allowCaptureOfMedia && [WPMediaCapturePresenter isCaptureAvailable] && !self.refreshGroupFirstTime;
 }
 
 - (void)clearSelectedAssets:(BOOL)animated
@@ -498,7 +500,7 @@ referenceSizeForFooterInSection:(NSInteger)section
         if (!self.captureCell) {
             self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
             if (self.captureCell.gestureRecognizers == nil) {
-                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(captureMedia)];
                 [self.captureCell addGestureRecognizer:tapGestureRecognizer];
             }
             self.captureCell.preferFrontCamera = self.options.preferFrontCamera;
@@ -630,93 +632,29 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 #pragma mark - Media Capture
 
-- (BOOL)isMediaDeviceAvailable
+- (WPMediaCapturePresenter *)capturePresenter
 {
-    // check if device is capable of capturing photos all together
-    return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
-}
+    if (!_capturePresenter) {
+        _capturePresenter = [[WPMediaCapturePresenter alloc] initWithPresentingViewController:self.viewControllerToUseToPresent];
+        _capturePresenter.mediaType = self.options.filter;
+        _capturePresenter.preferFrontCamera = self.options.preferFrontCamera;
 
-- (void)showMediaCaptureViewController
-{
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
-                           UIImagePickerControllerSourceTypeCamera]];
-    NSMutableSet *mediaDesired = [NSMutableSet new];
-    if (self.options.filter & WPMediaTypeImage) {
-        [mediaDesired addObject:(__bridge NSString *)kUTTypeImage];
-    }
-    if (self.options.filter & WPMediaTypeVideo) {
-        [mediaDesired addObject:(__bridge NSString *)kUTTypeMovie];
+        __weak typeof(self) weakSelf = self;
+        _capturePresenter.completionBlock = ^(NSDictionary *mediaInfo) {
+            if (mediaInfo) {
+                [weakSelf processMediaCaptured:mediaInfo];
+            }
 
+            weakSelf.capturePresenter = nil;
+        };
     }
-    if (mediaDesired.count > 0){
-        [mediaTypes intersectSet:mediaDesired];
-    }
-        
-    imagePickerController.mediaTypes = [mediaTypes allObjects];
-    imagePickerController.delegate = self;
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-    imagePickerController.cameraDevice = [self cameraDevice];
-    imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
-    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:nil];
-}
 
-- (UIImagePickerControllerCameraDevice)cameraDevice
-{
-    if (self.options.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
-        return UIImagePickerControllerCameraDeviceFront;
-    } else {
-        return UIImagePickerControllerCameraDeviceRear;
-    }
+    return _capturePresenter;
 }
 
 - (void)captureMedia
 {
-    NSString *mediaType = AVMediaTypeVideo;
-    AVAuthorizationStatus authorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
-    if (authorizationStatus == AVAuthorizationStatusAuthorized) {
-        [self showMediaCaptureViewController];
-        return;
-    }
-
-    if (authorizationStatus == AVAuthorizationStatusNotDetermined) {
-        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!granted)
-                {
-                    [self showAlertAboutMediaCapturePermission];
-                    return;
-                }
-                [self showMediaCaptureViewController];
-            });
-        }];
-        return;
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self showAlertAboutMediaCapturePermission];
-    });
-}
-
-- (void)showAlertAboutMediaCapturePermission
-{
-    NSString *title = NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted");
-    NSString *message =NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"");
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", "Confirmation of action") style:UIAlertActionStyleCancel handler:nil];
-    [alertController addAction:okAction];
-    
-    NSString *otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-    UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^(UIAlertAction *action) {
-        NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-        [[UIApplication sharedApplication] openURL:settingsURL];
-    }];
-    [alertController addAction:otherAction];
-    
-    [self.viewControllerToUseToPresent presentViewController:alertController animated:YES completion:nil];
+    [self.capturePresenter presentCapture];
 }
 
 - (void)processMediaCaptured:(NSDictionary *)info
@@ -765,20 +703,6 @@ referenceSizeForFooterInSection:(NSInteger)section
             [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:self.internalSelectedAssets];
         }
     }
-}
-
-#pragma mark - UIImagePickerControllerDelegate
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
-{
-    [picker dismissViewControllerAnimated:YES completion:^{
-        [self processMediaCaptured:info];
-    }];
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
-    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)setGroup:(id<WPMediaGroup>)group {
