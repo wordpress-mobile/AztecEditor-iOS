@@ -91,9 +91,7 @@ extension String {
             return false
         }
 
-        let previousIndex = index(before: endIndex)
-        let lastIndex = index(after: previousIndex)
-        let endingString = substring(with: previousIndex ..< lastIndex)
+        let endingString = substring(with: index(before: endIndex) ..< endIndex)
 
         let characters = characterNamed.map { String($0) }
         return characters.contains(endingString)
