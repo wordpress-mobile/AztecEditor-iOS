@@ -81,20 +81,22 @@ extension String {
         return isEndOfLine(at: index)
     }
 
-    /// Checks if the current string ends with (any) of the specified Characters.
+    /// This methods verifies if the receiver string contains an End of Paragraph at the specified index.
     ///
     /// - Parameters:
-    ///     - characterNamed: Array of Characters to be checked against.
+    ///     - index: the index to check
     ///
-    func ends(with characterNamed: [Character.Name]) -> Bool {
+    /// - Returns: `true` if the receiver contains an end-of-paragraph character at the specified Index.
+    ///
+    func isEndOfParagraph(at index: String.Index) -> Bool {
         guard !isEmpty else {
             return false
         }
 
-        let endingString = substring(with: index(before: endIndex) ..< endIndex)
+        let endingString = substring(with: self.index(before: index) ..< index)
+        let paragraphSeparators = [String(.carriageReturn), String(.lineFeed), String(.paragraphSeparator)]
 
-        let characters = characterNamed.map { String($0) }
-        return characters.contains(endingString)
+        return paragraphSeparators.contains(endingString)
     }
 
     /// Checks if the location passed is the beggining of a new line.

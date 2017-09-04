@@ -66,7 +66,7 @@ private extension LayoutManager {
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
 
-                if lineCharacters.ends(with: [.lineSeparator]) {
+                if lineCharacters.isEndOfParagraph(at: lineCharacters.endIndex) {
                     paddingHeight = 0
                 }
 
