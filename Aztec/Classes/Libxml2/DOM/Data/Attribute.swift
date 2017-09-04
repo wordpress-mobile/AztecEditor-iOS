@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: NSObject, CustomReflectable {
+class Attribute: CustomReflectable, Equatable, Hashable {
 
     // MARK: - Attribute Definition Properties
 
@@ -20,7 +20,7 @@ class Attribute: NSObject, CustomReflectable {
         self.name = name
         self.value = value
     }
-
+/*
     init(name: String, string: String?) {
         self.name = name
 
@@ -36,7 +36,7 @@ class Attribute: NSObject, CustomReflectable {
 
         self.value = Value(withCSSString: string)
     }
-
+*/
     // MARK: - CSS Parsing
 
 
@@ -52,12 +52,12 @@ class Attribute: NSObject, CustomReflectable {
 
     // MARK - Hashable
 
-    override var hashValue: Int {
-        return name.hashValue ^ value.hashValue
+    var hashValue: Int {
+        return ObjectIdentifier(self).hashValue
     }
 
     // MARK: - NSCoding
-
+/*
     public required convenience init?(coder aDecoder: NSCoder) {
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
             let valueAsString = aDecoder.decodeObject(forKey: Keys.value) as? String?
@@ -67,15 +67,20 @@ class Attribute: NSObject, CustomReflectable {
 
         self.init(name: name, string: valueAsString)
     }
-
+*/
     // MARK: - Equatable
-
+/*
     override func isEqual(_ object: Any?) -> Bool {
         guard let rhs = object as? Attribute else {
             return false
         }
 
         return name == rhs.name && value == rhs.value
+    }
+*/
+
+    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 
     // MARK: - String Representation
@@ -94,6 +99,7 @@ class Attribute: NSObject, CustomReflectable {
 
 // MARK: - NSCoding Conformance
 //
+/*
 extension Attribute: NSCoding {
 
     struct Keys {
@@ -106,6 +112,7 @@ extension Attribute: NSCoding {
         aCoder.encode(value.toString(), forKey: Keys.value)
     }
 }
+ */
 
 
 // MARK: - Attribute.Value

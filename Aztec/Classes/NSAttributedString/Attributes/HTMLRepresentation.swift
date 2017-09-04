@@ -98,7 +98,7 @@ class HTMLElementRepresentation: NSObject {
     // MARK: - Equatable
 
     static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 }
 
