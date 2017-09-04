@@ -66,7 +66,7 @@ private extension LayoutManager {
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
 
-                if !lineCharacters.ends(with: [.carriageReturn, .lineFeed, .paragraphSeparator]) {
+                if lineCharacters.ends(with: [.lineSeparator]) {
                     paddingHeight = 0
                 }
 
@@ -74,7 +74,7 @@ private extension LayoutManager {
                 let finalRect = CGRect(x: lineRect.origin.x + paddingWidth,
                                        y: lineRect.origin.y,
                                        width: lineRect.size.width - paddingWidth,
-                                       height: lineRect.size.height - (paddingHeight * 2))
+                                       height: lineRect.size.height - paddingHeight)
 
                 self.drawBlockquote(in: finalRect.integral, with: context)
             }
@@ -151,8 +151,9 @@ private extension LayoutManager {
 
             guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
                 let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
-                let list = paragraphStyle.lists.last else {
-                    return
+                let list = paragraphStyle.lists.last
+            else {
+                return
             }
 
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
@@ -164,12 +165,11 @@ private extension LayoutManager {
 
             let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
 
-            self.drawItem(
-                number: markerNumber,
-                in: lineFragmentRectWithOffset,
-                from: list,
-                using: paragraphStyle,
-                at: enclosingRange.location)
+            self.drawItem(number: markerNumber,
+                          in: lineFragmentRectWithOffset,
+                          from: list,
+                          using: paragraphStyle,
+                          at: enclosingRange.location)
         }
     }
 
