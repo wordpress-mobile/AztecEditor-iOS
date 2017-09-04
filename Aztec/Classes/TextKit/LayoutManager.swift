@@ -48,26 +48,32 @@ private extension LayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        //draw blockquotes
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+
+        // Draw blockquotes
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
-            let blockquoteIndent = paragraphStyle.blockquoteIndent
 
+            let blockquoteIndent = paragraphStyle.blockquoteIndent
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
                 var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
+
                 // Cheking if we this a middle line inside a blockquote paragraph
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 if !lineCharacters.isEndOfLine(before: lineCharacters.endIndex) {
                     paddingHeight = 0
                 }
+
                 let lineRect = rect.offsetBy(dx: origin.x , dy: origin.y)
-                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth, y: lineRect.origin.y, width: lineRect.size.width - paddingWidth, height: lineRect.size.height - (paddingHeight*2))
+                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth,
+                                       y: lineRect.origin.y,
+                                       width: lineRect.size.width - paddingWidth,
+                                       height: lineRect.size.height - (paddingHeight * 2))
                 self.drawBlockquote(in: finalRect.integral, with: context)
             }
         }
