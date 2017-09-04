@@ -81,6 +81,24 @@ extension String {
         return isEndOfLine(at: index)
     }
 
+    /// Checks if the current string ends with (any) of the specified Characters.
+    ///
+    /// - Parameters:
+    ///     - characterNamed: Array of Characters to be checked against.
+    ///
+    func ends(with characterNamed: [Character.Name]) -> Bool {
+        guard !isEmpty else {
+            return false
+        }
+
+        let previousIndex = index(before: endIndex)
+        let lastIndex = index(after: previousIndex)
+        let endingString = substring(with: previousIndex ..< lastIndex)
+
+        let characters = characterNamed.map { String($0) }
+        return characters.contains(endingString)
+    }
+
     /// Checks if the location passed is the beggining of a new line.
     ///
     /// - Parameters:

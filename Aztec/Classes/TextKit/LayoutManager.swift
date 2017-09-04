@@ -65,7 +65,8 @@ private extension LayoutManager {
                 // Cheking if we this a middle line inside a blockquote paragraph
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
-                if !lineCharacters.isEndOfLine(before: lineCharacters.endIndex) {
+
+                if !lineCharacters.ends(with: [.carriageReturn, .lineFeed, .paragraphSeparator]) {
                     paddingHeight = 0
                 }
 
@@ -74,6 +75,7 @@ private extension LayoutManager {
                                        y: lineRect.origin.y,
                                        width: lineRect.size.width - paddingWidth,
                                        height: lineRect.size.height - (paddingHeight * 2))
+
                 self.drawBlockquote(in: finalRect.integral, with: context)
             }
         }

@@ -205,4 +205,22 @@ class StringEndOfLineTests: XCTestCase {
             XCTAssertFalse(string.isStartOfNewLine(at: index))
         }
     }
+
+    func testEndsWithCarriageReturnEffectivelyReturnsTrueWheneverTestStringEndsWithCarriageReturn() {
+        let test = "something\u{000D}"
+
+        XCTAssert(test.ends(with: [.carriageReturn]))
+    }
+
+    func testEndsWithCarriageReturnReturnsFalseWheneverTestStringDoesNotEndWithCarriageReturn() {
+        let test = "something"
+
+        XCTAssertFalse(test.ends(with: [.carriageReturn]))
+    }
+
+    func testEndsWithDoesNotCrashOnEmptyString() {
+        let empty = ""
+
+        XCTAssertNoThrow(empty.ends(with: [.carriageReturn]), "")
+    }
 }
