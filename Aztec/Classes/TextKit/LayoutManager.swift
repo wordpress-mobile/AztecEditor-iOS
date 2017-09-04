@@ -157,20 +157,39 @@ private extension LayoutManager {
             }
 
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
-
-            // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
-            //
-            let lineFragmentRect = self.lineFragmentRect(forGlyphAt: glyphRange.location, effectiveRange: nil)
-            let lineFragmentRectWithOffset = lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-
+            let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
             let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
 
-            self.drawItem(number: markerNumber,
-                          in: lineFragmentRectWithOffset,
-                          from: list,
-                          using: paragraphStyle,
-                          at: enclosingRange.location)
+            drawItem(number: markerNumber, in: markerRect, from: list, using: paragraphStyle, at: enclosingRange.location)
         }
+    }
+
+    /// Returns the Rect for the MarkerItem at the specified Range + Origin, within a given ParagraphStyle.
+    ///
+    /// - Parameters:
+    ///     - range: List Item's Range
+    ///     - origin: List Origin
+    ///     - paragraphStyle: Container Style
+    ///
+    /// - Returns: CGRect in which we should render the MarkerItem.
+    ///
+    private func rectForItem(range: NSRange, origin: CGPoint, paragraphStyle: ParagraphStyle) -> CGRect {
+        var paddingY = CGFloat(0)
+        var effectiveLineRange = NSRange.zero
+
+        // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
+        let lineFragmentRect = self.lineFragmentRect(forGlyphAt: range.location, effectiveRange: &effectiveLineRange)
+
+        // Whenever we're rendering an Item with multiple lines, within a Blockquote, we need to account for the
+        // paragraph spacing. Otherwise the Marker will show up slightly off.
+        //
+        // Ref. #645
+        //
+        if effectiveLineRange.length < range.length && paragraphStyle.blockquotes.isEmpty == false {
+            paddingY = Metrics.paragraphSpacing
+        }
+
+        return lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y + paddingY)
     }
 
 
