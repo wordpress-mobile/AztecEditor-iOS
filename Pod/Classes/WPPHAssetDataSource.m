@@ -170,6 +170,12 @@
         [smartAlbumsOrder insertObject:@(PHAssetCollectionSubtypeSmartAlbumSelfPortraits) atIndex:3];
         [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumScreenshots)];
     }
+    // Add iOS 10's new albums
+    NSOperatingSystemVersion iOS10 = {10,0,0};
+    if ( [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:iOS10]) {
+        [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumLivePhotos)];
+        [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumDepthEffect)];
+    }
     return [NSArray arrayWithArray:smartAlbumsOrder];
 }
 
