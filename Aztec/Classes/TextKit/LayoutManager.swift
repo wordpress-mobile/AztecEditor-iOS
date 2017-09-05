@@ -62,11 +62,15 @@ private extension LayoutManager {
                 let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
                 var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
 
-                // Cheking if we this a middle line inside a blockquote paragraph
+                // Cheking if we this a middle line inside a blockquote paragraph:
+                // Avoid applying the "Padding Height", otherwise we might cut off the Blockquote's BG.
+                //
+                // Ref. Issue #645
+                //
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
 
-                if lineCharacters.isEndOfParagraph(at: lineCharacters.endIndex) {
+                if !lineCharacters.isEndOfParagraph(at: lineCharacters.endIndex) {
                     paddingHeight = 0
                 }
 
