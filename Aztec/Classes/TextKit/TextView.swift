@@ -810,7 +810,7 @@ open class TextView: UITextView {
         }
 
         if selectedRangeForSwift.location == textStorage.length
-            && textStorage.string.isEmptyParagraph(at: selectedRangeForSwift.location) {
+            && textStorage.string.isEmptyLine(at: selectedRangeForSwift.location) {
 
             insertEndOfLineCharacter()
         }
@@ -1323,7 +1323,7 @@ private extension TextView {
     /// - Returns: `true` if we should nuke the paragraph attributes.
     ///
     private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
-        return storage.string.isEmptyParagraph(at: range.location)
+        return storage.string.isEmptyLine(at: range.location)
     }
 
     // MARK: - WORKAROUND: Removing paragraph styles after entering a newline.
@@ -1348,7 +1348,7 @@ private extension TextView {
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     private func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
-        return input.isEndOfLine() && storage.string.isEmptyParagraph(at: selectedRange.location)
+        return input.isEndOfLine() && storage.string.isEmptyLine(at: selectedRange.location)
     }
 
 
@@ -1397,7 +1397,7 @@ private extension TextView {
     ///
     private func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
         return input.isEndOfLine()
-            && storage.string.isEmptyParagraph(at: selectedRange.location)
+            && storage.string.isEmptyLine(at: selectedRange.location)
             && (BlockquoteFormatter().present(in: typingAttributes)
                 || TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
                 || PreFormatter().present(in: typingAttributes))
@@ -1444,7 +1444,7 @@ private extension TextView {
     ///
     private func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
         return selectedRange.location == storage.length
-            && storage.string.isEmptyParagraph(at: selectedRange.location)
+            && storage.string.isEmptyLine(at: selectedRange.location)
     }
 
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
