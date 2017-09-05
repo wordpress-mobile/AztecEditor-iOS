@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: CustomReflectable, Equatable, Hashable {
+class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Attribute Definition Properties
 
@@ -20,6 +20,7 @@ class Attribute: CustomReflectable, Equatable, Hashable {
         self.name = name
         self.value = value
     }
+
 /*
     init(name: String, string: String?) {
         self.name = name
@@ -52,35 +53,42 @@ class Attribute: CustomReflectable, Equatable, Hashable {
 
     // MARK - Hashable
 
-    var hashValue: Int {
-        return ObjectIdentifier(self).hashValue
+    override var hashValue: Int {
+        return name.hashValue ^ value.hashValue
     }
 
     // MARK: - NSCoding
-/*
+
+    struct Keys {
+        static let name = "name"
+        static let value = "value"
+    }
+
     public required convenience init?(coder aDecoder: NSCoder) {
+
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let valueAsString = aDecoder.decodeObject(forKey: Keys.value) as? String?
+            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? Value.Coding
         else {
-            fatalError()
+            assertionFailure("Review the logic.")
+            return nil
         }
 
-        self.init(name: name, string: valueAsString)
+        self.init(name: name, value: valueCoding.value)
     }
-*/
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: Keys.name)
+        aCoder.encode(value.encode(), forKey: Keys.value)
+    }
+
     // MARK: - Equatable
-/*
+
     override func isEqual(_ object: Any?) -> Bool {
         guard let rhs = object as? Attribute else {
             return false
         }
 
         return name == rhs.name && value == rhs.value
-    }
-*/
-
-    static func ==(lhs: Attribute, rhs: Attribute) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 
     // MARK: - String Representation
@@ -95,24 +103,6 @@ class Attribute: CustomReflectable, Equatable, Hashable {
         return result
     }
 }
-
-
-// MARK: - NSCoding Conformance
-//
-/*
-extension Attribute: NSCoding {
-
-    struct Keys {
-        static let name = "name"
-        static let value = "value"
-    }
-
-    open func encode(with aCoder: NSCoder) {
-        aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(value.toString(), forKey: Keys.value)
-    }
-}
- */
 
 
 // MARK: - Attribute.Value
@@ -147,6 +137,11 @@ extension Attribute {
             self = .inlineCss(properties)
         }
 
+        // MARK: - NSCoding pseudo-support
+
+        func encode() -> Coding {
+            return Coding(self)
+        }
 
         // MARK: - Hashable
 
@@ -224,6 +219,73 @@ extension Attribute {
                 }
                 
                 return result
+            }
+        }
+
+        // MARK: - NSCoding support
+
+        /// Offers NSCoding support for our enum, without having to change our arquitecture for it.
+        ///
+        class Coding: NSObject, NSCoding {
+
+            enum ValueType: String {
+                case none = "none"
+                case string = "string"
+                case inlineCss = "inlineCss"
+            }
+
+            let valueDataKey = "valueData"
+            let valueTypeKey = "valueType"
+
+            let value: Value
+
+            // MARK: - Initializing with value
+
+            init(_ value: Value) {
+                self.value = value
+            }
+
+            // MARK: - NSCoding support
+
+            required init?(coder: NSCoder) {
+                guard let valueTypeRaw = coder.decodeObject(forKey: valueTypeKey) as? String,
+                    let valueType = ValueType(rawValue: valueTypeRaw) else {
+                        return nil
+                }
+
+                switch valueType {
+                case .none:
+                    value = .none
+                case .string:
+                    let string = coder.decodeObject(forKey: valueDataKey) as? String ?? ""
+
+                    value = .string(string)
+                case .inlineCss:
+                    let cssAttributes = coder.decodeObject(forKey: valueDataKey) as? [CSSAttribute] ?? []
+
+                    value = .inlineCss(cssAttributes)
+                }
+            }
+
+            func encode(with aCoder: NSCoder) {
+
+                let valueData: Any?
+                let valueType: ValueType
+
+                switch value {
+                case .none:
+                    valueData = nil
+                    valueType = .none
+                case .string(let string):
+                    valueData = string
+                    valueType = .string
+                case .inlineCss(let attributes):
+                    valueData = attributes
+                    valueType = .inlineCss
+                }
+
+                aCoder.encode(valueData, forKey: valueDataKey)
+                aCoder.encode(valueType.rawValue, forKey: valueTypeKey)
             }
         }
     }

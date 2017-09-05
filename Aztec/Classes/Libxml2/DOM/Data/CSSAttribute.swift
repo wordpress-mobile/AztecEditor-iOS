@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - CSSAttribute
 //
-class CSSAttribute: Hashable {
+class CSSAttribute: CustomReflectable, Hashable {
     
     let name: String
     let value: String?
@@ -22,6 +22,14 @@ class CSSAttribute: Hashable {
         }
 
         self.init(name: name, value: value)
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "value": value ?? ""])
+        }
     }
 
     // MARK: - Hashable
