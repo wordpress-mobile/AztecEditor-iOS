@@ -17,80 +17,80 @@ class StringEndOfLineTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - isEmptyParagraph(at index:)
+    // MARK: - isEmptyLine(at index:)
 
-    func testIsEmptyParagraphAtIndex1() {
+    func testIsEmptyLineAtIndex1() {
         let string = "Hello there"
         let index = string.endIndex
 
-        XCTAssertFalse(string.isEmptyParagraph(at: index))
+        XCTAssertFalse(string.isEmptyLine(at: index))
     }
 
-    func testIsEmptyParagraphAtIndex2() {
+    func testIsEmptyLineAtIndex2() {
         let string = "Hello there"
         let index = string.startIndex
 
-        XCTAssertFalse(string.isEmptyParagraph(at: index))
+        XCTAssertFalse(string.isEmptyLine(at: index))
     }
 
-    func testIsEmptyParagraphAtIndex3() {
+    func testIsEmptyLineAtIndex3() {
         let string = ""
         let index = string.startIndex
 
-        XCTAssertTrue(string.isEmptyParagraph(at: index))
+        XCTAssertTrue(string.isEmptyLine(at: index))
     }
 
-    func testIsEmptyParagraphAtIndex4() {
+    func testIsEmptyLineAtIndex4() {
         for separator in endOfLineSeparators {
             let string = separator
             let index = string.startIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
-    func testIsEmptyParagraphAtIndex5() {
+    func testIsEmptyLineAtIndex5() {
         for separator in endOfLineSeparators {
             let string = separator
             let index = string.endIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
-    func testIsEmptyParagraphAtIndex6() {
+    func testIsEmptyLineAtIndex6() {
         for separator in endOfLineSeparators {
             let string = "🌎\(separator)"
             let index = string.startIndex
 
-            XCTAssertFalse(string.isEmptyParagraph(at: index))
+            XCTAssertFalse(string.isEmptyLine(at: index))
         }
     }
 
-    func testIsEmptyParagraphAtIndex7() {
+    func testIsEmptyLineAtIndex7() {
         for separator in endOfLineSeparators {
             let string = "🌎\(separator)"
             let index = string.endIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
-    func testIsEmptyParagraphAtIndex8() {
+    func testIsEmptyLineAtIndex8() {
         for separator in endOfLineSeparators {
             let string = "\(separator)🌎"
             let index = string.startIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
-    func testIsEmptyParagraphAtIndex9() {
+    func testIsEmptyLineAtIndex9() {
         for separator in endOfLineSeparators {
             let string = "\(separator)🌎"
             let index = string.endIndex
 
-            XCTAssertFalse(string.isEmptyParagraph(at: index))
+            XCTAssertFalse(string.isEmptyLine(at: index))
         }
     }
 
@@ -101,7 +101,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = separator
             let index = string.startIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
@@ -110,7 +110,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = separator
             let index = string.endIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
@@ -119,7 +119,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = "🌎\(separator)"
             let index = string.startIndex
 
-            XCTAssertFalse(string.isEmptyParagraph(at: index))
+            XCTAssertFalse(string.isEmptyLine(at: index))
         }
     }
 
@@ -128,7 +128,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = "🌎\(separator)"
             let index = string.endIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
@@ -137,7 +137,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = "\(separator)🌎"
             let index = string.startIndex
 
-            XCTAssertTrue(string.isEmptyParagraph(at: index))
+            XCTAssertTrue(string.isEmptyLine(at: index))
         }
     }
 
@@ -146,7 +146,7 @@ class StringEndOfLineTests: XCTestCase {
             let string = "\(separator)🌎"
             let index = string.endIndex
 
-            XCTAssertFalse(string.isEmptyParagraph(at: index))
+            XCTAssertFalse(string.isEmptyLine(at: index))
         }
     }
 
