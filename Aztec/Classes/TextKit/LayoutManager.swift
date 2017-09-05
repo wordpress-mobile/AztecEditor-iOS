@@ -48,26 +48,38 @@ private extension LayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-        //draw blockquotes
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+
+        // Draw blockquotes
+        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
-            let blockquoteIndent = paragraphStyle.blockquoteIndent
 
+            let blockquoteIndent = paragraphStyle.blockquoteIndent
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
                 var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
-                // Cheking if we this a middle line inside a blockquote paragraph
+
+                // Cheking if we this a middle line inside a blockquote paragraph:
+                // Avoid applying the "Padding Height", otherwise we might cut off the Blockquote's BG.
+                //
+                // Ref. Issue #645
+                //
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
-                if !lineCharacters.isEndOfLine(before: lineCharacters.endIndex) {
+
+                if !lineCharacters.isEndOfParagraph(at: lineCharacters.endIndex) {
                     paddingHeight = 0
                 }
+
                 let lineRect = rect.offsetBy(dx: origin.x , dy: origin.y)
-                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth, y: lineRect.origin.y, width: lineRect.size.width - paddingWidth, height: lineRect.size.height - (paddingHeight*2))
+                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth,
+                                       y: lineRect.origin.y,
+                                       width: lineRect.size.width - paddingWidth,
+                                       height: lineRect.size.height - paddingHeight)
+
                 self.drawBlockquote(in: finalRect.integral, with: context)
             }
         }
@@ -143,26 +155,45 @@ private extension LayoutManager {
 
             guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
                 let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
-                let list = paragraphStyle.lists.last else {
-                    return
+                let list = paragraphStyle.lists.last
+            else {
+                return
             }
 
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
-
-            // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
-            //
-            let lineFragmentRect = self.lineFragmentRect(forGlyphAt: glyphRange.location, effectiveRange: nil)
-            let lineFragmentRectWithOffset = lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-
+            let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
             let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
 
-            self.drawItem(
-                number: markerNumber,
-                in: lineFragmentRectWithOffset,
-                from: list,
-                using: paragraphStyle,
-                at: enclosingRange.location)
+            drawItem(number: markerNumber, in: markerRect, from: list, using: paragraphStyle, at: enclosingRange.location)
         }
+    }
+
+    /// Returns the Rect for the MarkerItem at the specified Range + Origin, within a given ParagraphStyle.
+    ///
+    /// - Parameters:
+    ///     - range: List Item's Range
+    ///     - origin: List Origin
+    ///     - paragraphStyle: Container Style
+    ///
+    /// - Returns: CGRect in which we should render the MarkerItem.
+    ///
+    private func rectForItem(range: NSRange, origin: CGPoint, paragraphStyle: ParagraphStyle) -> CGRect {
+        var paddingY = CGFloat(0)
+        var effectiveLineRange = NSRange.zero
+
+        // Since only the first line in a paragraph can have a bullet, we only need the first line fragment.
+        let lineFragmentRect = self.lineFragmentRect(forGlyphAt: range.location, effectiveRange: &effectiveLineRange)
+
+        // Whenever we're rendering an Item with multiple lines, within a Blockquote, we need to account for the
+        // paragraph spacing. Otherwise the Marker will show up slightly off.
+        //
+        // Ref. #645
+        //
+        if effectiveLineRange.length < range.length && paragraphStyle.blockquotes.isEmpty == false {
+            paddingY = Metrics.paragraphSpacing
+        }
+
+        return lineFragmentRect.offsetBy(dx: origin.x, dy: origin.y + paddingY)
     }
 
 
