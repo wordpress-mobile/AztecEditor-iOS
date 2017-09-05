@@ -2,33 +2,33 @@ import Foundation
 
 extension String {
 
-    /// Checks if the receiver has an empty paragraph at the specified index.
+    /// Checks if the receiver has an empty line at the specified index.
     ///
     /// - Parameters:
     ///     - index: the receiver's index to check
     ///
-    /// - Returns: `true` if the specified index is in an empty paragraph, `false` otherwise.
+    /// - Returns: `true` if the specified index is in an empty line, `false` otherwise.
     ///
-    func isEmptyParagraph(at index: String.Index) -> Bool {
+    func isEmptyLine(at index: String.Index) -> Bool {
         return isStartOfNewLine(at: index) && isEndOfLine(at: index)
     }
 
-    /// Checks if the receiver has an empty paragraph at the specified offset.
+    /// Checks if the receiver has an empty line at the specified offset.
     ///
     /// - Parameters:
     ///     - offset: the receiver's offset to check
     ///
-    /// - Returns: `true` if the specified offset is in an empty paragraph, `false` otherwise.
+    /// - Returns: `true` if the specified offset is in an empty line, `false` otherwise.
     ///
-    func isEmptyParagraph(at offset: Int) -> Bool {
+    func isEmptyLine(at offset: Int) -> Bool {
         guard let index = self.indexFromLocation(offset) else {
             return true
         }        
         
-        return isEmptyParagraph(at: index)
+        return isEmptyLine(at: index)
     }
 
-    /// Checks if the receiver has an empty paragraph at the specified offset and if the offset
+    /// Checks if the receiver has an empty line at the specified offset and if the offset
     /// corresponds to EOF (end-of-file).
     ///
     /// - Parameters:
@@ -36,8 +36,8 @@ extension String {
     ///
     /// - Returns: `true` if the specified offset is in an empty paragraph, `false` otherwise.
     ///
-    func isEmptyParagraphAtEndOfFile(at offset: Int) -> Bool {
-        return offset == characters.count && isEmptyParagraph(at: offset)
+    func isEmptyLineAtEndOfFile(at offset: Int) -> Bool {
+        return offset == characters.count && isEmptyLine(at: offset)
     }
 
     /// This methods verifies if the receiver string is an end-of-line character.
