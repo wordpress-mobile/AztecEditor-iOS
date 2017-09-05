@@ -3,21 +3,15 @@ import XCTest
 
 class StringEndOfParagraphTests: XCTestCase {
     
-    func testEndsWithCarriageReturnEffectivelyReturnsTrueWheneverTestStringEndsWithCarriageReturn() {
-        let test = "something\u{000D}"
+    func testIsEndOfParagraphReturnsTrueWheneverTestStringEndsWithCarriageReturn() {
+        let test = "something" + String(.carriageReturn)
 
-        XCTAssert(test.isEndOfParagraph(before: test.endIndex))
+        XCTAssertTrue(test.isEndOfParagraph(before: test.endIndex))
     }
 
-    func testEndsWithCarriageReturnReturnsFalseWheneverTestStringDoesNotEndWithCarriageReturn() {
-        let test = "something"
+    func testIsEndOfParagraphReturnsFalseWheneverTestStringEndsWithLineSeparator() {
+        let test = "something" + String(.lineSeparator)
 
         XCTAssertFalse(test.isEndOfParagraph(before: test.endIndex))
     }
-
-    func testEndsWithDoesNotCrashOnEmptyString() {
-        let test = ""
-
-        XCTAssertNoThrow(test.isEndOfParagraph(before: test.endIndex), "")
-    }    
 }
