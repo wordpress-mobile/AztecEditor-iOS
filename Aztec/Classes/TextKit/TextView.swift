@@ -1444,7 +1444,7 @@ private extension TextView {
     ///
     private func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
         return selectedRange.location == storage.length
-            && storage.string.isEmptyLine(at: selectedRange.location)
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
 
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
