@@ -295,12 +295,12 @@
 {
     NSInteger count = [self numberOfAssets];
     if (count == 0) {
-        return nil;
+        @throw NSRangeException;
     }
 
     NSInteger idx = [self adjustedIndexForIndex:index];
     if (idx < 0 || idx >= count ) {
-        return nil;
+        @throw NSRangeException;
     }
 
     return self.assets[idx];
