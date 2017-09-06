@@ -1,5 +1,38 @@
 import Foundation
 
+protocol Coding {
+    static func decode(with coder: NSCoder) -> Self?
+    func encode(with coder: NSCoder)
+}
+
+/// Offers NSCoding support for our enum, without having to change our arquitecture for it.
+///
+class NSCodingProxy<T: Coding>: NSObject, NSCoding {
+
+    let value: T
+
+    // MARK: - Initializing with value
+
+    init(for value: T) {
+        self.value = value
+    }
+
+    // MARK: - NSCoding support
+
+    required init?(coder: NSCoder) {
+
+        guard let value = T.decode(with: coder) else {
+            return nil
+        }
+
+        self.value = value
+    }
+
+    func encode(with aCoder: NSCoder) {
+        value.encode(with: aCoder)
+    }
+}
+
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
@@ -67,7 +100,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
     public required convenience init?(coder aDecoder: NSCoder) {
 
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? Value.Coding
+            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? NSCodingProxy<Value>
         else {
             assertionFailure("Review the logic.")
             return nil
@@ -78,7 +111,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
     open func encode(with aCoder: NSCoder) {
         aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(value.encode(), forKey: Keys.value)
+        aCoder.encode(NSCodingProxy(for: value), forKey: Keys.value)
     }
 
     // MARK: - Equatable
@@ -109,9 +142,10 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
 extension Attribute {
 
+
     /// Allowed attribute values
     ///
-    enum Value: Equatable, Hashable {
+    enum Value: Coding, Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSAttribute])
@@ -137,10 +171,56 @@ extension Attribute {
             self = .inlineCss(properties)
         }
 
-        // MARK: - NSCoding pseudo-support
+        // MARK: - Coding
 
-        func encode() -> Coding {
-            return Coding(self)
+        private static let valueDataKey = "valueData"
+        private static let valueTypeKey = "valueType"
+
+        private enum ValueType: String {
+            case none = "none"
+            case string = "string"
+            case inlineCss = "inlineCss"
+        }
+
+        static func decode(with coder: NSCoder) -> Value? {
+
+            guard let valueTypeRaw = coder.decodeObject(forKey: Value.valueTypeKey) as? String,
+                let valueType = ValueType(rawValue: valueTypeRaw) else {
+                    return nil
+            }
+
+            switch valueType {
+            case .none:
+                return .none
+            case .string:
+                let string = coder.decodeObject(forKey: Value.valueDataKey) as? String ?? ""
+
+                return .string(string)
+            case .inlineCss:
+                let cssAttributes = coder.decodeObject(forKey: Value.valueDataKey) as? [CSSAttribute] ?? []
+
+                return .inlineCss(cssAttributes)
+            }
+        }
+
+        func encode(with coder: NSCoder) {
+            let valueData: Any?
+            let valueType: ValueType
+
+            switch self {
+            case .none:
+                valueData = nil
+                valueType = .none
+            case .string(let string):
+                valueData = string
+                valueType = .string
+            case .inlineCss(let attributes):
+                valueData = attributes
+                valueType = .inlineCss
+            }
+
+            coder.encode(valueData, forKey: Value.valueDataKey)
+            coder.encode(valueType.rawValue, forKey: Value.valueTypeKey)
         }
 
         // MARK: - Hashable
@@ -219,73 +299,6 @@ extension Attribute {
                 }
                 
                 return result
-            }
-        }
-
-        // MARK: - NSCoding support
-
-        /// Offers NSCoding support for our enum, without having to change our arquitecture for it.
-        ///
-        class Coding: NSObject, NSCoding {
-
-            enum ValueType: String {
-                case none = "none"
-                case string = "string"
-                case inlineCss = "inlineCss"
-            }
-
-            let valueDataKey = "valueData"
-            let valueTypeKey = "valueType"
-
-            let value: Value
-
-            // MARK: - Initializing with value
-
-            init(_ value: Value) {
-                self.value = value
-            }
-
-            // MARK: - NSCoding support
-
-            required init?(coder: NSCoder) {
-                guard let valueTypeRaw = coder.decodeObject(forKey: valueTypeKey) as? String,
-                    let valueType = ValueType(rawValue: valueTypeRaw) else {
-                        return nil
-                }
-
-                switch valueType {
-                case .none:
-                    value = .none
-                case .string:
-                    let string = coder.decodeObject(forKey: valueDataKey) as? String ?? ""
-
-                    value = .string(string)
-                case .inlineCss:
-                    let cssAttributes = coder.decodeObject(forKey: valueDataKey) as? [CSSAttribute] ?? []
-
-                    value = .inlineCss(cssAttributes)
-                }
-            }
-
-            func encode(with aCoder: NSCoder) {
-
-                let valueData: Any?
-                let valueType: ValueType
-
-                switch value {
-                case .none:
-                    valueData = nil
-                    valueType = .none
-                case .string(let string):
-                    valueData = string
-                    valueType = .string
-                case .inlineCss(let attributes):
-                    valueData = attributes
-                    valueType = .inlineCss
-                }
-
-                aCoder.encode(valueData, forKey: valueDataKey)
-                aCoder.encode(valueType.rawValue, forKey: valueTypeKey)
             }
         }
     }

@@ -180,7 +180,7 @@ class AttributedStringSerializer {
         return [:]
     }()
 
-    public lazy var elementFormattersMap: [StandardElementType: AttributeFormatter] = { [unowned self] in
+    public lazy var elementFormattersMap: [StandardElementType: AttributeFormatter] = {
         return [
             .blockquote: self.blockquoteFormatter,
             .div: self.divFormatter,
@@ -240,31 +240,31 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting attributes: [String: Any]) -> [String: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         guard !(element is RootNode) else {
-            return attributes
+            return inheritedAttributes
         }
 
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
-        var finalAttributes = attributes
+        var finalAttributes = inheritedAttributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
         } else if element.name == StandardElementType.li.rawValue {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-            finalAttributes = attributes
+            finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
         }
 
-        finalAttributes = stringAttributes(for: element.attributes, inheriting: finalAttributes)
+        finalAttributes = self.attributes(for: element.attributes, inheriting: finalAttributes)
         
         return finalAttributes
     }
 
-    /// Calculates the string attributes for the specified HTML attributes.  Returns a dictionary
+    /// Calculates the attributes for the specified HTML attributes.  Returns a dictionary
     /// including the inherited attributes.
     ///
     /// - Parameters:
@@ -273,17 +273,17 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func stringAttributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [String: Any] in
-            return stringAttributes(for: htmlAttribute, inheriting: previousAttributes)
+            return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
 
         return finalAttributes
     }
 
 
-    /// Calculates the string attributes for the specified HTML attribute.  Returns a dictionary
+    /// Calculates the attributes for the specified HTML attribute.  Returns a dictionary
     /// including inherited attributes.
     ///
     /// - Parameters:
@@ -292,11 +292,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func stringAttributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
-
-        if attribute.name.lowercased() == "style" {
-            return [:]
-        }
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
 
         let attributes: [String:Any]
 
