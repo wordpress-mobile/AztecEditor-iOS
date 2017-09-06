@@ -16,7 +16,7 @@
 + (BOOL)isCaptureAvailable;
 
 /// @param viewController The view controller to present the capture view from.
-- (instancetype _Nonnull)initWithPresentingViewController:(UIViewController *_Nonnull)viewController;
+- (nonnull instancetype)initWithPresentingViewController:(nonnull UIViewController *)viewController;
 
 /// Present the capture interface
 - (void)presentCapture;

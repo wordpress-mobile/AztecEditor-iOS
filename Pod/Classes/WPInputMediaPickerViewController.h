@@ -15,12 +15,12 @@
  @param options an WPMediaPickerOption object
  @return an initiated WPInputMediaPickerViewController with the designated options
  */
-- (instancetype _Nonnull )initWithOptions:(WPMediaPickerOptions *_Nonnull)options;
+- (instancetype _Nonnull )initWithOptions:(nonnull WPMediaPickerOptions *)options;
 
 /**
 The delegate for the WPMediaPickerViewController events
 */
-@property (nonatomic, weak) _Nullable id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
+@property (nonatomic, weak, nullable) id<WPMediaPickerViewControllerDelegate> mediaPickerDelegate;
 
 /**
  The object that acts as the data source of the media picker.
@@ -28,17 +28,17 @@ The delegate for the WPMediaPickerViewController events
  @Discussion
  If no object is defined before the picker is show then the picker will use a shared data source that access the user media library.
  */
-@property (nonatomic, weak) _Nullable id<WPMediaCollectionDataSource> dataSource;
+@property (nonatomic, weak, nullable) id<WPMediaCollectionDataSource> dataSource;
 
 /**
  The internal WPMediaPickerViewController that is used to display the media.
  */
-@property (nonatomic, readonly)  WPMediaPickerViewController * _Nonnull mediaPicker;
+@property (nonatomic, readonly, nonnull)  WPMediaPickerViewController *mediaPicker;
 
 /**
  A toolbar that can be used as the inputAccessoryView for this inputView.
  */
-@property (nonatomic, readonly) UIToolbar * _Nonnull mediaToolbar;
+@property (nonatomic, readonly, nonnull) UIToolbar *mediaToolbar;
 
 /**
  If YES the picker will scroll media vertically. Defaults to NO (horizontal).
