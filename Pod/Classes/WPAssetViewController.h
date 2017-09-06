@@ -5,19 +5,19 @@
 
 @protocol WPAssetViewControllerDelegate <NSObject>
 
-- (void)assetViewController:(WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected;
+- (void)assetViewController:(nonnull WPAssetViewController *)assetPreviewVC selectionChanged:(BOOL)selected;
 
-- (void)assetViewController:(WPAssetViewController *)assetPreviewVC failedWithError:(NSError *)error;
+- (void)assetViewController:(nonnull WPAssetViewController *)assetPreviewVC failedWithError:(nonnull NSError *)error;
 
 @end
 
 @interface WPAssetViewController : UIViewController
 
-- (instancetype)initWithAsset:(id<WPMediaAsset>)asset;
+- (nonnull instancetype)initWithAsset:(nonnull id<WPMediaAsset>)asset;
 
-@property (nonatomic, strong) id<WPMediaAsset> asset;
+@property (nonatomic, strong, nonnull) id<WPMediaAsset> asset;
 @property (nonatomic, assign) BOOL selected;
 
-@property (nonatomic, weak) id<WPAssetViewControllerDelegate> delegate;
+@property (nonatomic, weak, nullable) id<WPAssetViewControllerDelegate> delegate;
 
 @end
