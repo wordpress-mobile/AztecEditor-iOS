@@ -5,14 +5,18 @@ import Foundation
 //
 extension String {
 
-    /// This methods verifies if the receiver string contains an End of Paragraph before the specified index.
+    /// This methods verifies if the receiver string contains a new paragraph at the specified index.
     ///
     /// - Parameter index: the index to check
     ///
-    /// - Returns: `true` if the receiver contains an end-of-paragraph character before the specified Index.
+    /// - Returns: `true` if the receiver contains a new paragraph at the specified Index.
     ///
-    func isEndOfParagraph(before index: String.Index) -> Bool {
-        return isEndOfParagraph(at: self.index(before: index))
+    func isStartOfParagraph(at index: String.Index) -> Bool {
+        guard index != startIndex else {
+            return true
+        }
+
+        return isEndOfParagraph(before: index)
     }
 
 
@@ -34,18 +38,15 @@ extension String {
     }
 
 
-    /// This methods verifies if the receiver string contains a new paragraph at the specified index.
+    /// This methods verifies if the receiver string contains an End of Paragraph before the specified index.
     ///
     /// - Parameter index: the index to check
     ///
-    /// - Returns: `true` if the receiver contains a new paragraph at the specified Index.
+    /// - Returns: `true` if the receiver contains an end-of-paragraph character before the specified Index.
     ///
-    func isStartOfParagraph(at index: String.Index) -> Bool {
-        guard index != startIndex else {
-            return true
-        }
-
-        return isEndOfParagraph(before: index)
+    func isEndOfParagraph(before index: String.Index) -> Bool {
+        assert(index != startIndex)
+        return isEndOfParagraph(at: self.index(before: index))
     }
 
 
