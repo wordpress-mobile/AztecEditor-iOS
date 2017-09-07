@@ -59,6 +59,7 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
     
     self.mediaPicker.view.frame = self.view.bounds;
     self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.mediaPicker.collectionView.collectionViewLayout = [[UICollectionViewFlowLayout alloc] init];
     [self.view addSubview:self.mediaPicker.view];
     [self.mediaPicker didMoveToParentViewController:self];
 
@@ -78,7 +79,7 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
 - (void)configureCollectionView {
     CGFloat photoSpacing = 1.0f;
     CGFloat photoSize;
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.mediaPicker.collectionView.collectionViewLayout;
 
     if (self.scrollVertically) {
         CGFloat frameWidth = self.view.frame.size.width;
@@ -118,7 +119,6 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
     layout.minimumLineSpacing = photoSpacing;
     layout.minimumInteritemSpacing = photoSpacing;
     self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*photoSize, 1.5*photoSize);
-    self.mediaPicker.collectionView.collectionViewLayout = layout;
 }
 
 /**
