@@ -21,7 +21,7 @@ class LayoutManager: NSLayoutManager {
 
     ///
     ///
-    var extraLineFragmentTypingAttributes: (() -> [String: Any]?)?
+    var extraLineFragmentTypingAttributes: (() -> [String: Any])!
 
 
     /// Draws the background, associated to a given Text Range
@@ -70,13 +70,19 @@ private extension LayoutManager {
 
                 self.drawBlockquote(in: blockquoteRect.integral, with: context)
             }
+        }
 
-            guard mustDrawExtraLineFragment() else {
+        if extraLineFragmentRect != .zero {
+            let typingAttributes = extraLineFragmentTypingAttributes()
+
+            guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
 
-            let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
-            self.drawBlockquote(in: extraLineRect, with: context)
+            let blockquoteIndent = paragraphStyle.blockquoteIndent
+            // let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
+            let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: extraLineFragmentRect, lineCharacters: "", blockquoteIndent: blockquoteIndent)
+            self.drawBlockquote(in: blockquoteRect.integral, with: context)
         }
     }
 

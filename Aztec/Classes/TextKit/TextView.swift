@@ -251,6 +251,18 @@ open class TextView: UITextView {
         }
 
         aztecLayoutManager.extraLineFragmentTypingAttributes = { [weak self] in
+
+            guard let `self` = self else {
+                return [:]
+            }
+
+            if self.selectedTextRange?.start == self.endOfDocument {
+                return self.typingAttributes
+            } else {
+                return [:]
+            }
+
+            /*
             guard let `self` = self else {
                 return nil
             }
@@ -265,6 +277,7 @@ open class TextView: UITextView {
 //            super.typingAttributes = initialAttributes
 
             return retrieved
+ */
         }
     }
 
