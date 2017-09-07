@@ -19,7 +19,7 @@ open class Header: ParagraphProperty {
         case h5 = 5
         case h6 = 6
 
-        public var fontSize: CGFloat {
+        public var fontSize: Float {
             switch self {
             case .none: return Constants.defaultFontSize
             case .h1: return 36
@@ -40,12 +40,12 @@ open class Header: ParagraphProperty {
 
     /// Default Font Size (corresponding to HeaderType.none)
     ///
-    let defaultFontSize: CGFloat
+    let defaultFontSize: Float
 
 
     // MARK: - Initializers
 
-    init(level: HeaderType, with representation: HTMLRepresentation? = nil, defaultFontSize: CGFloat? = nil) {
+    init(level: HeaderType, with representation: HTMLRepresentation? = nil, defaultFontSize: Float? = nil) {
         self.defaultFontSize = defaultFontSize ?? Constants.defaultFontSize
         self.level = level
         super.init(with: representation)
@@ -61,7 +61,7 @@ open class Header: ParagraphProperty {
         }
 
         if aDecoder.containsValue(forKey: Keys.level) {
-            defaultFontSize = CGFloat(aDecoder.decodeFloat(forKey: Keys.defaultFontSize))
+            defaultFontSize = aDecoder.decodeFloat(forKey: Keys.defaultFontSize)
         } else {
             defaultFontSize = Constants.defaultFontSize
         }
@@ -88,7 +88,7 @@ open class Header: ParagraphProperty {
 //
 private extension Header {
     struct Constants {
-        static let defaultFontSize = CGFloat(14)
+        static let defaultFontSize = Float(14)
     }
 
     struct Keys {
