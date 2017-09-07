@@ -3,8 +3,8 @@ import Foundation
 
 // MARK: - CSSAttribute
 //
-class CSSAttribute: CustomReflectable, Hashable {
-    
+class CSSAttribute: NSObject, CustomReflectable, NSCoding {
+
     let name: String
     let value: String?
 
@@ -24,6 +24,23 @@ class CSSAttribute: CustomReflectable, Hashable {
         self.init(name: name, value: value)
     }
 
+    // MARK: - NSCoding
+
+    required init?(coder aDecoder: NSCoder) {
+        guard let name = aDecoder.decodeObject(forKey: #keyPath(name)) as? String,
+            let value = aDecoder.decodeObject(forKey: #keyPath(value)) as? String? else {
+                return nil
+        }
+
+        self.name = name
+        self.value = value
+    }
+
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: #keyPath(name))
+        aCoder.encode(value, forKey: #keyPath(value))
+    }
+
     // MARK: - CustomReflectable
 
     public var customMirror: Mirror {
@@ -34,7 +51,7 @@ class CSSAttribute: CustomReflectable, Hashable {
 
     // MARK: - Hashable
 
-    var hashValue: Int {
+    override var hashValue: Int {
 
         guard let value = value else {
             return name.hashValue

@@ -1,38 +1,5 @@
 import Foundation
 
-protocol Coding {
-    static func decode(with coder: NSCoder) -> Self?
-    func encode(with coder: NSCoder)
-}
-
-/// Offers NSCoding support for our enum, without having to change our arquitecture for it.
-///
-class NSCodingProxy<T: Coding>: NSObject, NSCoding {
-
-    let value: T
-
-    // MARK: - Initializing with value
-
-    init(for value: T) {
-        self.value = value
-    }
-
-    // MARK: - NSCoding support
-
-    required init?(coder: NSCoder) {
-
-        guard let value = T.decode(with: coder) else {
-            return nil
-        }
-
-        self.value = value
-    }
-
-    func encode(with aCoder: NSCoder) {
-        value.encode(with: aCoder)
-    }
-}
-
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
@@ -191,7 +158,10 @@ extension Attribute {
 
             switch valueType {
             case .none:
-                return .none
+                // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
+                // a .none value!!!  Don't remove it!
+                //
+                return Value.none
             case .string:
                 let string = coder.decodeObject(forKey: Value.valueDataKey) as? String ?? ""
 

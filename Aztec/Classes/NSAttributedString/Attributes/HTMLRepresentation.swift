@@ -15,6 +15,14 @@ class HTMLRepresentation: NSObject {
         self.kind = kind
     }
 
+    // MARK: - NSCoding
+
+    struct Keys {
+        static let attribute = "attribute"
+        static let element = "element"
+        static let inline = "inline"
+    }
+
     public required init?(coder aDecoder: NSCoder) {
         if let attribute = aDecoder.decodeObject(forKey: Keys.attribute) as? Attribute {
             kind = .attribute(attribute)
@@ -34,18 +42,6 @@ class HTMLRepresentation: NSObject {
 
         fatalError()
     }
-}
-
-
-// MARK: - NSCoding Conformance
-//
-extension HTMLRepresentation: NSCoding {
-
-    struct Keys {
-        static let attribute = "attribute"
-        static let element = "element"
-        static let inline = "inline"
-    }
 
     open func encode(with aCoder: NSCoder) {
         switch kind {
@@ -62,7 +58,7 @@ extension HTMLRepresentation: NSCoding {
 
 // MARK: - HTMLElementRepresentation
 //
-class HTMLElementRepresentation: NSObject {
+class HTMLElementRepresentation: NSObject, CustomReflectable {
     let name: String
     let attributes: [Attribute]
 
@@ -85,6 +81,16 @@ class HTMLElementRepresentation: NSObject {
         self.init(name: name, attributes: attributes)
     }
 
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "attributes": attributes], ancestorRepresentation: .suppressed)
+        }
+    }
+
+    // MARK: - Misc
+
     func attribute(named name: String) -> Attribute? {
         return attributes.first(where: { attribute -> Bool in
             return attribute.name == name
@@ -98,7 +104,7 @@ class HTMLElementRepresentation: NSObject {
     // MARK: - Equatable
 
     static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+        return lhs.name == rhs.name && lhs.attributes == rhs.attributes
     }
 }
 

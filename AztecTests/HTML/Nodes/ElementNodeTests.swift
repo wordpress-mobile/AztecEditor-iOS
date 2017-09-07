@@ -11,7 +11,7 @@ class ElementNodeTests: XCTestCase {
     ///
     func testEqualityOperatorEffectivelyReturnsFalseWhenNodesDiffer() {
         let text1 = TextNode(text: "First Children Here")
-        let attribute1 = Attribute(name: "some", string: "value")
+        let attribute1 = Attribute(name: "some", value: .string("value"))
         let style1 = ElementNode(name: "style", attributes: [attribute1], children: [text1])
 
         let text2 = TextNode(text: "Second Child!")
@@ -27,11 +27,11 @@ class ElementNodeTests: XCTestCase {
     ///
     func testEqualityOperatorEffectivelyReturnsTrueWhenNodesAreEqual() {
         let text1 = TextNode(text: "First Children Here")
-        let attribute1 = Attribute(name: "some", string: "value")
+        let attribute1 = Attribute(name: "some", value: .string("value"))
         let style1 = ElementNode(name: "style", attributes: [attribute1], children: [text1])
 
         let text2 = TextNode(text: "First Children Here")
-        let attribute2 = Attribute(name: "some", string: "value")
+        let attribute2 = Attribute(name: "some", value: .string("value"))
         let style2 = ElementNode(name: "style", attributes: [attribute2], children: [text2])
 
         XCTAssert(style1 == style2)

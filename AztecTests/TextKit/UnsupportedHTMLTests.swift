@@ -35,8 +35,8 @@ private extension UnsupportedHTMLTests {
 
     var sampleAttributes: [Attribute] {
         return [
-            Attribute(name: "none", value: .none),
-            Attribute(name: "string", value: .string("value")),
+            Attribute(name: "someBoolAttribute", value: .none),
+            Attribute(name: "someStringAttribute", value: .string("value")),
             Attribute(name: "style", value: .inlineCss([self.sampleCSS]))
         ]
     }
