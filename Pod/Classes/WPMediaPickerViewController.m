@@ -125,7 +125,7 @@ static CGFloat SelectAnimationTime = 0.2;
             [self refreshDataAnimated:NO];
         } else {
             // if just the selection mode changed we just need to reload the collection view not all the data.
-            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection) {
+            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
                 [self.collectionView reloadData];
             }
         }
@@ -506,6 +506,16 @@ referenceSizeForFooterInSection:(NSInteger)section
             self.captureCell.preferFrontCamera = self.options.preferFrontCamera;
             [self.captureCell startCapture];
         }
+        CGRect newFrame = self.captureCell.frame;
+        CGSize fixedSize = self.options.cameraPreviewSize;
+        UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+        if (layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+            fixedSize.height = self.view.frame.size.height;
+        } else {
+            fixedSize.width = self.view.frame.size.width;
+        }
+        newFrame.size = fixedSize;
+        self.captureCell.frame = newFrame;
         return self.captureCell;
     }
 
