@@ -73,6 +73,15 @@ class CSSAttribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Equatable
 
+    override func isEqual(_ object: Any?) -> Bool {
+
+        guard let rightValue = object as? CSSAttribute else {
+            return false
+        }
+
+        return self == rightValue
+    }
+
     static func ==(leftValue: CSSAttribute, rightValue: CSSAttribute) -> Bool {
         return leftValue.name == rightValue.name && leftValue.value == rightValue.value
     }

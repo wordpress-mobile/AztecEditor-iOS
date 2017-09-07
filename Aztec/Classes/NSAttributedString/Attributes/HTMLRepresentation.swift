@@ -2,7 +2,7 @@ import Foundation
 
 /// This enum specifies the different entities that can represent a style in HTML.
 ///
-class HTMLRepresentation: NSObject {
+class HTMLRepresentation: NSObject, NSCoding {
     enum Kind {
         case attribute(Attribute)
         case element(HTMLElementRepresentation)
