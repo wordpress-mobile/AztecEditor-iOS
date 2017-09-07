@@ -15,10 +15,14 @@ class LayoutManager: NSLayoutManager {
     ///
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
-
     /// HTML Pre Background Color
     ///
     var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+
+    ///
+    ///
+    var extraLineFragmentTypingAttributes: (() -> [String: Any]?)?
+
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -66,8 +70,14 @@ private extension LayoutManager {
 
                 self.drawBlockquote(in: blockquoteRect.integral, with: context)
             }
-        }
 
+            guard mustDrawExtraLineFragment() else {
+                return
+            }
+
+            let extraLineRect = extraLineFragmentRect.offsetBy(dx: origin.x, dy: origin.y)
+            self.drawBlockquote(in: extraLineRect, with: context)
+        }
     }
 
     /// Returns the Rect in which the Blockquote should be rendered.
@@ -108,7 +118,26 @@ private extension LayoutManager {
         blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }
+
+    ///
+    ///
+    private func mustDrawExtraLineFragment() -> Bool {
+        guard extraLineFragmentRect.height != 0 else {
+            return false
+        }
+
+        guard let extraTypingAttributes = extraLineFragmentTypingAttributes?() else {
+            return false
+        }
+
+        guard let extraStyle = extraTypingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+            return false
+        }
+
+        return !extraStyle.blockquotes.isEmpty
+    }
 }
+
 
 // MARK: - PreFormatted Helpers
 //

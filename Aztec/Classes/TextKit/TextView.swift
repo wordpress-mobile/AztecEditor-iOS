@@ -193,9 +193,9 @@ open class TextView: UITextView {
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
+        container.widthTracksTextView = true
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
-        container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         commonInit()
@@ -216,6 +216,7 @@ open class TextView: UITextView {
         linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
         setupMenuController()
         setupAttachmentTouchDetection()
+        setupLayoutManager()
     }
 
     private func setupMenuController() {
@@ -242,6 +243,29 @@ open class TextView: UITextView {
             gesture.require(toFail: attachmentGestureRecognizer)
         }
         addGestureRecognizer(attachmentGestureRecognizer)
+    }
+
+    private func setupLayoutManager() {
+        guard let aztecLayoutManager = layoutManager as? LayoutManager else {
+            return
+        }
+
+        aztecLayoutManager.extraLineFragmentTypingAttributes = { [weak self] in
+            guard let `self` = self else {
+                return nil
+            }
+
+            return nil
+            let initialSelectedRange = self.selectedRange
+            let initialAttributes = self.typingAttributes
+            self.selectedRange = NSRange(location: self.textStorage.length, length: 0)
+
+            let retrieved = self.typingAttributes
+            self.selectedRange = initialSelectedRange
+//            super.typingAttributes = initialAttributes
+
+            return retrieved
+        }
     }
 
     // MARK: - Intercept copy paste operations
