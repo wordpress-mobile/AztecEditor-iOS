@@ -79,8 +79,8 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
 - (void)configureCollectionView {
     CGFloat photoSpacing = 1.0f;
     CGFloat photoSize;
+    CGSize cameraPreviewSize;
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.mediaPicker.collectionView.collectionViewLayout;
-
     if (self.scrollVertically) {
         CGFloat frameWidth = self.view.frame.size.width;
         NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:frameWidth];
@@ -107,18 +107,23 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
         layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
         self.mediaPicker.collectionView.alwaysBounceHorizontal = NO;
         self.mediaPicker.collectionView.alwaysBounceVertical = YES;
+        cameraPreviewSize = CGSizeMake(photoSize, photoSize);
     } else {
         photoSize = floorf((self.view.frame.size.height - photoSpacing) / 2.0);
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         layout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 5);
         self.mediaPicker.collectionView.alwaysBounceHorizontal = YES;
         self.mediaPicker.collectionView.alwaysBounceVertical = NO;
+        cameraPreviewSize = CGSizeMake(1.5*photoSize, 1.5*photoSize);
     }
 
     layout.itemSize = CGSizeMake(photoSize, photoSize);
     layout.minimumLineSpacing = photoSpacing;
-    layout.minimumInteritemSpacing = photoSpacing;
-    self.mediaPicker.options.cameraPreviewSize = CGSizeMake(1.5*photoSize, 1.5*photoSize);
+    layout.minimumInteritemSpacing = photoSpacing;    
+    WPMediaPickerOptions *options = [self.mediaPicker options];
+    options.cameraPreviewSize = cameraPreviewSize;
+    [self.mediaPicker setOptions:options];
+    [layout invalidateLayout];
 }
 
 /**
