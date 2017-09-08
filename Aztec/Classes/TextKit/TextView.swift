@@ -184,17 +184,17 @@ open class TextView: UITextView {
     /// This property returns the Attributes associated to the Extra Line Fragment.
     ///
     public var extraLineFragmentTypingAttributes: [String: Any] {
-        if selectedTextRange?.start == endOfDocument {
+        guard selectedTextRange?.start != endOfDocument else {
             return typingAttributes
         }
 
         let document = textStorage.string
-        if document.isEndOfParagraph(before: document.endIndex) {
-            return [:]
+        guard document.isEndOfParagraph(before: document.endIndex) else {
+            let lastLocation = max(document.characters.count - 1, 0)
+            return textStorage.attributes(at: lastLocation, effectiveRange: nil)
         }
 
-        let lastLocation = max(document.characters.count - 1, 0)
-        return textStorage.attributes(at: lastLocation, effectiveRange: nil)
+        return [ NSParagraphStyleAttributeName: ParagraphStyle.default ]
     }
 
 
