@@ -58,7 +58,7 @@ class HTMLRepresentation: NSObject, NSCoding {
 
 // MARK: - HTMLElementRepresentation
 //
-class HTMLElementRepresentation: NSObject, CustomReflectable {
+class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
     let name: String
     let attributes: [Attribute]
 
@@ -71,14 +71,21 @@ class HTMLElementRepresentation: NSObject, CustomReflectable {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
     }
 
+    // MARK: - NSCoding
+
     public required convenience init?(coder aDecoder: NSCoder) {
-        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let attributes = aDecoder.decodeObject(forKey: Keys.attributes) as? [Attribute]
+        guard let name = aDecoder.decodeObject(forKey: #keyPath(name)) as? String,
+            let attributes = aDecoder.decodeObject(forKey: #keyPath(attributes)) as? [Attribute]
         else {
             fatalError()
         }
 
         self.init(name: name, attributes: attributes)
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: #keyPath(name))
+        aCoder.encode(attributes, forKey: #keyPath(attributes))
     }
 
     // MARK: - CustomReflectable
@@ -105,21 +112,5 @@ class HTMLElementRepresentation: NSObject, CustomReflectable {
 
     static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
         return lhs.name == rhs.name && lhs.attributes == rhs.attributes
-    }
-}
-
-
-// MARK: - NSCoding Conformance
-//
-extension HTMLElementRepresentation: NSCoding {
-
-    struct Keys {
-        static let name = "name"
-        static let attributes = "attributes"
-    }
-
-    open func encode(with aCoder: NSCoder) {
-        aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(attributes, forKey: Keys.attributes)
     }
 }

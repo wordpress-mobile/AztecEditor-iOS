@@ -65,8 +65,7 @@ class CSSParser {
             return CSSAttribute(name: name)
         }
 
-        let valueStartIndex = cssAttribute.index(after: keyValueSeparatorRange.upperBound)
-        let value = cssAttribute.substring(from: valueStartIndex)
+        let value = cssAttribute.substring(from: keyValueSeparatorRange.upperBound)
 
         return CSSAttribute(name: name, value: value)
 
