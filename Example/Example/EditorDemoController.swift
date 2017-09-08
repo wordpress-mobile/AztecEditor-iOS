@@ -909,6 +909,7 @@ extension EditorDemoController {
         toolbar.dividerTintColor = .gray
 
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
+        toolbar.overflowToggleIcon?.accessibilityIdentifier = "formatToolbarOverflowToggle"
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.formatter = self
 
