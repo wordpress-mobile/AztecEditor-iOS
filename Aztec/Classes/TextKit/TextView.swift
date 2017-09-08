@@ -189,11 +189,12 @@ open class TextView: UITextView {
         }
 
         let document = textStorage.string
-        if document.isEndOfParagraph(at: document.endIndex) {
+        if document.isEndOfParagraph(before: document.endIndex) {
             return [:]
         }
 
-        return textStorage.attributes(at: max(document.characters.count - 1, 0), effectiveRange: nil)
+        let lastLocation = max(document.characters.count - 1, 0)
+        return textStorage.attributes(at: lastLocation, effectiveRange: nil)
     }
 
 
