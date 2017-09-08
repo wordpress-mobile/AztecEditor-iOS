@@ -23,7 +23,7 @@ extension String {
     func isEmptyLine(at offset: Int) -> Bool {
         guard let index = self.indexFromLocation(offset) else {
             return true
-        }        
+        }
         
         return isEmptyLine(at: index)
     }

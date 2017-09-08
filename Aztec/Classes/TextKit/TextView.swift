@@ -1323,7 +1323,7 @@ private extension TextView {
     /// - Returns: `true` if we should nuke the paragraph attributes.
     ///
     private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
-        return storage.string.isEmptyLine(at: range.location)
+        return storage.string.isEmptyParagraph(at: range.location)
     }
 
     // MARK: - WORKAROUND: Removing paragraph styles after entering a newline.
