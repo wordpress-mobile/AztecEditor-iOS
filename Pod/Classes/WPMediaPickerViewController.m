@@ -176,7 +176,6 @@ static CGFloat SelectAnimationTime = 0.2;
                                          frameWidth:dimensionToUse];
 
     self.cameraPreviewSize = CGSizeMake(photoSize, photoSize);
-    self.collectionView.bounces = YES;
     layout.itemSize = CGSizeMake(photoSize, photoSize);
     layout.minimumLineSpacing = photoSpacing;
     layout.minimumInteritemSpacing = photoSpacing;
@@ -352,8 +351,7 @@ static CGFloat SelectAnimationTime = 0.2;
         dispatch_async(dispatch_get_main_queue(), ^{                
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
-            strongSelf.collectionView.scrollEnabled = YES;
-            strongSelf.collectionView.bounces = YES;
+            strongSelf.collectionView.scrollEnabled = YES;            
             [strongSelf refreshSelection];
             [strongSelf.collectionView reloadData];
 
