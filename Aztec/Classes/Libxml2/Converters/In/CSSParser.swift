@@ -69,6 +69,5 @@ class CSSParser {
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         return CSSAttribute(name: name, value: value)
-
     }
 }
