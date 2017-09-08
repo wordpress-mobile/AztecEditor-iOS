@@ -68,7 +68,7 @@ class CSSAttribute: NSObject, CustomReflectable, NSCoding {
             return name
         }
 
-        return name + CSSParser.keyValueSeparator + value
+        return name + CSSParser.keyValueSeparator + " " + value.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Equatable

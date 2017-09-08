@@ -66,6 +66,7 @@ class CSSParser {
         }
 
         let value = cssAttribute.substring(from: keyValueSeparatorRange.upperBound)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         return CSSAttribute(name: name, value: value)
 
