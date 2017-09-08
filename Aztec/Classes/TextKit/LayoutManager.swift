@@ -21,7 +21,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
-    var extraLineFragmentTypingAttributes: (() -> [String: Any])!
+    var extraLineFragmentTypingAttributes: (() -> [String: Any])?
 
 
     /// Draws the background, associated to a given Text Range
@@ -73,11 +73,10 @@ private extension LayoutManager {
         }
 
         // Draw: Extra Line Fragment
-        guard extraLineFragmentRect != .zero else {
+        guard extraLineFragmentRect != .zero, let typingAttributes = extraLineFragmentTypingAttributes?() else {
             return
         }
 
-        let typingAttributes = extraLineFragmentTypingAttributes()
         guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
             return
         }

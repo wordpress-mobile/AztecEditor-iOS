@@ -176,11 +176,26 @@ open class TextView: UITextView {
             ensureRemovalOfParagraphAttributesAfterSelectionChange()
             return super.typingAttributes
         }
-
         set {
             super.typingAttributes = newValue
         }
     }
+
+    /// This property returns the Attributes associated to the Extra Line Fragment.
+    ///
+    public var extraLineFragmentTypingAttributes: [String: Any] {
+        if selectedTextRange?.start == endOfDocument {
+            return typingAttributes
+        }
+
+        let document = textStorage.string
+        if document.isEndOfParagraph(at: document.endIndex) {
+            return [:]
+        }
+
+        return textStorage.attributes(at: max(document.characters.count - 1, 0), effectiveRange: nil)
+    }
+
 
     // MARK: - Init & deinit
 
@@ -251,11 +266,7 @@ open class TextView: UITextView {
         }
 
         aztecLayoutManager.extraLineFragmentTypingAttributes = { [weak self] in
-            guard let `self` = self, self.selectedTextRange?.start == self.endOfDocument else {
-                return [:]
-            }
-
-            return self.typingAttributes
+            return self?.extraLineFragmentTypingAttributes ?? [:]
         }
     }
 
