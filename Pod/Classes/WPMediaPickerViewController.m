@@ -25,7 +25,7 @@ static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
  UIViewControllerPreviewingDelegate
 >
 
-@property (nonatomic, strong) UICollectionViewFlowLayout *layout;
+@property (nonatomic, readonly) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
 @property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
@@ -57,7 +57,6 @@ static CGFloat SelectAnimationTime = 0.2;
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self = [self initWithCollectionViewLayout:layout];
     if (self) {
-        _layout = layout;
         _internalSelectedAssets = [[NSMutableArray alloc] init];
         _capturedAsset = nil;
         _options = [options copy];
@@ -144,11 +143,16 @@ static CGFloat SelectAnimationTime = 0.2;
     }
 }
 
+- (UICollectionViewFlowLayout *)layout
+{
+    return (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+}
+
 - (void)setupLayout
 {
     CGFloat photoSpacing = 1.0f;
     CGFloat photoSize;
-    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    UICollectionViewFlowLayout *layout = self.layout;
     CGFloat frameWidth = self.view.frame.size.width;
     CGFloat frameHeight = self.view.frame.size.width - self.topLayoutGuide.length;
     CGFloat dimensionToUse = frameWidth;
