@@ -21,28 +21,6 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
         self.value = value
     }
 
-/*
-    init(name: String, string: String?) {
-        self.name = name
-
-        guard let string = string, !string.isEmpty else {
-            self.value = .none
-            return
-        }
-
-        guard name.lowercased() == cssAttributeName else {
-            self.value = .string(string)
-            return
-        }
-
-        self.value = Value(withCSSString: string)
-    }
-*/
-    // MARK: - CSS Parsing
-
-
-
-
     // MARK: - CustomReflectable
 
     public var customMirror: Mirror {
