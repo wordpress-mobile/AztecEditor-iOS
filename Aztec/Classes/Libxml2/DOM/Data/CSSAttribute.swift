@@ -17,8 +17,11 @@ class CSSAttribute: NSObject, CustomReflectable, NSCoding {
 
     convenience init?(for string: String) {
         let components = string.components(separatedBy: CSSParser.keyValueSeparator)
-        guard let name = components.first, let value = components.last, components.count == 2 else {
-            return nil
+
+        guard let name = components.first?.trimmingCharacters(in: .whitespacesAndNewlines),
+            let value = components.last?.trimmingCharacters(in: .whitespacesAndNewlines),
+            components.count == 2 else {
+                return nil
         }
 
         self.init(name: name, value: value)
@@ -32,8 +35,8 @@ class CSSAttribute: NSObject, CustomReflectable, NSCoding {
                 return nil
         }
 
-        self.name = name
-        self.value = value
+        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.value = value?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func encode(with aCoder: NSCoder) {

@@ -60,6 +60,7 @@ class CSSParser {
         }
 
         let name = cssAttribute.substring(to: keyValueSeparatorRange.lowerBound)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard keyValueSeparatorRange.upperBound != cssAttribute.endIndex else {
             return CSSAttribute(name: name)
