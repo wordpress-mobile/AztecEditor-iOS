@@ -3,6 +3,8 @@ import XCTest
 
 class CSSParserTests: XCTestCase {
 
+    /// Tests parsing input CSS: "color: blue;"
+    ///
     func testParsingCSS() {
 
         let cssAttributeName = "color"
@@ -16,6 +18,8 @@ class CSSParserTests: XCTestCase {
         XCTAssertTrue(attributes.contains(CSSAttribute(name: cssAttributeName, value: cssAttributeValue)))
     }
 
+    /// Tests parsing input CSS: "color: blue"
+    ///
     func testParsingCSSWithoutClosingSemicolon() {
 
         let cssAttributeName = "color"
@@ -29,19 +33,23 @@ class CSSParserTests: XCTestCase {
         XCTAssertTrue(attributes.contains(CSSAttribute(name: cssAttributeName, value: cssAttributeValue)))
     }
 
+    /// Tests parsing input CSS: "  color  :  blue  ;  "
+    ///
     func testParsingCSSWithExtraSpaces() {
 
         let cssAttributeName = "color"
         let cssAttributeValue = "blue"
 
         let parser = CSSParser()
-        let cssString = "  \(cssAttributeName)     :     \(cssAttributeValue)     ;"
+        let cssString = "  \(cssAttributeName)  :  \(cssAttributeValue)  ;  "
 
         let attributes = parser.parse(cssString)
 
         XCTAssertTrue(attributes.contains(CSSAttribute(name: cssAttributeName, value: cssAttributeValue)))
     }
 
+    /// Tests parsing input CSS: "color: blue; text-decoration: underline;"
+    ///
     func testParsingCSSWithMultipleValues() {
 
         let inputAttributes = [
@@ -64,6 +72,8 @@ class CSSParserTests: XCTestCase {
         }
     }
 
+    /// Tests parsing input CSS: "color  :  blue  ;  text-decoration  :  underline  ;  "
+    ///
     func testParsingCSSWithMultipleValuesAndExtraSpaces() {
 
         let inputAttributes = [
@@ -74,7 +84,7 @@ class CSSParserTests: XCTestCase {
         let parser = CSSParser()
 
         let cssString = inputAttributes.reduce("") { (previous, nextAttribute) -> String in
-            return previous + "    " + nextAttribute.key + "   :  " + nextAttribute.value + "    ;    "
+            return previous + nextAttribute.key + "  :  " + nextAttribute.value + "  ;  "
         }
 
         let attributes = parser.parse(cssString)
