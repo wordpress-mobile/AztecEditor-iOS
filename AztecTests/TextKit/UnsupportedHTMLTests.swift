@@ -29,14 +29,14 @@ class UnsupportedHTMLTests: XCTestCase {
 // MARK: - Helpers
 //
 private extension UnsupportedHTMLTests {
-    var sampleCSS: CSSProperty {
-        return CSSProperty(name: "text", value: "bold")
+    var sampleCSS: CSSAttribute {
+        return CSSAttribute(name: "text", value: "bold")
     }
 
     var sampleAttributes: [Attribute] {
         return [
-            Attribute(name: "none", value: .none),
-            Attribute(name: "string", value: .string("value")),
+            Attribute(name: "someBoolAttribute", value: .none),
+            Attribute(name: "someStringAttribute", value: .string("value")),
             Attribute(name: "style", value: .inlineCss([self.sampleCSS]))
         ]
     }

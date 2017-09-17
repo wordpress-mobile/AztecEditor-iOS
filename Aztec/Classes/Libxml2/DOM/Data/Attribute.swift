@@ -3,25 +3,23 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: NSObject, CustomReflectable {
+class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Attribute Definition Properties
 
     let name: String
     var value: Value
-    
+
+    // MARK: - CSS Support
+
+    let cssAttributeName = "style"
+
     // MARK: - Initializers
     
     init(name: String, value: Value = .none) {
         self.name = name
         self.value = value
     }
-
-    init(name: String, string: String?) {
-        self.name = name
-        self.value = Value(for: string)
-    }
-
 
     // MARK: - CustomReflectable
 
@@ -39,14 +37,26 @@ class Attribute: NSObject, CustomReflectable {
 
     // MARK: - NSCoding
 
+    struct Keys {
+        static let name = "name"
+        static let value = "value"
+    }
+
     public required convenience init?(coder aDecoder: NSCoder) {
+
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let valueAsString = aDecoder.decodeObject(forKey: Keys.value) as? String?
+            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? NSCodingProxy<Value>
         else {
-            fatalError()
+            assertionFailure("Review the logic.")
+            return nil
         }
 
-        self.init(name: name, string: valueAsString)
+        self.init(name: name, value: valueCoding.value)
+    }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: Keys.name)
+        aCoder.encode(NSCodingProxy(for: value), forKey: Keys.value)
     }
 
     // MARK: - Equatable
@@ -73,58 +83,93 @@ class Attribute: NSObject, CustomReflectable {
 }
 
 
-// MARK: - NSCoding Conformance
-//
-extension Attribute: NSCoding {
-
-    struct Keys {
-        static let name = "name"
-        static let value = "value"
-    }
-
-    open func encode(with aCoder: NSCoder) {
-        aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(value.toString(), forKey: Keys.value)
-    }
-}
-
-
 // MARK: - Attribute.Value
 
 extension Attribute {
 
+
     /// Allowed attribute values
     ///
-    enum Value: Equatable, Hashable {
+    enum Value: Coding, Equatable, Hashable {
         case none
         case string(String)
-        case inlineCss([CSSProperty])
-
-
-        // MARK: - Constants
-
-        static let cssPropertySeparator = "; "
-
+        case inlineCss([CSSAttribute])
 
         // MARK: - Initializers
 
-        init(for string: String?) {
-            let components = string?.components(separatedBy: Value.cssPropertySeparator) ?? []
-            if components.isEmpty {
+        init(withCSSString cssString: String) {
+
+            let components = cssString.components(separatedBy: CSSParser.attributeSeparator)
+
+            guard !components.isEmpty else {
                 self = .none
                 return
             }
 
-            let properties = components.flatMap { CSSProperty(for: $0) }
-            if !properties.isEmpty {
-                self = .inlineCss(properties)
+            let properties = components.flatMap { CSSAttribute(for: $0) }
+
+            guard !properties.isEmpty else {
+                self = .string(cssString)
                 return
             }
 
-            let first = components.first ?? String()
-            self = .string(first)
+            self = .inlineCss(properties)
         }
 
+        // MARK: - Coding
+
+        private static let valueDataKey = "valueData"
+        private static let valueTypeKey = "valueType"
+
+        private enum ValueType: String {
+            case none = "none"
+            case string = "string"
+            case inlineCss = "inlineCss"
+        }
+
+        static func decode(with coder: NSCoder) -> Value? {
+
+            guard let valueTypeRaw = coder.decodeObject(forKey: Value.valueTypeKey) as? String,
+                let valueType = ValueType(rawValue: valueTypeRaw) else {
+                    return nil
+            }
+
+            switch valueType {
+            case .none:
+                // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
+                // a .none value!!!  Don't remove it!
+                //
+                return Value.none
+            case .string:
+                let string = coder.decodeObject(forKey: Value.valueDataKey) as? String ?? ""
+
+                return .string(string)
+            case .inlineCss:
+                let cssAttributes = coder.decodeObject(forKey: Value.valueDataKey) as? [CSSAttribute] ?? []
+
+                return .inlineCss(cssAttributes)
+            }
+        }
+
+        func encode(with coder: NSCoder) {
+            let valueData: Any?
+            let valueType: ValueType
+
+            switch self {
+            case .none:
+                valueData = nil
+                valueType = .none
+            case .string(let string):
+                valueData = string
+                valueType = .string
+            case .inlineCss(let attributes):
+                valueData = attributes
+                valueType = .inlineCss
+            }
+
+            coder.encode(valueData, forKey: Value.valueDataKey)
+            coder.encode(valueType.rawValue, forKey: Value.valueTypeKey)
+        }
 
         // MARK: - Hashable
 
@@ -134,13 +179,10 @@ extension Attribute {
                 return 0
             case .string(let string):
                 return string.hashValue
-            case .inlineCss(let cssProperties):
-                var hash = 0
-                for property in cssProperties {
-                    hash ^= property.hashValue
-                }
-
-                return hash
+            case .inlineCss(let cssAttributes):
+                return cssAttributes.reduce(0, { (previous, cssAttribute) -> Int in
+                    return previous ^ cssAttribute.hashValue
+                })
             }
         }
 
@@ -171,11 +213,11 @@ extension Attribute {
             }
         }
 
-        static func ==(lValue: Value, rProperties: [CSSProperty]) -> Bool {
+        static func ==(lValue: Value, rProperties: [CSSAttribute]) -> Bool {
             return rProperties == lValue
         }
 
-        static func ==(lProperties: [CSSProperty], rValue: Value) -> Bool {
+        static func ==(lProperties: [CSSAttribute], rValue: Value) -> Bool {
             switch(rValue) {
             case .inlineCss(let rProperties):
                 return lProperties == rProperties
@@ -200,7 +242,7 @@ extension Attribute {
                     result += property.toString()
 
                     if index < properties.count - 1 {
-                        result += Value.cssPropertySeparator
+                        result += CSSParser.attributeSeparator + " "
                     }
                 }
                 

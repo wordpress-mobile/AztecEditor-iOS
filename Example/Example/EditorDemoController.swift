@@ -565,7 +565,7 @@ extension EditorDemoController {
     func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes = [
-                NSFontAttributeName: UIFont.systemFont(ofSize: headerType.fontSize)
+                NSFontAttributeName: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
             let title = NSAttributedString(string: headerType.description, attributes: attributes)

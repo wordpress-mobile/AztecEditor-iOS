@@ -24,7 +24,7 @@ class HeaderFormatterTests: XCTestCase {
 
         let updatedAttrs = formatter.apply(to: attributes, andStore: nil)
         let updatedFont = updatedAttrs[NSFontAttributeName] as! UIFont
-        XCTAssert(updatedFont.pointSize == formatter.headerLevel.fontSize)
+        XCTAssert(updatedFont.pointSize == CGFloat(formatter.headerLevel.fontSize))
 
         let removedAttrs = formatter.remove(from: updatedAttrs)
         let removedFont = removedAttrs[NSFontAttributeName] as! UIFont
@@ -37,12 +37,12 @@ class HeaderFormatterTests: XCTestCase {
         let formatterH1 = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
         let updatedH1Attrs = formatterH1.apply(to: attributes, andStore: nil)
         let updatedH1Font = updatedH1Attrs[NSFontAttributeName] as! UIFont
-        XCTAssert(updatedH1Font.pointSize == formatterH1.headerLevel.fontSize)
+        XCTAssert(updatedH1Font.pointSize == CGFloat(formatterH1.headerLevel.fontSize))
 
         let formatterH2 = HeaderFormatter(headerLevel: .h2, placeholderAttributes: nil)
         let updatedH2Attrs = formatterH2.apply(to: attributes, andStore: nil)
         let updatedH2Font = updatedH2Attrs[NSFontAttributeName] as! UIFont
-        XCTAssert(updatedH2Font.pointSize == formatterH2.headerLevel.fontSize)
+        XCTAssert(updatedH2Font.pointSize == CGFloat(formatterH2.headerLevel.fontSize))
 
         let removedAttrs = formatterH2.remove(from: updatedH2Attrs)
         let removedFont = removedAttrs[NSFontAttributeName] as! UIFont

@@ -2,17 +2,25 @@ import Foundation
 
 /// This enum specifies the different entities that can represent a style in HTML.
 ///
-class HTMLRepresentation: NSObject {
+class HTMLRepresentation: NSObject, NSCoding {
     enum Kind {
         case attribute(Attribute)
         case element(HTMLElementRepresentation)
-        case inlineCss(CSSProperty)
+        case inlineCss(CSSAttribute)
     }
 
     let kind: Kind
 
     init(for kind: Kind) {
         self.kind = kind
+    }
+
+    // MARK: - NSCoding
+
+    struct Keys {
+        static let attribute = "attribute"
+        static let element = "element"
+        static let inline = "inline"
     }
 
     public required init?(coder aDecoder: NSCoder) {
@@ -27,24 +35,12 @@ class HTMLRepresentation: NSObject {
         }
 
         if let rawCSS = aDecoder.decodeObject(forKey: Keys.inline) as? String,
-            let decodedCSS = CSSProperty(for: rawCSS) {
+            let decodedCSS = CSSAttribute(for: rawCSS) {
             kind = .inlineCss(decodedCSS)
             return
         }
 
         fatalError()
-    }
-}
-
-
-// MARK: - NSCoding Conformance
-//
-extension HTMLRepresentation: NSCoding {
-
-    struct Keys {
-        static let attribute = "attribute"
-        static let element = "element"
-        static let inline = "inline"
     }
 
     open func encode(with aCoder: NSCoder) {
@@ -62,7 +58,7 @@ extension HTMLRepresentation: NSCoding {
 
 // MARK: - HTMLElementRepresentation
 //
-class HTMLElementRepresentation: NSObject {
+class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
     let name: String
     let attributes: [Attribute]
 
@@ -75,15 +71,32 @@ class HTMLElementRepresentation: NSObject {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
     }
 
+    // MARK: - NSCoding
+
     public required convenience init?(coder aDecoder: NSCoder) {
-        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let attributes = aDecoder.decodeObject(forKey: Keys.attributes) as? [Attribute]
+        guard let name = aDecoder.decodeObject(forKey: #keyPath(name)) as? String,
+            let attributes = aDecoder.decodeObject(forKey: #keyPath(attributes)) as? [Attribute]
         else {
             fatalError()
         }
 
         self.init(name: name, attributes: attributes)
     }
+
+    open func encode(with aCoder: NSCoder) {
+        aCoder.encode(name, forKey: #keyPath(name))
+        aCoder.encode(attributes, forKey: #keyPath(attributes))
+    }
+
+    // MARK: - CustomReflectable
+
+    public var customMirror: Mirror {
+        get {
+            return Mirror(self, children: ["name": name, "attributes": attributes], ancestorRepresentation: .suppressed)
+        }
+    }
+
+    // MARK: - Misc
 
     func attribute(named name: String) -> Attribute? {
         return attributes.first(where: { attribute -> Bool in
@@ -98,22 +111,6 @@ class HTMLElementRepresentation: NSObject {
     // MARK: - Equatable
 
     static func ==(lhs: HTMLElementRepresentation, rhs: HTMLElementRepresentation) -> Bool {
-        return type(of: lhs) == type(of: rhs) && lhs.name == rhs.name && lhs.attributes == rhs.attributes
-    }
-}
-
-
-// MARK: - NSCoding Conformance
-//
-extension HTMLElementRepresentation: NSCoding {
-
-    struct Keys {
-        static let name = "name"
-        static let attributes = "attributes"
-    }
-
-    open func encode(with aCoder: NSCoder) {
-        aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(attributes, forKey: Keys.attributes)
+        return lhs.name == rhs.name && lhs.attributes == rhs.attributes
     }
 }
