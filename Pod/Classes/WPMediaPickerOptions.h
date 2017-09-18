@@ -29,8 +29,8 @@
 @property (nonatomic, assign) BOOL allowMultipleSelection;
 
 /**
- The size of the camera preview cell
+ If YES the picker will scroll media vertically. Defaults to YES (vertical).
  */
-@property (nonatomic, assign) CGSize cameraPreviewSize;
+@property (nonatomic, assign) BOOL scrollVertically;
 
 @end

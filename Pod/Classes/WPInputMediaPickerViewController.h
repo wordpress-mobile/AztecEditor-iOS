@@ -41,11 +41,6 @@ The delegate for the WPMediaPickerViewController events
 @property (nonatomic, readonly, nonnull) UIToolbar *mediaToolbar;
 
 /**
- If YES the picker will scroll media vertically. Defaults to NO (horizontal).
- */
-@property (nonatomic, assign) BOOL scrollVertically;
-
-/**
  * Presents the system image / video capture view controller, presented from `viewControllerToUseToPresent`.
  */
 - (void)showCapture;
