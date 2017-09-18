@@ -1,5 +1,7 @@
 #import "WPPHAssetDataSource.h"
 #import "WPIndexMove.h"
+#import "WPImageExporter.h"
+
 @import Photos;
 
 @interface WPPHAssetDataSource() <PHPhotoLibraryChangeObserver>
@@ -70,6 +72,9 @@
         PHFetchResultChangeDetails *albumChangeDetails = [changeInstance changeDetailsForFetchResult:self.albums];
 
         if (!groupChangeDetails && !assetsChangeDetails && !albumChangeDetails) {
+            [self.observers enumerateKeysAndObjectsUsingBlock:^(NSUUID *key, WPMediaChangesBlock block, BOOL *stop) {
+                block(true, [NSIndexSet new], [NSIndexSet new], [NSIndexSet new], @[]);
+            }];
             return;
         }
 
@@ -290,12 +295,12 @@
 {
     NSInteger count = [self numberOfAssets];
     if (count == 0) {
-        return nil;
+        @throw NSRangeException;
     }
 
     NSInteger idx = [self adjustedIndexForIndex:index];
     if (idx < 0 || idx >= count ) {
-        return nil;
+        @throw NSRangeException;
     }
 
     return self.assets[idx];
@@ -352,7 +357,12 @@
  completionBlock:(WPMediaAddedBlock)completionBlock
 {
     [self addAssetWithChangeRequest:^PHAssetChangeRequest *{
-        return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        NSURL * url = [WPImageExporter temporaryFileURLWithExtension:@"jpg"];
+        if (metadata != nil && [WPImageExporter writeImage:image withMetadata:metadata toURL:url]) {
+            return [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:url];
+        } else {
+            return [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        }
     } completionBlock:completionBlock];
 }
 
@@ -390,7 +400,7 @@
         }
         PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"(localIdentifier == %@)", assetIdentifier];
-        PHFetchResult * result = [PHAsset fetchAssetsInAssetCollection:self.activeAssetsCollection options:fetchOptions];
+        PHFetchResult * result = [PHAsset fetchAssetsWithOptions:fetchOptions];
         if (result.count < 1){
             if (completionBlock){
                 dispatch_async(dispatch_get_main_queue(), ^{

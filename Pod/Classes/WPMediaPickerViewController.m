@@ -4,9 +4,17 @@
 #import "WPMediaPickerViewController.h"
 #import "WPMediaGroupPickerViewController.h"
 #import "WPPHAssetDataSource.h"
+#import "WPMediaCapturePresenter.h"
 
 @import MobileCoreServices;
 @import AVFoundation;
+
+static CGFloat const IPhoneSELandscapeWidth = 568.0f;
+static CGFloat const IPhone7PortraitWidth = 375.0f;
+static CGFloat const IPhone7LandscapeWidth = 667.0f;
+static CGFloat const IPadPortraitWidth = 768.0f;
+static CGFloat const IPadLandscapeWidth = 1024.0f;
+static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
 
 @interface WPMediaPickerViewController ()
 <
@@ -17,16 +25,22 @@
  UIViewControllerPreviewingDelegate
 >
 
-@property (nonatomic, strong) UICollectionViewFlowLayout *layout;
+@property (nonatomic, readonly) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
 @property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
+@property (nonatomic, strong) WPMediaCapturePresenter *capturePresenter;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic, strong) NSObject *changesObserver;
 @property (nonatomic, strong) NSIndexPath *firstVisibleCell;
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
 @property (nonatomic, strong) NSIndexPath *assetIndexInPreview;
+/**
+ The size of the camera preview cell
+ */
+@property (nonatomic, assign) CGSize cameraPreviewSize;
+
 
 @end
 
@@ -43,7 +57,6 @@ static CGFloat SelectAnimationTime = 0.2;
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self = [self initWithCollectionViewLayout:layout];
     if (self) {
-        _layout = layout;
         _internalSelectedAssets = [[NSMutableArray alloc] init];
         _capturedAsset = nil;
         _options = [options copy];
@@ -123,46 +136,49 @@ static CGFloat SelectAnimationTime = 0.2;
             [self refreshDataAnimated:NO];
         } else {
             // if just the selection mode changed we just need to reload the collection view not all the data.
-            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection) {
+            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
                 [self.collectionView reloadData];
             }
         }
     }
 }
 
+- (UICollectionViewFlowLayout *)layout
+{
+    return (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+}
+
 - (void)setupLayout
 {
-    CGFloat frameWidth = self.view.frame.size.width;
-    CGFloat frameHeight = self.view.frame.size.height;
-    CGFloat minFrameWidth = MIN(frameWidth, frameHeight);
-
-    // Configure collection view layout
-    CGFloat numberOfPhotosForLine = 4;
     CGFloat photoSpacing = 1.0f;
-    CGFloat topBottomInset = 5;
-
-    CGFloat cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                              photoSpacing:photoSpacing
-                                                frameWidth:minFrameWidth];
-
-    // Check the actual width of the content based on the computed cell size
-    // How many photos are we actually fitting per line?
-    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
-    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
-
-    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
-
-    // If we have gaps in our layout, adjust to fit
-    if (contentWidth < frameWidth) {
-        cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                          photoSpacing:photoSpacing
-                                            frameWidth:frameWidth];
+    CGFloat photoSize;
+    UICollectionViewFlowLayout *layout = self.layout;
+    CGFloat frameWidth = self.view.frame.size.width;
+    CGFloat frameHeight = self.view.frame.size.width - self.topLayoutGuide.length;
+    CGFloat dimensionToUse = frameWidth;
+    if (self.options.scrollVertically) {
+        dimensionToUse = frameWidth;
+        layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
+        self.collectionView.alwaysBounceHorizontal = NO;
+        self.collectionView.alwaysBounceVertical = YES;
+    } else {
+        dimensionToUse = frameHeight;
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        layout.sectionInset = UIEdgeInsetsMake(5, 0, 5, 0);
+        self.collectionView.alwaysBounceHorizontal = YES;
+        self.collectionView.alwaysBounceVertical = NO;
     }
+    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:dimensionToUse];
 
-    self.layout.itemSize = CGSizeMake(cellSize, cellSize);
-    self.layout.minimumInteritemSpacing = photoSpacing;
-    self.layout.minimumLineSpacing = photoSpacing;
-    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, 0, topBottomInset, 0);
+    photoSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                       photoSpacing:photoSpacing
+                                         frameWidth:dimensionToUse];
+
+    self.cameraPreviewSize = CGSizeMake(photoSize, photoSize);
+    layout.itemSize = CGSizeMake(photoSize, photoSize);
+    layout.minimumLineSpacing = photoSpacing;
+    layout.minimumInteritemSpacing = photoSpacing;
 }
 
 - (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth
@@ -171,8 +187,37 @@ static CGFloat SelectAnimationTime = 0.2;
     return floorf((frameWidth - totalSpacing) / photosPerLine);
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
+/**
+ Given the provided frame width, this method returns a progressively increasing number of photos
+ to be used in a picker row.
+
+ @param frameWidth Width of the frame containing the picker
+
+ @return The number of photo cells to be used in a row. Defaults to 3.
+ */
+- (NSUInteger)numberOfPhotosPerRow:(CGFloat)frameWidth {
+    NSUInteger numberOfPhotos = 3;
+
+    if (frameWidth >= IPhone7PortraitWidth && frameWidth < IPhoneSELandscapeWidth) {
+        numberOfPhotos = 4;
+    } else if (frameWidth >= IPhoneSELandscapeWidth && frameWidth < IPhone7LandscapeWidth) {
+        numberOfPhotos = 5;
+    } else if (frameWidth >= IPhone7LandscapeWidth && frameWidth < IPadPortraitWidth) {
+        numberOfPhotos = 6;
+    } else if (frameWidth >= IPadPortraitWidth && frameWidth < IPadLandscapeWidth) {
+        numberOfPhotos = 7;
+    } else if (frameWidth >= IPadLandscapeWidth && frameWidth < IPadPro12LandscapeWidth) {
+        numberOfPhotos = 9;
+    } else if (frameWidth >= IPadPro12LandscapeWidth) {
+        numberOfPhotos = 12;
+    }
+    
+    return numberOfPhotos;
+}
+
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
     [self setupLayout];
 }
 
@@ -205,7 +250,7 @@ static CGFloat SelectAnimationTime = 0.2;
 
 - (BOOL)isShowingCaptureCell
 {
-    return self.options.allowCaptureOfMedia && [self isMediaDeviceAvailable] && !self.refreshGroupFirstTime;
+    return self.options.allowCaptureOfMedia && [WPMediaCapturePresenter isCaptureAvailable] && !self.refreshGroupFirstTime;
 }
 
 - (void)clearSelectedAssets:(BOOL)animated
@@ -306,7 +351,7 @@ static CGFloat SelectAnimationTime = 0.2;
         dispatch_async(dispatch_get_main_queue(), ^{                
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
-            strongSelf.collectionView.scrollEnabled = YES;
+            strongSelf.collectionView.scrollEnabled = YES;            
             [strongSelf refreshSelection];
             [strongSelf.collectionView reloadData];
 
@@ -472,7 +517,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && self.options.showMostRecentFirst)
     {
-        return self.options.cameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -483,7 +528,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && !self.options.showMostRecentFirst)
     {
-        return self.options.cameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -498,12 +543,22 @@ referenceSizeForFooterInSection:(NSInteger)section
         if (!self.captureCell) {
             self.captureCell = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([WPMediaCapturePreviewCollectionView class]) forIndexPath:indexPath];
             if (self.captureCell.gestureRecognizers == nil) {
-                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCapture)];
+                UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(captureMedia)];
                 [self.captureCell addGestureRecognizer:tapGestureRecognizer];
             }
             self.captureCell.preferFrontCamera = self.options.preferFrontCamera;
             [self.captureCell startCapture];
         }
+        CGRect newFrame = self.captureCell.frame;
+        CGSize fixedSize = self.cameraPreviewSize;
+        UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+        if (layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+            fixedSize.height = self.view.frame.size.height;
+        } else {
+            fixedSize.width = self.view.frame.size.width;
+        }
+        newFrame.size = fixedSize;
+        self.captureCell.frame = newFrame;
         return self.captureCell;
     }
 
@@ -630,93 +685,29 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 #pragma mark - Media Capture
 
-- (BOOL)isMediaDeviceAvailable
+- (WPMediaCapturePresenter *)capturePresenter
 {
-    // check if device is capable of capturing photos all together
-    return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
-}
+    if (!_capturePresenter) {
+        _capturePresenter = [[WPMediaCapturePresenter alloc] initWithPresentingViewController:self.viewControllerToUseToPresent];
+        _capturePresenter.mediaType = self.options.filter;
+        _capturePresenter.preferFrontCamera = self.options.preferFrontCamera;
 
-- (void)showMediaCaptureViewController
-{
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    NSMutableSet *mediaTypes = [NSMutableSet setWithArray:[UIImagePickerController availableMediaTypesForSourceType:
-                           UIImagePickerControllerSourceTypeCamera]];
-    NSMutableSet *mediaDesired = [NSMutableSet new];
-    if (self.options.filter & WPMediaTypeImage) {
-        [mediaDesired addObject:(__bridge NSString *)kUTTypeImage];
-    }
-    if (self.options.filter & WPMediaTypeVideo) {
-        [mediaDesired addObject:(__bridge NSString *)kUTTypeMovie];
+        __weak typeof(self) weakSelf = self;
+        _capturePresenter.completionBlock = ^(NSDictionary *mediaInfo) {
+            if (mediaInfo) {
+                [weakSelf processMediaCaptured:mediaInfo];
+            }
 
+            weakSelf.capturePresenter = nil;
+        };
     }
-    if (mediaDesired.count > 0){
-        [mediaTypes intersectSet:mediaDesired];
-    }
-        
-    imagePickerController.mediaTypes = [mediaTypes allObjects];
-    imagePickerController.delegate = self;
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-    imagePickerController.cameraDevice = [self cameraDevice];
-    imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
-    [self.viewControllerToUseToPresent presentViewController:imagePickerController animated:YES completion:nil];
-}
 
-- (UIImagePickerControllerCameraDevice)cameraDevice
-{
-    if (self.options.preferFrontCamera && [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
-        return UIImagePickerControllerCameraDeviceFront;
-    } else {
-        return UIImagePickerControllerCameraDeviceRear;
-    }
+    return _capturePresenter;
 }
 
 - (void)captureMedia
 {
-    NSString *mediaType = AVMediaTypeVideo;
-    AVAuthorizationStatus authorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
-    if (authorizationStatus == AVAuthorizationStatusAuthorized) {
-        [self showMediaCaptureViewController];
-        return;
-    }
-
-    if (authorizationStatus == AVAuthorizationStatusNotDetermined) {
-        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!granted)
-                {
-                    [self showAlertAboutMediaCapturePermission];
-                    return;
-                }
-                [self showMediaCaptureViewController];
-            });
-        }];
-        return;
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self showAlertAboutMediaCapturePermission];
-    });
-}
-
-- (void)showAlertAboutMediaCapturePermission
-{
-    NSString *title = NSLocalizedString(@"Media Capture", @"Title for alert when access to media capture is not granted");
-    NSString *message =NSLocalizedString(@"This app needs permission to access the Camera to capture new media, please change the privacy settings if you wish to allow this.", @"");
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", "Confirmation of action") style:UIAlertActionStyleCancel handler:nil];
-    [alertController addAction:okAction];
-    
-    NSString *otherButtonTitle = NSLocalizedString(@"Open Settings", @"Go to the settings app");
-    UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^(UIAlertAction *action) {
-        NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-        [[UIApplication sharedApplication] openURL:settingsURL];
-    }];
-    [alertController addAction:otherAction];
-    
-    [self.viewControllerToUseToPresent presentViewController:alertController animated:YES completion:nil];
+    [self.capturePresenter presentCapture];
 }
 
 - (void)processMediaCaptured:(NSDictionary *)info
@@ -759,23 +750,12 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
     if (!self.options.allowMultipleSelection) {
         if ([self.mediaPickerDelegate respondsToSelector:@selector(mediaPickerController:didFinishPickingAssets:)]) {
-            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:[self.internalSelectedAssets copy]];
+            if (self.capturedAsset) {
+                [self.internalSelectedAssets addObject:self.capturedAsset];
+            }
+            [self.mediaPickerDelegate mediaPickerController:self didFinishPickingAssets:self.internalSelectedAssets];
         }
     }
-}
-
-#pragma mark - UIImagePickerControllerDelegate
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
-{
-    [picker dismissViewControllerAnimated:YES completion:^{
-        [self processMediaCaptured:info];
-    }];
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
-    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)setGroup:(id<WPMediaGroup>)group {
@@ -785,7 +765,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     [self.dataSource setSelectedGroup:group];
     if (self.isViewLoaded) {
         self.refreshGroupFirstTime = YES;
-        [self.collectionView reloadData];
+        [self.layout invalidateLayout];        
         [self refreshData];
     }
 }

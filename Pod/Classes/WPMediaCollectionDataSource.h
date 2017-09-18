@@ -8,7 +8,7 @@ typedef NS_OPTIONS(NSInteger, WPMediaType){
     WPMediaTypeAll= 0XFF
 };
 
-static NSString * const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
+static NSString * _Nonnull const WPMediaPickerErrorDomain = @"WPMediaPickerErrorDomain";
 
 typedef NS_ENUM(NSInteger, WPMediaPickerErrorCode){
     WPMediaErrorCodePermissionsFailed,
@@ -30,13 +30,13 @@ typedef NS_ENUM(NSInteger, WPMediaLoadOptions){
 
 @protocol WPMediaAsset;
 
-typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet *removed, NSIndexSet *inserted, NSIndexSet *changed, NSArray<id<WPMediaMove>> *moves);
+typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet * _Nonnull removed, NSIndexSet * _Nonnull inserted, NSIndexSet * _Nonnull changed, NSArray<id<WPMediaMove>> * _Nonnull moves);
 typedef void (^WPMediaSuccessBlock)();
-typedef void (^WPMediaFailureBlock)(NSError *error);
-typedef void (^WPMediaAddedBlock)(id<WPMediaAsset> media, NSError *error);
-typedef void (^WPMediaImageBlock)(UIImage *result, NSError *error);
-typedef void (^WPMediaCountBlock)(NSInteger result, NSError *error);
-typedef void (^WPMediaAssetBlock)(AVAsset *asset, NSError *error);
+typedef void (^WPMediaFailureBlock)(NSError * _Nullable error);
+typedef void (^WPMediaAddedBlock)(_Nullable id<WPMediaAsset> media, NSError * _Nullable error);
+typedef void (^WPMediaImageBlock)(UIImage * _Nullable result, NSError * _Nullable error);
+typedef void (^WPMediaCountBlock)(NSInteger result, NSError * _Nullable error);
+typedef void (^WPMediaAssetBlock)(AVAsset * _Nullable asset, NSError * _Nullable error);
 typedef int32_t WPMediaRequestID;
 
 
@@ -46,7 +46,7 @@ typedef int32_t WPMediaRequestID;
  */
 @protocol WPMediaGroup <NSObject>
 
-- (NSString *)name;
+- (NSString *_Nonnull)name;
 
 /**
  *  Asynchronously fetches an image that represents the group
@@ -57,7 +57,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return an unique ID of the fetch operation
  */
-- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(nonnull WPMediaImageBlock)completionHandler;
 
 - (void)cancelImageRequest:(WPMediaRequestID)requestID;
 
@@ -66,14 +66,14 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return a object from the underlying media implementation
  */
-- (id)baseGroup;
+- (id _Nonnull )baseGroup;
 
 /**
  *  An unique identifer for the media group
  *
  *  @return a string that uniquely identifies the group
  */
-- (NSString *)identifier;
+- (nonnull NSString *)identifier;
 
 /**
  The numbers of assets that exist in the group of a certain mediaType
@@ -82,7 +82,7 @@ typedef int32_t WPMediaRequestID;
  @param completionHandler a block that is executed when the real number of assets is know.
  @return return an estimation of the current number of assets, if no estimate is known return NSNotFound
  */
-- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler;
+- (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(nullable WPMediaCountBlock)completionHandler;
 
 @end
 
@@ -99,7 +99,7 @@ typedef int32_t WPMediaRequestID;
  @param completionHandler a block that is invoked when the image is available or when an error occurs.
  @return an unique ID of the fetch operation that can be used to cancel it.
  */
-- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler;
+- (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(nonnull WPMediaImageBlock)completionHandler;
 
 /**
  *  Cancels a previous ongoing request for an asset image
@@ -115,7 +115,7 @@ typedef int32_t WPMediaRequestID;
 
  @return an unique ID of the fetch operation that can be used to cancel it.
  */
-- (WPMediaRequestID)videoAssetWithCompletionHandler:(WPMediaAssetBlock)completionHandler;
+- (WPMediaRequestID)videoAssetWithCompletionHandler:(nonnull WPMediaAssetBlock)completionHandler;
 
 /**
  *  The media type of the asset. This could be an image, video, or another unknow type.
@@ -136,21 +136,21 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return a object from the underlying media implementation
  */
-- (id)baseAsset;
+- (nonnull id)baseAsset;
 
 /**
  *  A unique identifier for the media asset
  *
  *  @return a string that uniquely identifies the media asset
  */
-- (NSString *)identifier;
+- (nonnull NSString *)identifier;
 
 /**
  *  The date when the asset was created.
  *
  *  @return  a NSDate object that represents the creation date of the asset.
  */
-- (NSDate *)date;
+- (nonnull NSDate *)date;
 
 /**
  *  The size, in pixels, of the asset’s image or video data.
@@ -164,12 +164,12 @@ typedef int32_t WPMediaRequestID;
 /**
  *  @return The filename of this asset. Optional.
  */
-- (NSString *)filename;
+- (nullable NSString *)filename;
 
 /**
  *  @return The file extension of this asset (PDF, doc, etc). Optional.
  */
-- (NSString *)fileExtension;
+- (nullable NSString *)fileExtension;
 
 @end
 
@@ -195,21 +195,21 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return an object implementing WPMediaGroup protocol.
  */
-- (id<WPMediaGroup>)groupAtIndex:(NSInteger)index;
+- (nonnull id<WPMediaGroup>)groupAtIndex:(NSInteger)index;
 
 /**
  *  Ask the data source for the current active group of the library
  *
  *  @return an object implementing WPMediaGroup protocol.
  */
-- (id<WPMediaGroup>)selectedGroup;
+- (nullable id<WPMediaGroup>)selectedGroup;
 
 /**
  *  Ask the data source to select a specific group and update it's assets for that group.
  *
  *  @param group object implementing the WPMediaGroup protocol
  */
-- (void)setSelectedGroup:(id<WPMediaGroup>)group;
+- (void)setSelectedGroup:(nonnull id<WPMediaGroup>)group;
 
 /**
  *  Asks the data source for the number of assets existing on the currect selected group
@@ -225,7 +225,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return an object implementing the WPMediaAsset protocol
  */
-- (id<WPMediaAsset>)mediaAtIndex:(NSInteger)index;
+- (nonnull id<WPMediaAsset>)mediaAtIndex:(NSInteger)index;
 
 /**
  *  Returns the object with the matching identifier if it exists on the datasource
@@ -234,7 +234,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return the media object if it exists or nil if it's not found.
  */
-- (id<WPMediaAsset>)mediaWithIdentifier:(NSString *)identifier;
+- (nullable id<WPMediaAsset>)mediaWithIdentifier:(nonnull NSString *)identifier;
 
 /**
  *  Asks the data source to be notify about changes on the media library using the given callback block.
@@ -246,7 +246,7 @@ typedef int32_t WPMediaRequestID;
  *
  *  @return an opaque object that identifies the callback register. This should be used to later unregister the block
  */
-- (id<NSObject>)registerChangeObserverBlock:(WPMediaChangesBlock)callback;
+- (nonnull id<NSObject>)registerChangeObserverBlock:(nonnull WPMediaChangesBlock)callback;
 
 /**
  *  Asks the data source to unregister the block that is identified by the block key.
@@ -254,7 +254,7 @@ typedef int32_t WPMediaRequestID;
  *  @param blockKey the unique identifier of the block. This must have been obtained 
  * by a call to registerChangesObserverBlock
  */
-- (void)unregisterChangeObserver:(id<NSObject>)blockKey;
+- (void)unregisterChangeObserver:(nonnull id<NSObject>)blockKey;
 
 /**
  *  Asks the data source to reload the data available of the media library. This should be invoked after changing the 
@@ -265,8 +265,8 @@ typedef int32_t WPMediaRequestID;
  *  @param failureBlock a block that is invoked when the are is any kind of error when loading the data.
  */
 - (void)loadDataWithOptions:(WPMediaLoadOptions)options
-                    success:(WPMediaSuccessBlock)successBlock
-                    failure:(WPMediaFailureBlock)failureBlock;
+                    success:(nullable WPMediaSuccessBlock)successBlock
+                    failure:(nullable WPMediaFailureBlock)failureBlock;
 
 /**
  *  Requests to the data source to add an image to the library.
@@ -277,7 +277,7 @@ typedef int32_t WPMediaRequestID;
  * On success the media parameter is returned with a new object implemeting the WPMedia protocol
  * If an error occurs the media is nil and the error parameter contains a value
  */
-- (void)addImage:(UIImage *)image metadata:(NSDictionary *)metadata completionBlock:(WPMediaAddedBlock)completionBlock;
+- (void)addImage:(nonnull UIImage *)image metadata:(nullable NSDictionary *)metadata completionBlock:(nullable WPMediaAddedBlock)completionBlock;
 
 /**
  *  Requests to the data source to add a video to the library.
@@ -287,7 +287,7 @@ typedef int32_t WPMediaRequestID;
  * On success the media parameter is returned with a new object implemeting the WPMedia protocol
  * If an error occurs the media is nil and the error parameter contains a value
  */
-- (void)addVideoFromURL:(NSURL *)url completionBlock:(WPMediaAddedBlock)completionBlock;
+- (void)addVideoFromURL:(nonnull NSURL *)url completionBlock:(nullable WPMediaAddedBlock)completionBlock;
 
 /**
  *  Filter the assets acording to their media type.
