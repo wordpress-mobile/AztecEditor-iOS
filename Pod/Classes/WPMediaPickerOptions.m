@@ -3,8 +3,6 @@
 
 @implementation WPMediaPickerOptions
 
-static CGSize CameraPreviewSize =  {88.0, 88.0};
-
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -12,8 +10,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
         _preferFrontCamera = NO;
         _showMostRecentFirst = NO;
         _filter = WPMediaTypeVideo | WPMediaTypeImage;
-        _cameraPreviewSize = CameraPreviewSize;
         _allowMultipleSelection = YES;
+        _scrollVertically = YES;
     }
     return self;
 }
@@ -24,8 +22,8 @@ static CGSize CameraPreviewSize =  {88.0, 88.0};
     options.preferFrontCamera = self.preferFrontCamera;
     options.showMostRecentFirst = self.showMostRecentFirst;
     options.filter = self.filter;
-    options.cameraPreviewSize = self.cameraPreviewSize;
     options.allowMultipleSelection = self.allowMultipleSelection;
+    options.scrollVertically = self.scrollVertically;
 
     return options;
 }
