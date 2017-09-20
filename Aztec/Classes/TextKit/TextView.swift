@@ -396,6 +396,8 @@ open class TextView: UITextView {
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
         // and restore them after that call.
         //
+        // Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/725
+        //
         // Diego: I reproduced this issue in a very simple project (completely unrelated to Aztec)
         //      as a demonstration that this is an SDK issue.  I also reported this issue to
         //      Apple (34546954), but this workaround should do until the problem is resolved.
