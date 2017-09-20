@@ -126,6 +126,7 @@
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
                 [self loadDataWithOptions:options success:successBlock failure:failureBlock];
             }];
+            return;
         }
         case PHAuthorizationStatusAuthorized: {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
@@ -150,6 +151,7 @@
                     }
                 }
             });
+            return;
         }
     }
 }
