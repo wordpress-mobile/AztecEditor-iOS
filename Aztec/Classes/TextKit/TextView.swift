@@ -176,11 +176,27 @@ open class TextView: UITextView {
             ensureRemovalOfParagraphAttributesAfterSelectionChange()
             return super.typingAttributes
         }
-
         set {
             super.typingAttributes = newValue
         }
     }
+
+    /// This property returns the Attributes associated to the Extra Line Fragment.
+    ///
+    public var extraLineFragmentTypingAttributes: [String: Any] {
+        guard selectedTextRange?.start != endOfDocument else {
+            return typingAttributes
+        }
+
+        let document = textStorage.string
+        guard document.isEndOfParagraph(before: document.endIndex) else {
+            let lastLocation = max(document.characters.count - 1, 0)
+            return textStorage.attributes(at: lastLocation, effectiveRange: nil)
+        }
+
+        return [ NSParagraphStyleAttributeName: ParagraphStyle.default ]
+    }
+
 
     // MARK: - Init & deinit
 
@@ -193,9 +209,9 @@ open class TextView: UITextView {
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
+        container.widthTracksTextView = true
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
-        container.widthTracksTextView = true
 
         super.init(frame: CGRect(x: 0, y: 0, width: 10, height: 10), textContainer: container)
         commonInit()
@@ -216,6 +232,7 @@ open class TextView: UITextView {
         linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
         setupMenuController()
         setupAttachmentTouchDetection()
+        setupLayoutManager()
     }
 
     private func setupMenuController() {
@@ -242,6 +259,16 @@ open class TextView: UITextView {
             gesture.require(toFail: attachmentGestureRecognizer)
         }
         addGestureRecognizer(attachmentGestureRecognizer)
+    }
+
+    private func setupLayoutManager() {
+        guard let aztecLayoutManager = layoutManager as? LayoutManager else {
+            return
+        }
+
+        aztecLayoutManager.extraLineFragmentTypingAttributes = { [weak self] in
+            return self?.extraLineFragmentTypingAttributes ?? [:]
+        }
     }
 
     // MARK: - Intercept copy paste operations
@@ -1453,7 +1480,7 @@ private extension TextView {
     ///
     private func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
         return selectedRange.location == storage.length
-            && storage.string.isEmptyLine(at: selectedRange.location)
+            && storage.string.isEmptyParagraph(at: selectedRange.location)
     }
 
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range

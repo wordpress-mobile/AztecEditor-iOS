@@ -15,10 +15,14 @@ class LayoutManager: NSLayoutManager {
     ///
     var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
-
     /// HTML Pre Background Color
     ///
     var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+
+    /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
+    ///
+    var extraLineFragmentTypingAttributes: (() -> [String: Any])?
+
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -49,7 +53,7 @@ private extension LayoutManager {
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
 
-        // Draw blockquotes
+        // Draw: Blockquotes
         textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
@@ -59,32 +63,59 @@ private extension LayoutManager {
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                let paddingWidth = blockquoteIndent + (blockquoteIndent == 0 ? 0 : (Metrics.listTextIndentation / 2))
-                var paddingHeight: CGFloat = blockquoteIndent == 0 ? 0 : (Metrics.paragraphSpacing / 2)
-
-                // Cheking if we this a middle line inside a blockquote paragraph:
-                // Avoid applying the "Padding Height", otherwise we might cut off the Blockquote's BG.
-                //
-                // Ref. Issue #645
-                //
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
+                let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
+                let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
 
-                if !lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex) {
-                    paddingHeight = 0
-                }
-
-                let lineRect = rect.offsetBy(dx: origin.x , dy: origin.y)
-                let finalRect = CGRect(x: lineRect.origin.x + paddingWidth,
-                                       y: lineRect.origin.y,
-                                       width: lineRect.size.width - paddingWidth,
-                                       height: lineRect.size.height - paddingHeight)
-
-                self.drawBlockquote(in: finalRect.integral, with: context)
+                self.drawBlockquote(in: blockquoteRect.integral, with: context)
             }
         }
 
+        // Draw: Extra Line Fragment
+        guard extraLineFragmentRect != .zero, let typingAttributes = extraLineFragmentTypingAttributes?() else {
+            return
+        }
+
+        guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
+            return
+        }
+
+        let extraIndent = paragraphStyle.blockquoteIndent
+        let extraRect = blockquoteRect(origin: origin, lineRect: extraLineFragmentRect, blockquoteIndent: extraIndent, lineEndsParagraph: false)
+
+        drawBlockquote(in: extraRect.integral, with: context)
     }
+
+
+    /// Returns the Rect in which the Blockquote should be rendered.
+    ///
+    /// - Parameters:
+    ///     - origin: Origin of coordinates
+    ///     - lineRect: Line Fragment's Rect
+    ///     - blockquoteIndent: Blockquote Indentation Level for the current lineFragment
+    ///     - lineEndsParagraph: Indicates if the current blockquote line is the end of a Paragraph
+    ///
+    /// - Returns: Rect in which we should render the blockquote.
+    ///
+    private func blockquoteRect(origin: CGPoint, lineRect: CGRect, blockquoteIndent: CGFloat, lineEndsParagraph: Bool) -> CGRect {
+        var blockquoteRect = lineRect.offsetBy(dx: origin.x, dy: origin.y)
+        guard blockquoteIndent != 0 else {
+            return blockquoteRect
+        }
+
+        let paddingWidth = Metrics.listTextIndentation * 0.5 + blockquoteIndent
+        blockquoteRect.origin.x += paddingWidth
+        blockquoteRect.size.width -= paddingWidth
+
+        // Ref. Issue #645: Cheking if we this a middle line inside a blockquote paragraph
+        if lineEndsParagraph {
+            blockquoteRect.size.height -= Metrics.paragraphSpacing * 0.5
+        }
+
+        return blockquoteRect
+    }
+
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
@@ -97,6 +128,7 @@ private extension LayoutManager {
         context.fill(borderRect)
     }
 }
+
 
 // MARK: - PreFormatted Helpers
 //
@@ -130,6 +162,7 @@ private extension LayoutManager {
 
     }
 
+
     /// Draws a single HTML Pre Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawHTMLPre(in rect: CGRect, with context: CGContext) {
@@ -137,6 +170,7 @@ private extension LayoutManager {
         context.fill(rect)
     }
 }
+
 
 // MARK: - Lists Helpers
 //
@@ -167,6 +201,7 @@ private extension LayoutManager {
             drawItem(number: markerNumber, in: markerRect, from: list, using: paragraphStyle, at: enclosingRange.location)
         }
     }
+
 
     /// Returns the Rect for the MarkerItem at the specified Range + Origin, within a given ParagraphStyle.
     ///
