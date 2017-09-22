@@ -366,14 +366,6 @@ open class TextView: UITextView {
         //
         typingAttributes[NSAttachmentAttributeName] = nil
 
-        // For some reason the text view is allowing the attachment style to be set in
-        // typingAttributes.  That's simply not acceptable.
-        //
-        // This was causing the following issue:
-        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
-        //
-        typingAttributes[NSAttachmentAttributeName] = nil
-
         guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
         }
@@ -399,7 +391,24 @@ open class TextView: UITextView {
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
+        // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
+        // attributes under certain circumstances.  The attributes are lost exactly after the call
+        // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
+        // and restore them after that call.
+        //
+        // Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/725
+        //
+        // Diego: I reproduced this issue in a very simple project (completely unrelated to Aztec)
+        //      as a demonstration that this is an SDK issue.  I also reported this issue to
+        //      Apple (34546954), but this workaround should do until the problem is resolved.
+        //
+        let workaroundTypingAttributes = typingAttributes
+
         super.insertText(text)
+
+        // WORKAROUND: this line is related to the workaround above.
+        //
+        typingAttributes = workaroundTypingAttributes
 
         ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
