@@ -79,12 +79,12 @@ protocol TextStorageAttachmentsDelegate: class {
 ///
 open class TextStorage: NSTextStorage {
 
-    // MARK: - Private Properties
+    // MARK: - Storage
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
 
-    // MARK: - Public Properties
+    // MARK: - Delegates
 
     /// NOTE:
     /// `attachmentsDelegate` is an optional property. On purpose. During a Drag and Drop OP, the
@@ -115,7 +115,7 @@ open class TextStorage: NSTextStorage {
     }
 
 
-    // MARK: - Public Methods
+    // MARK: - Range Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
