@@ -135,6 +135,8 @@ static CGFloat SelectAnimationTime = 0.2;
         [self.dataSource setMediaTypeFilter:options.filter];
         [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
         self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
+        self.collectionView.alwaysBounceHorizontal = !options.scrollVertically;
+        self.collectionView.alwaysBounceVertical = options.scrollVertically;
         if (refreshNeeded) {
             [self refreshDataAnimated:NO];
         } else {
@@ -163,14 +165,10 @@ static CGFloat SelectAnimationTime = 0.2;
         dimensionToUse = frameWidth;
         layout.scrollDirection = UICollectionViewScrollDirectionVertical;
         layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
-        self.collectionView.alwaysBounceHorizontal = NO;
-        self.collectionView.alwaysBounceVertical = YES;
     } else {
         dimensionToUse = frameHeight;
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         layout.sectionInset = UIEdgeInsetsMake(5, 0, 5, 0);
-        self.collectionView.alwaysBounceHorizontal = YES;
-        self.collectionView.alwaysBounceVertical = NO;
     }
     NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:dimensionToUse];
 
