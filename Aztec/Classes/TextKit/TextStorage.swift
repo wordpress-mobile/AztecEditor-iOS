@@ -91,7 +91,7 @@ open class TextStorage: NSTextStorage {
     /// LayoutManager may instantiate an entire TextKit stack. Since there is absolutely no entry point
     /// in which we may set this delegate, we need to set it as optional.
     ///
-    /// Ref. Issue #727
+    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727
     ///
     weak var attachmentsDelegate: TextStorageAttachmentsDelegate?
 
@@ -115,7 +115,7 @@ open class TextStorage: NSTextStorage {
     }
 
 
-    // MARK: - Public Helpers
+    // MARK: - Public Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
@@ -149,7 +149,7 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        // Ref. #727:
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727:
         // If the delegate is not set, we *Explicitly* do not want to crash here.
         //
         guard let delegate = attachmentsDelegate else {
@@ -204,7 +204,7 @@ open class TextStorage: NSTextStorage {
     }
 
     fileprivate func detectAttachmentRemoved(in range: NSRange) {
-        // Ref. #727:
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727:
         // If the delegate is not set, we *Explicitly* do not want to crash here.
         //
         guard let delegate = attachmentsDelegate else {
