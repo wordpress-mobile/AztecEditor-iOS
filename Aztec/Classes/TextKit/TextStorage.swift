@@ -79,17 +79,28 @@ protocol TextStorageAttachmentsDelegate: class {
 ///
 open class TextStorage: NSTextStorage {
 
+    // MARK: - Storage
+
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    
-    // MARK: - NSTextStorage
+
+
+    // MARK: - Delegates
+
+    /// NOTE:
+    /// `attachmentsDelegate` is an optional property. On purpose. During a Drag and Drop OP, the
+    /// LayoutManager may instantiate an entire TextKit stack. Since there is absolutely no entry point
+    /// in which we may set this delegate, we need to set it as optional.
+    ///
+    /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727
+    ///
+    weak var attachmentsDelegate: TextStorageAttachmentsDelegate?
+
+
+    // MARK: - Calculated Properties
 
     override open var string: String {
         return textStore.string
     }
-
-    // MARK: - Attachments
-
-    weak var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
@@ -102,6 +113,9 @@ open class TextStorage: NSTextStorage {
 
         return attachments
     }
+
+
+    // MARK: - Range Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
@@ -135,7 +149,12 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        assert(attachmentsDelegate != nil)
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727:
+        // If the delegate is not set, we *Explicitly* do not want to crash here.
+        //
+        guard let delegate = attachmentsDelegate else {
+            return attributedString
+        }
 
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
@@ -170,11 +189,11 @@ open class TextStorage: NSTextStorage {
                     return
                 }
 
-                let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
+                let replacementAttachment = ImageAttachment(identifier: NSUUID().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
 
-                let imageURL = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+                let imageURL = delegate.storage(self, urlFor: replacementAttachment)
                 replacementAttachment.updateURL(imageURL)
 
                 finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
@@ -184,9 +203,16 @@ open class TextStorage: NSTextStorage {
         return finalString
     }
 
-    fileprivate func detectAttachmentRemoved(in range:NSRange) {
+    fileprivate func detectAttachmentRemoved(in range: NSRange) {
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727:
+        // If the delegate is not set, we *Explicitly* do not want to crash here.
+        //
+        guard let delegate = attachmentsDelegate else {
+            return
+        }
+
         textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
-            self.attachmentsDelegate.storage(self, deletedAttachmentWith: attachment.identifier)
+            delegate.storage(self, deletedAttachmentWith: attachment.identifier)
         }
     }
 
@@ -342,8 +368,11 @@ open class TextStorage: NSTextStorage {
 extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, placeholderFor: attachment)
     }
 
     func mediaAttachment(
@@ -352,8 +381,11 @@ extension TextStorage: MediaAttachmentDelegate {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {
-        assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        delegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -363,8 +395,11 @@ extension TextStorage: MediaAttachmentDelegate {
 extension TextStorage: VideoAttachmentDelegate {
 
     func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, placeholderFor: attachment)
     }
 
     func videoAttachment(
@@ -373,8 +408,11 @@ extension TextStorage: VideoAttachmentDelegate {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {
-        assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        delegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -385,12 +423,18 @@ extension TextStorage: VideoAttachmentDelegate {
 extension TextStorage: RenderableAttachmentDelegate {
 
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, imageFor: attachment, with: size)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, imageFor: attachment, with: size)
     }
 
     func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, boundsFor: attachment, with: fragment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, boundsFor: attachment, with: fragment)
     }
 }
