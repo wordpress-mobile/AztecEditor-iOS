@@ -118,7 +118,9 @@ static CGFloat SelectAnimationTime = 0.2;
     } else {
         [self.view addGestureRecognizer:self.longPressGestureRecognizer];
     }
-
+    if (@available(iOS 11.0, *)) {
+        self.layout.sectionInsetReference = UICollectionViewFlowLayoutSectionInsetFromSafeArea;
+    }
     [self refreshDataAnimated:NO];
 }
 
