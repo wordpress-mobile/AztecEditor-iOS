@@ -79,17 +79,28 @@ protocol TextStorageAttachmentsDelegate: class {
 ///
 open class TextStorage: NSTextStorage {
 
+    // MARK: - Private Properties
+
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    
-    // MARK: - NSTextStorage
+
+
+    // MARK: - Public Properties
+
+    /// NOTE:
+    /// `attachmentsDelegate` is an optional property. On purpose. During a Drag and Drop OP, the
+    /// LayoutManager may instantiate an entire TextKit stack. Since there is absolutely no entry point
+    /// in which we may set this delegate, we need to set it as optional.
+    ///
+    /// Ref. Issue #727
+    ///
+    weak var attachmentsDelegate: TextStorageAttachmentsDelegate?
+
+
+    // MARK: - Calculated Properties
 
     override open var string: String {
         return textStore.string
     }
-
-    // MARK: - Attachments
-
-    weak var attachmentsDelegate: TextStorageAttachmentsDelegate!
 
     open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
