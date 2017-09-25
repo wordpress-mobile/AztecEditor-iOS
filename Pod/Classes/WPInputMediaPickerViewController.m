@@ -51,20 +51,36 @@
     [self overridePickerTraits];
     
     self.mediaPicker.view.frame = self.view.bounds;
-    self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;    
+    self.mediaPicker.view.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.mediaPicker.view];
+    if (@available(iOS 11.0, *)) {
+        UILayoutGuide *layoutGuide = self.view.safeAreaLayoutGuide;
+        [NSLayoutConstraint activateConstraints:
+         @[
+           [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:layoutGuide.leadingAnchor constant:0],
+           [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:layoutGuide.trailingAnchor constant:0],
+           [self.mediaPicker.view.topAnchor constraintEqualToAnchor:layoutGuide.topAnchor constant:0],
+           [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:layoutGuide.bottomAnchor constant:0],
+           ]
+         ];
+    } else {
+        [NSLayoutConstraint activateConstraints:
+         @[
+           [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:0],
+           [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:0],
+           [self.mediaPicker.view.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:0],
+           [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:0],
+           ]
+         ];
+    }
     [self.mediaPicker didMoveToParentViewController:self];
-
+    self.view.backgroundColor = [UIColor whiteColor];
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(mediaCanceled:)],
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(mediaSelected:)]
                       ];
-}
-
-- (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
