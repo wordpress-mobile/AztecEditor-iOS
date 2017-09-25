@@ -53,26 +53,24 @@
     self.mediaPicker.view.frame = self.view.bounds;
     self.mediaPicker.view.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.mediaPicker.view];
+    
+    NSLayoutAnchor *leadingAnchor = self.view.leadingAnchor;
+    NSLayoutAnchor *trailingAnchor = self.view.trailingAnchor;
+
     if (@available(iOS 11.0, *)) {
-        UILayoutGuide *layoutGuide = self.view.safeAreaLayoutGuide;
-        [NSLayoutConstraint activateConstraints:
-         @[
-           [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:layoutGuide.leadingAnchor constant:0],
-           [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:layoutGuide.trailingAnchor constant:0],
-           [self.mediaPicker.view.topAnchor constraintEqualToAnchor:layoutGuide.topAnchor constant:0],
-           [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:layoutGuide.bottomAnchor constant:0],
-           ]
-         ];
-    } else {
-        [NSLayoutConstraint activateConstraints:
-         @[
-           [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:0],
-           [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:0],
-           [self.mediaPicker.view.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:0],
-           [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:0],
-           ]
-         ];
+        leadingAnchor = self.view.safeAreaLayoutGuide.leadingAnchor;
+        trailingAnchor = self.view.safeAreaLayoutGuide.trailingAnchor;
     }
+
+    [NSLayoutConstraint activateConstraints:
+     @[
+       [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:leadingAnchor],
+       [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:trailingAnchor],
+       [self.mediaPicker.view.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+       [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+       ]
+     ];
+
     [self.mediaPicker didMoveToParentViewController:self];
     self.view.backgroundColor = [UIColor whiteColor];
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
