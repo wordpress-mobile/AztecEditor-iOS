@@ -207,9 +207,9 @@ class EditorDemoController: UIViewController {
     
     func updateTitleHeight() {
         let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
-
-        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width, height: CGFloat.greatestFiniteMagnitude))
+        let layoutInsets = view.layoutMargins
         let insets = titleTextField.textContainerInset
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width - (insets.left + insets.right + layoutInsets.left + layoutInsets.right), height: CGFloat.greatestFiniteMagnitude))
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
 
         var contentInset = referenceView.contentInset
