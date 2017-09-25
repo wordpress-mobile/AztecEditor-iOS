@@ -114,6 +114,9 @@ open class TextStorage: NSTextStorage {
         return attachments
     }
 
+
+    // MARK: - Public Helpers
+
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
 
@@ -146,7 +149,12 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessAttachmentsForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        assert(attachmentsDelegate != nil)
+        // Ref. #727:
+        // If the delegate is not set, we *Explicitly* do not want to crash here.
+        //
+        guard let delegate = attachmentsDelegate else {
+            return attributedString
+        }
 
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
@@ -181,11 +189,11 @@ open class TextStorage: NSTextStorage {
                     return
                 }
 
-                let replacementAttachment = ImageAttachment(identifier: NSUUID.init().uuidString)
+                let replacementAttachment = ImageAttachment(identifier: NSUUID().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
 
-                let imageURL = attachmentsDelegate.storage(self, urlFor: replacementAttachment)
+                let imageURL = delegate.storage(self, urlFor: replacementAttachment)
                 replacementAttachment.updateURL(imageURL)
 
                 finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
@@ -195,9 +203,16 @@ open class TextStorage: NSTextStorage {
         return finalString
     }
 
-    fileprivate func detectAttachmentRemoved(in range:NSRange) {
+    fileprivate func detectAttachmentRemoved(in range: NSRange) {
+        // Ref. #727:
+        // If the delegate is not set, we *Explicitly* do not want to crash here.
+        //
+        guard let delegate = attachmentsDelegate else {
+            return
+        }
+
         textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
-            self.attachmentsDelegate.storage(self, deletedAttachmentWith: attachment.identifier)
+            delegate.storage(self, deletedAttachmentWith: attachment.identifier)
         }
     }
 
