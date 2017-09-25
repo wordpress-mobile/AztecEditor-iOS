@@ -353,8 +353,11 @@ open class TextStorage: NSTextStorage {
 extension TextStorage: MediaAttachmentDelegate {
 
     func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, placeholderFor: attachment)
     }
 
     func mediaAttachment(
@@ -363,8 +366,11 @@ extension TextStorage: MediaAttachmentDelegate {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {
-        assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        delegate.storage(self, attachment: mediaAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -374,8 +380,11 @@ extension TextStorage: MediaAttachmentDelegate {
 extension TextStorage: VideoAttachmentDelegate {
 
     func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, placeholderFor: attachment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, placeholderFor: attachment)
     }
 
     func videoAttachment(
@@ -384,8 +393,11 @@ extension TextStorage: VideoAttachmentDelegate {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
     {
-        assert(attachmentsDelegate != nil)
-        attachmentsDelegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        delegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
     }
 }
 
@@ -396,12 +408,18 @@ extension TextStorage: VideoAttachmentDelegate {
 extension TextStorage: RenderableAttachmentDelegate {
 
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, imageFor: attachment, with: size)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, imageFor: attachment, with: size)
     }
 
     func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
-        assert(attachmentsDelegate != nil)
-        return attachmentsDelegate.storage(self, boundsFor: attachment, with: fragment)
+        guard let delegate = attachmentsDelegate else {
+            fatalError()
+        }
+
+        return delegate.storage(self, boundsFor: attachment, with: fragment)
     }
 }
