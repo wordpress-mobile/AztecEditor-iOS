@@ -128,22 +128,27 @@ static CGFloat SelectAnimationTime = 0.2;
 - (void)setOptions:(WPMediaPickerOptions *)options {
     WPMediaPickerOptions *originalOptions = _options;
     _options = [options copy];
+
+    if (!self.viewLoaded) {
+        return;
+    }
+
+    [self.dataSource setMediaTypeFilter:options.filter];
+    [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
+    self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
+    self.collectionView.alwaysBounceHorizontal = !options.scrollVertically;
+    self.collectionView.alwaysBounceVertical = options.scrollVertically;
+
     BOOL refreshNeeded = (originalOptions.filter != options.filter) ||
-                         (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
-                         (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
-    if (self.viewLoaded) {
-        [self.dataSource setMediaTypeFilter:options.filter];
-        [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
-        self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
-        self.collectionView.alwaysBounceHorizontal = !options.scrollVertically;
-        self.collectionView.alwaysBounceVertical = options.scrollVertically;
-        if (refreshNeeded) {
-            [self refreshDataAnimated:NO];
-        } else {
-            // if just the selection mode changed we just need to reload the collection view not all the data.
-            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
-                [self.collectionView reloadData];
-            }
+    (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
+    (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
+
+    if (refreshNeeded) {
+        [self refreshDataAnimated:NO];
+    } else {
+        // if just the selection mode changed we just need to reload the collection view not all the data.
+        if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
+            [self.collectionView reloadData];
         }
     }
 }
