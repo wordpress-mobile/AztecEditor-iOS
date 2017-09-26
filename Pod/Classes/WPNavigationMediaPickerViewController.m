@@ -54,7 +54,8 @@ static NSString *const ArrowDown = @"\u25be";
 {
     [super viewDidLoad];
 
-    // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor whiteColor];
+
     [self setupNavigationController];
 }
 
