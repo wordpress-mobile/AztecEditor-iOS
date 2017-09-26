@@ -51,20 +51,34 @@
     [self overridePickerTraits];
     
     self.mediaPicker.view.frame = self.view.bounds;
-    self.mediaPicker.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;    
+    self.mediaPicker.view.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.mediaPicker.view];
-    [self.mediaPicker didMoveToParentViewController:self];
+    
+    NSLayoutAnchor *leadingAnchor = self.view.leadingAnchor;
+    NSLayoutAnchor *trailingAnchor = self.view.trailingAnchor;
 
+    if (@available(iOS 11.0, *)) {
+        leadingAnchor = self.view.safeAreaLayoutGuide.leadingAnchor;
+        trailingAnchor = self.view.safeAreaLayoutGuide.trailingAnchor;
+    }
+
+    [NSLayoutConstraint activateConstraints:
+     @[
+       [self.mediaPicker.view.leadingAnchor constraintEqualToAnchor:leadingAnchor],
+       [self.mediaPicker.view.trailingAnchor constraintEqualToAnchor:trailingAnchor],
+       [self.mediaPicker.view.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+       [self.mediaPicker.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+       ]
+     ];
+
+    [self.mediaPicker didMoveToParentViewController:self];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.mediaToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
     self.mediaToolbar.items = @[
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(mediaCanceled:)],
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil],
                       [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(mediaSelected:)]
                       ];
-}
-
-- (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection

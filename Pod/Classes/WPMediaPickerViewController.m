@@ -118,27 +118,37 @@ static CGFloat SelectAnimationTime = 0.2;
     } else {
         [self.view addGestureRecognizer:self.longPressGestureRecognizer];
     }
-
+    
+    if (@available(iOS 11.0, *)) {
+        self.layout.sectionInsetReference = UICollectionViewFlowLayoutSectionInsetFromSafeArea;
+    }
     [self refreshDataAnimated:NO];
 }
 
 - (void)setOptions:(WPMediaPickerOptions *)options {
     WPMediaPickerOptions *originalOptions = _options;
     _options = [options copy];
+
+    if (!self.viewLoaded) {
+        return;
+    }
+
+    [self.dataSource setMediaTypeFilter:options.filter];
+    [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
+    self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
+    self.collectionView.alwaysBounceHorizontal = !options.scrollVertically;
+    self.collectionView.alwaysBounceVertical = options.scrollVertically;
+
     BOOL refreshNeeded = (originalOptions.filter != options.filter) ||
-                         (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
-                         (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
-    if (self.viewLoaded) {
-        [self.dataSource setMediaTypeFilter:options.filter];
-        [self.dataSource setAscendingOrdering:!options.showMostRecentFirst];
-        self.collectionView.allowsMultipleSelection = options.allowMultipleSelection;
-        if (refreshNeeded) {
-            [self refreshDataAnimated:NO];
-        } else {
-            // if just the selection mode changed we just need to reload the collection view not all the data.
-            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
-                [self.collectionView reloadData];
-            }
+    (originalOptions.showMostRecentFirst != options.showMostRecentFirst) ||
+    (originalOptions.allowCaptureOfMedia != options.allowCaptureOfMedia);
+
+    if (refreshNeeded) {
+        [self refreshDataAnimated:NO];
+    } else {
+        // if just the selection mode changed we just need to reload the collection view not all the data.
+        if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
+            [self.collectionView reloadData];
         }
     }
 }
@@ -160,14 +170,10 @@ static CGFloat SelectAnimationTime = 0.2;
         dimensionToUse = frameWidth;
         layout.scrollDirection = UICollectionViewScrollDirectionVertical;
         layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
-        self.collectionView.alwaysBounceHorizontal = NO;
-        self.collectionView.alwaysBounceVertical = YES;
     } else {
         dimensionToUse = frameHeight;
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         layout.sectionInset = UIEdgeInsetsMake(5, 0, 5, 0);
-        self.collectionView.alwaysBounceHorizontal = YES;
-        self.collectionView.alwaysBounceVertical = NO;
     }
     NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:dimensionToUse];
 
