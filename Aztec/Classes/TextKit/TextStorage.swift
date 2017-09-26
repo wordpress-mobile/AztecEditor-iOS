@@ -257,14 +257,17 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    override open func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [String: Any]?, range: NSRange) {
         beginEditing()
 
-        textStore.setAttributes(attrs, range: range)
+        let fixedAttributes = ensureFontAttributeIsValid(beforeApplying: attrs ?? [:], at: range)
+
+        textStore.setAttributes(fixedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
     }
+
 
     // MARK: - Styles: Toggling
 
@@ -359,6 +362,48 @@ open class TextStorage: NSTextStorage {
         }
 
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+    }
+}
+
+
+// MARK: - Header Font Attribute Fixes
+//
+private extension TextStorage {
+
+    /// Ensures that the TextFont matches the new HeaderLevel that's about to be applied.
+    ///
+    /// - Parameters:
+    ///   - attrs: NSAttributedString attributes that are about to be applied.
+    ///   - range: Range that's about to be affected by the new Attributes collection.
+    ///
+    /// - Returns: Collection of attributes with the Font Attribute corrected, if needed.
+    ///
+    func ensureFontAttributeIsValid(beforeApplying attrs: [String: Any], at range: NSRange) -> [String: Any] {
+        let newStyle = attrs[NSParagraphStyleAttributeName] as? ParagraphStyle
+        let oldStyle = textStore.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle
+
+        let newLevel = newStyle?.headers.last?.level ?? .none
+        let oldLevel = oldStyle?.headers.last?.level ?? .none
+
+        guard oldLevel != newLevel else {
+            return attrs
+        }
+
+        return fixFontAttribute(in: attrs, headerLevel: newLevel)
+    }
+
+    /// This helper re-applies the HeaderFormatter to the specified collection of attributes, so that the Font Attribute is explicitly set,
+    /// and it matches the target HeaderLevel.
+    ///
+    /// - Parameters:
+    ///   - attrs: NSAttributedString attributes that are about to be applied.
+    ///   - headerLevel: HeaderLevel specified by the ParagraphStyle, associated to the application range.
+    ///
+    /// - Returns: Collection of attributes with the Font Attribute corrected, so that it matches the specified HeaderLevel.
+    ///
+    private func fixFontAttribute(in attrs: [String: Any], headerLevel: Header.HeaderType) ->  [String: Any] {
+        let formatter = HeaderFormatter(headerLevel: headerLevel)
+        return formatter.apply(to: attrs)
     }
 }
 
