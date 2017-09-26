@@ -32,7 +32,6 @@
 		599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* MediaAttachment.swift */; };
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
-		599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F255B1D8BCDB4002871D6 /* Gridicons.framework */; };
 		B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */; };
 		B50CE7341F1FABA00018CAA1 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = B50CE7331F1FABA00018CAA1 /* content.html */; };
 		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
@@ -337,7 +336,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				599F255C1D8BCDB4002871D6 /* Gridicons.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
