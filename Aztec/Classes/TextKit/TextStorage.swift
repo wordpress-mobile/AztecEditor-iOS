@@ -260,7 +260,7 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [String: Any]?, range: NSRange) {
         beginEditing()
 
-        let fixedAttributes = ensureFontAttributeIsValid(beforeApplying: attrs ?? [:], at: range)
+        let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
         textStore.setAttributes(fixedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
@@ -370,7 +370,7 @@ open class TextStorage: NSTextStorage {
 //
 private extension TextStorage {
 
-    /// Ensures that the TextFont matches the new HeaderLevel that's about to be applied.
+    /// Ensures the font style is consistent with the paragraph header style that's about to be applied.
     ///
     /// - Parameters:
     ///   - attrs: NSAttributedString attributes that are about to be applied.
@@ -378,7 +378,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, if needed.
     ///
-    func ensureFontAttributeIsValid(beforeApplying attrs: [String: Any], at range: NSRange) -> [String: Any] {
+    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [String: Any], at range: NSRange) -> [String: Any] {
         let newStyle = attrs[NSParagraphStyleAttributeName] as? ParagraphStyle
         let oldStyle = textStore.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle
 
