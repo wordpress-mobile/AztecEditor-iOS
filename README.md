@@ -30,7 +30,24 @@ Once Carthage finishes, you should open the file `Aztec.xcworkspace` from the ro
 
 Make sure the `AztecExample` target it selected, and press CMD + R to run it.
 
-## Using the Library
+## Integrating the Library with Carthage
+
+WordPress-Aztec-iOS is available through [Carthage](https://github.com/Carthage/Carthage). To install
+it, simply add the following line to your Cartfile:
+
+```bash
+github "wordpress-mobile/AztecEditor-iOS" "develop"
+```
+
+Follow [these instructions](https://github.com/Carthage/Carthage#getting-started) to build `Aztec.framework`.
+
+Then:
+
+1. Open your project, head to **Build Settings** for your target and add `$(SDKROOT)/usr/include/libxml2/` to your **Header Search Paths**.
+2. Go to `Build Phases` > `Link Binary With Libraries` and add `Aztec.framework`.
+3. Add `import Aztec` to your project's source.
+
+## Integrating the Library with CocoaPods
 
 WordPress-Aztec-iOS is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
