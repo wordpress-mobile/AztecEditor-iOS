@@ -3,18 +3,25 @@ import XCTest
 @testable import Aztec
 
 
-class TextStorageTests: XCTestCase
-{
+class TextStorageTests: XCTestCase {
+
+    /// Test Storage
+    ///
+    var storage: TextStorage!
+
+    /// Test Attachments Delegate
+    ///
+    var mockDelegate: MockAttachmentsDelegate!
+
 
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+
+        mockDelegate = MockAttachmentsDelegate()
+        storage = TextStorage()
+        storage.attachmentsDelegate = mockDelegate
     }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
 
     // MARK: - Test Traits
 
@@ -22,9 +29,7 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
+
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -45,9 +50,7 @@ class TextStorageTests: XCTestCase
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
+
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -87,10 +90,6 @@ class TextStorageTests: XCTestCase
     }
 
     func testDelegateCallbackWhenAttachmentRemoved() {
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
-
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"test://")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
@@ -129,10 +128,6 @@ class TextStorageTests: XCTestCase
     }    
 
     func testInsertImage() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
@@ -146,10 +141,6 @@ class TextStorageTests: XCTestCase
     /// the HTML generation step.
     ///
     func testEditingImageAttachmentAfterItHasBeenInsertedCausesItsAttributesToProperlySerialize() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         let url = URL(string: "https://wordpress.com")!
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
 
@@ -172,10 +163,6 @@ class TextStorageTests: XCTestCase
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         storage.setHTML(initialHTML, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 10).fontDescriptor)
 
         // Find the Attachment
@@ -193,10 +180,8 @@ class TextStorageTests: XCTestCase
     }
 
     func testBlockquoteToggle1() {
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "Apply a blockquote"))
+
         let blockquoteFormatter = BlockquoteFormatter()
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
@@ -212,9 +197,6 @@ class TextStorageTests: XCTestCase
     }
 
     func testBlockquoteToggle2() {
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
         storage.append(NSAttributedString(string: "Hello 🌎!\nApply a blockquote!"))
         let blockquoteFormatter = BlockquoteFormatter()
 
@@ -229,10 +211,6 @@ class TextStorageTests: XCTestCase
     }
 
     func testLinkInsert() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         storage.append(NSAttributedString(string: "Apply a link"))
         let linkFormatter = LinkFormatter()
         linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
@@ -250,10 +228,6 @@ class TextStorageTests: XCTestCase
     }
 
     func testHeaderToggle() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-        
         storage.append(NSAttributedString(string: "Apply a header"))
         let formatter = HeaderFormatter(headerLevel: .h1)
         storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
@@ -272,10 +246,6 @@ class TextStorageTests: XCTestCase
     /// This test ensures that when applying a header style on top of another style the replacement occurs correctly.
     ///
     func testSwitchHeaderStyleToggle() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         storage.append(NSAttributedString(string: "Apply a header"))
         let formatterH1 = HeaderFormatter(headerLevel: .h1)
         let formatterH2 = HeaderFormatter(headerLevel: .h2)
@@ -292,14 +262,9 @@ class TextStorageTests: XCTestCase
         XCTAssertEqual(html, "<h2>Apply a header</h2>")
     }
 
-
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
     ///
     func testInsertOneImageAfterTheOther() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
 
@@ -316,10 +281,6 @@ class TextStorageTests: XCTestCase
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
     ///
     func testInsertSameImageAfterTheOther() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
 
@@ -336,11 +297,6 @@ class TextStorageTests: XCTestCase
     /// in the storage.
     ///
     func testRemoveAllTextAttachmentsNukeTextAttachmentInstances() {
-        // Mockup Storage
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-
         let sample = NSMutableAttributedString(string: "Some string here")
         storage.append(sample)
 
@@ -374,10 +330,6 @@ class TextStorageTests: XCTestCase
     /// This test verifies if we can delete all the content from a storage object that has html with a comment
     ///
     func testDeleteAllSelectionWhenContentHasComments() {
-        let storage = TextStorage()
-        let mockDelegate = MockAttachmentsDelegate()
-        storage.attachmentsDelegate = mockDelegate
-         
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
         storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
