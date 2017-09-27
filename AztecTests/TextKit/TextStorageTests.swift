@@ -64,9 +64,7 @@ class TextStorageTests: XCTestCase {
         let attributes = [
             NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
         ]
-        let mockDelegate = MockAttachmentsDelegate()
-        let storage = TextStorage()
-        storage.attachmentsDelegate = mockDelegate
+
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
         storage.append(NSAttributedString(string: "baz"))
@@ -240,7 +238,50 @@ class TextStorageTests: XCTestCase {
 
         html = storage.getHTML()
 
-        XCTAssertEqual(html, "<p>Apply a header</p>")
+        XCTAssertEqual(html, "Apply a header")
+    }
+
+    /// This test verifies that after merging two lines with different Header Format, the Font Size will
+    /// be unified across them.
+    ///
+    func testHeaderFontSizeIsFixedAfterTwoLinesAreMerged() {
+        let l1String = NSAttributedString(string: "H1 Line")
+        let l2String = NSAttributedString(string: "\nNormal Line")
+
+        storage.append(l1String)
+        storage.append(l2String)
+
+        // #Line 1 > H1
+        // #Line 2 > H2
+        let h1formatter = HeaderFormatter(headerLevel: .h1)
+        let h2formatter = HeaderFormatter(headerLevel: .h2)
+
+        let l1Range = NSRange(location: 0, length: l1String.length)
+        let newlineRange = NSRange(location: l1Range.length, length: 1)
+        let l2Range = NSRange(location: newlineRange.location + newlineRange.length, length: l2String.length - newlineRange.length)
+
+        storage.toggle(formatter: h1formatter, at: l1Range)
+        storage.toggle(formatter: h2formatter, at: l2Range)
+
+        // Verify HTML so Far
+        let html = storage.getHTML()
+        XCTAssertEqual(html, "<h1>H1 Line</h1><h2>Normal Line</h2>")
+
+        // Nuke the Newline Character
+        storage.deleteCharacters(in: newlineRange)
+
+        // Verify HTML
+        let fixedHTML = storage.getHTML()
+        XCTAssertEqual(fixedHTML, "<h1>H1 LineNormal Line</h1>")
+
+        // Verify Font
+        var oldFont: UIFont?
+
+        for i in 0 ..< storage.length {
+            let currentFont = storage.attribute(NSFontAttributeName, at: i, effectiveRange: nil) as? UIFont
+            XCTAssert(oldFont == nil || oldFont == currentFont)
+            oldFont = currentFont
+        }
     }
 
     /// This test ensures that when applying a header style on top of another style the replacement occurs correctly.
