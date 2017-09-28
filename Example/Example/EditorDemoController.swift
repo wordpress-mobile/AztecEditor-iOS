@@ -145,7 +145,6 @@ class EditorDemoController: UIViewController {
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
 
-
         view.backgroundColor = .white
         view.addSubview(richTextView)
         view.addSubview(htmlTextView)
@@ -191,7 +190,6 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-
         dismissOptionsViewControllerIfNecessary()
     }
 
@@ -207,9 +205,9 @@ class EditorDemoController: UIViewController {
     
     func updateTitleHeight() {
         let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
-        let layoutInsets = view.layoutMargins
+        let layoutMargins = view.layoutMargins
         let insets = titleTextField.textContainerInset
-        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width - (insets.left + insets.right + layoutInsets.left + layoutInsets.right), height: CGFloat.greatestFiniteMagnitude))
+        let sizeThatShouldFitTheContent = titleTextField.sizeThatFits(CGSize(width:view.frame.width - (insets.left + insets.right + layoutMargins.left + layoutMargins.right), height: CGFloat.greatestFiniteMagnitude))
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextField.font!.lineHeight + insets.top + insets.bottom)
 
         var contentInset = referenceView.contentInset
@@ -223,6 +221,13 @@ class EditorDemoController: UIViewController {
     }
 
     // MARK: - Configuration Methods
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        let safeInsets = self.view.layoutMargins
+        richTextView.textContainerInset = safeInsets
+        htmlTextView.textContainerInset = safeInsets
+    }
 
     private func configureConstraints() {
 
@@ -253,17 +258,17 @@ class EditorDemoController: UIViewController {
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor),
-            richTextView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
+            richTextView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            richTextView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             richTextView.topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: 0),
-            richTextView.bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: 0)
+            richTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0)
             ])
 
         NSLayoutConstraint.activate([
             htmlTextView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor),
             htmlTextView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
             htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
-            htmlTextView.bottomAnchor.constraint(equalTo: richTextView.bottomAnchor),
+            htmlTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             ])
     }
 
