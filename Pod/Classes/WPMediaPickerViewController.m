@@ -9,6 +9,13 @@
 @import MobileCoreServices;
 @import AVFoundation;
 
+static CGFloat const IPhoneSELandscapeWidth = 568.0f;
+static CGFloat const IPhone7PortraitWidth = 375.0f;
+static CGFloat const IPhone7LandscapeWidth = 667.0f;
+static CGFloat const IPadPortraitWidth = 768.0f;
+static CGFloat const IPadLandscapeWidth = 1024.0f;
+static CGFloat const IPadPro12LandscapeWidth = 1366.0f;
+
 @interface WPMediaPickerViewController ()
 <
  UIImagePickerControllerDelegate,
@@ -18,7 +25,7 @@
  UIViewControllerPreviewingDelegate
 >
 
-@property (nonatomic, strong) UICollectionViewFlowLayout *layout;
+@property (nonatomic, readonly) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) NSMutableArray *internalSelectedAssets;
 @property (nonatomic, strong) id<WPMediaAsset> capturedAsset;
 @property (nonatomic, strong) WPMediaCapturePreviewCollectionView *captureCell;
@@ -29,6 +36,11 @@
 @property (nonatomic, assign) BOOL refreshGroupFirstTime;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
 @property (nonatomic, strong) NSIndexPath *assetIndexInPreview;
+/**
+ The size of the camera preview cell
+ */
+@property (nonatomic, assign) CGSize cameraPreviewSize;
+
 
 @end
 
@@ -45,7 +57,6 @@ static CGFloat SelectAnimationTime = 0.2;
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self = [self initWithCollectionViewLayout:layout];
     if (self) {
-        _layout = layout;
         _internalSelectedAssets = [[NSMutableArray alloc] init];
         _capturedAsset = nil;
         _options = [options copy];
@@ -125,46 +136,49 @@ static CGFloat SelectAnimationTime = 0.2;
             [self refreshDataAnimated:NO];
         } else {
             // if just the selection mode changed we just need to reload the collection view not all the data.
-            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection) {
+            if (originalOptions.allowMultipleSelection != options.allowMultipleSelection || options.allowCaptureOfMedia != originalOptions.allowCaptureOfMedia) {
                 [self.collectionView reloadData];
             }
         }
     }
 }
 
+- (UICollectionViewFlowLayout *)layout
+{
+    return (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+}
+
 - (void)setupLayout
 {
-    CGFloat frameWidth = self.view.frame.size.width;
-    CGFloat frameHeight = self.view.frame.size.height;
-    CGFloat minFrameWidth = MIN(frameWidth, frameHeight);
-
-    // Configure collection view layout
-    CGFloat numberOfPhotosForLine = 4;
     CGFloat photoSpacing = 1.0f;
-    CGFloat topBottomInset = 5;
-
-    CGFloat cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                              photoSpacing:photoSpacing
-                                                frameWidth:minFrameWidth];
-
-    // Check the actual width of the content based on the computed cell size
-    // How many photos are we actually fitting per line?
-    CGFloat totalSpacing = (numberOfPhotosForLine - 1) * photoSpacing;
-    numberOfPhotosForLine = floorf((frameWidth - totalSpacing) / cellSize);
-
-    CGFloat contentWidth = (numberOfPhotosForLine * cellSize) + totalSpacing;
-
-    // If we have gaps in our layout, adjust to fit
-    if (contentWidth < frameWidth) {
-        cellSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
-                                          photoSpacing:photoSpacing
-                                            frameWidth:frameWidth];
+    CGFloat photoSize;
+    UICollectionViewFlowLayout *layout = self.layout;
+    CGFloat frameWidth = self.view.frame.size.width;
+    CGFloat frameHeight = self.view.frame.size.width - self.topLayoutGuide.length;
+    CGFloat dimensionToUse = frameWidth;
+    if (self.options.scrollVertically) {
+        dimensionToUse = frameWidth;
+        layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        layout.sectionInset = UIEdgeInsetsMake(2, 0, 0, 0);
+        self.collectionView.alwaysBounceHorizontal = NO;
+        self.collectionView.alwaysBounceVertical = YES;
+    } else {
+        dimensionToUse = frameHeight;
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        layout.sectionInset = UIEdgeInsetsMake(5, 0, 5, 0);
+        self.collectionView.alwaysBounceHorizontal = YES;
+        self.collectionView.alwaysBounceVertical = NO;
     }
+    NSUInteger numberOfPhotosForLine = [self numberOfPhotosPerRow:dimensionToUse];
 
-    self.layout.itemSize = CGSizeMake(cellSize, cellSize);
-    self.layout.minimumInteritemSpacing = photoSpacing;
-    self.layout.minimumLineSpacing = photoSpacing;
-    self.layout.sectionInset = UIEdgeInsetsMake(topBottomInset, 0, topBottomInset, 0);
+    photoSize = [self cellSizeForPhotosPerLineCount:numberOfPhotosForLine
+                                       photoSpacing:photoSpacing
+                                         frameWidth:dimensionToUse];
+
+    self.cameraPreviewSize = CGSizeMake(photoSize, photoSize);
+    layout.itemSize = CGSizeMake(photoSize, photoSize);
+    layout.minimumLineSpacing = photoSpacing;
+    layout.minimumInteritemSpacing = photoSpacing;
 }
 
 - (CGFloat)cellSizeForPhotosPerLineCount:(NSUInteger)photosPerLine photoSpacing:(CGFloat)photoSpacing frameWidth:(CGFloat)frameWidth
@@ -173,8 +187,37 @@ static CGFloat SelectAnimationTime = 0.2;
     return floorf((frameWidth - totalSpacing) / photosPerLine);
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
+/**
+ Given the provided frame width, this method returns a progressively increasing number of photos
+ to be used in a picker row.
+
+ @param frameWidth Width of the frame containing the picker
+
+ @return The number of photo cells to be used in a row. Defaults to 3.
+ */
+- (NSUInteger)numberOfPhotosPerRow:(CGFloat)frameWidth {
+    NSUInteger numberOfPhotos = 3;
+
+    if (frameWidth >= IPhone7PortraitWidth && frameWidth < IPhoneSELandscapeWidth) {
+        numberOfPhotos = 4;
+    } else if (frameWidth >= IPhoneSELandscapeWidth && frameWidth < IPhone7LandscapeWidth) {
+        numberOfPhotos = 5;
+    } else if (frameWidth >= IPhone7LandscapeWidth && frameWidth < IPadPortraitWidth) {
+        numberOfPhotos = 6;
+    } else if (frameWidth >= IPadPortraitWidth && frameWidth < IPadLandscapeWidth) {
+        numberOfPhotos = 7;
+    } else if (frameWidth >= IPadLandscapeWidth && frameWidth < IPadPro12LandscapeWidth) {
+        numberOfPhotos = 9;
+    } else if (frameWidth >= IPadPro12LandscapeWidth) {
+        numberOfPhotos = 12;
+    }
+    
+    return numberOfPhotos;
+}
+
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
     [self setupLayout];
 }
 
@@ -308,7 +351,7 @@ static CGFloat SelectAnimationTime = 0.2;
         dispatch_async(dispatch_get_main_queue(), ^{                
             strongSelf.collectionView.allowsSelection = YES;
             strongSelf.collectionView.allowsMultipleSelection = strongSelf.options.allowMultipleSelection;
-            strongSelf.collectionView.scrollEnabled = YES;
+            strongSelf.collectionView.scrollEnabled = YES;            
             [strongSelf refreshSelection];
             [strongSelf.collectionView reloadData];
 
@@ -474,7 +517,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && self.options.showMostRecentFirst)
     {
-        return self.options.cameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -485,7 +528,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if ( [self isShowingCaptureCell] && !self.options.showMostRecentFirst)
     {
-        return self.options.cameraPreviewSize;
+        return self.cameraPreviewSize;
     }
     return CGSizeZero;
 }
@@ -506,6 +549,16 @@ referenceSizeForFooterInSection:(NSInteger)section
             self.captureCell.preferFrontCamera = self.options.preferFrontCamera;
             [self.captureCell startCapture];
         }
+        CGRect newFrame = self.captureCell.frame;
+        CGSize fixedSize = self.cameraPreviewSize;
+        UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+        if (layout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+            fixedSize.height = self.view.frame.size.height;
+        } else {
+            fixedSize.width = self.view.frame.size.width;
+        }
+        newFrame.size = fixedSize;
+        self.captureCell.frame = newFrame;
         return self.captureCell;
     }
 
@@ -712,7 +765,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     [self.dataSource setSelectedGroup:group];
     if (self.isViewLoaded) {
         self.refreshGroupFirstTime = YES;
-        [self.collectionView reloadData];
+        [self.layout invalidateLayout];        
         [self refreshData];
     }
 }

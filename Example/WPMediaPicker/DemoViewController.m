@@ -43,7 +43,7 @@
                      MediaPickerOptionsPostProcessingStep:@(NO),
                      MediaPickerOptionsFilterType:@(WPMediaTypeImage | WPMediaTypeVideo),
                      MediaPickerOptionsCustomPreview:@(NO),
-                     MediaPickerOptionsScrollInputPickerVertically:@(NO)
+                     MediaPickerOptionsScrollInputPickerVertically:@(YES)
                      };
 
 }
@@ -138,8 +138,7 @@
         [self.mediaInputViewController didMoveToParentViewController:nil];
     } else {
         self.mediaInputViewController = [[WPInputMediaPickerViewController alloc] init];
-    }
-    self.mediaInputViewController.scrollVertically = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
+    }    
 
     [self addChildViewController:self.mediaInputViewController];
     _quickInputTextField.inputView = self.mediaInputViewController.view;
@@ -230,6 +229,7 @@
     options.preferFrontCamera = [self.options[MediaPickerOptionsPreferFrontCamera] boolValue];
     options.allowMultipleSelection = [self.options[MediaPickerOptionsAllowMultipleSelection] boolValue];
     options.filter = [self.options[MediaPickerOptionsFilterType] intValue];
+    options.scrollVertically = [self.options[MediaPickerOptionsScrollInputPickerVertically] boolValue];
     return options;
 }
 
