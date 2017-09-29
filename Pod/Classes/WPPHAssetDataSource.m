@@ -172,6 +172,12 @@
         [smartAlbumsOrder insertObject:@(PHAssetCollectionSubtypeSmartAlbumSelfPortraits) atIndex:3];
         [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumScreenshots)];
     }
+    // Add iOS 10's new albums
+    NSOperatingSystemVersion iOS10 = {10,0,0};
+    if ( [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:iOS10]) {
+        [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumLivePhotos)];
+        [smartAlbumsOrder addObject:@(PHAssetCollectionSubtypeSmartAlbumDepthEffect)];
+    }
     return [NSArray arrayWithArray:smartAlbumsOrder];
 }
 
@@ -193,9 +199,25 @@
 
     [collectionsArray addObjectsFromArray:[self.albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.albums.count)]]];
 
-    
-    PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
+    NSMutableArray *collectionsFilteredArray=[NSMutableArray array];
+
+    PHFetchOptions *fetchOptions = [PHFetchOptions new];
+    fetchOptions.predicate = [[self class] predicateForFilterMediaType:self.mediaTypeFilter];
+    fetchOptions.fetchLimit = 1;
+    fetchOptions.wantsIncrementalChangeDetails = NO;
+    [collectionsArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        PHAssetCollection *collection = (PHAssetCollection *)obj;
+        if (collection.estimatedAssetCount == 0) {
+            return;
+        }
+        if (collection.estimatedAssetCount > 0 && [PHAsset fetchAssetsInAssetCollection:collection options:fetchOptions].count > 0) {
+            [collectionsFilteredArray addObject:collection];
+        }
+    }];
+
+    PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsFilteredArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
+
     [self.cachedCollections removeAllObjects];
     for (PHAssetCollection *assetColletion in self.assetsCollections) {
         [self.cachedCollections addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
