@@ -137,11 +137,13 @@ static const CGFloat LabelRegularFontSize = 13;
     _placeholderStackView.axis = UILayoutConstraintAxisVertical;
     _placeholderStackView.alignment = UIStackViewAlignmentCenter;
     _placeholderStackView.distribution = UIStackViewDistributionEqualSpacing;
-    _placeholderStackView.spacing = 3.0;
-
+    _placeholderStackView.layoutMargins = UIEdgeInsetsMake(0.0, 3.0, 0.0, 3.0);
+    _placeholderStackView.layoutMarginsRelativeArrangement = YES;
+    _placeholderStackView.spacing = 2.0;
+    
     _documentNameLabel = [UILabel new];
     _documentNameLabel.textAlignment = NSTextAlignmentCenter;
-    _documentNameLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize] weight: UIFontWeightRegular];
+    _documentNameLabel.font = [UIFont systemFontOfSize:labelTextSize weight: UIFontWeightRegular];
     _documentNameLabel.adjustsFontSizeToFitWidth = NO;
     _documentNameLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
     _documentNameLabel.textColor = _placeholderTintColor;
