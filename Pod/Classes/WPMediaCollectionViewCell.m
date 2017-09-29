@@ -209,7 +209,7 @@ static const CGFloat LabelRegularFontSize = 13;
             caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             break;
         case WPMediaTypeAudio:
-            iconImage = [WPMediaPickerResources imageNamed:@"griddocumentExtensionLabelicons-audio" withExtension:@"png"];
+            iconImage = [WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"];
             mediaName = NSLocalizedString(@"audio", @"Label displayed on audio media items.");
             caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             break;
