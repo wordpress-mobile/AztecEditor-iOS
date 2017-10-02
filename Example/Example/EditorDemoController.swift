@@ -287,7 +287,7 @@ class EditorDemoController: UIViewController {
 
     private func registerAttachmentImageProviders() {
         let providers: [TextViewAttachmentImageProvider] = [
-            MoreAttachmentRenderer(),
+            WordPressAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
             HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
         ]
