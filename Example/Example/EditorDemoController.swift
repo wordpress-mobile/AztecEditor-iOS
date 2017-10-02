@@ -57,6 +57,10 @@ class EditorDemoController: UIViewController {
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
 
+        if #available(iOS 11, *) {
+            textView.smartDashesType = .no
+        }
+
         return textView
     }()
 
