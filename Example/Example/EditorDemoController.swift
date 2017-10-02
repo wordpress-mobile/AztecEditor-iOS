@@ -35,6 +35,10 @@ class EditorDemoController: UIViewController {
         textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
 
+        if #available(iOS 11, *) {
+            textView.smartDashesType = .no
+        }
+
         return textView
     }()
 
