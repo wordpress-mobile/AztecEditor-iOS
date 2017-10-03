@@ -153,11 +153,11 @@
 - (AVCaptureDevice *)captureDevice
 {
     if (self.preferFrontCamera) {
-        for (AVCaptureDevice *device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo]) {
-            if (device.position == AVCaptureDevicePositionFront) {
+        AVCaptureDevice *device = [[AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera]
+                                                                                          mediaType:AVMediaTypeVideo position:AVCaptureDevicePositionFront].devices firstObject];
+            if (device) {
                 return device;
             }
-        }
     }
     return [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }

@@ -201,12 +201,16 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return self.videoView.controlToolbarHidden;
+}
+
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.navigationController setNavigationBarHidden:!self.videoView.controlToolbarHidden animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:!self.videoView.controlToolbarHidden withAnimation:UIStatusBarAnimationSlide];
         [self.videoView setControlToolbarHidden: !self.videoView.controlToolbarHidden animated: YES];
+        [self setNeedsStatusBarAppearanceUpdate];
     }
 }
 
