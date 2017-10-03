@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, WPMediaLoadOptions){
 @protocol WPMediaAsset;
 
 typedef void (^WPMediaChangesBlock)(BOOL incrementalChanges, NSIndexSet * _Nonnull removed, NSIndexSet * _Nonnull inserted, NSIndexSet * _Nonnull changed, NSArray<id<WPMediaMove>> * _Nonnull moves);
-typedef void (^WPMediaSuccessBlock)();
+typedef void (^WPMediaSuccessBlock)(void);
 typedef void (^WPMediaFailureBlock)(NSError * _Nullable error);
 typedef void (^WPMediaAddedBlock)(_Nullable id<WPMediaAsset> media, NSError * _Nullable error);
 typedef void (^WPMediaImageBlock)(UIImage * _Nullable result, NSError * _Nullable error);
