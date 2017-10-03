@@ -150,7 +150,7 @@ static CGFloat toolbarHeight = 44;
     if (self.delegate) {
         [self.delegate videoPlayerViewFinish:self];
     }
-    [self updateControlToolbar];
+    [self updateControlToolbarVideoEnded:!self.loop];
 }
 
 - (void)play {
@@ -197,7 +197,10 @@ static CGFloat toolbarHeight = 44;
 }
 
 - (void)updateControlToolbar {
-    UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
+    [self updateControlToolbarVideoEnded:NO];
+}
+- (void)updateControlToolbarVideoEnded:(BOOL)videoEnded{
+    UIBarButtonSystemItem playPauseButton = [self.player timeControlStatus] == AVPlayerTimeControlStatusPaused || videoEnded ? UIBarButtonSystemItemPlay : UIBarButtonSystemItemPause;
 
     self.controlToolbar.items = @[
                                   [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil],
