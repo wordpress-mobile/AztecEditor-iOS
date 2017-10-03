@@ -56,7 +56,8 @@ static const CGFloat LabelRegularFontSize = 13;
     [self setPosition:NSNotFound];
     [self setSelected:NO];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    self.imageView.backgroundColor = self.backgroundColor;
+    self.imageView.backgroundColor = self.loadingBackgroundColor;
+    self.backgroundColor = self.loadingBackgroundColor;
     self.placeholderStackView.hidden = YES;
     self.documentNameLabel.text = nil;
 }
@@ -69,6 +70,9 @@ static const CGFloat LabelRegularFontSize = 13;
 - (void)commonInit
 {
     self.isAccessibilityElement = YES;
+    _placeholderBackgroundColor = self.backgroundColor;
+    _loadingBackgroundColor = self.backgroundColor;
+
     _imageView = [[UIImageView alloc] init];
     _imageView.isAccessibilityElement = YES;
     _imageView.contentMode = UIViewContentModeScaleAspectFill;
@@ -193,6 +197,7 @@ static const CGFloat LabelRegularFontSize = 13;
 
 - (void)displayAssetTypePlaceholder
 {
+    self.backgroundColor = self.placeholderBackgroundColor;
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
     UIImage * iconImage = nil;
@@ -244,7 +249,7 @@ static const CGFloat LabelRegularFontSize = 13;
         case WPMediaTypeOther:
             [self displayAssetTypePlaceholder];
         default:
-        break;
+            break;
     }
 }
 
@@ -261,6 +266,7 @@ static const CGFloat LabelRegularFontSize = 13;
         NSString *caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
         [self setCaption:caption];
     }
+    self.backgroundColor = self.loadingBackgroundColor;
     self.imageView.hidden = NO;
     self.placeholderStackView.hidden = YES;
     BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
