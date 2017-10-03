@@ -25,6 +25,10 @@ extension UIFont {
         }
 
         guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
+            // A nil descriptor can be returned whenever the requested font cannot be found.
+            // This is a very viable scenario, and our default handling mechanism for it is to
+            // return the original, unmodified font.
+            //
             return self
         }
 
