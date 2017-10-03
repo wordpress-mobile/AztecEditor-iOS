@@ -425,7 +425,7 @@ static CGFloat SelectAnimationTime = 0.2;
     if (otherButtonTitle) {
         UIAlertAction *otherAction = [UIAlertAction actionWithTitle:otherButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-            [[UIApplication sharedApplication] openURL:settingsURL];
+            [[UIApplication sharedApplication] openURL:settingsURL options:@{} completionHandler:nil];
         }];
         [alertController addAction:otherAction];
     }
@@ -673,7 +673,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
-- (void)animateCellSelection:(UIView *)cell completion:(void (^)())completionBlock
+- (void)animateCellSelection:(UIView *)cell completion:(void (^)(void))completionBlock
 {
     [UIView animateKeyframesWithDuration:SelectAnimationTime delay:0 options:UIViewKeyframeAnimationOptionCalculationModePaced animations:^{
         [UIView addKeyframeWithRelativeStartTime:0 relativeDuration:SelectAnimationTime/2 animations:^{
