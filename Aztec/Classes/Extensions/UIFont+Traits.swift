@@ -25,7 +25,6 @@ extension UIFont {
         }
 
         guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
-            assertionFailure("Unable to modify Font's Traits: \(self)")
             return self
         }
 
