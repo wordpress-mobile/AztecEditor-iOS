@@ -24,7 +24,8 @@ extension UIFont {
             newTraits.remove(traits)
         }
 
-        guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
+        let familyDescriptor = descriptor.withFamily(familyName)
+        guard let newDescriptor = familyDescriptor.withSymbolicTraits(newTraits) else {
             // A nil descriptor can be returned whenever the requested font cannot be found.
             // This is a very viable scenario, and our default handling mechanism for it is to
             // return the original, unmodified font.
