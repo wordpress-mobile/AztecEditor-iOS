@@ -33,9 +33,14 @@
     [[UITableView appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setBackgroundColor:[UIColor whiteColor]];
     //Configure background color for media cell while loading image.
     UIColor *cellBackgroundColor = [UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f];
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setLoadingBackgroundColor:cellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setLoadingBackgroundColor:cellBackgroundColor];
     [[WPMediaGroupTableViewCell appearance] setPosterBackgroundColor:cellBackgroundColor];
+
+    //Configure placeholder background color for media cell.
+    UIColor *placeholderCellBackgroundColor = [UIColor lightGrayColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setPlaceholderBackgroundColor:placeholderCellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setPlaceholderBackgroundColor:placeholderCellBackgroundColor];
 
     //Configure color for activity indicator while loading media collection
     [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setColor:[UIColor grayColor]];
