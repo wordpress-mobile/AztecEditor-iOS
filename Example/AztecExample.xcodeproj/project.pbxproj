@@ -18,12 +18,22 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
+		782195A71F5FC1A500C6940E /* EditLinkPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782195A61F5FC1A500C6940E /* EditLinkPage.swift */; };
+		782195AA1F62B32200C6940E /* MediaDetailsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782195A91F62B32200C6940E /* MediaDetailsPage.swift */; };
+		7829E0861F54D0340032C50F /* CameraRollPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7829E0851F54D0340032C50F /* CameraRollPage.swift */; };
+		7829E0891F58A6B60032C50F /* FormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7829E0881F58A6B60032C50F /* FormattingTests.swift */; };
+		78E467861F3A929B00D8BDEA /* VSMobileCenterExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78E467851F3A929B00D8BDEA /* VSMobileCenterExtensions.framework */; };
+		78E4678A1F3A979F00D8BDEA /* VSMobileCenterExtensions.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 78E467891F3A979F00D8BDEA /* VSMobileCenterExtensions.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		78E4678F1F3A97E600D8BDEA /* EditorPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4678D1F3A97E600D8BDEA /* EditorPage.swift */; };
+		78E467901F3A97E600D8BDEA /* RootPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4678E1F3A97E600D8BDEA /* RootPage.swift */; };
+		78E467921F3A97EE00D8BDEA /* ImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E467911F3A97EE00D8BDEA /* ImageTests.swift */; };
+		78E467951F3A97F600D8BDEA /* BasePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E467931F3A97F600D8BDEA /* BasePage.swift */; };
+		78E467961F3A97F600D8BDEA /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E467941F3A97F600D8BDEA /* BaseTest.swift */; };
+		78E467991F3BEEC200D8BDEA /* PhotosPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E467981F3BEEC200D8BDEA /* PhotosPage.swift */; };
 		B570B1C91E82D332008CF41E /* MoreAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1C81E82D332008CF41E /* MoreAttachmentRenderer.swift */; };
 		B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */; };
 		B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */; };
 		B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */; };
-		CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F191E9EC04200859AB4 /* AztecUITests.swift */; };
-		CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		F13CE5421F4DD2520043368D /* CaptionShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */; };
 		F13CE5461F4DD8930043368D /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */; };
@@ -96,6 +106,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		78E467881F3A96AA00D8BDEA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				78E4678A1F3A979F00D8BDEA /* VSMobileCenterExtensions.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -113,14 +133,24 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AztecExample-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		782195A61F5FC1A500C6940E /* EditLinkPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditLinkPage.swift; sourceTree = "<group>"; };
+		782195A91F62B32200C6940E /* MediaDetailsPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaDetailsPage.swift; sourceTree = "<group>"; };
+		7829E0851F54D0340032C50F /* CameraRollPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraRollPage.swift; sourceTree = "<group>"; };
+		7829E0881F58A6B60032C50F /* FormattingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormattingTests.swift; sourceTree = "<group>"; };
+		78E467851F3A929B00D8BDEA /* VSMobileCenterExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VSMobileCenterExtensions.framework; path = Carthage/Build/iOS/VSMobileCenterExtensions.framework; sourceTree = "<group>"; };
+		78E467891F3A979F00D8BDEA /* VSMobileCenterExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VSMobileCenterExtensions.framework; path = Carthage/Build/iOS/VSMobileCenterExtensions.framework; sourceTree = "<group>"; };
+		78E4678D1F3A97E600D8BDEA /* EditorPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorPage.swift; sourceTree = "<group>"; };
+		78E4678E1F3A97E600D8BDEA /* RootPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPage.swift; sourceTree = "<group>"; };
+		78E467911F3A97EE00D8BDEA /* ImageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageTests.swift; sourceTree = "<group>"; };
+		78E467931F3A97F600D8BDEA /* BasePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasePage.swift; sourceTree = "<group>"; };
+		78E467941F3A97F600D8BDEA /* BaseTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
+		78E467981F3BEEC200D8BDEA /* PhotosPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosPage.swift; sourceTree = "<group>"; };
 		B570B1C81E82D332008CF41E /* MoreAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreAttachmentRenderer.swift; sourceTree = "<group>"; };
 		B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachmentRenderer.swift; sourceTree = "<group>"; };
 		B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentRenderer.swift; sourceTree = "<group>"; };
 		B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnknownEditorViewController.swift; sourceTree = "<group>"; };
 		CC400F171E9EC04200859AB4 /* AztecUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		CC400F191E9EC04200859AB4 /* AztecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AztecUITests.swift; sourceTree = "<group>"; };
 		CC400F1B1E9EC04200859AB4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
 		F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
@@ -153,6 +183,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78E467861F3A929B00D8BDEA /* VSMobileCenterExtensions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +193,7 @@
 		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				78E467851F3A929B00D8BDEA /* VSMobileCenterExtensions.framework */,
 				5967193D1D8BC60D00F18F7F /* Gridicons.framework */,
 			);
 			name = Frameworks;
@@ -196,6 +228,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				78E467891F3A979F00D8BDEA /* VSMobileCenterExtensions.framework */,
 				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
 				607FACE81AFB9204008FA782 /* Tests */,
 				CC400F181E9EC04200859AB4 /* AztecUITests */,
@@ -262,6 +295,28 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		78E4678B1F3A97C400D8BDEA /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				78E467911F3A97EE00D8BDEA /* ImageTests.swift */,
+				7829E0881F58A6B60032C50F /* FormattingTests.swift */,
+			);
+			name = Tests;
+			sourceTree = "<group>";
+		};
+		78E4678C1F3A97DA00D8BDEA /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				78E4678D1F3A97E600D8BDEA /* EditorPage.swift */,
+				78E4678E1F3A97E600D8BDEA /* RootPage.swift */,
+				78E467981F3BEEC200D8BDEA /* PhotosPage.swift */,
+				7829E0851F54D0340032C50F /* CameraRollPage.swift */,
+				782195A61F5FC1A500C6940E /* EditLinkPage.swift */,
+				782195A91F62B32200C6940E /* MediaDetailsPage.swift */,
+			);
+			name = Pages;
+			sourceTree = "<group>";
+		};
 		B570B1CD1E82D349008CF41E /* Renders */ = {
 			isa = PBXGroup;
 			children = (
@@ -275,9 +330,11 @@
 		CC400F181E9EC04200859AB4 /* AztecUITests */ = {
 			isa = PBXGroup;
 			children = (
-				CC400F191E9EC04200859AB4 /* AztecUITests.swift */,
+				78E467931F3A97F600D8BDEA /* BasePage.swift */,
+				78E467941F3A97F600D8BDEA /* BaseTest.swift */,
+				78E4678C1F3A97DA00D8BDEA /* Pages */,
+				78E4678B1F3A97C400D8BDEA /* Tests */,
 				CC400F1B1E9EC04200859AB4 /* Info.plist */,
-				CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */,
 			);
 			path = AztecUITests;
 			sourceTree = "<group>";
@@ -343,6 +400,7 @@
 				CC400F131E9EC04200859AB4 /* Sources */,
 				CC400F141E9EC04200859AB4 /* Frameworks */,
 				CC400F151E9EC04200859AB4 /* Resources */,
+				78E467881F3A96AA00D8BDEA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -491,8 +549,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */,
-				CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */,
+				782195A71F5FC1A500C6940E /* EditLinkPage.swift in Sources */,
+				7829E0891F58A6B60032C50F /* FormattingTests.swift in Sources */,
+				78E467921F3A97EE00D8BDEA /* ImageTests.swift in Sources */,
+				78E467951F3A97F600D8BDEA /* BasePage.swift in Sources */,
+				7829E0861F54D0340032C50F /* CameraRollPage.swift in Sources */,
+				78E467901F3A97E600D8BDEA /* RootPage.swift in Sources */,
+				78E467991F3BEEC200D8BDEA /* PhotosPage.swift in Sources */,
+				782195AA1F62B32200C6940E /* MediaDetailsPage.swift in Sources */,
+				78E467961F3A97F600D8BDEA /* BaseTest.swift in Sources */,
+				78E4678F1F3A97E600D8BDEA /* EditorPage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,6 +791,10 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = AztecUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -742,6 +812,10 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = AztecUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -758,6 +832,10 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = AztecUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -774,6 +852,10 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = AztecUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
