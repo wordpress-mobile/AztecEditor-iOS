@@ -21,6 +21,8 @@ Released on 2017-10-02. All issues associated with this milestone can be found u
 ### Fixed
 - Fixed layout issues for the iPhoneX. #242
 - Updated collection cell design for audio & doc files. #245
+- Fixed issues with play/pause of videos. #249
+- Pushed the minimum version of iOS to be the 10. Solved deprecation warnings. #248
 
 ## [0.22](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.22)
 Released on 2017-09-21. All issues associated with this milestone can be found using this
