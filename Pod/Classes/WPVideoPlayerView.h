@@ -29,6 +29,8 @@
 
 - (void)setControlToolbarHidden:(BOOL)hidden animated:(BOOL)animated;
 
+@property (nonatomic, readonly) UIToolbar *controlToolbar;
+
 - (void)play;
 
 - (void)pause;

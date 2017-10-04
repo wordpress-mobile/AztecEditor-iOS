@@ -6,7 +6,7 @@
 #import "WPVideoPlayerView.h"
 #import "WPDateTimeHelpers.h"
 
-@interface WPAssetViewController () <WPVideoPlayerViewDelegate>
+@interface WPAssetViewController () <WPVideoPlayerViewDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) WPVideoPlayerView *videoView;
@@ -112,7 +112,9 @@
         return _videoView;
     }
     _videoView = [[WPVideoPlayerView alloc] init];
-    [_videoView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOnAsset:)]];
+    UITapGestureRecognizer *videoTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOnAsset:)];
+    videoTapRecognizer.delegate = self;
+    [_videoView addGestureRecognizer:videoTapRecognizer];
     _videoView.controlToolbarHidden = YES;
     _videoView.shouldAutoPlay = YES;
     return _videoView;
@@ -199,12 +201,16 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return self.videoView.controlToolbarHidden;
+}
+
 - (void)handleTapOnAsset:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.navigationController setNavigationBarHidden:!self.videoView.controlToolbarHidden animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:!self.videoView.controlToolbarHidden withAnimation:UIStatusBarAnimationSlide];
         [self.videoView setControlToolbarHidden: !self.videoView.controlToolbarHidden animated: YES];
+        [self setNeedsStatusBarAppearanceUpdate];
     }
 }
 
@@ -252,6 +258,14 @@
             return;
         }
     });
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if ([touch.view isDescendantOfView: self.videoView.controlToolbar]) {
+        return NO;
+    }
+    return YES;
 }
 
 @end

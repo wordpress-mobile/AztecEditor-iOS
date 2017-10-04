@@ -65,7 +65,7 @@
                                                           style:UIAlertActionStyleDefault
                                                         handler:^(UIAlertAction *action) {
                                                             NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                                                            [[UIApplication sharedApplication] openURL:settingsURL];
+                                                            [[UIApplication sharedApplication] openURL:settingsURL options:@{} completionHandler:nil];
                                                         }];
     [alertController addAction:otherAction];
     
