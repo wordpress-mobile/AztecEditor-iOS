@@ -26,7 +26,10 @@ extension UIFont {
 
         let familyDescriptor = descriptor.withFamily(familyName)
         guard let newDescriptor = familyDescriptor.withSymbolicTraits(newTraits) else {
-            assertionFailure("Unable to modify Font's Traits: \(self)")
+            // A nil descriptor can be returned whenever the requested font cannot be found.
+            // This is a very viable scenario, and our default handling mechanism for it is to
+            // return the original, unmodified font.
+            //
             return self
         }
 
