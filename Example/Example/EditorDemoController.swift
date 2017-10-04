@@ -35,6 +35,10 @@ class EditorDemoController: UIViewController {
         textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
 
+        if #available(iOS 11, *) {
+            textView.smartDashesType = .no
+        }
+
         return textView
     }()
 
@@ -56,6 +60,10 @@ class EditorDemoController: UIViewController {
         textView.accessibilityIdentifier = "HTMLContentView"
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
+
+        if #available(iOS 11, *) {
+            textView.smartDashesType = .no
+        }
 
         return textView
     }()
@@ -284,7 +292,7 @@ class EditorDemoController: UIViewController {
 
     private func registerAttachmentImageProviders() {
         let providers: [TextViewAttachmentImageProvider] = [
-            MoreAttachmentRenderer(),
+            SpecialTagAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
             HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
         ]
@@ -977,7 +985,7 @@ extension EditorDemoController {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) {
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
 
         let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
             DispatchQueue.main.async {
