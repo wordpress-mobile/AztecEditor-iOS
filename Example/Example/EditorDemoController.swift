@@ -232,7 +232,8 @@ class EditorDemoController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        let safeInsets = self.view.layoutMargins
+        var safeInsets = self.view.layoutMargins
+        safeInsets.top = richTextView.textContainerInset.top
         richTextView.textContainerInset = safeInsets
         htmlTextView.textContainerInset = safeInsets
     }
@@ -273,8 +274,8 @@ class EditorDemoController: UIViewController {
             ])
 
         NSLayoutConstraint.activate([
-            htmlTextView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor),
-            htmlTextView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
+            htmlTextView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            htmlTextView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
             htmlTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             ])

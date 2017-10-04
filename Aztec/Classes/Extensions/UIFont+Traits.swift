@@ -24,7 +24,8 @@ extension UIFont {
             newTraits.remove(traits)
         }
 
-        guard let newDescriptor = descriptor.withSymbolicTraits(newTraits) else {
+        let familyDescriptor = descriptor.withFamily(familyName)
+        guard let newDescriptor = familyDescriptor.withSymbolicTraits(newTraits) else {
             assertionFailure("Unable to modify Font's Traits: \(self)")
             return self
         }
