@@ -331,6 +331,7 @@ open class FormatBar: UIView {
         let newHeight = Constants.defaultBarHeight + safeAreaInsets.bottom
         if newHeight != heightConstraint?.constant {
             heightConstraint?.constant = newHeight
+            updateDividerInsets()
             layoutIfNeeded()
         }
     }
@@ -428,6 +429,26 @@ open class FormatBar: UIView {
     fileprivate func updateOverflowToggleItemVisibility() {
         let hasOverflowItems = !overflowItems.isEmpty
         overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
+    }
+
+    @available(iOS 11.0, *)
+    fileprivate func updateDividerInsets() {
+        var dividerInsets = UIEdgeInsets.zero
+
+        // If we have safe area insets, we'll end up expanding the toolbar vertically.
+        // In that situation, we'll inset any dividers slightly to improve the appearance.
+        if safeAreaInsets.bottom > 0 {
+            dividerInsets = UIEdgeInsets(top: Constants.expandedFormatBarDividerInset,
+                                         left: 0,
+                                         bottom: Constants.expandedFormatBarDividerInset,
+                                         right: 0)
+        }
+
+        scrollableStackView.arrangedSubviews.forEach({ item in
+            if let item = item as? FormatBarDividerItem {
+                item.layoutMargins = dividerInsets
+            }
+        })
     }
     
     @IBAction func handleButtonTouch(_ sender: FormatBarItem) {
@@ -802,6 +823,7 @@ private extension FormatBar.Constants {
     static let stackViewRegularSpacing = CGFloat(0)
     static let horizontalDividerHeight = CGFloat(1)
     static let trailingButtonMargin = CGFloat(12)
+    static let expandedFormatBarDividerInset = CGFloat(5)
 }
 
 private extension UIView {
