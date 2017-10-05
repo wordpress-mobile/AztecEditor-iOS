@@ -576,6 +576,14 @@ private extension FormatBar {
     /// Sets up the Constraints
     ///
     func configureConstraints() {
+        var leadingAnchor = self.leadingAnchor
+        var trailingAnchor = self.trailingAnchor
+
+        if #available(iOS 11.0, *) {
+            leadingAnchor = safeAreaLayoutGuide.leadingAnchor
+            trailingAnchor = safeAreaLayoutGuide.trailingAnchor
+        }
+
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
         overflowTrailingConstraint.priority = UILayoutPriorityDefaultLow
 
@@ -597,16 +605,16 @@ private extension FormatBar {
         ])
 
         NSLayoutConstraint.activate([
-            topDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
-            topDivider.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topDivider.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            topDivider.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             topDivider.topAnchor.constraint(equalTo: topAnchor),
             topDivider.heightAnchor.constraint(equalToConstant: Constants.horizontalDividerHeight)
         ])
 
         NSLayoutConstraint.activate([
-            bottomDivider.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bottomDivider.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomDivider.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomDivider.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            bottomDivider.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             bottomDivider.heightAnchor.constraint(equalToConstant: Constants.horizontalDividerHeight)
         ])
 
