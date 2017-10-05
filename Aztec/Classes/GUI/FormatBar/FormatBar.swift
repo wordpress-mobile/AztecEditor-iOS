@@ -311,6 +311,14 @@ open class FormatBar: UIView {
         configureConstraints()
     }
 
+    open override func didMoveToWindow() {
+        super.didMoveToWindow()
+
+        if #available(iOS 11.0, *) {
+            updateForSafeAreaInsets()
+        }
+    }
+
 
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -328,12 +336,7 @@ open class FormatBar: UIView {
     open override func safeAreaInsetsDidChange() {
         super.safeAreaInsetsDidChange()
 
-        let newHeight = Constants.defaultBarHeight + safeAreaInsets.bottom
-        if newHeight != heightConstraint?.constant {
-            heightConstraint?.constant = newHeight
-            updateDividerInsets()
-            layoutIfNeeded()
-        }
+        updateForSafeAreaInsets()
     }
 
     // We're overriding this method so we can easily access the system height
@@ -429,6 +432,16 @@ open class FormatBar: UIView {
     fileprivate func updateOverflowToggleItemVisibility() {
         let hasOverflowItems = !overflowItems.isEmpty
         overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
+    }
+
+    @available(iOS 11.0, *)
+    fileprivate func updateForSafeAreaInsets() {
+        let newHeight = Constants.defaultBarHeight + safeAreaInsets.bottom
+        if newHeight != heightConstraint?.constant {
+            heightConstraint?.constant = newHeight
+            updateDividerInsets()
+            layoutIfNeeded()
+        }
     }
 
     @available(iOS 11.0, *)
