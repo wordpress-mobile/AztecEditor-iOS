@@ -429,13 +429,9 @@ open class TextView: UITextView {
         //      as a demonstration that this is an SDK issue.  I also reported this issue to
         //      Apple (34546954), but this workaround should do until the problem is resolved.
         //
-        let workaroundTypingAttributes = typingAttributes
-
-        super.insertText(text)
-
-        // WORKAROUND: this line is related to the workaround above.
-        //
-        typingAttributes = workaroundTypingAttributes
+        preserveTypingAttributesWorkaround {
+            super.insertText(text)
+        }
 
         ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
@@ -463,13 +459,9 @@ open class TextView: UITextView {
         //
         // Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
         //
-        let workaroundTypingAttributes = typingAttributes
-
-        super.deleteBackward()
-
-        // WORKAROUND: this line is related to the workaround above.
-        //
-        typingAttributes = workaroundTypingAttributes
+        preserveTypingAttributesWorkaround {
+            super.deleteBackward()
+        }
 
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
@@ -967,14 +959,20 @@ open class TextView: UITextView {
             let delta = pristine.location == maxLength ? -1 : 1
             let location = min(max(pristine.location + delta, 0), maxLength)
 
-            // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+            // Yes. This is a Workaround on top of another workaround.
+            // WARNING: The universe may fade out of existance.
             //
-            self.selectedRange = NSMakeRange(location, 0)
+            self.preserveTypingAttributesWorkaround {
 
-            // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
-            //
-            self.selectedRange = pristine
-            self.typingAttributes = beforeTypingAttributes
+                // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+                //
+                self.selectedRange = NSMakeRange(location, 0)
+
+                // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
+                //
+                self.selectedRange = pristine
+                self.typingAttributes = beforeTypingAttributes
+            }
         }
     }
 
