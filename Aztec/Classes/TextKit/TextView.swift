@@ -978,6 +978,28 @@ open class TextView: UITextView {
         }
     }
 
+    /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
+    /// called during the `block` execution.
+    ///
+    /// We're implementing this because of a bug in iOS 11, in which Typing Attributes are being lost by methods such as:
+    ///
+    ///     -   `deleteBackwards`
+    ///     -   `insertText`
+    ///     -   Autocompletion!
+    ///
+    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/748
+    ///
+    func preserveTypingAttributesWorkaround(block: () -> Void) {
+        let beforeTypingAttributes = typingAttributes
+        let beforeDelegate = delegate
+
+        delegate = nil
+        block()
+
+        typingAttributes = beforeTypingAttributes
+        delegate = beforeDelegate
+    }
+
 
     // MARK: - Links
 
