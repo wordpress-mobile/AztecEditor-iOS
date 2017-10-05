@@ -156,7 +156,7 @@ open class FormatBar: UIView {
         let availableWidth = visibleWidth
         guard availableWidth > 0 else { return [] }
 
-        let visibleItemCount = Int(floor(availableWidth / Constants.stackButtonWidth))
+        let visibleItemCount = Int(floor(availableWidth / Constants.defaultButtonWidth))
 
         let allItems = items
         let leadingItemCount = leadingItem != nil ? 1 : 0
@@ -177,7 +177,7 @@ open class FormatBar: UIView {
             trailingItem.sizeToFit()
             return trailingItem.bounds.size.width + Constants.trailingButtonMargin
         } else {
-            return Constants.stackButtonWidth
+            return Constants.defaultButtonWidth
         }
     }
 
@@ -328,7 +328,7 @@ open class FormatBar: UIView {
     open override func safeAreaInsetsDidChange() {
         super.safeAreaInsetsDidChange()
 
-        let newHeight = Constants.stackButtonWidth + safeAreaInsets.bottom
+        let newHeight = Constants.defaultBarHeight + safeAreaInsets.bottom
         if newHeight != heightConstraint?.constant {
             heightConstraint?.constant = newHeight
             layoutIfNeeded()
@@ -347,7 +347,7 @@ open class FormatBar: UIView {
     }
 
     open override var intrinsicContentSize: CGSize {
-        var height = Constants.formatBarHeight
+        var height = Constants.defaultBarHeight
         if let heightConstraint = self.heightConstraint {
             height = heightConstraint.constant
         }
@@ -658,7 +658,7 @@ private extension FormatBar {
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scrollView.heightAnchor.constraint(equalToConstant: Constants.formatBarHeight)
+            scrollView.heightAnchor.constraint(equalToConstant: Constants.defaultBarHeight)
         ])
 
         NSLayoutConstraint.activate([
@@ -760,10 +760,18 @@ extension FormatBar: UIScrollViewDelegate {
     }
 }
 
+// MARK: - Constants
+extension FormatBar {
+    struct Constants {
+        static let defaultBarHeight = CGFloat(44)
+        static let defaultButtonWidth = Constants.defaultBarHeight
+        static let defaultButtonHeight = Constants.defaultBarHeight
+    }
+}
+
 // MARK: - Private Constants
 //
 private extension FormatBar {
-
     struct Animations {
         static let durationLong = TimeInterval(0.3)
         static let durationShort = TimeInterval(0.15)
@@ -785,17 +793,15 @@ private extension FormatBar {
             static let springInitialVelocity = CGFloat(1.0)
         }
     }
+}
 
-    struct Constants {
-        static let overflowExpandedUserDefaultsKey = "AztecFormatBarOverflowExpandedKey"
-        static let fixedSeparatorMidPointPaddingX = CGFloat(5)
-        static let stackViewCompactSpacing = CGFloat(0)
-        static let stackViewRegularSpacing = CGFloat(0)
-        static let formatBarHeight = CGFloat(44)
-        static let stackButtonWidth = Constants.formatBarHeight
-        static let horizontalDividerHeight = CGFloat(1)
-        static let trailingButtonMargin = CGFloat(12)
-    }
+private extension FormatBar.Constants {
+    static let overflowExpandedUserDefaultsKey = "AztecFormatBarOverflowExpandedKey"
+    static let fixedSeparatorMidPointPaddingX = CGFloat(5)
+    static let stackViewCompactSpacing = CGFloat(0)
+    static let stackViewRegularSpacing = CGFloat(0)
+    static let horizontalDividerHeight = CGFloat(1)
+    static let trailingButtonMargin = CGFloat(12)
 }
 
 private extension UIView {

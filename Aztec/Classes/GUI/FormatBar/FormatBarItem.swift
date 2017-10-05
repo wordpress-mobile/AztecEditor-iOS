@@ -101,13 +101,14 @@ open class FormatBarItem: UIButton {
     // MARK: - Lifecycle
 
     public convenience init(image: UIImage, identifier: String? = nil) {
-        let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        let defaultFrame = CGRect(x: 0, y: 0, width: FormatBar.Constants.defaultButtonWidth, height: FormatBar.Constants.defaultButtonHeight)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
     }
 
     open override var intrinsicContentSize: CGSize {
-        return CGSize(width: 44.0, height: 44.0)
+        return CGSize(width: FormatBar.Constants.defaultButtonWidth,
+                      height: FormatBar.Constants.defaultButtonHeight)
     }
 
     public init(image: UIImage, frame: CGRect) {
