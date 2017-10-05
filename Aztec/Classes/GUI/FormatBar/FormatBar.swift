@@ -281,6 +281,9 @@ open class FormatBar: UIView {
         }
     }
 
+    /// System-applied height constraint, used to resize the format bar as necessary.
+    ///
+    fileprivate var heightConstraint: NSLayoutConstraint? = nil
 
     // MARK: - Initializers
 
@@ -321,6 +324,36 @@ open class FormatBar: UIView {
         updateVisibleItemsForCurrentBounds()
     }
 
+    @available(iOS 11.0, *)
+    open override func safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+
+        let newHeight = Constants.stackButtonWidth + safeAreaInsets.bottom
+        if newHeight != heightConstraint?.constant {
+            heightConstraint?.constant = newHeight
+            layoutIfNeeded()
+        }
+    }
+
+    // We're overriding this method so we can easily access the system height
+    // constraint that is automatically created when the toolbar is initialized.
+    // This allows us to resize the toolbar as required later.
+    open override func addConstraint(_ constraint: NSLayoutConstraint) {
+        if constraint.firstAttribute == .height {
+            self.heightConstraint = constraint
+        }
+
+        super.addConstraint(constraint)
+    }
+
+    open override var intrinsicContentSize: CGSize {
+        var height = Constants.formatBarHeight
+        if let heightConstraint = self.heightConstraint {
+            height = heightConstraint.constant
+        }
+
+        return CGSize(width: bounds.width, height: height)
+    }
 
     // MARK: - Styles
 
@@ -578,10 +611,12 @@ private extension FormatBar {
     func configureConstraints() {
         var leadingAnchor = self.leadingAnchor
         var trailingAnchor = self.trailingAnchor
+        var bottomAnchor = self.bottomAnchor
 
         if #available(iOS 11.0, *) {
             leadingAnchor = safeAreaLayoutGuide.leadingAnchor
             trailingAnchor = safeAreaLayoutGuide.trailingAnchor
+            bottomAnchor = layoutMarginsGuide.bottomAnchor
         }
 
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
@@ -612,9 +647,9 @@ private extension FormatBar {
         ])
 
         NSLayoutConstraint.activate([
-            bottomDivider.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomDivider.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             bottomDivider.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            bottomDivider.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             bottomDivider.heightAnchor.constraint(equalToConstant: Constants.horizontalDividerHeight)
         ])
 
@@ -622,7 +657,8 @@ private extension FormatBar {
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scrollView.heightAnchor.constraint(equalToConstant: Constants.formatBarHeight)
         ])
 
         NSLayoutConstraint.activate([
@@ -755,7 +791,8 @@ private extension FormatBar {
         static let fixedSeparatorMidPointPaddingX = CGFloat(5)
         static let stackViewCompactSpacing = CGFloat(0)
         static let stackViewRegularSpacing = CGFloat(0)
-        static let stackButtonWidth = CGFloat(44)
+        static let formatBarHeight = CGFloat(44)
+        static let stackButtonWidth = Constants.formatBarHeight
         static let horizontalDividerHeight = CGFloat(1)
         static let trailingButtonMargin = CGFloat(12)
     }
