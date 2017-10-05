@@ -457,7 +457,19 @@ open class TextView: UITextView {
 
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
+        // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
+        // attributes under certain circumstances.  This workaround is analog to the one introduced in
+        /// the `insertText` call.
+        //
+        // Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
+        //
+        let workaroundTypingAttributes = typingAttributes
+
         super.deleteBackward()
+
+        // WORKAROUND: this line is related to the workaround above.
+        //
+        typingAttributes = workaroundTypingAttributes
 
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
