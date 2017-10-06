@@ -1728,4 +1728,28 @@ class TextViewTests: XCTestCase {
 
         textView.insertText("Italics")
     }
+
+    /// This test verifies that H1 Style doesn't turn rogue, and come back after editing a line of text that
+    /// never had H1 style, to begin with!.
+    ///
+    /// Ref. Issue #747: Zombie H1 Style
+    ///
+    func testHeaderStyleDoesNotComeBackFromNonExistanceWheneverDeleteBackwardResultsInEmptyParagraph() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleHeader(.h1, range: textView.selectedRange)
+        textView.insertText("Header")
+        textView.insertText("\n")
+
+        textView.insertText("One Two")
+        textView.insertText("\n")
+
+        textView.insertText("T")
+        textView.deleteBackward()
+
+        textView.insertText("Three")
+
+        let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
+        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+    }
 }
