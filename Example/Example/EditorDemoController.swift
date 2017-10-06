@@ -923,6 +923,7 @@ extension EditorDemoController {
 
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
+        toolbar.autoresizingMask = [ .flexibleHeight ]
         toolbar.formatter = self
 
         toolbar.leadingItem = mediaItem
