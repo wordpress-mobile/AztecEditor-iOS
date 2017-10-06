@@ -292,6 +292,8 @@ open class FormatBar: UIView {
         super.init(frame: .zero)
         backgroundColor = .white
 
+        autoresizingMask = [ .flexibleHeight ]
+
         configure(scrollView: scrollView)
         configureScrollableStackView()
 
@@ -440,6 +442,7 @@ open class FormatBar: UIView {
         if newHeight != heightConstraint?.constant {
             heightConstraint?.constant = newHeight
             updateDividerInsets()
+            invalidateIntrinsicContentSize()
             layoutIfNeeded()
         }
     }
@@ -661,14 +664,14 @@ private extension FormatBar {
 
         NSLayoutConstraint.activate([
             overflowToggleItem.topAnchor.constraint(equalTo: topAnchor),
-            overflowToggleItem.bottomAnchor.constraint(equalTo: bottomAnchor),
+            overflowToggleItem.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
             overflowTrailingConstraint
         ])
 
         NSLayoutConstraint.activate([
             trailingItemContainer.topAnchor.constraint(equalTo: topAnchor),
-            trailingItemContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
+            trailingItemContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
             trailingItemTrailingConstraint
         ])
@@ -691,7 +694,6 @@ private extension FormatBar {
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
             scrollView.heightAnchor.constraint(equalToConstant: Constants.defaultBarHeight)
         ])
 
