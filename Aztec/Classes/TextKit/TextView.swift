@@ -943,7 +943,6 @@ open class TextView: UITextView {
     func forceRedrawCursorAfterDelay() {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let beforeTypingAttributes = self.typingAttributes
             let pristine = self.selectedRange
             let maxLength = self.storage.length
 
@@ -966,7 +965,6 @@ open class TextView: UITextView {
                 // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
                 //
                 self.selectedRange = pristine
-                self.typingAttributes = beforeTypingAttributes
             }
         }
     }
