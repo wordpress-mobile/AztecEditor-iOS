@@ -101,13 +101,14 @@ open class FormatBarItem: UIButton {
     // MARK: - Lifecycle
 
     public convenience init(image: UIImage, identifier: String? = nil) {
-        let defaultFrame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        let defaultFrame = CGRect(x: 0, y: 0, width: FormatBar.Constants.defaultButtonWidth, height: FormatBar.Constants.defaultButtonHeight)
         self.init(image: image, frame: defaultFrame)
         self.identifier = identifier
     }
 
     open override var intrinsicContentSize: CGSize {
-        return CGSize(width: 44.0, height: 44.0)
+        return CGSize(width: FormatBar.Constants.defaultButtonWidth,
+                      height: FormatBar.Constants.defaultButtonHeight)
     }
 
     public init(image: UIImage, frame: CGRect) {
@@ -148,7 +149,27 @@ open class FormatBarItem: UIButton {
 }
 
 class FormatBarDividerItem: UIView {
+    init() {
+        super.init(frame: .zero)
+
+        layoutMargins = .zero
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    /// You can modify the divider item's layout margins to
+    override var layoutMargins: UIEdgeInsets {
+        didSet {
+            if !UIEdgeInsetsEqualToEdgeInsets(layoutMargins, oldValue) {
+                invalidateIntrinsicContentSize()
+                setNeedsLayout()
+            }
+        }
+    }
+
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: 1.0, height: 44.0)
+        return CGSize(width: 1.0, height: FormatBar.Constants.defaultButtonHeight - layoutMargins.top - layoutMargins.bottom)
     }
 }
