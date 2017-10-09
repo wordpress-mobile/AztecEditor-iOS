@@ -457,7 +457,9 @@ open class TextView: UITextView {
 
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
-        super.deleteBackward()
+        preserveTypingAttributes {
+            super.deleteBackward()
+        }
 
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
@@ -964,6 +966,28 @@ open class TextView: UITextView {
             self.selectedRange = pristine
             self.typingAttributes = beforeTypingAttributes
         }
+    }
+
+
+    // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
+    // attributes under certain circumstances. This method will determine the Typing Attributes based on
+    /// the TextStorage attributes, whenever possible.
+    ///
+    /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
+    ///
+    private func preserveTypingAttributes(beforeDeletion block: () -> Void) {
+        let document = textStorage.string
+        guard selectedRange.location == document.characters.count else {
+            block()
+            return
+        }
+
+        let previousLocation = max(selectedRange.location - 1, 0)
+        let previousAttributes = textStorage.attributes(at: previousLocation, effectiveRange: nil)
+
+        block()
+
+        typingAttributes = previousAttributes
     }
 
 

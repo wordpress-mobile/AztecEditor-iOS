@@ -1409,6 +1409,9 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
     }
 
+
+    // MARK: - Media
+
     func testInsertVideo() {
         let textView = createEmptyTextView()
         let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
@@ -1447,6 +1450,9 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
     }
 
+
+    // MARK: - Comments
+
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
     ///
     func testInsertComment() {
@@ -1469,6 +1475,9 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(html, "<p><!--some other comment should go here--><!--more--></p>")
     }
+
+
+    // MARK: - HR
 
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
@@ -1571,6 +1580,9 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\"></p>")
     }
 
+
+    // MARK: - Bugfixing
+
     /// This test verifies that the H1 Header does not get lost during the Rich <> Raw transitioning.
     ///
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
@@ -1663,5 +1675,28 @@ class TextViewTests: XCTestCase {
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
         XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+    }
+
+    /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
+    /// Precisely, we'll ensure that the Italics style isn't lost after hitting backspace, and retyping the
+    /// deleted character.
+    ///
+    /// Ref. Issue #749: Loosing Style after hitting Backspace
+    ///
+    func testDeleteBackwardsDoesNotEndUpLoosingItalicsStyle() {
+        let textView = createTextView(withHTML: "")
+
+        textView.toggleBoldface(self)
+        textView.insertText("First Line")
+        textView.insertText("\n")
+
+        textView.toggleItalics(self)
+        textView.insertText("Second")
+
+        let expectedHTML = textView.getHTML(prettyPrint: false)
+        textView.deleteBackward()
+        textView.insertText("d")
+
+        XCTAssertEqual(textView.getHTML(prettyPrint: false), expectedHTML)
     }
 }
