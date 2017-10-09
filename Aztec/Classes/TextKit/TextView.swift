@@ -457,9 +457,10 @@ open class TextView: UITextView {
 
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
-        super.deleteBackward()
+        preserveTypingAttributes {
+            super.deleteBackward()
+        }
 
-        ensureTypingAttributesAreValid()
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
         delegate?.textViewDidChange?(self)
@@ -974,14 +975,19 @@ open class TextView: UITextView {
     ///
     /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
     ///
-    private func ensureTypingAttributesAreValid() {
+    private func preserveTypingAttributes(beforeDeletion block: () -> Void) {
         let document = textStorage.string
         guard selectedRange.location == document.characters.count else {
+            block()
             return
         }
 
         let previousLocation = max(selectedRange.location - 1, 0)
-        typingAttributes = textStorage.attributes(at: previousLocation, effectiveRange: nil)
+        let previousAttributes = textStorage.attributes(at: previousLocation, effectiveRange: nil)
+
+        block()
+
+        typingAttributes = previousAttributes
     }
 
 
