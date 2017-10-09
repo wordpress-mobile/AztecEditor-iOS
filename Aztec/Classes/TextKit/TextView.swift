@@ -429,7 +429,7 @@ open class TextView: UITextView {
         //      as a demonstration that this is an SDK issue.  I also reported this issue to
         //      Apple (34546954), but this workaround should do until the problem is resolved.
         //
-        preserveTypingAttributesWorkaround {
+        preserveTypingAttributesForInsertion {
             super.insertText(text)
         }
 
@@ -453,7 +453,7 @@ open class TextView: UITextView {
 
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
-        preserveTypingAttributes {
+        preserveTypingAttributesForDeletion {
             super.deleteBackward()
         }
 
@@ -956,7 +956,7 @@ open class TextView: UITextView {
             // Yes. This is a Workaround on top of another workaround.
             // WARNING: The universe may fade out of existance.
             //
-            self.preserveTypingAttributesWorkaround {
+            self.preserveTypingAttributesForInsertion {
 
                 // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
                 //
@@ -980,7 +980,7 @@ open class TextView: UITextView {
     ///
     /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/748
     ///
-    func preserveTypingAttributesWorkaround(block: () -> Void) {
+    private func preserveTypingAttributesForInsertion(block: () -> Void) {
         let beforeTypingAttributes = typingAttributes
         let beforeDelegate = delegate
 
@@ -998,7 +998,7 @@ open class TextView: UITextView {
     ///
     /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
     ///
-    private func preserveTypingAttributes(beforeDeletion block: () -> Void) {
+    private func preserveTypingAttributesForDeletion(block: () -> Void) {
         let document = textStorage.string
         guard selectedRange.location == document.characters.count else {
             block()
