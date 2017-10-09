@@ -989,6 +989,10 @@ open class TextView: UITextView {
 
         typingAttributes = beforeTypingAttributes
         delegate = beforeDelegate
+
+        // Manually notify the delegates: We're avoiding overwork!
+        delegate?.textViewDidChangeSelection?(self)
+        delegate?.textViewDidChange?(self)
     }
 
 
