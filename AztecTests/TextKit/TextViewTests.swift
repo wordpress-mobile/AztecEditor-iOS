@@ -1699,4 +1699,33 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(prettyPrint: false), expectedHTML)
     }
+
+    /// This test verifies that the *ACTUAL* Typing Attributes are retrieved whenever requested from within
+    /// UITextView's `onDidChange` delegate callback.
+    ///
+    /// We're doing this because of (multiple) iOS 11 bugs in which Typing Attributes get lost.
+    ///
+    /// Ref. Issue #748: Format Bar: Active Style gets de-higlighted
+    ///
+    func testActiveStyleDoesNotGetLostWheneverOnDidChangeDelegateMethodIsCalled() {
+        let textView = createTextView(withHTML: "")
+
+        let delegate = TextViewStubDelegate()
+        textView.delegate = delegate
+
+        textView.toggleBoldface(self)
+        textView.insertText("Bold")
+        textView.insertText("\n")
+
+        textView.toggleItalics(self)
+
+        delegate.onDidChange = {
+            let identifiers = textView.formatIdentifiersForTypingAttributes()
+
+            XCTAssert(identifiers.contains(.bold))
+            XCTAssert(identifiers.contains(.italic))
+        }
+
+        textView.insertText("Italics")
+    }
 }

@@ -361,8 +361,9 @@ class EditorDemoController: UIViewController {
         guard let toolbar = richTextView.inputAccessoryView as? Aztec.FormatBar else {
             return
         }
-        var identifiers = [FormattingIdentifier]()
-        if (richTextView.selectedRange.length > 0) {
+
+        let identifiers: [FormattingIdentifier]
+        if richTextView.selectedRange.length > 0 {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
             identifiers = richTextView.formatIdentifiersForTypingAttributes()

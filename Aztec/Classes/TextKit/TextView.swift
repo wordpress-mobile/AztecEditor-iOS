@@ -429,13 +429,9 @@ open class TextView: UITextView {
         //      as a demonstration that this is an SDK issue.  I also reported this issue to
         //      Apple (34546954), but this workaround should do until the problem is resolved.
         //
-        let workaroundTypingAttributes = typingAttributes
-
-        super.insertText(text)
-
-        // WORKAROUND: this line is related to the workaround above.
-        //
-        typingAttributes = workaroundTypingAttributes
+        preserveTypingAttributesForInsertion {
+            super.insertText(text)
+        }
 
         ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
 
@@ -457,12 +453,13 @@ open class TextView: UITextView {
 
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
-        preserveTypingAttributes {
+        preserveTypingAttributesForDeletion {
             super.deleteBackward()
         }
 
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
+
         delegate?.textViewDidChange?(self)
     }
 
@@ -946,7 +943,6 @@ open class TextView: UITextView {
     func forceRedrawCursorAfterDelay() {
         let delay = 0.05
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            let beforeTypingAttributes = self.typingAttributes
             let pristine = self.selectedRange
             let maxLength = self.storage.length
 
@@ -957,15 +953,46 @@ open class TextView: UITextView {
             let delta = pristine.location == maxLength ? -1 : 1
             let location = min(max(pristine.location + delta, 0), maxLength)
 
-            // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+            // Yes. This is a Workaround on top of another workaround.
+            // WARNING: The universe may fade out of existance.
             //
-            self.selectedRange = NSMakeRange(location, 0)
+            self.preserveTypingAttributesForInsertion {
 
-            // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
-            //
-            self.selectedRange = pristine
-            self.typingAttributes = beforeTypingAttributes
+                // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
+                //
+                self.selectedRange = NSMakeRange(location, 0)
+
+                // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
+                //
+                self.selectedRange = pristine
+            }
         }
+    }
+
+    /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
+    /// called during the `block` execution.
+    ///
+    /// We're implementing this because of a bug in iOS 11, in which Typing Attributes are being lost by methods such as:
+    ///
+    ///     -   `deleteBackwards`
+    ///     -   `insertText`
+    ///     -   Autocompletion!
+    ///
+    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/748
+    ///
+    private func preserveTypingAttributesForInsertion(block: () -> Void) {
+        let beforeTypingAttributes = typingAttributes
+        let beforeDelegate = delegate
+
+        delegate = nil
+        block()
+
+        typingAttributes = beforeTypingAttributes
+        delegate = beforeDelegate
+
+        // Manually notify the delegates: We're avoiding overwork!
+        delegate?.textViewDidChangeSelection?(self)
+        delegate?.textViewDidChange?(self)
     }
 
 
@@ -975,7 +1002,7 @@ open class TextView: UITextView {
     ///
     /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
     ///
-    private func preserveTypingAttributes(beforeDeletion block: () -> Void) {
+    private func preserveTypingAttributesForDeletion(block: () -> Void) {
         let document = textStorage.string
         guard selectedRange.location == document.characters.count else {
             block()

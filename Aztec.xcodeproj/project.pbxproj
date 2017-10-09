@@ -32,6 +32,7 @@
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */; };
 		B50CE7341F1FABA00018CAA1 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = B50CE7331F1FABA00018CAA1 /* content.html */; };
+		B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */; };
 		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
 		B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */; };
 		B5375F471EC2566200F5D7EC /* String+HTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5375F461EC2566200F5D7EC /* String+HTML.swift */; };
@@ -207,6 +208,7 @@
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Strip.swift"; sourceTree = "<group>"; };
 		B50CE7331F1FABA00018CAA1 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = content.html; path = Example/Example/SampleContent/content.html; sourceTree = SOURCE_ROOT; };
+		B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TextViewStubDelegate.swift; path = TextKit/TextViewStubDelegate.swift; sourceTree = "<group>"; };
 		B524228C1F30C039002E7C6C /* HTMLDiv.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDiv.swift; sourceTree = "<group>"; };
 		B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDivFormatter.swift; sourceTree = "<group>"; };
 		B5375F461EC2566200F5D7EC /* String+HTML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+HTML.swift"; sourceTree = "<group>"; };
@@ -631,6 +633,7 @@
 			children = (
 				B5D575841F2288E2003A62F6 /* TextStorageTests.swift */,
 				B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */,
+				B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */,
 				B5D575861F2288E2003A62F6 /* TextViewTests.swift */,
 				B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */,
 				B5D575821F22820A003A62F6 /* HTMLRepresentationTests.swift */,
@@ -1088,6 +1091,7 @@
 				B5F84B631E706B720089A76C /* NSAttributedStringAnalyzerTests.swift in Sources */,
 				F10BE61C1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				B5375F491EC2569500F5D7EC /* StringHTMLTests.swift in Sources */,
+				B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */,
 				B5AB79FA1F5F403C00DF26F5 /* StringParagraphTests.swift in Sources */,
 				B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */,
 				F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */,
