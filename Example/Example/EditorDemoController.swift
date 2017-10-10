@@ -710,9 +710,9 @@ extension EditorDemoController {
         if richTextView.inputView == to {
             return
         }
-        richTextView.resignFirstResponder()
+
         richTextView.inputView = to
-        richTextView.becomeFirstResponder()
+        richTextView.reloadInputViews()
     }
 
     func headerLevelForSelectedText() -> Header.HeaderType {
