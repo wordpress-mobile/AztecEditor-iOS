@@ -428,6 +428,10 @@ extension EditorDemoController : UITextViewDelegate {
     func textViewDidChangeSelection(_ textView: UITextView) {
         updateFormatBar()
         changeRichTextInputView(to: nil)
+
+        if #available(iOS 11, *) {
+            ensureTypingAttributesAreValid(in: textView)
+        }
     }
 
     func textViewDidChange(_ textView: UITextView) {
@@ -1338,6 +1342,26 @@ private extension EditorDemoController
     }
 }
 
+
+private extension EditorDemoController {
+
+    /// This beautiful workaround addresses an iOS 11 issue in which Typing Attributes are being lost,
+    /// whenever the user performs a Keyboard Autocorrect replacement.
+    ///
+    /// Ref.: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/750
+    ///
+    @available(iOS 11, *)
+    func ensureTypingAttributesAreValid(in textView: UITextView) {
+        let storage = textView.textStorage
+        let selectedRange = textView.selectedRange
+        guard selectedRange.location == storage.string.characters.count else {
+            return
+        }
+
+        let previousLocation = max(selectedRange.location - 1, 0)
+        textView.typingAttributes = storage.attributes(at: previousLocation, effectiveRange: nil)
+    }
+}
 
 extension EditorDemoController {
 
