@@ -968,6 +968,40 @@ open class TextView: UITextView {
             }
         }
     }
+    
+    // MARK: - iOS 11 Workarounds
+    
+    /// This method fixes an issue that was introduced in iOS 11.  Styles were lost when you selected an autocomplete
+    /// suggestion.
+    ///
+    ///
+    ///
+    /// How to remove: if you disable this method and notice that autocomplete suggestions are not losing styles when
+    /// selected, feel free to remove it.
+    ///
+    /// This bug affected at least the range of iOS versions fromS 11.0 to 11.0.3 (both included).
+    ///
+    @objc func replaceRangeWithTextWithoutClosingTyping(_ range: UITextRange, replacementText: String) {
+        
+        // We're only wrapping the call to super in `preserveTypingAttributesForInsertion` to make sure
+        // that the style is not lost due to an iOS 11 issue.
+        //
+        preserveTypingAttributesForInsertion{ [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            
+            // From here on, it's just calling the same method in `super`.
+            //
+            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
+            let imp = class_getMethodImplementation(self.superclass, selector)
+            
+            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
+            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
+            
+            superMethod(self, selector, range, replacementText)
+        }
+    }
 
     /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
     /// called during the `block` execution.
@@ -981,6 +1015,13 @@ open class TextView: UITextView {
     /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/748
     ///
     private func preserveTypingAttributesForInsertion(block: () -> Void) {
+        
+        // We really don't want this code running below iOS 10.
+        guard #available(iOS 11, *) else {
+            block()
+            return
+        }
+        
         let beforeTypingAttributes = typingAttributes
         let beforeDelegate = delegate
 
@@ -995,14 +1036,20 @@ open class TextView: UITextView {
         delegate?.textViewDidChange?(self)
     }
 
-
-    // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
-    // attributes under certain circumstances. This method will determine the Typing Attributes based on
+    /// WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
+    /// attributes under certain circumstances. This method will determine the Typing Attributes based on
     /// the TextStorage attributes, whenever possible.
     ///
     /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
     ///
     private func preserveTypingAttributesForDeletion(block: () -> Void) {
+        
+        // We really don't want this code running below iOS 10.
+        guard #available(iOS 11, *) else {
+            block()
+            return
+        }
+        
         let document = textStorage.string
         guard selectedRange.location == document.characters.count else {
             block()
