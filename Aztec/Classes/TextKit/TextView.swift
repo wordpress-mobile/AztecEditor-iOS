@@ -1634,9 +1634,17 @@ extension TextView: TextStorageAttachmentsDelegate {
         return true
     }
 
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard let textView = textView else {
+            return false
+        }
 
-        guard let textView = self.textView else {
+        let locationInTextView = touch.location(in: textView)
+        return textView.attachmentAtPoint(locationInTextView) != nil
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let textView = textView else {
             return false
         }
 
@@ -1652,9 +1660,8 @@ extension TextView: TextStorageAttachmentsDelegate {
     }
 
     func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
-        guard let textView = self.textView,
-            recognizer.state == .recognized else {
-                return
+        guard let textView = textView, recognizer.state == .recognized else {
+            return
         }
 
         let locationInTextView = recognizer.location(in: textView)
