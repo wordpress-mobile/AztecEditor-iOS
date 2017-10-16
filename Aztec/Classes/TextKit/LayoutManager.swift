@@ -6,19 +6,6 @@ import QuartzCore
 // MARK: - Aztec Layout Manager
 //
 class LayoutManager: NSLayoutManager {
-
-    /// Blockquote's Left Border Color
-    ///
-    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
-
-    /// Blockquote's Background Color
-    ///
-    var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
-
-    /// HTML Pre Background Color
-    ///
-    var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
-
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
     var extraLineFragmentTypingAttributes: (() -> [String: Any])?
@@ -120,11 +107,11 @@ private extension LayoutManager {
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawBlockquote(in rect: CGRect, with context: CGContext) {
-        blockquoteBackgroundColor.setFill()
+        ParagraphStyle.blockquoteBackgroundColor.setFill()
         context.fill(rect)
 
-        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: 2, height: rect.height))
-        blockquoteBorderColor.setFill()
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: ParagraphStyle.blockquoteBorderWidth, height: rect.height))
+        ParagraphStyle.blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }
 }
@@ -166,7 +153,7 @@ private extension LayoutManager {
     /// Draws a single HTML Pre Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawHTMLPre(in rect: CGRect, with context: CGContext) {
-        preBackgroundColor.setFill()
+        ParagraphStyle.preBackgroundColor.setFill()
         context.fill(rect)
     }
 }

@@ -194,6 +194,22 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         return CGFloat(depth) * Metrics.listTextIndentation
     }
 
+    /// Blockquote's Left Border Color
+    ///
+    public static var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+
+    /// Blockquote's Background Color
+    ///
+    public static var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
+
+    /// Blockquote's border width
+    ///
+    public static var blockquoteBorderWidth: CGFloat = 2
+
+    /// HTML Pre Background Color
+    ///
+    public static var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+
     /// The amount of indent for the list of the paragraph if any.
     ///
     public var listIndent: CGFloat {
