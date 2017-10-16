@@ -27,8 +27,8 @@ class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttach
         return placeholderImage
     }
 
-    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
-        return URL(string: "placeholder://")!
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL? {
+        return nil
     }
 
     func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
