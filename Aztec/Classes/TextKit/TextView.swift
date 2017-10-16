@@ -1051,7 +1051,7 @@ open class TextView: UITextView {
         }
         
         let document = textStorage.string
-        guard selectedRange.location == document.characters.count else {
+        guard selectedRange.location == document.characters.count, document.characters.count > 0 else {
             block()
             return
         }
