@@ -39,9 +39,9 @@ protocol TextStorageAttachmentsDelegate: class {
     ///     - storage: The storage that is requesting the image.
     ///     - imageAttachment: The image that was added to the storage.
     ///
-    /// - Returns: the requested `NSURL` where the image is stored.
+    /// - Returns: the requested `URL` where the image is stored, or nil if it's not yet available.
     ///
-    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL
+    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL?
 
     /// Called when a attachment is removed from the storage.
     ///
