@@ -334,8 +334,9 @@ private extension MediaAttachment {
     /// Requests a new asset (asynchronously), and on completion, triggers a relayout cycle.
     ///
     private func updateImage(in textContainer: NSTextContainer?) {
-
-        self.image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
+        if mustDisplayPlaceholder {
+            displayPlaceholder()
+        }
 
         guard let url = url else {
             return
@@ -358,6 +359,19 @@ private extension MediaAttachment {
 
             self?.isFetchingImage = false
         })
+    }
+
+    /// Indicates if the Placeholder must be displayed, or we should preserve the `.image` attribute
+    /// the way it is.
+    ///
+    private var mustDisplayPlaceholder: Bool {
+        return url != nil
+    }
+
+    /// Refreshes the Attachment's Image with the Placeholder provided by the delegate.
+    ///
+    private func displayPlaceholder() {
+        image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
     }
 
     /// Invalidates the Layout in the specified TextContainer.
