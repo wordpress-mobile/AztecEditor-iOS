@@ -188,13 +188,15 @@ open class TextView: UITextView {
             return typingAttributes
         }
 
-        let document = textStorage.string
-        guard document.isEndOfParagraph(before: document.endIndex) else {
-            let lastLocation = max(document.characters.count - 1, 0)
-            return textStorage.attributes(at: lastLocation, effectiveRange: nil)
+        let string = textStorage.string
+        
+        guard !string.isEndOfParagraph(before: string.endIndex) else {
+            return [NSParagraphStyleAttributeName: ParagraphStyle.default]
         }
-
-        return [ NSParagraphStyleAttributeName: ParagraphStyle.default ]
+        
+        let lastLocation = max(string.characters.count - 1, 0)
+        
+        return textStorage.attributes(at: lastLocation, effectiveRange: nil)
     }
 
 
@@ -230,6 +232,7 @@ open class TextView: UITextView {
         storage.attachmentsDelegate = self
         font = defaultFont
         linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
+        typingAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
         setupMenuController()
         setupAttachmentTouchDetection()
         setupLayoutManager()
@@ -471,19 +474,25 @@ open class TextView: UITextView {
     }
 
     // MARK: - UITextView Overrides
-
+    
     open override func caretRect(for position: UITextPosition) -> CGRect {
-        let characterIndex = offset(from: beginningOfDocument, to: position)
         var caretRect = super.caretRect(for: position)
+        let characterIndex = offset(from: beginningOfDocument, to: position)
+        
         guard layoutManager.isValidGlyphIndex(characterIndex) else {
             return caretRect
         }
+        
         let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
         let usedLineFragment = layoutManager.lineFragmentUsedRect(forGlyphAt: glyphIndex, effectiveRange: nil)
-        if !usedLineFragment.isEmpty {
-            caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
-            caretRect.size.height = usedLineFragment.size.height
+        
+        guard !usedLineFragment.isEmpty else {
+            return caretRect
         }
+     
+        caretRect.origin.y = usedLineFragment.origin.y + textContainerInset.top
+        caretRect.size.height = usedLineFragment.size.height
+
         return caretRect
     }
 

@@ -67,18 +67,20 @@ private extension LayoutManager {
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
                 let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
-
+                
                 self.drawBlockquote(in: blockquoteRect.integral, with: context)
             }
         }
 
         // Draw: Extra Line Fragment
-        guard extraLineFragmentRect != .zero, let typingAttributes = extraLineFragmentTypingAttributes?() else {
-            return
+        guard extraLineFragmentRect.height != 0,
+            let typingAttributes = extraLineFragmentTypingAttributes?() else {
+                return
         }
 
-        guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
-            return
+        guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+            !paragraphStyle.blockquotes.isEmpty else {
+                return
         }
 
         let extraIndent = paragraphStyle.blockquoteIndent
@@ -100,6 +102,7 @@ private extension LayoutManager {
     ///
     private func blockquoteRect(origin: CGPoint, lineRect: CGRect, blockquoteIndent: CGFloat, lineEndsParagraph: Bool) -> CGRect {
         var blockquoteRect = lineRect.offsetBy(dx: origin.x, dy: origin.y)
+        
         guard blockquoteIndent != 0 else {
             return blockquoteRect
         }
@@ -115,7 +118,6 @@ private extension LayoutManager {
 
         return blockquoteRect
     }
-
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
@@ -252,12 +254,12 @@ private extension LayoutManager {
         let markerPlain = list.style.markerText(forItemNumber: number)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
-        var yOffset = -style.paragraphSpacingBefore
-
-        if let font = markerAttributes[NSFontAttributeName] as? UIFont {
-            yOffset += (rect.height - font.lineHeight)
+        var yOffset = CGFloat(0)
+        
+        if location > 0 {
+            yOffset += style.paragraphSpacingBefore
         }
-
+        
         let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
         markerText.draw(in: markerRect)
     }
