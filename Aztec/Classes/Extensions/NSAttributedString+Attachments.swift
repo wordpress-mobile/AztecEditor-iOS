@@ -35,7 +35,8 @@ extension NSAttributedString
                 return
             }
 
-            let image = UIImage(data: data)
+            let scale = UIScreen.main.scale
+            let image = UIImage(data: data, scale: scale)
             attachment.fileWrapper = nil
             attachment.image = image
         }
