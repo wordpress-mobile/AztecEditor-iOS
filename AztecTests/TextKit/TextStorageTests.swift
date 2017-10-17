@@ -104,8 +104,8 @@ class TextStorageTests: XCTestCase {
             deletedAttachmendIDCalledWithString = attachmentID
         }
 
-        func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
-            return URL(string:"test://")!
+        func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL? {
+            return URL(string:"test://")
         }
 
         func storage(_ storage: TextStorage, placeholderFor attachment: NSTextAttachment) -> UIImage {

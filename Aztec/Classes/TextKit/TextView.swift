@@ -28,9 +28,9 @@ public protocol TextViewAttachmentDelegate: class {
     ///     - textView: The textView that is requesting the image.
     ///     - imageAttachment: The image attachment that was added to the storage.
     ///
-    /// - Returns: the requested `NSURL` where the image is stored.
+    /// - Returns: the requested `URL` where the image is stored, or nil if it's not yet available.
     ///
-    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL?
 
     /// Called when an attachment doesn't have an available source URL to provide an image representation.
     ///
@@ -1628,7 +1628,7 @@ extension TextView: TextStorageAttachmentsDelegate {
         return textAttachmentDelegate.textView(self, placeholderFor: attachment)
     }
     
-    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL {
+    func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL? {
         guard let textAttachmentDelegate = textAttachmentDelegate else {
             fatalError("This class requires a text attachment delegate to be set.")
         }
