@@ -1026,14 +1026,13 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         return placeholderImage
     }
 
-    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL {
-        
-        // TODO: start fake upload process
-        if let image = imageAttachment.image {
-            return saveToDisk(image: image)
-        } else {
-            return URL(string: "placeholder://")!
+    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL? {
+        guard let image = imageAttachment.image else {
+            return nil
         }
+
+        // TODO: start fake upload process
+        return saveToDisk(image: image)
     }
 
     func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {

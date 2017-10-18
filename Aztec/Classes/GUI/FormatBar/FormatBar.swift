@@ -648,12 +648,10 @@ private extension FormatBar {
     func configureConstraints() {
         var leadingAnchor = self.leadingAnchor
         var trailingAnchor = self.trailingAnchor
-        var bottomAnchor = self.bottomAnchor
 
         if #available(iOS 11.0, *) {
             leadingAnchor = safeAreaLayoutGuide.leadingAnchor
             trailingAnchor = safeAreaLayoutGuide.trailingAnchor
-            bottomAnchor = layoutMarginsGuide.bottomAnchor
         }
 
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
