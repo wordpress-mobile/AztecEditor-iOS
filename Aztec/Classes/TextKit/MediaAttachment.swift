@@ -32,7 +32,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
-    private(set) open var identifier: String
+    open var identifier = String()
     
     /// Attachment URL
     ///
@@ -108,10 +108,20 @@ open class MediaAttachment: NSTextAttachment {
     /// Required Initializer
     ///
     required public init?(coder aDecoder: NSCoder) {
-        identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? String()
-        url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
-
+        /// Note:
+        /// As unbelievable as it will sound, when de-archiving ImageAttachment, `MediaAttachment`'s
+        /// super.init(coder: aDecoder)` call results in a call to`ImageAttachment.init(data, ofType)`.
+        /// Which, of course, ends up being caught by MediaAttachment's `init(data, ofType)`.
+        ///
+        /// Bottom line, the *identifier* and *url* might end up reset, if assigned before the `super.init` call.
+        /// For that reason, we've tunned things, and move those two assignments below.
+        ///
+        /// *Please* keep them this way. May the reviewer forgive me, since this is horrible.
+        ///
         super.init(coder: aDecoder)
+
+        identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? identifier
+        url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
     }
 
     /// Required Initializer
