@@ -419,7 +419,7 @@ extension AttributedStringParser {
 }
 
 
-// MARK: - Paragraph Nodes: Alloc'ation
+// MARK: - Paragraph Nodes: Allocation
 //
 private extension AttributedStringParser {
 
@@ -616,7 +616,7 @@ private extension AttributedStringParser {
 }
 
 
-// MARK: - Style Nodes: Alloc'ation
+// MARK: - Style Nodes: Allocation
 //
 private extension AttributedStringParser {
 

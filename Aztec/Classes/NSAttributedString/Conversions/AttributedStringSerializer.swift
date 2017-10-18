@@ -17,7 +17,8 @@ class AttributedStringSerializer {
 
     private lazy var defaultAttributes: [String: Any] = {
         let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
-        return [NSFontAttributeName: defaultFont]
+        return [NSFontAttributeName: defaultFont,
+                NSParagraphStyleAttributeName: ParagraphStyle.default]
     }()
 
 
