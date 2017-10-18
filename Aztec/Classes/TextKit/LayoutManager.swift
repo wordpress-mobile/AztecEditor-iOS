@@ -67,7 +67,7 @@ private extension LayoutManager {
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
                 let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
-                
+
                 self.drawBlockquote(in: blockquoteRect.integral, with: context)
             }
         }
@@ -255,11 +255,11 @@ private extension LayoutManager {
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
         var yOffset = CGFloat(0)
-        
+
         if location > 0 {
             yOffset += style.paragraphSpacingBefore
         }
-        
+
         let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
         markerText.draw(in: markerRect)
     }
