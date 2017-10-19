@@ -158,8 +158,10 @@ class AttributedStringSerializerTests: XCTestCase {
 extension AttributedStringSerializerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
-        let descriptor = UIFont.systemFont(ofSize: 14).fontDescriptor
-        let serializer = AttributedStringSerializer(usingDefaultFontDescriptor: descriptor)
+        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        
+        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
 
         return serializer.serialize(node)
     }

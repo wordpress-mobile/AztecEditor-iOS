@@ -161,7 +161,10 @@ class TextStorageTests: XCTestCase {
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        storage.setHTML(initialHTML, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 10).fontDescriptor)
+        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
 
         // Find the Attachment
         var theAttachment: HTMLAttachment!
@@ -373,7 +376,11 @@ class TextStorageTests: XCTestCase {
     func testDeleteAllSelectionWhenContentHasComments() {
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
-        storage.setHTML(html, withDefaultFontDescriptor: UIFont.systemFont(ofSize: 14).fontDescriptor)
+
+        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
 
         let resultHTML = storage.getHTML()

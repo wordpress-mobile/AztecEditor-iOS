@@ -24,7 +24,9 @@ class TextViewTests: XCTestCase {
     // MARK: - TextView construction
 
     func createEmptyTextView() -> TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
+        let richTextView = Aztec.TextView(
+            defaultFont: UIFont.systemFont(ofSize: 14),
+            defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         return richTextView

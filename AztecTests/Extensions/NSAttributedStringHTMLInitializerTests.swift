@@ -13,6 +13,9 @@ class NSAttributedStringHTMLInitializerTests: XCTestCase {
 
         let html = "<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>"
 
-        XCTAssertNoThrow(NSAttributedString(withHTML: html, usingDefaultFontDescriptor: defaultFontDescriptor))
+        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        
+        XCTAssertNoThrow(NSAttributedString(withHTML: html, defaultAttributes: defaultAttributes))
     }
 }
