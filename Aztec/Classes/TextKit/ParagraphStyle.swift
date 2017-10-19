@@ -111,6 +111,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         baseFirstLineHeadIndent = paragraphStyle.baseFirstLineHeadIndent
         baseTailIndent = paragraphStyle.baseTailIndent
         
+        blockquoteParagraphSpacing = paragraphStyle.blockquoteParagraphSpacing
+        blockquoteParagraphSpacingBefore = paragraphStyle.blockquoteParagraphSpacingBefore
+        
         regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
         regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
         
@@ -199,12 +202,17 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var textListParagraphSpacing = CGFloat(0)
     var textListParagraphSpacingBefore = CGFloat(0)
     
+    var blockquoteParagraphSpacing = CGFloat(0)
+    var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
     open override var paragraphSpacing: CGFloat {
         get {
-            if lists.count == 0 {
-                return regularParagraphSpacing
-            } else {
+            if blockquotes.count > 0 {
+                return blockquoteParagraphSpacing
+            } else if lists.count > 0 {
                 return textListParagraphSpacing
+            } else {
+                return regularParagraphSpacing
             }
         }
         
@@ -215,10 +223,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            if lists.count == 0 {
-                return regularParagraphSpacingBefore
-            } else {
+            if blockquotes.count > 0 {
+                return blockquoteParagraphSpacingBefore
+            } else if lists.count > 0 {
                 return textListParagraphSpacingBefore
+            } else {
+                return regularParagraphSpacingBefore
             }
         }
         
@@ -243,9 +253,10 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         style.tabStops = tabStops
         style.lineSpacing = 8
+        style.blockquoteParagraphSpacing = 8
+        style.blockquoteParagraphSpacingBefore = 8
         style.regularParagraphSpacing = 8
         style.regularParagraphSpacingBefore = 8
-        
         style.textListParagraphSpacing = 0
         style.textListParagraphSpacingBefore = 0
         
