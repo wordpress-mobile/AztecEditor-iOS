@@ -268,7 +268,6 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-
     // MARK: - Styles: Toggling
 
     @discardableResult

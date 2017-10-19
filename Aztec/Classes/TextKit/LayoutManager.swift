@@ -292,6 +292,7 @@ private extension LayoutManager {
     private func markerParagraphStyle(indent: CGFloat) -> NSParagraphStyle {
         let tabStop = NSTextTab(textAlignment: .right, location: indent, options: [:])
         let paragraphStyle = NSMutableParagraphStyle()
+        
         paragraphStyle.tabStops = [tabStop]
 
         return paragraphStyle

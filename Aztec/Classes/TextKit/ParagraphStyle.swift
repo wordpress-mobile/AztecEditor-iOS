@@ -93,23 +93,33 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
     }
 
-    override open func setParagraphStyle(_ obj: NSParagraphStyle) {
-        super.setParagraphStyle(obj)
-        guard let paragrahStyle = obj as? ParagraphStyle else {
+    override open func setParagraphStyle(_ baseParagraphStyle: NSParagraphStyle) {
+        
+        super.setParagraphStyle(baseParagraphStyle)
+        
+        guard let paragraphStyle = baseParagraphStyle as? ParagraphStyle else {
             return
         }
-
-        headIndent = 0
-        firstLineHeadIndent = 0
-        tailIndent = 0
-
-        baseHeadIndent = paragrahStyle.baseHeadIndent
-        baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
-        baseTailIndent = paragrahStyle.baseTailIndent
-        paragraphSpacing = paragrahStyle.paragraphSpacing
-        paragraphSpacingBefore = paragrahStyle.paragraphSpacingBefore
-
-        properties = paragrahStyle.properties
+    
+        // IMPORTANT: It's important to keep the implementation of this method custom for our ParagraphStyle class.
+        // The parent call tries to copy the properties that this class turned into calculated properties.
+        
+        // IMPORTANT 2: It's important to copy lists, blockquotes, etc before the other properties, since their values are
+        // calculated and sometimes based in these.
+        properties = paragraphStyle.properties
+        
+        baseHeadIndent = paragraphStyle.baseHeadIndent
+        baseFirstLineHeadIndent = paragraphStyle.baseFirstLineHeadIndent
+        baseTailIndent = paragraphStyle.baseTailIndent
+        
+        blockquoteParagraphSpacing = paragraphStyle.blockquoteParagraphSpacing
+        blockquoteParagraphSpacingBefore = paragraphStyle.blockquoteParagraphSpacingBefore
+        
+        regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
+        regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
+        
+        textListParagraphSpacing = paragraphStyle.textListParagraphSpacing
+        textListParagraphSpacingBefore = paragraphStyle.textListParagraphSpacingBefore
     }
 
     open override var headIndent: CGFloat {
@@ -132,7 +142,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
 
         set {
-            baseFirstLineHeadIndent = newValue
+            // We're basically ignoring this by setting it on the parent.
+            super.firstLineHeadIndent = newValue
         }
     }
 
@@ -144,12 +155,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
 
         set {
-            baseTailIndent = newValue
+            // We're basically ignoring this by setting it on the parent.
+            super.tailIndent = newValue
         }
-    }
-
-    private func calculateExtraParagraphSpacing() -> CGFloat {         
-        return min(((CGFloat(self.blockquotes.count)) + (self.headerLevel == 0 ? 0.0 : 1.0)), 1.0) * Metrics.paragraphSpacing
     }
 
     /// The amount of indent for the blockquote of the paragraph if any.
@@ -189,8 +197,46 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var baseFirstLineHeadIndent: CGFloat = 0
     var baseTailIndent: CGFloat = 0
     
+    var regularParagraphSpacing = CGFloat(0)
+    var regularParagraphSpacingBefore = CGFloat(0)
+    
     var textListParagraphSpacing = CGFloat(0)
     var textListParagraphSpacingBefore = CGFloat(0)
+    
+    var blockquoteParagraphSpacing = CGFloat(0)
+    var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
+    open override var paragraphSpacing: CGFloat {
+        get {
+            if blockquotes.count > 0 {
+                return blockquoteParagraphSpacing
+            } else if lists.count > 0 {
+                return textListParagraphSpacing
+            } else {
+                return regularParagraphSpacing
+            }
+        }
+        
+        set {
+            super.paragraphSpacing = newValue
+        }
+    }
+    
+    open override var paragraphSpacingBefore: CGFloat {
+        get {
+            if blockquotes.count > 0 {
+                return blockquoteParagraphSpacingBefore
+            } else if lists.count > 0 {
+                return textListParagraphSpacingBefore
+            } else {
+                return regularParagraphSpacingBefore
+            }
+        }
+        
+        set {
+            super.paragraphSpacingBefore = newValue
+        }
+    }
     
     // MARK: - Defaults
     
@@ -208,8 +254,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         style.tabStops = tabStops
         style.lineSpacing = 8
-        style.paragraphSpacing = 8
-        style.paragraphSpacingBefore = 8
+        style.blockquoteParagraphSpacing = 8
+        style.blockquoteParagraphSpacingBefore = 8
+        style.regularParagraphSpacing = 8
+        style.regularParagraphSpacingBefore = 8
+        style.textListParagraphSpacing = 0
+        style.textListParagraphSpacingBefore = 0
         
         return style
     }()
