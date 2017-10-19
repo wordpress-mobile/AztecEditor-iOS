@@ -30,6 +30,22 @@ open class HTMLStorage: NSTextStorage {
 
     // MARK: - Initializers
 
+    public override init() {
+        // Note:
+        // iOS 11 has changed the way Copy + Paste works. As far as we can tell, upon Paste, the system
+        // instantiates a new UITextView stack, and renders it on top of the one in use.
+        // This (appears) to be the cause of a glitch in which the pasted text would temporarily appear out
+        // of phase, on top of the "pre paste UI".
+        //
+        // We're adding a ridiculosly small defaultFont here, in order to force the "Secondary" UITextView
+        // not to render anything.
+        //
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
+        //
+        font = UIFont.systemFont(ofSize: 4)
+        super.init()
+    }
+
     public init(defaultFont: UIFont) {
         font = defaultFont
         super.init()
