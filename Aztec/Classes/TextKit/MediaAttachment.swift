@@ -127,8 +127,6 @@ open class MediaAttachment: NSTextAttachment {
     /// Required Initializer
     ///
     override required public init(data contentData: Data?, ofType uti: String?) {
-        identifier = ""
-
         super.init(data: contentData, ofType: uti)
     }
 
