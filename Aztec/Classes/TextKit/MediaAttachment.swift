@@ -32,7 +32,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
-    open var identifier = String()
+    private(set) open var identifier = String()
     
     /// Attachment URL
     ///
