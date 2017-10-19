@@ -116,60 +116,6 @@ extension Attribute {
             self = .inlineCss(properties)
         }
 
-        // MARK: - Coding
-
-        private static let valueDataKey = "valueData"
-        private static let valueTypeKey = "valueType"
-
-        private enum ValueType: String {
-            case none = "none"
-            case string = "string"
-            case inlineCss = "inlineCss"
-        }
-
-        static func decode(with coder: NSCoder) -> Value? {
-
-            guard let valueTypeRaw = coder.decodeObject(forKey: Value.valueTypeKey) as? String,
-                let valueType = ValueType(rawValue: valueTypeRaw) else {
-                    return nil
-            }
-
-            switch valueType {
-            case .none:
-                // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
-                // a .none value!!!  Don't remove it!
-                //
-                return Value.none
-            case .string:
-                let string = coder.decodeObject(forKey: Value.valueDataKey) as? String ?? ""
-
-                return .string(string)
-            case .inlineCss:
-                let cssAttributes = coder.decodeObject(forKey: Value.valueDataKey) as? [CSSAttribute] ?? []
-
-                return .inlineCss(cssAttributes)
-            }
-        }
-
-        func encode(with coder: NSCoder) {
-            let valueData: Any?
-            let valueType: ValueType
-
-            switch self {
-            case .none:
-                valueData = nil
-                valueType = .none
-            case .string(let string):
-                valueData = string
-                valueType = .string
-            case .inlineCss(let attributes):
-                valueData = attributes
-                valueType = .inlineCss
-            }
-
-            coder.encode(valueData, forKey: Value.valueDataKey)
-            coder.encode(valueType.rawValue, forKey: Value.valueTypeKey)
-        }
 
         // MARK: - Hashable
 
