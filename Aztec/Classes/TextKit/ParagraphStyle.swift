@@ -102,14 +102,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         headIndent = 0
         firstLineHeadIndent = 0
         tailIndent = 0
-        paragraphSpacing = 0
-        paragraphSpacingBefore = 0
 
         baseHeadIndent = paragrahStyle.baseHeadIndent
         baseFirstLineHeadIndent = paragrahStyle.baseFirstLineHeadIndent
         baseTailIndent = paragrahStyle.baseTailIndent
-        baseParagraphSpacing = paragrahStyle.baseParagraphSpacing
-        baseParagraphSpacingBefore = paragrahStyle.baseParagraphSpacingBefore
+        paragraphSpacing = paragrahStyle.paragraphSpacing
+        paragraphSpacingBefore = paragrahStyle.paragraphSpacingBefore
 
         properties = paragrahStyle.properties
     }
@@ -154,30 +152,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         return min(((CGFloat(self.blockquotes.count)) + (self.headerLevel == 0 ? 0.0 : 1.0)), 1.0) * Metrics.paragraphSpacing
     }
 
-    open override var paragraphSpacing: CGFloat {
-        get {
-            let extra = calculateExtraParagraphSpacing()
-
-            return baseParagraphSpacing + extra
-        }
-
-        set {
-            baseParagraphSpacing = newValue
-        }
-    }
-
-    open override var paragraphSpacingBefore: CGFloat {
-        get {
-            let extra = calculateExtraParagraphSpacing()
-
-            return baseParagraphSpacingBefore + extra
-        }
-
-        set {
-            baseParagraphSpacingBefore = newValue
-        }
-    }
-
     /// The amount of indent for the blockquote of the paragraph if any.
     ///
     public var blockquoteIndent: CGFloat {
@@ -214,26 +188,42 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var baseHeadIndent: CGFloat = 0
     var baseFirstLineHeadIndent: CGFloat = 0
     var baseTailIndent: CGFloat = 0
-    var baseParagraphSpacing: CGFloat = 0
-    var baseParagraphSpacingBefore: CGFloat = 0
-
-    open override class var `default`: NSParagraphStyle {
+    
+    var textListParagraphSpacing = CGFloat(0)
+    var textListParagraphSpacingBefore = CGFloat(0)
+    
+    // MARK: - Defaults
+    
+    private static var cachedDefault: ParagraphStyle = {
         let style = ParagraphStyle()
-
+        
         var tabStops = [NSTextTab]()
-
+        
         for intervalNumber in (1 ..< Metrics.tabStepCount) {
             let location = intervalNumber * Metrics.tabStepInterval
             let textTab = NSTextTab(textAlignment: .natural, location: CGFloat(location), options: [:])
-
+            
             tabStops.append(textTab)
         }
-
+        
         style.tabStops = tabStops
-
+        style.lineSpacing = 8
+        style.paragraphSpacing = 8
+        style.paragraphSpacingBefore = 8
+        
         return style
+    }()
+    
+    static func setDefault(_ newDefault: ParagraphStyle) {
+        cachedDefault = newDefault
+    }
+    
+    open override class var `default`: ParagraphStyle {
+        return ParagraphStyle.cachedDefault
     }
 
+    // MARK: - Equatable
+    
     open override func isEqual(_ object: Any?) -> Bool {
         guard let otherParagraph = object as? ParagraphStyle else {
             return false
