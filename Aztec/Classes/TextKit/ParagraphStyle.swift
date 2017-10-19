@@ -197,6 +197,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var textListParagraphSpacing = CGFloat(0)
     var textListParagraphSpacingBefore = CGFloat(0)
     
+    var blockquoteParagraphSpacing = CGFloat(0)
+    var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
     open override var paragraphSpacing: CGFloat {
         get {
             var extra:CGFloat = 0
