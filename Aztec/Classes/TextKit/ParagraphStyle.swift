@@ -111,8 +111,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         baseFirstLineHeadIndent = paragraphStyle.baseFirstLineHeadIndent
         baseTailIndent = paragraphStyle.baseTailIndent
         
-        regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
-        regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
+        baseParagraphSpacing = paragraphStyle.baseParagraphSpacing
+        baseParagraphSpacingBefore = paragraphStyle.baseParagraphSpacingBefore
         
         textListParagraphSpacing = paragraphStyle.textListParagraphSpacing
         textListParagraphSpacingBefore = paragraphStyle.textListParagraphSpacingBefore
@@ -138,8 +138,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
 
         set {
-            // We're basically ignoring this by setting it on the parent.
-            super.firstLineHeadIndent = newValue
+            baseFirstLineHeadIndent = newValue
         }
     }
 
@@ -151,8 +150,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
 
         set {
-            // We're basically ignoring this by setting it on the parent.
-            super.tailIndent = newValue
+            baseTailIndent = newValue
         }
     }
 
@@ -193,37 +191,35 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var baseFirstLineHeadIndent: CGFloat = 0
     var baseTailIndent: CGFloat = 0
     
-    var regularParagraphSpacing = CGFloat(0)
-    var regularParagraphSpacingBefore = CGFloat(0)
+    var baseParagraphSpacing = CGFloat(0)
+    var baseParagraphSpacingBefore = CGFloat(0)
     
     var textListParagraphSpacing = CGFloat(0)
     var textListParagraphSpacingBefore = CGFloat(0)
     
     open override var paragraphSpacing: CGFloat {
         get {
-            if lists.count == 0 {
-                return regularParagraphSpacing
-            } else {
-                return textListParagraphSpacing
+            var extra:CGFloat = 0
+            if lists.count != 0 {
+                extra = textListParagraphSpacing
             }
+            return baseParagraphSpacing + extra
         }
-        
         set {
-            super.paragraphSpacing = newValue
+            baseParagraphSpacing = newValue
         }
     }
     
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            if lists.count == 0 {
-                return regularParagraphSpacingBefore
-            } else {
-                return textListParagraphSpacingBefore
+            var extra:CGFloat = 0
+            if lists.count != 0 {
+                extra = textListParagraphSpacing
             }
+            return baseParagraphSpacingBefore + extra
         }
-        
         set {
-            super.paragraphSpacingBefore = newValue
+            baseParagraphSpacingBefore = newValue
         }
     }
     
@@ -243,11 +239,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         style.tabStops = tabStops
         style.lineSpacing = 8
-        style.regularParagraphSpacing = 8
-        style.regularParagraphSpacingBefore = 8
+        style.baseParagraphSpacing = 8
+        style.baseParagraphSpacingBefore = 8
         
-        style.textListParagraphSpacing = 0
-        style.textListParagraphSpacingBefore = 0
+        style.textListParagraphSpacing = -4
+        style.textListParagraphSpacingBefore = -4
         
         return style
     }()
