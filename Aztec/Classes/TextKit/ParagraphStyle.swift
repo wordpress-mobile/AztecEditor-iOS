@@ -245,8 +245,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         style.baseParagraphSpacing = 8
         style.baseParagraphSpacingBefore = 8
         
-        style.textListParagraphSpacing = -4
-        style.textListParagraphSpacingBefore = -4
+        style.textListParagraphSpacing = -8
+        style.textListParagraphSpacingBefore = -8
         
         return style
     }()
