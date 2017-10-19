@@ -306,7 +306,7 @@ open class TextView: UITextView {
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
@@ -321,7 +321,7 @@ open class TextView: UITextView {
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
@@ -382,6 +382,11 @@ open class TextView: UITextView {
     private func storeInPasteboard(encoded data: Data) {
         let pasteboard = UIPasteboard.general
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
+    }
+
+    fileprivate func notifyTextViewDidChange() {
+        delegate?.textViewDidChange?(self)
+        NotificationCenter.default.post(name: .UITextViewTextDidChange, object: self)
     }
 
     // MARK: - Intercept keyboard operations
@@ -463,7 +468,7 @@ open class TextView: UITextView {
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
 
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     // MARK: - UIView Overrides
@@ -534,7 +539,7 @@ open class TextView: UITextView {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
         }
 
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
         formattingDelegate?.textViewCommandToggledAStyle()
     }
 
@@ -683,7 +688,7 @@ open class TextView: UITextView {
             let location = max(0,min(selectedRange.location, textStorage.length-1))
             typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         }
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// Adds or removes a bold style from the specified range.
@@ -1042,7 +1047,7 @@ open class TextView: UITextView {
 
         // Manually notify the delegates: We're avoiding overwork!
         delegate?.textViewDidChangeSelection?(self)
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
@@ -1101,7 +1106,7 @@ open class TextView: UITextView {
 
         selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
 
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// Adds a link to the designated url on the specified range.
@@ -1126,7 +1131,7 @@ open class TextView: UITextView {
     open func removeLink(inRange range: NSRange) {
         let formatter = LinkFormatter()
         formatter.toggle(in: storage, at: range)
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
 
@@ -1142,7 +1147,7 @@ open class TextView: UITextView {
         let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)        
         storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// Replaces with an image attachment at the specified range
@@ -1189,14 +1194,14 @@ open class TextView: UITextView {
         })
 
         storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributes))
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// Removes all of the text attachments contained within the storage
     ///
     open func removeMediaAttachments() {
         storage.removeMediaAttachments()
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     /// Replaces a Video attachment at the specified range
@@ -1768,7 +1773,7 @@ private extension TextView {
             self?.undoTextReplacement(of: originalString, finalRange: finalRange)
         })
 
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 
     func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
@@ -1783,6 +1788,6 @@ private extension TextView {
             self?.undoTextReplacement(of: redoOriginalText, finalRange: redoFinalRange)
         })
 
-        delegate?.textViewDidChange?(self)
+        notifyTextViewDidChange()
     }
 }
