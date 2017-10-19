@@ -43,20 +43,25 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
     }
 
     public required convenience init?(coder aDecoder: NSCoder) {
-
+        // TODO: This is a Work in Progress. Let's also get Attribute conforming to Codable!
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? NSCodingProxy<Value>
-        else {
+            let rawValue = aDecoder.decodeObject(forKey: Keys.value) as? Data,
+            let value = try? JSONDecoder().decode(Value.self, from: rawValue) else
+        {
             assertionFailure("Review the logic.")
             return nil
         }
 
-        self.init(name: name, value: valueCoding.value)
+        self.init(name: name, value: value)
     }
 
     open func encode(with aCoder: NSCoder) {
         aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(NSCodingProxy(for: value), forKey: Keys.value)
+
+        // TODO: This is a Work in Progress. Let's also get Attribute conforming to Codable!
+        if let encodedValue = try? JSONEncoder().encode(value) {
+            aCoder.encode(encodedValue, forKey: Keys.value)
+        }
     }
 
     // MARK: - Equatable
@@ -90,7 +95,7 @@ extension Attribute {
 
     /// Allowed attribute values
     ///
-    enum Value: Coding, Equatable, Hashable {
+    enum Value: Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSAttribute])
@@ -116,60 +121,6 @@ extension Attribute {
             self = .inlineCss(properties)
         }
 
-        // MARK: - Coding
-
-        private static let valueDataKey = "valueData"
-        private static let valueTypeKey = "valueType"
-
-        private enum ValueType: String {
-            case none = "none"
-            case string = "string"
-            case inlineCss = "inlineCss"
-        }
-
-        static func decode(with coder: NSCoder) -> Value? {
-
-            guard let valueTypeRaw = coder.decodeObject(forKey: Value.valueTypeKey) as? String,
-                let valueType = ValueType(rawValue: valueTypeRaw) else {
-                    return nil
-            }
-
-            switch valueType {
-            case .none:
-                // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
-                // a .none value!!!  Don't remove it!
-                //
-                return Value.none
-            case .string:
-                let string = coder.decodeObject(forKey: Value.valueDataKey) as? String ?? ""
-
-                return .string(string)
-            case .inlineCss:
-                let cssAttributes = coder.decodeObject(forKey: Value.valueDataKey) as? [CSSAttribute] ?? []
-
-                return .inlineCss(cssAttributes)
-            }
-        }
-
-        func encode(with coder: NSCoder) {
-            let valueData: Any?
-            let valueType: ValueType
-
-            switch self {
-            case .none:
-                valueData = nil
-                valueType = .none
-            case .string(let string):
-                valueData = string
-                valueType = .string
-            case .inlineCss(let attributes):
-                valueData = attributes
-                valueType = .inlineCss
-            }
-
-            coder.encode(valueData, forKey: Value.valueDataKey)
-            coder.encode(valueType.rawValue, forKey: Value.valueTypeKey)
-        }
 
         // MARK: - Hashable
 
@@ -248,6 +199,57 @@ extension Attribute {
                 
                 return result
             }
+        }
+    }
+}
+
+
+// MARK: - Attribute.Value Codable Conformance
+//
+extension Attribute.Value: Codable {
+
+    enum CodingError: Error {
+        case missingTypeKey
+    }
+
+    private enum ValueKey: String, CodingKey {
+        case none
+        case string
+        case inlineCss
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: ValueKey.self)
+
+        guard let rootKey = values.allKeys.first, let valueKind = ValueKey(rawValue: rootKey.rawValue) else {
+            throw CodingError.missingTypeKey
+        }
+
+        switch valueKind {
+        case .none:
+            // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
+            // a .none value!!!  Don't remove it!
+            //
+            self = Attribute.Value.none
+        case .string:
+            let string = try? values.decode(String.self, forKey: .string)
+            self = .string(string ?? "")
+        case .inlineCss:
+            let attributes = try? values.decode([CSSAttribute].self, forKey: .inlineCss)
+            self = .inlineCss(attributes ?? [])
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ValueKey.self)
+
+        switch self {
+        case .none:
+            try container.encodeNil(forKey: .none)
+        case .string(let string):
+            try container.encode(string, forKey: .string)
+        case .inlineCss(let attributes):
+            try container.encode(attributes, forKey: .inlineCss)
         }
     }
 }
