@@ -16,7 +16,15 @@ class EditorDemoController: UIViewController {
     }()
 
     fileprivate(set) lazy var richTextView: Aztec.TextView = {
-        let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
+
+        let paragraphStyle = Aztec.ParagraphStyle.default
+        
+        // This is where you'd normally customize paragraphStyle's values.
+        
+        let textView = Aztec.TextView(
+            defaultFont: Constants.defaultContentFont,
+            defaultParagraphStyle: paragraphStyle,
+            defaultMissingImage: Constants.defaultMissingImage)
 
         textView.inputProcessor =
             PipelineProcessor([CaptionShortcodePreProcessor(),

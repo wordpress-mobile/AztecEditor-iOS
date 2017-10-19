@@ -5,21 +5,13 @@ import UIKit
 ///
 class AttributedStringSerializer {
 
-    /// The default font descriptor that will be used as a base for conversions.
-    /// 
-    let defaultFontDescriptor: UIFontDescriptor
+    private let defaultAttributes: [String: Any]
 
     // MARK: - Initializers
 
-    required init(usingDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
-        self.defaultFontDescriptor = defaultFontDescriptor
+    required init(defaultAttributes: [String: Any]) {
+        self.defaultAttributes = defaultAttributes
     }
-
-    private lazy var defaultAttributes: [String: Any] = {
-        let defaultFont = UIFont(descriptor: self.defaultFontDescriptor, size: self.defaultFontDescriptor.pointSize)
-        return [NSFontAttributeName: defaultFont,
-                NSParagraphStyleAttributeName: ParagraphStyle.default]
-    }()
 
 
     // MARK: - Conversion

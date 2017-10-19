@@ -1,13 +1,12 @@
 import Foundation
 import UIKit
 
-
 // MARK: - ParagraphStyle
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - CustomReflectable
-
+    
     public var customMirror: Mirror {
         get {
             return Mirror(self, children: ["blockquotes": blockquotes,
@@ -193,18 +192,18 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         return CGFloat(depth) * Metrics.listTextIndentation
     }
 
-    var baseHeadIndent: CGFloat = 0
-    var baseFirstLineHeadIndent: CGFloat = 0
-    var baseTailIndent: CGFloat = 0
+    open var baseHeadIndent: CGFloat = 0
+    open var baseFirstLineHeadIndent: CGFloat = 0
+    open var baseTailIndent: CGFloat = 0
     
-    var regularParagraphSpacing = CGFloat(0)
-    var regularParagraphSpacingBefore = CGFloat(0)
+    open var regularParagraphSpacing = CGFloat(0)
+    open var regularParagraphSpacingBefore = CGFloat(0)
     
-    var textListParagraphSpacing = CGFloat(0)
-    var textListParagraphSpacingBefore = CGFloat(0)
+    open var textListParagraphSpacing = CGFloat(0)
+    open var textListParagraphSpacingBefore = CGFloat(0)
     
-    var blockquoteParagraphSpacing = CGFloat(0)
-    var blockquoteParagraphSpacingBefore = CGFloat(0)
+    open var blockquoteParagraphSpacing = CGFloat(0)
+    open var blockquoteParagraphSpacingBefore = CGFloat(0)
     
     open override var paragraphSpacing: CGFloat {
         get {
@@ -240,7 +239,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     // MARK: - Defaults
     
-    private static var cachedDefault: ParagraphStyle = {
+    open override class var `default`: ParagraphStyle {
         let style = ParagraphStyle()
         
         var tabStops = [NSTextTab]()
@@ -262,14 +261,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         style.textListParagraphSpacingBefore = 0
         
         return style
-    }()
-    
-    static func setDefault(_ newDefault: ParagraphStyle) {
-        cachedDefault = newDefault
-    }
-    
-    open override class var `default`: ParagraphStyle {
-        return ParagraphStyle.cachedDefault
     }
 
     // MARK: - Equatable

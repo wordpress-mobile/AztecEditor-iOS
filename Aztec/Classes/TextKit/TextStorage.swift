@@ -341,11 +341,11 @@ open class TextStorage: NSTextStorage {
 
     }
 
-    func setHTML(_ html: String, withDefaultFontDescriptor defaultFontDescriptor: UIFontDescriptor) {
+    func setHTML(_ html: String, defaultAttributes: [String: Any]) {
 
         let originalLength = textStore.length
 
-        textStore = NSMutableAttributedString(withHTML: html, usingDefaultFontDescriptor: defaultFontDescriptor)
+        textStore = NSMutableAttributedString(withHTML: html, defaultAttributes: defaultAttributes)
 
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self

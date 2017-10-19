@@ -143,10 +143,16 @@ open class TextView: UITextView {
 
     var maximumListIndentationLevels = 7
 
-    // MARK: - Properties: GUI Defaults
+    // MARK: - Properties: UI Defaults
 
-    let defaultFont: UIFont
+    open let defaultFont: UIFont
+    open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
+    
+    fileprivate var defaultAttributes: [String: Any] {
+        return [NSFontAttributeName: defaultFont,
+                NSParagraphStyleAttributeName: defaultParagraphStyle]
+    }
 
     // MARK: - Properties: Processors
 
@@ -191,7 +197,7 @@ open class TextView: UITextView {
         let string = textStorage.string
         
         guard !string.isEndOfParagraph(before: string.endIndex) else {
-            return [NSParagraphStyleAttributeName: ParagraphStyle.default]
+            return defaultAttributes
         }
         
         let lastLocation = max(string.characters.count - 1, 0)
@@ -202,9 +208,13 @@ open class TextView: UITextView {
 
     // MARK: - Init & deinit
 
-    public init(defaultFont: UIFont, defaultMissingImage: UIImage) {
+    public init(
+        defaultFont: UIFont,
+        defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
+        defaultMissingImage: UIImage) {
         
         self.defaultFont = defaultFont
+        self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
         let storage = TextStorage()
@@ -222,7 +232,9 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
 
         defaultFont = UIFont.systemFont(ofSize: 14)
+        defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
+        
         super.init(coder: aDecoder)
         commonInit()
     }
@@ -232,7 +244,7 @@ open class TextView: UITextView {
         storage.attachmentsDelegate = self
         font = defaultFont
         linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
-        typingAttributes[NSParagraphStyleAttributeName] = ParagraphStyle.default
+        typingAttributes = defaultAttributes
         setupMenuController()
         setupAttachmentTouchDetection()
         setupLayoutManager()
@@ -533,7 +545,7 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(processedHTML, withDefaultFontDescriptor: font!.fontDescriptor)
+        storage.setHTML(processedHTML, defaultAttributes: defaultAttributes)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
@@ -810,13 +822,6 @@ open class TextView: UITextView {
         let line = LineAttachment()
         replace(at: range, with: line)
     }
-
-    fileprivate lazy var defaultAttributes: [String: Any] = {
-        return [
-            NSFontAttributeName: self.defaultFont,
-            NSParagraphStyleAttributeName: ParagraphStyle.default
-        ]
-    }()
 
     private lazy var paragraphFormatters: [AttributeFormatter] = [
         BlockquoteFormatter(),
