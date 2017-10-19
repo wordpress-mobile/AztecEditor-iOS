@@ -43,20 +43,25 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
     }
 
     public required convenience init?(coder aDecoder: NSCoder) {
-
+        // TODO: This is a Work in Progress. Let's also get Attribute conforming to Codable!
         guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let valueCoding = aDecoder.decodeObject(forKey: Keys.value) as? NSCodingProxy<Value>
-        else {
+            let rawValue = aDecoder.decodeObject(forKey: Keys.value) as? Data,
+            let value = try? JSONDecoder().decode(Value.self, from: rawValue) else
+        {
             assertionFailure("Review the logic.")
             return nil
         }
 
-        self.init(name: name, value: valueCoding.value)
+        self.init(name: name, value: value)
     }
 
     open func encode(with aCoder: NSCoder) {
         aCoder.encode(name, forKey: Keys.name)
-        aCoder.encode(NSCodingProxy(for: value), forKey: Keys.value)
+
+        // TODO: This is a Work in Progress. Let's also get Attribute conforming to Codable!
+        if let encodedValue = try? JSONEncoder().encode(value) {
+            aCoder.encode(encodedValue, forKey: Keys.value)
+        }
     }
 
     // MARK: - Equatable
