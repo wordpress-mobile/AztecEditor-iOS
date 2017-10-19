@@ -90,7 +90,7 @@ extension Attribute {
 
     /// Allowed attribute values
     ///
-    enum Value: Coding, Equatable, Hashable {
+    enum Value: Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSAttribute])
@@ -194,6 +194,57 @@ extension Attribute {
                 
                 return result
             }
+        }
+    }
+}
+
+
+// MARK: - Attribute.Value Codable Conformance
+//
+extension Attribute.Value: Codable {
+
+    enum CodingError: Error {
+        case missingTypeKey
+    }
+
+    private enum ValueKey: String, CodingKey {
+        case none
+        case string
+        case inlineCss
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: ValueKey.self)
+
+        guard let rootKey = values.allKeys.first, let valueKind = ValueKey(rawValue: rootKey.rawValue) else {
+            throw CodingError.missingTypeKey
+        }
+
+        switch valueKind {
+        case .none:
+            // IMPORTANT: the `Value` prefix serves as disambiguation, since optionals also have
+            // a .none value!!!  Don't remove it!
+            //
+            self = Attribute.Value.none
+        case .string:
+            let string = try? values.decode(String.self, forKey: .string)
+            self = .string(string ?? "")
+        case .inlineCss:
+            let attributes = try? values.decode([CSSAttribute].self, forKey: .inlineCss)
+            self = .inlineCss(attributes ?? [])
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ValueKey.self)
+
+        switch self {
+        case .none:
+            try container.encodeNil(forKey: .none)
+        case .string(let string):
+            try container.encode(string, forKey: .string)
+        case .inlineCss(let attributes):
+            try container.encode(attributes, forKey: .inlineCss)
         }
     }
 }
