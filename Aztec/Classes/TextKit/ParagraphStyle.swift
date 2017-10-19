@@ -95,8 +95,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     override open func setParagraphStyle(_ baseParagraphStyle: NSParagraphStyle) {
         
+        super.setParagraphStyle(baseParagraphStyle)
+        
         guard let paragraphStyle = baseParagraphStyle as? ParagraphStyle else {
-            super.setParagraphStyle(baseParagraphStyle)
             return
         }
     
