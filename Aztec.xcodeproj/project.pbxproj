@@ -377,7 +377,6 @@
 			children = (
 				FF0713FE1EFD78AF00E50713 /* Assets */,
 				599F25001D8BC9A1002871D6 /* Classes */,
-				599F25911D8BDCA9002871D6 /* Documentation */,
 				599F25551D8BCA01002871D6 /* Modulemaps */,
 				5951CB921D8BC93600E1866F /* Info.plist */,
 			);
@@ -581,13 +580,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		599F25911D8BDCA9002871D6 /* Documentation */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Documentation;
 			sourceTree = "<group>";
 		};
 		59FEA0691D8BDFA700D138DF /* Importer */ = {
