@@ -14,7 +14,8 @@ It allows:
  * Filtering by media types.
  * Preview of media (images and video) in full screen.
  * Show the media picker inside as a keyboard input view.
- * Super quick and memory optimized
+ * Super quick and memory optimized.
+ * Allow horizontal and vertical scroll of assets.
 
 ![Screenshot](screenshots_1.jpg "Screenshot")
 
@@ -64,21 +65,21 @@ The example above shows the recommended way to show the picker in a modal. There
 
 ### How to configure the appearance of the picker
 
-Just use the standard appearance methods from UIKIT. Here is an example how to configure the main components
+Just use the standard appearance methods from UIKit. Here is an example how to configure the main components
 
 ```` objective-c
 //Configure navigation bar background color
-[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
+[[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPNavigationMediaPickerViewController class]]] setBarTintColor:[UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f]];
 //Configure navigation bar items text color
-[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
+[[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPNavigationMediaPickerViewController class]]] setTintColor:[UIColor whiteColor]];
 //Configure navigation bar title text color
-[[UINavigationBar appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
+[[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPNavigationMediaPickerViewController class]]] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
 //Configure background color for media scroll view
-[[UICollectionView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
+[[UICollectionView appearanceWhenContainedInInstancesOfClasses:@[[WPMediaCollectionViewController class]]] setBackgroundColor:[UIColor colorWithRed:233/255.0f green:239/255.0f blue:243/255.0f alpha:1.0f]];
 //Configure background color for media cell while loading image.
-[[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
+[[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPMediaCollectionViewController class]]] setBackgroundColor:[UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f]];
 //Configure color for activity indicator while loading media collection
-[[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaCollectionViewController class],nil] setColor:[UIColor grayColor]];
+[[UIActivityIndicatorView appearanceWhenContainedInInstancesOfClasses:@[[WPMediaCollectionViewController class]]] setColor:[UIColor grayColor]];
 ````
 
 ### How to use a custom data source for the picker
@@ -105,8 +106,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
  * ARC 
  * Photos, AVFoundation, ImageIO
- * XCode 8 or above
- * iOS 8 or above
+ * XCode 9 or above
+ * iOS 10 or above
 
 ## Author
 

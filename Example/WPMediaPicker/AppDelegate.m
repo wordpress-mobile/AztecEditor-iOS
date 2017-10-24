@@ -23,22 +23,27 @@
 
     //Configure navigation bar background color
     UIColor *wordPressBlue = [UIColor colorWithRed:0/255.0f green:135/255.0f blue:190/255.0f alpha:1.0f];
-    [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBarTintColor: wordPressBlue];
+    [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setBarTintColor: wordPressBlue];
     //Configure navigation bar items text color
-    [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTintColor:[UIColor whiteColor]];
+    [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setTintColor:[UIColor whiteColor]];
     //Configure navigation bar title text color
-    [[UINavigationBar appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
+    [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} ];
     //Configure background color for media scroll view
-    [[UICollectionView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:[UIColor whiteColor]];
-    [[UITableView appearanceWhenContainedIn:[WPNavigationMediaPickerViewController class],nil] setBackgroundColor:[UIColor whiteColor]];
+    [[UICollectionView appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setBackgroundColor:[UIColor whiteColor]];
+    [[UITableView appearanceWhenContainedInInstancesOfClasses:@[[WPNavigationMediaPickerViewController class]]] setBackgroundColor:[UIColor whiteColor]];
     //Configure background color for media cell while loading image.
     UIColor *cellBackgroundColor = [UIColor colorWithRed:243/255.0f green:246/255.0f blue:248/255.0f alpha:1.0f];
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setBackgroundColor:cellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setLoadingBackgroundColor:cellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPInputMediaPickerViewController class]]] setLoadingBackgroundColor:cellBackgroundColor];
     [[WPMediaGroupTableViewCell appearance] setPosterBackgroundColor:cellBackgroundColor];
 
+    //Configure placeholder background color for media cell.
+    UIColor *placeholderCellBackgroundColor = [UIColor lightGrayColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setPlaceholderBackgroundColor:placeholderCellBackgroundColor];
+    [[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPInputMediaPickerViewController class]]] setPlaceholderBackgroundColor:placeholderCellBackgroundColor];
+
     //Configure color for activity indicator while loading media collection
-    [[UIActivityIndicatorView appearanceWhenContainedIn:[WPMediaPickerViewController class],nil] setColor:[UIColor grayColor]];
+    [[UIActivityIndicatorView appearanceWhenContainedInInstancesOfClasses:@[[WPMediaPickerViewController class]]] setColor:[UIColor grayColor]];
 
     //Configure background color for media cell while loading image.
 
@@ -46,7 +51,7 @@
 
     [[WPMediaCollectionViewCell appearance] setTintColor:wordPressBlue];
     [[WPMediaCollectionViewCell appearance] setPositionLabelUnselectedTintColor:lightGray];
-    [[WPMediaCollectionViewCell appearanceWhenContainedIn:[WPInputMediaPickerViewController class],nil] setPositionLabelUnselectedTintColor:lightGray];
+    [[WPMediaCollectionViewCell appearanceWhenContainedInInstancesOfClasses:@[[WPInputMediaPickerViewController class]]] setPositionLabelUnselectedTintColor:lightGray];
 
     return YES;
 }

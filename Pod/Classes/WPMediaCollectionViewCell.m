@@ -18,7 +18,7 @@ static const CGFloat LabelRegularFontSize = 13;
 
 @property (nonatomic, strong) UIStackView *placeholderStackView;
 @property (nonatomic, strong) UIImageView *placeholderImageView;
-@property (nonatomic, strong) UILabel *documentExtensionLabel;
+@property (nonatomic, strong) UILabel *documentNameLabel;
 
 @property (nonatomic, assign) WPMediaRequestID requestKey;
 
@@ -56,9 +56,10 @@ static const CGFloat LabelRegularFontSize = 13;
     [self setPosition:NSNotFound];
     [self setSelected:NO];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    self.imageView.backgroundColor = self.backgroundColor;
+    self.imageView.backgroundColor = self.loadingBackgroundColor;
+    self.backgroundColor = self.loadingBackgroundColor;
     self.placeholderStackView.hidden = YES;
-    self.documentExtensionLabel.text = nil;
+    self.documentNameLabel.text = nil;
 }
 
 - (void)layoutSubviews {
@@ -69,6 +70,9 @@ static const CGFloat LabelRegularFontSize = 13;
 - (void)commonInit
 {
     self.isAccessibilityElement = YES;
+    _placeholderBackgroundColor = self.backgroundColor;
+    _loadingBackgroundColor = self.backgroundColor;
+
     _imageView = [[UIImageView alloc] init];
     _imageView.isAccessibilityElement = YES;
     _imageView.contentMode = UIViewContentModeScaleAspectFill;
@@ -137,18 +141,22 @@ static const CGFloat LabelRegularFontSize = 13;
     _placeholderStackView.axis = UILayoutConstraintAxisVertical;
     _placeholderStackView.alignment = UIStackViewAlignmentCenter;
     _placeholderStackView.distribution = UIStackViewDistributionEqualSpacing;
-    _placeholderStackView.spacing = 8.0;
+    _placeholderStackView.layoutMargins = UIEdgeInsetsMake(0.0, 3.0, 5.0, 3.0);
+    _placeholderStackView.layoutMarginsRelativeArrangement = YES;
+    _placeholderStackView.spacing = 2.0;
 
-    _documentExtensionLabel = [UILabel new];
-    _documentExtensionLabel.textAlignment = NSTextAlignmentCenter;
-    _documentExtensionLabel.font = [UIFont boldSystemFontOfSize:[UIFont smallSystemFontSize]];
-    _documentExtensionLabel.textColor = _placeholderTintColor;
+    _documentNameLabel = [UILabel new];
+    _documentNameLabel.textAlignment = NSTextAlignmentCenter;
+    _documentNameLabel.font = [UIFont systemFontOfSize:labelTextSize weight: UIFontWeightRegular];
+    _documentNameLabel.adjustsFontSizeToFitWidth = NO;
+    _documentNameLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
+    _documentNameLabel.textColor = _placeholderTintColor;
 
     _placeholderImageView = [UIImageView new];
     _placeholderImageView.contentMode = UIViewContentModeCenter;
 
     [_placeholderStackView addArrangedSubview:_placeholderImageView];
-    [_placeholderStackView addArrangedSubview:_documentExtensionLabel];
+    [_placeholderStackView addArrangedSubview:_documentNameLabel];
 
     UIStackView *wrapper = [[UIStackView alloc] initWithFrame:self.bounds];
     wrapper.axis = UILayoutConstraintAxisHorizontal;
@@ -189,43 +197,43 @@ static const CGFloat LabelRegularFontSize = 13;
 
 - (void)displayAssetTypePlaceholder
 {
+    self.backgroundColor = self.placeholderBackgroundColor;
     self.placeholderStackView.hidden = NO;
     self.imageView.hidden = YES;
     UIImage * iconImage = nil;
     NSString *caption = nil;
-    NSString *extension = nil;
-    if ([self.asset respondsToSelector:@selector(filename)]) {
-        caption = [self.asset filename];
-    }
+    NSString *mediaName = nil;
 
     switch (self.asset.assetType) {
         case WPMediaTypeImage:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-camera" withExtension:@"png"];
-            extension = NSLocalizedString(@"IMAGE", @"Label displayed on audio media items.");
+            mediaName = NSLocalizedString(@"image", @"Label displayed on image media items.");
             caption = nil;
             break;
         case WPMediaTypeVideo:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-video-camera" withExtension:@"png"];
-            extension = NSLocalizedString(@"VIDEO", @"Label displayed on audio media items.");
+            mediaName = NSLocalizedString(@"video", @"Label displayed on video media items.");
             caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             break;
         case WPMediaTypeAudio:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-audio" withExtension:@"png"];
-            extension = NSLocalizedString(@"AUDIO", @"Label displayed on audio media items.");
+            mediaName = NSLocalizedString(@"audio", @"Label displayed on audio media items.");
             caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
             break;
         case WPMediaTypeOther:
             iconImage = [WPMediaPickerResources imageNamed:@"gridicons-pages" withExtension:@"png"];
+            mediaName = NSLocalizedString(@"other", @"Label displayed on media items that are not video, image, or audio.");
+            caption = nil;
             break;
         default:
             break;
     }
-    if ([self.asset respondsToSelector:@selector(fileExtension)]) {
-        extension = [[self.asset fileExtension] uppercaseString];
+    if ([self.asset respondsToSelector:@selector(filename)]) {
+        mediaName = [[self.asset filename] lowercaseString];
     }
     self.placeholderImageView.image = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [self setCaption:caption];
-    self.documentExtensionLabel.text = extension;
+    self.documentNameLabel.text = mediaName;
 }
 
 - (void)setAsset:(id<WPMediaAsset>)asset {
@@ -241,7 +249,7 @@ static const CGFloat LabelRegularFontSize = 13;
         case WPMediaTypeOther:
             [self displayAssetTypePlaceholder];
         default:
-        break;
+            break;
     }
 }
 
@@ -258,6 +266,7 @@ static const CGFloat LabelRegularFontSize = 13;
         NSString *caption = [WPDateTimeHelpers stringFromTimeInterval:[self.asset duration]];
         [self setCaption:caption];
     }
+    self.backgroundColor = self.loadingBackgroundColor;
     self.imageView.hidden = NO;
     self.placeholderStackView.hidden = YES;
     BOOL animated = ([NSDate timeIntervalSinceReferenceDate] - timestamp) > ThresholdForAnimation;
@@ -331,7 +340,7 @@ static const CGFloat LabelRegularFontSize = 13;
 {
     _placeholderTintColor = placeholderTintColor;
     _placeholderImageView.tintColor = placeholderTintColor;
-    _documentExtensionLabel.textColor = placeholderTintColor;
+    _documentNameLabel.textColor = placeholderTintColor;
 }
 
 - (void)setSelected:(BOOL)selected
