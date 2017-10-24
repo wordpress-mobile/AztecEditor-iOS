@@ -53,6 +53,6 @@ class VideoFormatter: StandardAttributeFormatter {
             assert(representation == nil)
         }
 
-        return super.apply(to: attributes, andStore: representation)
+        return super.apply(to: attributes, andStore: nil)
     }
 }
