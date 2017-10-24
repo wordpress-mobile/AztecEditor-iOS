@@ -178,26 +178,34 @@
 - (void)loadGroupsWithSuccess:(WPMediaSuccessBlock)successBlock
                       failure:(WPMediaFailureBlock)failureBlock
 {
+    PHFetchOptions *options = [[PHFetchOptions alloc] init];
+    options.fetchLimit = 1;
     NSMutableArray *collectionsArray=[NSMutableArray array];
     for (NSNumber *subType in [self smartAlbumsToShow]) {
         PHFetchResult * smartAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                            subtype:[subType intValue]
-                                                                           options:nil];
+                                                                           options:options];
         PHAssetCollection *collection = (PHAssetCollection *)smartAlbum.firstObject;
-        [collectionsArray addObject:collection];
+        PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:options];
+        if (result.count > 0) {
+            [collectionsArray addObject:collection];
+        }
     }
-    
-    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
-                                                           subtype:PHAssetCollectionSubtypeAny
-                                                           options:nil];
+
+    PHFetchOptions *albumOptions = [[PHFetchOptions alloc] init];
+    albumOptions.predicate = [NSPredicate predicateWithFormat:@"(estimatedAssetCount != 0)"];
+    self.albums = [PHAssetCollection fetchTopLevelUserCollectionsWithOptions:nil];
 
     [collectionsArray addObjectsFromArray:[self.albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.albums.count)]]];
 
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
-    self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
+    self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:albumOptions];
     [self.cachedCollections removeAllObjects];
     for (PHAssetCollection *assetColletion in self.assetsCollections) {
+        if (assetColletion.estimatedAssetCount == 0) {
+            continue;
+        }
         [self.cachedCollections addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
     }
     if (self.assetsCollections.count > 0){
