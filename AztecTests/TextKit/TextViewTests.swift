@@ -1776,4 +1776,30 @@ class TextViewTests: XCTestCase {
         XCTAssert(textView.getHTML(prettyPrint: false) == expected)
     }
 
+    /// This test verifies that attributes on media attachment are being removed properly.
+    /// of text that never had H1 style, to begin with!.
+    ///
+    func testAttributesOnMediaAttachmentsAreRemoved() {
+        let textView = createTextView(withHTML: "<img src=\"http:\\\\placeholder\" data-wp_upload_id=\"ABCDE\" >")
+
+        guard let attachment = textView.storage.mediaAttachments.first else {
+            XCTFail("There must be an attachment")
+            return
+        }
+
+        guard let attributedValue = attachment.extraAttributes["data-wp_upload_id"] else {
+            XCTFail("There must be an attribute with the name data-wp_upload_i")
+            return
+        }
+
+        XCTAssertEqual(attributedValue, "ABCDE")
+
+        // Remove attribute
+        attachment.extraAttributes["data-wp_upload_id"] = nil
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<p><img src=\"http:\\\\placeholder\"></p>" )
+    }
+
 }
