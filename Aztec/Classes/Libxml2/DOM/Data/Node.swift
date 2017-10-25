@@ -3,7 +3,7 @@ import Foundation
 
 /// Base class for all node types.
 ///
-class Node: Equatable, CustomReflectable, Hashable {
+public class Node: Equatable, CustomReflectable, Hashable {
     
     let name: String
     
@@ -11,7 +11,7 @@ class Node: Equatable, CustomReflectable, Hashable {
     
     /// A weak reference to the parent of this node.
     ///
-    weak var parent: ElementNode?
+    public weak var parent: ElementNode?
 
     // MARK: - Properties: Editing traits
 
@@ -151,7 +151,7 @@ class Node: Equatable, CustomReflectable, Hashable {
         return name == rhs.name
     }
 
-    static func ==(lhs: Node, rhs: Node) -> Bool {
+    public static func ==(lhs: Node, rhs: Node) -> Bool {
         guard type(of: lhs) == type(of: rhs) else {
             return false
         }

@@ -6,7 +6,7 @@ import UIKit
 /// used as the `name` property of `ElementNode` is that element nodes could theoretically
 /// have non-standard names.
 ///
-enum StandardElementType: String {
+public enum StandardElementType: String {
     case a = "a"
     case address = "address"
     case b = "b"

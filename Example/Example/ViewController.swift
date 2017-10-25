@@ -15,20 +15,56 @@ class ViewController: UITableViewController
 
         rows = [
             DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
-            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) })
+            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) }),
+            DemoRow(title: "Strip-Paragraph Editor Demo", action: { self.showStripParagraphEditorDemo(loadSampleHTML: true) })
         ]
     }
 
-
     // MARK: Actions
 
-
     func showEditorDemo(loadSampleHTML: Bool = true) {
-        let controller = EditorDemoController()
-        controller.loadSampleHTML = loadSampleHTML
+        let controller: EditorDemoController
+            
+        if loadSampleHTML {
+            let sampleHTML = getSampleHTML(fromHTMLFileNamed: "content")
+            
+            controller = EditorDemoController(withSampleHTML: sampleHTML)
+        } else {
+            controller = EditorDemoController()
+        }
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func showStripParagraphEditorDemo(loadSampleHTML: Bool = true) {
+        let controller: EditorDemoController
+        
+        if loadSampleHTML {
+            let sampleHTML = getSampleHTML(fromHTMLFileNamed: "contentWithParagraphsStripped")
+            
+            controller = EditorDemoController(withSampleHTML: sampleHTML)
+        } else {
+            controller = EditorDemoController()
+        }
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 
+    // MARK: Sample HTML
+    
+    func getSampleHTML(fromHTMLFileNamed fileName: String) -> String {
+        let htmlFilePath = Bundle.main.path(forResource: fileName, ofType: "html")!
+        let fileContents: String
+        
+        do {
+            fileContents = try String(contentsOfFile: htmlFilePath)
+        } catch {
+            fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
+        }
+        
+        return fileContents
+    }
+    
     // MARK: TableView Methods
 
 

@@ -341,11 +341,15 @@ open class TextStorage: NSTextStorage {
 
     }
 
-    func setHTML(_ html: String, defaultAttributes: [String: Any]) {
+    func setHTML(_ html: String,
+                 defaultAttributes: [String: Any],
+                 postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
 
         let originalLength = textStore.length
 
-        textStore = NSMutableAttributedString(withHTML: html, defaultAttributes: defaultAttributes)
+        textStore = NSMutableAttributedString(withHTML: html,
+                                              defaultAttributes: defaultAttributes,
+                                              postProcessingHTMLWith: postProcessHTML)
 
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self

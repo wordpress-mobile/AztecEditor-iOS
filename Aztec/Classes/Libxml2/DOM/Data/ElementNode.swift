@@ -4,10 +4,10 @@ import UIKit
 
 /// Element node.  Everything but text basically.
 ///
-class ElementNode: Node {
+public class ElementNode: Node {
 
     var attributes = [Attribute]()
-    var children: [Node] {
+    public var children: [Node] {
         didSet {
             for child in children where child.parent !== self {
                 child.parent?.remove(child)
@@ -73,14 +73,14 @@ class ElementNode: Node {
 
     // MARK: - Initializers
 
-    init(name: String, attributes: [Attribute], children: [Node]) {
+    public init(name: String, attributes: [Attribute], children: [Node]) {
         self.attributes.append(contentsOf: attributes)
         self.children = children
 
         super.init(name: name)
     }
 
-    convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
+    public convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
         self.init(name: type.rawValue, attributes: attributes, children: children)
     }
 
@@ -389,11 +389,11 @@ class ElementNode: Node {
 
 // MARK: - RootNode
 
-class RootNode: ElementNode {
+public class RootNode: ElementNode {
 
     static let name = "aztec.htmltag.rootnode"
 
-    override var parent: ElementNode? {
+    public override var parent: ElementNode? {
         get {
             return nil
         }
@@ -412,7 +412,7 @@ class RootNode: ElementNode {
     
     // MARK: - Initializers
 
-    init(children: [Node]) {
+    public init(children: [Node]) {
         super.init(name: type(of: self).name, attributes: [], children: children)
     }
 
