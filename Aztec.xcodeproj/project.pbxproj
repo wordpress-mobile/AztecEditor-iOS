@@ -807,8 +807,8 @@
 			children = (
 				FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */,
 				FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */,
-				FF20D63F1EDC389A00294B78 /* Processor.swift */,
 				F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */,
+				FF20D63F1EDC389A00294B78 /* Processor.swift */,
 				F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */,
 				F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */,
 			);

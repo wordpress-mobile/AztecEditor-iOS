@@ -7,14 +7,7 @@ import UIKit
 public class ElementNode: Node {
 
     var attributes = [Attribute]()
-    public var children: [Node] {
-        didSet {
-            for child in children where child.parent !== self {
-                child.parent?.remove(child)
-                child.parent = self
-            }
-        }
-    }
+    public var children: [Node]
 
     private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
@@ -29,7 +22,7 @@ public class ElementNode: Node {
     private static let mergeableBlocklevelElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .li, .blockquote, .div]
     private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u]
 
-    internal var standardName: StandardElementType? {
+    public var standardName: StandardElementType? {
         get {
             return StandardElementType(rawValue: name)
         }
@@ -200,7 +193,7 @@ public class ElementNode: Node {
     ///
     /// - Returns: `true` if this is a block-level element.  `false` otherwise.
     ///
-    func isBlockLevelElement() -> Bool {
+    public func isBlockLevelElement() -> Bool {
 
         guard let standardName = standardName else {
             // For now we're treating all non-standard element names as non-block-level
@@ -305,74 +298,6 @@ public class ElementNode: Node {
 
         return siblingNode as? T
     }
-
-    // MARK: - DOM modification
-
-    /// Replaces the specified node with several new nodes.
-    ///
-    /// - Parameters:
-    ///     - child: the node to remove.
-    ///     - newChildren: the new child nodes to insert.
-    ///
-    func replace(child: Node, with newChildren: [Node]) {
-        guard let childIndex = children.index(of: child) else {
-            fatalError("This case should not be possible. Review the logic triggering this.")
-        }
-
-        for newNode in newChildren {
-            newNode.parent = self
-        }
-
-        children.remove(at: childIndex)
-        children.insert(contentsOf: newChildren, at: childIndex)
-    }
-
-    /// Removes the receiver from its parent.
-    ///
-    func removeFromParent(undoManager: UndoManager? = nil) {
-        guard let parent = parent else {
-            assertionFailure("It doesn't make sense to call this method without a parent")
-            return
-        }
-
-        parent.remove(self)
-    }
-
-
-    /// Removes the specified child node.  Only updates its parent if specified.
-    ///
-    /// - Parameters:
-    ///     - child: the child node to remove.
-    ///     - updateParent: whether the children node's parent must be update to `nil` or not.
-    ///             If not specified, the parent is updated.
-    ///
-    func remove(_ child: Node, updateParent: Bool = true) {
-
-        guard let index = children.index(of: child) else {
-            assertionFailure("Can't remove a node that's not a child.")
-            return
-        }
-
-        children.remove(at: index)
-
-        if updateParent {
-            child.parent = nil
-        }
-    }
-
-    /// Removes the specified child nodes.  Only updates their parents if specified.
-    ///
-    /// - Parameters:
-    ///     - children: the child nodes to remove.
-    ///     - updateParent: whether the children node's parent must be update to `nil` or not.
-    ///             If not specified, the parent is updated.
-    ///
-    func remove(_ children: [Node], updateParent: Bool = true) {
-        for child in children {
-            remove(child, updateParent: updateParent)
-        }
-    }
-
 
     // MARK: - Editing behavior
 

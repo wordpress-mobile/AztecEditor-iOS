@@ -133,14 +133,6 @@ public class Node: Equatable, CustomReflectable, Hashable {
         return parent.sibling(rightOf: index)
     }
 
-    // MARK: - DOM Modification
-
-    /// Removes this node from its parent, if it has one.
-    ///
-    func removeFromParent() {
-        parent?.remove(self)
-    }
-
     // MARK: - Node Equatable
 
     func isEqual(_ object: Any?) -> Bool {
