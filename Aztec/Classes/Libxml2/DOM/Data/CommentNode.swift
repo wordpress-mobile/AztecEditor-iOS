@@ -3,7 +3,7 @@ import Foundation
 
 /// Comment nodes use to hold HTML comments like this: <!-- This is a comment -->
 ///
-class CommentNode: Node {
+public class CommentNode: Node {
 
     var comment: String
 
@@ -17,7 +17,7 @@ class CommentNode: Node {
     
     // MARK: - Initializers
     
-    init(text: String) {
+    public init(text: String) {
         comment = text
 
         super.init(name: "comment")
