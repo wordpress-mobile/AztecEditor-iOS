@@ -332,11 +332,10 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(prettyPrint: Bool = false) -> String {
+    open func getHTML(serializer: HTMLSerializer) -> String {
         let parser = AttributedStringParser()
         let rootNode = parser.parse(self)
 
-        let serializer = HTMLSerializer(prettyPrint: prettyPrint)
         return serializer.serialize(rootNode)
 
     }
