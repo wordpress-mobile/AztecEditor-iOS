@@ -24,13 +24,7 @@ class AttributedStringSerializer {
     /// - Returns: the requested attributed string.
     ///
     func serialize(_ node: Node) -> NSAttributedString {
-		
-		let serialized = serialize(node, inheriting: defaultAttributes)
-		
-		// print("SERIALIZED: \(serialized)")
-		
-        // return serialize(node, inheriting: defaultAttributes)
-		return serialized
+        return serialize(node, inheriting: defaultAttributes)
     }
 
     /// Recursive serialization method.  Useful for maintaining the font style of parent nodes.
@@ -103,43 +97,32 @@ class AttributedStringSerializer {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func serialize(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
-		
-		// print("serialize ElementNode")
 
         guard element.isSupportedByEditor() else {
             return serialize(unsupported: element, inheriting: attributes)
         }
 		
-		
+		// if the element is of type '.a' and contains a '.img'
 		if element.isNodeType(.a) && element.children.count == 1 {
 			if let imgElement = element.children.first as? ElementNode, imgElement.isNodeType(.img) {
-				print("FOUND AN IMAGE WRAPPED IN A LINK")
-				
-				// found an image inside of a <a href></a>
-				
-				
 				
 				// get the URL
-				if let linkText = element.stringValueForAttribute(named: "href") {
-					print("link: \(linkText)")
-					
-					// create an ImageAttachment and assign the linkURL
-					let attachment = ImageAttachment()
-					attachment.linkURL = URL.init(string: linkText)
-					
-					
-					// TODO: try something with this?
-					// NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-					
-					
-					// return the attachment
-					// using what attributes?
-					let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
-					return NSAttributedString(attachment: attachment, attributes: imgAttributes)
+				if let linkText = element.stringValueForAttribute(named: "href"), let urlString = imgElement.stringValueForAttribute(named: "src") {
+					if let url = URL(string: urlString) {
+						// create an ImageAttachment and assign the linkURL
+						let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+						attachment.linkURL = URL(string: linkText)
+						
+						// return the attachment
+						let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
+						return NSAttributedString(attachment: attachment, attributes: imgAttributes)
+					}
 				}
 			}
 		}
 		
+		
+		// else process as usual
 		let childAttributes = self.attributes(for: element, inheriting: attributes)
 		let content = NSMutableAttributedString()
 		
@@ -423,21 +406,9 @@ private extension AttributedStringSerializer {
     /// - Returns: the requested implicit representation, if one exists, or `nil`.
     ///
     private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
-        switch elementType {
-		case .img:
-			print("implicitRepresentation - attributes: \(attributes)")
-			
-			/*
-			// remove the NSLink attribute?
-			var mutableAttributes = attributes
-			mutableAttributes["NSLink"] = nil
-			return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: mutableAttributes)
-			*/
 
-			
-			// TODO:
-			return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-        case .hr, .video:
+        switch elementType {
+        case .hr, .img, .video:
             return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
         case .br:
             return NSAttributedString(.lineSeparator, attributes: attributes)

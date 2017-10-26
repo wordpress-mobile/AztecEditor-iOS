@@ -902,7 +902,7 @@ private extension AttributedStringParser {
 		// if the image attachment has a linkURL set,
 		// wrap the .img element node in a .a node
 		if let linkText = attachment.linkURL?.absoluteString {
-			let hrefValue = Attribute.Value(withCSSString: linkText)
+			let hrefValue = Attribute.Value(withString: linkText)
 			let hrefAttribute = Attribute(name: "href", value: hrefValue)
 			let linkElement = ElementNode(type: .a, attributes: [hrefAttribute], children: [element])
 			

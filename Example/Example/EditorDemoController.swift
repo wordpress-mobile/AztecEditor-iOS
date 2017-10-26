@@ -157,8 +157,6 @@ class EditorDemoController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-		
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(printAttributedText))
 
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
@@ -187,34 +185,6 @@ class EditorDemoController: UIViewController {
         MediaAttachment.defaultAppearance.progressHeight = 2.0
         MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
-	
-	func printAttributedText() {
-		
-		if let imageAttachment = self.richTextView.attributedText.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment {
-			
-			if let linkText = imageAttachment.linkURL?.absoluteString {
-				print("link for image attachment: \(linkText)")
-			} else {
-				print("link for image attachment: [NO LINK URL]")
-			}
-		} else {
-			print("link for image attachment: [NO IMAGE ATTACHMENT]")
-		}
-
-		
-		if let richAttributedText = self.richTextView.attributedText {
-			print("rich text view attributedText: \(richAttributedText)")
-		}
-		
-		/*
-		if let htmlAttributedText = self.htmlTextView.attributedText {
-			print("html text view attributedText: \(htmlAttributedText)")
-		}
-		*/
-		
-		// same output:
-		// print("textStorage: \(self.richTextView.textStorage)")
-	}
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

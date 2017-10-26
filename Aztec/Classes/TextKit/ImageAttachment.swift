@@ -39,12 +39,6 @@ open class ImageAttachment: MediaAttachment {
     ///
     required public init(identifier: String, url: URL? = nil) {
         super.init(identifier: identifier, url: url)
-		
-		
-		
-		// by default use the URL of the image as its link
-		// NOPE: this is bad...
-		// self.linkURL = url
     }
 
 

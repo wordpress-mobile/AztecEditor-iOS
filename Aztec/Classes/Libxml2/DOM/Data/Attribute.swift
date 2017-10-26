@@ -101,6 +101,10 @@ extension Attribute {
         case inlineCss([CSSAttribute])
 
         // MARK: - Initializers
+		
+		init(withString string: String) {
+			self = .string(string)
+		}
 
         init(withCSSString cssString: String) {
 
