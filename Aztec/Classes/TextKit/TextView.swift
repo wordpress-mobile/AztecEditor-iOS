@@ -168,8 +168,7 @@ open class TextView: UITextView {
 
     /// Serializes the DOM Tree into an HTML String.
     ///
-    public var outputSerializer: HTMLSerializer?
-
+    public var outputSerializer: HTMLSerializer = DefaultHTMLSerializer()
 
     // MARK: - Properties: Text Storage
 
@@ -529,8 +528,7 @@ open class TextView: UITextView {
     ///
     public func getHTML(prettyPrint: Bool = true) -> String {
 
-        let serializer = outputSerializer ?? DefaultHTMLSerializer()
-        let pristineHTML = storage.getHTML(serializer: serializer)
+        let pristineHTML = storage.getHTML(serializer: outputSerializer)
         let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 
         return processedHTML
