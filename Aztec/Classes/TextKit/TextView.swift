@@ -522,12 +522,9 @@ open class TextView: UITextView {
 
     /// Converts the current Attributed Text into a raw HTML String
     ///
-    /// - Parameter prettyPrint: Indicates if the output HTML should be pretty printed, or not
-    ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML(prettyPrint: Bool = true) -> String {
-
+    public func getHTML() -> String {
         let pristineHTML = storage.getHTML(serializer: outputSerializer)
         let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 

@@ -142,7 +142,7 @@ class EditorDemoController: UIViewController {
     }
 
     func getHTML() -> String {
-        return richTextView.getHTML(prettyPrint: true)
+        return richTextView.getHTML()
     }
 
     fileprivate var optionsViewController: OptionsTableViewController!
