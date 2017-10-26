@@ -47,7 +47,7 @@ public class TextNode: Node {
 
     // MARK: - LeafNode
     
-    func text() -> String {
+    public func text() -> String {
         return contents
     }
 

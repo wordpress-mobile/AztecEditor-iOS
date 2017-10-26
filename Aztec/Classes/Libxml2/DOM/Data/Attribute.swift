@@ -76,7 +76,7 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - String Representation
 
-    func toString() -> String {
+    public func toString() -> String {
         var result = name
 
         if let stringValue = value.toString() {

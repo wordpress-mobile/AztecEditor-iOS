@@ -6,7 +6,7 @@ import UIKit
 ///
 public class ElementNode: Node {
 
-    var attributes = [Attribute]()
+    public var attributes = [Attribute]()
     public var children: [Node]
 
     private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]

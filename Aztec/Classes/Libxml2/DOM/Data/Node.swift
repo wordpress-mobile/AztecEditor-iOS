@@ -5,7 +5,7 @@ import Foundation
 ///
 public class Node: Equatable, CustomReflectable, Hashable {
     
-    let name: String
+    public let name: String
     
     // MARK: - Properties: Parent reference
     
@@ -120,7 +120,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
     ///
     /// - Returns: the right sibling, or `nil` if none exists.
     ///
-    func rightSibling() -> Node? {
+    public func rightSibling() -> Node? {
 
         guard let parent = parent else {
             return nil
