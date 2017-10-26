@@ -26,6 +26,8 @@ class EditorDemoController: UIViewController {
             defaultParagraphStyle: paragraphStyle,
             defaultMissingImage: Constants.defaultMissingImage)
 
+        textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
+
         textView.inputProcessor =
             PipelineProcessor([CaptionShortcodePreProcessor(),
                                VideoShortcodePreProcessor(),
