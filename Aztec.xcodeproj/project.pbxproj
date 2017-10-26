@@ -43,6 +43,7 @@
 		B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B575344F1F267D0B009D4904 /* Array+Helpers.swift */; };
 		B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57534511F267D63009D4904 /* ArrayHelperTests.swift */; };
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
+		B5834C841FA2413E00D46FC0 /* DefaultHTMLSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5834C831FA2413E00D46FC0 /* DefaultHTMLSerializer.swift */; };
 		B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */; };
 		B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A99D831EBA073D00DED081 /* HTMLStorage.swift */; };
 		B5AB79F81F5F3E0B00DF26F5 /* String+Paragraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AB79F71F5F3E0B00DF26F5 /* String+Paragraph.swift */; };
@@ -219,6 +220,7 @@
 		B575344F1F267D0B009D4904 /* Array+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Helpers.swift"; sourceTree = "<group>"; };
 		B57534511F267D63009D4904 /* ArrayHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArrayHelperTests.swift; path = Extensions/ArrayHelperTests.swift; sourceTree = "<group>"; };
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
+		B5834C831FA2413E00D46FC0 /* DefaultHTMLSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultHTMLSerializer.swift; sourceTree = "<group>"; };
 		B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Traits.swift"; sourceTree = "<group>"; };
 		B5A99D831EBA073D00DED081 /* HTMLStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLStorage.swift; sourceTree = "<group>"; };
 		B5AB79F71F5F3E0B00DF26F5 /* String+Paragraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Paragraph.swift"; sourceTree = "<group>"; };
@@ -462,6 +464,7 @@
 			isa = PBXGroup;
 			children = (
 				B5DA1C1C1EBD1CCE000AAB45 /* HTMLSerializer.swift */,
+				B5834C831FA2413E00D46FC0 /* DefaultHTMLSerializer.swift */,
 			);
 			path = Out;
 			sourceTree = "<group>";
@@ -1005,6 +1008,7 @@
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
 				B5375F471EC2566200F5D7EC /* String+HTML.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
+				B5834C841FA2413E00D46FC0 /* DefaultHTMLSerializer.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F12F586D1EF20394008AE298 /* ImageFormatter.swift in Sources */,
 				F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */,
