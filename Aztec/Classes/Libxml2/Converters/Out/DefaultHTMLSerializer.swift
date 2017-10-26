@@ -1,10 +1,9 @@
 import Foundation
-import libxml2
 
 
 /// Composes the provided nodes into its HTML representation.
 ///
-class HTMLSerializer {
+public class DefaultHTMLSerializer: HTMLSerializer {
 
     /// Indentation Spaces to be applied
     ///
@@ -20,7 +19,7 @@ class HTMLSerializer {
     ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
     ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
     ///
-    init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
+    public init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
         self.indentationSpaces = indentationSpaces
         self.prettyPrint = prettyPrint
     }
@@ -28,7 +27,7 @@ class HTMLSerializer {
 
     /// Serializes a node into its HTML representation
     ///
-    func serialize(_ node: Node) -> String {
+    public func serialize(_ node: Node) -> String {
         return serialize(node: node).trimmingCharacters(in: CharacterSet.newlines)
     }
 }
@@ -36,7 +35,7 @@ class HTMLSerializer {
 
 // MARK: - Nodes: Composition
 //
-private extension HTMLSerializer {
+private extension DefaultHTMLSerializer {
 
     /// Serializes a node into its HTML representation
     ///
@@ -97,7 +96,7 @@ private extension HTMLSerializer {
 
 // MARK: - ElementNode: Helpers
 //
-private extension HTMLSerializer {
+private extension DefaultHTMLSerializer {
 
     /// Returns the Opening Tag for a given Element Node
     ///
@@ -180,7 +179,7 @@ private extension HTMLSerializer {
 
 // MARK: - Attributes: Serialization
 //
-private extension HTMLSerializer {
+private extension DefaultHTMLSerializer {
 
     /// Serializes an array of attributes into their HTML representation
     ///
@@ -195,7 +194,7 @@ private extension HTMLSerializer {
 
 // MARK: - Private Constants
 //
-private extension HTMLSerializer {
+private extension DefaultHTMLSerializer {
 
     struct Constants {
 
