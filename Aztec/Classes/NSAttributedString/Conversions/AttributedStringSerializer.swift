@@ -123,8 +123,8 @@ class AttributedStringSerializer {
 
     /// Serializes an unsupported element.
     ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        let serializer = HTMLSerializer()
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+        let serializer = DefaultHTMLSerializer()
         let attachment = HTMLAttachment()
 
         attachment.rootTagName = element.name
