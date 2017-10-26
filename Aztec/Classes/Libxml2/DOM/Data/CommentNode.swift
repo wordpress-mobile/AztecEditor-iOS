@@ -5,7 +5,7 @@ import Foundation
 ///
 public class CommentNode: Node {
 
-    var comment: String
+    public var comment: String
 
     // MARK: - CustomReflectable
     
