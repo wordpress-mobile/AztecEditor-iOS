@@ -194,7 +194,9 @@
 
     PHFetchOptions *albumOptions = [[PHFetchOptions alloc] init];
     albumOptions.predicate = [NSPredicate predicateWithFormat:@"(estimatedAssetCount != 0)"];
-    self.albums = [PHAssetCollection fetchTopLevelUserCollectionsWithOptions:nil];
+    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                           subtype:PHAssetCollectionSubtypeAny
+                                                           options:nil];
 
     [collectionsArray addObjectsFromArray:[self.albums objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.albums.count)]]];
 
