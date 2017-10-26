@@ -157,6 +157,8 @@ class EditorDemoController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(printAttributedText))
 
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
@@ -185,6 +187,34 @@ class EditorDemoController: UIViewController {
         MediaAttachment.defaultAppearance.progressHeight = 2.0
         MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
+	
+	func printAttributedText() {
+		
+		if let imageAttachment = self.richTextView.attributedText.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment {
+			
+			if let linkText = imageAttachment.linkURL?.absoluteString {
+				print("link for image attachment: \(linkText)")
+			} else {
+				print("link for image attachment: [NO LINK URL]")
+			}
+		} else {
+			print("link for image attachment: [NO IMAGE ATTACHMENT]")
+		}
+
+		
+		if let richAttributedText = self.richTextView.attributedText {
+			print("rich text view attributedText: \(richAttributedText)")
+		}
+		
+		/*
+		if let htmlAttributedText = self.htmlTextView.attributedText {
+			print("html text view attributedText: \(htmlAttributedText)")
+		}
+		*/
+		
+		// same output:
+		// print("textStorage: \(self.richTextView.textStorage)")
+	}
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -1327,18 +1357,19 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { (alignment, size, url, alt) in
-            self.richTextView.edit(attachment) { updated in
-                if let alt = alt {
-                    updated.extraAttributes["alt"] = alt
-                }
-
-                updated.alignment = alignment
-                updated.size = size
-
-                updated.updateURL(url)
-            }
-        }
+		detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
+			self.richTextView.edit(attachment) { updated in
+				if let alt = alt {
+					updated.extraAttributes["alt"] = alt
+				}
+				
+				updated.alignment = alignment
+				updated.size = size
+				updated.linkURL = linkURL
+				
+				updated.updateURL(url)
+			}
+		}
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
