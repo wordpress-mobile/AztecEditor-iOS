@@ -108,30 +108,26 @@ class AttributedStringSerializer {
         if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
             content.append(representation)
         } else {
-			
-			// if the element is of type '.a' and contains a '.img'
-			if element.isNodeType(.a) && element.children.count == 1 {
-				if let imgElement = element.children.first as? ElementNode, imgElement.isNodeType(.img) {
-					
-					// get the URL
-					if let linkText = element.stringValueForAttribute(named: "href"), let urlString = imgElement.stringValueForAttribute(named: "src") {
-						if let url = URL(string: urlString) {
-							// create an ImageAttachment and assign the linkURL
-							let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
-							attachment.linkURL = URL(string: linkText)
-							
-							let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
-							let attributedString = NSAttributedString(attachment: attachment, attributes: imgAttributes)
-							content.append(attributedString)
-						}
-					}
-				}
-			} else {
-				for child in element.children {
-					let childContent = serialize(child, inheriting: childAttributes)
-					content.append(childContent)
-				}
-			}
+            // if the element is of type '.a' and contains a '.img'
+            if element.isNodeType(.a) && element.children.count == 1 {
+                if let imgElement = element.children.first as? ElementNode, imgElement.isNodeType(.img) {
+                    
+                    // get the link URL and assign it to the image attachment
+                    if let linkText = element.stringValueForAttribute(named: "href") {
+                            let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
+                            if let attachment = imgAttributes[NSAttachmentAttributeName] as? ImageAttachment {
+                                attachment.linkURL = URL(string: linkText)
+                            }
+                            let attributedString = NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: imgAttributes)
+                            content.append(attributedString)
+                    }
+                }
+            } else {
+                for child in element.children {
+                    let childContent = serialize(child, inheriting: childAttributes)
+                    content.append(childContent)
+                }
+            }
         }
 
         guard !element.needsClosingParagraphSeparator() else {
