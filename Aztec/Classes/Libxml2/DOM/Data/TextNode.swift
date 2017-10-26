@@ -3,7 +3,7 @@ import Foundation
 
 /// Text nodes.  Cannot have child nodes (for now, not sure if we will need them).
 ///
-class TextNode: Node {
+public class TextNode: Node {
 
     let contents: String
 
@@ -17,7 +17,7 @@ class TextNode: Node {
     
     // MARK: - Initializers
     
-    init(text: String) {
+    public init(text: String) {
         contents = text
 
         super.init(name: "text")
