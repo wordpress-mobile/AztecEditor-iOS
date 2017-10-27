@@ -1218,6 +1218,7 @@ private extension EditorDemoController
         let fileURL = saveToDisk(image: image)
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
+        attachment.linkURL = fileURL
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
