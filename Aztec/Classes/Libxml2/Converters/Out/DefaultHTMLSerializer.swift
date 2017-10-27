@@ -9,19 +9,12 @@ public class DefaultHTMLSerializer: HTMLSerializer {
     ///
     let indentationSpaces: Int
 
-    /// Indicates whether we want Pretty Print or not
-    ///
-    let prettyPrint: Bool
-
     /// Default Initializer
     ///
-    /// - Parameters:
-    ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
-    ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
+    /// - Parameter indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
     ///
-    public init(prettyPrint: Bool = false, indentationSpaces: Int = 2) {
+    public init(indentationSpaces: Int = 2) {
         self.indentationSpaces = indentationSpaces
-        self.prettyPrint = prettyPrint
     }
 
 
@@ -140,7 +133,7 @@ private extension DefaultHTMLSerializer {
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
-        return node.isBlockLevelElement() && prettyPrint
+        return node.isBlockLevelElement()
     }
 
 
@@ -149,7 +142,7 @@ private extension DefaultHTMLSerializer {
     private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
             let elementChild = child as? ElementNode
-            return elementChild?.isBlockLevelElement() == true && prettyPrint
+            return elementChild?.isBlockLevelElement() == true
         }
     }
 
@@ -164,7 +157,7 @@ private extension DefaultHTMLSerializer {
         let rightElementNode = rightSibling as? ElementNode
         let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevelElement() == false
 
-        return isRightNodeRegularElement && node.isBlockLevelElement() && prettyPrint
+        return isRightNodeRegularElement && node.isBlockLevelElement()
     }
 
 
