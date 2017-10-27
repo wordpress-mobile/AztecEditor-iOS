@@ -108,13 +108,8 @@ class AttributedStringSerializer {
         if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
             content.append(representation)
         } else {
-            // if the node is of type '.a' with one child of type '.img', retrieve the '.img' node
-            if let imgElement = linkedImageElementFor(element) {
-                // get the link URL text
-                var linkText = ""
-                if let hrefText = element.stringValueForAttribute(named: "href") {
-                    linkText = hrefText
-                }
+            if let imgElement = linkedImageElement(for: element) {
+                let linkText = element.stringValueForAttribute(named: "href") ?? ""
                 // retrieve the image attachment, and assign the link URL to it
                 let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
                 if let attachment = imgAttributes[NSAttachmentAttributeName] as? ImageAttachment,
@@ -145,13 +140,11 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the child '.img' node if there is one
     ///
-    fileprivate func linkedImageElementFor(_ element: ElementNode) -> ElementNode? {
-        guard element.isNodeType(.a) && element.children.count == 1 else {
-            return nil
-        }
-
-        guard let imgElement = element.children.first as? ElementNode, imgElement.isNodeType(.img) else {
-            return nil
+    fileprivate func linkedImageElement(for element: ElementNode) -> ElementNode? {
+        guard element.isNodeType(.a) && element.children.count == 1,
+            let imgElement = element.children.first as? ElementNode,
+            imgElement.isNodeType(.img) else {
+                return nil
         }
 
         return imgElement
