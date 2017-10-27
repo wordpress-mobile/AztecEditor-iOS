@@ -237,7 +237,7 @@
 {
     self.mediaPicker = [[WPNavigationMediaPickerViewController alloc] initWithOptions:[self selectedOptions]];
     self.mediaPicker.delegate = self;
-    self.pickerDataSource = [[WPPHAssetDataSource alloc] init];
+    self.pickerDataSource = [WPPHAssetDataSource sharedInstance];
     self.mediaPicker.dataSource = self.pickerDataSource;
     self.mediaPicker.selectionActionTitle = NSLocalizedString(@"Insert %@", @"");
     if (self.mediaInputViewController) {
