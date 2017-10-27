@@ -10,7 +10,7 @@ class DefaultHTMLSerializerTests: XCTestCase {
         let expected = "<ul>\n  <li>Item</li>\n  <li>Item</li>\n</ul>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = DefaultHTMLSerializer().serialize(inNode)
+        let outHtml = DefaultHTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -22,7 +22,7 @@ class DefaultHTMLSerializerTests: XCTestCase {
         let expected = "<ul>\n  <li>\n    <ol>\n      <li>Nested 1</li>\n      <li>Nested 2</li>\n    </ol>\n  </li>\n  <li>Regular</li>\n</ul>"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = DefaultHTMLSerializer().serialize(inNode)
+        let outHtml = DefaultHTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
@@ -35,7 +35,7 @@ class DefaultHTMLSerializerTests: XCTestCase {
         let expected = "<h1>Header</h1>\nTail"
 
         let inNode = HTMLParser().parse(sample)
-        let outHtml = DefaultHTMLSerializer().serialize(inNode)
+        let outHtml = DefaultHTMLSerializer(prettyPrint: true).serialize(inNode)
 
         XCTAssertEqual(outHtml, expected)
     }
