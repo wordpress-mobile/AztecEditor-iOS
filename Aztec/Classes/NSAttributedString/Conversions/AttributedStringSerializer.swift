@@ -111,7 +111,7 @@ class AttributedStringSerializer {
             // if the element is of type '.a' and contains a '.img'
             if element.isNodeType(.a) && element.children.count == 1 {
                 if let imgElement = element.children.first as? ElementNode, imgElement.isNodeType(.img) {
-                    
+
                     // get the link URL and assign it to the image attachment
                     if let linkText = element.stringValueForAttribute(named: "href") {
                         let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)

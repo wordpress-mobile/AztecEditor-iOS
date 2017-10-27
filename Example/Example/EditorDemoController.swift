@@ -1327,19 +1327,19 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-		detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
-			self.richTextView.edit(attachment) { updated in
-				if let alt = alt {
-					updated.extraAttributes["alt"] = alt
-				}
-				
-				updated.alignment = alignment
-				updated.size = size
-				updated.linkURL = linkURL
-				
-				updated.updateURL(url)
-			}
-		}
+        detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
+            self.richTextView.edit(attachment) { updated in
+                if let alt = alt {
+                    updated.extraAttributes["alt"] = alt
+                }
+
+                updated.alignment = alignment
+                updated.size = size
+                updated.linkURL = linkURL
+
+                updated.updateURL(url)
+            }
+        }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
         present(navigationController, animated: true, completion: nil)
