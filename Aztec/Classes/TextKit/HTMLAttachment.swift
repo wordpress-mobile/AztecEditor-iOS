@@ -65,7 +65,7 @@ open class HTMLAttachment: NSTextAttachment {
     ///
     open func prettyHTML() -> String {
         let htmlParser = HTMLParser()
-        let serializer = DefaultHTMLSerializer()
+        let serializer = DefaultHTMLSerializer(prettyPrint: true)
 
         let inNode = htmlParser.parse(rawHTML)
         return serializer.serialize(inNode)
