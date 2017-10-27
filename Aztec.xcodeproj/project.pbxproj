@@ -103,7 +103,7 @@
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
 		F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */; };
 		F17BC8941F4E4BA500398E2B /* UnsupportedHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8911F4E4BA500398E2B /* UnsupportedHTML.swift */; };
-		F17BC8A21F4E4F5A00398E2B /* HTMLSerializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC89D1F4E4F5A00398E2B /* HTMLSerializerTests.swift */; };
+		F17BC8A21F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC89D1F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift */; };
 		F17BC8A31F4E4F5A00398E2B /* ElementNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC89F1F4E4F5A00398E2B /* ElementNodeTests.swift */; };
 		F17BC8A41F4E4F5A00398E2B /* NodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8A01F4E4F5A00398E2B /* NodeTests.swift */; };
 		F17BC8A51F4E4F5A00398E2B /* TextNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8A11F4E4F5A00398E2B /* TextNodeTests.swift */; };
@@ -279,7 +279,7 @@
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
 		F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLRepresentation.swift; sourceTree = "<group>"; };
 		F17BC8911F4E4BA500398E2B /* UnsupportedHTML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnsupportedHTML.swift; sourceTree = "<group>"; };
-		F17BC89D1F4E4F5A00398E2B /* HTMLSerializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLSerializerTests.swift; sourceTree = "<group>"; };
+		F17BC89D1F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultHTMLSerializerTests.swift; sourceTree = "<group>"; };
 		F17BC89F1F4E4F5A00398E2B /* ElementNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementNodeTests.swift; sourceTree = "<group>"; };
 		F17BC8A01F4E4F5A00398E2B /* NodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeTests.swift; sourceTree = "<group>"; };
 		F17BC8A11F4E4F5A00398E2B /* TextNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNodeTests.swift; sourceTree = "<group>"; };
@@ -722,7 +722,7 @@
 			children = (
 				F168DB851F6381A00009BD0E /* CSSParserTests.swift */,
 				F1953E241F4E544A00C717C9 /* HTMLParserTests.swift */,
-				F17BC89D1F4E4F5A00398E2B /* HTMLSerializerTests.swift */,
+				F17BC89D1F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift */,
 			);
 			path = Conversions;
 			sourceTree = "<group>";
@@ -1095,7 +1095,7 @@
 				FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */,
 				F17BC8A41F4E4F5A00398E2B /* NodeTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
-				F17BC8A21F4E4F5A00398E2B /* HTMLSerializerTests.swift in Sources */,
+				F17BC8A21F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift in Sources */,
 				F1953E251F4E544A00C717C9 /* HTMLParserTests.swift in Sources */,
 				B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */,
 				B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */,
