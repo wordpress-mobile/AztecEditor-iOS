@@ -9,6 +9,10 @@ class TextStorageTests: XCTestCase {
     ///
     var storage: TextStorage!
 
+    /// HTML Serializer
+    ///
+    let serializer = DefaultHTMLSerializer()
+
     /// Test Attachments Delegate
     ///
     var mockDelegate: MockAttachmentsDelegate!
@@ -129,7 +133,7 @@ class TextStorageTests: XCTestCase {
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
@@ -147,7 +151,7 @@ class TextStorageTests: XCTestCase {
         attachment.alignment = .left
         attachment.size = .medium
 
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignleft size-medium\"></p>")
     }
@@ -177,7 +181,7 @@ class TextStorageTests: XCTestCase {
         theAttachment.rawHTML = updatedHTML
 
         // Verify
-        XCTAssertEqual(storage.getHTML(), finalHTML)
+        XCTAssertEqual(storage.getHTML(serializer: serializer), finalHTML)
     }
 
     func testBlockquoteToggle1() {
@@ -186,13 +190,13 @@ class TextStorageTests: XCTestCase {
         let blockquoteFormatter = BlockquoteFormatter()
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML()
+        var html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
 
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML()
+        html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<p>Apply a blockquote</p>")
     }
@@ -206,7 +210,7 @@ class TextStorageTests: XCTestCase {
 
         storage.toggle(formatter: blockquoteFormatter, at: utf16Range)
 
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<p>Hello 🌎!</p><blockquote>Apply a blockquote!</blockquote>")
     }
@@ -217,13 +221,13 @@ class TextStorageTests: XCTestCase {
         linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
         storage.toggle(formatter: linkFormatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML()
+        var html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<p><a href=\"www.wordpress.com\">Apply a link</a></p>")
 
         storage.toggle(formatter:linkFormatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML()
+        html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<p>Apply a link</p>")
     }
@@ -233,13 +237,13 @@ class TextStorageTests: XCTestCase {
         let formatter = HeaderFormatter(headerLevel: .h1)
         storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML()
+        var html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<h1>Apply a header</h1>")
 
         storage.toggle(formatter:formatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML()
+        html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "Apply a header")
     }
@@ -267,14 +271,14 @@ class TextStorageTests: XCTestCase {
         storage.toggle(formatter: h2formatter, at: l2Range)
 
         // Verify HTML so Far
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
         XCTAssertEqual(html, "<h1>H1 Line</h1><h2>Normal Line</h2>")
 
         // Nuke the Newline Character
         storage.deleteCharacters(in: newlineRange)
 
         // Verify HTML
-        let fixedHTML = storage.getHTML()
+        let fixedHTML = storage.getHTML(serializer: serializer)
         XCTAssertEqual(fixedHTML, "<h1>H1 LineNormal Line</h1>")
 
         // Verify Font
@@ -295,13 +299,13 @@ class TextStorageTests: XCTestCase {
         let formatterH2 = HeaderFormatter(headerLevel: .h2)
         storage.toggle(formatter: formatterH1, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML()
+        var html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<h1>Apply a header</h1>")
 
         storage.toggle(formatter:formatterH2, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML()
+        html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(html, "<h2>Apply a header</h2>")
     }
@@ -315,7 +319,7 @@ class TextStorageTests: XCTestCase {
         let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.org")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
 
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
@@ -330,7 +334,7 @@ class TextStorageTests: XCTestCase {
 
         let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
-        let html = storage.getHTML()
+        let html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
@@ -383,7 +387,7 @@ class TextStorageTests: XCTestCase {
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
 
-        let resultHTML = storage.getHTML()
+        let resultHTML = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(String(), resultHTML)
     }
