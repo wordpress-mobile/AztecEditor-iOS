@@ -599,6 +599,10 @@
 
 - (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler
 {
+    if (_assetCount != NSNotFound) {
+        completionHandler(self.assetCount, nil);
+        return self.assetCount;
+    }
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         self.assetCount = [self.fetchResult count];
         completionHandler(self.assetCount, nil);
