@@ -169,7 +169,7 @@ open class TextView: UITextView {
     public var outputProcessor: Processor?
 
 
-    // MARK: - TextKit Aztec Subclass'ess
+    // MARK: - TextKit Aztec Subclasses
 
     var storage: TextStorage {
         return textStorage as! TextStorage
@@ -249,7 +249,6 @@ open class TextView: UITextView {
         
         return textStorage.attributes(at: lastLocation, effectiveRange: nil)
     }
-
 
 
     // MARK: - Init & deinit
