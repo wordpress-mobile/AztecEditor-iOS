@@ -6,23 +6,43 @@ class ParagraphRemovingProcessor: HTMLTreeProcessor {
         // All nodes at the root level that are not block nodes will be wrapped by paragraphs.
         var nodesToWrapInParagraph = [Node]()
 
+        // First clean BRs:
+        // - Converts single \n at root level to <br/>
+        // - Converts double \n at root level to </p>
+        // - Converts any \n non at root level to <br/>
+        //
+        // cleanNewlines()
+        
         for (index, node) in rootNode.children.enumerated() {
-            guard let elementNode = node as? ElementNode else {
+            
+            guard let textNode = node as? TextNode else {
                 rootNode.children.remove(at: index)
                 nodesToWrapInParagraph.append(node)
                 continue
             }
-        
-            guard !elementNode.isBlockLevelElement() else {
-                if nodesToWrapInParagraph.count > 0 {
-                    let paragraph = wrapInParagraph(nodesToWrapInParagraph)
-                    
-                    rootNode.children.insert(paragraph, at: index)
-                    nodesToWrapInParagraph.removeAll()
-                }
-                
+            
+            guard let elementNode = node as? ElementNode else {
+            }
+            
+            guard !elementNode.isNodeType(.br) else {
+                // Process
+            }
+            
+            guard elementNode.isBlockLevelElement() else {
+                rootNode.children.remove(at: index)
+                nodesToWrapInParagraph.append(node)
                 continue
             }
+            
+            
+            if nodesToWrapInParagraph.count > 0 {
+                let paragraph = wrapInParagraph(nodesToWrapInParagraph)
+                
+                rootNode.children.insert(paragraph, at: index)
+                nodesToWrapInParagraph.removeAll()
+            }
+            
+            continue
             
             guard elementNode.standardName != .br else {
                 continue
@@ -36,5 +56,11 @@ class ParagraphRemovingProcessor: HTMLTreeProcessor {
     
     private func wrapInParagraph(_ nodes: [Node]) -> ElementNode {
         return ElementNode(type: .p, attributes: [], children: nodes)
+    }
+    
+    private func replaceLineBreaks(in element: ElementNode) {
+            elementNode.isNodeType(.br) else {
+                
+        }
     }
 }

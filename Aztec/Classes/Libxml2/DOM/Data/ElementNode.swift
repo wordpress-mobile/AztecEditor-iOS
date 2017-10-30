@@ -205,7 +205,7 @@ public class ElementNode: Node {
         return standardName.isBlockLevelNodeName()
     }
 
-    func isNodeType(_ type: StandardElementType) -> Bool {
+    public func isNodeType(_ type: StandardElementType) -> Bool {
         return type.equivalentNames.contains(name.lowercased())
     }
     
