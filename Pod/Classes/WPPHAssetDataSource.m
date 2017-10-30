@@ -10,7 +10,7 @@
 @property (nonatomic, strong) PHFetchResult *assetsCollections;
 @property (nonatomic, strong) PHFetchResult *assets;
 @property (nonatomic, strong) PHFetchResult *albums;
-@property (nonatomic, strong) NSMutableArray<PHAssetCollectionForWPMediaGroup *> *cachedCollections;
+@property (nonatomic, strong) NSArray<PHAssetCollectionForWPMediaGroup *> *cachedCollections;
 @property (nonatomic, assign) WPMediaType mediaTypeFilter;
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
@@ -203,13 +203,14 @@
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:albumOptions];
-    [self.cachedCollections removeAllObjects];
-    for (PHAssetCollection *assetColletion in self.assetsCollections) {
-        if (assetColletion.estimatedAssetCount == 0) {
+    NSMutableArray *newCachedAssetCollection = [NSMutableArray new];
+    for (PHAssetCollection *assetCollection in self.assetsCollections) {
+        if (assetCollection.estimatedAssetCount == 0) {
             continue;
         }
-        [self.cachedCollections addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
+        [newCachedAssetCollection addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetCollection mediaType:self.mediaTypeFilter]];
     }
+    self.cachedCollections = newCachedAssetCollection;
     if (self.assetsCollections.count > 0){
         if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
             self.activeAssetsCollection = [self.assetsCollections firstObject];
