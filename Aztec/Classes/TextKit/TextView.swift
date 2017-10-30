@@ -1706,7 +1706,15 @@ extension TextView: TextStorageAttachmentsDelegate {
         }
 
         let locationInTextView = touch.location(in: textView)
-        return textView.attachmentAtPoint(locationInTextView) != nil
+        let isAttachmentInLocation = textView.attachmentAtPoint(locationInTextView) != nil
+        if !isAttachmentInLocation {
+            if let selectedAttachment = currentSelectedAttachment {
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
+            }
+            currentSelectedAttachment = nil
+        }
+        return isAttachmentInLocation
+
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
