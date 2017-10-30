@@ -5,19 +5,24 @@ import QuartzCore
 
 // MARK: - Aztec Layout Manager
 //
-class LayoutManager: NSLayoutManager {
+public class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     ///
-    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    public var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+
+
+    /// Blockquote's Left Border width
+    ///
+    public var blockquoteBorderWidth: CGFloat = 2
 
     /// Blockquote's Background Color
     ///
-    var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
+    public var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
     /// HTML Pre Background Color
     ///
-    var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+    public var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
 
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
@@ -26,7 +31,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Draws the background, associated to a given Text Range
     ///
-    override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+    override public func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
         super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
 
         drawBlockquotes(forGlyphRange: glyphsToShow, at: origin)
@@ -125,7 +130,7 @@ private extension LayoutManager {
         blockquoteBackgroundColor.setFill()
         context.fill(rect)
 
-        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: 2, height: rect.height))
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
         blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }
