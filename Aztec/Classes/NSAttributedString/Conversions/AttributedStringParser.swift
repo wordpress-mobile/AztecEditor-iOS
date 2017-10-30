@@ -716,7 +716,7 @@ private extension AttributedStringParser {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: "href", value: .string(urlString))
+        element.updateAttribute(named: HTMLLinkAttribute.Href.rawValue, value: .string(urlString))
 
         return element
     }
@@ -901,7 +901,7 @@ private extension AttributedStringParser {
 
         if let linkText = attachment.linkURL?.absoluteString {
             let hrefValue = Attribute.Value(withString: linkText)
-            let hrefAttribute = Attribute(name: "href", value: hrefValue)
+            let hrefAttribute = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: hrefValue)
             let linkElement = ElementNode(type: .a, attributes: [hrefAttribute], children: [element])
 
             return linkElement

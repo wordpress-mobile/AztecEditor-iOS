@@ -380,7 +380,7 @@ private extension AttributedStringSerializer {
         }
         
         if let imgElement = linkedImageElement(for: element) {
-            let linkText = element.stringValueForAttribute(named: "href") ?? ""
+            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
             let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
             let attachment = imgAttributes[NSAttachmentAttributeName] as! ImageAttachment
             let representation = implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
