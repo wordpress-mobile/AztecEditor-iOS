@@ -175,6 +175,47 @@ open class TextView: UITextView {
         return textStorage as! TextStorage
     }
 
+    var layout: LayoutManager {
+        return layoutManager as! LayoutManager
+    }
+
+
+    // MARK: - Apparance Properties
+
+    /// Blockquote Blocks Border COlor.
+    ///
+    dynamic public var blockquoteBorderColor: UIColor {
+        get {
+            return layout.blockquoteBorderColor
+        }
+        set {
+            layout.blockquoteBorderColor = newValue
+        }
+    }
+
+    /// Blockquote Blocks Background Color.
+    ///
+    dynamic public var blockquoteBackgroundColor: UIColor {
+        get {
+            return layout.blockquoteBackgroundColor
+        }
+        set {
+            layout.blockquoteBackgroundColor = newValue
+        }
+    }
+
+    /// Pre Blocks Background Color.
+    ///
+    dynamic public var preBackgroundColor: UIColor {
+        get {
+            return layout.preBackgroundColor
+        }
+        set {
+            layout.preBackgroundColor = newValue
+        }
+    }
+
+
     // MARK: - Overwritten Properties
 
     /// Overwrites Typing Attributes:
