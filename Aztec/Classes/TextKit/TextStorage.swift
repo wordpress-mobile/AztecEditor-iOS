@@ -83,6 +83,8 @@ open class TextStorage: NSTextStorage {
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
 
+    fileprivate var textStoreString = ""
+
 
     // MARK: - Delegates
 
@@ -99,7 +101,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Calculated Properties
 
     override open var string: String {
-        return textStore.string
+        return textStoreString
     }
 
     open var mediaAttachments: [MediaAttachment] {
@@ -239,6 +241,11 @@ open class TextStorage: NSTextStorage {
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
 
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: str)
+
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
         endEditing()
@@ -252,6 +259,12 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
+
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: attrString.string)
+
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
         endEditing()
@@ -359,6 +372,8 @@ open class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+
+        textStoreString = textStore.string
 
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
