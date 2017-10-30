@@ -111,11 +111,10 @@ class AttributedStringSerializer {
             if let imgElement = linkedImageElement(for: element) {
                 let linkText = element.stringValueForAttribute(named: "href") ?? ""
                 let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
-                if let attachment = imgAttributes[NSAttachmentAttributeName] as? ImageAttachment,
-                    let attributedString = implicitRepresentation(for: imgElement, inheriting: imgAttributes) {
-                    attachment.linkURL = URL(string: linkText)
-                    content.append(attributedString)
-                }
+                let attachment = imgAttributes[NSAttachmentAttributeName] as! ImageAttachment
+                let attributedString = implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
+                attachment.linkURL = URL(string: linkText)
+                content.append(attributedString)
             } else {
                 for child in element.children {
                     let childContent = serialize(child, inheriting: childAttributes)
