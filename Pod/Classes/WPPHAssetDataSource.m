@@ -196,11 +196,11 @@
     
     PHCollectionList *allAlbums = [PHCollectionList transientCollectionListWithCollections:collectionsArray title:@"Root"];
     self.assetsCollections = [PHAssetCollection fetchCollectionsInCollectionList:allAlbums options:nil];
-    NSMutableArray *newCachedAssetColletion = [NSMutableArray new];
-    for (PHAssetCollection *assetColletion in self.assetsCollections) {
-        [newCachedAssetColletion addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetColletion mediaType:self.mediaTypeFilter]];
+    NSMutableArray *newCachedAssetCollection = [NSMutableArray new];
+    for (PHAssetCollection *assetCollection in self.assetsCollections) {
+        [newCachedAssetCollection addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetCollection mediaType:self.mediaTypeFilter]];
     }
-    self.cachedCollections = newCachedAssetColletion;
+    self.cachedCollections = newCachedAssetCollection;
     if (self.assetsCollections.count > 0){
         if (!self.activeAssetsCollection || [self.assetsCollections indexOfObject:self.activeAssetsCollection] == NSNotFound) {
             self.activeAssetsCollection = [self.assetsCollections firstObject];
