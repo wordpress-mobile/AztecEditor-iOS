@@ -124,7 +124,7 @@ public protocol TextViewFormattingDelegate: class {
 //
 open class TextView: UITextView {
 
-    // MARK: - Properties: Attachments & Media
+    // MARK: - Aztec Delegates
 
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
@@ -135,13 +135,15 @@ open class TextView: UITextView {
     ///
     fileprivate var textAttachmentImageProvider = [TextViewAttachmentImageProvider]()
 
-    // MARK: - Properties: Formatting
-
+    /// Formatting Delegate: to be used by the Edition's Format Bar.
+    ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
+
 
     // MARK: - Properties: Text Lists
 
     var maximumListIndentationLevels = 7
+
 
     // MARK: - Properties: UI Defaults
 
@@ -154,6 +156,7 @@ open class TextView: UITextView {
                 NSParagraphStyleAttributeName: defaultParagraphStyle]
     }
 
+
     // MARK: - Properties: Processors
 
     /// This processor will be executed on any HTML you provide to the method `setHTML()` and
@@ -165,7 +168,8 @@ open class TextView: UITextView {
     ///
     public var outputProcessor: Processor?
 
-    // MARK: - Properties: Text Storage
+
+    // MARK: - TextKit Aztec Subclass'ess
 
     var storage: TextStorage {
         return textStorage as! TextStorage
@@ -204,6 +208,7 @@ open class TextView: UITextView {
         
         return textStorage.attributes(at: lastLocation, effectiveRange: nil)
     }
+
 
 
     // MARK: - Init & deinit
@@ -1126,9 +1131,6 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
     }
 
-
-
-
     /// Removes the link, if any, at the specified range
     ///
     /// - Parameter range: range that contains the link to be removed.
@@ -1288,10 +1290,12 @@ open class TextView: UITextView {
     }
 
 
-    /// // Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the attachment based on the margins.
+    /// Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the
+    /// attachment based on the margins.
     ///
     /// - Parameter point: the point to check.
     /// - Returns: true if the point fall inside an attachment margin
+    ///
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
