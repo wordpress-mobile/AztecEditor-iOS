@@ -44,7 +44,7 @@
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
     _cachedCollections = [[NSMutableArray alloc] init];
-    _imageGenerationQueue = dispatch_queue_create("org.wordpress.wpmediapicker.WPPHAssetDataSource", DISPATCH_QUEUE_CONCURRENT);
+    _imageGenerationQueue = dispatch_queue_create("org.wordpress.wpmediapicker.WPPHAssetDataSource", DISPATCH_QUEUE_SERIAL);
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     return self;
 }
@@ -592,8 +592,9 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
+     __weak __typeof__(self) weakSelf = self;
     dispatch_async(self.imageGenerationQueue, ^{
-        [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+        [weakSelf.posterAsset imageWithSize:size completionHandler:completionHandler];
     });
     return 0;
 }
