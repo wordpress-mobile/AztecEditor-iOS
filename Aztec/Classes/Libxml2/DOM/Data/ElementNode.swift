@@ -7,7 +7,18 @@ import UIKit
 public class ElementNode: Node {
 
     public var attributes = [Attribute]()
-    public var children: [Node]
+    public var children: [Node] {
+        didSet {
+            for child in children where child.parent !== self {
+                if let oldParent = child.parent,
+                    let childIndex = oldParent.children.index(of: child) {
+                    
+                    oldParent.children.remove(at: childIndex)
+                }
+                child.parent = self
+            }
+        }
+    }
 
     private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
@@ -75,13 +86,6 @@ public class ElementNode: Node {
 
     public convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
         self.init(name: type.rawValue, attributes: attributes, children: children)
-    }
-
-
-    // MARK: - Node Constructors
-    
-    static func `break`() -> ElementNode {
-        return ElementNode(name: StandardElementType.br.rawValue, attributes: [], children: [])
     }
     
     // MARK: - Node Overrides
@@ -318,7 +322,7 @@ public class RootNode: ElementNode {
 
     static let name = "aztec.htmltag.rootnode"
 
-    public override var parent: ElementNode? {
+    public override weak var parent: ElementNode? {
         get {
             return nil
         }
