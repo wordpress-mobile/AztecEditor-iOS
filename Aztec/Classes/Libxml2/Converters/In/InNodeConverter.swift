@@ -95,30 +95,6 @@ class InNodeConverter: SafeConverter {
         return node
     }
 
-    func hasNode(_ rawNode: xmlNode, ancestorOfType type: StandardElementType) -> Bool {
-        var parentNode = rawNode.parent
-        while parentNode != nil {
-            guard let xmlNode = parentNode?.pointee else {
-                return true
-            }
-            if xmlNode.name != nil && String(cString:xmlNode.name) == type.rawValue {
-                return false
-            }
-            parentNode = xmlNode.parent
-        }
-        return true
-    }
-
-    /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
-    /// For example if you are inside a pre element you shoulnd't clean up the nodes.
-    ///
-    /// - Parameter rawNode: the base node to check
-    ///
-    /// - Returns: true if sanitization should happen, false otherwise
-    func shouldSanitizeText(inNode rawNode: xmlNode) -> Bool {
-        return hasNode(rawNode, ancestorOfType: .pre)
-    }
-
     /// Creates an HTML.TextNode from a libxml2 element node.
     ///
     /// - Parameters:
@@ -127,10 +103,7 @@ class InNodeConverter: SafeConverter {
     /// - Returns: the HTML.TextNode
     ///
     fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
-        var text = String(cString: rawNode.content)
-        if shouldSanitizeText(inNode: rawNode) {
-            text = sanitize(text)
-        }
+        let text = String(cString: rawNode.content)
         let node = TextNode(text: text)
 
         return node
@@ -152,35 +125,6 @@ class InNodeConverter: SafeConverter {
 
     fileprivate func getNodeName(_ rawNode: xmlNode) -> String {
         return String(cString: rawNode.name)
-    }
-
-    // MARK: - Sanitization
-
-    private func sanitize(_ text: String) -> String {
-
-        let hasAnEndingSpace = text.hasSuffix(String(.space))
-        let hasAStartingSpace = text.hasPrefix(String(.space))
-
-        // We cannot use CharacterSet.whitespacesAndNewlines directly, because it includes
-        // U+000A, which is non-breaking space.  We need to maintain it.
-        //
-        let whitespace = CharacterSet.whitespacesAndNewlines
-        let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace))
-        let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
-
-        let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)
-        var singleSpaceText = trimmedText
-        let doubleSpace = "  "
-        let singleSpace = " "
-
-        while singleSpaceText.range(of: doubleSpace) != nil {
-            singleSpaceText = singleSpaceText.replacingOccurrences(of: doubleSpace, with: singleSpace)
-        }
-
-        let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.lineFeed), with: "")
-        let endingSpace = !noBreaksText.isEmpty && hasAnEndingSpace ? String(.space) : ""
-        let startingSpace = !noBreaksText.isEmpty && hasAStartingSpace ? String(.space) : ""
-        return "\(startingSpace)\(noBreaksText)\(endingSpace)"
     }
 }
 

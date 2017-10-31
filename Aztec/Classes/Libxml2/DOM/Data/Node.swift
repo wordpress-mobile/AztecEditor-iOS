@@ -39,6 +39,20 @@ public class Node: Equatable, CustomReflectable, Hashable {
     }
 
     // MARK: - DOM Queries
+    
+    func hasAncestor(ofType type: StandardElementType) -> Bool {
+        var ancestor: ElementNode? = parent
+        
+        while let currentAncestor = ancestor {
+            if currentAncestor.isNodeType(type) {
+                return true
+            }
+        
+            ancestor = currentAncestor.parent
+        }
+        
+        return false
+    }
 
     func isLastIn(blockLevelElement element: ElementNode) -> Bool {
         return element.isBlockLevelElement() && element.children.last === self
