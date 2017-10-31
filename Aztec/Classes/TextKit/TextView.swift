@@ -1070,7 +1070,7 @@ open class TextView: UITextView {
             // From here on, it's just calling the same method in `super`.
             //
             let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
-            let imp = class_getMethodImplementation(self.superclass, selector)
+            let imp = class_getMethodImplementation(TextView.superclass(), selector)
             
             typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
             let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
