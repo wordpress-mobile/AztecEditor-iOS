@@ -53,4 +53,12 @@ static CGFloat const WPMediaGroupTableViewCellCountLabelMargin = 2.0;
     _imagePosterView.backgroundColor = posterBackgroundColor;
 }
 
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    self.imagePosterView.image = nil;
+    self.titleLabel.text = nil;
+    self.countLabel.text = nil;
+    self.groupIdentifier = nil;
+}
+
 @end
