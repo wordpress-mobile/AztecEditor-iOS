@@ -182,7 +182,18 @@ open class TextView: UITextView {
 
     // MARK: - Apparance Properties
 
-    /// Blockquote Blocks Border COlor.
+    /// Blockquote Blocks Background Color.
+    ///
+    dynamic public var blockquoteBackgroundColor: UIColor {
+        get {
+            return layout.blockquoteBackgroundColor
+        }
+        set {
+            layout.blockquoteBackgroundColor = newValue
+        }
+    }
+
+    /// Blockquote Blocks Border Color.
     ///
     dynamic public var blockquoteBorderColor: UIColor {
         get {
@@ -193,14 +204,14 @@ open class TextView: UITextView {
         }
     }
 
-    /// Blockquote Blocks Background Color.
+    /// Blockquote's Left Border Width.
     ///
-    dynamic public var blockquoteBackgroundColor: UIColor {
+    dynamic public var blockquoteBorderWidth: CGFloat {
         get {
-            return layout.blockquoteBackgroundColor
+            return layout.blockquoteBorderWidth
         }
         set {
-            layout.blockquoteBackgroundColor = newValue
+            layout.blockquoteBorderWidth = newValue
         }
     }
 
