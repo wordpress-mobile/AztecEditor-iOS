@@ -204,6 +204,18 @@ open class TextView: UITextView {
         }
     }
 
+
+    /// Blockquote Blocks Background Width.
+    ///
+    dynamic public var blockquoteBorderWidth: CGFloat {
+        get {
+            return layout.blockquoteBorderWidth
+        }
+        set {
+            layout.blockquoteBorderWidth = newValue
+        }
+    }
+
     /// Pre Blocks Background Color.
     ///
     dynamic public var preBackgroundColor: UIColor {
