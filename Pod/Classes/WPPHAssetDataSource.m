@@ -228,10 +228,6 @@
         }
 
     }
-
-    self.albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
-                                                           subtype:PHAssetCollectionSubtypeAny
-                                                           options:nil];
 }
 
 + (NSPredicate *)predicateForFilterMediaType:(WPMediaType)mediaType
@@ -570,6 +566,10 @@
 @end
 
 @implementation PHAssetCollectionForWPMediaGroup
+
+- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType {
+    return [self initWithCollection:collection mediaType:mediaType dispatchQueue:dispatch_get_main_queue()];
+}
 
 - (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType dispatchQueue:(dispatch_queue_t)queue
 {
