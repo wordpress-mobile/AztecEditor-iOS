@@ -24,6 +24,6 @@ NS_CLASS_AVAILABLE_IOS(8_0) @interface WPPHAssetDataSource : NSObject<WPMediaCol
  */
 @interface PHAssetCollectionForWPMediaGroup : NSObject<WPMediaGroup>
 
-- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType;
+- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType dispatchQueue:(dispatch_queue_t)queue;
 
 @end

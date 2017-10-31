@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, assign) BOOL refreshGroups;
 @property (nonatomic, assign) BOOL ascendingOrdering;
+@property (nonatomic, strong) dispatch_queue_t imageGenerationQueue;
 
 @end
 
@@ -43,6 +44,7 @@
     _observers = [[NSMutableDictionary alloc] init];
     _refreshGroups = YES;
     _cachedCollections = [[NSMutableArray alloc] init];
+    _imageGenerationQueue = dispatch_queue_create("org.wordpress.wpmediapicker.WPPHAssetDataSource", DISPATCH_QUEUE_SERIAL);
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     return self;
 }
@@ -208,7 +210,9 @@
         if (assetCollection.estimatedAssetCount == 0) {
             continue;
         }
-        [newCachedAssetCollection addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetCollection mediaType:self.mediaTypeFilter]];
+        [newCachedAssetCollection addObject:[[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:assetCollection
+                                                                                               mediaType:self.mediaTypeFilter
+                                                                                           dispatchQueue: self.imageGenerationQueue]];
     }
     self.cachedCollections = newCachedAssetCollection;
     if (self.assetsCollections.count > 0){
@@ -287,7 +291,8 @@
 {
     if (!_selectedGroup) {
         _selectedGroup = [[PHAssetCollectionForWPMediaGroup alloc] initWithCollection:self.activeAssetsCollection
-                                                                            mediaType:self.mediaTypeFilter];
+                                                                            mediaType:self.mediaTypeFilter
+                                                                        dispatchQueue:self.imageGenerationQueue];
     }
 
     return _selectedGroup;
@@ -560,18 +565,19 @@
 @property(nonatomic, assign) WPMediaType mediaType;
 @property(nonatomic, strong) PHFetchResult *fetchResult;
 @property(nonatomic, strong) PHFetchResult *posterAssetFetchResult;
+@property (nonatomic, strong) dispatch_queue_t imageGenerationQueue;
 
 @end
 
 @implementation PHAssetCollectionForWPMediaGroup
 
-- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType
+- (instancetype)initWithCollection:(PHAssetCollection *)collection mediaType:(WPMediaType)mediaType dispatchQueue:(dispatch_queue_t)queue
 {
     self = [super init];
     if (self) {
         _collection = collection;
         _mediaType = mediaType;
-
+        _imageGenerationQueue = queue;
         _assetCount = NSNotFound;
         _posterAsset = nil;
     }
@@ -586,8 +592,9 @@
 
 - (WPMediaRequestID)imageWithSize:(CGSize)size completionHandler:(WPMediaImageBlock)completionHandler
 {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-        [self.posterAsset imageWithSize:size completionHandler:completionHandler];
+     __weak __typeof__(self) weakSelf = self;
+    dispatch_async(self.imageGenerationQueue, ^{
+        [weakSelf.posterAsset imageWithSize:size completionHandler:completionHandler];
     });
     return 0;
 }
@@ -609,6 +616,10 @@
 
 - (NSInteger)numberOfAssetsOfType:(WPMediaType)mediaType completionHandler:(WPMediaCountBlock)completionHandler
 {
+    if (_assetCount != NSNotFound) {
+        completionHandler(self.assetCount, nil);
+        return self.assetCount;
+    }
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         self.assetCount = [self.fetchResult count];
         completionHandler(self.assetCount, nil);
