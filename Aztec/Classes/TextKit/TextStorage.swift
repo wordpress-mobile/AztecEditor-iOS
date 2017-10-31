@@ -233,13 +233,6 @@ open class TextStorage: NSTextStorage {
 
         return textStore.attributes(at: location, effectiveRange: range)
     }
-
-    private func replaceTextStoreString(_ range: NSRange, with string: String) {
-        let utf16String = textStoreString.utf16
-        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
-        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
-        textStoreString.replaceSubrange(startIndex..<endIndex, with: string)
-    }
  
     override open func replaceCharacters(in range: NSRange, with str: String) {
 
@@ -248,7 +241,10 @@ open class TextStorage: NSTextStorage {
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
 
-        replaceTextStoreString(range, with: str)
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: str)
 
         edited(.editedCharacters, range: range, changeInLength: str.characters.count - range.length)
         
@@ -264,7 +260,10 @@ open class TextStorage: NSTextStorage {
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
 
-        replaceTextStoreString(range, with: attrString.string)
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: attrString.string)
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
