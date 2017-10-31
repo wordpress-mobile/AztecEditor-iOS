@@ -33,7 +33,7 @@ open class MediaAttachment: NSTextAttachment {
     /// Identifier used to match this attachment with a custom UIView subclass
     ///
     private(set) open var identifier = String()
-    
+
     /// Attachment URL
     ///
     fileprivate(set) public var url: URL?
@@ -194,7 +194,7 @@ open class MediaAttachment: NSTextAttachment {
     // MARK: - NSTextAttachmentContainer
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
-        
+
         ensureImageIsUpToDate(in: textContainer)
 
         guard let image = image else {
@@ -298,22 +298,31 @@ open class MediaAttachment: NSTextAttachment {
     /// Otherwise, we'll always take the whole container's width.
     ///
     override open func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment lineFrag: CGRect, glyphPosition position: CGPoint, characterIndex charIndex: Int) -> CGRect {
-        
+
         ensureImageIsUpToDate(in: textContainer)
-        
+
         if image == nil {
             return .zero
         }
 
-        var padding = (textContainer?.lineFragmentPadding ?? 0)
+        var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
         if let storage = textContainer?.layoutManager?.textStorage,
-           let paragraphStyle = storage.attribute(NSParagraphStyleAttributeName, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
-            padding += paragraphStyle.firstLineHeadIndent + paragraphStyle.tailIndent
+            let paragraphStyle = storage.attribute(NSParagraphStyleAttributeName, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+            let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
+            let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
+
+            padding += headIndent
+
+            if paragraphStyle.tailIndent > 0 {
+                padding += lineFrag.width - headIndent - paragraphStyle.tailIndent
+            } else if paragraphStyle.tailIndent < 0 {
+                padding -= paragraphStyle.tailIndent
+            }
         }
-        let width = floor(lineFrag.width - (padding * 2))
+        let width = floor(lineFrag.width - padding)
 
         let size = CGSize(width: width, height: onScreenHeight(width))
-        
+
         return CGRect(origin: CGPoint.zero, size: size)
     }
 }
@@ -360,9 +369,9 @@ private extension MediaAttachment {
             self.isFetchingImage = false
             self.invalidateLayout(in: textContainer)
 
-        }, onFailure: { [weak self] _ in
+            }, onFailure: { [weak self] _ in
 
-            self?.isFetchingImage = false
+                self?.isFetchingImage = false
         })
     }
 
@@ -440,3 +449,4 @@ extension MediaAttachment {
         public var imageMargin = CGFloat(10.0)
     }
 }
+
