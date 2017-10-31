@@ -1,7 +1,7 @@
 import Aztec
 import Foundation
 
-class ParagraphRemovingProcessor: HTMLTreeProcessor {
+class ParagraphRestoringProcessor: HTMLTreeProcessor {
     func process(_ rootNode: RootNode) -> RootNode {
         
         var index = 0
