@@ -224,7 +224,9 @@ open class TextView: UITextView {
     ///
     override open var typingAttributes: [String: Any] {
         get {
-            ensureRemovalOfParagraphAttributesAfterSelectionChange()
+            if markedTextRange == nil {
+                ensureRemovalOfParagraphAttributesAfterSelectionChange()
+            }
             return super.typingAttributes
         }
         set {
