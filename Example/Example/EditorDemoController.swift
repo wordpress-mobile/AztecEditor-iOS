@@ -1081,10 +1081,11 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             }
 
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap for options", comment: "Options to show when tapping on a media object on the post/page editor.")
+            let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             if attachment.overlayImage == nil {
                 attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+                attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
             }
             richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
@@ -1278,13 +1279,9 @@ private extension EditorDemoController
     var mediaMessageAttributes: [String: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        let shadow = NSShadow()
-        shadow.shadowOffset = CGSize(width: 1, height: 1)
-        shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
-        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
+        let attributes: [String:Any] = [NSFontAttributeName: UIFont.systemFont(ofSize: 15, weight: UIFontWeightSemibold),
                                         NSParagraphStyleAttributeName: paragraphStyle,
-                                        NSForegroundColorAttributeName: UIColor.white,
-                                        NSShadowAttributeName: shadow]
+                                        NSForegroundColorAttributeName: UIColor.white]
         return attributes
     }
 

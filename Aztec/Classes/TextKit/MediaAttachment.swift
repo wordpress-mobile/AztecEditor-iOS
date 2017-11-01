@@ -235,11 +235,8 @@ open class MediaAttachment: NSTextAttachment {
         if let overlayImage = overlayImage {
             UIColor.white.set()
             let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
-            let radius = round(overlayImage.size.width * 2.0/3.0)
-            let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
-            path.stroke()
             overlayImage.draw(at: CGPoint(x: round(center.x - (overlayImage.size.width / 2.0)), y: round(center.y - (overlayImage.size.height / 2.0))))
-            imagePadding += radius * 2;
+            imagePadding += overlayImage.size.height
         }
 
         if let message = message {
@@ -249,7 +246,11 @@ open class MediaAttachment: NSTextAttachment {
                 y = origin.y + ((size.height + imagePadding) / 2.0)
             }
             let textPosition = CGPoint(x: origin.x, y: y)
-            message.draw(in: CGRect(origin: textPosition , size: CGSize(width:size.width, height:textRect.size.height)))
+
+            // Check to see if the message will fit within the image. If not, skip it.
+            if (textPosition.y + textRect.height) < mediaBounds.height {
+                message.draw(in: CGRect(origin: textPosition, size: CGSize(width:size.width, height:textRect.size.height)))
+            }
         }
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
