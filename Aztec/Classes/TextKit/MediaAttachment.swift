@@ -228,6 +228,7 @@ open class MediaAttachment: NSTextAttachment {
         image.draw(in: mediaBounds)
 
         drawOverlayBackground(at: origin, size: size)
+        drawOverlayBorder(at: origin, size: size)
         drawProgress(at: origin, size: size)
 
         var imagePadding: CGFloat = 0
@@ -263,9 +264,17 @@ open class MediaAttachment: NSTextAttachment {
         let rect = CGRect(origin: origin, size: size)
         let path = UIBezierPath(rect: rect)
         appearance.overlayColor.setFill()
-        appearance.overlayBorderColor.setStroke()
         path.fill()
-        path.lineWidth = (appearance.overlayBorderWidth * 2)
+    }
+
+    private func drawOverlayBorder(at origin: CGPoint, size:CGSize) {
+        guard appearance.overlayBorderWidth > 0, progress == nil && message != nil else {
+            return
+        }
+        let rect = CGRect(origin: origin, size: size)
+        let path = UIBezierPath(rect: rect)
+        appearance.overlayBorderColor.setStroke()
+        path.lineWidth = (appearance.overlayBorderWidth * 2.0)
         path.addClip()
         path.stroke()
     }

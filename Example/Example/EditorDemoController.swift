@@ -163,7 +163,7 @@ class EditorDemoController: UIViewController {
         MediaAttachment.defaultAppearance.progressHeight = 2.0
         MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
         MediaAttachment.defaultAppearance.overlayBorderWidth = 3.0
-        MediaAttachment.defaultAppearance.overlayBorderColor = UIColor.blue
+        MediaAttachment.defaultAppearance.overlayBorderColor = UIColor(red: CGFloat(0.0/255.0), green: CGFloat(135.0/255.0), blue: CGFloat(190.0/255.0), alpha: 0.8)
 
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
