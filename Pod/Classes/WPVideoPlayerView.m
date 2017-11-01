@@ -240,7 +240,7 @@ static CGFloat toolbarHeight = 44;
         AVPlayerItemStatus status;
         NSNumber *statusNumber = change[NSKeyValueChangeNewKey];
         // Get the status change from the change dictionary
-        if (statusNumber) {
+        if (statusNumber != nil) {
             status = (AVPlayerItemStatus)[statusNumber intValue];
         } else {
             status = AVPlayerItemStatusUnknown;

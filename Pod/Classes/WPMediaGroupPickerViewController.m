@@ -116,27 +116,29 @@ static CGFloat const WPMediaGroupCellHeight = 86.0f;
     id<WPMediaGroup> group = [self.dataSource groupAtIndex:indexPath.row];
     
     cell.imagePosterView.image = nil;
-    __block WPMediaRequestID requestKey = 0;
+    NSString *groupID = group.identifier;
+    cell.groupIdentifier = groupID;
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize requestSize = CGSizeApplyAffineTransform(CGSizeMake(WPMediaGroupCellHeight, WPMediaGroupCellHeight), CGAffineTransformMakeScale(scale, scale));
-    requestKey = [group imageWithSize:requestSize
-                              completionHandler:^(UIImage *result, NSError *error)
-    {
-        if (error) {
-            return;
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (cell.tag == requestKey){
-                cell.imagePosterView.image = result;
-            }
-        });
-    }];
-    cell.tag = requestKey;
+    [group imageWithSize:requestSize
+       completionHandler:^(UIImage *result, NSError *error)
+     {
+         if (error) {
+             return;
+         }
+         if ([cell.groupIdentifier isEqualToString:groupID]){
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 cell.imagePosterView.image = result;
+             });
+         }
+     }];
     cell.titleLabel.text = [group name];
     NSInteger numberOfAssets = [group numberOfAssetsOfType:[self.dataSource mediaTypeFilter] completionHandler:^(NSInteger result, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)result];            
-        });
+        if ([cell.groupIdentifier isEqualToString:groupID]){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)result];
+            });
+        }
     }];
     if (numberOfAssets != NSNotFound) {
         cell.countLabel.text = [NSString stringWithFormat:@"%ld", (long)numberOfAssets];

@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 `WPMediaPicker` adheres to [Semantic Versioning](http://semver.org/).
 
 #### 0.x Releases
+- `0.24` Release  - [0.24](#24)
 - `0.23` Release  - [0.23](#23)
 - `0.22` Release  - [0.22](#22)
 - `0.21` Release  - [0.21](#21)
@@ -14,6 +15,15 @@ All notable changes to this project will be documented in this file.
 - `0.15` Releases - [0.15](#15)
 
 ---
+## [0.24](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.24)
+Released on 2017-11-01. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.24).
+
+### Fixed
+- Empty albums are filtered out of the album list. #230
+- Fix crash on reload when using the same data source. #253
+- Fixed display of count and thumbnail of albums when scrolling super quick. #255
+
 ## [0.23](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/0.23)
 Released on 2017-10-04. All issues associated with this milestone can be found using this
 [filter](https://github.com/wordpress-mobile/MediaPicker-iOS/pulls?utf8=✓&q=is%3Apr%20is%3Aclosed%20milestone%3A0.23).
