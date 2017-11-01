@@ -260,16 +260,14 @@ open class MediaAttachment: NSTextAttachment {
         guard message != nil || progress != nil else {
             return
         }
-
-        let box = UIBezierPath()
-        box.move(to: CGPoint(x:origin.x, y:origin.y))
-        box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y))
-        box.addLine(to: CGPoint(x: origin.x + size.width, y: origin.y + size.height))
-        box.addLine(to: CGPoint(x: origin.x, y: origin.y + size.height))
-        box.addLine(to: CGPoint(x: origin.x, y: origin.y))
-        box.lineWidth = 2.0
+        let rect = CGRect(origin: origin, size: size)
+        let path = UIBezierPath(rect: rect)
         appearance.overlayColor.setFill()
-        box.fill()
+        appearance.overlayBorderColor.setStroke()
+        path.fill()
+        path.lineWidth = (appearance.overlayBorderWidth * 2)
+        path.addClip()
+        path.stroke()
     }
 
     private func drawProgress(at origin: CGPoint, size:CGSize) {
@@ -421,6 +419,14 @@ extension MediaAttachment {
         /// The color to use when drawing the background overlay for messages, icons, and progress
         ///
         public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
+
+        /// The border width to use when drawing the background overlay for messages, icons, and progress. Defauls to 0.
+        ///
+        public var overlayBorderWidth = CGFloat(0.0)
+
+        /// The color to use when drawing the background overlay border for messages, icons, and progress
+        ///
+        public var overlayBorderColor = UIColor(white: 0.6, alpha: 0.6)
 
         /// The height of the progress bar for progress indicators
         ///

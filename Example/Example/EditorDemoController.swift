@@ -158,6 +158,13 @@ class EditorDemoController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.defaultAppearance.overlayBorderWidth = 3.0
+        MediaAttachment.defaultAppearance.overlayBorderColor = UIColor.blue
+
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
 
@@ -179,11 +186,6 @@ class EditorDemoController: UIViewController {
         }
 
         setHTML(html)
-
-        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
-        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.defaultAppearance.progressHeight = 2.0
-        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
