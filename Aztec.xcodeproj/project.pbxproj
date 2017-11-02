@@ -30,6 +30,7 @@
 		599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25301D8BC9A1002871D6 /* MediaAttachment.swift */; };
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
+		74EEC71B1FAB6EC900B989E3 /* UIImage+Resize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */; };
 		B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */; };
 		B50CE7341F1FABA00018CAA1 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = B50CE7331F1FABA00018CAA1 /* content.html */; };
 		B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */; };
@@ -205,6 +206,7 @@
 		599F25581D8BCA01002871D6 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
+		74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Resize.swift"; sourceTree = "<group>"; };
 		B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Strip.swift"; sourceTree = "<group>"; };
 		B50CE7331F1FABA00018CAA1 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = content.html; path = Example/Example/SampleContent/content.html; sourceTree = SOURCE_ROOT; };
 		B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TextViewStubDelegate.swift; path = TextKit/TextViewStubDelegate.swift; sourceTree = "<group>"; };
@@ -511,6 +513,7 @@
 				B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */,
 				F1DE83D41EF20493009269E6 /* UIColor+Parsers.swift */,
 				B5AB79F71F5F3E0B00DF26F5 /* String+Paragraph.swift */,
+				74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1050,6 +1053,7 @@
 				599F254D1D8BC9A1002871D6 /* FormatBar.swift in Sources */,
 				F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */,
 				599F253A1D8BC9A1002871D6 /* InNodeConverter.swift in Sources */,
+				74EEC71B1FAB6EC900B989E3 /* UIImage+Resize.swift in Sources */,
 				F17BC8941F4E4BA500398E2B /* UnsupportedHTML.swift in Sources */,
 				F12F586F1EF20394008AE298 /* PreFormatter.swift in Sources */,
 				B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */,

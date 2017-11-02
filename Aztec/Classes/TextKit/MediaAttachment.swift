@@ -234,9 +234,11 @@ open class MediaAttachment: NSTextAttachment {
         var imagePadding: CGFloat = 0
         if let overlayImage = overlayImage {
             UIColor.white.set()
+            let sizeInsideBorder = CGSize(width: size.width - appearance.overlayBorderWidth, height: size.height - appearance.overlayBorderWidth)
+            let newImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: UIColor.white)
             let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
-            overlayImage.draw(at: CGPoint(x: round(center.x - (overlayImage.size.width / 2.0)), y: round(center.y - (overlayImage.size.height / 2.0))))
-            imagePadding += overlayImage.size.height
+            newImage.draw(at: CGPoint(x: round(center.x - (newImage.size.width / 2.0)), y: round(center.y - (newImage.size.height / 2.0))))
+            imagePadding += newImage.size.height
         }
 
         if let message = message {
