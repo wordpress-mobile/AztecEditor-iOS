@@ -213,7 +213,7 @@ open class MediaAttachment: NSTextAttachment {
     func mediaBounds(for bounds: CGRect) -> CGRect {
         let containerWidth = bounds.size.width
         let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: appearance.imageMargin)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - appearance.imageMargin)
+        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - appearance.imageMargin * 2)
         return CGRect(origin: origin, size: size)
     }
 
