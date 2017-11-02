@@ -23,6 +23,10 @@ class LayoutManager: NSLayoutManager {
     ///
     var extraLineFragmentTypingAttributes: (() -> [String: Any])?
 
+    /// Blockquote's Left Border width
+    ///
+    var blockquoteBorderWidth: CGFloat = 2
+
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -125,7 +129,7 @@ private extension LayoutManager {
         blockquoteBackgroundColor.setFill()
         context.fill(rect)
 
-        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: 2, height: rect.height))
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
         blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }

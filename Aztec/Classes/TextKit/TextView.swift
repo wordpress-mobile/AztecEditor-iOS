@@ -124,7 +124,7 @@ public protocol TextViewFormattingDelegate: class {
 //
 open class TextView: UITextView {
 
-    // MARK: - Properties: Attachments & Media
+    // MARK: - Aztec Delegates
 
     /// The media delegate takes care of providing remote media when requested by the `TextView`.
     /// If this is not set, all remove images will be left blank.
@@ -135,13 +135,15 @@ open class TextView: UITextView {
     ///
     fileprivate var textAttachmentImageProvider = [TextViewAttachmentImageProvider]()
 
-    // MARK: - Properties: Formatting
-
+    /// Formatting Delegate: to be used by the Edition's Format Bar.
+    ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
+
 
     // MARK: - Properties: Text Lists
 
     var maximumListIndentationLevels = 7
+
 
     // MARK: - Properties: UI Defaults
 
@@ -154,6 +156,7 @@ open class TextView: UITextView {
                 NSParagraphStyleAttributeName: defaultParagraphStyle]
     }
 
+
     // MARK: - Properties: Processors
 
     /// This processor will be executed on any HTML you provide to the method `setHTML()` and
@@ -165,11 +168,65 @@ open class TextView: UITextView {
     ///
     public var outputProcessor: Processor?
 
-    // MARK: - Properties: Text Storage
+
+    // MARK: - TextKit Aztec Subclasses
 
     var storage: TextStorage {
         return textStorage as! TextStorage
     }
+
+    var layout: LayoutManager {
+        return layoutManager as! LayoutManager
+    }
+
+
+    // MARK: - Apparance Properties
+
+    /// Blockquote Blocks Border COlor.
+    ///
+    dynamic public var blockquoteBorderColor: UIColor {
+        get {
+            return layout.blockquoteBorderColor
+        }
+        set {
+            layout.blockquoteBorderColor = newValue
+        }
+    }
+
+    /// Blockquote Blocks Background Color.
+    ///
+    dynamic public var blockquoteBackgroundColor: UIColor {
+        get {
+            return layout.blockquoteBackgroundColor
+        }
+        set {
+            layout.blockquoteBackgroundColor = newValue
+        }
+    }
+
+
+    /// Blockquote Blocks Background Width.
+    ///
+    dynamic public var blockquoteBorderWidth: CGFloat {
+        get {
+            return layout.blockquoteBorderWidth
+        }
+        set {
+            layout.blockquoteBorderWidth = newValue
+        }
+    }
+
+    /// Pre Blocks Background Color.
+    ///
+    dynamic public var preBackgroundColor: UIColor {
+        get {
+            return layout.preBackgroundColor
+        }
+        set {
+            layout.preBackgroundColor = newValue
+        }
+    }
+
 
     // MARK: - Overwritten Properties
 
@@ -1013,7 +1070,7 @@ open class TextView: UITextView {
             // From here on, it's just calling the same method in `super`.
             //
             let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
-            let imp = class_getMethodImplementation(self.superclass, selector)
+            let imp = class_getMethodImplementation(TextView.superclass(), selector)
             
             typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
             let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
@@ -1125,9 +1182,6 @@ open class TextView: UITextView {
         formatter.attributeValue = url
         toggle(formatter: formatter, atRange: range)
     }
-
-
-
 
     /// Removes the link, if any, at the specified range
     ///
@@ -1288,10 +1342,12 @@ open class TextView: UITextView {
     }
 
 
-    /// // Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the attachment based on the margins.
+    /// Check if there is an attachment at the location we are moving. If there is one check if we want to move before or after the
+    /// attachment based on the margins.
     ///
     /// - Parameter point: the point to check.
     /// - Returns: true if the point fall inside an attachment margin
+    ///
     open func isPointInsideAttachmentMargin(point: CGPoint) -> Bool {
         let index = layoutManager.characterIndex(for: point, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
 
@@ -1706,7 +1762,15 @@ extension TextView: TextStorageAttachmentsDelegate {
         }
 
         let locationInTextView = touch.location(in: textView)
-        return textView.attachmentAtPoint(locationInTextView) != nil
+        let isAttachmentInLocation = textView.attachmentAtPoint(locationInTextView) != nil
+        if !isAttachmentInLocation {
+            if let selectedAttachment = currentSelectedAttachment {
+                textView.textAttachmentDelegate?.textView(textView, deselected: selectedAttachment, atPosition: locationInTextView)
+            }
+            currentSelectedAttachment = nil
+        }
+        return isAttachmentInLocation
+
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -52,7 +52,7 @@ class VideoFormatter: StandardAttributeFormatter {
             //
             assert(representation == nil)
         }
-
-        return super.apply(to: attributes, andStore: representation)
+        // Comment: Sergio Estevao (2017-10-30) - We are not passing the representation because it's all save inside the extraAttributes property of the attachment.
+        return super.apply(to: attributes, andStore: nil)
     }
 }
