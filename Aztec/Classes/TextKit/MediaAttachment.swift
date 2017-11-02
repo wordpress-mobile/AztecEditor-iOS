@@ -81,6 +81,16 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
+    /// Setting this to true will always hide the border on the overlay
+    ///
+    open var shouldHideBorder: Bool = false {
+        willSet {
+            if newValue != shouldHideBorder {
+                glyphImage = nil
+            }
+        }
+    }
+
     /// Image to be displayed: Contains the actual Asset + the overlays (if any), embedded
     ///
     internal var glyphImage: UIImage?
@@ -271,8 +281,11 @@ open class MediaAttachment: NSTextAttachment {
     }
 
     private func drawOverlayBorder(at origin: CGPoint, size:CGSize) {
-        guard appearance.overlayBorderWidth > 0, progress == nil && message != nil else {
-            return
+        // Don't display the border if the border width is 0, we are force-hiding it, or message is set with no progress
+        guard appearance.overlayBorderWidth > 0,
+            shouldHideBorder == false,
+            progress == nil && message != nil else {
+                return
         }
         let rect = CGRect(origin: origin, size: size)
         let path = UIBezierPath(rect: rect)
