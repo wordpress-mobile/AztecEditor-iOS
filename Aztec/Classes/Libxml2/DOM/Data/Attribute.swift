@@ -102,6 +102,10 @@ extension Attribute {
 
         // MARK: - Initializers
 
+        init(withString string: String) {
+            self = .string(string)
+        }
+
         init(withCSSString cssString: String) {
 
             let components = cssString.components(separatedBy: CSSParser.attributeSeparator)

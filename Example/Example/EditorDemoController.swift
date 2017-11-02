@@ -1063,15 +1063,19 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         deselected(textAttachment: attachment, atPosition: position)
     }
 
+    fileprivate func resetMediaAttachmentOverlay(_ mediaAttachment: MediaAttachment) {
+        if mediaAttachment is ImageAttachment {
+            mediaAttachment.overlayImage = nil
+        }
+        mediaAttachment.message = nil
+    }
+
     func selected(textAttachment attachment: MediaAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
             if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
-                if selectedAttachment is ImageAttachment {
-                    selectedAttachment.overlayImage = nil
-                }
+                self.resetMediaAttachmentOverlay(selectedAttachment)
                 richTextView.refresh(selectedAttachment)
             }
 
@@ -1089,7 +1093,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
-            mediaAttachment.message = nil
+            self.resetMediaAttachmentOverlay(mediaAttachment)
             richTextView.refresh(mediaAttachment)
         }
     }
@@ -1219,6 +1223,7 @@ private extension EditorDemoController
         let fileURL = saveToDisk(image: image)
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
+        attachment.linkURL = fileURL
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1290,7 +1295,10 @@ private extension EditorDemoController
         let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
         let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
                                           style: .cancel,
-                                          handler: nil
+                                          handler: { (action) in
+                                            self.resetMediaAttachmentOverlay(attachment)
+                                            self.richTextView.refresh(attachment)
+        }
         )
         alertController.addAction(dismissAction)
 
@@ -1328,7 +1336,7 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { (alignment, size, url, alt) in
+        detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
@@ -1336,6 +1344,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
+                updated.linkURL = linkURL
 
                 updated.updateURL(url)
             }
