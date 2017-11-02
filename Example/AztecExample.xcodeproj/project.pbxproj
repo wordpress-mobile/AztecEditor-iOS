@@ -30,8 +30,6 @@
 		F13CE5481F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */; };
 		F13CE54A1F4DDA8B0043368D /* VideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */; };
 		F13CE54C1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */; };
-		F19734141FA14ECC007018A8 /* contentWithParagraphsStripped.html in Resources */ = {isa = PBXBuildFile; fileRef = F19734131FA14ECC007018A8 /* contentWithParagraphsStripped.html */; };
-		F19734161FA15133007018A8 /* ParagraphRestoringProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19734151FA15133007018A8 /* ParagraphRestoringProcessor.swift */; };
 		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFD06EA41EC3C5350072AD85 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */; };
@@ -129,8 +127,6 @@
 		F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WPVideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePostProcessor.swift; sourceTree = "<group>"; };
-		F19734131FA14ECC007018A8 /* contentWithParagraphsStripped.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = contentWithParagraphsStripped.html; sourceTree = "<group>"; };
-		F19734151FA15133007018A8 /* ParagraphRestoringProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParagraphRestoringProcessor.swift; sourceTree = "<group>"; };
 		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
@@ -175,7 +171,6 @@
 			isa = PBXGroup;
 			children = (
 				59280F281D47CAF40083FB59 /* content.html */,
-				F19734131FA14ECC007018A8 /* contentWithParagraphsStripped.html */,
 				59280F291D47CAF40083FB59 /* SampleText.rtf */,
 			);
 			path = SampleContent;
@@ -292,7 +287,6 @@
 			children = (
 				F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */,
 				F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */,
-				F19734151FA15133007018A8 /* ParagraphRestoringProcessor.swift */,
 				FFD06EA31EC3C5350072AD85 /* ShortcodeProcessor.swift */,
 				F13CE5491F4DDA8B0043368D /* VideoShortcodePreProcessor.swift */,
 				F13CE54B1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift */,
@@ -440,7 +434,6 @@
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				59280F2A1D47CAF40083FB59 /* content.html in Resources */,
-				F19734141FA14ECC007018A8 /* contentWithParagraphsStripped.html in Resources */,
 				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 				FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */,
@@ -481,7 +474,6 @@
 				B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
-				F19734161FA15133007018A8 /* ParagraphRestoringProcessor.swift in Sources */,
 				F13CE54C1F4DDB3A0043368D /* VideoShortcodePostProcessor.swift in Sources */,
 				B570B1C91E82D332008CF41E /* SpecialTagAttachmentRenderer.swift in Sources */,
 			);

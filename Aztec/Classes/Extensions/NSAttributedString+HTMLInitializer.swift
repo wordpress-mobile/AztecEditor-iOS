@@ -10,10 +10,11 @@ extension NSAttributedString {
         
         let htmlParser = HTMLParser()
         let rootNode = htmlParser.parse(html)
-        let finalRootNode = htmlTreeProcessor?.process(rootNode) ?? rootNode
+        
+        htmlTreeProcessor?.process(rootNode)
         
         let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
-        let attributedString = serializer.serialize(finalRootNode)
+        let attributedString = serializer.serialize(rootNode)
         
         self.init(attributedString: attributedString)
     }
