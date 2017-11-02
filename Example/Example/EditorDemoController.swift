@@ -1222,6 +1222,7 @@ private extension EditorDemoController
         let fileURL = saveToDisk(image: image)
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
+        attachment.linkURL = fileURL
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1334,7 +1335,7 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { (alignment, size, url, alt) in
+        detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
@@ -1342,6 +1343,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
+                updated.linkURL = linkURL
 
                 updated.updateURL(url)
             }

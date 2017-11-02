@@ -7,10 +7,11 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var alignmentSegmentedControl: UISegmentedControl!
     @IBOutlet var sizeSegmentedControl: UISegmentedControl!
     @IBOutlet var sourceURLTextField: UITextField!
+    @IBOutlet var linkURLTextField: UITextField!
     @IBOutlet var altTextField: UITextField!
 
     var attachment: ImageAttachment?
-    var onUpdate: ((ImageAttachment.Alignment, ImageAttachment.Size, URL, String?) -> Void)?
+    var onUpdate: ((_ alignment: ImageAttachment.Alignment, _ size: ImageAttachment.Size, _ imageURL: URL, _ linkURL: URL?, _ altText: String?) -> Void)?
 
 
     override func viewDidLoad() {
@@ -44,6 +45,8 @@ class AttachmentDetailsViewController: UITableViewController
 
         sourceURLTextField.text = attachment.url?.absoluteString
 
+        linkURLTextField.text = attachment.linkURL?.absoluteString
+
         altTextField.text = attachment.extraAttributes["alt"]
     }
 
@@ -67,7 +70,8 @@ class AttachmentDetailsViewController: UITableViewController
             return
         }
         let alt = altTextField.text
-        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url, alt)
+        let linkURL = URL(string: linkURLTextField.text ?? "")
+        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url, linkURL, alt)
         dismiss(animated: true, completion: nil)
     }
 

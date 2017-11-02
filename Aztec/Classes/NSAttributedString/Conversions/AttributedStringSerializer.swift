@@ -91,7 +91,7 @@ class AttributedStringSerializer {
     /// Serializes an `ElementNode`.
     ///
     /// - Parameters:
-    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - element: the node to convert to `NSAttributedString`.
     ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
@@ -122,6 +122,12 @@ class AttributedStringSerializer {
     }
 
     /// Serializes an unsupported element.
+    ///
+    /// - Parameters:
+    ///     - element: the node to convert to `NSAttributedString`.
+    ///     - attributes: the inherited attributes from parent nodes.
+    ///
+    /// - Returns: the converted node as an `NSAttributedString`.
     ///
     fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
         let serializer = HTMLSerializer()
@@ -229,7 +235,8 @@ private extension AttributedStringSerializer {
     /// attributes.
     ///
     /// - Parameters:
-    ///     - node: the node to get the information from.
+    ///     - element: the node to get the information from.
+    ///     - inheritedAttributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
@@ -261,7 +268,7 @@ private extension AttributedStringSerializer {
     /// including the inherited attributes.
     ///
     /// - Parameters:
-    ///     - htmlAttributes: the HTML attributes to get calculate the string attributes from.
+    ///     - htmlAttributes: the HTML attributes to calculate the string attributes from.
     ///     - inheritedAttributes: the attributes that will be inherited.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
@@ -280,7 +287,7 @@ private extension AttributedStringSerializer {
     /// including inherited attributes.
     ///
     /// - Parameters:
-    ///     - attributeRepresentation: the element representation.
+    ///     - attribute: the attribute to calculate the string attributes from.
     ///     - inheritedAttributes: the attributes that will be inherited.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
@@ -304,7 +311,7 @@ private extension AttributedStringSerializer {
     /// Stores the specified HTMLElementRepresentation in a collection of NSAttributedString Attributes.
     ///
     /// - Parameters:
-    ///     - elementRepresentation: Instance of HTMLElementRepresentation to be stored.
+    ///     - representation: Instance of HTMLElementRepresentation to be stored.
     ///     - attributes: Attributes where we should store the HTML Representation.
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
@@ -371,6 +378,19 @@ private extension AttributedStringSerializer {
         guard let elementType = element.standardName else {
             return nil
         }
+        
+        if let imgElement = linkedImageElement(for: element) {
+            var attributesWithoutLink = attributes
+            attributesWithoutLink[NSLinkAttributeName] = nil
+            attributesWithoutLink[LinkFormatter.htmlRepresentationKey] = nil
+
+            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
+            let attachment = imgAttributes[NSAttachmentAttributeName] as! ImageAttachment
+            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
+            attachment.linkURL = URL(string: linkText)
+            
+            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
+        }
 
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
@@ -394,6 +414,24 @@ private extension AttributedStringSerializer {
         default:
             return nil
         }
+    }
+    
+    /// Checks if the specified node is of type '.a' with one child '.img' node.
+    /// If true, returns the '.img' node.
+    ///
+    /// - Parameters:
+    ///     - element: the node to get the information from
+    ///
+    /// - Returns: the child '.img' node if there is one
+    ///
+    private func linkedImageElement(for element: ElementNode) -> ElementNode? {
+        guard element.isNodeType(.a) && element.children.count == 1,
+            let imgElement = element.children.first as? ElementNode,
+            imgElement.isNodeType(.img) else {
+                return nil
+        }
+        
+        return imgElement
     }
 
 }
