@@ -9,14 +9,7 @@ public class ElementNode: Node {
     public var attributes = [Attribute]()
     public var children: [Node] {
         didSet {
-            for child in children where child.parent !== self {
-                if let oldParent = child.parent,
-                    let childIndex = oldParent.children.index(of: child) {
-                    
-                    oldParent.children.remove(at: childIndex)
-                }
-                child.parent = self
-            }
+            updateParentForChildren()
         }
     }
 
@@ -74,7 +67,6 @@ public class ElementNode: Node {
         return name == rhs.name && attributes == rhs.attributes && children == rhs.children
     }
 
-
     // MARK: - Initializers
 
     public init(name: String, attributes: [Attribute], children: [Node]) {
@@ -82,10 +74,26 @@ public class ElementNode: Node {
         self.children = children
 
         super.init(name: name)
+        
+        updateParentForChildren()
     }
 
     public convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
         self.init(name: type.rawValue, attributes: attributes, children: children)
+    }
+    
+    // MARK: - Children Logic
+    
+    private func updateParentForChildren() {
+        for child in children where child.parent !== self {
+            if let oldParent = child.parent,
+                let childIndex = oldParent.children.index(of: child) {
+                
+                oldParent.children.remove(at: childIndex)
+            }
+            
+            child.parent = self
+        }
     }
     
     // MARK: - Node Overrides
