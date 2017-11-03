@@ -163,11 +163,15 @@ open class TextView: UITextView {
     /// before Aztec attempts to parse it.
     ///
     public var inputProcessor: Processor?
+    public var inputTreeProcessor: HTMLTreeProcessor?
 
     /// This processor will be executed right before returning the HTML in `getHTML()`.
     ///
     public var outputProcessor: Processor?
 
+    /// Serializes the DOM Tree into an HTML String.
+    ///
+    public var outputSerializer: HTMLSerializer = DefaultHTMLSerializer()
 
     // MARK: - TextKit Aztec Subclasses
 
@@ -574,14 +578,11 @@ open class TextView: UITextView {
 
     /// Converts the current Attributed Text into a raw HTML String
     ///
-    /// - Parameter prettyPrint: Indicates if the output HTML should be pretty printed, or not
-    ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML(prettyPrint: Bool = true) -> String {
-
-        let html = storage.getHTML(prettyPrint: prettyPrint)
-        let processedHTML = outputProcessor?.process(html) ?? html
+    public func getHTML() -> String {
+        let pristineHTML = storage.getHTML(serializer: outputSerializer)
+        let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 
         return processedHTML
     }
@@ -591,7 +592,6 @@ open class TextView: UITextView {
     /// - Parameter html: The raw HTML we'd be editing.
     ///
     public func setHTML(_ html: String) {
-
         let processedHTML = inputProcessor?.process(html) ?? html
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
@@ -602,7 +602,9 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(processedHTML, defaultAttributes: defaultAttributes)
+        storage.setHTML(processedHTML,
+                        defaultAttributes: defaultAttributes,
+                        postProcessingHTMLWith: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)

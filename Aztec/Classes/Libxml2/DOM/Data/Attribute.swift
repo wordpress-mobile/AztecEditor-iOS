@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-class Attribute: NSObject, CustomReflectable, NSCoding {
+public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Attribute Definition Properties
 
@@ -16,7 +16,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Initializers
     
-    init(name: String, value: Value = .none) {
+    public init(name: String, value: Value = .none) {
         self.name = name
         self.value = value
     }
@@ -31,7 +31,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK - Hashable
 
-    override var hashValue: Int {
+    public override var hashValue: Int {
         return name.hashValue ^ value.hashValue
     }
 
@@ -66,7 +66,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Equatable
 
-    override func isEqual(_ object: Any?) -> Bool {
+    public override func isEqual(_ object: Any?) -> Bool {
         guard let rhs = object as? Attribute else {
             return false
         }
@@ -76,7 +76,7 @@ class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - String Representation
 
-    func toString() -> String {
+    public func toString() -> String {
         var result = name
 
         if let stringValue = value.toString() {
@@ -95,7 +95,7 @@ extension Attribute {
 
     /// Allowed attribute values
     ///
-    enum Value: Equatable, Hashable {
+    public enum Value: Equatable, Hashable {
         case none
         case string(String)
         case inlineCss([CSSAttribute])
@@ -128,7 +128,7 @@ extension Attribute {
 
         // MARK: - Hashable
 
-        var hashValue: Int {
+        public var hashValue: Int {
             switch(self) {
             case .none:
                 return 0
@@ -144,7 +144,7 @@ extension Attribute {
 
         // MARK: - Equatable
 
-        static func ==(lValue: Value, rValue: Value) -> Bool {
+        public static func ==(lValue: Value, rValue: Value) -> Bool {
             switch(lValue) {
             case .none:
                 return true
@@ -222,7 +222,7 @@ extension Attribute.Value: Codable {
         case inlineCss
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: ValueKey.self)
 
         guard let rootKey = values.allKeys.first, let valueKind = ValueKey(rawValue: rootKey.rawValue) else {
@@ -244,7 +244,7 @@ extension Attribute.Value: Codable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: ValueKey.self)
 
         switch self {

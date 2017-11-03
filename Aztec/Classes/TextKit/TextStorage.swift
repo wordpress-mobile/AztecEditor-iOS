@@ -332,20 +332,23 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(prettyPrint: Bool = false) -> String {
+    open func getHTML(serializer: HTMLSerializer) -> String {
         let parser = AttributedStringParser()
         let rootNode = parser.parse(self)
 
-        let serializer = HTMLSerializer(prettyPrint: prettyPrint)
         return serializer.serialize(rootNode)
 
     }
 
-    func setHTML(_ html: String, defaultAttributes: [String: Any]) {
+    func setHTML(_ html: String,
+                 defaultAttributes: [String: Any],
+                 postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
 
         let originalLength = textStore.length
 
-        textStore = NSMutableAttributedString(withHTML: html, defaultAttributes: defaultAttributes)
+        textStore = NSMutableAttributedString(withHTML: html,
+                                              defaultAttributes: defaultAttributes,
+                                              postProcessingHTMLWith: postProcessHTML)
 
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self

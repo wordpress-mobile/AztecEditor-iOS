@@ -32,9 +32,10 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
-    func createTextView(withHTML html: String) -> TextView {
+    func createTextView(withHTML html: String, prettyPrint: Bool = false) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.outputSerializer = DefaultHTMLSerializer(prettyPrint: false)
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         richTextView.setHTML(html)
 
@@ -470,8 +471,6 @@ class TextViewTests: XCTestCase {
 
         let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
 
-        print(textView.storage.getHTML())
-
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
         let range = textView.textRange(from: rangeStart, to: rangeEnd)!
@@ -568,7 +567,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -576,7 +575,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
 
         let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
         let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
@@ -584,7 +583,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range3, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirstsecondthird</p>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecondthird</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -606,7 +605,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -734,7 +733,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<h1>Header</h1><p>1</p>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
     }
 
     /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
@@ -756,7 +755,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<h1>Header</h1><h1> Header</h1>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><h1> Header</h1>")
     }
 
 
@@ -1487,7 +1486,7 @@ class TextViewTests: XCTestCase {
         let textView = createEmptyTextView()
 
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p><hr></p>")
     }
@@ -1499,7 +1498,7 @@ class TextViewTests: XCTestCase {
 
         textView.replaceWithHorizontalRuler(at: .zero)
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p><hr><hr></p>")
     }
@@ -1512,7 +1511,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
         textView.replaceWithHorizontalRuler(at: NSRange(location: 0, length:1))
 
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
         
         XCTAssertEqual(html, "<p><hr></p>")
     }
@@ -1590,7 +1589,7 @@ class TextViewTests: XCTestCase {
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br><br><h1>Header</h1>"
         let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML(prettyPrint: false)
+        let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(generatedHTML, "<p><br><br></p><h1>Header</h1>")
     }
@@ -1601,7 +1600,7 @@ class TextViewTests: XCTestCase {
     func testToggleHtmlWithTwoLineBreaksAndInlineHeaderDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br>1<br>2<h1>Heder</h1>"
         let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML(prettyPrint: false)
+        let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(generatedHTML, "<p><br>1<br>2</p><h1>Heder</h1>")
     }
@@ -1676,7 +1675,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
@@ -1695,11 +1694,11 @@ class TextViewTests: XCTestCase {
         textView.toggleItalics(self)
         textView.insertText("Second")
 
-        let expectedHTML = textView.getHTML(prettyPrint: false)
+        let expectedHTML = textView.getHTML()
         textView.deleteBackward()
         textView.insertText("d")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), expectedHTML)
+        XCTAssertEqual(textView.getHTML(), expectedHTML)
     }
 
     /// This test verifies that the *ACTUAL* Typing Attributes are retrieved whenever requested from within
@@ -1752,7 +1751,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("Three")
 
         let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
     }
 
     /// This test verifies that H1 Style doesn't turn rogue (Scenario #2), and come back after editing a line
@@ -1773,7 +1772,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
     }
 
     /// This test verifies that attributes on media attachment are being removed properly.

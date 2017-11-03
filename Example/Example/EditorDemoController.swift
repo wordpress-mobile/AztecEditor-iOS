@@ -26,6 +26,8 @@ class EditorDemoController: UIViewController {
             defaultParagraphStyle: paragraphStyle,
             defaultMissingImage: Constants.defaultMissingImage)
 
+        textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
+
         textView.inputProcessor =
             PipelineProcessor([CaptionShortcodePreProcessor(),
                                VideoShortcodePreProcessor(),
@@ -135,14 +137,14 @@ class EditorDemoController: UIViewController {
 
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
-    var loadSampleHTML = false
+    let sampleHTML: String?
 
     func setHTML(_ html: String) {
         richTextView.setHTML(html)
     }
 
     func getHTML() -> String {
-        return richTextView.getHTML(prettyPrint: true)
+        return richTextView.getHTML()
     }
 
     fileprivate var optionsViewController: OptionsTableViewController!
@@ -150,6 +152,18 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Lifecycle Methods
 
+    init(withSampleHTML sampleHTML: String? = nil) {
+        self.sampleHTML = sampleHTML
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        sampleHTML = nil
+        
+        super.init(coder: aDecoder)
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -172,8 +186,8 @@ class EditorDemoController: UIViewController {
 
         let html: String
 
-        if loadSampleHTML {
-            html = getSampleHTML()
+        if let sampleHTML = sampleHTML {
+            html = sampleHTML
         } else {
             html = ""
         }
@@ -402,19 +416,6 @@ class EditorDemoController: UIViewController {
 
 
     // MARK: - Sample Content
-
-    func getSampleHTML() -> String {
-        let htmlFilePath = Bundle.main.path(forResource: "content", ofType: "html")!
-        let fileContents: String
-
-        do {
-            fileContents = try String(contentsOfFile: htmlFilePath)
-        } catch {
-            fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
-        }
-
-        return fileContents
-    }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if richTextView.resignFirstResponder() {

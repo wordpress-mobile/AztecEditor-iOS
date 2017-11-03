@@ -3,14 +3,19 @@ import UIKit
 
 extension NSAttributedString {
 
-    convenience init(withHTML html: String, defaultAttributes: [String: Any]) {
-
+    convenience init(
+        withHTML html: String,
+        defaultAttributes: [String: Any],
+        postProcessingHTMLWith htmlTreeProcessor: HTMLTreeProcessor? = nil) {
+        
         let htmlParser = HTMLParser()
         let rootNode = htmlParser.parse(html)
-
+        
+        htmlTreeProcessor?.process(rootNode)
+        
         let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
         let attributedString = serializer.serialize(rootNode)
-
+        
         self.init(attributedString: attributedString)
     }
 }
