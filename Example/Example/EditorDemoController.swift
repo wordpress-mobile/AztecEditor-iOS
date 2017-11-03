@@ -161,7 +161,7 @@ class EditorDemoController: UIViewController {
         MediaAttachment.defaultAppearance.progressColor = UIColor.blue
         MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
         MediaAttachment.defaultAppearance.progressHeight = 2.0
-        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(red: CGFloat(46.0/255.0), green: CGFloat(69.0/255.0), blue: CGFloat(83.0/255.0), alpha: 0.6)
         // Uncomment to add a border
         // MediaAttachment.defaultAppearance.overlayBorderWidth = 3.0
         // MediaAttachment.defaultAppearance.overlayBorderColor = UIColor(red: CGFloat(0.0/255.0), green: CGFloat(135.0/255.0), blue: CGFloat(190.0/255.0), alpha: 0.8)

@@ -255,7 +255,7 @@ open class MediaAttachment: NSTextAttachment {
             let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
             var y =  origin.y + ((size.height - textRect.height) / 2.0)
             if imagePadding != 0 {
-                y = origin.y + ((size.height + imagePadding) / 2.0)
+                y = origin.y + Constants.messageTextTopMargin + ((size.height + imagePadding) / 2.0)
             }
             let textPosition = CGPoint(x: origin.x, y: y)
 
@@ -431,6 +431,9 @@ private extension MediaAttachment {
         /// Maximum number of times to retry downloading the asset, upon error
         ///
         static let maxRetryCount = 3
+
+        /// Top margin for message text
+        static let messageTextTopMargin = CGFloat(2.0)
     }
 }
 
