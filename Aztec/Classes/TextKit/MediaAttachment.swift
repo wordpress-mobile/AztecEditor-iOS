@@ -433,7 +433,12 @@ private extension MediaAttachment {
         static let maxRetryCount = 3
 
         /// Top margin for message text
+        ///
         static let messageTextTopMargin = CGFloat(2.0)
+
+        /// Default color for the overlay background (dark grey with 60% alpha).
+        ///
+        static let defaultOverlayColor = UIColor(red: CGFloat(46.0/255.0), green: CGFloat(69.0/255.0), blue: CGFloat(83.0/255.0), alpha: 0.6)
     }
 }
 
@@ -446,7 +451,7 @@ extension MediaAttachment {
 
         /// The color to use when drawing the background overlay for messages, icons, and progress
         ///
-        public var overlayColor = UIColor(white: 0.6, alpha: 0.6)
+        public var overlayColor = Constants.defaultOverlayColor
 
         /// The border width to use when drawing the background overlay for messages, icons, and progress. Defauls to 0.
         ///
@@ -454,7 +459,7 @@ extension MediaAttachment {
 
         /// The color to use when drawing the background overlay border for messages, icons, and progress
         ///
-        public var overlayBorderColor = UIColor(white: 0.6, alpha: 0.6)
+        public var overlayBorderColor = Constants.defaultOverlayColor
 
         /// The height of the progress bar for progress indicators
         ///
