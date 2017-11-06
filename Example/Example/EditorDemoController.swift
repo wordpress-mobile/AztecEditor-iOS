@@ -173,6 +173,14 @@ class EditorDemoController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(red: CGFloat(46.0/255.0), green: CGFloat(69.0/255.0), blue: CGFloat(83.0/255.0), alpha: 0.6)
+        // Uncomment to add a border
+        // MediaAttachment.defaultAppearance.overlayBorderWidth = 3.0
+        // MediaAttachment.defaultAppearance.overlayBorderColor = UIColor(red: CGFloat(0.0/255.0), green: CGFloat(135.0/255.0), blue: CGFloat(190.0/255.0), alpha: 0.8)
+
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
 
@@ -194,11 +202,6 @@ class EditorDemoController: UIViewController {
         }
 
         setHTML(html)
-
-        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
-        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.defaultAppearance.progressHeight = 2.0
-        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -1081,10 +1084,11 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             }
 
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap for options", comment: "Options to show when tapping on a media object on the post/page editor.")
+            let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
             attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             if attachment.overlayImage == nil {
                 attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+                attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
             }
             richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
@@ -1279,13 +1283,10 @@ private extension EditorDemoController
     var mediaMessageAttributes: [NSAttributedStringKey: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        let shadow = NSShadow()
-        shadow.shadowOffset = CGSize(width: 1, height: 1)
-        shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
-        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 16),
-                                        .paragraphStyle: paragraphStyle,
-                                        .foregroundColor: UIColor.white,
-                                        .shadow: shadow]
+
+        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: UIFontWeightSemibold),
+                                                        .paragraphStyle: paragraphStyle,
+                                                        .foregroundColor: UIColor.white]
         return attributes
     }
 
