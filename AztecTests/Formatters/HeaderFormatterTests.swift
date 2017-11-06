@@ -12,7 +12,7 @@ class HeaderFormatterTests: XCTestCase {
 
     /// Sample Attributes
     ///
-    private lazy var attributes: [String: Any] = {
+    private lazy var attributes: [NSAttributedStringKey: Any] = {
         return [.font: UIFont.systemFont(ofSize: self.defaultFontSize)]
     }()
 

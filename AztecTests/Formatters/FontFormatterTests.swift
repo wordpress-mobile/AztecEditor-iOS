@@ -10,7 +10,7 @@ class FontFormatterTests: XCTestCase
     let italicFormatter = ItalicFormatter()
 
     func testApplyAttribute() {
-        var attributes: [NSAttributedStringKey : Any] = [.font.rawValue: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         //test adding a non-existent testApplyAttribute
         attributes = boldFormatter.apply(to: attributes)
@@ -29,7 +29,7 @@ class FontFormatterTests: XCTestCase
     }
 
     func testRemoveAttributes() {
-        var attributes: [NSAttributedStringKey : Any] = [.font.rawValue: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
 
         //test removing a existent attribute

@@ -816,7 +816,7 @@ class TextViewTests: XCTestCase {
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -896,7 +896,7 @@ class TextViewTests: XCTestCase {
         textView.toggleOrderedList(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that a Text List gets removed, whenever the user types `\n` in an empty line.
@@ -920,7 +920,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling an Unordered List, when editing an empty document, inserts a Newline.
@@ -1016,7 +1016,7 @@ class TextViewTests: XCTestCase {
         textView.toggleUnorderedList(range: textView.selectedRange)
         textView.deleteBackward()
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// When the caret is positioned at both EoF and EoL, inserting a line separator (in most
@@ -1081,7 +1081,7 @@ class TextViewTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -1157,7 +1157,7 @@ class TextViewTests: XCTestCase {
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
+        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that Blockquotes get removed whenever the user types `\n` in an empty line.
@@ -1181,7 +1181,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
@@ -1267,7 +1267,7 @@ class TextViewTests: XCTestCase {
 
         let formatter = PreFormatter()
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -1343,7 +1343,7 @@ class TextViewTests: XCTestCase {
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(PreFormatter().present(in: textView.typingAttributes))
+        XCTAssertFalse(PreFormatter().present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that Pre get removed whenever the user types `\n` in an empty line.
@@ -1367,7 +1367,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling a Pre, when editing an empty document, inserts a Newline.
