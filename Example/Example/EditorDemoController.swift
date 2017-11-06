@@ -589,7 +589,7 @@ extension EditorDemoController {
     func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes = [
-                .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
+                NSAttributedStringKey.font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
             let title = NSAttributedString(string: headerType.description, attributes: attributes)
@@ -1276,7 +1276,7 @@ private extension EditorDemoController
         richTextView.refresh(attachment)
     }
 
-    var mediaMessageAttributes: [String: Any] {
+    var mediaMessageAttributes: [NSAttributedStringKey: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         let shadow = NSShadow()

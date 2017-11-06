@@ -1686,8 +1686,14 @@ private extension TextView {
             TextListFormatter(style: .unordered)
         ]
 
-        for formatter in formatters where formatter.present(in: super.typingAttributes) {
-            super.typingAttributes = formatter.remove(from: super.typingAttributes)
+        for formatter in formatters {
+            let activeTypingAttributes = NSAttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
+            guard formatter.present(in: activeTypingAttributes) else {
+                continue
+            }
+
+            let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
+            super.typingAttributes = NSAttributedStringKey.convertToRaw(attributes: updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
