@@ -186,7 +186,7 @@ open class TextView: UITextView {
 
     // MARK: - Apparance Properties
 
-    /// Blockquote Blocks Border COlor.
+    /// Blockquote Blocks Border Color.
     ///
     @objc dynamic public var blockquoteBorderColor: UIColor {
         get {
@@ -249,7 +249,8 @@ open class TextView: UITextView {
     }
 
 
-    ///
+    /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
+    /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
     ///
     open var typingAttributesSwifted: [NSAttributedStringKey: Any] {
         get {
@@ -358,7 +359,7 @@ open class TextView: UITextView {
 
         aztecLayoutManager.extraLineFragmentTypingAttributes = { [weak self] in
             return self?.extraLineFragmentTypingAttributes ?? [:]
-            }
+        }
     }
 
     // MARK: - Intercept copy paste operations
@@ -711,12 +712,11 @@ open class TextView: UITextView {
     /// - Returns: A list of Formatting Identifiers.
     ///
     open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
+        let activeAttributes = typingAttributesSwifted
         var identifiers = [FormattingIdentifier]()
 
-        for (key, formatter) in formatterIdentifiersMap {
-            if formatter.present(in: typingAttributesSwifted) {
-                identifiers.append(key)
-            }
+        for (key, formatter) in formatterIdentifiersMap where formatter.present(in: activeAttributes) {
+            identifiers.append(key)
         }
 
         return identifiers
@@ -966,8 +966,9 @@ open class TextView: UITextView {
             TextListFormatter(style: .unordered)
         ]
 
+        let activeTypingAttributes = typingAttributesSwifted
         let found = formatters.first { formatter in
-            return formatter.present(in: typingAttributesSwifted)
+            return formatter.present(in: activeTypingAttributes)
         }
 
         guard found != nil else {
@@ -1177,9 +1178,9 @@ open class TextView: UITextView {
         })
 
         let formatter = LinkFormatter()
-        formatter.attributeValue = url        
-        let attributes = formatter.apply(to: typingAttributesSwifted)
+        formatter.attributeValue = url
 
+        let attributes = formatter.apply(to: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
 
         selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
@@ -1219,6 +1220,7 @@ open class TextView: UITextView {
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
+
         let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
@@ -1591,11 +1593,19 @@ private extension TextView {
             HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
         ]
 
-        for formatter in formatters where formatter.present(in: typingAttributesSwifted) {
-            typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
+        var updatedTypingAttributes = typingAttributesSwifted
+        var needsRefresh = false
+
+        for formatter in formatters where formatter.present(in: updatedTypingAttributes) {
+            updatedTypingAttributes = formatter.remove(from: updatedTypingAttributes)
+            needsRefresh = true
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+
+        if needsRefresh {
+            typingAttributesSwifted = updatedTypingAttributes
         }
     }
 
