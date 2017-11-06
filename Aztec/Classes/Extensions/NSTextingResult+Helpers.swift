@@ -21,7 +21,7 @@ public extension NSTextCheckingResult {
         }
 
         let range = text.range(from: nsrange)
-        let captureGroup = text.substring(with: range)
+        let captureGroup = String(text[range])
         return captureGroup
     }
 }

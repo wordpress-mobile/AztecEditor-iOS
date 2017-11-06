@@ -68,7 +68,14 @@ extension String {
     }
 
     func isEndOfLine(at index: String.Index) -> Bool {
-        return index == endIndex || substring(with: index ..< self.index(after: index)).isEndOfLine()
+        guard index != endIndex else {
+            return true
+        }
+
+        let range = index ..< self.index(after: index)
+        let slice = String(self[range])
+
+        return slice.isEndOfLine()
     }
 
     func isEndOfLine(atUTF16Offset utf16Offset: Int) -> Bool {
