@@ -1284,7 +1284,7 @@ private extension EditorDemoController
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
 
-        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: UIFontWeightSemibold),
+        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
                                                         .paragraphStyle: paragraphStyle,
                                                         .foregroundColor: UIColor.white]
         return attributes
