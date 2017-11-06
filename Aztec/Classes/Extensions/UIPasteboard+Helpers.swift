@@ -75,9 +75,9 @@ private extension UIPasteboard {
     /// String Initialization Options
     ///
     private struct StringOptions {
-        static let RTFText = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.rtf]
-        static let RTFDText = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.rtfd]
-        static let plainText = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.plain]
+        static let RTFText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .rtf]
+        static let RTFDText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .rtfd]
+        static let plainText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .plain]
     }
 
     /// Attempts to unarchive a Pasteboard's Entry into a NSAttributedString Instance.

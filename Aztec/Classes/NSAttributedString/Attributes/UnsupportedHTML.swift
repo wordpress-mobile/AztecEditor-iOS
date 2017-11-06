@@ -1,11 +1,6 @@
 import Foundation
 
 
-// MARK: - UnsupportedHTML NSAttributedString Attribute Name
-//
-let UnsupportedHTMLAttributeName = NSAttributedStringKey("UnsupportedHTMLAttributeName")
-
-
 // MARK: - UnsupportedHTML
 //
 class UnsupportedHTML: NSObject {

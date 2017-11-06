@@ -26,7 +26,7 @@ class AttributedStringSerializerTests: XCTestCase {
 
         // Test
         var range = NSRange()
-        guard let unsupportedHTML = output.attribute(UnsupportedHTMLAttributeName, at: 0, effectiveRange: &range) as? UnsupportedHTML else {
+        guard let unsupportedHTML = output.attribute(.unsupportedHtml, at: 0, effectiveRange: &range) as? UnsupportedHTML else {
             XCTFail()
             return
         }

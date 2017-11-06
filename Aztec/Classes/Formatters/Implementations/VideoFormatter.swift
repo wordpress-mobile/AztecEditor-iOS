@@ -1,12 +1,11 @@
 import UIKit
 
 class VideoFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = NSAttributedStringKey("Video.htmlRepresentation")
 
     init() {
         super.init(attributeKey: .attachment,
                    attributeValue: VideoAttachment(identifier: NSUUID().uuidString),
-                   htmlRepresentationKey: VideoFormatter.htmlRepresentationKey)
+                   htmlRepresentationKey: .videoHtmlRepresentation)
     }
 
     override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {

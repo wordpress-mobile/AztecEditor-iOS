@@ -315,7 +315,7 @@ private extension AttributedStringSerializer {
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
     private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML
+        let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)
 
@@ -324,7 +324,7 @@ private extension AttributedStringSerializer {
         // would mean affecting a range that may fall beyond what we expected!
         //
         var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = UnsupportedHTML(representations: representations)
+        updated[.unsupportedHtml] = UnsupportedHTML(representations: representations)
 
         return updated
     }
@@ -380,7 +380,7 @@ private extension AttributedStringSerializer {
         if let imgElement = linkedImageElement(for: element) {
             var attributesWithoutLink = attributes
             attributesWithoutLink[.link] = nil
-            attributesWithoutLink[LinkFormatter.htmlRepresentationKey] = nil
+            attributesWithoutLink[.linkHtmlRepresentation] = nil
 
             let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
             let attachment = imgAttributes[.attachment] as! ImageAttachment

@@ -1,12 +1,11 @@
 import UIKit
 
 class LinkFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = NSAttributedStringKey("Link.htmlRepresentation")
 
     init() {
         super.init(attributeKey: .link,
                    attributeValue: NSURL(string:"")!,
-                   htmlRepresentationKey: LinkFormatter.htmlRepresentationKey)
+                   htmlRepresentationKey: .linkHtmlRepresentation)
     }
 
     override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {

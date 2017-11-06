@@ -717,7 +717,7 @@ class AttributedStringParserTests: XCTestCase {
 
         // Store
         let unsupportedHTML = UnsupportedHTML(representations: [representation])
-        testingString.addAttribute(UnsupportedHTMLAttributeName, value: unsupportedHTML, range: testingString.rangeOfEntireString)
+        testingString.addAttribute(.unsupportedHtml, value: unsupportedHTML, range: testingString.rangeOfEntireString)
 
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)

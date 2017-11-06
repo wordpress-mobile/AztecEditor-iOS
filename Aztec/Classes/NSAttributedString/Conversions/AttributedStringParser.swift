@@ -663,7 +663,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.boldHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -683,7 +683,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.italicHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -708,7 +708,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.linkHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -729,7 +729,7 @@ private extension AttributedStringParser {
             return nil
         }
 
-        if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.strikeHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
@@ -746,7 +746,7 @@ private extension AttributedStringParser {
             return nil
         }
 
-        if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.underlineHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
@@ -759,7 +759,7 @@ private extension AttributedStringParser {
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
     private func processUnsupportedHTML(in attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
-        guard let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
+        guard let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML else {
             return []
         }
 
@@ -815,7 +815,7 @@ private extension AttributedStringParser {
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(.hrHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -873,7 +873,7 @@ private extension AttributedStringParser {
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(.imageHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -920,7 +920,7 @@ private extension AttributedStringParser {
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
