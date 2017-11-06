@@ -13,7 +13,7 @@ class HeaderFormatterTests: XCTestCase {
     /// Sample Attributes
     ///
     private lazy var attributes: [String: Any] = {
-        return [NSFontAttributeName: UIFont.systemFont(ofSize: self.defaultFontSize)]
+        return [.font: UIFont.systemFont(ofSize: self.defaultFontSize)]
     }()
 
 
@@ -23,11 +23,11 @@ class HeaderFormatterTests: XCTestCase {
         let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
 
         let updatedAttrs = formatter.apply(to: attributes, andStore: nil)
-        let updatedFont = updatedAttrs[NSFontAttributeName] as! UIFont
+        let updatedFont = updatedAttrs[.font] as! UIFont
         XCTAssert(updatedFont.pointSize == CGFloat(formatter.headerLevel.fontSize))
 
         let removedAttrs = formatter.remove(from: updatedAttrs)
-        let removedFont = removedAttrs[NSFontAttributeName] as! UIFont
+        let removedFont = removedAttrs[.font] as! UIFont
         XCTAssert(removedFont.pointSize == defaultFontSize)
     }
 
@@ -36,16 +36,16 @@ class HeaderFormatterTests: XCTestCase {
     func testDefaultFontIsPreservedWheneverTheHeaderLevelIsUpdated() {
         let formatterH1 = HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil)
         let updatedH1Attrs = formatterH1.apply(to: attributes, andStore: nil)
-        let updatedH1Font = updatedH1Attrs[NSFontAttributeName] as! UIFont
+        let updatedH1Font = updatedH1Attrs[.font] as! UIFont
         XCTAssert(updatedH1Font.pointSize == CGFloat(formatterH1.headerLevel.fontSize))
 
         let formatterH2 = HeaderFormatter(headerLevel: .h2, placeholderAttributes: nil)
         let updatedH2Attrs = formatterH2.apply(to: attributes, andStore: nil)
-        let updatedH2Font = updatedH2Attrs[NSFontAttributeName] as! UIFont
+        let updatedH2Font = updatedH2Attrs[.font] as! UIFont
         XCTAssert(updatedH2Font.pointSize == CGFloat(formatterH2.headerLevel.fontSize))
 
         let removedAttrs = formatterH2.remove(from: updatedH2Attrs)
-        let removedFont = removedAttrs[NSFontAttributeName] as! UIFont
+        let removedFont = removedAttrs[.font] as! UIFont
         XCTAssert(removedFont.pointSize == defaultFontSize)
     }
 }

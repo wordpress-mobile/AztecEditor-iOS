@@ -70,7 +70,7 @@ class AttributedStringSerializerTests: XCTestCase {
 
         // Test!
         var range = NSRange()
-        guard let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: &range) as? ParagraphStyle else {
+        guard let paragraphStyle = output.attribute(.paragraphStyle, at: 0, effectiveRange: &range) as? ParagraphStyle else {
             XCTFail()
             return
         }
@@ -172,8 +172,8 @@ class AttributedStringSerializerTests: XCTestCase {
 extension AttributedStringSerializerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
-        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
-                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
         
         let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
 

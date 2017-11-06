@@ -14,7 +14,7 @@ public extension NSTextCheckingResult {
             return nil
         }
 
-        let nsrange = rangeAt(position)
+        let nsrange = self.range(at: position)
 
         guard nsrange.location != NSNotFound else {
             return nil

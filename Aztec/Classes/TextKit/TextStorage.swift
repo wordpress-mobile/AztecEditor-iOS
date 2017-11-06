@@ -105,7 +105,7 @@ open class TextStorage: NSTextStorage {
     open var mediaAttachments: [MediaAttachment] {
         let range = NSMakeRange(0, length)
         var attachments = [MediaAttachment]()
-        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
+        enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
             if let attachment = object as? MediaAttachment {
                 attachments.append(attachment)
             }
@@ -159,7 +159,7 @@ open class TextStorage: NSTextStorage {
         let fullRange = NSRange(location: 0, length: attributedString.length)
         let finalString = NSMutableAttributedString(attributedString: attributedString)
         
-        attributedString.enumerateAttribute(NSAttachmentAttributeName, in: fullRange, options: []) { (object, range, stop) in
+        attributedString.enumerateAttribute(.attachment, in: fullRange, options: []) { (object, range, stop) in
             guard let object = object else {
                 return
             }
@@ -185,7 +185,7 @@ open class TextStorage: NSTextStorage {
                     // We only suppot image attachments for now. All other attachment types are
                     /// stripped for safety.
                     //
-                    finalString.removeAttribute(NSAttachmentAttributeName, range: range)
+                    finalString.removeAttribute(.attachment, range: range)
                     return
                 }
 
@@ -196,7 +196,7 @@ open class TextStorage: NSTextStorage {
                 let imageURL = delegate.storage(self, urlFor: replacementAttachment)
                 replacementAttachment.updateURL(imageURL)
 
-                finalString.addAttribute(NSAttachmentAttributeName, value: replacementAttachment, range: range)
+                finalString.addAttribute(.attachment, value: replacementAttachment, range: range)
             }
         }
 
@@ -223,7 +223,7 @@ open class TextStorage: NSTextStorage {
     /// - Important: please note that this method returns the style at the character location, and
     ///     NOT at the caret location.  For N characters we always have N+1 character locations.
     ///
-    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
+    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedStringKey : Any] {
 
         guard textStore.length > 0 else {
             return [:]
@@ -257,7 +257,7 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    override open func setAttributes(_ attrs: [String: Any]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [NSAttributedStringKey: Any]?, range: NSRange) {
         beginEditing()
 
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
@@ -341,7 +341,7 @@ open class TextStorage: NSTextStorage {
     }
 
     func setHTML(_ html: String,
-                 defaultAttributes: [String: Any],
+                 defaultAttributes: [NSAttributedStringKey: Any],
                  postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
 
         let originalLength = textStore.length
@@ -380,9 +380,9 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, if needed.
     ///
-    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [String: Any], at range: NSRange) -> [String: Any] {
-        let newStyle = attrs[NSParagraphStyleAttributeName] as? ParagraphStyle
-        let oldStyle = textStore.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: nil) as? ParagraphStyle
+    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [NSAttributedStringKey: Any], at range: NSRange) -> [NSAttributedStringKey: Any] {
+        let newStyle = attrs[.paragraphStyle] as? ParagraphStyle
+        let oldStyle = textStore.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? ParagraphStyle
 
         let newLevel = newStyle?.headers.last?.level ?? .none
         let oldLevel = oldStyle?.headers.last?.level ?? .none
@@ -403,7 +403,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, so that it matches the specified HeaderLevel.
     ///
-    private func fixFontAttribute(in attrs: [String: Any], headerLevel: Header.HeaderType) ->  [String: Any] {
+    private func fixFontAttribute(in attrs: [NSAttributedStringKey: Any], headerLevel: Header.HeaderType) ->  [NSAttributedStringKey: Any] {
         let formatter = HeaderFormatter(headerLevel: headerLevel)
         return formatter.apply(to: attrs)
     }

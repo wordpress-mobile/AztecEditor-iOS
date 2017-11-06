@@ -59,8 +59,8 @@ class HTMLRepresentation: NSObject, NSCoding {
 // MARK: - HTMLElementRepresentation
 //
 class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
-    let name: String
-    let attributes: [Attribute]
+    @objc let name: String
+    @objc let attributes: [Attribute]
 
     init(name: String, attributes: [Attribute]) {
         self.name = name

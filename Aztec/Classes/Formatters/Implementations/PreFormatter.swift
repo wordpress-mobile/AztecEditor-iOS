@@ -12,12 +12,12 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [String : Any]?
+    let placeholderAttributes: [NSAttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [String : Any]? = nil) {
+    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [NSAttributedStringKey : Any]? = nil) {
         self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
@@ -25,19 +25,19 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
 
         newParagraphStyle.appendProperty(HTMLPre(with: representation))
 
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
-        resultingAttributes[NSFontAttributeName] = monospaceFont
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
+        resultingAttributes[.font] = monospaceFont
 
         return resultingAttributes
     }
 
-    func remove(from attributes: [String: Any]) -> [String: Any] {
+    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         guard let placeholderAttributes = placeholderAttributes else {
             return attributes
         }
@@ -50,8 +50,8 @@ open class PreFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [String : Any]) -> Bool {
-        let font = attributes[NSFontAttributeName] as? UIFont
+    func present(in attributes: [NSAttributedStringKey : Any]) -> Bool {
+        let font = attributes[.font] as? UIFont
         return font == monospaceFont
     }
 }

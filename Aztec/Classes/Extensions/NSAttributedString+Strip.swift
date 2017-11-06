@@ -31,6 +31,6 @@ extension NSAttributedString {
     /// Returns true if a given instance's kind matches with a specified type.
     ///
     private func isObject<T>(_ object: Any, kindOf type: T) -> Bool {
-        return type(of: object) is T
+        return Swift.type(of: object) is T
     }
 }

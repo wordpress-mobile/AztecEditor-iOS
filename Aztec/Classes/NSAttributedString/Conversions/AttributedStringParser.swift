@@ -98,7 +98,7 @@ class AttributedStringParser {
     ///
     /// - Returns: Array of Node instances.
     ///
-    private func createNodes(from attributes: [String: Any]) -> [Node] {
+    private func createNodes(from attributes: [NSAttributedStringKey: Any]) -> [Node] {
         let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
 
         return nodes.reversed().reduce([]) { (result, node) in
@@ -439,7 +439,7 @@ private extension AttributedStringParser {
         // See here for more info:
         // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
         //
-        guard let paragraphStyle = paragraph.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle,
+        guard let paragraphStyle = paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle,
             paragraphStyle.properties.count > 0
         else {
             return [ElementNode(type: .p)]
@@ -456,8 +456,8 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from attributes: [String: Any]) -> [ElementNode] {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func createParagraphNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             paragraphStyle.properties.count > 0 else {
                 return [ElementNode(type: .p)]
         }
@@ -627,7 +627,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
-    func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
+    func createStyleNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
         if let element = processBold(in: attributes) {
@@ -655,8 +655,8 @@ private extension AttributedStringParser {
         return nodes
     }
 
-    private func processBold(in attributes: [String: Any]) -> ElementNode? {
-        guard let font = attributes[NSFontAttributeName] as? UIFont,
+    private func processBold(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitBold) else {
                 return nil
         }
@@ -675,8 +675,8 @@ private extension AttributedStringParser {
     }
 
 
-    private func processItalic(in attributes: [String: Any]) -> ElementNode? {
-        guard let font = attributes[NSFontAttributeName] as? UIFont,
+    private func processItalic(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitItalic) else {
                 return nil
         }
@@ -696,11 +696,11 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
-    private func processLinkStyle(in attributes: [String: Any]) -> ElementNode? {
+    private func processLinkStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         var urlString = ""
-        if let url = attributes[NSLinkAttributeName] as? URL {
+        if let url = attributes[.link] as? URL {
             urlString = url.absoluteString
-        } else if let link = attributes[NSLinkAttributeName] as? String {
+        } else if let link = attributes[.link] as? String {
             urlString = link
         } else {
             return nil
@@ -724,8 +724,8 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Strike Elements contained within a collection of Attributes.
     ///
-    private func processStrikethruStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard attributes[NSStrikethroughStyleAttributeName] != nil else {
+    private func processStrikethruStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[.strikethroughStyle] != nil else {
             return nil
         }
 
@@ -741,8 +741,8 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Underline Elements contained within a collection of Attributes.
     ///
-    private func processUnderlineStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard attributes[NSUnderlineStyleAttributeName] != nil else {
+    private func processUnderlineStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[.underlineStyle] != nil else {
             return nil
         }
 
@@ -758,7 +758,7 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
-    private func processUnsupportedHTML(in attributes: [String: Any]) -> [ElementNode] {
+    private func processUnsupportedHTML(in attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         guard let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
             return []
         }
@@ -808,7 +808,7 @@ private extension AttributedStringParser {
     /// Converts a Line Attachment into it's representing nodes.
     ///
     private func processLineAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
+        guard attrString.attribute(.attachment, at: 0, effectiveRange: nil) is LineAttachment else {
             return nil
         }
 
@@ -830,7 +830,7 @@ private extension AttributedStringParser {
     /// Converts a Comment Attachment into it's representing nodes.
     ///
     private func processCommentAttachment(from attrString: NSAttributedString) -> Node? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? CommentAttachment else {
             return nil
         }
 
@@ -842,7 +842,7 @@ private extension AttributedStringParser {
     /// Converts an HTML Attachment into it's representing nodes.
     ///
     private func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? HTMLAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? HTMLAttachment else {
             return []
         }
 
@@ -866,7 +866,7 @@ private extension AttributedStringParser {
     /// Converts an Image Attachment into it's representing nodes.
     ///
     private func processImageAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
             return nil
         }
 
@@ -913,7 +913,7 @@ private extension AttributedStringParser {
     /// Converts an Video Attachment into it's representing nodes.
     ///
     private func processVideoAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? VideoAttachment else {
             return nil
         }
 

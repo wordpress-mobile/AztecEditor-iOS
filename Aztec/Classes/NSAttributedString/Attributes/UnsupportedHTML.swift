@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - UnsupportedHTML NSAttributedString Attribute Name
 //
-let UnsupportedHTMLAttributeName = "UnsupportedHTMLAttributeName"
+let UnsupportedHTMLAttributeName = NSAttributedStringKey("UnsupportedHTMLAttributeName")
 
 
 // MARK: - UnsupportedHTML

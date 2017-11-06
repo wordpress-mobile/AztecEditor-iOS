@@ -55,7 +55,7 @@ class TextViewTests: XCTestCase {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
-        let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
+        let attributes = [NSAttributedStringKey.paragraphStyle : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()
@@ -1526,7 +1526,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
-        guard let font = textView.typingAttributes[NSFontAttributeName] as? UIFont else {
+        guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
             XCTFail("Font should be set")
             return
         }
@@ -1537,7 +1537,7 @@ class TextViewTests: XCTestCase {
         let textView = createEmptyTextViewWithNonStandardSystemFont()
 
         textView.insertText("😘")
-        let currentTypingFont = textView.typingAttributes[NSFontAttributeName] as! UIFont
+        let currentTypingFont = textView.typingAttributesSwifted[.font] as! UIFont
         XCTAssertEqual(currentTypingFont, nonStandardSystemFont, "Font should be set to default")
     }
 

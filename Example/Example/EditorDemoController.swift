@@ -98,7 +98,8 @@ class EditorDemoController: UIViewController {
         let textField = UILabel()
 
         textField.attributedText = NSAttributedString(string: placeholderText,
-                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray, NSFontAttributeName: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
+                                                      attributes: [.foregroundColor: UIColor.lightGray,
+                                                                   .font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
         textField.sizeToFit()
         textField.translatesAutoresizingMaskIntoConstraints = false
 
@@ -342,7 +343,7 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Keyboard Handling
 
-    func keyboardWillShow(_ notification: Notification) {
+    @objc func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
@@ -353,7 +354,7 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-    func keyboardWillHide(_ notification: Notification) {
+    @objc func keyboardWillHide(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
@@ -558,12 +559,12 @@ extension EditorDemoController {
         updateFormatBar()
     }
 
-    func toggleBold() {
+    @objc func toggleBold() {
         richTextView.toggleBold(range: richTextView.selectedRange)
     }
 
 
-    func toggleItalic() {
+    @objc func toggleItalic() {
         richTextView.toggleItalic(range: richTextView.selectedRange)
     }
 
@@ -573,11 +574,11 @@ extension EditorDemoController {
     }
 
 
-    func toggleStrikethrough() {
+    @objc func toggleStrikethrough() {
         richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
-    func toggleBlockquote() {
+    @objc func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
 
@@ -588,7 +589,7 @@ extension EditorDemoController {
     func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes = [
-                NSFontAttributeName: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
+                .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
             let title = NSAttributedString(string: headerType.description, attributes: attributes)
@@ -639,11 +640,11 @@ extension EditorDemoController {
         })
     }
 
-    func toggleUnorderedList() {
+    @objc func toggleUnorderedList() {
         richTextView.toggleUnorderedList(range: richTextView.selectedRange)
     }
 
-    func toggleOrderedList() {
+    @objc func toggleOrderedList() {
         richTextView.toggleOrderedList(range: richTextView.selectedRange)
     }
 
@@ -767,7 +768,7 @@ extension EditorDemoController {
         return nil
     }
 
-    func toggleLink() {
+    @objc func toggleLink() {
         var linkTitle = ""
         var linkURL: URL? = nil
         var linkRange = richTextView.selectedRange
@@ -884,7 +885,7 @@ extension EditorDemoController {
         self.present(alertController, animated:true, completion:nil)
     }
 
-    func alertTextFieldDidChange(_ textField: UITextField) {
+    @objc func alertTextFieldDidChange(_ textField: UITextField) {
         guard
             let alertController = presentedViewController as? UIAlertController,
             let urlFieldText = alertController.textFields?.first?.text,
@@ -897,7 +898,7 @@ extension EditorDemoController {
     }
 
 
-    func showImagePicker() {
+    @objc func showImagePicker() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
         picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary) ?? []
@@ -1281,10 +1282,10 @@ private extension EditorDemoController
         let shadow = NSShadow()
         shadow.shadowOffset = CGSize(width: 1, height: 1)
         shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
-        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
-                                        NSParagraphStyleAttributeName: paragraphStyle,
-                                        NSForegroundColorAttributeName: UIColor.white,
-                                        NSShadowAttributeName: shadow]
+        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 16),
+                                        .paragraphStyle: paragraphStyle,
+                                        .foregroundColor: UIColor.white,
+                                        .shadow: shadow]
         return attributes
     }
 

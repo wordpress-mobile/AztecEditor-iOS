@@ -63,7 +63,7 @@ class BlockquoteFormatterTests: XCTestCase {
     func testToggleBlockquoteTwiceLeavesReturnsIdenticalString() {
         let textView = testTextView
         let storage = textView.storage
-        textView.storage.setAttributes([NSParagraphStyleAttributeName: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
+        textView.storage.setAttributes([.paragraphStyle: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
@@ -118,7 +118,7 @@ private extension BlockquoteFormatterTests {
 
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
-        guard let paragraphStyle = string.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
+        guard let paragraphStyle = string.attribute(.paragraphStyle, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
             !paragraphStyle.blockquotes.isEmpty else {
             return false
         }
