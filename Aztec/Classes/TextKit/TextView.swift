@@ -1679,11 +1679,9 @@ private extension TextView {
     /// is beyond the storage's contents, the typingAttributes will be modified.
     ///
     private func removeParagraphAttributes(at range: NSRange) {
-        let placeholderAttributes = NSAttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
-
         let formatters: [AttributeFormatter] = [
             BlockquoteFormatter(),
-            PreFormatter(placeholderAttributes: placeholderAttributes),
+            PreFormatter(placeholderAttributes: defaultAttributes),
             TextListFormatter(style: .ordered),
             TextListFormatter(style: .unordered)
         ]
