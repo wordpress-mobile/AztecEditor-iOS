@@ -75,7 +75,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -88,7 +88,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -101,7 +101,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -114,7 +114,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello 🇮🇳 ", wordCaptured)
     }
@@ -127,7 +127,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let location = string.location(before: nsRange.location)!
         let index = string.indexFromLocation(location)!
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello", wordCaptured)
     }
@@ -140,7 +140,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let location = string.location(before: nsRange.endLocation)!
         let index = string.indexFromLocation(location)!
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
