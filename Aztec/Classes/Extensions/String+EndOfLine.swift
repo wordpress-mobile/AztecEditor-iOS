@@ -37,7 +37,7 @@ extension String {
     /// - Returns: `true` if the specified offset is in an empty paragraph, `false` otherwise.
     ///
     func isEmptyLineAtEndOfFile(at offset: Int) -> Bool {
-        return offset == characters.count && isEmptyLine(at: offset)
+        return offset == count && isEmptyLine(at: offset)
     }
 
     /// This methods verifies if the receiver string is an end-of-line character.

@@ -125,7 +125,7 @@ public extension String {
     /// Returns a NSRange with a starting location at the very end of the string
     ///
     func endOfStringNSRange() -> NSRange {
-        return NSRange(location: characters.count, length: 0)
+        return NSRange(location: count, length: 0)
     }
 
     func indexFromLocation(_ location: Int) -> String.Index? {
