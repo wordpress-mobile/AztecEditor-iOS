@@ -261,7 +261,7 @@ open class TextView: UITextView {
             return defaultAttributes
         }
         
-        let lastLocation = max(string.characters.count - 1, 0)
+        let lastLocation = max(string.count - 1, 0)
         
         return textStorage.attributes(at: lastLocation, effectiveRange: nil)
     }
@@ -1129,7 +1129,7 @@ open class TextView: UITextView {
         }
         
         let document = textStorage.string
-        guard selectedRange.location == document.characters.count, document.characters.count > 0 else {
+        guard selectedRange.location == document.count, document.count > 0 else {
             block()
             return
         }

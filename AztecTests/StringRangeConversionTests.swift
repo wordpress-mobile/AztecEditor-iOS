@@ -248,6 +248,6 @@ class StringRangeConversionTests: XCTestCase {
         let endingRange = string.endOfStringNSRange()
 
         XCTAssert(endingRange.length == 0)
-        XCTAssert(endingRange.location == string.characters.count)
+        XCTAssert(endingRange.location == string.count)
     }
 }

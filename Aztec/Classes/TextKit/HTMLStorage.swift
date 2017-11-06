@@ -95,7 +95,7 @@ open class HTMLStorage: NSTextStorage {
         beginEditing()
 
         textStore.replaceCharacters(in: range, with: str)
-        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: string.characters.count - range.length)
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: string.count - range.length)
 
         endEditing()
     }

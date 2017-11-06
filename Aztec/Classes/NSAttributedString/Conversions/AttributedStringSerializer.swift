@@ -60,7 +60,7 @@ class AttributedStringSerializer {
 
         let text = sanitizeText(from: node)
         
-        guard text.characters.count > 0 else {
+        guard text.count > 0 else {
             return NSAttributedString()
         }
         
