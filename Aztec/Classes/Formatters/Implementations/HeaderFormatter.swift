@@ -12,12 +12,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [String : Any]?
+    let placeholderAttributes: [NSAttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [String: Any]? = nil) {
+    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
         self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
@@ -25,13 +25,13 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
-        guard let font = attributes[NSFontAttributeName] as? UIFont else {
+    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+        guard let font = attributes[.font] as? UIFont else {
             return attributes
         }
 
         let newParagraphStyle = ParagraphStyle()
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+        if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
@@ -45,14 +45,14 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
         let targetFontSize = headerFontSize(for: headerLevel, defaultSize: defaultSize)
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
-        resultingAttributes[NSFontAttributeName] = font.withSize(CGFloat(targetFontSize))
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
+        resultingAttributes[.font] = font.withSize(CGFloat(targetFontSize))
 
         return resultingAttributes
     }
 
-    func remove(from attributes: [String: Any]) -> [String: Any] {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let header = paragraphStyle.headers.last,
             header.level != .none
         else {
@@ -64,17 +64,17 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         newParagraphStyle.removeProperty(ofType: Header.self)
 
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
 
-        if let font = attributes[NSFontAttributeName] as? UIFont {
-            resultingAttributes[NSFontAttributeName] = font.withSize(CGFloat(header.defaultFontSize))
+        if let font = attributes[.font] as? UIFont {
+            resultingAttributes[.font] = font.withSize(CGFloat(header.defaultFontSize))
         }
 
         return resultingAttributes
     }
 
-    func present(in attributes: [String: Any]) -> Bool {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
 
@@ -87,14 +87,14 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 //
 private extension HeaderFormatter {
 
-    func defaultFontSize(from attributes: [String: Any]) -> Float? {
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func defaultFontSize(from attributes: [NSAttributedStringKey: Any]) -> Float? {
+        if let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let lastHeader = paragraphStyle.headers.last
         {
             return lastHeader.defaultFontSize
         }
 
-        if let font = attributes[NSFontAttributeName] as? UIFont {
+        if let font = attributes[.font] as? UIFont {
             return Float(font.pointSize)
         }
 

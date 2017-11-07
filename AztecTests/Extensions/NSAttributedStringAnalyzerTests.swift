@@ -20,8 +20,8 @@ class NSAttributedStringAnalyzerTests: XCTestCase {
         /// Linkified String
         ///
         static let linkifiedString = { _ -> NSAttributedString in
-            return NSAttributedString(string: "WordPress iOS + Aztec", attributes: [NSLinkAttributeName: wordpressURL])
-        }()
+            return NSAttributedString(string: "WordPress iOS + Aztec", attributes: [.link: wordpressURL])
+        }(())
 
         /// Plain Tail String
         ///
@@ -35,13 +35,13 @@ class NSAttributedStringAnalyzerTests: XCTestCase {
             fullString.append(linkifiedString)
             fullString.append(tailString)
             return fullString
-        }()
+        }(())
 
         /// NSRange indicating the linkified segment
         ///
         static let linkifiedRange = { _ -> NSRange in
             return fullString.foundationString.range(of: linkifiedString.string)
-        }()
+        }(())
 
         /// Initial Link Location
         ///

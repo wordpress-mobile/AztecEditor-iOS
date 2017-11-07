@@ -75,9 +75,9 @@ private extension UIPasteboard {
     /// String Initialization Options
     ///
     private struct StringOptions {
-        static let RTFText = [NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType]
-        static let RTFDText = [NSDocumentTypeDocumentAttribute: NSRTFDTextDocumentType]
-        static let plainText = [NSDocumentTypeDocumentAttribute: NSPlainTextDocumentType]
+        static let RTFText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .rtf]
+        static let RTFDText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .rtfd]
+        static let plainText: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType] = [.documentType: .plain]
     }
 
     /// Attempts to unarchive a Pasteboard's Entry into a NSAttributedString Instance.
@@ -88,7 +88,7 @@ private extension UIPasteboard {
     ///
     /// - Returns: NSAttributed String with the contents of the specified Pasteboard entry, if any.
     ///
-    private func unarchiveAttributedString(fromPasteboardCFType type: CFString, with options: [String: Any]) -> NSAttributedString? {
+    private func unarchiveAttributedString(fromPasteboardCFType type: CFString, with options: [NSAttributedString.DocumentReadingOptionKey: Any]) -> NSAttributedString? {
         guard let data = data(forPasteboardType: String(type)) else {
             return nil
         }

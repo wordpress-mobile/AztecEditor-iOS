@@ -1,15 +1,14 @@
 import UIKit
 
 class VideoFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = "Video.htmlRepresentation"
 
     init() {
-        super.init(attributeKey: NSAttachmentAttributeName,
+        super.init(attributeKey: .attachment,
                    attributeValue: VideoAttachment(identifier: NSUUID().uuidString),
-                   htmlRepresentationKey: VideoFormatter.htmlRepresentationKey)
+                   htmlRepresentationKey: .videoHtmlRepresentation)
     }
 
-    override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
 
         if let representation = representation,
             case let .element(element) = representation.kind {

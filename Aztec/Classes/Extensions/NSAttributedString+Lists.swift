@@ -18,7 +18,7 @@ extension NSAttributedString {
         var effectiveRange = NSRange()
         let targetRange = rangeOfEntireString
         guard
-            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+            let paragraphStyle = attribute(.paragraphStyle, at: location, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
             let foundList = paragraphStyle.lists.last,
             foundList == list
         else {
@@ -32,7 +32,7 @@ extension NSAttributedString {
         // so we need to expand the range to grab all the TextList coverage.
         while resultRange.location > 0 {
             guard
-                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+                let paragraphStyle = attribute(.paragraphStyle, at: resultRange.location-1, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
                 let foundList = paragraphStyle.lists.last
             else {
                     break;
@@ -46,7 +46,7 @@ extension NSAttributedString {
         }
         while resultRange.endLocation < self.length {
             guard
-                let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
+                let paragraphStyle = attribute(.paragraphStyle, at: resultRange.endLocation, longestEffectiveRange: &effectiveRange, in: targetRange) as? ParagraphStyle,
                 let foundList = paragraphStyle.lists.last
             else {
                 break;
@@ -72,7 +72,7 @@ extension NSAttributedString {
     ///
     func itemNumber(in list: TextList, at location: Int) -> Int {
         guard
-            let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: location, effectiveRange: nil) as? ParagraphStyle
+            let paragraphStyle = attribute(.paragraphStyle, at: location, effectiveRange: nil) as? ParagraphStyle
             else {
                 return NSNotFound
         }
@@ -87,7 +87,7 @@ extension NSAttributedString {
             if NSLocationInRange(location, enclosingRange) {
                 return numberInList
             }
-            if let paragraphStyle = attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
+            if let paragraphStyle = attribute(.paragraphStyle, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
                listDepth == paragraphStyle.lists.count {
                 numberInList += 1
             }
@@ -108,7 +108,7 @@ extension NSAttributedString {
     /// - Returns: A TextList optional.
     ///
     func textListAttribute(atIndex index: Int) -> TextList? {
-        return (attribute(NSParagraphStyleAttributeName, at: index, effectiveRange: nil) as? ParagraphStyle)?.lists.last
+        return (attribute(.paragraphStyle, at: index, effectiveRange: nil) as? ParagraphStyle)?.lists.last
     }
 
     /// Returns the TextList attribute, assuming that there is one, spanning the specified Range.
@@ -125,7 +125,7 @@ extension NSAttributedString {
         //
         var list: TextList?
 
-        enumerateAttribute(NSParagraphStyleAttributeName, in: range, options: []) { (attribute, range, stop) in
+        enumerateAttribute(.paragraphStyle, in: range, options: []) { (attribute, range, stop) in
             if let paragraphStyle = attribute as? ParagraphStyle {
                 list = paragraphStyle.lists.last
             }

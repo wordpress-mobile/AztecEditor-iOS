@@ -5,11 +5,11 @@ import UIKit
 ///
 class AttributedStringSerializer {
 
-    private let defaultAttributes: [String: Any]
+    private let defaultAttributes: [NSAttributedStringKey: Any]
 
     // MARK: - Initializers
 
-    required init(defaultAttributes: [String: Any]) {
+    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
     }
 
@@ -35,7 +35,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: Node, inheriting attributes: [NSAttributedStringKey:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -56,7 +56,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: TextNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let text = sanitizeText(from: node)
         
@@ -81,7 +81,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -96,7 +96,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         guard element.isSupportedByEditor() else {
             return serialize(unsupported: element, inheriting: attributes)
@@ -127,7 +127,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let serializer = DefaultHTMLSerializer()
         let attachment = HTMLAttachment()
 
@@ -139,7 +139,7 @@ class AttributedStringSerializer {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [String: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -238,7 +238,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
         guard !(element is RootNode) else {
             return inheritedAttributes
@@ -271,9 +271,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [String: Any] in
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedStringKey: Any] in
             return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
 
@@ -290,9 +290,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let attributes: [String:Any]
+        let attributes: [NSAttributedStringKey: Any]
 
         if let attributeFormatter = formatter(for: attribute) {
             let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
@@ -314,8 +314,8 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)
 
@@ -324,7 +324,7 @@ private extension AttributedStringSerializer {
         // would mean affecting a range that may fall beyond what we expected!
         //
         var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = UnsupportedHTML(representations: representations)
+        updated[.unsupportedHtml] = UnsupportedHTML(representations: representations)
 
         return updated
     }
@@ -371,7 +371,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: the requested implicit representation, if one exists, or `nil`.
     ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString? {
+    func implicitRepresentation(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString? {
 
         guard let elementType = element.standardName else {
             return nil
@@ -379,11 +379,11 @@ private extension AttributedStringSerializer {
         
         if let imgElement = linkedImageElement(for: element) {
             var attributesWithoutLink = attributes
-            attributesWithoutLink[NSLinkAttributeName] = nil
-            attributesWithoutLink[LinkFormatter.htmlRepresentationKey] = nil
+            attributesWithoutLink[.link] = nil
+            attributesWithoutLink[.linkHtmlRepresentation] = nil
 
             let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-            let attachment = imgAttributes[NSAttachmentAttributeName] as! ImageAttachment
+            let attachment = imgAttributes[.attachment] as! ImageAttachment
             let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
             attachment.linkURL = URL(string: linkText)
             
@@ -402,7 +402,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: the requested implicit representation, if one exists, or `nil`.
     ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
+    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString? {
 
         switch elementType {
         case .hr, .img, .video:

@@ -1,16 +1,15 @@
 import UIKit
 
 class ImageFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = "Image.htmlRepresentation"
 
     init() {
         super.init(
-            attributeKey: NSAttachmentAttributeName,
+            attributeKey: .attachment,
             attributeValue: ImageAttachment(identifier: NSUUID().uuidString),
-            htmlRepresentationKey: ImageFormatter.htmlRepresentationKey)
+            htmlRepresentationKey: .imageHtmlRepresentation)
     }
 
-    override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
 
         if let representation = representation {
             switch representation.kind {

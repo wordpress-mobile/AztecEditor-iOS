@@ -151,9 +151,9 @@ open class TextView: UITextView {
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
-    fileprivate var defaultAttributes: [String: Any] {
-        return [NSFontAttributeName: defaultFont,
-                NSParagraphStyleAttributeName: defaultParagraphStyle]
+    fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
+        return [.font: defaultFont,
+                .paragraphStyle: defaultParagraphStyle]
     }
 
 
@@ -186,9 +186,9 @@ open class TextView: UITextView {
 
     // MARK: - Apparance Properties
 
-    /// Blockquote Blocks Border COlor.
+    /// Blockquote Blocks Border Color.
     ///
-    dynamic public var blockquoteBorderColor: UIColor {
+    @objc dynamic public var blockquoteBorderColor: UIColor {
         get {
             return layout.blockquoteBorderColor
         }
@@ -199,7 +199,7 @@ open class TextView: UITextView {
 
     /// Blockquote Blocks Background Color.
     ///
-    dynamic public var blockquoteBackgroundColor: UIColor {
+    @objc dynamic public var blockquoteBackgroundColor: UIColor {
         get {
             return layout.blockquoteBackgroundColor
         }
@@ -211,7 +211,7 @@ open class TextView: UITextView {
 
     /// Blockquote Blocks Background Width.
     ///
-    dynamic public var blockquoteBorderWidth: CGFloat {
+    @objc dynamic public var blockquoteBorderWidth: CGFloat {
         get {
             return layout.blockquoteBorderWidth
         }
@@ -222,7 +222,7 @@ open class TextView: UITextView {
 
     /// Pre Blocks Background Color.
     ///
-    dynamic public var preBackgroundColor: UIColor {
+    @objc dynamic public var preBackgroundColor: UIColor {
         get {
             return layout.preBackgroundColor
         }
@@ -248,11 +248,25 @@ open class TextView: UITextView {
         }
     }
 
+
+    /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
+    /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
+    ///
+    open var typingAttributesSwifted: [NSAttributedStringKey: Any] {
+        get {
+            return NSAttributedStringKey.convertFromRaw(attributes: typingAttributes)
+        }
+        set {
+            typingAttributes = NSAttributedStringKey.convertToRaw(attributes: newValue)
+        }
+    }
+
+
     /// This property returns the Attributes associated to the Extra Line Fragment.
     ///
-    public var extraLineFragmentTypingAttributes: [String: Any] {
+    public var extraLineFragmentTypingAttributes: [NSAttributedStringKey: Any] {
         guard selectedTextRange?.start != endOfDocument else {
-            return typingAttributes
+            return typingAttributesSwifted
         }
 
         let string = textStorage.string
@@ -304,8 +318,9 @@ open class TextView: UITextView {
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
         font = defaultFont
-        linkTextAttributes = [NSUnderlineStyleAttributeName: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue), NSForegroundColorAttributeName: self.tintColor]
-        typingAttributes = defaultAttributes
+        linkTextAttributes = [NSAttributedStringKey.underlineStyle.rawValue: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue),
+                              NSAttributedStringKey.foregroundColor.rawValue: self.tintColor]
+        typingAttributesSwifted = defaultAttributes
         setupMenuController()
         setupAttachmentTouchDetection()
         setupLayoutManager()
@@ -383,14 +398,14 @@ open class TextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
-    open func pasteAndMatchStyle(_ sender: Any?) {
+    @objc open func pasteAndMatchStyle(_ sender: Any?) {
         guard let string = UIPasteboard.general.loadAttributedString()?.mutableCopy() as? NSMutableAttributedString else {
             super.paste(sender)
             return
         }
 
         let range = string.rangeOfEntireString
-        string.addAttributes(typingAttributes, range: range)
+        string.addAttributes(typingAttributesSwifted, range: range)
         string.loadLazyAttachments()
 
         storage.replaceCharacters(in: selectedRange, with: string)
@@ -413,12 +428,12 @@ open class TextView: UITextView {
         }
     }
 
-    func handleShiftEnter(command: UIKeyCommand) {
+    @objc func handleShiftEnter(command: UIKeyCommand) {
         insertText(String(.lineSeparator))
     }
 
-    func handleShiftTab(command: UIKeyCommand) {
-        guard let list = TextListFormatter.lists(in: typingAttributes).last else {
+    @objc func handleShiftTab(command: UIKeyCommand) {
+        guard let list = TextListFormatter.lists(in: typingAttributesSwifted).last else {
             return
         }
 
@@ -427,13 +442,13 @@ open class TextView: UITextView {
 
         performUndoable(at: targetRange) {
             let finalRange = formatter.removeAttributes(from: storage, at: targetRange)
-            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            typingAttributesSwifted = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
             return finalRange
         }
     }
 
-    func handleTab(command: UIKeyCommand) {
-        let lists = TextListFormatter.lists(in: typingAttributes)
+    @objc func handleTab(command: UIKeyCommand) {
+        let lists = TextListFormatter.lists(in: typingAttributesSwifted)
         guard let list = lists.last, lists.count < maximumListIndentationLevels else {
             insertText(String(.tab))
             return
@@ -444,7 +459,7 @@ open class TextView: UITextView {
 
         performUndoable(at: targetRange) { 
             let finalRange = formatter.applyAttributes(to: storage, at: targetRange)
-            typingAttributes = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
+            typingAttributesSwifted = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
             return finalRange
         }
     }
@@ -472,7 +487,7 @@ open class TextView: UITextView {
         // This was causing the following issue:
         // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/462
         //
-        typingAttributes[NSAttachmentAttributeName] = nil
+        typingAttributesSwifted[.attachment] = nil
 
         guard !ensureRemovalOfParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: text) else {
             return
@@ -607,7 +622,7 @@ open class TextView: UITextView {
                         postProcessingHTMLWith: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
-            typingAttributes = storage.attributes(at: selectedRange.location, effectiveRange: nil)
+            typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
         }
 
         notifyTextViewDidChange()
@@ -697,12 +712,11 @@ open class TextView: UITextView {
     /// - Returns: A list of Formatting Identifiers.
     ///
     open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
+        let activeAttributes = typingAttributesSwifted
         var identifiers = [FormattingIdentifier]()
 
-        for (key, formatter) in formatterIdentifiersMap {
-            if formatter.present(in: typingAttributes) {
-                identifiers.append(key)
-            }
+        for (key, formatter) in formatterIdentifiersMap where formatter.present(in: activeAttributes) {
+            identifiers.append(key)
         }
 
         return identifiers
@@ -751,13 +765,13 @@ open class TextView: UITextView {
         })
 
         if applicationRange.length == 0 {
-            typingAttributes = formatter.toggle(in: typingAttributes)
+            typingAttributesSwifted = formatter.toggle(in: typingAttributesSwifted)
         } else {
             // NOTE: We are making sure that the selectedRange location is inside the string
             // The selected range can be out of the string when you are adding content to the end of the string.
             // In those cases we check the atributes of the previous caracter
             let location = max(0,min(selectedRange.location, textStorage.length-1))
-            typingAttributes = textStorage.attributes(at: location, effectiveRange: nil)
+            typingAttributesSwifted = textStorage.attributes(at: location, effectiveRange: nil)
         }
         notifyTextViewDidChange()
     }
@@ -812,7 +826,7 @@ open class TextView: UITextView {
     open func togglePre(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = PreFormatter(placeholderAttributes: typingAttributes)
+        let formatter = PreFormatter(placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
         forceRedrawCursorAfterDelay()
@@ -829,7 +843,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
         forceRedrawCursorAfterDelay()
@@ -842,7 +856,7 @@ open class TextView: UITextView {
     open func toggleOrderedList(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributes)
+        let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
         forceRedrawCursorAfterDelay()
@@ -856,7 +870,7 @@ open class TextView: UITextView {
     open func toggleUnorderedList(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributes)
+        let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
         forceRedrawCursorAfterDelay()
@@ -868,7 +882,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleHeader(_ headerType: Header.HeaderType, range: NSRange) {
-        let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributes)
+        let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }
@@ -898,11 +912,11 @@ open class TextView: UITextView {
     /// This is meant as a workaround for the "Emojis Mixing Up Font's" glitch.
     ///
     private func restoreDefaultFontIfNeeded() {
-        guard let activeFont = typingAttributes[NSFontAttributeName] as? UIFont, activeFont.isAppleEmojiFont else {
+        guard let activeFont = typingAttributesSwifted[.font] as? UIFont, activeFont.isAppleEmojiFont else {
             return
         }
 
-        typingAttributes[NSFontAttributeName] = defaultFont.withSize(activeFont.pointSize)
+        typingAttributesSwifted[.font] = defaultFont.withSize(activeFont.pointSize)
     }
 
 
@@ -952,8 +966,9 @@ open class TextView: UITextView {
             TextListFormatter(style: .unordered)
         ]
 
+        let activeTypingAttributes = typingAttributesSwifted
         let found = formatters.first { formatter in
-            return formatter.present(in: typingAttributes)
+            return formatter.present(in: activeTypingAttributes)
         }
 
         guard found != nil else {
@@ -986,7 +1001,7 @@ open class TextView: UITextView {
     /// - Parameter range: Range in which new text will be inserted.
     ///
     private func ensureRemovalOfLinkTypingAttribute(at range: NSRange) {
-        guard typingAttributes[NSLinkAttributeName] != nil else {
+        guard typingAttributes[NSAttributedStringKey.link.rawValue] != nil else {
             return
         }
 
@@ -996,7 +1011,7 @@ open class TextView: UITextView {
                 return
         }
 
-        typingAttributes.removeValue(forKey: NSLinkAttributeName)
+        typingAttributes.removeValue(forKey: NSAttributedStringKey.link.rawValue)
     }
 
 
@@ -1139,7 +1154,7 @@ open class TextView: UITextView {
 
         block()
 
-        typingAttributes = previousAttributes
+        typingAttributesSwifted = previousAttributes
     }
 
 
@@ -1163,9 +1178,9 @@ open class TextView: UITextView {
         })
 
         let formatter = LinkFormatter()
-        formatter.attributeValue = url        
-        let attributes = formatter.apply(to: typingAttributes)
+        formatter.attributeValue = url
 
+        let attributes = formatter.apply(to: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
 
         selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
@@ -1205,7 +1220,8 @@ open class TextView: UITextView {
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
-        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)        
+
+        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         notifyTextViewDidChange()
@@ -1254,7 +1270,7 @@ open class TextView: UITextView {
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
-        storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributes))
+        storage.replaceCharacters(in: range, with: NSAttributedString(string: "", attributes: typingAttributesSwifted))
         notifyTextViewDidChange()
     }
 
@@ -1298,7 +1314,7 @@ open class TextView: UITextView {
         }
 
         var effectiveRange = NSRange()
-        guard let attachment = textStorage.attribute(NSAttachmentAttributeName, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
+        guard let attachment = textStorage.attribute(.attachment, at: index, effectiveRange: &effectiveRange) as? NSTextAttachment else {
             return nil
         }
 
@@ -1375,7 +1391,7 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         guard index < storage.length,
-            let attr = storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange)
+            let attr = storage.attribute(.link, at: index, effectiveRange: &effectiveRange)
             else {
                 return nil
         }
@@ -1402,7 +1418,7 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         guard index < storage.length,
-            storage.attribute(NSLinkAttributeName, at: index, effectiveRange: &effectiveRange) != nil
+            storage.attribute(.link, at: index, effectiveRange: &effectiveRange) != nil
             else {
                 return nil
         }
@@ -1480,7 +1496,7 @@ open class TextView: UITextView {
         block(copy)
 
         performUndoable(at: range) {
-            storage.setAttributes([NSAttachmentAttributeName: copy], range: range)
+            storage.setAttributes([.attachment: copy], range: range)
             return range
         }
     }
@@ -1577,11 +1593,19 @@ private extension TextView {
             HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
         ]
 
-        for formatter in formatters where formatter.present(in: typingAttributes) {
-            typingAttributes = formatter.remove(from: typingAttributes)
+        var updatedTypingAttributes = typingAttributesSwifted
+        var needsRefresh = false
+
+        for formatter in formatters where formatter.present(in: updatedTypingAttributes) {
+            updatedTypingAttributes = formatter.remove(from: updatedTypingAttributes)
+            needsRefresh = true
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
+        }
+
+        if needsRefresh {
+            typingAttributesSwifted = updatedTypingAttributes
         }
     }
 
@@ -1607,11 +1631,13 @@ private extension TextView {
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     private func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
+        let activeTypingAttributes = typingAttributesSwifted
+
         return input.isEndOfLine()
             && storage.string.isEmptyLine(at: selectedRange.location)
-            && (BlockquoteFormatter().present(in: typingAttributes)
-                || TextListFormatter.listsOfAnyKindPresent(in: typingAttributes)
-                || PreFormatter().present(in: typingAttributes))
+            && (BlockquoteFormatter().present(in: activeTypingAttributes)
+                || TextListFormatter.listsOfAnyKindPresent(in: activeTypingAttributes)
+                || PreFormatter().present(in: activeTypingAttributes))
     }
 
 
@@ -1670,8 +1696,14 @@ private extension TextView {
             TextListFormatter(style: .unordered)
         ]
 
-        for formatter in formatters where formatter.present(in: super.typingAttributes) {
-            super.typingAttributes = formatter.remove(from: super.typingAttributes)
+        for formatter in formatters {
+            let activeTypingAttributes = NSAttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
+            guard formatter.present(in: activeTypingAttributes) else {
+                continue
+            }
+
+            let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
+            super.typingAttributes = NSAttributedStringKey.convertToRaw(attributes: updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)
@@ -1792,7 +1824,7 @@ extension TextView: TextStorageAttachmentsDelegate {
         return true
     }
 
-    func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
+    @objc func richTextViewWasPressed(_ recognizer: UIGestureRecognizer) {
         guard let textView = textView, recognizer.state == .recognized else {
             return
         }

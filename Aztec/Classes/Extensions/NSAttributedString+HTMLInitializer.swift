@@ -5,7 +5,7 @@ extension NSAttributedString {
 
     convenience init(
         withHTML html: String,
-        defaultAttributes: [String: Any],
+        defaultAttributes: [NSAttributedStringKey: Any],
         postProcessingHTMLWith htmlTreeProcessor: HTMLTreeProcessor? = nil) {
         
         let htmlParser = HTMLParser()

@@ -14,7 +14,7 @@ extension NSAttributedString {
             return false
         }
 
-        return attribute(NSLinkAttributeName, at: beforeRange.location, effectiveRange: nil) != nil
+        return attribute(.link, at: beforeRange.location, effectiveRange: nil) != nil
     }
 
     /// Returns true if the text immediately succeding a given location contains the NSLinkAttribute.
@@ -25,7 +25,7 @@ extension NSAttributedString {
             return false
         }
 
-        return attribute(NSLinkAttributeName, at: afterRange.location, effectiveRange: nil) != nil
+        return attribute(.link, at: afterRange.location, effectiveRange: nil) != nil
     }
 
     /// Returns the Substring at the specified range, whenever the received range is valid, or nil

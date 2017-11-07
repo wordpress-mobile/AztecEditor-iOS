@@ -31,7 +31,7 @@ class TextStorageTests: XCTestCase {
 
     func testFontTraitExistsAtIndex() {
         let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
+            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
         storage.append(NSAttributedString(string: "foo"))
@@ -52,7 +52,7 @@ class TextStorageTests: XCTestCase {
 
     func testFontTraitSpansRange() {
         let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
+            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
         storage.append(NSAttributedString(string: "foo"))
@@ -66,7 +66,7 @@ class TextStorageTests: XCTestCase {
 
     func testToggleTraitInRange() {
         let attributes = [
-            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 10)
+            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
         storage.append(NSAttributedString(string: "foo"))
@@ -165,8 +165,8 @@ class TextStorageTests: XCTestCase {
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
-                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        let defaultAttributes = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 14),
+                                 NSAttributedStringKey.paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
 
@@ -285,7 +285,7 @@ class TextStorageTests: XCTestCase {
         var oldFont: UIFont?
 
         for i in 0 ..< storage.length {
-            let currentFont = storage.attribute(NSFontAttributeName, at: i, effectiveRange: nil) as? UIFont
+            let currentFont = storage.attribute(.font, at: i, effectiveRange: nil) as? UIFont
             XCTAssert(oldFont == nil || oldFont == currentFont)
             oldFont = currentFont
         }
@@ -381,8 +381,8 @@ class TextStorageTests: XCTestCase {
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
 
-        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
-                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))

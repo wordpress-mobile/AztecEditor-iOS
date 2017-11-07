@@ -330,7 +330,7 @@ open class MediaAttachment: NSTextAttachment {
 
         var padding = (textContainer?.lineFragmentPadding ?? 0)
         if let storage = textContainer?.layoutManager?.textStorage,
-           let paragraphStyle = storage.attribute(NSParagraphStyleAttributeName, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+           let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
             padding += paragraphStyle.firstLineHeadIndent + paragraphStyle.tailIndent
         }
         let width = floor(lineFrag.width - (padding * 2))
@@ -383,7 +383,7 @@ private extension MediaAttachment {
             self.isFetchingImage = false
             self.invalidateLayout(in: textContainer)
 
-        }, onFailure: { [weak self] _ in
+        }, onFailure: { [weak self] () in
 
             self?.isFetchingImage = false
         })

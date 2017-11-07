@@ -41,6 +41,9 @@
 		B542D6421E9EB122009D12D3 /* PreFormaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */; };
 		B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */; };
 		B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B572AC271E817CFE008948C2 /* CommentAttachment.swift */; };
+		B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4A31FB0CF3A0048F355 /* NSAttributedStringKey+Conversion.swift */; };
+		B574F4AD1FB103430048F355 /* NSAttributedStringKey+Aztec.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */; };
+		B574F4AF1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4AE1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift */; };
 		B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B575344F1F267D0B009D4904 /* Array+Helpers.swift */; };
 		B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57534511F267D63009D4904 /* ArrayHelperTests.swift */; };
 		B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */; };
@@ -219,6 +222,9 @@
 		B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreFormaterTests.swift; sourceTree = "<group>"; };
 		B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Emoji.swift"; sourceTree = "<group>"; };
 		B572AC271E817CFE008948C2 /* CommentAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachment.swift; sourceTree = "<group>"; };
+		B574F4A31FB0CF3A0048F355 /* NSAttributedStringKey+Conversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Conversion.swift"; sourceTree = "<group>"; };
+		B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Aztec.swift"; sourceTree = "<group>"; };
+		B574F4AE1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSAttributedStringKeyHelperTests.swift; path = Extensions/NSAttributedStringKeyHelperTests.swift; sourceTree = "<group>"; };
 		B575344F1F267D0B009D4904 /* Array+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Helpers.swift"; sourceTree = "<group>"; };
 		B57534511F267D63009D4904 /* ArrayHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArrayHelperTests.swift; path = Extensions/ArrayHelperTests.swift; sourceTree = "<group>"; };
 		B57D1C3C1E92C38000EA4B16 /* HTMLAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachment.swift; sourceTree = "<group>"; };
@@ -484,6 +490,7 @@
 			children = (
 				599F25201D8BC9A1002871D6 /* HTMLConstants.swift */,
 				599F25211D8BC9A1002871D6 /* Metrics.swift */,
+				B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -502,6 +509,7 @@
 				B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */,
 				F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */,
 				B50CE7311F1FA6260018CAA1 /* NSAttributedString+Strip.swift */,
+				B574F4A31FB0CF3A0048F355 /* NSAttributedStringKey+Conversion.swift */,
 				FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */,
 				F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */,
 				F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */,
@@ -774,6 +782,7 @@
 				B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */,
 				F10BE61B1EA7B1DB002E4625 /* NSAttributedStringReplaceOcurrencesTests.swift */,
 				F17BC8741F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift */,
+				B574F4AE1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift */,
 				F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */,
 				F18733C71DA09737005AEB80 /* NSRangeComparisonTests.swift */,
 				F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */,
@@ -910,12 +919,12 @@
 					5951CB8D1D8BC93600E1866F = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = PZYM8XX95Q;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Manual;
 					};
 					5951CB961D8BC93600E1866F = {
 						CreatedOnToolsVersion = 8.0;
-						LastSwiftMigration = 0820;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
 					E8CE3EFE1F213AAA003254AB = {
@@ -995,6 +1004,7 @@
 				B5C99D3F1E72E2E700335355 /* UIStackView+Helpers.swift in Sources */,
 				F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */,
 				FF20D6421EDC389A00294B78 /* Processor.swift in Sources */,
+				B574F4AD1FB103430048F355 /* NSAttributedStringKey+Aztec.swift in Sources */,
 				599F253B1D8BC9A1002871D6 /* InNodesConverter.swift in Sources */,
 				F18B81EB1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift in Sources */,
 				F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */,
@@ -1006,6 +1016,7 @@
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */,
 				F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */,
+				B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */,
 				F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */,
 				F19544051F588F1A00671B73 /* CSSParser.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
@@ -1103,6 +1114,7 @@
 				F1953E251F4E544A00C717C9 /* HTMLParserTests.swift in Sources */,
 				B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */,
 				B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */,
+				B574F4AF1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift in Sources */,
 				F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */,
 				F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */,
 				F17BC8751F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift in Sources */,
@@ -1267,7 +1279,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -1295,7 +1308,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -1315,7 +1329,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1333,7 +1348,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -1462,7 +1478,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Profiling;
@@ -1481,7 +1498,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Profiling;
 		};
@@ -1569,7 +1587,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Aztec/Modulemaps/libxml2";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = "Release-Alpha";
@@ -1589,7 +1608,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
 			};
 			name = "Release-Alpha";
 		};
