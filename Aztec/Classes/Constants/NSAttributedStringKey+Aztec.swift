@@ -1,6 +1,5 @@
 import Foundation
 
-
 // MARK: - Aztec NSAttributedString Keys
 //
 public extension NSAttributedStringKey {
