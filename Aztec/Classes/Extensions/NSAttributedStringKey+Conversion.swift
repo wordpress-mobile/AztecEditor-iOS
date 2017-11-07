@@ -6,7 +6,8 @@ import UIKit
 //
 extension NSAttributedStringKey {
 
-    ///
+    /// Converts a collection of NSAttributedString Attributes, with 'NSAttributedStringKey' instances as 'Keys', into an
+    /// equivalent collection that uses regular 'String' instances as keys.
     ///
     static func convertToRaw(attributes: [NSAttributedStringKey: Any]) -> [String: Any] {
         var output = [String: Any]()
@@ -18,7 +19,8 @@ extension NSAttributedStringKey {
     }
 
 
-    ///
+    /// Converts a collection of NSAttributedString Attributes, with 'String' instances as 'Keys', into an equivalent
+    /// collection that uses the new 'NSAttributedStringKey' enum as keys.
     ///
     static func convertFromRaw(attributes: [String: Any]) -> [NSAttributedStringKey: Any] {
         var output = [NSAttributedStringKey: Any]()
