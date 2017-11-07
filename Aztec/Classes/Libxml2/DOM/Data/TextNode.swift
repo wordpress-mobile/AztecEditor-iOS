@@ -26,7 +26,7 @@ public class TextNode: Node {
     /// Node length.
     ///
     func length() -> Int {
-        return contents.characters.count
+        return contents.count
     }
 
     // MARK: - Node

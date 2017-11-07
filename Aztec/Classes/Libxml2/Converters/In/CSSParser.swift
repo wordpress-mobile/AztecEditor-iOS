@@ -14,7 +14,7 @@ class CSSParser {
     ///
     func parse(_ css: String) -> [CSSAttribute] {
 
-        guard css.characters.count > 0 else {
+        guard css.count > 0 else {
             return []
         }
 
@@ -36,7 +36,7 @@ class CSSParser {
 
             let trimmedAttribute = cssAttribute.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            guard trimmedAttribute.characters.count > 0 else {
+            guard trimmedAttribute.count > 0 else {
                 return nil
             }
 

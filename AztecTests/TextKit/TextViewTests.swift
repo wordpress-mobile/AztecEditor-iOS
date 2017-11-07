@@ -114,7 +114,7 @@ class TextViewTests: XCTestCase {
 
         textView.text = "foo"
 
-        let count = textView.text!.characters.count
+        let count = textView.text!.count
         let maxIndex = count - 1
 
         // Test upper and lower bounds
@@ -127,7 +127,7 @@ class TextViewTests: XCTestCase {
 
         textView.text = "foobarbaz"
 
-        let count = textView.text!.characters.count
+        let count = textView.text!.count
         let maxIndex = count - 1
 
         // Test upper and lower bounds.
@@ -242,7 +242,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleBlockquote() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleBlockquote(range: range)
@@ -258,7 +258,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleOrderedList() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleOrderedList(range: range)
@@ -274,7 +274,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleUnorderedList() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleUnorderedList(range: range)
@@ -354,7 +354,7 @@ class TextViewTests: XCTestCase {
     func testBlockquoteSpansRange() {
         let textView = createTextViewWithContent()
         let range = NSRange(location: 0, length: 1)
-        let length = "Lorem ipsum dolar sit amet.\n".characters.count
+        let length = "Lorem ipsum dolar sit amet.\n".count
 
         textView.toggleBlockquote(range: range)
 
@@ -621,7 +621,7 @@ class TextViewTests: XCTestCase {
         let html = "<h1>Header</h1><br>"
         let textView = createTextView(withHTML: html)
 
-        let range = NSRange(location: textView.text.characters.count, length:0)
+        let range = NSRange(location: textView.text.count, length:0)
         textView.selectedRange = range
         textView.deleteBackward()
 
@@ -749,7 +749,7 @@ class TextViewTests: XCTestCase {
         textView.toggleHeader(.h1, range: .zero)
         textView.insertText("Header Header")
 
-        textView.selectedRange = NSMakeRange("Header".characters.count, 0)
+        textView.selectedRange = NSMakeRange("Header".count, 0)
         textView.insertText("\n")
 
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
@@ -768,7 +768,7 @@ class TextViewTests: XCTestCase {
     func testBoldWithUnicodeCharacter() {
         let string = "Hello 🌎!"
         let textView = createTextView(withHTML: string)
-        let swiftRange = NSRange(location: 0, length: string.characters.count)
+        let swiftRange = NSRange(location: 0, length: string.count)
         let utf16Range = string.utf16NSRange(from: swiftRange)
 
         textView.toggleBold(range: utf16Range)
@@ -837,11 +837,11 @@ class TextViewTests: XCTestCase {
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         // Insert Newline
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New List Items do get their bullet, even when the ending `\n` character was deleted.
@@ -872,8 +872,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(newline + Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = TextListFormatter(style: .ordered)
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -1100,11 +1100,11 @@ class TextViewTests: XCTestCase {
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New Blockquote Lines do get their style, even when the ending `\n` character was deleted.
@@ -1133,8 +1133,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = BlockquoteFormatter()
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -1286,11 +1286,11 @@ class TextViewTests: XCTestCase {
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New Pre Lines do get their style, even when the ending `\n` character was deleted.
@@ -1319,8 +1319,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = PreFormatter()
         let present = formatter.present(in: textView.storage, at: secondLineRange)
