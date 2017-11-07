@@ -116,7 +116,7 @@ public extension String {
         guard let lowerBound = range.lowerBound.samePosition(in: utf16),
             let upperBound = range.upperBound.samePosition(in: utf16) else
         {
-            return .zero
+            fatalError()
         }
 
         let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
