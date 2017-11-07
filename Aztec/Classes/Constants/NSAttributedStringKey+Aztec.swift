@@ -45,4 +45,3 @@ public extension NSAttributedStringKey {
     ///
     public static let videoHtmlRepresentation = NSAttributedStringKey("Video.htmlRepresentation")
 }
-
