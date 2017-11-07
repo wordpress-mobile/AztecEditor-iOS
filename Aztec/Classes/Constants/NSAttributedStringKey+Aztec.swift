@@ -31,7 +31,7 @@ public extension NSAttributedStringKey {
 
     /// Key used to store Strike Tag Metadata, by our StrikeFormatter.
     ///
-    public static let strikeHtmlRepresentation = NSAttributedStringKey("Strike.htmlRepresentation")
+    public static let strikethroughHtmlRepresentation = NSAttributedStringKey("Strike.htmlRepresentation")
 
     /// Key used to store UnderlineHTMLRepresentations, by our UnderlineFormatter.
     ///

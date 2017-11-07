@@ -729,7 +729,7 @@ private extension AttributedStringParser {
             return nil
         }
 
-        if let representation = attributes[.strikeHtmlRepresentation] as? HTMLRepresentation,
+        if let representation = attributes[.strikethroughHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
