@@ -66,6 +66,21 @@ open class VideoAttachment: MediaAttachment {
         super.init(data: contentData, ofType: uti)
     }
 
+    /// An image to display overlaid on top of the media
+    ///
+    open override var overlayImage: UIImage? {
+        set(newValue) {
+            if newValue == nil {
+                super.overlayImage = Assets.playIcon
+            } else {
+                super.overlayImage = newValue
+            }
+        }
+
+        get {
+            return super.overlayImage
+        }
+    }
 
     // MARK: - NSCoder Support
 
