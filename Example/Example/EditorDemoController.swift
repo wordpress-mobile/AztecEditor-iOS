@@ -1067,9 +1067,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     }
 
     fileprivate func resetMediaAttachmentOverlay(_ mediaAttachment: MediaAttachment) {
-        if mediaAttachment is ImageAttachment {
-            mediaAttachment.overlayImage = nil
-        }
+        mediaAttachment.overlayImage = nil
         mediaAttachment.message = nil
     }
 
@@ -1078,17 +1076,16 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             displayActions(forAttachment: attachment, position: position)
         } else {
             if let selectedAttachment = currentSelectedAttachment {
-                self.resetMediaAttachmentOverlay(selectedAttachment)
+                resetMediaAttachmentOverlay(selectedAttachment)
                 richTextView.refresh(selectedAttachment)
             }
 
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
-            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
-            if attachment.overlayImage == nil {
-                attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
-                attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
+            if (attachment.message == nil) {
+                let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
+                attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             }
+            attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
             richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
         }
