@@ -254,6 +254,9 @@ open class TextStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: preprocessedString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
+        let invalidateRange = NSMakeRange(range.location, attrString.length)
+        invalidateAttributes(in: invalidateRange)
+
         endEditing()
     }
 
