@@ -1081,7 +1081,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             }
 
             // and mark the newly tapped attachment
-            if (attachment.message == nil) {
+            if attachment.message == nil {
                 let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
                 attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             }
@@ -1094,7 +1094,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
-            self.resetMediaAttachmentOverlay(mediaAttachment)
+            resetMediaAttachmentOverlay(mediaAttachment)
             richTextView.refresh(mediaAttachment)
         }
     }

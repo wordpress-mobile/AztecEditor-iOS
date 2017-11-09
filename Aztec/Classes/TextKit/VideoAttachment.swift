@@ -70,11 +70,7 @@ open class VideoAttachment: MediaAttachment {
     ///
     open override var overlayImage: UIImage? {
         set(newValue) {
-            if newValue == nil {
-                super.overlayImage = Assets.playIcon
-            } else {
-                super.overlayImage = newValue
-            }
+            super.overlayImage = newValue ?? Assets.playIcon
         }
 
         get {
