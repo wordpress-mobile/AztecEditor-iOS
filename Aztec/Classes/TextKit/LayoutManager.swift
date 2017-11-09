@@ -21,7 +21,11 @@ class LayoutManager: NSLayoutManager {
 
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
-    var extraLineFragmentTypingAttributes: (() -> [String: Any])?
+    var extraLineFragmentTypingAttributes: (() -> [NSAttributedStringKey: Any])?
+
+    /// Blockquote's Left Border width
+    ///
+    var blockquoteBorderWidth: CGFloat = 2
 
 
     /// Draws the background, associated to a given Text Range
@@ -54,7 +58,7 @@ private extension LayoutManager {
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
 
         // Draw: Blockquotes
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []) { (object, range, stop) in
+        textStorage.enumerateAttribute(.paragraphStyle, in: characterRange, options: []) { (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
@@ -78,7 +82,7 @@ private extension LayoutManager {
                 return
         }
 
-        guard let paragraphStyle = typingAttributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+        guard let paragraphStyle = typingAttributes[.paragraphStyle] as? ParagraphStyle,
             !paragraphStyle.blockquotes.isEmpty else {
                 return
         }
@@ -125,7 +129,7 @@ private extension LayoutManager {
         blockquoteBackgroundColor.setFill()
         context.fill(rect)
 
-        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: 2, height: rect.height))
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
         blockquoteBorderColor.setFill()
         context.fill(borderRect)
     }
@@ -149,7 +153,7 @@ private extension LayoutManager {
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
         //draw html pre paragraphs
-        textStorage.enumerateAttribute(NSParagraphStyleAttributeName, in: characterRange, options: []){ (object, range, stop) in
+        textStorage.enumerateAttribute(.paragraphStyle, in: characterRange, options: []){ (object, range, stop) in
             guard let paragraphStyle = object as? ParagraphStyle, paragraphStyle.htmlPre != nil else {
                 return
             }
@@ -190,7 +194,7 @@ private extension LayoutManager {
         textStorage.enumerateParagraphRanges(spanning: characterRange) { (range, enclosingRange) in
 
             guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
-                let paragraphStyle = textStorage.attribute(NSParagraphStyleAttributeName, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
+                let paragraphStyle = textStorage.attribute(.paragraphStyle, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
                 let list = paragraphStyle.lists.last
             else {
                 return
@@ -267,20 +271,20 @@ private extension LayoutManager {
 
     /// Returns the Marker Text Attributes, based on a collection that defines Regular Text Attributes.
     ///
-    private func markerAttributesBasedOnParagraph(attributes: [String: Any]) -> [String: Any] {
+    private func markerAttributesBasedOnParagraph(attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         var resultAttributes = attributes
         var indent: CGFloat = 0
-        if let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle {
+        if let style = attributes[.paragraphStyle] as? ParagraphStyle {
             indent = style.listIndent + Metrics.listTextIndentation
         }
 
-        resultAttributes[NSParagraphStyleAttributeName] = markerParagraphStyle(indent: indent)
-        resultAttributes.removeValue(forKey: NSUnderlineStyleAttributeName)
-        resultAttributes.removeValue(forKey: NSStrikethroughStyleAttributeName)
-        resultAttributes.removeValue(forKey: NSLinkAttributeName)
+        resultAttributes[.paragraphStyle] = markerParagraphStyle(indent: indent)
+        resultAttributes.removeValue(forKey: .underlineStyle)
+        resultAttributes.removeValue(forKey: .strikethroughStyle)
+        resultAttributes.removeValue(forKey: .link)
 
-        if let font = resultAttributes[NSFontAttributeName] as? UIFont {
-            resultAttributes[NSFontAttributeName] = fixFontForMarkerAttributes(font: font)
+        if let font = resultAttributes[.font] as? UIFont {
+            resultAttributes[.font] = fixFontForMarkerAttributes(font: font)
         }
 
         return resultAttributes

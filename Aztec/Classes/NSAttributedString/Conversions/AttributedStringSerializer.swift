@@ -5,11 +5,11 @@ import UIKit
 ///
 class AttributedStringSerializer {
 
-    private let defaultAttributes: [String: Any]
+    private let defaultAttributes: [NSAttributedStringKey: Any]
 
     // MARK: - Initializers
 
-    required init(defaultAttributes: [String: Any]) {
+    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
     }
 
@@ -35,7 +35,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: Node, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: Node, inheriting attributes: [NSAttributedStringKey:Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -56,15 +56,15 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: TextNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: TextNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
-        let string: NSAttributedString
-
-        if node.length() == 0 {
-            string = NSAttributedString()
-        } else {
-            string = NSAttributedString(string: node.text(), attributes: attributes)
+        let text = sanitizeText(from: node)
+        
+        guard text.count > 0 else {
+            return NSAttributedString()
         }
+        
+        let string = NSAttributedString(string: text, attributes: attributes)
 
         guard !node.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: string, inheriting: attributes)
@@ -81,7 +81,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [String:Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -91,12 +91,12 @@ class AttributedStringSerializer {
     /// Serializes an `ElementNode`.
     ///
     /// - Parameters:
-    ///     - node: the node to convert to `NSAttributedString`.
+    ///     - element: the node to convert to `NSAttributedString`.
     ///     - attributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [String: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         guard element.isSupportedByEditor() else {
             return serialize(unsupported: element, inheriting: attributes)
@@ -121,10 +121,14 @@ class AttributedStringSerializer {
         return content
     }
 
-    /// Serializes an unsupported element.
+    /// - Parameters:
+    ///     - element: the node to convert to `NSAttributedString`.
+    ///     - attributes: the inherited attributes from parent nodes.
     ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString {
-        let serializer = HTMLSerializer()
+    /// - Returns: the converted node as an `NSAttributedString`.
+    ///
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
+        let serializer = DefaultHTMLSerializer()
         let attachment = HTMLAttachment()
 
         attachment.rootTagName = element.name
@@ -135,7 +139,7 @@ class AttributedStringSerializer {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [String: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -229,11 +233,12 @@ private extension AttributedStringSerializer {
     /// attributes.
     ///
     /// - Parameters:
-    ///     - node: the node to get the information from.
+    ///     - element: the node to get the information from.
+    ///     - inheritedAttributes: the inherited attributes from parent nodes.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
         guard !(element is RootNode) else {
             return inheritedAttributes
@@ -261,14 +266,14 @@ private extension AttributedStringSerializer {
     /// including the inherited attributes.
     ///
     /// - Parameters:
-    ///     - htmlAttributes: the HTML attributes to get calculate the string attributes from.
+    ///     - htmlAttributes: the HTML attributes to calculate the string attributes from.
     ///     - inheritedAttributes: the attributes that will be inherited.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [String: Any] in
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedStringKey: Any] in
             return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
 
@@ -280,14 +285,14 @@ private extension AttributedStringSerializer {
     /// including inherited attributes.
     ///
     /// - Parameters:
-    ///     - attributeRepresentation: the element representation.
+    ///     - attribute: the attribute to calculate the string attributes from.
     ///     - inheritedAttributes: the attributes that will be inherited.
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [String: Any]) -> [String: Any] {
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let attributes: [String:Any]
+        let attributes: [NSAttributedStringKey: Any]
 
         if let attributeFormatter = formatter(for: attribute) {
             let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
@@ -304,13 +309,13 @@ private extension AttributedStringSerializer {
     /// Stores the specified HTMLElementRepresentation in a collection of NSAttributedString Attributes.
     ///
     /// - Parameters:
-    ///     - elementRepresentation: Instance of HTMLElementRepresentation to be stored.
+    ///     - representation: Instance of HTMLElementRepresentation to be stored.
     ///     - attributes: Attributes where we should store the HTML Representation.
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [String: Any]) -> [String: Any] {
-        let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)
 
@@ -319,7 +324,7 @@ private extension AttributedStringSerializer {
         // would mean affecting a range that may fall beyond what we expected!
         //
         var updated = attributes
-        updated[UnsupportedHTMLAttributeName] = UnsupportedHTML(representations: representations)
+        updated[.unsupportedHtml] = UnsupportedHTML(representations: representations)
 
         return updated
     }
@@ -366,10 +371,23 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: the requested implicit representation, if one exists, or `nil`.
     ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [String:Any]) -> NSAttributedString? {
+    func implicitRepresentation(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString? {
 
         guard let elementType = element.standardName else {
             return nil
+        }
+        
+        if let imgElement = linkedImageElement(for: element) {
+            var attributesWithoutLink = attributes
+            attributesWithoutLink[.link] = nil
+            attributesWithoutLink[.linkHtmlRepresentation] = nil
+
+            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
+            let attachment = imgAttributes[.attachment] as! ImageAttachment
+            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
+            attachment.linkURL = URL(string: linkText)
+            
+            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
         }
 
         return implicitRepresentation(for: elementType, inheriting: attributes)
@@ -384,7 +402,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: the requested implicit representation, if one exists, or `nil`.
     ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [String:Any]) -> NSAttributedString? {
+    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString? {
 
         switch elementType {
         case .hr, .img, .video:
@@ -395,5 +413,72 @@ private extension AttributedStringSerializer {
             return nil
         }
     }
+    
+    /// Checks if the specified node is of type '.a' with one child '.img' node.
+    /// If true, returns the '.img' node.
+    ///
+    /// - Parameters:
+    ///     - element: the node to get the information from
+    ///
+    /// - Returns: the child '.img' node if there is one
+    ///
+    private func linkedImageElement(for element: ElementNode) -> ElementNode? {
+        guard element.isNodeType(.a) && element.children.count == 1,
+            let imgElement = element.children.first as? ElementNode,
+            imgElement.isNodeType(.img) else {
+                return nil
+        }
+        
+        return imgElement
+    }
+}
+    
+// MARK: - Text Sanitization for Rendering
 
+private extension AttributedStringSerializer {
+    
+    func sanitizeText(from textNode: TextNode) -> String {
+        guard shouldSanitizeText(for: textNode) else {
+            return textNode.text()
+        }
+        
+        return sanitize(textNode.text())
+    }
+    
+    /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
+    /// For example if you are inside a pre element you shoulnd't clean up the nodes.
+    ///
+    /// - Parameter rawNode: the base node to check
+    ///
+    /// - Returns: true if sanitization should happen, false otherwise
+    ///
+    private func shouldSanitizeText(for textNode: TextNode) -> Bool {
+        return !textNode.hasAncestor(ofType: .pre)
+    }
+    
+    private func sanitize(_ text: String) -> String {
+        let hasAnEndingSpace = text.hasSuffix(String(.space))
+        let hasAStartingSpace = text.hasPrefix(String(.space))
+        
+        // We cannot use CharacterSet.whitespacesAndNewlines directly, because it includes
+        // U+000A, which is non-breaking space.  We need to maintain it.
+        //
+        let whitespace = CharacterSet.whitespacesAndNewlines
+        let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace))
+        let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
+        
+        let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)
+        var singleSpaceText = trimmedText
+        let doubleSpace = "  "
+        let singleSpace = " "
+        
+        while singleSpaceText.range(of: doubleSpace) != nil {
+            singleSpaceText = singleSpaceText.replacingOccurrences(of: doubleSpace, with: singleSpace)
+        }
+        
+        let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.lineFeed), with: "")
+        let endingSpace = !noBreaksText.isEmpty && hasAnEndingSpace ? String(.space) : ""
+        let startingSpace = !noBreaksText.isEmpty && hasAStartingSpace ? String(.space) : ""
+        return "\(startingSpace)\(noBreaksText)\(endingSpace)"
+    }
 }

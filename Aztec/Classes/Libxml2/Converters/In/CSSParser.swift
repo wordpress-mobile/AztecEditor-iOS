@@ -14,7 +14,7 @@ class CSSParser {
     ///
     func parse(_ css: String) -> [CSSAttribute] {
 
-        guard css.characters.count > 0 else {
+        guard css.count > 0 else {
             return []
         }
 
@@ -36,7 +36,7 @@ class CSSParser {
 
             let trimmedAttribute = cssAttribute.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            guard trimmedAttribute.characters.count > 0 else {
+            guard trimmedAttribute.count > 0 else {
                 return nil
             }
 
@@ -59,14 +59,14 @@ class CSSParser {
             return CSSAttribute(name: cssAttribute)
         }
 
-        let name = cssAttribute.substring(to: keyValueSeparatorRange.lowerBound)
+        let name = cssAttribute.prefix(upTo: keyValueSeparatorRange.lowerBound)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard keyValueSeparatorRange.upperBound != cssAttribute.endIndex else {
             return CSSAttribute(name: name)
         }
 
-        let value = cssAttribute.substring(from: keyValueSeparatorRange.upperBound)
+        let value = cssAttribute[keyValueSeparatorRange.upperBound...]
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         return CSSAttribute(name: name, value: value)

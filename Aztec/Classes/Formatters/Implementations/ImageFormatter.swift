@@ -1,16 +1,15 @@
 import UIKit
 
 class ImageFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = "Image.htmlRepresentation"
 
     init() {
         super.init(
-            attributeKey: NSAttachmentAttributeName,
+            attributeKey: .attachment,
             attributeValue: ImageAttachment(identifier: NSUUID().uuidString),
-            htmlRepresentationKey: ImageFormatter.htmlRepresentationKey)
+            htmlRepresentationKey: .imageHtmlRepresentation)
     }
 
-    override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
 
         if let representation = representation {
             switch representation.kind {
@@ -63,7 +62,7 @@ class ImageFormatter: StandardAttributeFormatter {
                 attributeValue = ImageAttachment(identifier: UUID().uuidString)
             }
         }
-
-        return super.apply(to: attributes, andStore: representation)
+        // Comment: Sergio Estevao (2017-10-30) - We are not passing the representation because it's all save inside the extraAttributes property of the attachment.
+        return super.apply(to: attributes, andStore: nil)
     }
 }

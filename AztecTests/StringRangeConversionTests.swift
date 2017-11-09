@@ -22,7 +22,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range)
+        let wordCaptured = String(string[range])
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
@@ -35,7 +35,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range)
+        let wordCaptured = String(string[range])
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
@@ -48,7 +48,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range)
+        let wordCaptured = String(string[range])
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
@@ -61,7 +61,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
         let range = string.range(from: nsRange)
 
-        let wordCaptured = string.substring(with: range)
+        let wordCaptured = String(string[range])
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
@@ -75,7 +75,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -88,7 +88,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -101,7 +101,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -114,7 +114,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let index = string.indexFromLocation(nsRange.location)!
 
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello 🇮🇳 ", wordCaptured)
     }
@@ -127,7 +127,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let location = string.location(before: nsRange.location)!
         let index = string.indexFromLocation(location)!
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello", wordCaptured)
     }
@@ -140,7 +140,7 @@ class StringRangeConversionTests: XCTestCase {
         let nsRange = nsString.range(of: wordToCapture)
         let location = string.location(before: nsRange.endLocation)!
         let index = string.indexFromLocation(location)!
-        let wordCaptured = string.substring(to: index)
+        let wordCaptured = string.prefix(upTo: index)
 
         XCTAssertEqual("Hello ", wordCaptured)
     }
@@ -248,6 +248,6 @@ class StringRangeConversionTests: XCTestCase {
         let endingRange = string.endOfStringNSRange()
 
         XCTAssert(endingRange.length == 0)
-        XCTAssert(endingRange.location == string.characters.count)
+        XCTAssert(endingRange.location == string.count)
     }
 }

@@ -10,20 +10,20 @@ class PreFormatterTests: XCTestCase {
     /// to the formatter's behavior.
     ///
     func testPreFormatterDoesNotLooseAttachmentAttribuesOnRemove() {
-        let placeholderAttributes: [String: Any] = [
-            NSFontAttributeName: "Value",
-            NSParagraphStyleAttributeName: NSParagraphStyle()
+        let placeholderAttributes: [NSAttributedStringKey: Any] = [
+            .font: "Value",
+            .paragraphStyle: NSParagraphStyle()
         ]
 
-        let stringAttributes: [String: Any] = [
-            NSAttachmentAttributeName: NSTextAttachment(),
+        let stringAttributes: [NSAttributedStringKey: Any] = [
+            .attachment: NSTextAttachment(),
         ]
 
         let formatter = PreFormatter(placeholderAttributes: placeholderAttributes)
         let updated = formatter.remove(from: stringAttributes)
 
-        let expectedValue = stringAttributes[NSAttachmentAttributeName] as! NSTextAttachment
-        let updatedValue = updated[NSAttachmentAttributeName] as! NSTextAttachment
+        let expectedValue = stringAttributes[.attachment] as! NSTextAttachment
+        let updatedValue = updated[.attachment] as! NSTextAttachment
 
         XCTAssert(updatedValue == expectedValue)
     }
