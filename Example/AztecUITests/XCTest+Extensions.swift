@@ -10,6 +10,10 @@ public struct elementStringIDs {
 
     // Alerts
     static var insertLinkConfirmButton = "Insert Link"
+    
+    // Table cells
+    static var unorderedListOption = "Unordered List"
+    static var orderedListOption = "Ordered List"
 
     // Toolbar
     static var mediaButton = "formatToolbarInsertMedia"

@@ -82,33 +82,29 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         XCTAssertEqual(expected, text)
     }
 
-    // Enable this test after unordered lists are fully implemented
-    /*
     func testSimpleUnorderedListText() {
         enterTextInField(text: "1")
         selectAllTextInField()
 
         app.scrollViews.otherElements.buttons[elementStringIDs.unorderedlistButton].tap()
+        app.tables.staticTexts[elementStringIDs.unorderedListOption].tap()
 
         let text = getHTMLContent()
         let expected = "<ul><li>1</li></ul>"
         XCTAssertEqual(expected, text)
     }
-    */
 
-    // Enable this test after ordered lists are fully implemented
-    /*
     func testSimpleOrderedListText() {
         enterTextInField(text: "1")
         selectAllTextInField()
 
-        app.scrollViews.otherElements.buttons[elementStringIDs.orderedlistButton].tap()
+        app.scrollViews.otherElements.buttons[elementStringIDs.unorderedlistButton].tap()
+        app.tables.staticTexts[elementStringIDs.orderedListOption].tap()
 
         let text = getHTMLContent()
         let expected = "<ol><li>1</li></ol>"
         XCTAssertEqual(expected, text)
     }
-    */
 
     func testSimpleLinkedText() {
         enterTextInField(text: "1")
