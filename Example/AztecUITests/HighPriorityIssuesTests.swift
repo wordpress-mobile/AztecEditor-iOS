@@ -1,11 +1,3 @@
-//
-//  HighPriorityIssuesTests.swift
-//  AztecUITests
-//
-//  Created by brbrr on 11/10/17.
-//  Copyright © 2017 Automattic Inc. All rights reserved.
-//
-
 import XCTest
 
 class HighPriorityIssuesTests: XCTestCase {
@@ -35,7 +27,7 @@ class HighPriorityIssuesTests: XCTestCase {
         super.tearDown()
     }
     
-    // Gihtub issue #393
+    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/385
     func testLongTitle() {
         //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
         //    But may be fragile due to different font sizes etc
@@ -74,16 +66,18 @@ class HighPriorityIssuesTests: XCTestCase {
         //        XCTAssert(twoLineTitleHeight < threeLineTitleHeight)
     }
     
-    func testInfinityLoopOnAssetDownload() {
+    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
+    func testInfiniteLoopOnAssetDownload() {
         switchContentView()
         enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
         switchContentView()
         gotoRootPage()
         
-        let editorDemoButton = app.tables/*@START_MENU_TOKEN@*/.staticTexts["Empty Editor Demo"]/*[[".cells.staticTexts[\"Empty Editor Demo\"]",".staticTexts[\"Empty Editor Demo\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
-        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Arew you on right page?")
+        let editorDemoButton = app.tables.staticTexts[elementStringIDs.emptyDemo]
+        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Are you on the right page?")
     }
     
+    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/465
     func testTypeAfterInvalidHTML() {
         switchContentView()
         enterTextInHTML(text: "<qaz!>")
