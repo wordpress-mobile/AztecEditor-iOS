@@ -36,14 +36,25 @@ public struct elementStringIDs {
 
 extension XCTest {
     /**
+     Common method to type in different text fields
+     */
+    func typeToTextField(text: String, to: String) -> Void {
+        let app = XCUIApplication()
+        let textField = app.textViews[to]
+        
+        textField.typeText(text)
+    }
+    
+    /**
      Enters text in the rich text field with auto-correction disabled
      - Parameter text: the test to enter into the field
      */
     func enterTextInField(text: String) -> Void {
-        let app = XCUIApplication()
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-
-        richTextField.typeText(text)
+        typeToTextField(text: text, to: elementStringIDs.richTextField)
+//        let app = XCUIApplication()
+//        let richTextField = app.textViews[elementStringIDs.richTextField]
+//
+//        richTextField.typeText(text)
     }
     
     /**
@@ -51,10 +62,15 @@ extension XCTest {
      - Parameter text: the test to enter into the title
      */
     func enterTextInTitle(text: String) -> Void {
-        let app = XCUIApplication()
-        let richTextField = app.textViews[elementStringIDs.titleTextField]
-        
-        richTextField.typeText(text)
+        typeToTextField(text: text, to: elementStringIDs.titleTextField)
+    }
+    
+    /**
+     Enters text into HTML field.
+     - Parameter text: the test to enter into the title
+     */
+    func enterTextInHTML(text: String) -> Void {
+        typeToTextField(text: text, to: elementStringIDs.htmlTextField)
     }
 
     /**
@@ -78,5 +94,25 @@ extension XCTest {
         let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
         return text
+    }
+    
+    /**
+     Switch Content view between Rich text & HTML
+     */
+    func switchContentView() -> Void {
+        let app = XCUIApplication()
+        
+        app.buttons[elementStringIDs.sourcecodeButton].tap()
+        let el = app.textViews[elementStringIDs.htmlTextField]
+//        if el.exists && el.isHittable {
+//            return app.textViews[elementStringIDs.htmlTextField].tap()
+//        }
+//        return app.textViews[elementStringIDs.richTextField].tap()
+    }
+    
+    func gotoRootPage() -> Void {
+        let app = XCUIApplication()
+
+        return app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
     }
 }

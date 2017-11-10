@@ -74,6 +74,15 @@ class HighPriorityIssuesTests: XCTestCase {
         //        XCTAssert(twoLineTitleHeight < threeLineTitleHeight)
     }
     
+    func testInfinitLoopOnAssetDownload() {
+        switchContentView()
+        enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
+        switchContentView()
+        gotoRootPage()
+        
+        let editorDemoButton = app.tables/*@START_MENU_TOKEN@*/.staticTexts["Empty Editor Demo"]/*[[".cells.staticTexts[\"Empty Editor Demo\"]",".staticTexts[\"Empty Editor Demo\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
+        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Arew you on right page?")
+    }
 }
 
 
