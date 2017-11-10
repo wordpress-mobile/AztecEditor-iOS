@@ -5,6 +5,7 @@ public struct elementStringIDs {
     static var emptyDemo = "Empty Editor Demo"
 
     // Text Fields
+    static var titleTextField = "Title"
     static var richTextField = "richContentView"
     static var htmlTextField = "HTMLContentView"
 
@@ -42,6 +43,17 @@ extension XCTest {
         let app = XCUIApplication()
         let richTextField = app.textViews[elementStringIDs.richTextField]
 
+        richTextField.typeText(text)
+    }
+    
+    /**
+     Enters text into title field.
+     - Parameter text: the test to enter into the title
+     */
+    func enterTextInTitle(text: String) -> Void {
+        let app = XCUIApplication()
+        let richTextField = app.textViews[elementStringIDs.titleTextField]
+        
         richTextField.typeText(text)
     }
 
