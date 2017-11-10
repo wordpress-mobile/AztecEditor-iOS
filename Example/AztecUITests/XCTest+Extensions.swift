@@ -89,11 +89,22 @@ extension XCTest {
      */
     func getHTMLContent() -> String {
         let app = XCUIApplication()
-
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
-        let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
+        
+        // Expects the format bar to be expanded.
+        let elementsQuery = app.scrollViews.otherElements
+        elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
+        
+        let htmlContentTextView =
+            app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
-        return text
+        
+        // Remove spaces between HTML tags.
+        let regex = try! NSRegularExpression(pattern: ">\\s+?<", options: .caseInsensitive)
+        let range = NSMakeRange(0, text.count)
+        let strippedText = regex.stringByReplacingMatches(in: text, options: .reportCompletion, range: range, withTemplate: "><")
+        
+        return strippedText
     }
     
     func getRichTextContent() -> String {
@@ -109,13 +120,14 @@ extension XCTest {
      */
     func switchContentView() -> Void {
         let app = XCUIApplication()
-        
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
-//        let el = app.textViews[elementStringIDs.htmlTextField]
-//        if el.exists && el.isHittable {
-//            return app.textViews[elementStringIDs.htmlTextField].tap()
-//        }
-//        return app.textViews[elementStringIDs.richTextField].tap()
+
+        // TODO: Switch content is not possible when bar is locked. Need to determinate the status of options bar. ATM its impossible.
+//        let button = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
+//        XCTAssert(!button.isHittable, "Options bar is locked. SourceCode button is not available")
+    
+        let elementsQuery = app.scrollViews.otherElements
+        elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
     }
     
     func gotoRootPage() -> Void {

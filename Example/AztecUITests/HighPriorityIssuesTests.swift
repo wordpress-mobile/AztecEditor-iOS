@@ -74,7 +74,7 @@ class HighPriorityIssuesTests: XCTestCase {
         //        XCTAssert(twoLineTitleHeight < threeLineTitleHeight)
     }
     
-    func testInfinitLoopOnAssetDownload() {
+    func testInfinityLoopOnAssetDownload() {
         switchContentView()
         enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
         switchContentView()
@@ -91,7 +91,8 @@ class HighPriorityIssuesTests: XCTestCase {
         
         let field = app.textViews[elementStringIDs.richTextField]
         // Some magic to move caret to end of the text
-        field.coordinate(withNormalizedOffset:CGVector.zero).withOffset(CGVector(dx:300,dy:500)).tap()
+        let vector = CGVector(dx:field.frame.width, dy:field.frame.height - field.frame.minY)
+        field.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
         enterTextInField(text: "Some text after invalid HTML tag")
 
         let text = getHTMLContent()
