@@ -96,6 +96,14 @@ extension XCTest {
         return text
     }
     
+    func getRichTextContent() -> String {
+        let app = XCUIApplication()
+        
+        let richContentTextView = app.textViews[elementStringIDs.richTextField]
+        let text = richContentTextView.value as! String
+        return text
+    }
+    
     /**
      Switch Content view between Rich text & HTML
      */
@@ -103,7 +111,7 @@ extension XCTest {
         let app = XCUIApplication()
         
         app.buttons[elementStringIDs.sourcecodeButton].tap()
-        let el = app.textViews[elementStringIDs.htmlTextField]
+//        let el = app.textViews[elementStringIDs.htmlTextField]
 //        if el.exists && el.isHittable {
 //            return app.textViews[elementStringIDs.htmlTextField].tap()
 //        }
