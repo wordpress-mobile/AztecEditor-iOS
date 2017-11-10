@@ -15,7 +15,7 @@ class NSAttributedStringKeyHelperTests: XCTestCase {
             customKey: 111
         ]
 
-        let output = AttributedStringKey.convertToRaw(attributes: input)
+        let output = AttributedStringKey.convertToRaw(input)
 
         XCTAssertEqual(output[AttributedStringKey.strikethroughStyle.rawValue] as! NSUnderlineStyle, .styleSingle)
         XCTAssertEqual(output[AttributedStringKey.attachment.rawValue] as! Int, 222)
@@ -35,7 +35,7 @@ class NSAttributedStringKeyHelperTests: XCTestCase {
             customKey.rawValue: 111
         ]
 
-        let output = AttributedStringKey.convertFromRaw(attributes: input)
+        let output = AttributedStringKey.convertFromRaw(input)
 
         XCTAssertEqual(output[.strikethroughStyle] as! NSUnderlineStyle, NSUnderlineStyle.styleSingle)
         XCTAssertEqual(output[.attachment] as! Int, 222)
