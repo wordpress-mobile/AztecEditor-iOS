@@ -9,7 +9,7 @@ class ImageFormatter: StandardAttributeFormatter {
             htmlRepresentationKey: .imageHtmlRepresentation)
     }
 
-    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    override func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
 
         if let representation = representation {
             switch representation.kind {

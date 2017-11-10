@@ -12,14 +12,14 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [NSAttributedStringKey: Any]?
+    let placeholderAttributes: [AttributedStringKey: Any]?
 
     /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
     let increaseDepth: Bool
 
     /// Designated Initializer
     ///
-    init(style: TextList.Style, placeholderAttributes: [NSAttributedStringKey: Any]? = nil, increaseDepth: Bool = false) {
+    init(style: TextList.Style, placeholderAttributes: [AttributedStringKey: Any]? = nil, increaseDepth: Bool = false) {
         self.listStyle = style
         self.placeholderAttributes = placeholderAttributes
         self.increaseDepth = increaseDepth
@@ -28,7 +28,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
         let newParagraphStyle = ParagraphStyle()
         if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
@@ -47,7 +47,7 @@ class TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
               let currentList = paragraphStyle.lists.last,
               currentList.style == self.listStyle
@@ -65,18 +65,18 @@ class TextListFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [AttributedStringKey: Any]) -> Bool {
         return TextListFormatter.lists(in: attributes).last?.style == listStyle
     }
 
 
     // MARK: - Static Helpers
 
-    static func listsOfAnyKindPresent(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    static func listsOfAnyKindPresent(in attributes: [AttributedStringKey: Any]) -> Bool {
         return lists(in: attributes).isEmpty == false
     }
 
-    static func lists(in attributes: [NSAttributedStringKey: Any]) -> [TextList] {
+    static func lists(in attributes: [AttributedStringKey: Any]) -> [TextList] {
         let style = attributes[.paragraphStyle] as? ParagraphStyle
         return style?.lists ?? []
     }

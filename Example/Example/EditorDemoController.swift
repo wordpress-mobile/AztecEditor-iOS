@@ -591,8 +591,8 @@ extension EditorDemoController {
 
     func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
-            let attributes = [
-                NSAttributedStringKey.font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
+            let attributes: [AttributedStringKey: Any] = [
+                .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
             let title = NSAttributedString(string: headerType.description, attributes: attributes)
@@ -1281,9 +1281,9 @@ private extension EditorDemoController
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
 
-        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
-                                                        .paragraphStyle: paragraphStyle,
-                                                        .foregroundColor: UIColor.white]
+        let attributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
+                                                      .paragraphStyle: paragraphStyle,
+                                                      .foregroundColor: UIColor.white]
         return attributes
     }
 

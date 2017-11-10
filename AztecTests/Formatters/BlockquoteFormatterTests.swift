@@ -22,7 +22,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggle(in: storage, at: NSRange(location: 1, length: 1))
@@ -36,7 +36,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[1])
         formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
@@ -51,7 +51,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))

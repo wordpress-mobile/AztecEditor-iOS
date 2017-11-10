@@ -3,12 +3,12 @@ import UIKit
 
 class FontFormatter: AttributeFormatter {
 
-    var placeholderAttributes: [NSAttributedStringKey: Any]? { return nil }
+    var placeholderAttributes: [AttributedStringKey: Any]? { return nil }
     
-    let htmlRepresentationKey: NSAttributedStringKey
+    let htmlRepresentationKey: AttributedStringKey
     let traits: UIFontDescriptorSymbolicTraits
 
-    init(traits: UIFontDescriptorSymbolicTraits, htmlRepresentationKey: NSAttributedStringKey) {
+    init(traits: UIFontDescriptorSymbolicTraits, htmlRepresentationKey: AttributedStringKey) {
         self.htmlRepresentationKey = htmlRepresentationKey
         self.traits = traits
     }
@@ -21,7 +21,7 @@ class FontFormatter: AttributeFormatter {
         return false
     }
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
 
         guard let font = attributes[.font] as? UIFont else {
             return attributes
@@ -37,7 +37,7 @@ class FontFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         var resultingAttributes = attributes
         guard let font = attributes[.font] as? UIFont else {
             return attributes
@@ -51,7 +51,7 @@ class FontFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey : Any]) -> Bool {
+    func present(in attributes: [AttributedStringKey : Any]) -> Bool {
         guard let font = attributes[.font] as? UIFont else {
             return false
         }

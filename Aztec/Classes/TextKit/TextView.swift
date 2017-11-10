@@ -151,7 +151,7 @@ open class TextView: UITextView {
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
-    fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
+    fileprivate var defaultAttributes: [AttributedStringKey: Any] {
         return [.font: defaultFont,
                 .paragraphStyle: defaultParagraphStyle]
     }
@@ -252,19 +252,31 @@ open class TextView: UITextView {
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
     /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
     ///
-    open var typingAttributesSwifted: [NSAttributedStringKey: Any] {
+    open var typingAttributesSwifted: [AttributedStringKey: Any] {
         get {
-            return NSAttributedStringKey.convertFromRaw(attributes: typingAttributes)
+            return AttributedStringKey.convertFromRaw(attributes: typingAttributes)
         }
         set {
-            typingAttributes = NSAttributedStringKey.convertToRaw(attributes: newValue)
+            typingAttributes = AttributedStringKey.convertToRaw(attributes: newValue)
+        }
+    }
+    
+    /// The attributes for link text in his view.  Required since the underlying property is not compatible with the
+    /// recent Swift 4.0 changes.
+    ///
+    open var linkTextAttributesSwifted: [AttributedStringKey: Any] {
+        get {
+            return AttributedStringKey.convertFromRaw(attributes: linkTextAttributes)
+        }
+        set {
+            linkTextAttributes = AttributedStringKey.convertToRaw(attributes: newValue)
         }
     }
 
 
     /// This property returns the Attributes associated to the Extra Line Fragment.
     ///
-    public var extraLineFragmentTypingAttributes: [NSAttributedStringKey: Any] {
+    public var extraLineFragmentTypingAttributes: [AttributedStringKey: Any] {
         guard selectedTextRange?.start != endOfDocument else {
             return typingAttributesSwifted
         }
@@ -318,8 +330,7 @@ open class TextView: UITextView {
         allowsEditingTextAttributes = true
         storage.attachmentsDelegate = self
         font = defaultFont
-        linkTextAttributes = [NSAttributedStringKey.underlineStyle.rawValue: NSNumber(value:NSUnderlineStyle.styleSingle.rawValue),
-                              NSAttributedStringKey.foregroundColor.rawValue: self.tintColor]
+        linkTextAttributesSwifted = [.underlineStyle: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue), .foregroundColor: self.tintColor]
         typingAttributesSwifted = defaultAttributes
         setupMenuController()
         setupAttachmentTouchDetection()
@@ -1001,7 +1012,7 @@ open class TextView: UITextView {
     /// - Parameter range: Range in which new text will be inserted.
     ///
     private func ensureRemovalOfLinkTypingAttribute(at range: NSRange) {
-        guard typingAttributes[NSAttributedStringKey.link.rawValue] != nil else {
+        guard typingAttributesSwifted[.link] != nil else {
             return
         }
 
@@ -1011,7 +1022,7 @@ open class TextView: UITextView {
                 return
         }
 
-        typingAttributes.removeValue(forKey: NSAttributedStringKey.link.rawValue)
+        typingAttributesSwifted.removeValue(forKey: .link)
     }
 
 
@@ -1697,13 +1708,13 @@ private extension TextView {
         ]
 
         for formatter in formatters {
-            let activeTypingAttributes = NSAttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
+            let activeTypingAttributes = AttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
             guard formatter.present(in: activeTypingAttributes) else {
                 continue
             }
 
             let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
-            super.typingAttributes = NSAttributedStringKey.convertToRaw(attributes: updatedTypingAttributes)
+            super.typingAttributes = AttributedStringKey.convertToRaw(attributes: updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)

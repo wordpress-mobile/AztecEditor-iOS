@@ -3,38 +3,42 @@ import XCTest
 
 class NSAttributedStringKeyHelperTests: XCTestCase {
 
-    /// Verifies that, given a collection of [NSAttributedStringKey: Any], `NSAttributedStringKey.convertToRaw(:)`  effectively converts
+    /// Verifies that, given a collection of [NSAttributedStringKey: Any], `AttributedStringKey.convertToRaw(:)`  effectively converts
     /// all of the keys into Strings.
     ///
     func testConvertToRawReturnsANewCollectionContainingAllOfTheStringValues() {
-        let input: [NSAttributedStringKey: Any] = [
+        let customKey = AttributedStringKey(key: "Custom")
+        
+        let input: [AttributedStringKey: Any] = [
             .strikethroughStyle: NSUnderlineStyle.styleSingle,
             .attachment: 222,
-            NSAttributedStringKey("Custom"): 111
+            customKey: 111
         ]
 
-        let output = NSAttributedStringKey.convertToRaw(attributes: input)
+        let output = AttributedStringKey.convertToRaw(attributes: input)
 
-        XCTAssertEqual(output[NSAttributedStringKey.strikethroughStyle.rawValue] as! NSUnderlineStyle, .styleSingle)
-        XCTAssertEqual(output[NSAttributedStringKey.attachment.rawValue] as! Int, 222)
-        XCTAssertEqual(output["Custom"] as! Int, 111)
+        XCTAssertEqual(output[AttributedStringKey.strikethroughStyle.rawValue] as! NSUnderlineStyle, .styleSingle)
+        XCTAssertEqual(output[AttributedStringKey.attachment.rawValue] as! Int, 222)
+        XCTAssertEqual(output[customKey.rawValue] as! Int, 111)
     }
 
 
-    /// Verifies that, given a collection of [String: Any], `NSAttributedStringKey.convertFromRaw(:)`  effectively converts
+    /// Verifies that, given a collection of [String: Any], `AttributedStringKey.convertFromRaw(:)`  effectively converts
     /// all of the keys into NSAttributedStringKey instances.
     ///
     func testConvertFromRawReturnsANewCollectionContainingAttributedStringKeyInstances() {
+        let customKey = AttributedStringKey(key: "Custom")
+        
         let input: [String: Any] = [
-            NSAttributedStringKey.strikethroughStyle.rawValue: NSUnderlineStyle.styleSingle,
-            NSAttributedStringKey.attachment.rawValue: 222,
-            "Custom": 111
+            AttributedStringKey.strikethroughStyle.rawValue: NSUnderlineStyle.styleSingle,
+            AttributedStringKey.attachment.rawValue: 222,
+            customKey.rawValue: 111
         ]
 
-        let output = NSAttributedStringKey.convertFromRaw(attributes: input)
+        let output = AttributedStringKey.convertFromRaw(attributes: input)
 
         XCTAssertEqual(output[.strikethroughStyle] as! NSUnderlineStyle, NSUnderlineStyle.styleSingle)
         XCTAssertEqual(output[.attachment] as! Int, 222)
-        XCTAssertEqual(output[NSAttributedStringKey("Custom")] as! Int, 111)
+        XCTAssertEqual(output[customKey] as! Int, 111)
     }
 }
