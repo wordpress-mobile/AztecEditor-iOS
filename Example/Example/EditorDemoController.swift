@@ -1277,7 +1277,7 @@ private extension EditorDemoController
         richTextView.refresh(attachment)
     }
 
-    var mediaMessageAttributes: [NSAttributedStringKey: Any] {
+    var mediaMessageAttributes: [AttributedStringKey: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
 

@@ -254,10 +254,10 @@ open class TextView: UITextView {
     ///
     open var typingAttributesSwifted: [AttributedStringKey: Any] {
         get {
-            return AttributedStringKey.convertFromRaw(attributes: typingAttributes)
+            return AttributedStringKey.convertFromRaw(typingAttributes)
         }
         set {
-            typingAttributes = AttributedStringKey.convertToRaw(attributes: newValue)
+            typingAttributes = AttributedStringKey.convertToRaw(newValue)
         }
     }
     
@@ -266,10 +266,10 @@ open class TextView: UITextView {
     ///
     open var linkTextAttributesSwifted: [AttributedStringKey: Any] {
         get {
-            return AttributedStringKey.convertFromRaw(attributes: linkTextAttributes)
+            return AttributedStringKey.convertFromRaw(linkTextAttributes)
         }
         set {
-            linkTextAttributes = AttributedStringKey.convertToRaw(attributes: newValue)
+            linkTextAttributes = AttributedStringKey.convertToRaw(newValue)
         }
     }
 
@@ -1708,13 +1708,13 @@ private extension TextView {
         ]
 
         for formatter in formatters {
-            let activeTypingAttributes = AttributedStringKey.convertFromRaw(attributes: super.typingAttributes)
+            let activeTypingAttributes = AttributedStringKey.convertFromRaw(super.typingAttributes)
             guard formatter.present(in: activeTypingAttributes) else {
                 continue
             }
 
             let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
-            super.typingAttributes = AttributedStringKey.convertToRaw(attributes: updatedTypingAttributes)
+            super.typingAttributes = AttributedStringKey.convertToRaw(updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)

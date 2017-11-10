@@ -10,7 +10,7 @@ extension AttributedStringKey {
     /// equivalent collection that uses regular 'String' instances as keys.
     ///
     @inline(__always)
-    static func convertToRaw(attributes: [AttributedStringKey: Any]) -> [String: Any] {
+    static func convertToRaw(_ attributes: [AttributedStringKey: Any]) -> [String: Any] {
         #if swift(>=4.0)
             var output = [String: Any]()
             for (key, value) in attributes {
@@ -28,7 +28,7 @@ extension AttributedStringKey {
     /// collection that uses the new 'NSAttributedStringKey' enum as keys.
     ///
     @inline(__always)
-    static func convertFromRaw(attributes: [String: Any]) -> [AttributedStringKey: Any] {
+    static func convertFromRaw(_ attributes: [String: Any]) -> [AttributedStringKey: Any] {
         #if swift(>=4.0)
             var output = [AttributedStringKey: Any]()
             for (key, value) in attributes {
