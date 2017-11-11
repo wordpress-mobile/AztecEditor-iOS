@@ -68,8 +68,11 @@ extension XCTest {
         
         // Expects the format bar to be expanded.
         let elementsQuery = app.scrollViews.otherElements
-        elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
-        elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
+        let htmlButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
+        if (!htmlButton.isHittable) {
+            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        }
+        htmlButton.tap()
         
         let htmlContentTextView =
             app.textViews[elementStringIDs.htmlTextField]
