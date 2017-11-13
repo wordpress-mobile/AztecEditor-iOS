@@ -74,7 +74,7 @@ private extension HTMLAttachmentRenderer {
     }
 
     func messageAttributedString(with attachment: NSTextAttachment) -> NSAttributedString {
-        let attributes: [AttributedStringKey: Any] = [
+        let attributes: [NSAttributedStringKey: Any] = [
             .foregroundColor: textColor,
             .font: textFont
         ]

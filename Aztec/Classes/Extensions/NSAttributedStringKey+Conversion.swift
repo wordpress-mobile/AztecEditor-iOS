@@ -13,8 +13,9 @@ extension AttributedStringKey {
     static func convertToRaw(_ attributes: [AttributedStringKey: Any]) -> [String: Any] {
         #if swift(>=4.0)
             var output = [String: Any]()
+            
             for (key, value) in attributes {
-            output[key.rawValue] = value
+                output[key.rawValue] = value
             }
             
             return output
@@ -31,9 +32,10 @@ extension AttributedStringKey {
     static func convertFromRaw(_ attributes: [String: Any]) -> [AttributedStringKey: Any] {
         #if swift(>=4.0)
             var output = [AttributedStringKey: Any]()
+            
             for (key, value) in attributes {
-            let wrappedKey = AttributedStringKey(key)
-            output[wrappedKey] = value
+                let wrappedKey = AttributedStringKey(key)
+                output[wrappedKey] = value
             }
             
             return output

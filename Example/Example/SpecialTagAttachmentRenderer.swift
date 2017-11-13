@@ -36,7 +36,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.baseWritingDirection = .leftToRight
-        let attributes: [AttributedStringKey: Any] = [.foregroundColor: textColor, .paragraphStyle: paragraphStyle]
+        let attributes: [NSAttributedStringKey: Any] = [.foregroundColor: textColor, .paragraphStyle: paragraphStyle]
 
         let colorMessage = NSAttributedString(string: label, attributes: attributes)
 
