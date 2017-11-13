@@ -3,6 +3,7 @@ import XCTest
 public struct elementStringIDs {
     // Demo Menu
     static var emptyDemo = "Empty Editor Demo"
+    static var demo = "Editor Demo"
 
     // Text Fields
     static var titleTextField = "Title"
@@ -32,6 +33,11 @@ public struct elementStringIDs {
     static var header4Button = "Heading 4"
     static var header5Button = "Heading 5"
     static var header6Button = "Heading 6"
+    
+    // Menu items
+    static var copyButton = "Copy"
+    static var pasteButton = "Paste"
+    
 }
 
 extension XCTest {
@@ -79,7 +85,26 @@ extension XCTest {
     func selectAllTextInField() -> Void {
         let app = XCUIApplication()
         let richTextField = app.textViews[elementStringIDs.richTextField]
+        
+        richTextField.press(forDuration: 1.2)
+        app.menuItems.element(boundBy: 1).tap()
+    }
+    
+    /**
+     Selects all entered text in the rich text field
+     */
+    func selectAllTextInHTMLField() -> Void {
+        selectAllText(field: elementStringIDs.htmlTextField)
+    }
 
+    
+    /**
+     Selects all entered text in provided textView element
+     */
+    func selectAllText(field: String) -> Void {
+        let app = XCUIApplication()
+        let richTextField = app.textViews[field]
+        
         richTextField.press(forDuration: 1.2)
         app.menuItems.element(boundBy: 1).tap()
     }

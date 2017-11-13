@@ -15,11 +15,8 @@ class HighPriorityIssuesTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
         
-        let tablesQuery = app.tables
-        tablesQuery.staticTexts[elementStringIDs.emptyDemo].tap()
-        
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-        richTextField.tap()
+        let blogsPage = BlogsPage.init(appInstance: app)
+        blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
@@ -91,6 +88,54 @@ class HighPriorityIssuesTests: XCTestCase {
 
         let text = getHTMLContent()
         XCTAssertEqual(text, "<p><qaz></qaz>Some text after invalid HTML tag</p>")
+    }
+    
+    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/768
+    func testLooseStylesNoContent() {
+        let boldButton = app.scrollViews.otherElements.buttons[elementStringIDs.boldButton]
+        let italicButton = app.scrollViews.otherElements.buttons[elementStringIDs.italicButton]
+
+        XCTAssert(!boldButton.isSelected && !italicButton.isSelected)
+        boldButton.tap()
+        italicButton.tap()
+        
+        enterTextInField(text: "q")
+        let deleteButton = app.keys["delete"]
+        deleteButton.tap()
+        deleteButton.tap()
+        XCTAssert(boldButton.isSelected && italicButton.isSelected)
+    }
+    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
+    func testCopyPasteCrash() {
+        gotoRootPage()
+        let blogsPage = BlogsPage.init(appInstance: app)
+        blogsPage.gotoDemo()
+        
+        switchContentView()
+        selectAllTextInHTMLField()
+       
+        let htmlcontentviewTextView = app.textViews["HTMLContentView"]
+        let text = htmlcontentviewTextView.value as! String
+
+        app.menuItems[elementStringIDs.copyButton].tap()
+        htmlcontentviewTextView.swipeUp()
+        htmlcontentviewTextView.swipeUp()
+        htmlcontentviewTextView.swipeUp()
+
+        // determinating where to click to put caret to end of text
+        let frame = htmlcontentviewTextView.frame
+        let buttonFrame = app.scrollViews.otherElements.buttons[elementStringIDs.mediaButton].frame.height
+        let vector = CGVector(dx: frame.width, dy: frame.height - (buttonFrame + 1))
+        
+        htmlcontentviewTextView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
+        htmlcontentviewTextView.typeText("\n\n")
+        htmlcontentviewTextView.tap()
+        app.menuItems[elementStringIDs.pasteButton].tap()
+        
+        sleep(1) // to make sure everything is updated
+        let newText = htmlcontentviewTextView.value as! String
+        
+        XCTAssert(newText == text + "\n\n" + text)
     }
 }
 
