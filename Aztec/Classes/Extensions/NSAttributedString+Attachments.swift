@@ -20,7 +20,7 @@ extension NSAttributedString
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
-    convenience init(attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) {
+    convenience init(attachment: NSTextAttachment, attributes: [AttributedStringKey: Any]) {
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
