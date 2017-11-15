@@ -32,7 +32,7 @@ extension String {
         }
 
         let endingRange = index ..< self.index(after: index)
-        let endingString = String(self[endingRange])
+        let endingString = compatibleSubstring(with: endingRange)
         let paragraphSeparators = [String(.carriageReturn), String(.lineFeed), String(.paragraphSeparator)]
 
         return paragraphSeparators.contains(endingString)

@@ -21,7 +21,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
-    var extraLineFragmentTypingAttributes: (() -> [NSAttributedStringKey: Any])?
+    var extraLineFragmentTypingAttributes: (() -> [AttributedStringKey: Any])?
 
     /// Blockquote's Left Border width
     ///
@@ -271,7 +271,7 @@ private extension LayoutManager {
 
     /// Returns the Marker Text Attributes, based on a collection that defines Regular Text Attributes.
     ///
-    private func markerAttributesBasedOnParagraph(attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    private func markerAttributesBasedOnParagraph(attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         var resultAttributes = attributes
         var indent: CGFloat = 0
         if let style = attributes[.paragraphStyle] as? ParagraphStyle {

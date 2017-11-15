@@ -30,8 +30,8 @@ class TextStorageTests: XCTestCase {
     // MARK: - Test Traits
 
     func testFontTraitExistsAtIndex() {
-        let attributes = [
-            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
+        let attributes: [AttributedStringKey: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
         storage.append(NSAttributedString(string: "foo"))
@@ -51,8 +51,8 @@ class TextStorageTests: XCTestCase {
     }
 
     func testFontTraitSpansRange() {
-        let attributes = [
-            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
+        let attributes: [AttributedStringKey: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
         storage.append(NSAttributedString(string: "foo"))
@@ -65,9 +65,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testToggleTraitInRange() {
-        let attributes = [
-            NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 10)
-        ]
+        let attributes: [AttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 10)]
 
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
@@ -165,8 +163,8 @@ class TextStorageTests: XCTestCase {
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        let defaultAttributes = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 14),
-                                 NSAttributedStringKey.paragraphStyle: ParagraphStyle.default]
+        let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                             .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
 
@@ -381,8 +379,8 @@ class TextStorageTests: XCTestCase {
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
 
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
-                                                               .paragraphStyle: ParagraphStyle.default]
+        let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                             .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
