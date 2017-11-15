@@ -118,7 +118,7 @@ private extension HTMLStorage {
         addAttribute(.font, value: font, range: fullStringRange)
 
         let tags = RegExes.html.matches(in: string, options: [], range: fullStringRange)
-        
+
         for tag in tags {
             addAttribute(.foregroundColor, value: tagColor, range: tag.range)
 
@@ -127,7 +127,7 @@ private extension HTMLStorage {
                 addAttribute(.foregroundColor, value: quotedColor, range: quote.range)
             }
         }
-        
+
         let comments = RegExes.comments.matches(in: string, options: [], range: fullStringRange)
         for comment in comments {
             addAttribute(.foregroundColor, value: commentColor, range: comment.range)
