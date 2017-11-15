@@ -83,20 +83,13 @@ open class HTMLStorage: NSTextStorage {
         endEditing()
     }
 
-    override open func addAttribute(_ name: String, value: Any, range: NSRange) {
-        textStore.addAttribute(name, value: value, range: range)
-    }
-
-    override open func removeAttribute(_ name: String, range: NSRange) {
-        textStore.removeAttribute(name, range: range)
-    }
-
     override open func replaceCharacters(in range: NSRange, with str: String) {
         beginEditing()
 
         textStore.replaceCharacters(in: range, with: str)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: string.characters.count - range.length)
 
+        colorizeHTML()
         endEditing()
     }
 
@@ -106,12 +99,8 @@ open class HTMLStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: attrString)
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
         
-        endEditing()
-    }
-
-    override open func processEditing() {
         colorizeHTML()
-        super.processEditing()
+        endEditing()
     }
 }
 
@@ -129,6 +118,7 @@ private extension HTMLStorage {
         addAttribute(NSFontAttributeName, value: font, range: fullStringRange)
 
         let tags = RegExes.html.matches(in: string, options: [], range: fullStringRange)
+        
         for tag in tags {
             addAttribute(NSForegroundColorAttributeName, value: tagColor, range: tag.range)
 
@@ -137,11 +127,13 @@ private extension HTMLStorage {
                 addAttribute(NSForegroundColorAttributeName, value: quotedColor, range: quote.range)
             }
         }
-
+        
         let comments = RegExes.comments.matches(in: string, options: [], range: fullStringRange)
         for comment in comments {
             addAttribute(NSForegroundColorAttributeName, value: commentColor, range: comment.range)
         }
+        
+        edited(.editedAttributes, range: fullStringRange, changeInLength: 0)
     }
 }
 
