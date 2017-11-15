@@ -12,6 +12,10 @@ public struct elementStringIDs {
 
     // Alerts
     static var insertLinkConfirmButton = "Insert Link"
+    
+    // Table cells
+    static var unorderedListOption = "Unordered List"
+    static var orderedListOption = "Ordered List"
 
     // Toolbar
     static var mediaButton = "formatToolbarInsertMedia"
@@ -128,7 +132,7 @@ extension XCTest {
         let regex = try! NSRegularExpression(pattern: ">\\s+?<", options: .caseInsensitive)
         let range = NSMakeRange(0, text.count)
         let strippedText = regex.stringByReplacingMatches(in: text, options: .reportCompletion, range: range, withTemplate: "><")
-        
+
         return strippedText
     }
     

@@ -114,29 +114,36 @@ class HighPriorityIssuesTests: XCTestCase {
         switchContentView()
         selectAllTextInHTMLField()
        
-        let htmlcontentviewTextView = app.textViews["HTMLContentView"]
-        let text = htmlcontentviewTextView.value as! String
+        let htmlContentView = app.textViews[elementStringIDs.htmlTextField]
+        let text = htmlContentView.value as! String
 
         app.menuItems[elementStringIDs.copyButton].tap()
-        htmlcontentviewTextView.swipeUp()
-        htmlcontentviewTextView.swipeUp()
-        htmlcontentviewTextView.swipeUp()
+        htmlContentView.swipeUp()
+        htmlContentView.swipeUp()
+        htmlContentView.swipeUp()
 
         // determinating where to click to put caret to end of text
-        let frame = htmlcontentviewTextView.frame
+        let frame = htmlContentView.frame
         let buttonFrame = app.scrollViews.otherElements.buttons[elementStringIDs.mediaButton].frame.height
         let vector = CGVector(dx: frame.width, dy: frame.height - (buttonFrame + 1))
         
-        htmlcontentviewTextView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
-        htmlcontentviewTextView.typeText("\n\n")
-        htmlcontentviewTextView.tap()
+        htmlContentView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
+        htmlContentView.typeText("\n\n")
+        htmlContentView.tap()
         app.menuItems[elementStringIDs.pasteButton].tap()
         
         sleep(1) // to make sure everything is updated
-        let newText = htmlcontentviewTextView.value as! String
+        let newText = htmlContentView.value as! String
         
         XCTAssert(newText == text + "\n\n" + text)
     }
+    
+//    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/251
+//    func testNoLinkIneruption() {
+//
+//
+//        enterTextInField(text: "https://github.com/wordpress-mobile/AztecEditor-iOS/issues/251")
+//    }
 }
 
 
