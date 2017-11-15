@@ -1,4 +1,4 @@
-import XCTest
+    import XCTest
 
 public struct elementStringIDs {
     // Demo Menu
@@ -121,7 +121,10 @@ extension XCTest {
         
         // Expects the format bar to be expanded.
         let elementsQuery = app.scrollViews.otherElements
-        elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        let mediaButton = elementsQuery.buttons[elementStringIDs.mediaButton]
+        if mediaButton.exists && mediaButton.isHittable {
+            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        }
         elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
         
         let htmlContentTextView =
