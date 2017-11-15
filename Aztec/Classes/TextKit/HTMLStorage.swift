@@ -132,7 +132,7 @@ private extension HTMLStorage {
         for comment in comments {
             addAttribute(.foregroundColor, value: commentColor, range: comment.range)
         }
-        
+
         edited(.editedAttributes, range: fullStringRange, changeInLength: 0)
     }
 }
