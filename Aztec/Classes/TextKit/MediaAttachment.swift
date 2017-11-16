@@ -334,13 +334,7 @@ open class MediaAttachment: NSTextAttachment {
             let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
             let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
 
-            padding += headIndent
-
-            if paragraphStyle.tailIndent > 0 {
-                padding += lineFrag.width - headIndent - paragraphStyle.tailIndent
-            } else if paragraphStyle.tailIndent < 0 {
-                padding -= paragraphStyle.tailIndent
-            }
+            padding += abs(paragraphStyle.tailIndent) + abs(headIndent)
         }
         let width = floor(lineFrag.width - padding)
 
