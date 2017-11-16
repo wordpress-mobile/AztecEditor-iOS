@@ -19,16 +19,20 @@ open class Header: ParagraphProperty {
         case h5 = 5
         case h6 = 6
 
+        public static var fontSizeMap: [HeaderType: Float] = {
+            return [
+                .h1: 36,
+                .h2: 24,
+                .h3: 21,
+                .h4: 16,
+                .h5: 14,
+                .h6: 11,
+                .none: Constants.defaultFontSize
+                ]
+        }()
+
         public var fontSize: Float {
-            switch self {
-            case .none: return Constants.defaultFontSize
-            case .h1: return 36
-            case .h2: return 24
-            case .h3: return 21
-            case .h4: return 16
-            case .h5: return 14
-            case .h6: return 11
-            }
+            return HeaderType.fontSizeMap[self] ?? Constants.defaultFontSize
         }
     }
 

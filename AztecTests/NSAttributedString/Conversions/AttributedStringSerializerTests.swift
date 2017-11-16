@@ -26,7 +26,7 @@ class AttributedStringSerializerTests: XCTestCase {
 
         // Test
         var range = NSRange()
-        guard let unsupportedHTML = output.attribute(UnsupportedHTMLAttributeName, at: 0, effectiveRange: &range) as? UnsupportedHTML else {
+        guard let unsupportedHTML = output.attribute(.unsupportedHtml, at: 0, effectiveRange: &range) as? UnsupportedHTML else {
             XCTFail()
             return
         }
@@ -70,7 +70,7 @@ class AttributedStringSerializerTests: XCTestCase {
 
         // Test!
         var range = NSRange()
-        guard let paragraphStyle = output.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: &range) as? ParagraphStyle else {
+        guard let paragraphStyle = output.attribute(.paragraphStyle, at: 0, effectiveRange: &range) as? ParagraphStyle else {
             XCTFail()
             return
         }
@@ -107,7 +107,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = HTMLSerializer().serialize(outNode)
+        let outHtml = DefaultHTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
     }
@@ -124,7 +124,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = HTMLSerializer().serialize(outNode)
+        let outHtml = DefaultHTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, expectedHtml)
     }
@@ -146,8 +146,22 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = HTMLSerializer().serialize(outNode)
+        let outHtml = DefaultHTMLSerializer().serialize(outNode)
 
+        XCTAssertEqual(outHtml, inHtml)
+    }
+    
+    /// Verifies that a linked image is properly converted from HTML to attributed string and back to HTML.
+    ///
+    func testLinkedImageGetsProperlyEncodedAndDecoded() {
+        let inHtml = "<p><a href=\"https://wordpress.com\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\"></a></p>"
+        
+        let inNode = HTMLParser().parse(inHtml)
+        let attrString = attributedString(from: inNode)
+        
+        let outNode = AttributedStringParser().parse(attrString)
+        let outHtml = DefaultHTMLSerializer().serialize(outNode)
+        
         XCTAssertEqual(outHtml, inHtml)
     }
 }
@@ -158,8 +172,8 @@ class AttributedStringSerializerTests: XCTestCase {
 extension AttributedStringSerializerTests {
 
     func attributedString(from node: Node) -> NSAttributedString {
-        let defaultAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 14),
-                                 NSParagraphStyleAttributeName: ParagraphStyle.default]
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
         
         let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
 

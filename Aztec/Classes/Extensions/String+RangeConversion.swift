@@ -4,6 +4,14 @@ import Foundation
 // MARK: - String NSRange and Location convertion Extensions
 //
 public extension String {
+    
+    func compatibleSubstring(with range: Range<String.Index>) -> String {
+        #if swift(>=4.0)
+            return String(self[range])
+        #else
+            return self.substring(with: range)
+        #endif
+    }
 
     /// Converts a UTF16 NSRange into a Swift String NSRange for this string.
     ///
@@ -113,8 +121,11 @@ public extension String {
     ///
     func utf16NSRange(from range: Range<String.Index>) -> NSRange {
 
-        let lowerBound = range.lowerBound.samePosition(in: utf16)
-        let upperBound = range.upperBound.samePosition(in: utf16)
+        guard let lowerBound = range.lowerBound.samePosition(in: utf16),
+            let upperBound = range.upperBound.samePosition(in: utf16) else
+        {
+            fatalError()
+        }
 
         let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
         let length = utf16.distance(from: lowerBound, to: upperBound)
@@ -125,7 +136,7 @@ public extension String {
     /// Returns a NSRange with a starting location at the very end of the string
     ///
     func endOfStringNSRange() -> NSRange {
-        return NSRange(location: characters.count, length: 0)
+        return NSRange(location: count, length: 0)
     }
 
     func indexFromLocation(_ location: Int) -> String.Index? {
@@ -150,7 +161,10 @@ public extension String {
             return nil
         }
         let afterIndex = index(after: currentIndex)
-        let after16 = afterIndex.samePosition(in: utf16)
+        guard let after16 = afterIndex.samePosition(in: utf16) else {
+            return nil
+        }
+
         return utf16.distance(from: utf16.startIndex, to: after16)
     }
 
@@ -160,7 +174,10 @@ public extension String {
         }
 
         let beforeIndex = index(before: currentIndex)
-        let before16 = beforeIndex.samePosition(in: utf16)
+        guard let before16 = beforeIndex.samePosition(in: utf16) else {
+            return nil
+        }
+
         return utf16.distance(from: utf16.startIndex, to: before16)
     }
 

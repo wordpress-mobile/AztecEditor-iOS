@@ -22,7 +22,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [String:Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggle(in: storage, at: NSRange(location: 1, length: 1))
@@ -36,7 +36,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [String:Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[1])
         formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
@@ -51,7 +51,7 @@ class BlockquoteFormatterTests: XCTestCase {
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
-        var attributes = [String:Any]()
+        var attributes = [AttributedStringKey: Any]()
         attributes = formatter.apply(to: attributes)
         textView.storage.setAttributes(attributes, range: paragraphs[0])
         formatter.toggle(in: storage, at: NSUnionRange(paragraphs[0], paragraphs[1]))
@@ -63,7 +63,7 @@ class BlockquoteFormatterTests: XCTestCase {
     func testToggleBlockquoteTwiceLeavesReturnsIdenticalString() {
         let textView = testTextView
         let storage = textView.storage
-        textView.storage.setAttributes([NSParagraphStyleAttributeName: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
+        textView.storage.setAttributes([.paragraphStyle: ParagraphStyle.default], range: textView.storage.rangeOfEntireString)
         let paragraphs = paragraphRanges(inString: storage)
 
         let formatter = BlockquoteFormatter()
@@ -118,7 +118,7 @@ private extension BlockquoteFormatterTests {
 
     func existsBlockquote(for string: NSMutableAttributedString, in range: NSRange) -> Bool {
         var effectiveRange = NSRange()
-        guard let paragraphStyle = string.attribute(NSParagraphStyleAttributeName, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
+        guard let paragraphStyle = string.attribute(.paragraphStyle, at: range.location, effectiveRange: &effectiveRange) as? ParagraphStyle,
             !paragraphStyle.blockquotes.isEmpty else {
             return false
         }

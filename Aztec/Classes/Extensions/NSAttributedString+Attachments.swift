@@ -20,9 +20,9 @@ extension NSAttributedString
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
-    convenience init(attachment: NSTextAttachment, attributes: [String: Any]) {
+    convenience init(attachment: NSTextAttachment, attributes: [AttributedStringKey: Any]) {
         var attributesWithAttachment = attributes
-        attributesWithAttachment[NSAttachmentAttributeName] = attachment
+        attributesWithAttachment[.attachment] = attachment
 
         self.init(string: NSAttributedString.textAttachmentString, attributes: attributesWithAttachment)
     }
@@ -52,7 +52,7 @@ extension NSAttributedString
     ///
     func enumerateAttachmentsOfType<T : NSTextAttachment>(_ type: T.Type, range: NSRange? = nil, block: ((T, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
         let range = range ?? NSMakeRange(0, length)
-        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (object, range, stop) in
+        enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
             if let object = object as? T {
                 block(object, range, stop)
             }
@@ -69,7 +69,7 @@ extension NSAttributedString
     public func ranges(forAttachment attachment: NSTextAttachment) -> [NSRange] {
         let range = NSRange(location: 0, length: length)
         var attachmentRanges = [NSRange]()
-        enumerateAttribute(NSAttachmentAttributeName, in: range, options: []) { (value, effectiveRange, nil) in
+        enumerateAttribute(.attachment, in: range, options: []) { (value, effectiveRange, nil) in
             guard let foundAttachment = value as? NSTextAttachment, foundAttachment == attachment else {
                 return
             }

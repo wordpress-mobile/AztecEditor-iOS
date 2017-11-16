@@ -8,22 +8,22 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [String: Any]?
+    let placeholderAttributes: [AttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [String: Any]? = nil) {
+    init(placeholderAttributes: [AttributedStringKey: Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String: Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
         let newParagraphStyle = ParagraphStyle()
 
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+        if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
@@ -31,12 +31,12 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
         newParagraphStyle.appendProperty(newProperty)
 
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             !paragraphStyle.htmlDiv.isEmpty
         else {
             return attributes
@@ -47,12 +47,12 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
         newParagraphStyle.removeProperty(ofType: HTMLDiv.self)
 
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
         return resultingAttributes
     }
 
-    func present(in attributes: [String: Any]) -> Bool {
-        let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle
+    func present(in attributes: [AttributedStringKey: Any]) -> Bool {
+        let style = attributes[.paragraphStyle] as? ParagraphStyle
         return style?.htmlDiv.isEmpty == false
     }
 }

@@ -8,34 +8,34 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [String : Any]?
+    let placeholderAttributes: [AttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [String : Any]? = nil) {
+    init(placeholderAttributes: [AttributedStringKey: Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
         let newParagraphStyle = ParagraphStyle()
         
-        if let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? NSParagraphStyle {
+        if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
 
         newParagraphStyle.appendProperty(Blockquote(with: representation))
 
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
         return resultingAttributes
     }
 
-    func remove(from attributes:[String: Any]) -> [String: Any] {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func remove(from attributes:[AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             !paragraphStyle.blockquotes.isEmpty
         else {
             return attributes
@@ -46,15 +46,14 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         newParagraphStyle.removeProperty(ofType: Blockquote.self)
 
         var resultingAttributes = attributes
-        resultingAttributes[NSParagraphStyleAttributeName] = newParagraphStyle
+        resultingAttributes[.paragraphStyle] = newParagraphStyle
         return resultingAttributes
     }
 
-    func present(in attributes: [String : Any]) -> Bool {
-        guard let style = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle else {
+    func present(in attributes: [AttributedStringKey: Any]) -> Bool {
+        guard let style = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
         return !style.blockquotes.isEmpty
     }
 }
-

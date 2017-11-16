@@ -1,11 +1,10 @@
 import UIKit
 
 class StrikethroughFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = "Strike.htmlRepresentation"
 
     init() {
-        super.init(attributeKey: NSStrikethroughStyleAttributeName,
+        super.init(attributeKey: .strikethroughStyle,
                    attributeValue: NSUnderlineStyle.styleSingle.rawValue,
-                   htmlRepresentationKey: StrikethroughFormatter.htmlRepresentationKey)
+                   htmlRepresentationKey: .strikethroughHtmlRepresentation)
     }
 }

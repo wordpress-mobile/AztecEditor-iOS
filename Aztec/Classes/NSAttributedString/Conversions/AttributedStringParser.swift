@@ -98,7 +98,7 @@ class AttributedStringParser {
     ///
     /// - Returns: Array of Node instances.
     ///
-    private func createNodes(from attributes: [String: Any]) -> [Node] {
+    private func createNodes(from attributes: [AttributedStringKey: Any]) -> [Node] {
         let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
 
         return nodes.reversed().reduce([]) { (result, node) in
@@ -439,7 +439,7 @@ private extension AttributedStringParser {
         // See here for more info:
         // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
         //
-        guard let paragraphStyle = paragraph.attribute(NSParagraphStyleAttributeName, at: 0, effectiveRange: nil) as? ParagraphStyle,
+        guard let paragraphStyle = paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle,
             paragraphStyle.properties.count > 0
         else {
             return [ElementNode(type: .p)]
@@ -456,8 +456,8 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from attributes: [String: Any]) -> [ElementNode] {
-        guard let paragraphStyle = attributes[NSParagraphStyleAttributeName] as? ParagraphStyle,
+    func createParagraphNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             paragraphStyle.properties.count > 0 else {
                 return [ElementNode(type: .p)]
         }
@@ -627,7 +627,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
-    func createStyleNodes(from attributes: [String: Any]) -> [ElementNode] {
+    func createStyleNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
         if let element = processBold(in: attributes) {
@@ -655,15 +655,15 @@ private extension AttributedStringParser {
         return nodes
     }
 
-    private func processBold(in attributes: [String: Any]) -> ElementNode? {
-        guard let font = attributes[NSFontAttributeName] as? UIFont,
+    private func processBold(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+        guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitBold) else {
                 return nil
         }
 
         let element: ElementNode
 
-        if let representation = attributes[BoldFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[AttributedStringKey.boldHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -675,15 +675,15 @@ private extension AttributedStringParser {
     }
 
 
-    private func processItalic(in attributes: [String: Any]) -> ElementNode? {
-        guard let font = attributes[NSFontAttributeName] as? UIFont,
+    private func processItalic(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+        guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitItalic) else {
                 return nil
         }
 
         let element: ElementNode
 
-        if let representation = attributes[ItalicFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[AttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -696,11 +696,11 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
-    private func processLinkStyle(in attributes: [String: Any]) -> ElementNode? {
+    private func processLinkStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
         var urlString = ""
-        if let url = attributes[NSLinkAttributeName] as? URL {
+        if let url = attributes[AttributedStringKey.link] as? URL {
             urlString = url.absoluteString
-        } else if let link = attributes[NSLinkAttributeName] as? String {
+        } else if let link = attributes[AttributedStringKey.link] as? String {
             urlString = link
         } else {
             return nil
@@ -708,7 +708,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[LinkFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.linkHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -716,7 +716,7 @@ private extension AttributedStringParser {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: "href", value: .string(urlString))
+        element.updateAttribute(named: HTMLLinkAttribute.Href.rawValue, value: .string(urlString))
 
         return element
     }
@@ -724,12 +724,12 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Strike Elements contained within a collection of Attributes.
     ///
-    private func processStrikethruStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard attributes[NSStrikethroughStyleAttributeName] != nil else {
+    private func processStrikethruStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[AttributedStringKey.strikethroughStyle] != nil else {
             return nil
         }
 
-        if let representation = attributes[StrikethroughFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[AttributedStringKey.strikethroughHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
@@ -741,12 +741,12 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Underline Elements contained within a collection of Attributes.
     ///
-    private func processUnderlineStyle(in attributes: [String: Any]) -> ElementNode? {
-        guard attributes[NSUnderlineStyleAttributeName] != nil else {
+    private func processUnderlineStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[.underlineStyle] != nil else {
             return nil
         }
 
-        if let representation = attributes[UnderlineFormatter.htmlRepresentationKey] as? HTMLRepresentation,
+        if let representation = attributes[.underlineHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
@@ -758,8 +758,8 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
-    private func processUnsupportedHTML(in attributes: [String: Any]) -> [ElementNode] {
-        guard let unsupportedHTML = attributes[UnsupportedHTMLAttributeName] as? UnsupportedHTML else {
+    private func processUnsupportedHTML(in attributes: [AttributedStringKey: Any]) -> [ElementNode] {
+        guard let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML else {
             return []
         }
 
@@ -808,14 +808,14 @@ private extension AttributedStringParser {
     /// Converts a Line Attachment into it's representing nodes.
     ///
     private func processLineAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) is LineAttachment else {
+        guard attrString.attribute(.attachment, at: 0, effectiveRange: nil) is LineAttachment else {
             return nil
         }
 
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(HRFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(AttributedStringKey.hrHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -830,7 +830,7 @@ private extension AttributedStringParser {
     /// Converts a Comment Attachment into it's representing nodes.
     ///
     private func processCommentAttachment(from attrString: NSAttributedString) -> Node? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? CommentAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? CommentAttachment else {
             return nil
         }
 
@@ -842,7 +842,7 @@ private extension AttributedStringParser {
     /// Converts an HTML Attachment into it's representing nodes.
     ///
     private func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? HTMLAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? HTMLAttachment else {
             return []
         }
 
@@ -866,14 +866,14 @@ private extension AttributedStringParser {
     /// Converts an Image Attachment into it's representing nodes.
     ///
     private func processImageAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? ImageAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
             return nil
         }
 
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(ImageFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(.imageHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -899,20 +899,28 @@ private extension AttributedStringParser {
             element.updateAttribute(named: key, value: .string(finalValue))
         }
 
+        if let linkText = attachment.linkURL?.absoluteString {
+            let hrefValue = Attribute.Value(withString: linkText)
+            let hrefAttribute = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: hrefValue)
+            let linkElement = ElementNode(type: .a, attributes: [hrefAttribute], children: [element])
+
+            return linkElement
+        }
+
         return element
     }
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
     private func processVideoAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(NSAttachmentAttributeName, at: 0, effectiveRange: nil) as? VideoAttachment else {
+        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? VideoAttachment else {
             return nil
         }
 
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(VideoFormatter.htmlRepresentationKey, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(AttributedStringKey.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
