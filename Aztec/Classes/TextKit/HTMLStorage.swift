@@ -9,6 +9,7 @@ open class HTMLStorage: NSTextStorage {
     /// Internal Storage
     ///
     private var textStore = NSMutableAttributedString(string: "", attributes: nil)
+    fileprivate var textStoreString = ""
 
     /// Document's Font
     ///
@@ -25,8 +26,6 @@ open class HTMLStorage: NSTextStorage {
     /// Color to be applied over Quotes within HTML Tags
     ///
     open var quotedColor = Styles.defaultQuotedColor
-
-
 
     // MARK: - Initializers
 
@@ -63,7 +62,14 @@ open class HTMLStorage: NSTextStorage {
     // MARK: - Overriden Methods
 
     override open var string: String {
-        return textStore.string
+        return textStoreString
+    }
+    
+    private func replaceTextStoreString(_ range: NSRange, with string: String) {
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: string)
     }
 
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
@@ -87,8 +93,10 @@ open class HTMLStorage: NSTextStorage {
         beginEditing()
 
         textStore.replaceCharacters(in: range, with: str)
+        replaceTextStoreString(range, with: str)
+        
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: string.characters.count - range.length)
-
+        
         colorizeHTML()
         endEditing()
     }
@@ -97,6 +105,8 @@ open class HTMLStorage: NSTextStorage {
         beginEditing()
 
         textStore.replaceCharacters(in: range, with: attrString)
+        replaceTextStoreString(range, with: attrString.string)
+        
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
         
         colorizeHTML()
