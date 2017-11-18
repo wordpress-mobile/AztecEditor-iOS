@@ -84,8 +84,6 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate var textStoreString = ""
 
-    fileprivate var textStoreString = ""
-
 
     // MARK: - Delegates
 
