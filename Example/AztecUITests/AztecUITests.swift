@@ -15,11 +15,13 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
 
-        let tablesQuery = app.tables
-        tablesQuery.staticTexts[elementStringIDs.emptyDemo].tap()
-
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-        richTextField.tap()
+//        let tablesQuery = app.tables
+//        tablesQuery.staticTexts[elementStringIDs.emptyDemo].tap()
+//
+//        let richTextField = app.textViews[elementStringIDs.richTextField]
+//        richTextField.tap()
+        let blogsPage = BlogsPage.init(appInstance: app)
+        blogsPage.gotoEmptyDemo()
     }
 
     override func tearDown() {

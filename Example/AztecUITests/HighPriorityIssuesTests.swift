@@ -137,13 +137,6 @@ class HighPriorityIssuesTests: XCTestCase {
         
         XCTAssert(newText == text + "\n\n" + text)
     }
-    
-//    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/251
-//    func testNoLinkIneruption() {
-//
-//
-//        enterTextInField(text: "https://github.com/wordpress-mobile/AztecEditor-iOS/issues/251")
-//    }
 }
 
 

@@ -5,7 +5,7 @@ if [ ! $TRAVIS ]; then
     TRAVIS_XCODE_SDK=iphonesimulator
 fi
 
-xcrun simctl erase all && xcodebuild build test \
+xcodebuild build test \
 	-workspace "$TRAVIS_XCODE_WORKSPACE" \
 	-scheme "$TRAVIS_XCODE_SCHEME" \
 	-sdk "$TRAVIS_XCODE_SDK" \

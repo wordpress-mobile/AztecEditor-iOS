@@ -21,14 +21,25 @@ class BlogsPage {
     func gotoEmptyDemo() {
         app.tables.staticTexts[elementStringIDs.emptyDemo].tap()
         
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-        richTextField.tap()
+        showOptionsStrip()
     }
     
     func gotoDemo() {
         app.tables.staticTexts[elementStringIDs.demo].tap()
         
-        let richcontentviewTextView = app.textViews[elementStringIDs.richTextField]
-        richcontentviewTextView.tap()
+        showOptionsStrip()
+    }
+    
+    func showOptionsStrip() -> Void {
+        app.textViews[elementStringIDs.richTextField].tap()
+        expandOptionsSctrip()
+    }
+    
+    func expandOptionsSctrip() -> Void {
+        let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
+        
+        if expandButton.exists && expandButton.isHittable {
+            expandButton.tap()
+        }
     }
 }
