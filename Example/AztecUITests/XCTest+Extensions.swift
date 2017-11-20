@@ -10,6 +10,10 @@ public struct elementStringIDs {
 
     // Alerts
     static var insertLinkConfirmButton = "Insert Link"
+    
+    // Table cells
+    static var unorderedListOption = "Unordered List"
+    static var orderedListOption = "Ordered List"
 
     // Toolbar
     static var mediaButton = "formatToolbarInsertMedia"
@@ -61,10 +65,24 @@ extension XCTest {
      */
     func getHTMLContent() -> String {
         let app = XCUIApplication()
-
-        app.buttons[elementStringIDs.sourcecodeButton].tap()
-        let htmlContentTextView = app.textViews[elementStringIDs.htmlTextField]
+        
+        // Expects the format bar to be expanded.
+        let elementsQuery = app.scrollViews.otherElements
+        let htmlButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
+        if (!htmlButton.isHittable) {
+            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+        }
+        htmlButton.tap()
+        
+        let htmlContentTextView =
+            app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
-        return text
+        
+        // Remove spaces between HTML tags.
+        let regex = try! NSRegularExpression(pattern: ">\\s+?<", options: .caseInsensitive)
+        let range = NSMakeRange(0, text.count)
+    let strippedText = regex.stringByReplacingMatches(in: text, options: .reportCompletion, range: range, withTemplate: "><")
+        
+        return strippedText
     }
 }
