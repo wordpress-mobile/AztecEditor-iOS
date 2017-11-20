@@ -42,7 +42,6 @@
 		B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */; };
 		B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B572AC271E817CFE008948C2 /* CommentAttachment.swift */; };
 		B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4A31FB0CF3A0048F355 /* NSAttributedStringKey+Conversion.swift */; };
-		B574F4AD1FB103430048F355 /* NSAttributedStringKey+Aztec.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */; };
 		B574F4AF1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574F4AE1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift */; };
 		B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B575344F1F267D0B009D4904 /* Array+Helpers.swift */; };
 		B57534521F267D63009D4904 /* ArrayHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57534511F267D63009D4904 /* ArrayHelperTests.swift */; };
@@ -81,6 +80,9 @@
 		F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AC1EF1AA91007FEE9A /* HTMLPre.swift */; };
 		F11326B31EF1AA91007FEE9A /* ParagraphProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */; };
 		F11326B41EF1AA91007FEE9A /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AE1EF1AA91007FEE9A /* TextList.swift */; };
+		F12328771FB638C6001E35EF /* AttributedStringKey+Aztec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328761FB638C6001E35EF /* AttributedStringKey+Aztec.swift */; };
+		F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */; };
+		F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */; };
 		F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7111F058B20008A00D7 /* StandardAttribute.swift */; };
 		F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7131F0591AD008A00D7 /* CSSAttribute.swift */; };
 		F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58511EF20394008AE298 /* AttributeFormatter.swift */; };
@@ -102,6 +104,8 @@
 		F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */; };
 		F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F168DB851F6381A00009BD0E /* CSSParserTests.swift */; };
+		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
+		F177FF801FB6443F00CBBE35 /* AttributedStringKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */; };
 		F17BC86B1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC86A1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift */; };
 		F17BC8751F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8741F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
@@ -223,7 +227,6 @@
 		B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+Emoji.swift"; sourceTree = "<group>"; };
 		B572AC271E817CFE008948C2 /* CommentAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachment.swift; sourceTree = "<group>"; };
 		B574F4A31FB0CF3A0048F355 /* NSAttributedStringKey+Conversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Conversion.swift"; sourceTree = "<group>"; };
-		B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Aztec.swift"; sourceTree = "<group>"; };
 		B574F4AE1FB110850048F355 /* NSAttributedStringKeyHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSAttributedStringKeyHelperTests.swift; path = Extensions/NSAttributedStringKeyHelperTests.swift; sourceTree = "<group>"; };
 		B575344F1F267D0B009D4904 /* Array+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Helpers.swift"; sourceTree = "<group>"; };
 		B57534511F267D63009D4904 /* ArrayHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArrayHelperTests.swift; path = Extensions/ArrayHelperTests.swift; sourceTree = "<group>"; };
@@ -261,6 +264,9 @@
 		F11326AC1EF1AA91007FEE9A /* HTMLPre.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLPre.swift; sourceTree = "<group>"; };
 		F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphProperty.swift; sourceTree = "<group>"; };
 		F11326AE1EF1AA91007FEE9A /* TextList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextList.swift; sourceTree = "<group>"; };
+		F12328761FB638C6001E35EF /* AttributedStringKey+Aztec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AttributedStringKey+Aztec.swift"; sourceTree = "<group>"; };
+		F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentReadingOptionKey+Swift4.swift"; sourceTree = "<group>"; };
+		F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentType+Swift4.swift"; sourceTree = "<group>"; };
 		F127F7111F058B20008A00D7 /* StandardAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttribute.swift; sourceTree = "<group>"; };
 		F127F7131F0591AD008A00D7 /* CSSAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSAttribute.swift; sourceTree = "<group>"; };
 		F12F58511EF20394008AE298 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
@@ -282,6 +288,8 @@
 		F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegexProcessor.swift; sourceTree = "<group>"; };
 		F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F168DB851F6381A00009BD0E /* CSSParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParserTests.swift; sourceTree = "<group>"; };
+		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
+		F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedStringKey.swift; sourceTree = "<group>"; };
 		F17BC86A1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+HTMLInitializer.swift"; sourceTree = "<group>"; };
 		F17BC8741F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringHTMLInitializerTests.swift; path = Extensions/NSAttributedStringHTMLInitializerTests.swift; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
@@ -420,6 +428,7 @@
 				599F25071D8BC9A1002871D6 /* Libxml2 */,
 				F16DD2C51EE998280083A098 /* NSAttributedString */,
 				FF20D63C1EDC389A00294B78 /* Processor */,
+				F177FF7E1FB6442C00CBBE35 /* Swift4 */,
 				599F252E1D8BC9A1002871D6 /* TextKit */,
 			);
 			name = Classes;
@@ -490,7 +499,6 @@
 			children = (
 				599F25201D8BC9A1002871D6 /* HTMLConstants.swift */,
 				599F25211D8BC9A1002871D6 /* Metrics.swift */,
-				B574F4AC1FB103430048F355 /* NSAttributedStringKey+Aztec.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -499,7 +507,10 @@
 			isa = PBXGroup;
 			children = (
 				B575344F1F267D0B009D4904 /* Array+Helpers.swift */,
+				F12328761FB638C6001E35EF /* AttributedStringKey+Aztec.swift */,
 				F1C05B981E37F99D007510EA /* Character+Name.swift */,
+				F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */,
+				F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */,
 				B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */,
 				FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */,
 				599F25251D8BC9A1002871D6 /* NSAttributedString+Attachments.swift */,
@@ -522,6 +533,7 @@
 				F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */,
 				B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */,
 				B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */,
+				F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */,
 				B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */,
 				B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */,
 				F1DE83D41EF20493009269E6 /* UIColor+Parsers.swift */,
@@ -707,6 +719,14 @@
 				F17BC8A71F4E512800398E2B /* Conversions */,
 			);
 			path = NSAttributedString;
+			sourceTree = "<group>";
+		};
+		F177FF7E1FB6442C00CBBE35 /* Swift4 */ = {
+			isa = PBXGroup;
+			children = (
+				F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */,
+			);
+			path = Swift4;
 			sourceTree = "<group>";
 		};
 		F17BC88E1F4E4BA500398E2B /* Attributes */ = {
@@ -979,6 +999,7 @@
 				FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */,
 				FF20D6441EDC395E00294B78 /* NSTextingResult+Helpers.swift in Sources */,
 				F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */,
+				F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */,
 				F17BC86B1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift in Sources */,
 				F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */,
 				B5AB79F81F5F3E0B00DF26F5 /* String+Paragraph.swift in Sources */,
@@ -1004,7 +1025,6 @@
 				B5C99D3F1E72E2E700335355 /* UIStackView+Helpers.swift in Sources */,
 				F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */,
 				FF20D6421EDC389A00294B78 /* Processor.swift in Sources */,
-				B574F4AD1FB103430048F355 /* NSAttributedStringKey+Aztec.swift in Sources */,
 				599F253B1D8BC9A1002871D6 /* InNodesConverter.swift in Sources */,
 				F18B81EB1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift in Sources */,
 				F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */,
@@ -1021,12 +1041,14 @@
 				F19544051F588F1A00671B73 /* CSSParser.swift in Sources */,
 				599F254E1D8BC9A1002871D6 /* FormatBarDelegate.swift in Sources */,
 				B5375F471EC2566200F5D7EC /* String+HTML.swift in Sources */,
+				F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
 				B5834C841FA2413E00D46FC0 /* DefaultHTMLSerializer.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F12F586D1EF20394008AE298 /* ImageFormatter.swift in Sources */,
 				F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */,
 				B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */,
+				F177FF801FB6443F00CBBE35 /* AttributedStringKey.swift in Sources */,
 				F12F58681EF20394008AE298 /* ColorFormatter.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */,
@@ -1038,6 +1060,7 @@
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
 				F1DE83D51EF20493009269E6 /* UIColor+Parsers.swift in Sources */,
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
+				F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */,
 				F12F58721EF20394008AE298 /* UnderlineFormatter.swift in Sources */,
 				F12F58711EF20394008AE298 /* TextListFormatter.swift in Sources */,
 				F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */,
@@ -1077,6 +1100,7 @@
 				F12F586F1EF20394008AE298 /* PreFormatter.swift in Sources */,
 				B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */,
 				B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */,
+				F12328771FB638C6001E35EF /* AttributedStringKey+Aztec.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */,
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
@@ -1193,6 +1217,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0.1;
@@ -1247,6 +1272,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1261,7 +1287,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				CURRENT_PROJECT_VERSION = "1.0.0-beta.14";
+				CURRENT_PROJECT_VERSION = "1.0.0-beta.14.1";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1291,7 +1317,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				CURRENT_PROJECT_VERSION = "1.0.0-beta.14";
+				CURRENT_PROJECT_VERSION = "1.0.0-beta.14.1";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1449,6 +1475,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1462,7 +1489,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				CURRENT_PROJECT_VERSION = "1.0.0-beta.14";
+				CURRENT_PROJECT_VERSION = "1.0.0-beta.14.1";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1558,6 +1585,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0.1;
@@ -1572,7 +1600,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				CURRENT_PROJECT_VERSION = "1.0.0-beta.14";
+				CURRENT_PROJECT_VERSION = "1.0.0-beta.14.1";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 99KV9Z6BKV;
 				DYLIB_COMPATIBILITY_VERSION = 1;

@@ -12,12 +12,12 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [NSAttributedStringKey: Any]?
+    let placeholderAttributes: [AttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [NSAttributedStringKey : Any]? = nil) {
+    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [AttributedStringKey : Any]? = nil) {
         self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
@@ -25,7 +25,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
         var resultingAttributes = attributes
         let newParagraphStyle = ParagraphStyle()
 
@@ -37,7 +37,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         guard let placeholderAttributes = placeholderAttributes else {
             return attributes
         }
@@ -50,7 +50,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey : Any]) -> Bool {
+    func present(in attributes: [AttributedStringKey : Any]) -> Bool {
         let font = attributes[.font] as? UIFont
         return font == monospaceFont
     }

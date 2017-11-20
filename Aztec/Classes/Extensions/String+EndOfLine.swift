@@ -73,7 +73,7 @@ extension String {
         }
 
         let range = index ..< self.index(after: index)
-        let slice = String(self[range])
+        let slice = self.compatibleSubstring(with: range)
 
         return slice.isEndOfLine()
     }

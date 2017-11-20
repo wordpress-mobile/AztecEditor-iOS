@@ -12,12 +12,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [NSAttributedStringKey: Any]?
+    let placeholderAttributes: [AttributedStringKey: Any]?
 
 
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
+    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [AttributedStringKey: Any]? = nil) {
         self.headerLevel = headerLevel
         self.placeholderAttributes = placeholderAttributes
     }
@@ -25,7 +25,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
         guard let font = attributes[.font] as? UIFont else {
             return attributes
         }
@@ -51,7 +51,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let header = paragraphStyle.headers.last,
             header.level != .none
@@ -73,7 +73,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [AttributedStringKey: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
@@ -87,7 +87,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 //
 private extension HeaderFormatter {
 
-    func defaultFontSize(from attributes: [NSAttributedStringKey: Any]) -> Float? {
+    func defaultFontSize(from attributes: [AttributedStringKey: Any]) -> Float? {
         if let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let lastHeader = paragraphStyle.headers.last
         {

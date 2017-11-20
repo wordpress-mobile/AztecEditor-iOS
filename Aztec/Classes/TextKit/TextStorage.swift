@@ -82,6 +82,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Storage
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
+    fileprivate var textStoreString = ""
 
 
     // MARK: - Delegates
@@ -99,7 +100,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Calculated Properties
 
     override open var string: String {
-        return textStore.string
+        return textStoreString
     }
 
     open var mediaAttachments: [MediaAttachment] {
@@ -223,13 +224,20 @@ open class TextStorage: NSTextStorage {
     /// - Important: please note that this method returns the style at the character location, and
     ///     NOT at the caret location.  For N characters we always have N+1 character locations.
     ///
-    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedStringKey : Any] {
+    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [AttributedStringKey : Any] {
 
         guard textStore.length > 0 else {
             return [:]
         }
 
         return textStore.attributes(at: location, effectiveRange: range)
+    }
+
+    private func replaceTextStoreString(_ range: NSRange, with string: String) {
+        let utf16String = textStoreString.utf16
+        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
+        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
+        textStoreString.replaceSubrange(startIndex..<endIndex, with: string)
     }
  
     override open func replaceCharacters(in range: NSRange, with str: String) {
@@ -238,6 +246,8 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: str)
+
+        replaceTextStoreString(range, with: str)
 
         edited(.editedCharacters, range: range, changeInLength: str.count - range.length)
         
@@ -252,6 +262,9 @@ open class TextStorage: NSTextStorage {
 
         detectAttachmentRemoved(in: range)
         textStore.replaceCharacters(in: range, with: preprocessedString)
+
+        replaceTextStoreString(range, with: attrString.string)
+
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
         // Whenever we're actually replacing text, let's trigger a `fixAttributes` call. This is done to prevent a glitch in which
@@ -267,7 +280,7 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    override open func setAttributes(_ attrs: [NSAttributedStringKey: Any]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [AttributedStringKey: Any]?, range: NSRange) {
         beginEditing()
 
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
@@ -351,7 +364,7 @@ open class TextStorage: NSTextStorage {
     }
 
     func setHTML(_ html: String,
-                 defaultAttributes: [NSAttributedStringKey: Any],
+                 defaultAttributes: [AttributedStringKey: Any],
                  postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
 
         let originalLength = textStore.length
@@ -373,6 +386,8 @@ open class TextStorage: NSTextStorage {
             attachment.delegate = self
         }
 
+        textStoreString = textStore.string
+
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
 }
@@ -390,7 +405,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, if needed.
     ///
-    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [NSAttributedStringKey: Any], at range: NSRange) -> [NSAttributedStringKey: Any] {
+    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [AttributedStringKey: Any], at range: NSRange) -> [AttributedStringKey: Any] {
         let newStyle = attrs[.paragraphStyle] as? ParagraphStyle
         let oldStyle = textStore.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? ParagraphStyle
 
@@ -413,7 +428,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, so that it matches the specified HeaderLevel.
     ///
-    private func fixFontAttribute(in attrs: [NSAttributedStringKey: Any], headerLevel: Header.HeaderType) ->  [NSAttributedStringKey: Any] {
+    private func fixFontAttribute(in attrs: [AttributedStringKey: Any], headerLevel: Header.HeaderType) ->  [AttributedStringKey: Any] {
         let formatter = HeaderFormatter(headerLevel: headerLevel)
         return formatter.apply(to: attrs)
     }
