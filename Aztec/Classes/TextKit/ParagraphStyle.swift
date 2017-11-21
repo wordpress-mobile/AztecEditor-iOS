@@ -347,7 +347,7 @@ extension ParagraphStyle {
     /// clustered at the 'Right Hand Side' of the currently existant list.
     ///
     func insertProperty(_ property: ParagraphProperty, afterLastOfType type: AnyClass) {
-        guard let targetIndex = properties.lastIndex(where: { type(of: $0) == type }) else {
+        guard let targetIndex = properties.lastIndex(where: { Swift.type(of: $0) == type }) else {
             properties.append(property)
             return
         }
@@ -359,7 +359,7 @@ extension ParagraphStyle {
     ///
     func removeProperty(ofType type: AnyClass) {
         for index in (0..<properties.count).reversed() {
-            if type(of: properties[index]) == type {
+            if Swift.type(of: properties[index]) == type {
                 properties.remove(at: index)
                 return
             }
@@ -370,7 +370,7 @@ extension ParagraphStyle {
     ///
     func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
         for index in (0..<properties.count).reversed() {
-            if type(of: properties[index]) == type {
+            if Swift.type(of: properties[index]) == type {
                 properties[index] = newProperty
                 return
             }

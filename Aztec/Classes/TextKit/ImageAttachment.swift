@@ -6,6 +6,10 @@ import UIKit
 ///
 open class ImageAttachment: MediaAttachment {
 
+    /// Attachment Link URL
+    ///
+    open var linkURL: URL?
+
     /// Attachment Alignment
     ///
     open var alignment: Alignment = .center {
@@ -18,7 +22,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment Size
     ///
-    open var size: Size = .full {
+    open var size: Size = .none {
         willSet {
             if newValue != size {
                 glyphImage = nil
@@ -55,6 +59,8 @@ open class ImageAttachment: MediaAttachment {
                 self.size = size
             }
         }
+
+        linkURL = aDecoder.decodeObject(forKey: EncodeKeys.linkURL.rawValue) as? URL
     }
 
     /// Required Initializer
@@ -70,11 +76,15 @@ open class ImageAttachment: MediaAttachment {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
         aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
+        if let linkURL = self.linkURL {
+            aCoder.encode(linkURL, forKey: EncodeKeys.linkURL.rawValue)
+        }
     }
 
     fileprivate enum EncodeKeys: String {
         case alignment
         case size
+        case linkURL
     }
 
 
@@ -107,7 +117,7 @@ open class ImageAttachment: MediaAttachment {
     override func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             switch (size) {	
-            case .full:
+            case .full, .none:
                 return floor(min(image.size.width, containerWidth))
             default:
                 return floor(min(min(image.size.width,size.width), containerWidth))
@@ -130,6 +140,7 @@ extension ImageAttachment {
 
         clone.size = size
         clone.alignment = alignment
+        clone.linkURL = linkURL
 
         return clone
     }
@@ -180,6 +191,7 @@ extension ImageAttachment {
         case medium
         case large
         case full
+        case none
 
         func htmlString() -> String {
             switch self {
@@ -191,6 +203,8 @@ extension ImageAttachment {
                 return "size-large"
             case .full:
                 return "size-full"
+            case .none:
+                return ""
             }
         }
 
@@ -198,7 +212,8 @@ extension ImageAttachment {
             Size.thumbnail.htmlString():.thumbnail,
             Size.medium.htmlString():.medium,
             Size.large.htmlString():.large,
-            Size.full.htmlString():.full
+            Size.full.htmlString():.full,
+            Size.none.htmlString():.none
         ]
 
         static func fromHTML(string value:String) -> Size? {
@@ -211,6 +226,7 @@ extension ImageAttachment {
             case .medium: return Settings.medium
             case .large: return Settings.large
             case .full: return Settings.maximum
+            case .none: return Settings.maximum
             }
         }
 

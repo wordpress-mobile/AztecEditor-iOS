@@ -32,9 +32,10 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
-    func createTextView(withHTML html: String) -> TextView {
+    func createTextView(withHTML html: String, prettyPrint: Bool = false) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
+        richTextView.outputSerializer = DefaultHTMLSerializer(prettyPrint: false)
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         richTextView.setHTML(html)
 
@@ -54,7 +55,7 @@ class TextViewTests: XCTestCase {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
-        let attributes = [NSParagraphStyleAttributeName : NSParagraphStyle()]
+        let attributes = [AttributedStringKey.paragraphStyle : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()
@@ -113,7 +114,7 @@ class TextViewTests: XCTestCase {
 
         textView.text = "foo"
 
-        let count = textView.text!.characters.count
+        let count = textView.text!.count
         let maxIndex = count - 1
 
         // Test upper and lower bounds
@@ -126,7 +127,7 @@ class TextViewTests: XCTestCase {
 
         textView.text = "foobarbaz"
 
-        let count = textView.text!.characters.count
+        let count = textView.text!.count
         let maxIndex = count - 1
 
         // Test upper and lower bounds.
@@ -241,7 +242,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleBlockquote() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleBlockquote(range: range)
@@ -257,7 +258,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleOrderedList() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleOrderedList(range: range)
@@ -273,7 +274,7 @@ class TextViewTests: XCTestCase {
 
     func testToggleUnorderedList() {
         let textView = createTextViewWithContent()
-        let length = textView.text.characters.count
+        let length = textView.text.count
         let range = NSRange(location: 0, length: length)
 
         textView.toggleUnorderedList(range: range)
@@ -353,7 +354,7 @@ class TextViewTests: XCTestCase {
     func testBlockquoteSpansRange() {
         let textView = createTextViewWithContent()
         let range = NSRange(location: 0, length: 1)
-        let length = "Lorem ipsum dolar sit amet.\n".characters.count
+        let length = "Lorem ipsum dolar sit amet.\n".count
 
         textView.toggleBlockquote(range: range)
 
@@ -470,8 +471,6 @@ class TextViewTests: XCTestCase {
 
         let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
 
-        print(textView.storage.getHTML())
-
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
         let range = textView.textRange(from: rangeStart, to: rangeEnd)!
@@ -568,7 +567,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -576,7 +575,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
 
         let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
         let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
@@ -584,7 +583,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range3, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<p>Listfirstsecondthird</p>")
+        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecondthird</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -606,7 +605,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
+        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -622,7 +621,7 @@ class TextViewTests: XCTestCase {
         let html = "<h1>Header</h1><br>"
         let textView = createTextView(withHTML: html)
 
-        let range = NSRange(location: textView.text.characters.count, length:0)
+        let range = NSRange(location: textView.text.count, length:0)
         textView.selectedRange = range
         textView.deleteBackward()
 
@@ -734,7 +733,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<h1>Header</h1><p>1</p>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
     }
 
     /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
@@ -750,13 +749,13 @@ class TextViewTests: XCTestCase {
         textView.toggleHeader(.h1, range: .zero)
         textView.insertText("Header Header")
 
-        textView.selectedRange = NSMakeRange("Header".characters.count, 0)
+        textView.selectedRange = NSMakeRange("Header".count, 0)
         textView.insertText("\n")
 
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), "<h1>Header</h1><h1> Header</h1>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><h1> Header</h1>")
     }
 
 
@@ -769,7 +768,7 @@ class TextViewTests: XCTestCase {
     func testBoldWithUnicodeCharacter() {
         let string = "Hello 🌎!"
         let textView = createTextView(withHTML: string)
-        let swiftRange = NSRange(location: 0, length: string.characters.count)
+        let swiftRange = NSRange(location: 0, length: string.count)
         let utf16Range = string.utf16NSRange(from: swiftRange)
 
         textView.toggleBold(range: utf16Range)
@@ -817,7 +816,7 @@ class TextViewTests: XCTestCase {
         textView.selectedRange = textView.text.endOfStringNSRange()
         textView.deleteBackward()
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -838,11 +837,11 @@ class TextViewTests: XCTestCase {
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
         // Insert Newline
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New List Items do get their bullet, even when the ending `\n` character was deleted.
@@ -873,8 +872,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(newline + Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = TextListFormatter(style: .ordered)
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -897,7 +896,7 @@ class TextViewTests: XCTestCase {
         textView.toggleOrderedList(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that a Text List gets removed, whenever the user types `\n` in an empty line.
@@ -921,7 +920,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling an Unordered List, when editing an empty document, inserts a Newline.
@@ -1017,7 +1016,7 @@ class TextViewTests: XCTestCase {
         textView.toggleUnorderedList(range: textView.selectedRange)
         textView.deleteBackward()
 
-        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributes))
+        XCTAssertFalse(TextListFormatter.listsOfAnyKindPresent(in: textView.typingAttributesSwifted))
     }
 
     /// When the caret is positioned at both EoF and EoL, inserting a line separator (in most
@@ -1082,7 +1081,7 @@ class TextViewTests: XCTestCase {
 
         let formatter = BlockquoteFormatter()
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -1101,11 +1100,11 @@ class TextViewTests: XCTestCase {
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New Blockquote Lines do get their style, even when the ending `\n` character was deleted.
@@ -1134,8 +1133,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = BlockquoteFormatter()
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -1158,7 +1157,7 @@ class TextViewTests: XCTestCase {
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributes))
+        XCTAssertFalse(BlockquoteFormatter().present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that Blockquotes get removed whenever the user types `\n` in an empty line.
@@ -1182,7 +1181,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling a Blockquote, when editing an empty document, inserts a Newline.
@@ -1268,7 +1267,7 @@ class TextViewTests: XCTestCase {
 
         let formatter = PreFormatter()
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
         XCTAssert(textView.storage.length == 0)
     }
 
@@ -1287,11 +1286,11 @@ class TextViewTests: XCTestCase {
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        var expectedLength = textView.text.characters.count
+        var expectedLength = textView.text.count
         textView.insertText(newline)
-        expectedLength += newline.characters.count
+        expectedLength += newline.count
 
-        XCTAssertEqual(textView.text.characters.count, expectedLength)
+        XCTAssertEqual(textView.text.count, expectedLength)
     }
 
     /// Verifies that New Pre Lines do get their style, even when the ending `\n` character was deleted.
@@ -1320,8 +1319,8 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
 
         // Verify it's still present
-        let secondLineIndex = Constants.sampleText0.characters.count + newline.characters.count
-        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.characters.count)
+        let secondLineIndex = Constants.sampleText0.count + newline.count
+        let secondLineRange = NSRange(location: secondLineIndex, length: Constants.sampleText1.count)
 
         let formatter = PreFormatter()
         let present = formatter.present(in: textView.storage, at: secondLineRange)
@@ -1344,7 +1343,7 @@ class TextViewTests: XCTestCase {
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
 
-        XCTAssertFalse(PreFormatter().present(in: textView.typingAttributes))
+        XCTAssertFalse(PreFormatter().present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that Pre get removed whenever the user types `\n` in an empty line.
@@ -1368,7 +1367,7 @@ class TextViewTests: XCTestCase {
             XCTAssertFalse(formatter.present(in: attributedText, at: location))
         }
 
-        XCTAssertFalse(formatter.present(in: textView.typingAttributes))
+        XCTAssertFalse(formatter.present(in: textView.typingAttributesSwifted))
     }
 
     /// Verifies that toggling a Pre, when editing an empty document, inserts a Newline.
@@ -1487,7 +1486,7 @@ class TextViewTests: XCTestCase {
         let textView = createEmptyTextView()
 
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p><hr></p>")
     }
@@ -1499,7 +1498,7 @@ class TextViewTests: XCTestCase {
 
         textView.replaceWithHorizontalRuler(at: .zero)
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p><hr><hr></p>")
     }
@@ -1512,7 +1511,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
         textView.replaceWithHorizontalRuler(at: NSRange(location: 0, length:1))
 
-        let html = textView.getHTML(prettyPrint: false)
+        let html = textView.getHTML()
         
         XCTAssertEqual(html, "<p><hr></p>")
     }
@@ -1527,7 +1526,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
-        guard let font = textView.typingAttributes[NSFontAttributeName] as? UIFont else {
+        guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
             XCTFail("Font should be set")
             return
         }
@@ -1538,7 +1537,7 @@ class TextViewTests: XCTestCase {
         let textView = createEmptyTextViewWithNonStandardSystemFont()
 
         textView.insertText("😘")
-        let currentTypingFont = textView.typingAttributes[NSFontAttributeName] as! UIFont
+        let currentTypingFont = textView.typingAttributesSwifted[.font] as! UIFont
         XCTAssertEqual(currentTypingFont, nonStandardSystemFont, "Font should be set to default")
     }
 
@@ -1567,7 +1566,7 @@ class TextViewTests: XCTestCase {
         let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
         let textView = createTextView(withHTML: html)
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" title=\"Title\" alt=\"Alt\"></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
             XCTFail("An video attachment should be present")
@@ -1579,7 +1578,7 @@ class TextViewTests: XCTestCase {
         attachment.extraAttributes["alt"] = "Changed Alt"
         attachment.extraAttributes["class"] = "wp-image-169"
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" title=\"Title\" alt=\"Changed Alt\"></p>")
     }
 
 
@@ -1590,7 +1589,7 @@ class TextViewTests: XCTestCase {
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br><br><h1>Header</h1>"
         let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML(prettyPrint: false)
+        let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(generatedHTML, "<p><br><br></p><h1>Header</h1>")
     }
@@ -1601,7 +1600,7 @@ class TextViewTests: XCTestCase {
     func testToggleHtmlWithTwoLineBreaksAndInlineHeaderDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br>1<br>2<h1>Heder</h1>"
         let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML(prettyPrint: false)
+        let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(generatedHTML, "<p><br>1<br>2</p><h1>Heder</h1>")
     }
@@ -1609,7 +1608,7 @@ class TextViewTests: XCTestCase {
     /// This test verifies that img class attributes are not duplicated
     ///
     func testParseImageDoesntDuplicateExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" alt=\"Alt\" title=\"Title\">"
+        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" title=\"Title\" alt=\"Alt\">"
         let textView = createTextView(withHTML: html)
         let generatedHTML = textView.getHTML()
 
@@ -1676,7 +1675,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
@@ -1695,11 +1694,11 @@ class TextViewTests: XCTestCase {
         textView.toggleItalics(self)
         textView.insertText("Second")
 
-        let expectedHTML = textView.getHTML(prettyPrint: false)
+        let expectedHTML = textView.getHTML()
         textView.deleteBackward()
         textView.insertText("d")
 
-        XCTAssertEqual(textView.getHTML(prettyPrint: false), expectedHTML)
+        XCTAssertEqual(textView.getHTML(), expectedHTML)
     }
 
     /// This test verifies that the *ACTUAL* Typing Attributes are retrieved whenever requested from within
@@ -1752,7 +1751,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("Three")
 
         let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
     }
 
     /// This test verifies that H1 Style doesn't turn rogue (Scenario #2), and come back after editing a line
@@ -1773,7 +1772,33 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML(prettyPrint: false) == expected)
+        XCTAssert(textView.getHTML() == expected)
+    }
+
+    /// This test verifies that attributes on media attachment are being removed properly.
+    /// of text that never had H1 style, to begin with!.
+    ///
+    func testAttributesOnMediaAttachmentsAreRemoved() {
+        let textView = createTextView(withHTML: "<img src=\"http://placeholder\" data-wp_upload_id=\"ABCDE\" >")
+
+        guard let attachment = textView.storage.mediaAttachments.first else {
+            XCTFail("There must be an attachment")
+            return
+        }
+
+        guard let attributedValue = attachment.extraAttributes["data-wp_upload_id"] else {
+            XCTFail("There must be an attribute with the name data-wp_upload_i")
+            return
+        }
+
+        XCTAssertEqual(attributedValue, "ABCDE")
+
+        // Remove attribute
+        attachment.extraAttributes["data-wp_upload_id"] = nil
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
     }
 
 }

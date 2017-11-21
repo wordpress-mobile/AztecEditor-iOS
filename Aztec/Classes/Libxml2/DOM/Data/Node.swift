@@ -3,15 +3,15 @@ import Foundation
 
 /// Base class for all node types.
 ///
-class Node: Equatable, CustomReflectable, Hashable {
+public class Node: Equatable, CustomReflectable, Hashable {
     
-    let name: String
+    public let name: String
     
     // MARK: - Properties: Parent reference
     
     /// A weak reference to the parent of this node.
     ///
-    weak var parent: ElementNode?
+    public weak var parent: ElementNode?
 
     // MARK: - Properties: Editing traits
 
@@ -39,6 +39,20 @@ class Node: Equatable, CustomReflectable, Hashable {
     }
 
     // MARK: - DOM Queries
+    
+    func hasAncestor(ofType type: StandardElementType) -> Bool {
+        var ancestor: ElementNode? = parent
+        
+        while let currentAncestor = ancestor {
+            if currentAncestor.isNodeType(type) {
+                return true
+            }
+        
+            ancestor = currentAncestor.parent
+        }
+        
+        return false
+    }
 
     func isLastIn(blockLevelElement element: ElementNode) -> Bool {
         return element.isBlockLevelElement() && element.children.last === self
@@ -120,7 +134,7 @@ class Node: Equatable, CustomReflectable, Hashable {
     ///
     /// - Returns: the right sibling, or `nil` if none exists.
     ///
-    func rightSibling() -> Node? {
+    public func rightSibling() -> Node? {
 
         guard let parent = parent else {
             return nil
@@ -133,14 +147,6 @@ class Node: Equatable, CustomReflectable, Hashable {
         return parent.sibling(rightOf: index)
     }
 
-    // MARK: - DOM Modification
-
-    /// Removes this node from its parent, if it has one.
-    ///
-    func removeFromParent() {
-        parent?.remove(self)
-    }
-
     // MARK: - Node Equatable
 
     func isEqual(_ object: Any?) -> Bool {
@@ -151,7 +157,7 @@ class Node: Equatable, CustomReflectable, Hashable {
         return name == rhs.name
     }
 
-    static func ==(lhs: Node, rhs: Node) -> Bool {
+    public static func ==(lhs: Node, rhs: Node) -> Bool {
         guard type(of: lhs) == type(of: rhs) else {
             return false
         }

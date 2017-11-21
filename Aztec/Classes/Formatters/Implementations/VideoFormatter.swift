@@ -1,15 +1,14 @@
 import UIKit
 
 class VideoFormatter: StandardAttributeFormatter {
-    static let htmlRepresentationKey = "Video.htmlRepresentation"
 
     init() {
-        super.init(attributeKey: NSAttachmentAttributeName,
+        super.init(attributeKey: .attachment,
                    attributeValue: VideoAttachment(identifier: NSUUID().uuidString),
-                   htmlRepresentationKey: VideoFormatter.htmlRepresentationKey)
+                   htmlRepresentationKey: .videoHtmlRepresentation)
     }
 
-    override func apply(to attributes: [String : Any], andStore representation: HTMLRepresentation?) -> [String: Any] {
+    override func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
 
         if let representation = representation,
             case let .element(element) = representation.kind {
@@ -52,7 +51,7 @@ class VideoFormatter: StandardAttributeFormatter {
             //
             assert(representation == nil)
         }
-
-        return super.apply(to: attributes, andStore: representation)
+        // Comment: Sergio Estevao (2017-10-30) - We are not passing the representation because it's all save inside the extraAttributes property of the attachment.
+        return super.apply(to: attributes, andStore: nil)
     }
 }

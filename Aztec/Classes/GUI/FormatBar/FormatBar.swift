@@ -655,10 +655,10 @@ private extension FormatBar {
         }
 
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
-        overflowTrailingConstraint.priority = UILayoutPriorityDefaultLow
+        overflowTrailingConstraint.priority = .defaultLow
 
         let trailingItemTrailingConstraint = trailingItemContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.trailingButtonMargin)
-        trailingItemTrailingConstraint.priority = UILayoutPriorityDefaultLow
+        trailingItemTrailingConstraint.priority = .defaultLow
 
         NSLayoutConstraint.activate([
             overflowToggleItem.topAnchor.constraint(equalTo: topAnchor),

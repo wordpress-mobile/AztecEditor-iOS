@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -28,12 +29,13 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="qWp-hq-exU">
-                                                    <rect key="frame" x="16" y="8" width="349" height="29"/>
+                                                    <rect key="frame" x="24" y="8" width="341" height="29"/>
                                                     <segments>
                                                         <segment title="Thumbnail"/>
                                                         <segment title="Medium"/>
                                                         <segment title="Large"/>
                                                         <segment title="Full"/>
+                                                        <segment title="None"/>
                                                     </segments>
                                                 </segmentedControl>
                                             </subviews>
@@ -56,7 +58,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="hM7-SO-P7P">
-                                                    <rect key="frame" x="16" y="8" width="349" height="29"/>
+                                                    <rect key="frame" x="24" y="8" width="341" height="29"/>
                                                     <segments>
                                                         <segment title="None"/>
                                                         <segment title="Left"/>
@@ -84,7 +86,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6H9-eI-Wgd">
-                                                    <rect key="frame" x="16" y="7" width="336" height="30"/>
+                                                    <rect key="frame" x="24" y="7" width="320" height="30"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <textInputTraits key="textInputTraits" keyboardType="URL"/>
@@ -99,17 +101,42 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Link URL" id="slN-cK-Z2o">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="wff-mK-IFy">
+                                        <rect key="frame" x="0.0" y="355.5" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="wff-mK-IFy" id="qBg-OX-o6B">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="fsr-eq-4v0">
+                                                    <rect key="frame" x="24" y="7" width="320" height="30"/>
+                                                    <nil key="textColor"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="URL"/>
+                                                </textField>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="fsr-eq-4v0" firstAttribute="leading" secondItem="qBg-OX-o6B" secondAttribute="leadingMargin" constant="8" id="ISh-Dm-qik"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="fsr-eq-4v0" secondAttribute="trailing" constant="15" id="iNi-CO-VRX"/>
+                                                <constraint firstItem="fsr-eq-4v0" firstAttribute="centerY" secondItem="qBg-OX-o6B" secondAttribute="centerY" id="w9t-nE-OXg"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                             <tableViewSection headerTitle="Alt" id="mai-mB-SYg" userLabel="Alt">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="gvh-UL-4kA">
-                                        <rect key="frame" x="0.0" y="355.5" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="455.5" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="gvh-UL-4kA" id="kJp-I8-6JL">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="fBd-rD-kOx">
-                                                    <rect key="frame" x="16" y="7" width="336" height="30"/>
+                                                    <rect key="frame" x="24" y="7" width="320" height="30"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <textInputTraits key="textInputTraits" keyboardType="URL"/>
@@ -133,6 +160,7 @@
                     <connections>
                         <outlet property="alignmentSegmentedControl" destination="hM7-SO-P7P" id="PmN-Ow-kgM"/>
                         <outlet property="altTextField" destination="fBd-rD-kOx" id="mbm-a3-pyI"/>
+                        <outlet property="linkURLTextField" destination="fsr-eq-4v0" id="Qxl-b5-hw6"/>
                         <outlet property="sizeSegmentedControl" destination="qWp-hq-exU" id="4SD-YC-4G2"/>
                         <outlet property="sourceURLTextField" destination="6H9-eI-Wgd" id="tvl-R1-1GN"/>
                     </connections>

@@ -14,14 +14,24 @@ public extension NSTextCheckingResult {
             return nil
         }
 
-        let nsrange = rangeAt(position)
+        #if swift(>=4.0)
+            let nsrange = self.range(at: position)
+        #else
+            let nsrange = self.rangeAt(position)
+        #endif
 
         guard nsrange.location != NSNotFound else {
             return nil
         }
-
+        
         let range = text.range(from: nsrange)
-        let captureGroup = text.substring(with: range)
+        
+        #if swift(>=4.0)
+            let captureGroup = String(text[range])
+        #else
+            let captureGroup = text.substring(with: range)
+        #endif
+        
         return captureGroup
     }
 }

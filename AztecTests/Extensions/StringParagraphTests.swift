@@ -24,7 +24,7 @@ class StringParagraphTests: XCTestCase {
     func testIsStartOfParagraphReturnsFalseAtAnyPositionThatIsNotTheFirstOne() {
         let sample = "Sample"
 
-        for location in 1 ..< sample.characters.count {
+        for location in 1 ..< sample.count {
             let index = sample.indexFromLocation(location)!
             XCTAssertFalse(sample.isStartOfParagraph(at: index))
         }
@@ -69,7 +69,7 @@ class StringParagraphTests: XCTestCase {
     func testIsEmptyParagraphReturnsFalseOnNonEmptyParagraphs() {
         let sample = "Sample"
 
-        for i in 0 ..< sample.characters.count {
+        for i in 0 ..< sample.count {
             XCTAssertFalse(sample.isEmptyParagraph(at: i))
         }
     }
@@ -79,7 +79,7 @@ class StringParagraphTests: XCTestCase {
     func testIsEmptyParagraphReturnsFalseOnEmptyLinesThatBelongToABiggerParagraph() {
         let sample = "Sample" + String(.lineSeparator)
 
-        XCTAssertFalse(sample.isEmptyParagraph(at: sample.characters.count - 1))
+        XCTAssertFalse(sample.isEmptyParagraph(at: sample.count - 1))
     }
 
     /// Verifies that isEmptyParagraph(at:) returns true on empty lines, that do not belong to the previous paragraph.
@@ -87,6 +87,6 @@ class StringParagraphTests: XCTestCase {
     func testIsEmptyParagraphReturnsTrueOnEmptyLinesThatDoNotBelongToABiggerParagraph() {
         let sample = "Sample" + String(.lineFeed)
 
-        XCTAssertTrue(sample.isEmptyParagraph(at: sample.characters.count))
+        XCTAssertTrue(sample.isEmptyParagraph(at: sample.count))
     }
 }

@@ -26,6 +26,8 @@ class EditorDemoController: UIViewController {
             defaultParagraphStyle: paragraphStyle,
             defaultMissingImage: Constants.defaultMissingImage)
 
+        textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
+
         textView.inputProcessor =
             PipelineProcessor([CaptionShortcodePreProcessor(),
                                VideoShortcodePreProcessor(),
@@ -96,7 +98,8 @@ class EditorDemoController: UIViewController {
         let textField = UILabel()
 
         textField.attributedText = NSAttributedString(string: placeholderText,
-                                                      attributes: [NSForegroundColorAttributeName: UIColor.lightGray, NSFontAttributeName: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
+                                                      attributes: [.foregroundColor: UIColor.lightGray,
+                                                                   .font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)])
         textField.sizeToFit()
         textField.translatesAutoresizingMaskIntoConstraints = false
 
@@ -135,14 +138,14 @@ class EditorDemoController: UIViewController {
 
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
-    var loadSampleHTML = false
+    let sampleHTML: String?
 
     func setHTML(_ html: String) {
         richTextView.setHTML(html)
     }
 
     func getHTML() -> String {
-        return richTextView.getHTML(prettyPrint: true)
+        return richTextView.getHTML()
     }
 
     fileprivate var optionsViewController: OptionsTableViewController!
@@ -150,6 +153,18 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Lifecycle Methods
 
+    init(withSampleHTML sampleHTML: String? = nil) {
+        self.sampleHTML = sampleHTML
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        sampleHTML = nil
+        
+        super.init(coder: aDecoder)
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -157,6 +172,14 @@ class EditorDemoController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
+        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
+        MediaAttachment.defaultAppearance.progressHeight = 2.0
+        MediaAttachment.defaultAppearance.overlayColor = UIColor(red: CGFloat(46.0/255.0), green: CGFloat(69.0/255.0), blue: CGFloat(83.0/255.0), alpha: 0.6)
+        // Uncomment to add a border
+        // MediaAttachment.defaultAppearance.overlayBorderWidth = 3.0
+        // MediaAttachment.defaultAppearance.overlayBorderColor = UIColor(red: CGFloat(0.0/255.0), green: CGFloat(135.0/255.0), blue: CGFloat(190.0/255.0), alpha: 0.8)
 
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
@@ -172,18 +195,13 @@ class EditorDemoController: UIViewController {
 
         let html: String
 
-        if loadSampleHTML {
-            html = getSampleHTML()
+        if let sampleHTML = sampleHTML {
+            html = sampleHTML
         } else {
             html = ""
         }
 
         setHTML(html)
-
-        MediaAttachment.defaultAppearance.progressColor = UIColor.blue
-        MediaAttachment.defaultAppearance.progressBackgroundColor = UIColor.lightGray
-        MediaAttachment.defaultAppearance.progressHeight = 2.0
-        MediaAttachment.defaultAppearance.overlayColor = UIColor(white: 0.5, alpha: 0.5)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -328,7 +346,7 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Keyboard Handling
 
-    func keyboardWillShow(_ notification: Notification) {
+    @objc func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
@@ -339,7 +357,7 @@ class EditorDemoController: UIViewController {
         refreshInsets(forKeyboardFrame: keyboardFrame)
     }
 
-    func keyboardWillHide(_ notification: Notification) {
+    @objc func keyboardWillHide(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
@@ -402,19 +420,6 @@ class EditorDemoController: UIViewController {
 
 
     // MARK: - Sample Content
-
-    func getSampleHTML() -> String {
-        let htmlFilePath = Bundle.main.path(forResource: "content", ofType: "html")!
-        let fileContents: String
-
-        do {
-            fileContents = try String(contentsOfFile: htmlFilePath)
-        } catch {
-            fatalError("Could not load the sample HTML.  Check the file exists in the target and that it has the correct name.")
-        }
-
-        return fileContents
-    }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if richTextView.resignFirstResponder() {
@@ -557,12 +562,12 @@ extension EditorDemoController {
         updateFormatBar()
     }
 
-    func toggleBold() {
+    @objc func toggleBold() {
         richTextView.toggleBold(range: richTextView.selectedRange)
     }
 
 
-    func toggleItalic() {
+    @objc func toggleItalic() {
         richTextView.toggleItalic(range: richTextView.selectedRange)
     }
 
@@ -572,11 +577,11 @@ extension EditorDemoController {
     }
 
 
-    func toggleStrikethrough() {
+    @objc func toggleStrikethrough() {
         richTextView.toggleStrikethrough(range: richTextView.selectedRange)
     }
 
-    func toggleBlockquote() {
+    @objc func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
     }
 
@@ -586,8 +591,8 @@ extension EditorDemoController {
 
     func toggleHeader(fromItem item: FormatBarItem) {
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
-            let attributes = [
-                NSFontAttributeName: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
+            let attributes: [NSAttributedStringKey: Any] = [
+                .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
             let title = NSAttributedString(string: headerType.description, attributes: attributes)
@@ -638,11 +643,11 @@ extension EditorDemoController {
         })
     }
 
-    func toggleUnorderedList() {
+    @objc func toggleUnorderedList() {
         richTextView.toggleUnorderedList(range: richTextView.selectedRange)
     }
 
-    func toggleOrderedList() {
+    @objc func toggleOrderedList() {
         richTextView.toggleOrderedList(range: richTextView.selectedRange)
     }
 
@@ -766,7 +771,7 @@ extension EditorDemoController {
         return nil
     }
 
-    func toggleLink() {
+    @objc func toggleLink() {
         var linkTitle = ""
         var linkURL: URL? = nil
         var linkRange = richTextView.selectedRange
@@ -883,7 +888,7 @@ extension EditorDemoController {
         self.present(alertController, animated:true, completion:nil)
     }
 
-    func alertTextFieldDidChange(_ textField: UITextField) {
+    @objc func alertTextFieldDidChange(_ textField: UITextField) {
         guard
             let alertController = presentedViewController as? UIAlertController,
             let urlFieldText = alertController.textFields?.first?.text,
@@ -896,7 +901,7 @@ extension EditorDemoController {
     }
 
 
-    func showImagePicker() {
+    @objc func showImagePicker() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
         picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary) ?? []
@@ -1062,24 +1067,26 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         deselected(textAttachment: attachment, atPosition: position)
     }
 
+    fileprivate func resetMediaAttachmentOverlay(_ mediaAttachment: MediaAttachment) {
+        mediaAttachment.overlayImage = nil
+        mediaAttachment.message = nil
+    }
+
     func selected(textAttachment attachment: MediaAttachment, atPosition position: CGPoint) {
         if (currentSelectedAttachment == attachment) {
             displayActions(forAttachment: attachment, position: position)
         } else {
             if let selectedAttachment = currentSelectedAttachment {
-                selectedAttachment.message = nil
-                if selectedAttachment is ImageAttachment {
-                    selectedAttachment.overlayImage = nil
-                }
+                resetMediaAttachmentOverlay(selectedAttachment)
                 richTextView.refresh(selectedAttachment)
             }
 
             // and mark the newly tapped attachment
-            let message = NSLocalizedString("Tap for options", comment: "Options to show when tapping on a media object on the post/page editor.")
-            attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
-            if attachment.overlayImage == nil {
-                attachment.overlayImage = Gridicon.iconOfType(.pencil).withRenderingMode(.alwaysTemplate)
+            if attachment.message == nil {
+                let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
+                attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
             }
+            attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
             richTextView.refresh(attachment)
             currentSelectedAttachment = attachment
         }
@@ -1088,7 +1095,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
         currentSelectedAttachment = nil
         if let mediaAttachment = attachment as? MediaAttachment {
-            mediaAttachment.message = nil
+            resetMediaAttachmentOverlay(mediaAttachment)
             richTextView.refresh(mediaAttachment)
         }
     }
@@ -1218,6 +1225,8 @@ private extension EditorDemoController
         let fileURL = saveToDisk(image: image)
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
+        attachment.size = .full
+        attachment.linkURL = fileURL
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1269,16 +1278,13 @@ private extension EditorDemoController
         richTextView.refresh(attachment)
     }
 
-    var mediaMessageAttributes: [String: Any] {
+    var mediaMessageAttributes: [NSAttributedStringKey: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        let shadow = NSShadow()
-        shadow.shadowOffset = CGSize(width: 1, height: 1)
-        shadow.shadowColor = UIColor(white: 0, alpha: 0.6)
-        let attributes: [String:Any] = [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
-                                        NSParagraphStyleAttributeName: paragraphStyle,
-                                        NSForegroundColorAttributeName: UIColor.white,
-                                        NSShadowAttributeName: shadow]
+
+        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
+                                                        .paragraphStyle: paragraphStyle,
+                                                        .foregroundColor: UIColor.white]
         return attributes
     }
 
@@ -1289,7 +1295,10 @@ private extension EditorDemoController
         let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
         let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
                                           style: .cancel,
-                                          handler: nil
+                                          handler: { (action) in
+                                            self.resetMediaAttachmentOverlay(attachment)
+                                            self.richTextView.refresh(attachment)
+        }
         )
         alertController.addAction(dismissAction)
 
@@ -1327,7 +1336,7 @@ private extension EditorDemoController
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        detailsViewController.onUpdate = { (alignment, size, url, alt) in
+        detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
@@ -1335,6 +1344,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
+                updated.linkURL = linkURL
 
                 updated.updateURL(url)
             }

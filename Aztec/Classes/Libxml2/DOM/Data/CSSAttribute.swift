@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - CSSAttribute
 //
-class CSSAttribute: Codable {
+public class CSSAttribute: Codable {
 
     /// Attribute Name
     ///
@@ -59,7 +59,7 @@ extension CSSAttribute: CustomReflectable {
 //
 extension CSSAttribute: Hashable {
 
-    var hashValue: Int {
+    public var hashValue: Int {
         guard let value = value else {
             return name.hashValue
         }
@@ -81,7 +81,7 @@ extension CSSAttribute: Equatable {
         return self == rightValue
     }
 
-    static func ==(leftValue: CSSAttribute, rightValue: CSSAttribute) -> Bool {
+    public static func ==(leftValue: CSSAttribute, rightValue: CSSAttribute) -> Bool {
         return leftValue.name == rightValue.name && leftValue.value == rightValue.value
     }
 }
