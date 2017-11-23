@@ -4,6 +4,7 @@ class HighPriorityIssuesTests: XCTestCase {
         
     private var app: XCUIApplication!
     private var richTextField: XCUIElement!
+    private var richEditorPage: EditorPage!
     
     override func setUp() {
         super.setUp()
@@ -16,7 +17,7 @@ class HighPriorityIssuesTests: XCTestCase {
         app.launch()
         
         let blogsPage = BlogsPage.init(appInstance: app)
-        blogsPage.gotoEmptyDemo()
+        richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
@@ -65,13 +66,21 @@ class HighPriorityIssuesTests: XCTestCase {
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
     func testInfiniteLoopOnAssetDownload() {
-        switchContentView()
-        enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
-        switchContentView()
-        gotoRootPage()
-        
-        let editorDemoButton = app.tables.staticTexts[elementStringIDs.emptyDemo]
-        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Are you on the right page?")
+        let blogsPage = richEditorPage
+            .switchContentView()
+            .enterText(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
+            .switchContentView()
+            .gotoRootPage()
+
+        XCTAssert(blogsPage.isLoaded(), "blogsPage isn't loaded. Are you on the right page?")
+
+//        switchContentView()
+//        enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
+//        switchContentView()
+//        gotoRootPage()
+//
+//        let editorDemoButton = app.tables.staticTexts[elementStringIDs.emptyDemo]
+//        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Are you on the right page?")
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/465
