@@ -274,7 +274,7 @@ open class TextStorage: NSTextStorage {
         //
         if range.length > 0  {
             let invalidateRange = NSMakeRange(range.location, attrString.length)
-            fixAttributes(in: invalidateRange)
+            invalidateAttributes(in: invalidateRange)
         }
 
         endEditing()
