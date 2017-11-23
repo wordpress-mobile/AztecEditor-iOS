@@ -1,31 +1,22 @@
-//
-//  BlogsPage.swift
-//  AztecUITests
-//
-//  Created by brbrr on 11/13/17.
-//  Copyright © 2017 Automattic Inc. All rights reserved.
-//
-
 import Foundation
 import XCTest
 
 
-class BlogsPage {
-    
-    private var app: XCUIApplication!
+class BlogsPage: BasePage {
     
     init(appInstance: XCUIApplication) {
-        app = appInstance
+        let expectedElement = appInstance.tables.staticTexts[elementStringIDs.emptyDemo]
+        super.init(appInstance: appInstance, element: expectedElement)
     }
     
     func gotoEmptyDemo() {
-        app.tables.staticTexts[elementStringIDs.emptyDemo].tap()
+        app.staticTexts[elementStringIDs.emptyDemo].tap()
         
         showOptionsStrip()
     }
     
     func gotoDemo() {
-        app.tables.staticTexts[elementStringIDs.demo].tap()
+        app.staticTexts[elementStringIDs.demo].tap()
         
         showOptionsStrip()
     }

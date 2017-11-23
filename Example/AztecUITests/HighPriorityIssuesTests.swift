@@ -132,7 +132,7 @@ class HighPriorityIssuesTests: XCTestCase {
         htmlContentView.tap()
         app.menuItems[elementStringIDs.pasteButton].tap()
         
-        sleep(1) // to make sure everything is updated
+        sleep(2) // to make sure everything is updated
         let newText = htmlContentView.value as! String
         
         XCTAssert(newText == text + "\n\n" + text)
