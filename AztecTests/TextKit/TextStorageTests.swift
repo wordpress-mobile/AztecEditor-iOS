@@ -17,6 +17,11 @@ class TextStorageTests: XCTestCase {
     ///
     var mockDelegate: MockAttachmentsDelegate!
 
+    /// Default Text Attributes
+    ///
+    let defaultAttributes: [NSAttributedStringKey: Any] = [.foregroundColor: UIColor.black,
+                                                           .font: UIFont.systemFont(ofSize: 14),
+                                                           .paragraphStyle: ParagraphStyle.default]
 
     override func setUp() {
         super.setUp()
@@ -162,10 +167,7 @@ class TextStorageTests: XCTestCase {
         let updatedHTML = "<updated>NEW HTML</updated>"
         let finalHTML = "<p>\(updatedHTML)</p>"
 
-        // Setup
-        let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
-                                                             .paragraphStyle: ParagraphStyle.default]
-        
+        // Setup        
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
 
         // Find the Attachment
@@ -381,12 +383,65 @@ class TextStorageTests: XCTestCase {
 
         let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                              .paragraphStyle: ParagraphStyle.default]
-        
+
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
 
         let resultHTML = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(String(), resultHTML)
+    }
+
+    /// This test verifies that, whenever a NSAttributedString is inserted inline (and has a different font), the ParagraphStyle
+    /// attribute will be 'fixed'. This translates into: there won't be different instances of ParagraphStyle for characters in the same line.
+    /// This has been tracked to be causing display issues when using the `Chinese (Simplified) Pinyin` keyboard.
+    ///
+    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/811
+    ///
+    func testAttributesAreFixedWheneverStringsWithDifferentAttributesAreInsertedOnTheSameLine() {
+
+        /// Attributes
+        ///
+        let formatterH1 = HeaderFormatter(headerLevel: .h1)
+        let headerAttributes = formatterH1.apply(to: defaultAttributes, andStore: nil)
+
+        /// Precondition: Newline at the top
+        ///
+        let newlineString = NSAttributedString(string: "\n", attributes: defaultAttributes)
+
+        storage.replaceCharacters(in: .zero, with: newlineString)
+
+        /// Insert + Replace: with H1 Attributes
+        ///
+        let insertionRange1 = NSRange(location: 1, length: 0)
+        let characterRange1 = NSRange(location: 1, length: 1)
+
+        let chineseStringH1 = NSAttributedString(string: "上", attributes: headerAttributes)
+        let regularStringH1 = NSAttributedString(string: "s", attributes: headerAttributes)
+
+        storage.replaceCharacters(in: insertionRange1, with: regularStringH1)
+        storage.replaceCharacters(in: characterRange1, with: chineseStringH1)
+
+        /// After the two calls above, when typing, TextView will not relay properly apply the `H1` attributes. We'll simulate that:
+        ///
+        let chineseStringNormal = NSAttributedString(string: "上", attributes: defaultAttributes)
+        let regularStringNormal = NSAttributedString(string: "s", attributes: defaultAttributes)
+
+        let insertionRange2 = NSRange(location: 2, length: 0)
+        let characterRange2 = NSRange(location: 2, length: 1)
+
+        storage.replaceCharacters(in: insertionRange2, with: regularStringNormal)
+        storage.replaceCharacters(in: characterRange2, with: chineseStringNormal)
+
+        /// Context:
+        /// storage.string at this point contains "\n上上"
+        ///
+        /// PROBLEM:
+        /// If characters 1 and 2 have different paragraphStyles, the second character may not get properly displayed by the TextView.
+        ///
+        let paragraphStyle1 = storage.attribute(.paragraphStyle, at: characterRange1.location, effectiveRange: nil) as! NSParagraphStyle
+        let paragraphStyle2 = storage.attribute(.paragraphStyle, at: characterRange2.location, effectiveRange: nil) as! NSParagraphStyle
+
+        XCTAssertEqual(paragraphStyle1, paragraphStyle2)
     }
 }

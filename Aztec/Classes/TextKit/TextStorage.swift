@@ -267,8 +267,15 @@ open class TextStorage: NSTextStorage {
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
-        let invalidateRange = NSMakeRange(range.location, attrString.length)
-        invalidateAttributes(in: invalidateRange)
+        // Whenever we're actually replacing text, let's trigger a `fixAttributes` call. This is done to prevent a glitch in which
+        // TextView may not render characters, in the same line, that carry partitioned attributes.
+        //
+        // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/811
+        //
+        if range.length > 0  {
+            let invalidateRange = NSMakeRange(range.location, attrString.length)
+            invalidateAttributes(in: invalidateRange)
+        }
 
         endEditing()
     }
