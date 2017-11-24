@@ -599,7 +599,14 @@ open class TextView: UITextView {
         return caretRect
     }
     
-    // This is only overridden due to iOS 11 issues since it's losing styles.
+    /// When typing with the Chinese keyboard, the text is automatically marked in the editor.
+    /// You have to press ENTER once to confirm your chosen input.  The problem is that in iOS 11
+    /// the typing attributes are lost when the text is unmarked, causing the font to be lost.
+    /// Since localized characters need specific fonts to be rendered, this causes some characters
+    /// to stop rendering completely.
+    ///
+    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/811
+    ///
     override open func unmarkText() {
         preserveTypingAttributesForInsertion {
             super.unmarkText()
