@@ -768,12 +768,12 @@ open class TextView: UITextView {
 
         let applicationRange = formatter.applicationRange(for: range, in: textStorage)
         let originalString = storage.attributedSubstring(from: applicationRange)
-
-        storage.toggle(formatter: formatter, at: range)
-
+        
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
         })
+
+        storage.toggle(formatter: formatter, at: range)
 
         if applicationRange.length == 0 {
             typingAttributesSwifted = formatter.toggle(in: typingAttributesSwifted)
