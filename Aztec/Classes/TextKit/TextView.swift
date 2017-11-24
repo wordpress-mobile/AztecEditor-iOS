@@ -248,7 +248,6 @@ open class TextView: UITextView {
         }
     }
 
-
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
     /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
     ///
@@ -598,6 +597,13 @@ open class TextView: UITextView {
         caretRect.size.height = usedLineFragment.size.height
 
         return caretRect
+    }
+    
+    // This is only overridden due to iOS 11 issues since it's losing styles.
+    override open func unmarkText() {
+        preserveTypingAttributesForInsertion {
+            super.unmarkText()
+        }
     }
 
     // MARK: - HTML Interaction

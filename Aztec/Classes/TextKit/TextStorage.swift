@@ -267,18 +267,16 @@ open class TextStorage: NSTextStorage {
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
-        let invalidateRange = NSMakeRange(range.location, attrString.length)
-        invalidateAttributes(in: invalidateRange)
-
         endEditing()
     }
 
     override open func setAttributes(_ attrs: [AttributedStringKey: Any]?, range: NSRange) {
         beginEditing()
 
-        let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
+        //let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
-        textStore.setAttributes(fixedAttributes, range: range)
+        //textStore.setAttributes(fixedAttributes, range: range)
+        textStore.setAttributes(attrs, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
