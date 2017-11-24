@@ -105,6 +105,7 @@ class HighPriorityIssuesTests: XCTestCase {
         deleteButton.tap()
         XCTAssert(boldButton.isSelected && italicButton.isSelected)
     }
+    
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
     func testCopyPasteCrash() {
         gotoRootPage()
@@ -132,10 +133,10 @@ class HighPriorityIssuesTests: XCTestCase {
         htmlContentView.tap()
         app.menuItems[elementStringIDs.pasteButton].tap()
         
-        sleep(2) // to make sure everything is updated
+        sleep(7) // to make sure everything is updated
         let newText = htmlContentView.value as! String
         
-        XCTAssert(newText == text + "\n\n" + text)
+        XCTAssertEqual(newText, text + "\n\n" + text)
     }
 }
 
