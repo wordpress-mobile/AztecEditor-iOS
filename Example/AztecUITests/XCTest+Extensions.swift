@@ -123,9 +123,10 @@ extension XCTest {
         let elementsQuery = app.scrollViews.otherElements
         let htmlButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
         if (!htmlButton.isHittable) {
-            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+            elementsQuery.buttons[elementStringIDs.linkButton].swipeLeft()
         }
         htmlButton.tap()
+        
       
         let htmlContentTextView =
             app.textViews[elementStringIDs.htmlTextField]
