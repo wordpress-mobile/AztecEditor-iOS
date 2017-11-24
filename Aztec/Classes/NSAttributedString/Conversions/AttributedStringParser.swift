@@ -1003,8 +1003,8 @@ private extension AttributedStringParser {
         if attachment.alignment != .center {
             style += attachment.alignment.htmlString()
         }
-
-        if attachment.size != .full {
+        
+        if attachment.size != .none {
             style += style.isEmpty ? String() : String(.space)
             style += attachment.size.htmlString()
         }

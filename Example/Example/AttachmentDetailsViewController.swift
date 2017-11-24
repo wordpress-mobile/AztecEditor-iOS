@@ -130,6 +130,7 @@ private extension AttachmentDetailsViewController
         case medium
         case large
         case maximum
+        case none
 
         init(attachmentSize: AttachmentSize) {
             switch attachmentSize {
@@ -137,6 +138,7 @@ private extension AttachmentDetailsViewController
             case .medium:       self = .medium
             case .large:        self = .large
             case .full:         self = .maximum
+            case .none:         self = .none
             }
         }
 
@@ -146,6 +148,7 @@ private extension AttachmentDetailsViewController
             case .medium:       return .medium
             case .large:        return .large
             case .maximum:      return .full
+            case .none:         return .none
             }
         }
     }
