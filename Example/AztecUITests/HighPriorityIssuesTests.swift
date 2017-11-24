@@ -108,16 +108,20 @@ class HighPriorityIssuesTests: XCTestCase {
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
     func testCopyPasteCrash() {
-        gotoRootPage()
-        let blogsPage = BlogsPage.init(appInstance: app)
-        blogsPage.gotoDemo()
+//        gotoRootPage()
+//        let blogsPage = BlogsPage.init(appInstance: app)
+//        blogsPage.gotoDemo()
+        
+        let text = "<h1>Sample HTML content</h1> <p>this is some text that is spread out across several lines but is rendered on a single line in a browser</p> <h2>Character Styles</h2> <p><strong>Bold text</strong><br><em>Italic text</em><br><u>Underlined text</u><br><del>Strikethrough</del><br><span style=\"color: #ff0000\">Colors</span><br><span style=\"text-decoration: underline\">Alternative underline text</span><br><a href=\"http://www.wordpress.com\">I'm a link!</a><br><!--more-->Text after the more break</p> <h2>Lists</h2> <h3>Unordered List:</h3> <ul> <li>One</li> <li>Two</li> <li>Three</li> </ul> <h3>Ordered List:</h3> <ol> <li>One</li> <li>Two</li> <li>Three</li> </ol> <p> <hr> </p>"
         
         switchContentView()
-        selectAllTextInHTMLField()
+//        selectAllTextInHTMLField()
+        enterTextInHTML(text: text)
        
         let htmlContentView = app.textViews[elementStringIDs.htmlTextField]
-        let text = htmlContentView.value as! String
-
+//        let text = htmlContentView.value as! String
+        
+        selectAllTextInHTMLField()
         app.menuItems[elementStringIDs.copyButton].tap()
         htmlContentView.swipeUp()
         htmlContentView.swipeUp()
@@ -133,7 +137,7 @@ class HighPriorityIssuesTests: XCTestCase {
         htmlContentView.tap()
         app.menuItems[elementStringIDs.pasteButton].tap()
         
-        sleep(7) // to make sure everything is updated
+        sleep(3) // to make sure everything is updated
         let newText = htmlContentView.value as! String
         
         XCTAssertEqual(newText, text + "\n\n" + text)
