@@ -273,10 +273,9 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [AttributedStringKey: Any]?, range: NSRange) {
         beginEditing()
 
-        //let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
+        let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
-        //textStore.setAttributes(fixedAttributes, range: range)
-        textStore.setAttributes(attrs, range: range)
+        textStore.setAttributes(fixedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
@@ -406,7 +405,7 @@ private extension TextStorage {
         guard oldLevel != newLevel else {
             return attrs
         }
-
+        
         return fixFontAttribute(in: attrs, headerLevel: newLevel)
     }
 
