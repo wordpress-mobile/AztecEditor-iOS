@@ -121,11 +121,11 @@ extension XCTest {
         
         // Expects the format bar to be expanded.
         let elementsQuery = app.scrollViews.otherElements
-        let mediaButton = elementsQuery.buttons[elementStringIDs.mediaButton]
-        if mediaButton.exists && mediaButton.isHittable {
+        let htmlButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
+        if (!htmlButton.isHittable) {
             elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
         }
-        elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
+        htmlButton.tap()
         
         let htmlContentTextView =
             app.textViews[elementStringIDs.htmlTextField]
