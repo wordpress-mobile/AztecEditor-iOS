@@ -61,10 +61,6 @@ extension XCTest {
      */
     func enterTextInField(text: String) -> Void {
         typeToTextField(text: text, to: elementStringIDs.richTextField)
-//        let app = XCUIApplication()
-//        let richTextField = app.textViews[elementStringIDs.richTextField]
-//
-//        richTextField.typeText(text)
     }
     
     /**

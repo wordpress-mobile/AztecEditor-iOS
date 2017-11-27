@@ -41,28 +41,6 @@ class HighPriorityIssuesTests: XCTestCase {
         //        XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
     }
     
-    func testNewlinesInTitle() {
-        //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
-        //    But may be fragile due to different font sizes etc
-        let titleLineHeight = 22
-        
-        let titleTextView = app.textViews[elementStringIDs.titleTextField]
-        titleTextView.tap()
-        
-        titleTextView.typeText("line 1")
-        let oneLineTitleHeight = Int(titleTextView.frame.height)
-        
-        titleTextView.typeText("\nline 2")
-        let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
-        //        XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
-        
-        titleTextView.typeText("\nline 3")
-        let threeLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(threeLineTitleHeight - twoLineTitleHeight == titleLineHeight )
-        //        XCTAssert(twoLineTitleHeight < threeLineTitleHeight)
-    }
-    
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
     func testInfiniteLoopOnAssetDownload() {
         switchContentView()
