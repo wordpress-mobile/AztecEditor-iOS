@@ -295,7 +295,7 @@ open class TextView: UITextView {
 
     // MARK: - Init & deinit
 
-    public init(
+    @objc public init(
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
         defaultMissingImage: UIImage) {
@@ -606,7 +606,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML() -> String {
+    @objc public func getHTML() -> String {
         let pristineHTML = storage.getHTML(serializer: outputSerializer)
         let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 
@@ -617,7 +617,7 @@ open class TextView: UITextView {
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    public func setHTML(_ html: String) {
+    @objc public func setHTML(_ html: String) {
         let processedHTML = inputProcessor?.process(html) ?? html
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
