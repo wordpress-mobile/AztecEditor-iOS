@@ -28,8 +28,9 @@ class BlogsPage: BasePage {
     
     func expandOptionsSctrip() -> Void {
         let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
+        let htmlButton = app.scrollViews.otherElements.buttons[elementStringIDs.sourcecodeButton]
         
-        if expandButton.exists && expandButton.isHittable {
+        if expandButton.exists && expandButton.isHittable && !htmlButton.exists {
             expandButton.tap()
         }
     }

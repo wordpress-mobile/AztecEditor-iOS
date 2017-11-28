@@ -29,16 +29,19 @@ class HighPriorityIssuesTests: XCTestCase {
         //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
         //    But may be fragile due to different font sizes etc
         let titleLineHeight = 22
-        
         let titleTextView = app.textViews[elementStringIDs.titleTextField]
         titleTextView.tap()
-        
         let oneLineTitleHeight = Int(titleTextView.frame.height)
         
-        titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
+        // TODO: Move it into EditorPage
+        if (app.windows.element(boundBy: 0).horizontalSizeClass == .compact || app.windows.element(boundBy: 0).verticalSizeClass == .compact) {
+            titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
+        } else {
+            titleTextView.typeText("very very very very very very long title in a galaxy not so far away very very very very very very long title in a galaxy not so far away")
+        }
+        
         let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
-        //        XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
+        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight ) // XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
