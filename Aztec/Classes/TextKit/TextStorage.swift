@@ -267,9 +267,6 @@ open class TextStorage: NSTextStorage {
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
 
-        let invalidateRange = NSMakeRange(range.location, attrString.length)
-        invalidateAttributes(in: invalidateRange)
-
         endEditing()
     }
 
@@ -408,7 +405,7 @@ private extension TextStorage {
         guard oldLevel != newLevel else {
             return attrs
         }
-
+        
         return fixFontAttribute(in: attrs, headerLevel: newLevel)
     }
 
