@@ -2,7 +2,7 @@ import XCTest
 
 class FormattingTests: XCTestCase {
     
-    private var app: XCUIApplication!
+//    private var app: XCUIApplication!
     private var richEditorPage: EditorPage!
     
     override func setUp() {
@@ -12,10 +12,9 @@ class FormattingTests: XCTestCase {
         continueAfterFailure = false
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
         XCUIDevice.shared().orientation = .portrait
-        app = XCUIApplication()
-        app.launch()
+        XCUIApplication().launch()
         
-        let blogsPage = BlogsPage.init(appInstance: app)
+        let blogsPage = BlogsPage.init()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
@@ -27,15 +26,16 @@ class FormattingTests: XCTestCase {
         let values = ["line 1", "line 2", "line 3"]
         let expectedHTML = "<ol><li>line 1</li><li><strong>line</strong> 2</li><li>line 3</li></ol>"
 
-        richEditorPage.addListWithLines(type: "ol", lines: values)
-        richEditorPage.tapByCordinates(x: 32, y: 30)
+        richEditorPage
+            .addListWithLines(type: "ol", lines: values)
+            .tapByCordinates(x: 32, y: 30)
+            .textView.tap()
+        XCUIApplication().menuItems["Select"].tap()
         
-        sleep(1)
-        richEditorPage.textView.tap()
-        app.menuItems["Select"].tap()
-        
-        richEditorPage.toolbarButtonTap(locator: elementStringIDs.boldButton)
-        let text = richEditorPage.switchContentView().getViewContent()
+        let text = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.boldButton)
+            .switchContentView()
+            .getViewContent()
         XCTAssertEqual(text, expectedHTML)
     }
     
@@ -48,10 +48,29 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .tapByCordinates(x: 30, y: 32)
             .textView.press(forDuration: 1)
-        app.menuItems["Select"].tap()
+        XCUIApplication().menuItems["Select"].tap()
         
         richEditorPage.toolbarButtonTap(locator: elementStringIDs.boldButton)
         let text = richEditorPage.switchContentView().getViewContent()
         XCTAssertEqual(text, expectedHTML)
+    }
+    
+    // test behavior of highlighted style at 0 index of editor with 1 line of text (EOB marker at the 1 line)
+    func testLeadingStyleHighlightInEmptyEditor() {
+        let text = "some text"
+        
+        richEditorPage.boldButton.tap()
+        richEditorPage.enterText(text: text)
+        richEditorPage.italicButton.tap()
+        XCTAssertTrue(richEditorPage.boldButton.isSelected)
+        XCTAssertTrue(richEditorPage.italicButton.isSelected)
+        
+        richEditorPage.deleteText(chars: text.count)
+        XCTAssertTrue(richEditorPage.boldButton.isSelected)
+        XCTAssertFalse(richEditorPage.italicButton.isSelected)
+        
+        richEditorPage.deleteText(chars: 1)
+        XCTAssertTrue(richEditorPage.boldButton.isSelected)
+        XCTAssertFalse(richEditorPage.italicButton.isSelected)
     }
 }

@@ -16,7 +16,7 @@ class HighPriorityIssuesTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
         
-        let blogsPage = BlogsPage.init(appInstance: app)
+        let blogsPage = BlogsPage.init()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
@@ -117,7 +117,7 @@ class HighPriorityIssuesTests: XCTestCase {
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
     func testCopyPasteCrash() {
         gotoRootPage()
-        let blogsPage = BlogsPage.init(appInstance: app)
+        let blogsPage = BlogsPage.init()
         blogsPage.gotoDemo()
         
         switchContentView()

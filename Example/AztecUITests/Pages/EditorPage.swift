@@ -18,8 +18,21 @@ class EditorPage: BasePage {
     private var titleTextField = "Title"
     private var richTextField = "richContentView"
     private var htmlTextField = "HTMLContentView"
+    
+    var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
+    var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
+    var boldButton = XCUIApplication().buttons["formatToolbarToggleBold"]
+    var italicButton = XCUIApplication().buttons["formatToolbarToggleItalic"]
+    var underlineButton = XCUIApplication().buttons["formatToolbarToggleUnderline"]
+    var strikethroughButton = XCUIApplication().buttons["formatToolbarToggleStrikethrough"]
+    var blockquoteButton = XCUIApplication().buttons["formatToolbarToggleBlockquote"]
+    var unorderedlistButton = XCUIApplication().buttons["formatToolbarToggleListUnordered"]
+    var linkButton = XCUIApplication().buttons["formatToolbarInsertLink"]
+    var horizontalrulerButton = XCUIApplication().buttons["formatToolbarInsertHorizontalRuler"]
+    var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
+    var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
 
-    init(appInstance: XCUIApplication, type: String) {
+    init(type: String) {
         textField = ""
         self.type = type
         switch type {
@@ -30,20 +43,18 @@ class EditorPage: BasePage {
         default:
             textField = "invalid locator. check Editor.init type param"
         }
-        textView = appInstance.textViews[textField]
-        super.init(appInstance: appInstance, element: textView)
+        textView = XCUIApplication().textViews[textField]
+        super.init(element: textView)
       
         showOptionsStrip()
     }
     
     func showOptionsStrip() -> Void {
-//        app.textViews[textField].tap()
         textView.tap()
         expandOptionsSctrip()
     }
     
     func expandOptionsSctrip() -> Void {
-        
         let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
         let htmlButton = app.scrollViews.otherElements.buttons[elementStringIDs.sourcecodeButton]
         
@@ -73,7 +84,6 @@ class EditorPage: BasePage {
         return self
     }
     
-    
     /**
      Tapping on toolbar button. And swipes if needed.
      */
@@ -96,7 +106,7 @@ class EditorPage: BasePage {
     func tapByCordinates(x: Int, y: Int) -> EditorPage {
         let vector = CGVector(dx: textView.frame.minX + CGFloat(x), dy: textView.frame.minY + CGFloat(y))
         textView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
-        
+        sleep(1) // to make sure that "paste" manu wont show up.
         return self
     }
     
@@ -113,7 +123,7 @@ class EditorPage: BasePage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
         
         let newType = type == "rich" ? "html" : "rich"
-        return EditorPage.init(appInstance: app, type: newType)
+        return EditorPage.init(type: newType)
     }
     
     /**
@@ -133,9 +143,17 @@ class EditorPage: BasePage {
         app.textViews[titleTextField].typeText(text)
     }
     
+    func deleteText(chars: Int) -> EditorPage {
+        for _ in 1...chars {
+            app.keys["delete"].tap()
+        }
+        
+        return self
+    }
+    
     func gotoRootPage() -> BlogsPage {
         app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
-        return BlogsPage.init(appInstance: app)
+        return BlogsPage.init()
     }
     
     func getViewContent() -> String {
