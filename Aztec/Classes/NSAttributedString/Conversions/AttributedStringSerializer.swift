@@ -406,7 +406,7 @@ private extension AttributedStringSerializer {
 
         switch elementType {
         case .hr, .img, .video:
-            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+            return NSAttributedString(string: .textAttachment, attributes: attributes)
         case .br:
             return NSAttributedString(.lineSeparator, attributes: attributes)
         default:
