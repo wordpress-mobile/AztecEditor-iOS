@@ -358,9 +358,10 @@ extension AttributedStringSerializer {
     }
 }
 
-private extension AttributedStringSerializer {
 
-    // MARK: - Implicit Representations
+// MARK: - Implicit Representations
+//
+private extension AttributedStringSerializer {
 
     /// Some elements have an implicit representation that doesn't really follow the standard
     /// conversion logic.  This method takes care of such specialized conversions.
@@ -376,22 +377,14 @@ private extension AttributedStringSerializer {
         guard let elementType = element.standardName else {
             return nil
         }
-        
-        if let imgElement = linkedImageElement(for: element) {
-            var attributesWithoutLink = attributes
-            attributesWithoutLink[.link] = nil
-            attributesWithoutLink[.linkHtmlRepresentation] = nil
 
-            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-            let attachment = imgAttributes[.attachment] as! ImageAttachment
-            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
-            attachment.linkURL = URL(string: linkText)
-            
-            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
+        if let linkedImageAttributes = linkedImageAttributes(for: element, inheriting: attributes) {
+            return implicitRepresentation(for: .img, inheriting: linkedImageAttributes)
         }
 
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
+
 
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  This method takes care of such specialized conversions.
@@ -413,26 +406,40 @@ private extension AttributedStringSerializer {
             return nil
         }
     }
-    
-    /// Checks if the specified node is of type '.a' with one child '.img' node.
-    /// If true, returns the '.img' node.
+
+
+    /// Whenever the `element`'s nodeType is `a` (link!), and there's a single children of the `.img` type, this method will return the
+    /// NSAttributedString attributes representing the 'Linked Image' Element.
     ///
     /// - Parameters:
-    ///     - element: the node to get the information from
+    ///     - element: The container element.
+    ///     - attributes: NSAttributedString attributes, to be inherited.
     ///
-    /// - Returns: the child '.img' node if there is one
+    /// - Returns: The collection of 'Inherited Attributes' with it's internal ImageAttachment modified, so that it carries the 'linkElement'
+    ///   target URL.
     ///
-    private func linkedImageElement(for element: ElementNode) -> ElementNode? {
-        guard element.isNodeType(.a) && element.children.count == 1,
-            let imgElement = element.children.first as? ElementNode,
-            imgElement.isNodeType(.img) else {
-                return nil
+    private func linkedImageAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
+        guard element.isNodeType(.a),
+            let imgElement = element.onlyChild(ofType: .img)
+        else {
+            return nil
         }
-        
-        return imgElement
+
+        var attributesWithoutLink = attributes
+        attributesWithoutLink[.link] = nil
+        attributesWithoutLink[.linkHtmlRepresentation] = nil
+
+        let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
+        let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
+
+        let attachment = imgAttributes[.attachment] as! ImageAttachment
+        attachment.linkURL = URL(string: linkText)
+
+        return imgAttributes
     }
 }
-    
+
+
 // MARK: - Text Sanitization for Rendering
 
 private extension AttributedStringSerializer {
