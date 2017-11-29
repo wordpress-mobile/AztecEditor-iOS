@@ -2,6 +2,15 @@ import Foundation
 import UIKit
 
 
+// MARK: - Constants
+//
+extension String {
+    /// String containing the NSTextAttachment Character
+    ///
+    static let textAttachment = String(UnicodeScalar(NSAttachmentCharacter)!)
+}
+
+
 // MARK: - NSAttributedString Extension for Attachments
 //
 extension NSAttributedString
@@ -9,11 +18,6 @@ extension NSAttributedString
     /// Indicates the Attributed String Length of a single TextAttachment
     ///
     static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
-
-
-    /// String containing the NSTextAttachment Character
-    ///
-    static let textAttachmentString = String(UnicodeScalar(NSAttachmentCharacter)!)
 
 
 
@@ -24,7 +28,7 @@ extension NSAttributedString
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
-        self.init(string: NSAttributedString.textAttachmentString, attributes: attributesWithAttachment)
+        self.init(string: .textAttachment, attributes: attributesWithAttachment)
     }
 
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
