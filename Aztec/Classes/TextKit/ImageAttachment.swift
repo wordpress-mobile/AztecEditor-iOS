@@ -6,88 +6,6 @@ import UIKit
 ///
 open class ImageAttachment: MediaAttachment {
 
-    /// Attachment Link URL
-    ///
-    open var linkURL: URL?
-
-    /// Attachment Alignment
-    ///
-    open var alignment: Alignment = .center {
-        willSet {
-            if newValue != alignment {
-                glyphImage = nil
-            }
-        }
-    }
-
-    /// Attachment Size
-    ///
-    open var size: Size = .none {
-        willSet {
-            if newValue != size {
-                glyphImage = nil
-            }
-        }
-    }
-
-
-    /// Creates a new attachment
-    ///
-    /// - Parameters:
-    ///   - identifier: An unique identifier for the attachment
-    ///   - url: the url that represents the image
-    ///
-    required public init(identifier: String, url: URL? = nil) {
-        super.init(identifier: identifier, url: url)
-    }
-
-
-    /// Required Initializer
-    ///
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-
-        if aDecoder.containsValue(forKey: EncodeKeys.alignment.rawValue) {
-            let alignmentRaw = aDecoder.decodeInteger(forKey: EncodeKeys.alignment.rawValue)
-            if let alignment = Alignment(rawValue:alignmentRaw) {
-                self.alignment = alignment
-            }
-        }
-        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue) {
-            let sizeRaw = aDecoder.decodeInteger(forKey: EncodeKeys.size.rawValue)
-            if let size = Size(rawValue:sizeRaw) {
-                self.size = size
-            }
-        }
-
-        linkURL = aDecoder.decodeObject(forKey: EncodeKeys.linkURL.rawValue) as? URL
-    }
-
-    /// Required Initializer
-    ///
-    required public init(data contentData: Data?, ofType uti: String?) {
-        super.init(data: contentData, ofType: uti)
-    }
-
-
-    // MARK: - NSCoder Support
-
-    override open func encode(with aCoder: NSCoder) {
-        super.encode(with: aCoder)
-        aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
-        aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
-        if let linkURL = self.linkURL {
-            aCoder.encode(linkURL, forKey: EncodeKeys.linkURL.rawValue)
-        }
-    }
-
-    fileprivate enum EncodeKeys: String {
-        case alignment
-        case size
-        case linkURL
-    }
-
-
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
@@ -150,6 +68,62 @@ extension ImageAttachment {
 // MARL: - Nested Types
 //
 extension ImageAttachment {
+
+    /// Attachment Link URL
+    ///
+    open var linkURL: URL? {
+        get {
+            if let stringURL = extraAttributes["data_wp_link_url"], let url = URL(string: stringURL) {
+                return url
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            extraAttributes["data_wp_link_url"] = newValue?.absoluteString
+        }
+    }
+
+    /// Attachment Alignment
+    ///
+    open var alignment: Alignment {
+        get {
+            if let classValue = extraAttributes["data_wp_class_align"], let value = Alignment.fromHTML(string: classValue) {
+                return value
+            } else {
+                return .center
+            }
+        }
+
+        set {
+            let currentValue = alignment
+            extraAttributes["data_wp_class_align"] = newValue.htmlString()
+            if newValue != currentValue {
+                glyphImage = nil
+            }
+        }
+    }
+
+    /// Attachment Size
+    ///
+    open var size: Size {
+        get {
+            if let classValue = extraAttributes["data_wp_class_size"], let value = Size.fromHTML(string: classValue) {
+                return value
+            } else {
+                return .none
+            }
+        }
+
+        set {
+            let currentValue = size
+            extraAttributes["data_wp_class_size"] = newValue.htmlString()
+            if newValue != currentValue {
+                glyphImage = nil
+            }
+        }
+    }
 
     /// Alignment
     ///

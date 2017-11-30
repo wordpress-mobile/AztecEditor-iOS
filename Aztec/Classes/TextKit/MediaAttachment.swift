@@ -132,6 +132,7 @@ open class MediaAttachment: NSTextAttachment {
 
         identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? identifier
         url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
+        extraAttributes = aDecoder.decodeObject(forKey: EncodeKeys.attributes.rawValue) as? [String:String] ?? [String:String]()
     }
 
     /// Required Initializer
@@ -172,6 +173,7 @@ open class MediaAttachment: NSTextAttachment {
         if let url = self.url {
             aCoder.encode(url, forKey: EncodeKeys.url.rawValue)
         }
+        aCoder.encode(extraAttributes, forKey: EncodeKeys.attributes.rawValue)
     }
 
 
@@ -425,6 +427,7 @@ private extension MediaAttachment {
     enum EncodeKeys: String {
         case identifier
         case url
+        case attributes
     }
 
     /// Constants
