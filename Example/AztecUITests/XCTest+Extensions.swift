@@ -148,15 +148,21 @@ extension XCTest {
      Switch Content view between Rich text & HTML
      */
     func switchContentView() -> Void {
-        let app = XCUIApplication()
-
-        // TODO: Switch content is not possible when bar is locked. Need to determinate the status of options bar. ATM its impossible.
-//        let button = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
-//        XCTAssert(!button.isHittable, "Options bar is locked. SourceCode button is not available")
+        toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
+    }
     
-        let elementsQuery = app.scrollViews.otherElements
-        elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
-        elementsQuery.buttons[elementStringIDs.sourcecodeButton].tap()
+    /**
+    Tapping on toolbar button. And swipes if needed.
+    */
+    func toolbarButtonTap(locator: String) {
+        let elementsQuery = XCUIApplication().scrollViews.otherElements
+        let button = elementsQuery.buttons[locator]
+        let swipeElement = elementsQuery.buttons[elementStringIDs.mediaButton].isHittable ? elementsQuery.buttons[elementStringIDs.mediaButton] : elementsQuery.buttons[elementStringIDs.linkButton]
+
+        if !button.exists || !button.isHittable {
+            swipeElement.swipeLeft()
+        }
+        button.tap()
     }
     
     func gotoRootPage() -> Void {
