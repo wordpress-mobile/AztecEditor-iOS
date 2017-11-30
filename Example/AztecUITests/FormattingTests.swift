@@ -28,7 +28,7 @@ class FormattingTests: XCTestCase {
 
         richEditorPage
             .addListWithLines(type: "ol", lines: values)
-            .tapByCordinates(x: 32, y: 30)
+            .tapByCordinates(x: 30, y: 32)
             .textView.tap()
         XCUIApplication().menuItems["Select"].tap()
         
@@ -59,9 +59,10 @@ class FormattingTests: XCTestCase {
     func testLeadingStyleHighlightInEmptyEditor() {
         let text = "some text"
         
-        richEditorPage.boldButton.tap()
-        richEditorPage.enterText(text: text)
-        richEditorPage.italicButton.tap()
+        richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.boldButton)
+            .enterText(text: text)
+            .toolbarButtonTap(locator: elementStringIDs.italicButton)
         XCTAssertTrue(richEditorPage.boldButton.isSelected)
         XCTAssertTrue(richEditorPage.italicButton.isSelected)
         
@@ -72,5 +73,72 @@ class FormattingTests: XCTestCase {
         richEditorPage.deleteText(chars: 1)
         XCTAssertTrue(richEditorPage.boldButton.isSelected)
         XCTAssertFalse(richEditorPage.italicButton.isSelected)
+    }
+    
+    func testQuotedListFormatting() {
+        let text = "some text\nsome text\nsome text"
+        let expectedHTML = "<blockquote><ul><li>some text</li><li>some text</li><li>some text</li></ul></blockquote>"
+        
+        let html = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
+            .addList(type: "ul")
+            .enterText(text: text)
+            .switchContentView().getViewContent()
+        
+        XCTAssertEqual(html, expectedHTML)
+    }
+    
+    func testAddStylesToBlockquote() {
+        let text = "some text\nsome text\nsome text"
+        let expectedHTML = "<blockquote>some text</blockquote><blockquote><strong>some</strong> text</blockquote><blockquote><em>some</em> text</blockquote>"
+        
+        richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
+            .enterText(text: text)
+            .tapByCordinates(x: 30, y: 32)
+            .textView.press(forDuration: 1)
+        XCUIApplication().menuItems["Select"].tap()
+        
+        richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.boldButton)
+            .tapByCordinates(x: 30, y: 72)
+            .textView.press(forDuration: 1)
+        XCUIApplication().menuItems["Select"].tap()
+            
+        let html = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.italicButton)
+            .switchContentView()
+            .getViewContent()
+        
+        XCTAssertEqual(html, expectedHTML)
+    }
+    
+    func testRemoveStylesToBlockquote() {
+        let html = "<blockquote>some text</blockquote><blockquote><strong>some</strong> text</blockquote><blockquote><em>some</em> text</blockquote>"
+        let expectedText = "some text\nsome text\nsome text"
+
+        richEditorPage
+            .switchContentView()
+            .enterText(text: html)
+            .switchContentView()
+            .tapByCordinates(x: 30, y: 32)
+            .textView.press(forDuration: 1)
+        XCUIApplication().menuItems["Select"].tap()
+        
+        richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.boldButton)
+            .tapByCordinates(x: 30, y: 72)
+            .textView.press(forDuration: 1)
+        XCUIApplication().menuItems["Select"].tap()
+        
+        let text = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.italicButton)
+            .selectAllText()
+            .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
+            .getViewContent()
+        
+        
+        
+        XCTAssertEqual(text, expectedText)
     }
 }

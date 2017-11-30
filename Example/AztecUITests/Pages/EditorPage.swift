@@ -1,11 +1,3 @@
-//
-//  BlogsPage.swift
-//  AztecUITests
-//
-//  Created by brbrr on 11/13/17.
-//  Copyright © 2017 Automattic Inc. All rights reserved.
-//
-
 import Foundation
 import XCTest
 
@@ -63,8 +55,8 @@ class EditorPage: BasePage {
         }
     }
     
-    func addListWithLines(type: String, lines: Array<String>) -> EditorPage {
-        app.scrollViews.otherElements.buttons[elementStringIDs.unorderedlistButton].tap()
+    func addList(type: String) -> EditorPage {
+        toolbarButtonTap(locator: elementStringIDs.unorderedlistButton)
         var listType = ""
         if type == "ul" {
             listType = elementStringIDs.unorderedListOption
@@ -73,8 +65,13 @@ class EditorPage: BasePage {
         }
         app.tables.staticTexts[listType].tap()
         
-        let returnButton = app.buttons["Return"]
+        return self
+    }
+    
+    func addListWithLines(type: String, lines: Array<String>) -> EditorPage {
+        addList(type: type)
 
+        let returnButton = app.buttons["Return"]
         for (index, line) in lines.enumerated() {
             enterText(text: line)
             if index != (lines.count - 1) {
@@ -101,9 +98,13 @@ class EditorPage: BasePage {
     }
     
     /**
-    Tapping in to textView by specific coordinate
+    Tapping in to textView by specific coordinate. Its always tricky to know what cooridnates to click.
+     Here is a list of "known" coordinates:
+     30:32 - first word in 2d indented line (list)
+     30:72 - first word in 3d intended line (blockquote)
     */
     func tapByCordinates(x: Int, y: Int) -> EditorPage {
+//        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
         let vector = CGVector(dx: textView.frame.minX + CGFloat(x), dy: textView.frame.minY + CGFloat(y))
         textView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
         sleep(1) // to make sure that "paste" manu wont show up.
@@ -114,12 +115,6 @@ class EditorPage: BasePage {
      Switches between Rich and HTML view.
      */
     func switchContentView() -> EditorPage {
-//        let elementsQuery = app.scrollViews.otherElements
-//        let sourceCodeButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
-//        if !sourceCodeButton.exists || !sourceCodeButton.isHittable {
-//            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
-//        }
-//        sourceCodeButton.tap()
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
         
         let newType = type == "rich" ? "html" : "rich"
@@ -130,7 +125,6 @@ class EditorPage: BasePage {
      Common method to type in different text fields
      */
     func enterText(text: String) -> EditorPage {
-//        app.textViews[textField].typeText(text)
         textView.typeText(text)
         return self
     }
@@ -162,6 +156,19 @@ class EditorPage: BasePage {
         }
         
         return getHTMLContent()
+    }
+    
+    /**
+     Selects all entered text in provided textView element
+     */
+    func selectAllText() -> EditorPage {
+        textView.tap()
+        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
+
+        textView.press(forDuration: 0.9)
+        app.menuItems["Select All"].tap()
+        
+        return self
     }
     
     private func getHTMLContent() -> String {
