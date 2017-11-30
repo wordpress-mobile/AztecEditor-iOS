@@ -503,6 +503,13 @@ open class TextView: UITextView {
             return
         }
 
+        let applicationRange = selectedRange
+        let originalString = storage.attributedSubstring(from: applicationRange)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+        })
+
         /// Whenever the user is at the end of the document, while editing a [List, Blockquote, Pre], we'll need
         /// to insert a `\n` character, so that the Layout Manager immediately renders the List's new bullet
         /// (or Blockquote's BG).
@@ -1730,6 +1737,12 @@ private extension TextView {
             super.typingAttributes = AttributedStringKey.convertToRaw(updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+
+            let originalString = storage.attributedSubstring(from: applicationRange)
+            undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+                self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+            })
+            
             formatter.removeAttributes(from: textStorage, at: applicationRange)
         }
     }
