@@ -47,6 +47,7 @@ class EditorDemoController: UIViewController {
 
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
+            textView.smartQuotesType = .no
         }
 
         return textView
@@ -73,6 +74,7 @@ class EditorDemoController: UIViewController {
 
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
+            textView.smartQuotesType = .no
         }
 
         return textView
