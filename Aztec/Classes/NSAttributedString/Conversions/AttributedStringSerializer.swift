@@ -408,7 +408,7 @@ private extension AttributedStringSerializer {
     }
 
 
-    /// Whenever the `element`'s nodeType is `a` (link!), and there's a single children of the `.img` type, this method will return the
+    /// Whenever the `element`'s nodeType is `a` (link!), and there's a single child of the `.img` type, this method will return the
     /// NSAttributedString attributes representing the 'Linked Image' Element.
     ///
     /// - Parameters:

@@ -40,7 +40,7 @@ class ElementNodeTests: XCTestCase {
     }
 
 
-    /// Verifies that `onlyChildr` returns the receiver's only child, if it's type matches with the specified one.
+    /// Verifies that `onlyChild` returns the receiver's only child, if it's type matches with the specified one.
     ///
     func testOnlyChildReturnsSingleChildrenIfItRepresentsAnImage() {
         let image = ElementNode(type: .img)

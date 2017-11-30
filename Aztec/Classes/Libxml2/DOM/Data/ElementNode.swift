@@ -234,9 +234,9 @@ public class ElementNode: Node {
     }
 
 
-    /// Returns the ElementNode instance, whenever there's a *single* children, of the specified nodeType (or nil otherwise).
+    /// Returns the ElementNode instance, whenever there's a *single* child, of the specified nodeType (or nil otherwise).
     ///
-    /// - Parameter type: Type of the 'single children' node to be retrieved.
+    /// - Parameter type: Type of the 'single child' node to be retrieved.
     ///
     /// - Returns: the requested children (if it's the only children in the collection, and if the type matches), or nil otherwise.
     ///
