@@ -5,11 +5,7 @@ import UIKit
 /// Custom text attachment.
 ///
 open class ImageAttachment: MediaAttachment {
-
-    /// Attachment Link URL
-    ///
-    open var linkURL: URL?
-
+    
     /// Attachment Alignment
     ///
     open var alignment: Alignment = .center {
@@ -59,8 +55,6 @@ open class ImageAttachment: MediaAttachment {
                 self.size = size
             }
         }
-
-        linkURL = aDecoder.decodeObject(forKey: EncodeKeys.linkURL.rawValue) as? URL
     }
 
     /// Required Initializer
@@ -76,15 +70,11 @@ open class ImageAttachment: MediaAttachment {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
         aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
-        if let linkURL = self.linkURL {
-            aCoder.encode(linkURL, forKey: EncodeKeys.linkURL.rawValue)
-        }
     }
 
     fileprivate enum EncodeKeys: String {
         case alignment
-        case size
-        case linkURL
+        case size        
     }
 
 
@@ -140,7 +130,6 @@ extension ImageAttachment {
 
         clone.size = size
         clone.alignment = alignment
-        clone.linkURL = linkURL
 
         return clone
     }

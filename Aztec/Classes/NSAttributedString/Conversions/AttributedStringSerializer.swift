@@ -376,19 +376,6 @@ private extension AttributedStringSerializer {
         guard let elementType = element.standardName else {
             return nil
         }
-        
-        if let imgElement = linkedImageElement(for: element) {
-            var attributesWithoutLink = attributes
-            attributesWithoutLink[.link] = nil
-            attributesWithoutLink[.linkHtmlRepresentation] = nil
-
-            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-            let attachment = imgAttributes[.attachment] as! ImageAttachment
-            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
-            attachment.linkURL = URL(string: linkText)
-            
-            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
-        }
 
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
