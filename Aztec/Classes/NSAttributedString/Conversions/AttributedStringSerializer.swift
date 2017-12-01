@@ -378,6 +378,10 @@ private extension AttributedStringSerializer {
             return nil
         }
 
+        if let captionedImageAttributes = captionedImageAttributes(for: element, inheriting: attributes) {
+            return implicitRepresentation(for: .img, inheriting: captionedImageAttributes)
+        }
+
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
 
@@ -401,6 +405,38 @@ private extension AttributedStringSerializer {
         default:
             return nil
         }
+    }
+
+
+    /// Whenever the `element`'s nodeType is `figure` (link!), and there are exactly two children (.img, .figcaption), this method will return
+    /// the NSAttributedString attributes representing a 'Captioned Image' element. Which is, precisely, an ImageAttachment, with it's caption
+    /// set, along with the Figure attributes.
+    ///
+    /// - Parameters:
+    ///     - element: The container element.
+    ///     - attributes: NSAttributedString attributes, to be inherited.
+    ///
+    /// - Returns: The collection of 'Inherited Attributes' with it's internal ImageAttachment modified, so that it carries the 'figcaption'
+    ///   HTML within it's `caption` field. Also, the paragraphStyle is expected to carry all of the `figure` element metadata.
+    ///
+    private func captionedImageAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
+        guard element.isNodeType(.figure),
+            element.children.count == 2,
+            let imgElement = element.firstChild(ofType: .img),
+            let captionElement = element.firstChild(ofType: .figcaption)
+            else {
+                return nil
+        }
+
+        let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
+        guard let attachment = imgAttributes[.attachment] as? ImageAttachment else {
+            return nil
+        }
+
+        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
+        attachment.caption = serializer.serialize(captionElement)
+
+        return imgAttributes
     }
 }
 
