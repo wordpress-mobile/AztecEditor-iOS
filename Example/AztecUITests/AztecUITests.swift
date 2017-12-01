@@ -15,11 +15,8 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
 
-        let tablesQuery = app.tables
-        tablesQuery.staticTexts[elementStringIDs.emptyDemo].tap()
-
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-        richTextField.tap()
+        let blogsPage = BlogsPage.init(appInstance: app)
+        blogsPage.gotoEmptyDemo()
     }
 
     override func tearDown() {
@@ -139,7 +136,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
     }
 
     /*
-     Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
+    Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
     func testMoreTag() {
         app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
 

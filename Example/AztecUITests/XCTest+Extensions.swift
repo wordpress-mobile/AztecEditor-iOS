@@ -1,10 +1,12 @@
-import XCTest
+    import XCTest
 
 public struct elementStringIDs {
     // Demo Menu
     static var emptyDemo = "Empty Editor Demo"
+    static var demo = "Editor Demo"
 
     // Text Fields
+    static var titleTextField = "Title"
     static var richTextField = "richContentView"
     static var htmlTextField = "HTMLContentView"
 
@@ -35,18 +37,46 @@ public struct elementStringIDs {
     static var header4Button = "Heading 4"
     static var header5Button = "Heading 5"
     static var header6Button = "Heading 6"
+    
+    // Menu items
+    static var copyButton = "Copy"
+    static var pasteButton = "Paste"
+    
 }
 
 extension XCTest {
+    /**
+     Common method to type in different text fields
+     */
+    func typeToTextField(text: String, to: String) -> Void {
+        let app = XCUIApplication()
+        let textField = app.textViews[to]
+        
+        textField.typeText(text)
+    }
+    
     /**
      Enters text in the rich text field with auto-correction disabled
      - Parameter text: the test to enter into the field
      */
     func enterTextInField(text: String) -> Void {
-        let app = XCUIApplication()
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-
-        richTextField.typeText(text)
+        typeToTextField(text: text, to: elementStringIDs.richTextField)
+    }
+    
+    /**
+     Enters text into title field.
+     - Parameter text: the test to enter into the title
+     */
+    func enterTextInTitle(text: String) -> Void {
+        typeToTextField(text: text, to: elementStringIDs.titleTextField)
+    }
+    
+    /**
+     Enters text into HTML field.
+     - Parameter text: the test to enter into the title
+     */
+    func enterTextInHTML(text: String) -> Void {
+        typeToTextField(text: text, to: elementStringIDs.htmlTextField)
     }
 
     /**
@@ -55,7 +85,26 @@ extension XCTest {
     func selectAllTextInField() -> Void {
         let app = XCUIApplication()
         let richTextField = app.textViews[elementStringIDs.richTextField]
+        
+        richTextField.press(forDuration: 1.2)
+        app.menuItems.element(boundBy: 1).tap()
+    }
+    
+    /**
+     Selects all entered text in the rich text field
+     */
+    func selectAllTextInHTMLField() -> Void {
+        selectAllText(field: elementStringIDs.htmlTextField)
+    }
 
+    
+    /**
+     Selects all entered text in provided textView element
+     */
+    func selectAllText(field: String) -> Void {
+        let app = XCUIApplication()
+        let richTextField = app.textViews[field]
+        
         richTextField.press(forDuration: 1.2)
         app.menuItems.element(boundBy: 1).tap()
     }
@@ -70,10 +119,11 @@ extension XCTest {
         let elementsQuery = app.scrollViews.otherElements
         let htmlButton = elementsQuery.buttons[elementStringIDs.sourcecodeButton]
         if (!htmlButton.isHittable) {
-            elementsQuery.buttons[elementStringIDs.mediaButton].swipeLeft()
+            elementsQuery.buttons[elementStringIDs.linkButton].swipeLeft()
         }
         htmlButton.tap()
         
+      
         let htmlContentTextView =
             app.textViews[elementStringIDs.htmlTextField]
         let text = htmlContentTextView.value as! String
@@ -81,8 +131,43 @@ extension XCTest {
         // Remove spaces between HTML tags.
         let regex = try! NSRegularExpression(pattern: ">\\s+?<", options: .caseInsensitive)
         let range = NSMakeRange(0, text.count)
-    let strippedText = regex.stringByReplacingMatches(in: text, options: .reportCompletion, range: range, withTemplate: "><")
-        
+        let strippedText = regex.stringByReplacingMatches(in: text, options: .reportCompletion, range: range, withTemplate: "><")
+
         return strippedText
+    }
+    
+    func getRichTextContent() -> String {
+        let app = XCUIApplication()
+        
+        let richContentTextView = app.textViews[elementStringIDs.richTextField]
+        let text = richContentTextView.value as! String
+        return text
+    }
+    
+    /**
+     Switch Content view between Rich text & HTML
+     */
+    func switchContentView() -> Void {
+        toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
+    }
+    
+    /**
+    Tapping on toolbar button. And swipes if needed.
+    */
+    func toolbarButtonTap(locator: String) {
+        let elementsQuery = XCUIApplication().scrollViews.otherElements
+        let button = elementsQuery.buttons[locator]
+        let swipeElement = elementsQuery.buttons[elementStringIDs.mediaButton].isHittable ? elementsQuery.buttons[elementStringIDs.mediaButton] : elementsQuery.buttons[elementStringIDs.linkButton]
+
+        if !button.exists || !button.isHittable {
+            swipeElement.swipeLeft()
+        }
+        button.tap()
+    }
+    
+    func gotoRootPage() -> Void {
+        let app = XCUIApplication()
+
+        return app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
     }
 }
