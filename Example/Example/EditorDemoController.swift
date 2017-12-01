@@ -47,6 +47,7 @@ class EditorDemoController: UIViewController {
 
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
+            textView.smartQuotesType = .no
         }
 
         return textView
@@ -73,6 +74,7 @@ class EditorDemoController: UIViewController {
 
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
+            textView.smartQuotesType = .no
         }
 
         return textView
@@ -1226,7 +1228,9 @@ private extension EditorDemoController
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         attachment.size = .full
-        attachment.linkURL = fileURL
+        if let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first {
+            richTextView.setLink(fileURL, inRange: attachmentRange)
+        }
         let imageID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
@@ -1334,8 +1338,19 @@ private extension EditorDemoController
     }
 
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
+        guard let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first else {
+            return
+        }
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
+        var oldURL: URL?
+        if let linkRange = richTextView.linkFullRange(forRange: attachmentRange),
+           let url = richTextView.linkURL(forRange: attachmentRange),
+           attachmentRange == linkRange {
+           oldURL = url
+           detailsViewController.linkURL = url
+        }
+        
         detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt) in
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
@@ -1344,9 +1359,14 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.linkURL = linkURL
 
                 updated.updateURL(url)
+            }
+            // Update associated link
+            if let updatedURL = linkURL {
+                self.richTextView.setLink(updatedURL, inRange: attachmentRange)
+            } else if oldURL != nil && linkURL == nil {
+                self.richTextView.removeLink(inRange: attachmentRange)
             }
         }
 

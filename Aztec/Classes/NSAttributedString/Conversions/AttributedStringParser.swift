@@ -897,15 +897,7 @@ private extension AttributedStringParser {
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
             element.updateAttribute(named: key, value: .string(finalValue))
-        }
-
-        if let linkText = attachment.linkURL?.absoluteString {
-            let hrefValue = Attribute.Value(withString: linkText)
-            let hrefAttribute = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: hrefValue)
-            let linkElement = ElementNode(type: .a, attributes: [hrefAttribute], children: [element])
-
-            return linkElement
-        }
+        }        
 
         return element
     }

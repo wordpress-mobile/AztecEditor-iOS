@@ -378,10 +378,6 @@ private extension AttributedStringSerializer {
             return nil
         }
 
-        if let linkedImageAttributes = linkedImageAttributes(for: element, inheriting: attributes) {
-            return implicitRepresentation(for: .img, inheriting: linkedImageAttributes)
-        }
-
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
 
@@ -405,37 +401,6 @@ private extension AttributedStringSerializer {
         default:
             return nil
         }
-    }
-
-
-    /// Whenever the `element`'s nodeType is `a` (link!), and there's a single child of the `.img` type, this method will return the
-    /// NSAttributedString attributes representing the 'Linked Image' Element.
-    ///
-    /// - Parameters:
-    ///     - element: The container element.
-    ///     - attributes: NSAttributedString attributes, to be inherited.
-    ///
-    /// - Returns: The collection of 'Inherited Attributes' with it's internal ImageAttachment modified, so that it carries the 'linkElement'
-    ///   target URL.
-    ///
-    private func linkedImageAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
-        guard element.isNodeType(.a),
-            let imgElement = element.onlyChild(ofType: .img)
-        else {
-            return nil
-        }
-
-        var attributesWithoutLink = attributes
-        attributesWithoutLink[.link] = nil
-        attributesWithoutLink[.linkHtmlRepresentation] = nil
-
-        let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-        let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
-
-        let attachment = imgAttributes[.attachment] as! ImageAttachment
-        attachment.linkURL = URL(string: linkText)
-
-        return imgAttributes
     }
 }
 
