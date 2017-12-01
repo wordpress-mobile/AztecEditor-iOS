@@ -234,6 +234,32 @@ public class ElementNode: Node {
     }
 
 
+    /// If there's exactly just one child node, this method will return it's instance. Otherwise, nil will be returned
+    ///
+    func onlyChild() -> ElementNode? {
+        guard children.count == 1 else {
+            return nil
+        }
+
+        return children.first as? ElementNode
+    }
+
+
+    /// Returns the child ElementNode of the specified nodeType -whenever there's a *single* child-, or nil otherwise.
+    ///
+    /// - Parameter type: Type of the 'single child' node to be retrieved.
+    ///
+    /// - Returns: the requested child (if it's the only children in the collection, and if the type matches), or nil otherwise.
+    ///
+    func onlyChild(ofType type: StandardElementType) -> ElementNode? {
+        guard let child = onlyChild(), child.isNodeType(type) else {
+            return nil
+        }
+
+        return child
+    }
+
+
     /// Indicates whether the children of the specified node can be merged in, or not.
     ///
     /// - Parameters:

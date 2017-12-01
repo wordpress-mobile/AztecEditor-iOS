@@ -136,7 +136,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
     }
 
     /*
-     Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
+    Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
     func testMoreTag() {
         app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
 

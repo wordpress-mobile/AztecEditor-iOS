@@ -30,38 +30,19 @@ class HighPriorityIssuesTests: XCTestCase {
         //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
         //    But may be fragile due to different font sizes etc
         let titleLineHeight = 22
-        
         let titleTextView = app.textViews[elementStringIDs.titleTextField]
         titleTextView.tap()
-        
         let oneLineTitleHeight = Int(titleTextView.frame.height)
         
-        titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
+        // TODO: Move it into EditorPage
+        if (app.windows.element(boundBy: 0).horizontalSizeClass == .compact || app.windows.element(boundBy: 0).verticalSizeClass == .compact) {
+            titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
+        } else {
+            titleTextView.typeText("very very very very very very long title in a galaxy not so far away very very very very very very long title in a galaxy not so far away")
+        }
+        
         let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
-        //        XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
-    }
-    
-    func testNewlinesInTitle() {
-        //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
-        //    But may be fragile due to different font sizes etc
-        let titleLineHeight = 22
-        
-        let titleTextView = app.textViews[elementStringIDs.titleTextField]
-        titleTextView.tap()
-        
-        titleTextView.typeText("line 1")
-        let oneLineTitleHeight = Int(titleTextView.frame.height)
-        
-        titleTextView.typeText("\nline 2")
-        let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
-        //        XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
-        
-        titleTextView.typeText("\nline 3")
-        let threeLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(threeLineTitleHeight - twoLineTitleHeight == titleLineHeight )
-        //        XCTAssert(twoLineTitleHeight < threeLineTitleHeight)
+        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight ) // XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
@@ -81,7 +62,7 @@ class HighPriorityIssuesTests: XCTestCase {
 //
 //        let editorDemoButton = app.tables.staticTexts[elementStringIDs.emptyDemo]
 //        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Are you on the right page?")
-    }
+   }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/465
     func testTypeAfterInvalidHTML() {
@@ -114,18 +95,22 @@ class HighPriorityIssuesTests: XCTestCase {
         deleteButton.tap()
         XCTAssert(boldButton.isSelected && italicButton.isSelected)
     }
+    
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
     func testCopyPasteCrash() {
-        gotoRootPage()
-        let blogsPage = BlogsPage.init()
-        blogsPage.gotoDemo()
+//        gotoRootPage()
+//        let blogsPage = BlogsPage.init(appInstance: app)
+//        blogsPage.gotoDemo()  
+        let text = "<h1>Sample HTML content</h1> <p>this is some text that is spread out across several lines but is rendered on a single line in a browser</p> <h2>Character Styles</h2> <p><strong>Bold text</strong><br><em>Italic text</em><br><u>Underlined text</u><br><del>Strikethrough</del><br><span style=\"color: #ff0000\">Colors</span><br><span style=\"text-decoration: underline\">Alternative underline text</span><br><a href=\"http://www.wordpress.com\">I'm a link!</a><br><!--more-->Text after the more break</p> <h2>Lists</h2> <h3>Unordered List:</h3> <ul> <li>One</li> <li>Two</li> <li>Three</li> </ul> <h3>Ordered List:</h3> <ol> <li>One</li> <li>Two</li> <li>Three</li> </ol> <p> <hr> </p>"
         
         switchContentView()
-        selectAllTextInHTMLField()
+//        selectAllTextInHTMLField()
+        enterTextInHTML(text: text)
        
         let htmlContentView = app.textViews[elementStringIDs.htmlTextField]
-        let text = htmlContentView.value as! String
-
+//        let text = htmlContentView.value as! String
+        
+        selectAllTextInHTMLField()
         app.menuItems[elementStringIDs.copyButton].tap()
         htmlContentView.swipeUp()
         htmlContentView.swipeUp()
@@ -141,10 +126,10 @@ class HighPriorityIssuesTests: XCTestCase {
         htmlContentView.tap()
         app.menuItems[elementStringIDs.pasteButton].tap()
         
-        sleep(2) // to make sure everything is updated
+        sleep(3) // to make sure everything is updated
         let newText = htmlContentView.value as! String
         
-        XCTAssert(newText == text + "\n\n" + text)
+        XCTAssertEqual(newText, text + "\n\n" + text)
     }
 }
 
