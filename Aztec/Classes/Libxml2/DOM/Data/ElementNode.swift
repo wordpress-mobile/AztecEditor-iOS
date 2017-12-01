@@ -249,7 +249,7 @@ public class ElementNode: Node {
     ///
     /// - Parameter type: Type of the 'single child' node to be retrieved.
     ///
-    /// - Returns: the requested children (if it's the only children in the collection, and if the type matches), or nil otherwise.
+    /// - Returns: the requested child (if it's the only children in the collection, and if the type matches), or nil otherwise.
     ///
     func onlyChild(ofType type: StandardElementType) -> ElementNode? {
         guard let child = onlyChild(), child.isNodeType(type) else {
