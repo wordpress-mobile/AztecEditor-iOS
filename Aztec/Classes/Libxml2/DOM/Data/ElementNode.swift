@@ -259,6 +259,22 @@ public class ElementNode: Node {
         return child
     }
 
+    /// Returns the first child ElementNode that matches the specified nodeType, or nil if there were no matches.
+    ///
+    /// - Parameter type: Type of the 'first child' node to be retrieved.
+    ///
+    /// - Returns: the first child in the children collection, that matches the specified type.
+    ///
+    func firstChild(ofType type: StandardElementType) -> ElementNode? {
+        let elements = children.flatMap { node in
+            return node as? ElementNode
+        }
+
+        return elements.first { element in
+            return element.isNodeType(type)
+        }
+    }
+
 
     /// Indicates whether the children of the specified node can be merged in, or not.
     ///
