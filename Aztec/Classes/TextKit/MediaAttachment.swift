@@ -108,10 +108,8 @@ open class MediaAttachment: NSTextAttachment {
     ///   - identifier: An unique identifier for the attachment
     ///   - url: the url that represents the image
     ///
-    required public init(identifier: String, url: URL? = nil) {
-        self.identifier = identifier
-        self.url = url
-
+    required public init(identifier: String) {
+        self.identifier = identifier        
         super.init(data: nil, ofType: nil)
     }
 
@@ -406,7 +404,7 @@ private extension MediaAttachment {
 extension MediaAttachment: NSCopying {
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        let clone = type(of: self).init(identifier: identifier, url: url)
+        let clone = type(of: self).init(identifier: identifier)
         clone.image = image
         clone.extraAttributes = extraAttributes
         clone.url = url

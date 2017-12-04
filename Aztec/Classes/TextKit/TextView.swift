@@ -1263,7 +1263,7 @@ open class TextView: UITextView {
     ///
     @discardableResult
     open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
-        let attachment = ImageAttachment(identifier: identifier, url: url)
+        let attachment = ImageAttachment(identifier: identifier, src: url)
         attachment.delegate = storage
         attachment.image = placeHolderImage
         replace(at: range, with: attachment)

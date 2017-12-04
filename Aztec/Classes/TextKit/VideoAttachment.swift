@@ -15,31 +15,14 @@ protocol VideoAttachmentDelegate: class {
 ///
 open class VideoAttachment: MediaAttachment {
 
-    /// Attachment video URL
-    ///
-    open var srcURL: URL?
-
-    /// Video poster image to show, while the video is not played.
-    ///
-    open var posterURL: URL? {
-        get {
-            return self.url
-        }
-
-        set {
-            super.updateURL(newValue)
-        }
-    }    
-    
     /// Creates a new attachment
     ///
     /// - parameter identifier: An unique identifier for the attachment
     ///
     required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil) {
-        self.srcURL = srcURL
-        
-        super.init(identifier: identifier, url: posterURL)
-
+        super.init(identifier: identifier)
+        self.src = srcURL
+        self.poster = posterURL
         self.overlayImage = Assets.playIcon
     }
 
@@ -47,17 +30,12 @@ open class VideoAttachment: MediaAttachment {
     ///
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
-        if aDecoder.containsValue(forKey: EncodeKeys.srcURL.rawValue) {
-            srcURL = aDecoder.decodeObject(forKey: EncodeKeys.srcURL.rawValue) as? URL
-        }
     }
 
     /// Required Initializer
     ///
-    required public init(identifier: String, url: URL?) {
-        self.srcURL = nil
-        super.init(identifier: identifier, url: url)
+    required public init(identifier: String) {
+        super.init(identifier: identifier)
     }
 
     /// Required Initializer
@@ -82,15 +60,7 @@ open class VideoAttachment: MediaAttachment {
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
-        if let url = self.srcURL {
-            aCoder.encode(url, forKey: EncodeKeys.srcURL.rawValue)
-        }
     }
-
-    fileprivate enum EncodeKeys: String {
-        case srcURL
-    }
-
 
     // MARK: - Origin calculation
 
@@ -125,14 +95,28 @@ open class VideoAttachment: MediaAttachment {
 //
 extension VideoAttachment {
 
-    override public func copy(with zone: NSZone? = nil) -> Any {
-        guard let clone = super.copy() as? VideoAttachment else {
-            fatalError()
+    open var poster: URL? {
+        get {
+            return url
         }
 
-        clone.srcURL = srcURL
-        clone.posterURL = posterURL
+        set {
+            extraAttributes["poster"] = newValue?.absoluteString
+            updateURL(newValue)
+        }
+    }
 
-        return clone
+    open var src: URL? {
+        get {
+            if let src = extraAttributes["src"] {
+                return URL(string: src)
+            } else {
+                return nil
+            }
+        }
+
+        set {
+            extraAttributes["src"] = newValue?.absoluteString
+        }
     }
 }

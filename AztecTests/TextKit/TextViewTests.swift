@@ -1428,7 +1428,7 @@ class TextViewTests: XCTestCase {
             fatalError()
         }
 
-        videoAttachment.srcURL = URL(string:"newVideo.mp4")!
+        videoAttachment.src = URL(string:"newVideo.mp4")!
         textView.refresh(videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video></p>")

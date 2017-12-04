@@ -6,6 +6,29 @@ import UIKit
 ///
 open class ImageAttachment: MediaAttachment {
 
+    required public init(identifier: String, src: URL? = nil) {
+        super.init(identifier: identifier)
+        self.src = src
+    }
+
+    /// Required Initializer
+    ///
+    required public init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+
+    /// Required Initializer
+    ///
+    required public init(identifier: String) {
+        super.init(identifier: identifier)
+    }
+
+    /// Required Initializer
+    ///
+    required public init(data contentData: Data?, ofType uti: String?) {
+        super.init(data: contentData, ofType: uti)
+    }
+
     // MARK: - Origin calculation
 
     override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
@@ -64,6 +87,17 @@ extension ImageAttachment {
 // MARL: - Nested Types
 //
 extension ImageAttachment {
+
+    open var src: URL? {
+        get {
+            return url
+        }
+
+        set {
+            extraAttributes["src"] = newValue?.absoluteString
+            updateURL(newValue)
+        }
+    }
 
     /// Attachment Alignment
     ///
